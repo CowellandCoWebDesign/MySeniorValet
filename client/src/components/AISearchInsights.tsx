@@ -218,11 +218,19 @@ function CommunityInsightCard({ community, showConcerns = false }: {
   community: CommunityInsight; 
   showConcerns?: boolean;
 }) {
+  const navigate = (id: number) => {
+    // Navigate to community detail page
+    window.location.href = `/community/${id}`;
+  };
+
   return (
-    <Card className="p-3 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer">
+    <Card 
+      className="p-3 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-blue-400 dark:hover:border-blue-600 transition-all cursor-pointer group"
+      onClick={() => navigate(community.id)}
+    >
       <div className="flex justify-between items-start">
         <div className="flex-1">
-          <h5 className="font-medium text-sm text-gray-900 dark:text-gray-100 mb-1">{community.name}</h5>
+          <h5 className="font-medium text-sm text-gray-900 dark:text-gray-100 mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{community.name}</h5>
           <div className="flex items-center gap-2 mt-1">
             <Badge variant="outline" className="text-xs border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300">
               {community.rating}/5 ⭐
@@ -240,22 +248,31 @@ function CommunityInsightCard({ community, showConcerns = false }: {
             </div>
           )}
           
+          {/* Show top 2 strengths */}
           {community.strengths.length > 0 && !showConcerns && (
-            <div className="flex flex-wrap gap-1 mt-2">
-              {community.strengths.map((strength, idx) => (
-                <Badge key={idx} variant="secondary" className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
-                  ✓ {strength}
-                </Badge>
+            <div className="space-y-1 mt-2">
+              {community.strengths.slice(0, 2).map((strength, idx) => (
+                <div key={idx} className="text-xs text-green-700 dark:text-green-300 flex items-start gap-1">
+                  <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                  <span>{strength}</span>
+                </div>
               ))}
+              {community.strengths.length > 2 && (
+                <div className="text-xs text-gray-500 dark:text-gray-400 italic">
+                  +{community.strengths.length - 2} more features
+                </div>
+              )}
             </div>
           )}
           
+          {/* Show top 2 concerns */}
           {community.concerns.length > 0 && showConcerns && (
-            <div className="flex flex-wrap gap-1 mt-2">
-              {community.concerns.map((concern, idx) => (
-                <Badge key={idx} variant="destructive" className="text-xs">
-                  {concern}
-                </Badge>
+            <div className="space-y-1 mt-2 border-t pt-2">
+              {community.concerns.slice(0, 2).map((concern, idx) => (
+                <div key={idx} className="text-xs text-amber-700 dark:text-amber-300 flex items-start gap-1">
+                  <span className="text-amber-600 dark:text-amber-400 mt-0.5">⚠</span>
+                  <span>{concern}</span>
+                </div>
               ))}
             </div>
           )}

@@ -1434,57 +1434,13 @@ export default function MapSearch() {
                   return a.name.localeCompare(b.name);
                 })
                 .map((community: Community, index: number) => (
-                  <div
+                  <EnhancedCommunityCard
                     key={community.id}
-                    className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 cursor-pointer hover:shadow-lg transition-shadow duration-200"
-                    onClick={() => handleCommunityClick(community)}
-                  >
-                    <div className="flex gap-4">
-                      {/* Community Image Placeholder */}
-                      <div className="w-16 h-16 bg-gray-200 dark:bg-gray-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Home className="w-8 h-8 text-gray-400" />
-                      </div>
-
-                      {/* Community Info */}
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-1 mb-1">
-                          {community.name}
-                        </h4>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
-                          {community.address}, {community.city}, {community.state}
-                        </p>
-
-                        {/* Care Types */}
-                        {community.careTypes && community.careTypes.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mb-2">
-                            {community.careTypes.slice(0, 2).map((type: string, typeIndex: number) => (
-                              <span key={typeIndex} className="px-2 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 text-xs rounded-full">
-                                {type}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Pricing and Rating */}
-                        <div className="flex items-center justify-between">
-                          <div className="text-sm font-semibold text-green-600 dark:text-green-400">
-                            {(community as any).displayPricing?.displayPrice || 
-                             (community.priceRange && typeof community.priceRange === 'object' && 'min' in community.priceRange
-                              ? '$' + (community.priceRange as any).min.toLocaleString() + '/month'
-                              : 'Market Rate')}
-                          </div>
-                          {community.rating > 0 && (
-                            <div className="flex items-center gap-1">
-                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                              <span className="text-xs text-gray-600 dark:text-gray-400">
-                                {community.rating}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    community={community}
+                    index={index}
+                    variant="list"
+                    onSelect={() => handleCommunityClick(community)}
+                  />
                 ))}
             </div>
           )}

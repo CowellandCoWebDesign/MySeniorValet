@@ -152,35 +152,35 @@ export class AISearchInsights {
     
     // Analyze strengths with specifics
     const rating = parseFloat(community.rating || '0');
-    if (rating >= 4.5) strengths.push(`${rating}/5 star rating from ${community.reviewCount || 0} reviews`);
-    else if (rating >= 4.0) strengths.push(`Solid ${rating}/5 rating`);
+    if (rating >= 4.5) strengths.push(`★ ${rating}/5 star rating from ${community.reviewCount || 0} reviews`);
+    else if (rating >= 4.0) strengths.push(`★ Solid ${rating}/5 rating`);
     
     // HUD properties
     if (community.hudPropertyId) {
       if (community.rentPerMonth) {
-        strengths.push(`HUD subsidized: $${community.rentPerMonth}/month`);
+        strengths.push(`🏛️ HUD subsidized: $${community.rentPerMonth}/month verified pricing`);
       } else {
-        strengths.push('Income-qualified HUD property');
+        strengths.push('🏛️ Income-qualified HUD property with affordable rates');
       }
     }
     
     // Community type specifics
     if (community.communitySubtype) {
       const subtypeMap: Record<string, string> = {
-        'hud_senior_housing': 'HUD Senior Housing',
-        'mobile_home_park': 'Mobile Home Community',
-        'active_adult_55_plus': 'Active 55+ Community',
-        'independent_living': 'Independent Living',
-        'assisted_living': 'Assisted Living Facility',
-        'memory_care': 'Memory Care Specialized',
-        'board_and_care_home': 'Board & Care Home',
-        'skilled_nursing': 'Skilled Nursing Facility',
-        'ccrc_life_plan': 'Continuing Care Community',
-        'va_housing': 'Veterans Housing',
-        'unlicensed_housing': 'Residential Care',
-        'manufactured_home_community': 'Manufactured Homes',
-        'rv_retirement_park': 'RV Retirement Park',
-        'senior_cooperative': 'Senior Co-op Housing'
+        'hud_senior_housing': '🏛️ HUD Senior Housing - Government subsidized',
+        'mobile_home_park': '🏡 Mobile Home Community - Affordable ownership',
+        'active_adult_55_plus': '🏌️ Active 55+ Community - Resort-style living',
+        'independent_living': '🏢 Independent Living - Maintenance-free lifestyle',
+        'assisted_living': '🏥 Assisted Living - Personal care support',
+        'memory_care': '🧠 Memory Care - Specialized dementia care',
+        'board_and_care_home': '🏠 Board & Care - Small, homelike setting',
+        'skilled_nursing': '⚕️ Skilled Nursing - 24/7 medical care',
+        'ccrc_life_plan': '🌟 Life Plan CCRC - All care levels available',
+        'va_housing': '🇺🇸 Veterans Housing - Service member benefits',
+        'unlicensed_housing': '🏘️ Residential Care - Flexible options',
+        'manufactured_home_community': '🏘️ Manufactured Homes - Cost-effective living',
+        'rv_retirement_park': '🚐 RV Retirement - Travel-friendly lifestyle',
+        'senior_cooperative': '🤝 Senior Co-op - Resident-owned community'
       };
       const subtypeName = subtypeMap[community.communitySubtype] || community.communitySubtype;
       strengths.push(subtypeName);
@@ -188,28 +188,71 @@ export class AISearchInsights {
     
     // Care types offered
     if (community.careTypes?.length > 0) {
-      strengths.push(`Offers: ${community.careTypes.join(', ')}`);
+      if (community.careTypes.length > 2) {
+        strengths.push(`📋 Multiple care levels: ${community.careTypes.join(', ')}`);
+      } else {
+        strengths.push(`📋 Offers: ${community.careTypes.join(', ')}`);
+      }
+    }
+    
+    // Pricing transparency
+    if (community.displayPricing?.displayPrice && !community.displayPricing.displayPrice.includes('Contact')) {
+      strengths.push(`💰 Transparent pricing starting at ${community.displayPricing.displayPrice}`);
+    }
+    
+    // Size and availability
+    if (community.totalUnits) {
+      if (community.totalUnits > 100) {
+        strengths.push(`🏘️ Large community with ${community.totalUnits} units`);
+      } else if (community.totalUnits < 20) {
+        strengths.push(`🏠 Intimate setting with ${community.totalUnits} units`);
+      }
+    }
+    
+    // Occupancy insights
+    if (community.occupancyRate) {
+      const occupancy = parseFloat(community.occupancyRate);
+      if (occupancy < 85) {
+        strengths.push(`✅ Good availability (${Math.round(100-occupancy)}% available)`);
+      } else if (occupancy > 95) {
+        strengths.push(`🔥 High demand community (${occupancy}% occupied)`);
+      }
     }
     
     // Amenities
-    if (community.amenities?.length > 3) {
-      strengths.push(`${community.amenities.length} amenities`);
+    if (community.amenities?.length > 5) {
+      const topAmenities = community.amenities.slice(0, 3).join(', ');
+      strengths.push(`✨ ${community.amenities.length} amenities including ${topAmenities}`);
     }
     
-    if (community.photos?.length > 5) strengths.push(`${community.photos.length} photos available`);
-    if (community.website) strengths.push('Direct website available');
+    // Media availability
+    if (community.photos?.length > 10) {
+      strengths.push(`📸 Extensive photo gallery (${community.photos.length} photos)`);
+    } else if (community.photos?.length > 5) {
+      strengths.push(`📸 ${community.photos.length} photos available`);
+    }
+    
+    // Contact and verification
+    if (community.website && community.phone) {
+      strengths.push('✓ Direct contact info verified');
+    }
     
     // Analyze concerns if requested
     if (includeConcerns) {
-      if (rating < 3.0 && rating > 0) concerns.push(`Low rating: ${rating}/5 stars`);
-      else if (rating < 3.5 && rating > 0) concerns.push(`Mixed reviews: ${rating}/5 stars`);
+      if (rating < 3.0 && rating > 0) concerns.push(`⚠️ Low rating: ${rating}/5 stars - investigate further`);
+      else if (rating < 3.5 && rating > 0) concerns.push(`⚠️ Mixed reviews: ${rating}/5 stars`);
       
       if (!community.photos || community.photos.length === 0) {
-        concerns.push('No photos available');
+        concerns.push('📷 No photos available - request virtual tour');
       }
-      if (!community.website && !community.phone) concerns.push('Limited contact information');
-      if (!community.availability || community.availability === 'Unknown') {
-        concerns.push('Availability status unclear');
+      if (!community.website && !community.phone) {
+        concerns.push('📞 Limited contact information');
+      }
+      if (!community.displayPricing?.displayPrice || community.displayPricing?.displayPrice.includes('Contact')) {
+        concerns.push('💲 Pricing not transparent - call for details');
+      }
+      if (community.occupancyRate && parseFloat(community.occupancyRate) > 98) {
+        concerns.push('🔴 Very limited availability - waitlist likely');
       }
     }
     
@@ -229,25 +272,81 @@ export class AISearchInsights {
    */
   private static async generateMarketSummary(communities: any[]): Promise<string> {
     try {
-      const avgRating = communities.reduce((sum, c) => sum + parseFloat(c.rating || '0'), 0) / communities.length;
-      const priceRanges = communities.map(c => c.displayPricing?.priceRange || c.priceRange).filter(Boolean);
-      const avgMinPrice = priceRanges.reduce((sum, r) => sum + (r.min || 0), 0) / priceRanges.length;
+      // Analyze market data
+      const totalCommunities = communities.length;
+      const ratedCommunities = communities.filter(c => parseFloat(c.rating || '0') > 0);
+      const avgRating = ratedCommunities.length > 0 
+        ? ratedCommunities.reduce((sum, c) => sum + parseFloat(c.rating), 0) / ratedCommunities.length 
+        : 0;
       
-      const prompt = `Analyze this senior living market data and provide a 2-sentence summary:
-- ${communities.length} communities visible
-- Average rating: ${avgRating.toFixed(1)}/5
-- Average starting price: $${Math.round(avgMinPrice)}/month
-- States represented: ${[...new Set(communities.map(c => c.state))].join(', ')}
-
-Provide a concise, helpful market summary for families searching for senior care.`;
-
-      const response = await openai.chat.completions.create({
-        model: 'gpt-4o',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 100
-      });
+      const priceRanges = communities
+        .map(c => c.displayPricing?.priceRange || c.priceRange || (c.rentPerMonth ? { min: c.rentPerMonth, max: c.rentPerMonth } : null))
+        .filter(Boolean);
       
-      return response.choices[0].message.content || 'Market analysis in progress.';
+      const avgMinPrice = priceRanges.length > 0
+        ? priceRanges.reduce((sum, r) => sum + (r.min || 0), 0) / priceRanges.length
+        : 0;
+      
+      const hudCount = communities.filter(c => c.hudPropertyId).length;
+      const states = [...new Set(communities.map(c => c.state))];
+      const highRated = communities.filter(c => parseFloat(c.rating || '0') >= 4.5).length;
+      
+      // Generate dynamic summary based on data
+      const summaryParts = [];
+      
+      if (totalCommunities === 1) {
+        summaryParts.push(`1 community available`);
+      } else if (totalCommunities < 10) {
+        summaryParts.push(`${totalCommunities} select communities`);
+      } else {
+        summaryParts.push(`${totalCommunities} diverse communities`);
+      }
+      
+      if (avgRating > 4.5) {
+        summaryParts.push(`with exceptional ${avgRating.toFixed(1)}/5 average rating`);
+      } else if (avgRating > 4.0) {
+        summaryParts.push(`averaging ${avgRating.toFixed(1)}/5 stars`);
+      } else if (avgRating > 0) {
+        summaryParts.push(`with varied ratings (avg ${avgRating.toFixed(1)}/5)`);
+      }
+      
+      if (hudCount > 0) {
+        summaryParts.push(`including ${hudCount} HUD-subsidized options`);
+      }
+      
+      if (avgMinPrice > 0) {
+        if (avgMinPrice < 2000) {
+          summaryParts.push(`starting from budget-friendly $${Math.round(avgMinPrice)}/mo`);
+        } else if (avgMinPrice > 6000) {
+          summaryParts.push(`in the premium range (avg $${Math.round(avgMinPrice)}/mo+)`);
+        } else {
+          summaryParts.push(`averaging $${Math.round(avgMinPrice)}/mo starting price`);
+        }
+      }
+      
+      if (states.length > 1) {
+        summaryParts.push(`across ${states.join(', ')}`);
+      }
+      
+      // If we have OpenAI configured, enhance with AI
+      if (process.env.OPENAI_API_KEY) {
+        const prompt = `Create a brief, helpful 2-sentence market overview from these parts: ${summaryParts.join(', ')}. Focus on what matters most to families searching for senior care.`;
+        
+        try {
+          const response = await openai.chat.completions.create({
+            model: 'gpt-4o',
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: 100
+          });
+          
+          return response.choices[0].message.content || summaryParts.join(', ') + '.';
+        } catch (aiError) {
+          console.error('AI enhancement failed:', aiError);
+        }
+      }
+      
+      // Fallback to assembled summary
+      return summaryParts.join(', ') + '.';
       
     } catch (error) {
       console.error('Error generating market summary:', error);
@@ -260,23 +359,61 @@ Provide a concise, helpful market summary for families searching for senior care
    */
   private static async generateCareTypeAnalysis(communities: any[]): Promise<string> {
     const careTypeCounts: Record<string, number> = {};
+    const subtypeCounts: Record<string, number> = {};
     
     communities.forEach(c => {
+      // Count traditional care types
       (c.careTypes || []).forEach((type: string) => {
         careTypeCounts[type] = (careTypeCounts[type] || 0) + 1;
       });
+      
+      // Count community subtypes
+      if (c.communitySubtype) {
+        subtypeCounts[c.communitySubtype] = (subtypeCounts[c.communitySubtype] || 0) + 1;
+      }
     });
     
     const topCareTypes = Object.entries(careTypeCounts)
       .sort(([,a], [,b]) => b - a)
       .slice(0, 3);
     
-    if (topCareTypes.length === 0) {
-      return 'Care type information is being updated for communities in this area.';
+    const topSubtypes = Object.entries(subtypeCounts)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 3);
+    
+    const insights = [];
+    
+    // Analyze care types
+    if (topCareTypes.length > 0) {
+      const mostCommon = topCareTypes[0];
+      if (mostCommon[1] > communities.length * 0.5) {
+        insights.push(`Predominantly ${mostCommon[0]} communities (${mostCommon[1]} of ${communities.length})`);
+      } else {
+        insights.push(`Mixed care types with ${topCareTypes.map(([type, count]) => `${type} (${count})`).join(', ')}`);
+      }
     }
     
-    return `Most common care types in view: ${topCareTypes.map(([type, count]) => 
-      `${type} (${count} communities)`).join(', ')}.`;
+    // Analyze subtypes for special communities
+    const specialTypes = {
+      'hud_senior_housing': '🏛️ HUD senior housing',
+      'mobile_home_park': '🏡 mobile home communities',
+      'active_adult_55_plus': '🏌️ active 55+ communities',
+      'memory_care': '🧠 specialized memory care',
+      'va_housing': '🇺🇸 veterans housing'
+    };
+    
+    Object.entries(specialTypes).forEach(([key, label]) => {
+      const count = subtypeCounts[key] || 0;
+      if (count > 0) {
+        insights.push(`${count} ${label}`);
+      }
+    });
+    
+    if (insights.length === 0) {
+      return 'Diverse care options available in this area.';
+    }
+    
+    return insights.slice(0, 2).join('. ') + '.';
   }
   
   /**
@@ -309,12 +446,20 @@ Provide a concise, helpful market summary for families searching for senior care
     
     // Value seekers
     if (data.bestValue.length > 0) {
-      recommendations.push(`For great value: Consider ${data.bestValue[0].name} with ${data.bestValue[0].rating}/5 stars`);
+      const value = data.bestValue[0];
+      recommendations.push(`💎 Best Value: ${value.name} offers ${value.rating}/5 stars at ${value.price}. ${value.strengths[0]}`);
     }
     
     // Premium seekers
     if (data.topRated.length > 0 && data.topRated[0].rating >= 4.8) {
-      recommendations.push(`For premium care: ${data.topRated[0].name} offers exceptional ratings at ${data.topRated[0].rating}/5`);
+      const top = data.topRated[0];
+      recommendations.push(`⭐ Highest Rated: ${top.name} with exceptional ${top.rating}/5 rating. ${top.strengths[0]}`);
+    }
+    
+    // HUD/Affordable options
+    const hudOptions = data.communities.filter((c: any) => c.hudPropertyId);
+    if (hudOptions.length > 0) {
+      recommendations.push(`🏛️ ${hudOptions.length} HUD-subsidized communities available with verified government pricing`);
     }
     
     // Budget conscious
@@ -322,18 +467,49 @@ Provide a concise, helpful market summary for families searching for senior care
       const min = c.displayPricing?.priceRange?.min || 999999;
       return min < 3000 && parseFloat(c.rating || '0') >= 3.5;
     });
-    
     if (budgetOptions.length > 0) {
-      recommendations.push(`${budgetOptions.length} communities offer options under $3,000/month`);
+      recommendations.push(`💰 ${budgetOptions.length} budget-friendly options under $3,000/month with good ratings`);
     }
     
-    // HUD properties
-    const hudProperties = data.communities.filter((c: any) => c.hudPropertyId);
-    if (hudProperties.length > 0) {
-      recommendations.push(`${hudProperties.length} government-subsidized properties available for qualified seniors`);
+    // Availability insights
+    const highAvailability = data.communities.filter((c: any) => {
+      const occupancy = parseFloat(c.occupancyRate || '100');
+      return occupancy < 85;
+    });
+    if (highAvailability.length > 0) {
+      recommendations.push(`✅ ${highAvailability.length} communities have immediate availability`);
     }
     
-    return recommendations.slice(0, 4);
+    // Care type specific recommendations
+    const memoryCare = data.communities.filter((c: any) => 
+      c.careTypes?.includes('Memory Care') || c.communitySubtype === 'memory_care'
+    );
+    if (memoryCare.length > 0) {
+      recommendations.push(`🧠 ${memoryCare.length} specialized memory care communities in this area`);
+    }
+    
+    // Community size preferences
+    const smallCommunities = data.communities.filter((c: any) => c.totalUnits && c.totalUnits < 30);
+    if (smallCommunities.length > 3) {
+      recommendations.push(`🏠 ${smallCommunities.length} intimate communities with fewer than 30 units for personalized care`);
+    }
+    
+    // Active lifestyle options
+    const activeAdult = data.communities.filter((c: any) => 
+      c.communitySubtype === 'active_adult_55_plus' || c.communitySubtype === 'independent_living'
+    );
+    if (activeAdult.length > 0) {
+      recommendations.push(`🏌️ ${activeAdult.length} active adult communities for independent seniors`);
+    }
+    
+    // Geographic insights
+    const states = [...new Set(data.communities.map((c: any) => c.state))];
+    if (states.length > 1) {
+      recommendations.push(`📍 Communities available across ${states.length} states: ${states.join(', ')}`);
+    }
+    
+    // Keep recommendations to the most relevant 5
+    return recommendations.slice(0, 5);
   }
   
   /**
