@@ -47,31 +47,31 @@ export default function MySeniorValetHome() {
   const { data: communityStats, isLoading } = useQuery({
     queryKey: ["/api/communities/count"],
     retry: false,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    gcTime: 30 * 60 * 1000,   // Keep in cache for 30 minutes
   });
 
-  // Removed predictive search suggestions to improve performance
-
-  // Hero image is now permanently set to the beautiful space image
-
-  // Enhanced platform statistics for data-driven homepage
+  // Enhanced platform statistics for data-driven homepage (with longer caching)
   const { data: platformStats } = useQuery({
     queryKey: ["/api/platform/stats"],
     retry: false,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    gcTime: 30 * 60 * 1000,   // Keep in cache for 30 minutes
   });
 
-  // Concierge service images for matching tropical theme
+  // Skip expensive image queries that aren't critical for initial load
   const { data: conciergeImages } = useQuery({
     queryKey: ["/api/images/concierge-services"],
     retry: false,
     staleTime: 24 * 60 * 60 * 1000, // Cache for 24 hours
+    enabled: false, // Disable automatic fetching - load on demand
   });
 
-  // Amazon product images for enhanced marketplace display
   const { data: amazonProductImages } = useQuery({
     queryKey: ["/api/amazon-products/images"],
     retry: false,
     staleTime: 60 * 60 * 1000, // Cache for 1 hour
+    enabled: false, // Disable automatic fetching - load on demand
   });
 
   // Real-time market data
@@ -110,18 +110,22 @@ export default function MySeniorValetHome() {
     refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
   });
 
-  // Location-specific queries for horizontal sections
+  // Location-specific queries for horizontal sections (cached and deferred)
   const { data: sacramentoCommunities, isLoading: sacramentoLoading } = useQuery({
     queryKey: ["/api/communities/by-location/Sacramento"],
     retry: false,
-    staleTime: 0, // No cache - always fresh data
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    gcTime: 15 * 60 * 1000,   // Keep in cache for 15 minutes
+    enabled: false, // Disable automatic fetching - load on demand
   });
 
-  // Coastal communities - search for actual coastal cities
+  // Coastal communities - search for actual coastal cities (cached and deferred)
   const { data: coastalCommunities, isLoading: coastalLoading } = useQuery({
     queryKey: ["/api/communities/coastal"],
     retry: false,
-    staleTime: 0, // No cache - always fresh data
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    gcTime: 15 * 60 * 1000,   // Keep in cache for 15 minutes
+    enabled: false, // Disable automatic fetching - load on demand
   });
 
   // California communities - search for California-wide communities

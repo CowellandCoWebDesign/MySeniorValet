@@ -7,6 +7,12 @@ export function registerPlatformRoutes(app: Express) {
   // Platform Statistics endpoint (redirect to existing stats endpoint)
   app.get('/api/platform/stats', async (req, res) => {
     try {
+      // Add caching headers for better performance
+      res.set({
+        'Cache-Control': 'public, max-age=600', // Cache for 10 minutes
+        'ETag': `platform-stats-${Date.now()}`
+      });
+      
       // Get total communities
       const [communityCount] = await db
         .select({ count: sql<string>`count(*)` })

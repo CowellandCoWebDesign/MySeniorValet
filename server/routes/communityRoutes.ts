@@ -24,6 +24,12 @@ export function registerCommunityRoutes(app: Express) {
   // Get community count
   app.get("/api/communities/count", async (_req, res) => {
     try {
+      // Add caching headers for better performance
+      res.set({
+        'Cache-Control': 'public, max-age=900', // Cache for 15 minutes
+        'ETag': `community-count-${Date.now()}`
+      });
+      
       const [{ count }] = await db
         .select({ count: sql`count(*)` })
         .from(communities);
@@ -79,6 +85,12 @@ export function registerCommunityRoutes(app: Express) {
   // Coastal communities
   app.get("/api/communities/coastal", async (req, res) => {
     try {
+      // Add caching headers for better performance
+      res.set({
+        'Cache-Control': 'public, max-age=1800', // Cache for 30 minutes
+        'ETag': `coastal-communities-${Date.now()}`
+      });
+      
       const coastal = await db
         .select()
         .from(communities)
@@ -191,6 +203,12 @@ export function registerCommunityRoutes(app: Express) {
   // Get communities by location
   app.get("/api/communities/by-location/:location", async (req, res) => {
     try {
+      // Add caching headers for better performance
+      res.set({
+        'Cache-Control': 'public, max-age=1800', // Cache for 30 minutes
+        'ETag': `location-${req.params.location}-${Date.now()}`
+      });
+      
       const location = req.params.location;
       
       // Handle special cases for location queries
@@ -554,30 +572,7 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
-  // Coastal communities
-  app.get("/api/communities/coastal", async (req, res) => {
-    try {
-      const startTime = Date.now();
-      
-      const coastalCities = ['Santa Monica', 'Monterey', 'San Francisco', 'Santa Barbara', 'Carmel'];
-      const coastalPromises = coastalCities.map(city => 
-        db
-          .select()
-          .from(communities)
-          .where(eq(communities.city, city))
-          .limit(5)
-      );
 
-      const coastalResults = await Promise.all(coastalPromises);
-      const coastal = coastalResults.flat();
-
-      console.log(`Coastal communities loaded in ${Date.now() - startTime}ms`);
-      res.json(coastal);
-    } catch (error) {
-      console.error("Error fetching coastal communities:", error);
-      res.status(500).json({ error: "Failed to fetch coastal communities" });
-    }
-  });
 
   // Get communities by location
   app.get("/api/communities/by-location/:location", async (req, res) => {

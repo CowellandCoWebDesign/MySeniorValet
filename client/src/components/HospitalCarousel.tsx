@@ -193,12 +193,14 @@ export default function HospitalCarousel() {
   const { data: hospitals, isLoading, error } = useQuery({
     queryKey: ["/api/hospitals/featured"],
     queryFn: async () => {
-      const response = await fetch("/api/hospitals/featured?limit=30");
+      const response = await fetch("/api/hospitals/featured?limit=12");
       if (!response.ok) {
         throw new Error("Failed to fetch hospitals");
       }
       return response.json();
-    }
+    },
+    staleTime: 1000 * 60 * 5, // Consider data fresh for 5 minutes
+    gcTime: 1000 * 60 * 10,   // Keep in cache for 10 minutes
   });
 
   if (error) {

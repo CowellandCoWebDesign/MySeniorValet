@@ -36,6 +36,12 @@ export function registerHospitalRoutes(app: Express) {
   // Get featured hospitals (top 30 for sliders)
   app.get("/api/hospitals/featured", async (req, res) => {
     try {
+      // Add caching headers for better performance
+      res.set({
+        'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+        'ETag': `hospitals-featured-${Date.now()}`
+      });
+      
       const limit = parseInt(req.query.limit as string) || 30;
       const hospitals = await hospitalDataService.getFeaturedHospitals(limit);
       res.json(hospitals);

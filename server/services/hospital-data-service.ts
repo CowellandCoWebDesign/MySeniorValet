@@ -39,34 +39,37 @@ export class HospitalDataService {
     let query = db.select().from(hospitals).where(and(...conditions));
     
     if (filters?.limit) {
-      query = query.limit(filters.limit);
+      query = query.limit(filters.limit) as any;
     }
     
     if (filters?.offset) {
-      query = query.offset(filters.offset);
+      query = query.offset(filters.offset) as any;
     }
     
     return await query.orderBy(hospitals.name);
   }
   
-  // Get featured hospitals (top rated, major medical centers)
+  // Get featured hospitals (top rated, major medical centers) - optimized for carousel
   async getFeaturedHospitals(limit: number = 30) {
     return await db
-      .select()
+      .select({
+        id: hospitals.id,
+        name: hospitals.name,
+        slug: hospitals.slug,
+        city: hospitals.city,
+        state: hospitals.state,
+        hospitalType: hospitals.hospitalType,
+        bedCount: hospitals.bedCount,
+        emergencyServices: hospitals.emergencyServices,
+        traumaLevel: hospitals.traumaLevel,
+        ownership: hospitals.ownership,
+        phone: hospitals.phone,
+        cmsRating: hospitals.cmsRating,
+        services: hospitals.services
+      })
       .from(hospitals)
-      .where(
-        and(
-          eq(hospitals.isActive, true),
-          or(
-            sql`${hospitals.hospitalType} = 'Teaching Hospital'`,
-            sql`${hospitals.traumaLevel} = 'Level I'`,
-            sql`${hospitals.traumaLevel} = 'Level II'`,
-            sql`${hospitals.bedCount} > 200`,
-            sql`${hospitals.cmsRating} >= 4`
-          )
-        )
-      )
-      .orderBy(desc(hospitals.cmsRating), desc(hospitals.bedCount))
+      .where(eq(hospitals.isActive, true))
+      .orderBy(desc(hospitals.bedCount), desc(hospitals.cmsRating))
       .limit(limit);
   }
   

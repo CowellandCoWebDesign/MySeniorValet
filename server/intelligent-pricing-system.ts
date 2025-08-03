@@ -28,20 +28,9 @@ export class IntelligentPricingSystem {
    * Always returns a PricingEstimate (never null)
    */
   static generatePricingEstimate(community: any): PricingEstimate {
-    // Debug logging to check HUD data
-    if (community.hudPropertyId) {
-      console.log(`Checking HUD data for ${community.name}:`, {
-        hudPropertyId: community.hudPropertyId,
-        rentPerMonth: community.rentPerMonth,
-        rentPerMonthType: typeof community.rentPerMonth,
-        rentPerMonthValue: parseFloat(community.rentPerMonth || 0)
-      });
-    }
-    
     // PRIORITY 1: Use authentic HUD data if available (rentPerMonth is the correct field)
     if (community.hudPropertyId && community.rentPerMonth !== null && community.rentPerMonth !== undefined) {
       const hudRent = Math.round(parseFloat(community.rentPerMonth));
-      console.log(`Using HUD pricing for ${community.name}: $${hudRent}/month`);
       return {
         displayPrice: hudRent === 0 ? 'Free' : `$${hudRent.toLocaleString()}/month`,
         priceRange: {
