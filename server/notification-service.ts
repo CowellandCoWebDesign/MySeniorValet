@@ -138,9 +138,14 @@ export class NotificationService {
   // Initialize super admin preferences
   static async initializeSuperAdminPreferences() {
     try {
-      // Get super admin user
+      // Get super admin user - handle missing columns gracefully
       const [superAdmin] = await db
-        .select()
+        .select({
+          id: users.id,
+          email: users.email,
+          firstName: users.firstName,
+          lastName: users.lastName
+        })
         .from(users)
         .where(eq(users.email, NOTIFICATION_EMAIL_CONFIG.superAdmin.primary))
         .limit(1);
