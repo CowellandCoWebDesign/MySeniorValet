@@ -4,13 +4,16 @@ import { ArrowLeft, Tag, Star, MapPin, Phone, Globe, Calendar, Home, Building,
          Clock, AlertCircle, ExternalLink, Sparkles, Users, Heart, Shield,
          TrendingUp, Award, CheckCircle, Settings, MessageSquare, Mail,
          ChevronLeft, ChevronRight, Info, Navigation, UserCheck, Gem, Crown,
-         Activity, UtensilsCrossed, Car, ChevronDown, ChevronUp, FileText } from 'lucide-react';
+         Activity, UtensilsCrossed, Car, ChevronDown, ChevronUp, FileText,
+         Timer, DollarSign, UserPlus, Camera, Video, Bed, Bath, Square, Calculator } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data for red tag examples (same as before)
 const redTagExamples = {
@@ -42,7 +45,27 @@ const redTagExamples = {
     description: "Luxury senior living with concierge services, gourmet dining, and wellness programs. Our beautiful community offers independence with peace of mind.",
     careTypes: ["Independent Living", "Assisted Living"],
     amenities: ["Fitness Center", "Dining Room", "Library", "Garden", "Transportation"],
-    services: ["Concierge", "Housekeeping", "Wellness Programs", "Activities"]
+    services: ["Concierge", "Housekeeping", "Wellness Programs", "Activities"],
+    unitTypes: [
+      {
+        type: "Studio",
+        sqft: 450,
+        available: 2,
+        price: 3700,
+        features: ["Kitchenette", "Walk-in Closet", "Emergency Call System"],
+        beds: 0,
+        baths: 1
+      },
+      {
+        type: "1 Bedroom",
+        sqft: 650,
+        available: 1,
+        price: 4200,
+        features: ["Full Kitchen", "Large Living Area", "Patio/Balcony"],
+        beds: 1,
+        baths: 1
+      }
+    ]
   },
   "heritage-hills": {
     id: 2,
@@ -71,7 +94,27 @@ const redTagExamples = {
     description: "Comfortable senior living in the heart of Austin with easy access to local attractions and medical facilities.",
     careTypes: ["Independent Living"],
     amenities: ["Pool", "Community Room", "Kitchen", "Parking"],
-    services: ["Maintenance", "Social Activities", "Transportation"]
+    services: ["Maintenance", "Social Activities", "Transportation"],
+    unitTypes: [
+      {
+        type: "1 Bedroom",
+        sqft: 550,
+        available: 1,
+        price: 3200,
+        features: ["Updated Kitchen", "Pool View", "Storage Space"],
+        beds: 1,
+        baths: 1
+      },
+      {
+        type: "2 Bedroom",
+        sqft: 850,
+        available: 1,
+        price: 3800,
+        features: ["Master Suite", "Guest Bedroom", "Large Patio"],
+        beds: 2,
+        baths: 2
+      }
+    ]
   },
   "golden-years": {
     id: 3,
@@ -100,7 +143,27 @@ const redTagExamples = {
     description: "Specialized assisted living with 24/7 care, medication management, and therapeutic programs.",
     careTypes: ["Assisted Living", "Memory Care"],
     amenities: ["Nursing Station", "Therapy Room", "Secure Garden", "Dining Room"],
-    services: ["24/7 Care", "Medication Management", "Physical Therapy", "Social Work"]
+    services: ["24/7 Care", "Medication Management", "Physical Therapy", "Social Work"],
+    unitTypes: [
+      {
+        type: "Studio",
+        sqft: 380,
+        available: 1,
+        price: 4100,
+        features: ["Accessible Bathroom", "Nurse Call System", "Safety Features"],
+        beds: 0,
+        baths: 1
+      },
+      {
+        type: "1 Bedroom",
+        sqft: 520,
+        available: 0,
+        price: 4500,
+        features: ["Bedroom with Hospital Bed", "Accessible Design", "Emergency Response"],
+        beds: 1,
+        baths: 1
+      }
+    ]
   }
 };
 
@@ -380,10 +443,12 @@ export default function RedTagExamplePage() {
 
             {/* Tabbed Content */}
             <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="units">Units</TabsTrigger>
                 <TabsTrigger value="amenities">Amenities</TabsTrigger>
-                <TabsTrigger value="photos">Photos</TabsTrigger>
+                <TabsTrigger value="tour">Tour</TabsTrigger>
+                <TabsTrigger value="calculator">Calculator</TabsTrigger>
                 <TabsTrigger value="pricing">Pricing</TabsTrigger>
               </TabsList>
 
@@ -426,6 +491,88 @@ export default function RedTagExamplePage() {
                 </Card>
               </TabsContent>
 
+              <TabsContent value="units" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Bed className="w-5 h-5 text-purple-600" />
+                      Available Units & Red Tag Pricing
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {community.unitTypes.map((unit, index) => (
+                        <Card key={index} className={`border ${unit.available > 0 ? 'border-green-200 dark:border-green-800' : 'border-gray-200 dark:border-gray-700'}`}>
+                          <CardContent className="p-4">
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <h4 className="font-semibold text-lg">{unit.type}</h4>
+                                  <Badge className={unit.available > 0 ? 'bg-green-600' : 'bg-gray-500'}>
+                                    {unit.available > 0 ? `${unit.available} Available` : 'Waitlist'}
+                                  </Badge>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3">
+                                  <div className="flex items-center gap-1">
+                                    <Square className="w-4 h-4 text-blue-600" />
+                                    <span>{unit.sqft} sq ft</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Bed className="w-4 h-4 text-purple-600" />
+                                    <span>{unit.beds} bed{unit.beds !== 1 ? 's' : ''}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Bath className="w-4 h-4 text-teal-600" />
+                                    <span>{unit.baths} bath{unit.baths !== 1 ? 's' : ''}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <DollarSign className="w-4 h-4 text-green-600" />
+                                    <span>Red Tag: ${unit.price.toLocaleString()}</span>
+                                  </div>
+                                </div>
+
+                                <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                  <h5 className="font-medium mb-2">Unit Features:</h5>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+                                    {unit.features.map((feature, featureIndex) => (
+                                      <div key={featureIndex} className="flex items-center gap-2 text-sm">
+                                        <CheckCircle className="w-3 h-3 text-green-600 flex-shrink-0" />
+                                        <span>{feature}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div className="text-right ml-4">
+                                <div className="text-2xl font-bold text-red-600 mb-1">
+                                  ${unit.price.toLocaleString()}
+                                </div>
+                                <div className="text-sm text-gray-500 line-through mb-2">
+                                  Regular: ${(unit.price + 500).toLocaleString()}
+                                </div>
+                                {unit.available > 0 ? (
+                                  <Button size="sm" className="bg-red-600 hover:bg-red-700">
+                                    <Tag className="w-4 h-4 mr-1" />
+                                    Claim Deal
+                                  </Button>
+                                ) : (
+                                  <Button size="sm" variant="outline">
+                                    <UserPlus className="w-4 h-4 mr-1" />
+                                    Join Waitlist
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
               <TabsContent value="amenities" className="space-y-6">
                 <Card>
                   <CardHeader>
@@ -460,6 +607,76 @@ export default function RedTagExamplePage() {
                         />
                       ))}
                     </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="tour" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Camera className="w-6 h-6 text-purple-600" />
+                      Tour Tracker & Scheduler
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <Card className="border-purple-200 dark:border-purple-700">
+                        <CardContent className="p-4">
+                          <div className="text-center">
+                            <Calendar className="w-12 h-12 mx-auto text-purple-600 mb-3" />
+                            <h4 className="font-semibold mb-2">Schedule Your Tour</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                              Experience {community.name} in person and ask about your red tag special
+                            </p>
+                            <Button className="bg-purple-600 hover:bg-purple-700">
+                              <Calendar className="w-4 h-4 mr-2" />
+                              Schedule Tour
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg">Tour Preparation Tips</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3 text-sm">
+                            <div className="flex items-start gap-2">
+                              <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                              <span>Bring a list of questions about care services and amenities</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                              <span>Ask about the red tag special and any additional incentives</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                              <span>Request to see the specific unit types included in the deal</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                              <span>Take photos and notes to compare with other communities</span>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="calculator" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Calculator className="w-6 h-6 text-green-600" />
+                      Move-In Cost Calculator
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <MoveInCostCalculator />
                   </CardContent>
                 </Card>
               </TabsContent>

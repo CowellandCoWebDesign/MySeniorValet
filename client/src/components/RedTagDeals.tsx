@@ -183,32 +183,36 @@ export function RedTagDeals() {
             </div>
 
             <CardContent className="p-4">
-              {/* Header with Name and Location */}
-              <div className="mb-3">
-                <h3 className="text-lg font-bold">{deal.communityName}</h3>
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <MapPin className="w-3 h-3" />
-                  <span>{deal.location}</span>
-                </div>
-              </div>
-
-              {/* Pricing and Time */}
-              <div className="mb-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xl font-bold text-red-600">
-                    {formatCurrency(deal.discountedPrice)}
-                  </span>
-                  <span className="text-sm text-muted-foreground line-through">
-                    {formatCurrency(deal.originalPrice)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Clock className="w-3 h-3" />
-                    <span>{getDaysRemaining(deal.expirationDate)} days left</span>
+              {/* Two-column layout: Contact info left, Pricing right */}
+              <div className="flex justify-between items-start mb-3">
+                {/* Left: Community info and contact */}
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold mb-1">{deal.communityName}</h3>
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+                    <MapPin className="w-3 h-3" />
+                    <span>{deal.location}</span>
                   </div>
-                  {/* Rating */}
-                  <div className="flex items-center gap-0.5">
+                  <div className="space-y-1 text-xs">
+                    <div className="text-blue-600 hover:underline cursor-pointer">
+                      📞 (916) 555-{deal.id}123
+                    </div>
+                    <div className="text-blue-600 hover:underline cursor-pointer">
+                      🌐 Visit Website
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Pricing and rating */}
+                <div className="text-right">
+                  <div className="flex items-center gap-2 mb-1 justify-end">
+                    <span className="text-xl font-bold text-red-600">
+                      {formatCurrency(deal.discountedPrice)}
+                    </span>
+                    <span className="text-sm text-muted-foreground line-through">
+                      {formatCurrency(deal.originalPrice)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-0.5 justify-end mb-1">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
@@ -220,6 +224,10 @@ export function RedTagDeals() {
                       />
                     ))}
                     <span className="text-xs ml-1">({deal.rating})</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground justify-end">
+                    <Clock className="w-3 h-3" />
+                    <span>{getDaysRemaining(deal.expirationDate)} days left</span>
                   </div>
                 </div>
               </div>
