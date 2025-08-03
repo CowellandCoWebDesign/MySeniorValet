@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Home, Facebook, Twitter, Linkedin, MapPin, Building, Shield } from "lucide-react";
+import { Home, Facebook, Twitter, Linkedin, MapPin, Building, Shield, Settings, User, Store } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 export function Footer() {
@@ -139,7 +139,22 @@ export function Footer() {
               <Link href="/terms" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Terms</Link>
               <Link href="/disclaimer" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Disclaimer</Link>
               <Link href="/accessibility" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Accessibility</Link>
-              <Link href="/super-admin" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Admin Login</Link>
+              
+              {/* Dashboard Login Buttons */}
+              <div className="flex items-center space-x-4 border-l border-gray-600 pl-6">
+                <Link href="/super-admin" className="flex items-center space-x-1 text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">
+                  <Settings className="h-4 w-4" />
+                  <span>Admin</span>
+                </Link>
+                <Link href="/community-portal" className="flex items-center space-x-1 text-gray-400 hover:text-green-400 text-sm transition-colors font-medium">
+                  <User className="h-4 w-4" />
+                  <span>Community</span>
+                </Link>
+                <Link href="/vendor-dashboard" className="flex items-center space-x-1 text-gray-400 hover:text-purple-400 text-sm transition-colors font-medium">
+                  <Store className="h-4 w-4" />
+                  <span>Vendor</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
