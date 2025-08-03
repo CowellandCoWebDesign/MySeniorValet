@@ -26,7 +26,7 @@ export function Footer() {
               <div className="flex items-center justify-center space-x-2">
                 <Building className="h-5 w-5 text-blue-400" />
                 <div>
-                  <div className="text-2xl font-bold text-white">{formattedStats?.totalCommunities || '34,171'}</div>
+                  <div className="text-2xl font-bold text-white">{(formattedStats as any)?.totalCommunities || '34,171'}</div>
                   <div className="text-xs text-gray-400">Communities</div>
                 </div>
               </div>
@@ -34,7 +34,7 @@ export function Footer() {
               <div className="flex items-center justify-center space-x-2">
                 <MapPin className="h-5 w-5 text-green-400" />
                 <div>
-                  <div className="text-lg font-bold text-white">{formattedStats?.coverage || '100% US + Canada'}</div>
+                  <div className="text-lg font-bold text-white">{(formattedStats as any)?.coverage || '100% US + Canada'}</div>
                   <div className="text-xs text-gray-400">Geographic Coverage</div>
                 </div>
               </div>
@@ -42,7 +42,7 @@ export function Footer() {
               <div className="flex items-center justify-center space-x-2">
                 <Shield className="h-5 w-5 text-purple-400" />
                 <div>
-                  <div className="text-lg font-bold text-white">{formattedStats?.dataQuality || '99.8% Verified'}</div>
+                  <div className="text-lg font-bold text-white">{(formattedStats as any)?.dataQuality || '99.8% Verified'}</div>
                   <div className="text-xs text-gray-400">Data Quality</div>
                 </div>
               </div>
