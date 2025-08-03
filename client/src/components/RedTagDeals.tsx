@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tag, Percent, Calendar, Clock, TrendingDown, AlertCircle, CheckCircle, Star } from "lucide-react";
+import { Tag, Percent, Calendar, Clock, TrendingDown, AlertCircle, CheckCircle, Star, 
+         MapPin, Wifi, Car, Utensils, Activity, Heart, Users, Shield } from "lucide-react";
 import { Link } from "wouter";
 
 interface RedTagDeal {
@@ -16,6 +17,9 @@ interface RedTagDeal {
   highlights: string[];
   rating: number;
   heroImage: string;
+  availability: "Available Now" | "Move-in Ready" | "Limited Spots" | "Waitlist";
+  amenities: string[];
+  specialIncentives: string[];
 }
 
 export function RedTagDeals() {
@@ -32,7 +36,10 @@ export function RedTagDeals() {
       dealType: "Move-In Special",
       highlights: ["No community fee", "First month 50% off", "Free moving assistance"],
       rating: 4.5,
-      heroImage: "https://cdn.pixabay.com/photo/2016/11/18/17/20/living-room-1835923_1280.jpg"
+      heroImage: "https://cdn.pixabay.com/photo/2016/11/18/17/20/living-room-1835923_1280.jpg",
+      availability: "Available Now",
+      amenities: ["Fitness Center", "Restaurant Dining", "Transportation", "WiFi"],
+      specialIncentives: ["Waived community fee", "1/2 rent for 3 months", "Free cable package"]
     },
     {
       id: 2,
@@ -45,7 +52,10 @@ export function RedTagDeals() {
       dealType: "Limited Time Offer",
       highlights: ["Waived deposit", "Complimentary care assessment", "Priority placement"],
       rating: 4.8,
-      heroImage: "https://cdn.pixabay.com/photo/2016/11/30/08/46/living-room-1872192_1280.jpg"
+      heroImage: "https://cdn.pixabay.com/photo/2016/11/30/08/46/living-room-1872192_1280.jpg",
+      availability: "Move-in Ready",
+      amenities: ["Memory Care", "24/7 Nursing", "Secured Environment", "Family Support"],
+      specialIncentives: ["No security deposit", "Free care assessment", "30-day trial period"]
     },
     {
       id: 3,
@@ -58,7 +68,10 @@ export function RedTagDeals() {
       dealType: "Summer Special",
       highlights: ["Reduced rates", "Free cable & internet", "Meal plan upgrade"],
       rating: 4.3,
-      heroImage: "https://cdn.pixabay.com/photo/2017/03/28/12/10/chairs-2181947_1280.jpg"
+      heroImage: "https://cdn.pixabay.com/photo/2017/03/28/12/10/chairs-2181947_1280.jpg",
+      availability: "Limited Spots",
+      amenities: ["Pet-Friendly", "Pool & Spa", "Activities Program", "Housekeeping"],
+      specialIncentives: ["20% off first 6 months", "Free pet fee", "Premium dining upgrade"]
     }
   ];
 
@@ -129,12 +142,12 @@ export function RedTagDeals() {
         </CardContent>
       </Card>
 
-      {/* Deal Cards Grid - Compact */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+      {/* Enhanced Deal Cards with Expanded Information */}
+      <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-4">
         {redTagDeals.map((deal) => (
           <Card key={deal.id} className="relative overflow-hidden border hover:border-red-300 dark:hover:border-red-700 transition-all">
             {/* Hero Image */}
-            <div className="relative h-32 overflow-hidden">
+            <div className="relative h-40 overflow-hidden">
               <img 
                 src={deal.heroImage} 
                 alt={deal.communityName}
@@ -151,62 +164,122 @@ export function RedTagDeals() {
               <div className="absolute top-2 right-2 bg-red-600 text-white px-2 py-0.5 rounded text-xs font-bold">
                 {deal.discountPercent}% OFF
               </div>
+              {/* Availability Badge */}
+              <div className="absolute bottom-2 right-2">
+                <Badge 
+                  className={`text-xs font-medium px-2 py-1 ${
+                    deal.availability === "Available Now" 
+                      ? "bg-green-600 text-white" 
+                      : deal.availability === "Move-in Ready"
+                      ? "bg-blue-600 text-white"
+                      : deal.availability === "Limited Spots"
+                      ? "bg-orange-600 text-white"
+                      : "bg-gray-600 text-white"
+                  }`}
+                >
+                  {deal.availability}
+                </Badge>
+              </div>
             </div>
 
-            <CardHeader className="p-3">
-              <CardTitle>
-                <div>
-                  <h3 className="text-sm font-bold">{deal.communityName}</h3>
-                  <p className="text-xs text-muted-foreground">{deal.location}</p>
+            <CardContent className="p-4">
+              {/* Header with Name and Location */}
+              <div className="mb-3">
+                <h3 className="text-lg font-bold">{deal.communityName}</h3>
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <MapPin className="w-3 h-3" />
+                  <span>{deal.location}</span>
                 </div>
-              </CardTitle>
-            </CardHeader>
+              </div>
 
-            <CardContent className="p-3 pt-0 space-y-2">
-              {/* Pricing */}
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-red-600">
+              {/* Pricing and Time */}
+              <div className="mb-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xl font-bold text-red-600">
                     {formatCurrency(deal.discountedPrice)}
                   </span>
                   <span className="text-sm text-muted-foreground line-through">
                     {formatCurrency(deal.originalPrice)}
                   </span>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Clock className="w-3 h-3" />
-                  <span>{getDaysRemaining(deal.expirationDate)} days left</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Clock className="w-3 h-3" />
+                    <span>{getDaysRemaining(deal.expirationDate)} days left</span>
+                  </div>
+                  {/* Rating */}
+                  <div className="flex items-center gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-3 h-3 ${
+                          i < Math.floor(deal.rating)
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                    <span className="text-xs ml-1">({deal.rating})</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Rating */}
-              <div className="flex items-center gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-3 h-3 ${
-                      i < Math.floor(deal.rating)
-                        ? "fill-yellow-400 text-yellow-400"
-                        : "text-gray-300"
-                    }`}
-                  />
-                ))}
-                <span className="text-xs ml-1">({deal.rating})</span>
+              {/* Two Column Layout for Amenities and Incentives */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                {/* Top Amenities */}
+                <div>
+                  <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">Top Amenities</h4>
+                  <div className="space-y-1">
+                    {deal.amenities.slice(0, 4).map((amenity, index) => {
+                      const getAmenityIcon = (amenity: string) => {
+                        if (amenity.toLowerCase().includes('fitness') || amenity.toLowerCase().includes('activities')) return <Activity className="w-3 h-3 text-blue-600" />;
+                        if (amenity.toLowerCase().includes('dining') || amenity.toLowerCase().includes('restaurant')) return <Utensils className="w-3 h-3 text-orange-600" />;
+                        if (amenity.toLowerCase().includes('wifi') || amenity.toLowerCase().includes('internet')) return <Wifi className="w-3 h-3 text-green-600" />;
+                        if (amenity.toLowerCase().includes('transport') || amenity.toLowerCase().includes('car')) return <Car className="w-3 h-3 text-purple-600" />;
+                        if (amenity.toLowerCase().includes('care') || amenity.toLowerCase().includes('nursing')) return <Heart className="w-3 h-3 text-red-600" />;
+                        if (amenity.toLowerCase().includes('security') || amenity.toLowerCase().includes('secured')) return <Shield className="w-3 h-3 text-indigo-600" />;
+                        return <CheckCircle className="w-3 h-3 text-green-600" />;
+                      };
+
+                      return (
+                        <div key={index} className="flex items-center gap-1.5 text-xs">
+                          {getAmenityIcon(amenity)}
+                          <span className="text-gray-700 dark:text-gray-300">{amenity}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Special Incentives */}
+                <div>
+                  <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">Special Incentives</h4>
+                  <div className="space-y-1">
+                    {deal.specialIncentives.map((incentive, index) => (
+                      <div key={index} className="flex items-center gap-1.5 text-xs">
+                        <Tag className="w-3 h-3 text-red-600 flex-shrink-0" />
+                        <span className="text-red-700 dark:text-red-300 font-medium">{incentive}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              {/* Highlights */}
-              <div className="space-y-0.5">
-                {deal.highlights.map((highlight, index) => (
-                  <div key={index} className="flex items-center gap-1 text-xs">
-                    <CheckCircle className="w-3 h-3 text-green-600 flex-shrink-0" />
-                    <span>{highlight}</span>
-                  </div>
-                ))}
+              {/* Original Highlights - Condensed */}
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">Move-in Benefits</h4>
+                <div className="flex flex-wrap gap-1">
+                  {deal.highlights.map((highlight, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs px-2 py-0.5">
+                      {highlight}
+                    </Badge>
+                  ))}
+                </div>
               </div>
 
               {/* CTA Button */}
               <Link href={`/red-tag-example/${deal.id === 1 ? 'sunrise-senior-living' : deal.id === 2 ? 'heritage-hills' : 'golden-years'}`}>
-                <Button className="w-full h-8 text-sm bg-red-600 hover:bg-red-700 text-white">
+                <Button className="w-full h-9 text-sm bg-red-600 hover:bg-red-700 text-white">
                   <Tag className="w-4 h-4 mr-2" />
                   Claim This Deal
                 </Button>
