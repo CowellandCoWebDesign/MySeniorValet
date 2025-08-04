@@ -111,6 +111,7 @@ import RedTagExample from "@/pages/red-tag-example";
 import HospitalDetails from "@/pages/hospital-details";
 import PaymentSuccess from "@/pages/payment-success";
 import PaymentCancel from "@/pages/payment-cancel";
+import TestPaymentFlow from "@/pages/test-payment-flow";
 
 function Router() {
   const [location] = useLocation();
@@ -225,6 +226,7 @@ function Router() {
       <Route path="/payment-monitoring" component={PaymentMonitoring} />
       <Route path="/payment/success" component={PaymentSuccess} />
       <Route path="/payment/cancel" component={PaymentCancel} />
+      <Route path="/test-payment-flow" component={TestPaymentFlow} />
       <Route component={NotFound} />
     </Switch>
   );
