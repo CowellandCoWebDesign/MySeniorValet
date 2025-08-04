@@ -342,7 +342,8 @@ export function registerPaymentRoutes(app: Express) {
         // For new communities, we'll create a placeholder record
         console.log('New community payment confirmed:', { tier, paymentIntentId });
         
-        // Create new community entry with all required fields
+        // Create new community entry with minimal required fields
+        // Fix array initialization to prevent map errors
         const [newCommunity] = await db
           .insert(communities)
           .values({
@@ -351,56 +352,59 @@ export function registerPaymentRoutes(app: Express) {
             city: 'Pending',
             state: 'Pending',
             zipCode: '00000',
-            phone: 'Pending',
-            email: 'Pending',
-            website: null,
-            description: 'Pending community registration',
-            careTypes: ['Senior Living'],
-            amenities: [],
+            subscriptionTier: tier as 'standard' | 'featured' | 'platinum' | 'verified',
+            billingStatus: 'active' as const,
+            stripeCustomerId: paymentIntent.customer as string || null,
+            // Set non-nullable fields with defaults
             latitude: 0,
             longitude: 0,
             capacity: 0,
-            subscriptionTier: tier as 'standard' | 'featured' | 'platinum' | 'verified',
-            yearEstablished: null,
+            // Use empty arrays with proper type casting
+            careTypes: [] as string[],
+            amenities: [] as string[],
+            languagesSpoken: [] as string[],
+            specialPrograms: [] as string[],
+            insuranceAccepted: [] as string[],
+            securityFeatures: [] as string[],
+            roomTypes: [] as string[],
+            roomAmenities: [] as string[],
+            activitiesIncluded: [] as string[],
+            utilitiesIncluded: [] as string[],
+            // Set boolean defaults
             virtualTours: false,
             petFriendly: false,
-            languagesSpoken: ['English'],
             transportationServices: false,
             mealPlansIncluded: false,
-            specialPrograms: [],
-            insuranceAccepted: [],
+            veteranPrograms: false,
+            medicaidAccepted: false,
+            medicareAccepted: false,
+            privatePayAccepted: true,
+            allInclusive: false,
+            waitlistAvailable: false,
+            // String defaults
+            smokingPolicy: 'No Smoking',
+            alcoholPolicy: 'Not Allowed',
+            visitingHours: '24/7',
+            pricingModel: 'Contact for Pricing',
+            // Nullable fields
+            phone: null,
+            email: null,
+            website: null,
+            description: null,
+            yearEstablished: null,
             minAge: null,
             maxAge: null,
             genderRestrictions: null,
             religiousAffiliation: null,
-            veteranPrograms: false,
-            smokingPolicy: 'No Smoking',
-            alcoholPolicy: 'Not Allowed',
-            visitingHours: '24/7',
-            securityFeatures: [],
             emergencyResponseTime: null,
             staffingRatio: null,
-            medicaidAccepted: false,
-            medicareAccepted: false,
-            privatePayAccepted: true,
-            roomTypes: [],
-            roomAmenities: [],
             startingPrice: null,
             averagePrice: null,
-            pricingModel: 'Contact for Pricing',
-            allInclusive: false,
-            activitiesIncluded: [],
-            utilitiesIncluded: [],
             depositsRequired: null,
             applicationFee: null,
             availableUnits: 0,
-            waitlistAvailable: false,
             admissionRequirements: null,
-            dischargePolicy: null,
-            billingStatus: 'active',
-            stripeCustomerId: paymentIntent.customer as string,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            dischargePolicy: null
           })
           .returning({ id: communities.id });
           
@@ -452,6 +456,67 @@ export function registerPaymentRoutes(app: Express) {
       res.status(500).json({ 
         error: "Failed to confirm payment",
         details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Recovery endpoint for failed payment confirmations
+  app.post('/api/payments/recover-failed-payment', async (req, res) => {
+    try {
+      const { paymentIntentId, communityId, tier, email } = req.body;
+      
+      // Verify super admin
+      if (email !== 'william.cowell01@gmail.com') {
+        return res.status(403).json({ error: 'Unauthorized' });
+      }
+      
+      // Verify payment with Stripe
+      const paymentIntent = await stripePaymentService.retrievePaymentIntent(paymentIntentId);
+      
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ 
+          error: 'Payment not successful',
+          status: paymentIntent.status 
+        });
+      }
+      
+      // Update community subscription
+      await db.update(communities)
+        .set({
+          subscriptionTier: tier as 'standard' | 'featured' | 'platinum' | 'verified',
+          billingStatus: 'active' as const,
+          stripeCustomerId: paymentIntent.customer as string || null,
+          updatedAt: new Date()
+        })
+        .where(eq(communities.id, parseInt(communityId)));
+      
+      // Log recovery
+      console.log('Payment recovery successful:', {
+        paymentIntentId,
+        communityId,
+        tier,
+        recoveredBy: email
+      });
+      
+      // Send notification
+      await notifySuperAdmin(
+        'Payment Recovery Completed',
+        `Successfully recovered payment for Community ${communityId}\n` +
+        `Tier: ${tier}\n` +
+        `Payment Intent: ${paymentIntentId}`
+      );
+      
+      res.json({ 
+        success: true,
+        message: 'Payment recovery successful',
+        communityId,
+        tier
+      });
+    } catch (error) {
+      console.error('Payment recovery error:', error);
+      res.status(500).json({ 
+        error: 'Recovery failed',
+        details: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });
