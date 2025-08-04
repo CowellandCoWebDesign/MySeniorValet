@@ -69,19 +69,23 @@ router.post('/webhook', async (req: Request, res: Response) => {
         console.log(`📬 Unhandled event type: ${event.type}`);
     }
 
-    // Log webhook event
+    // Log webhook event with all required fields
     await db.insert(auditLogs).values({
-      entityType: 'webhook',
-      entityId: 0,
       userId: null,
-      operation: `webhook_${event.type}`,
-      details: JSON.stringify({ 
+      adminId: null,
+      action: `webhook_${event.type}`,
+      entityType: 'webhook',
+      entityId: event.id,
+      metadata: { 
         event_id: event.id,
         event_type: event.type,
         processed_at: new Date().toISOString()
-      }),
+      },
       ipAddress: req.ip || 'unknown',
       userAgent: req.headers['user-agent'] || 'unknown',
+      sessionId: null,
+      severity: 'info',
+      outcome: 'success',
       createdAt: new Date()
     });
 
