@@ -81,11 +81,11 @@ export default function ClaimCommunity() {
     mutationFn: async (data: ClaimFormData) => {
       if (!communityId) throw new Error('Community ID is required');
       
-      const response = await apiRequest('/api/claims/submit', 'POST', {
+      const response = await apiRequest('POST', '/api/claims/submit', {
         ...data,
         communityId
       });
-      return response;
+      return response.json();
     },
     onSuccess: (data: any) => {
       setIsSubmitted(true);
@@ -107,11 +107,11 @@ export default function ClaimCommunity() {
   // Submit new community mutation
   const submitNewCommunity = useMutation({
     mutationFn: async (data: ClaimFormData) => {
-      const response = await apiRequest('/api/payments/claim-free-tier', 'POST', {
+      const response = await apiRequest('POST', '/api/payments/claim-free-tier', {
         ...data,
         isNewCommunity: true
       });
-      return response;
+      return response.json();
     },
     onSuccess: (data: any) => {
       setIsSubmitted(true);
