@@ -7,12 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { VENDOR_PRODUCTS } from '@/lib/vendor-products';
+import PaymentJourneyTracker, { VENDOR_PAYMENT_STEPS, PaymentStep } from '@/components/PaymentJourneyTracker';
 
 export default function VendorMobilePayment() {
   const [, setLocation] = useLocation();
   const { productId } = useParams<{ productId: string }>();
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentError, setPaymentError] = useState('');
+  const [currentStep, setCurrentStep] = useState('business-info');
+  const [paymentSteps, setPaymentSteps] = useState<PaymentStep[]>(VENDOR_PAYMENT_STEPS);
 
   // Get vendor data from session storage (passed from signup form)
   const vendorDataString = sessionStorage.getItem('vendorSignupData');
@@ -63,8 +66,39 @@ export default function VendorMobilePayment() {
     );
   }
 
+  // Initialize payment steps based on vendor signup progress
+  React.useEffect(() => {
+    const updatedSteps = paymentSteps.map(step => {
+      if (step.id === 'business-info') {
+        return { ...step, status: 'completed' as const };
+      }
+      if (step.id === 'tier-selection') {
+        return { ...step, status: 'completed' as const };
+      }
+      if (step.id === 'payment-details') {
+        return { ...step, status: 'active' as const };
+      }
+      return step;
+    });
+    setPaymentSteps(updatedSteps);
+    setCurrentStep('payment-details');
+  }, []);
+
   const handlePaymentSuccess = async (paymentIntent: any) => {
     try {
+      // Update progress to marketplace setup
+      const successSteps = paymentSteps.map(step => {
+        if (step.id === 'payment-details') {
+          return { ...step, status: 'completed' as const };
+        }
+        if (step.id === 'marketplace-setup') {
+          return { ...step, status: 'active' as const };
+        }
+        return step;
+      });
+      setPaymentSteps(successSteps);
+      setCurrentStep('marketplace-setup');
+
       // Confirm payment on the backend
       const response = await fetch('/api/payments/confirm-payment', {
         method: 'POST',
@@ -79,6 +113,15 @@ export default function VendorMobilePayment() {
       });
 
       if (response.ok) {
+        // Complete all steps
+        const completeSteps = successSteps.map(step => {
+          if (step.id === 'marketplace-setup') {
+            return { ...step, status: 'completed' as const };
+          }
+          return step;
+        });
+        setPaymentSteps(completeSteps);
+        
         setPaymentSuccess(true);
         // Clear vendor data from session
         sessionStorage.removeItem('vendorSignupData');
@@ -88,6 +131,15 @@ export default function VendorMobilePayment() {
     } catch (error) {
       console.error('Error confirming payment:', error);
       setPaymentError('Payment was processed but there was an error setting up your account. Our team will contact you shortly.');
+      
+      // Update steps to show error
+      const errorSteps = paymentSteps.map(step => {
+        if (step.id === 'marketplace-setup') {
+          return { ...step, status: 'error' as const };
+        }
+        return step;
+      });
+      setPaymentSteps(errorSteps);
     }
   };
 
@@ -135,64 +187,90 @@ export default function VendorMobilePayment() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NavigationHeader />
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          {/* Back Button */}
-          <Button
-            variant="ghost"
-            className="mb-6"
-            onClick={() => setLocation('/vendor-signup')}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Vendor Signup
-          </Button>
+          {/* Payment Journey Progress Tracker */}
+          <div className="mb-8">
+            <PaymentJourneyTracker 
+              currentStep={currentStep}
+              steps={paymentSteps}
+              showTroubleshooting={true}
+            />
+          </div>
 
-          {/* Order Summary */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-semibold">{vendorData.businessName}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {vendorData.contactName} • {vendorData.email}
-                  </p>
-                </div>
-                <div className="border-t pt-4">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-semibold">{product.name}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Monthly subscription</p>
-                    </div>
-                    <p className="text-xl font-bold">${(product.price / 100).toFixed(2)}/mo</p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Product Summary */}
+            <Card className="h-fit">
+              <CardHeader>
+                <CardTitle>Vendor Subscription</CardTitle>
+                <CardDescription>
+                  {product.name} - {vendorData.businessName}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center pb-4 border-b">
+                    <span className="font-semibold">{product.name}</span>
+                    <span className="text-2xl font-bold">${product.price}/mo</span>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-semibold mb-2">Included Features:</h4>
+                    <ul className="space-y-1">
+                      {product.features.slice(0, 4).map((feature, index) => (
+                        <li key={index} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
+                          <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                      {product.features.length > 4 && (
+                        <li className="text-sm text-gray-500 dark:text-gray-500 pl-6">
+                          ...and {product.features.length - 4} more features
+                        </li>
+                      )}
+                    </ul>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* Payment Form */}
-          {paymentError && (
-            <Alert variant="destructive" className="mb-6">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{paymentError}</AlertDescription>
-            </Alert>
-          )}
+            {/* Payment Form */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Complete Payment</CardTitle>
+                <CardDescription>
+                  Enter your payment details to activate your vendor listing
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <MobilePaymentForm
+                  productId={product.id}
+                  productName={product.name}
+                  price={product.price * 100}
+                  metadata={{
+                    businessName: vendorData.businessName,
+                    email: vendorData.email,
+                    phone: vendorData.phone,
+                    category: vendorData.category,
+                    type: 'vendor_subscription'
+                  }}
+                  onSuccess={handlePaymentSuccess}
+                  onCancel={() => setLocation('/vendor-signup')}
+                />
+              </CardContent>
+            </Card>
+          </div>
 
-          <MobilePaymentForm
-            productId={product.id}
-            productName={product.name}
-            price={product.price}
-            metadata={{
-              vendorName: vendorData.businessName,
-              vendorEmail: vendorData.email,
-              vendorPhone: vendorData.phone
-            }}
-            onSuccess={handlePaymentSuccess}
-            onCancel={() => setLocation('/vendor-signup')}
-          />
+          {/* Back Button */}
+          <div className="mt-8 text-center">
+            <Button
+              variant="ghost"
+              onClick={() => setLocation('/vendor-signup')}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Vendor Signup
+            </Button>
+          </div>
         </div>
       </div>
     </div>

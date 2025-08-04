@@ -10,6 +10,7 @@ import { NavigationHeader } from '@/components/NavigationHeader';
 import { MobilePaymentForm } from '@/components/MobilePaymentForm';
 import { toast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
+import PaymentJourneyTracker, { COMMUNITY_PAYMENT_STEPS, PaymentStep } from '@/components/PaymentJourneyTracker';
 
 if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
   throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
@@ -74,6 +75,8 @@ export default function CommunityMobilePayment() {
   const [isLoading, setIsLoading] = useState(true);
   const [communityData, setCommunityData] = useState<any>(null);
   const [error, setError] = useState('');
+  const [currentStep, setCurrentStep] = useState('tier-selection');
+  const [paymentSteps, setPaymentSteps] = useState<PaymentStep[]>(COMMUNITY_PAYMENT_STEPS);
 
   const tierDetails = TIER_DETAILS[tier as keyof typeof TIER_DETAILS];
 
@@ -83,6 +86,16 @@ export default function CommunityMobilePayment() {
       setIsLoading(false);
       return;
     }
+
+    // Initialize payment steps based on tier selection
+    const updatedSteps = paymentSteps.map(step => {
+      if (step.id === 'tier-selection') {
+        return { ...step, status: 'completed' as const };
+      }
+      return step;
+    });
+    setPaymentSteps(updatedSteps);
+    setCurrentStep('payment-details');
 
     // Try to get data from sessionStorage first (from community portal)
     const storedData = sessionStorage.getItem('communityUpgradeData');
@@ -106,6 +119,15 @@ export default function CommunityMobilePayment() {
 
   const createPaymentIntent = async (data: any) => {
     try {
+      // Update progress to verification step
+      const updatedSteps = paymentSteps.map(step => {
+        if (step.id === 'payment-details') {
+          return { ...step, status: 'active' as const };
+        }
+        return step;
+      });
+      setPaymentSteps(updatedSteps);
+
       const response = await fetch('/api/payments/create-payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -126,12 +148,34 @@ export default function CommunityMobilePayment() {
       
       if (paymentData.clientSecret) {
         setClientSecret(paymentData.clientSecret);
+        
+        // Update progress - payment form ready
+        const readySteps = updatedSteps.map(step => {
+          if (step.id === 'payment-details') {
+            return { ...step, status: 'completed' as const };
+          }
+          if (step.id === 'verification') {
+            return { ...step, status: 'active' as const };
+          }
+          return step;
+        });
+        setPaymentSteps(readySteps);
+        setCurrentStep('verification');
       } else {
         throw new Error('Failed to create payment session');
       }
     } catch (err) {
       console.error('Error creating payment intent:', err);
       setError('Failed to initialize payment. Please try again.');
+      
+      // Update steps to show error
+      const errorSteps = paymentSteps.map(step => {
+        if (step.id === 'payment-details') {
+          return { ...step, status: 'error' as const };
+        }
+        return step;
+      });
+      setPaymentSteps(errorSteps);
     } finally {
       setIsLoading(false);
     }
@@ -139,6 +183,19 @@ export default function CommunityMobilePayment() {
 
   const handlePaymentSuccess = async (paymentIntent: any) => {
     try {
+      // Update progress to activation step
+      const successSteps = paymentSteps.map(step => {
+        if (step.id === 'verification') {
+          return { ...step, status: 'completed' as const };
+        }
+        if (step.id === 'activation') {
+          return { ...step, status: 'active' as const };
+        }
+        return step;
+      });
+      setPaymentSteps(successSteps);
+      setCurrentStep('activation');
+
       // Confirm payment on backend
       await apiRequest('POST', '/api/payments/confirm-community-payment', {
         paymentIntentId: paymentIntent.id,
@@ -146,6 +203,15 @@ export default function CommunityMobilePayment() {
         tier: tier
       });
 
+      // Complete all steps
+      const completeSteps = successSteps.map(step => {
+        if (step.id === 'activation') {
+          return { ...step, status: 'completed' as const };
+        }
+        return step;
+      });
+      setPaymentSteps(completeSteps);
+      
       // Clear session data
       sessionStorage.removeItem('communityUpgradeData');
 
@@ -157,7 +223,7 @@ export default function CommunityMobilePayment() {
       // Redirect to success page
       setTimeout(() => {
         setLocation(`/payment/success?type=community&tier=${tier}`);
-      }, 1000);
+      }, 2000);
     } catch (err) {
       console.error('Error confirming payment:', err);
       toast({
@@ -209,13 +275,23 @@ export default function CommunityMobilePayment() {
       <NavigationHeader />
       
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          {/* Order Summary */}
-          <Card className="mb-6">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Complete Your Upgrade</CardTitle>
+        <div className="max-w-4xl mx-auto">
+          {/* Payment Journey Progress Tracker */}
+          <div className="mb-8">
+            <PaymentJourneyTracker 
+              currentStep={currentStep}
+              steps={paymentSteps}
+              showTroubleshooting={true}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Order Summary */}
+            <Card className="h-fit">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Complete Your Upgrade</CardTitle>
                   <CardDescription>
                     {communityData?.communityName || 'Community'}
                   </CardDescription>
@@ -297,6 +373,7 @@ export default function CommunityMobilePayment() {
               )}
             </CardContent>
           </Card>
+          </div>
 
           {/* Trust Badges */}
           <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
