@@ -338,8 +338,8 @@ export default function Services() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section - Integrated with content flow */}
         <div className="text-center mb-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            Your Complete Healthcare Resource Hub - UPDATED
+          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4" style={{backgroundColor: 'red', padding: '20px'}}>
+            🚨 CACHE TEST - IF YOU SEE THIS RED BACKGROUND, UPDATES ARE WORKING! 🚨
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto mb-6">
             Browse comprehensive healthcare services, medical facilities, caregiving support, and wellness resources. 
