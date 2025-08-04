@@ -180,7 +180,7 @@ export default function CommunitySubscriptionCheckout() {
               Upgrade Your Community Listing
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              {community.name}
+              {(community as any).name || 'Community'}
             </p>
           </div>
 

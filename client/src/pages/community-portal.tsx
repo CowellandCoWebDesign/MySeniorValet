@@ -186,31 +186,9 @@ export default function CommunityPortal() {
         return;
       }
 
-      // Create Stripe checkout session for paid tiers
-      const response = await fetch('/api/payments/create-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          productId,
-          successUrl: `${window.location.origin}/payment/success`,
-          cancelUrl: `${window.location.origin}/community-portal`
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create checkout session');
-      }
-
-      // Redirect to Stripe checkout
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error('No checkout URL received');
-      }
+      // For now, redirect to community subscription checkout page
+      // The actual Stripe integration will be handled there
+      setLocation(`/community-subscription-checkout?tier=${planName.toLowerCase()}&price=${plans.find(p => p.name === planName)?.priceValue || 0}`);
 
     } catch (error) {
       console.error('Payment error:', error);

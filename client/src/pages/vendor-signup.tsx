@@ -3,8 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useLocation } from 'wouter';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+// Removed Stripe Elements imports - using Checkout Sessions instead
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -16,8 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { CheckCircle, Shield, TrendingUp, Users2, ArrowLeft, CreditCard, Building2, Mail, Phone, Globe, FileText, DollarSign, Sparkle } from 'lucide-react';
 
-// Initialize Stripe
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY!);
+// Stripe Checkout Sessions will be used instead of embedded forms
 
 // Form validation schema
 const vendorSignupSchema = z.object({
@@ -82,87 +80,13 @@ const pricingPlans = [
   }
 ];
 
-function CheckoutForm({ vendorData }: { vendorData: VendorSignupForm }) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const { toast } = useToast();
-  const [, setLocation] = useLocation();
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!stripe || !elements) {
-      return;
-    }
-
-    setIsProcessing(true);
-
-    try {
-      const { error: submitError } = await elements.submit();
-      if (submitError) {
-        toast({
-          title: "Error",
-          description: submitError.message,
-          variant: "destructive",
-        });
-        setIsProcessing(false);
-        return;
-      }
-
-      const { error } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/vendor-welcome`,
-          payment_method_data: {
-            billing_details: {
-              name: vendorData.contactName,
-              email: vendorData.email,
-              phone: vendorData.phone,
-            }
-          }
-        },
-      });
-
-      if (error) {
-        toast({
-          title: "Payment Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <PaymentElement />
-      <Button 
-        type="submit" 
-        disabled={!stripe || isProcessing} 
-        className="w-full"
-      >
-        {isProcessing ? 'Processing...' : `Complete Registration - $${pricingPlans.find(p => p.id === vendorData.planType)?.price}/month`}
-      </Button>
-    </form>
-  );
-}
+// Removed CheckoutForm - using Stripe Checkout Sessions instead
 
 export default function VendorSignup() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [selectedPlan, setSelectedPlan] = useState<string>('featured');
-  const [showPayment, setShowPayment] = useState(false);
-  const [clientSecret, setClientSecret] = useState('');
-  const [vendorFormData, setVendorFormData] = useState<VendorSignupForm | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<VendorSignupForm>({
     resolver: zodResolver(vendorSignupSchema),
@@ -181,61 +105,33 @@ export default function VendorSignup() {
 
   const onSubmit = async (data: VendorSignupForm) => {
     try {
-      // Create payment intent
-      const response = await apiRequest('POST', '/api/vendor-signup', {
-        ...data,
-        amount: pricingPlans.find(p => p.id === data.planType)?.price || 149
+      setIsSubmitting(true);
+      
+      // Create vendor and redirect to Stripe Checkout
+      const response = await apiRequest('POST', '/api/vendor-subscription/create-checkout-session', {
+        vendorData: data,
+        tierKey: data.planType
       });
       
       const result = await response.json();
       
-      if (result.clientSecret) {
-        setClientSecret(result.clientSecret);
-        setVendorFormData(data);
-        setShowPayment(true);
+      if (result.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = result.url;
+      } else if (result.error) {
+        throw new Error(result.error);
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to initialize payment. Please try again.",
+        description: error.message || "Failed to initialize payment. Please try again.",
         variant: "destructive",
       });
+      setIsSubmitting(false);
     }
   };
 
-  if (showPayment && clientSecret) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 py-12 px-4">
-        <div className="max-w-2xl mx-auto">
-          <Button
-            variant="ghost"
-            onClick={() => setShowPayment(false)}
-            className="mb-6"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Form
-          </Button>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="w-6 h-6" />
-                Complete Your Registration
-              </CardTitle>
-              <CardDescription>
-                Enter your payment details to activate your vendor account
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Elements stripe={stripePromise} options={{ clientSecret }}>
-                <CheckoutForm vendorData={vendorFormData!} />
-              </Elements>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
+  // Using Stripe Checkout Sessions - no embedded payment form needed
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 py-12 px-4">
@@ -546,9 +442,9 @@ export default function VendorSignup() {
                   <div className="text-sm text-gray-600 dark:text-gray-400">
                     Selected Plan: <span className="font-semibold">{pricingPlans.find(p => p.id === selectedPlan)?.name}</span>
                   </div>
-                  <Button type="submit" size="lg" className="min-w-[200px]">
+                  <Button type="submit" size="lg" className="min-w-[200px]" disabled={isSubmitting}>
                     <DollarSign className="w-4 h-4 mr-2" />
-                    Continue to Payment
+                    {isSubmitting ? 'Processing...' : 'Continue to Payment'}
                   </Button>
                 </div>
               </form>

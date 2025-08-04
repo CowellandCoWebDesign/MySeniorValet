@@ -101,16 +101,25 @@ export default function VendorMarketplaceTiers() {
 
   const handleUpgrade = async (tier: string) => {
     try {
-      // Show upgrade flow
+      // For vendor subscriptions, redirect to vendor signup with tier info
+      const tierInfo = allTiers[tier as keyof typeof allTiers];
+      if (!tierInfo) {
+        throw new Error('Invalid tier selected');
+      }
+
+      // Store selected tier in localStorage for vendor signup flow
+      localStorage.setItem('selectedVendorTier', tier);
+      localStorage.setItem('selectedVendorPrice', tierInfo.price.toString());
+      
       toast({
-        title: "Contact Sales",
-        description: `To upgrade to ${allTiers[tier as keyof typeof allTiers]?.name} tier, please contact our sales team.`,
+        title: "Let's Get Started!",
+        description: `Setting up your ${tierInfo.name} vendor account...`,
       });
       
-      // Redirect to contact sales page
+      // Redirect to vendor signup
       setTimeout(() => {
-        setLocation('/contact-sales');
-      }, 1500);
+        setLocation('/vendor-signup');
+      }, 1000);
     } catch (error) {
       toast({
         title: "Error",
