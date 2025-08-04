@@ -130,6 +130,7 @@ export default function SuperAdminDashboard() {
         { name: "Test Debug", href: "/test-debug", description: "General debugging tools", icon: AlertTriangle, status: "active" },
         { name: "Test Tier Access", href: "/test-tier-access", description: "Test subscription tiers", icon: CreditCard, status: "active" },
         { name: "Test Map Views", href: "/test-map-views", description: "Test map functionality", icon: Map, status: "active" },
+        { name: "Payment Test Dashboard", href: "/payment-test-dashboard", description: "Test all payment tiers and flows", icon: CreditCard, status: "active" },
       ]
     },
     {

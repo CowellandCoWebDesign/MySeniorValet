@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   CreditCard, 
   CheckCircle2, 
@@ -18,7 +19,9 @@ import {
   Star,
   ShoppingBag,
   Globe,
-  Shield
+  Shield,
+  Play,
+  Info
 } from 'lucide-react';
 
 interface TierTest {
@@ -95,6 +98,12 @@ export default function PaymentTestDashboard() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [testResults, setTestResults] = useState<Record<string, 'idle' | 'testing' | 'success' | 'failed'>>({});
+  const [isRunningFullTest, setIsRunningFullTest] = useState(false);
+  const [fullTestResults, setFullTestResults] = useState<Array<{
+    tier: string;
+    status: 'pending' | 'success' | 'failed';
+    message: string;
+  }>>([]);
 
   const testPaymentFlow = async (tier: TierTest) => {
     setTestResults(prev => ({ ...prev, [tier.id]: 'testing' }));
@@ -151,6 +160,74 @@ export default function PaymentTestDashboard() {
         variant: "destructive",
       });
     }
+  };
+
+  const runFullEndToEndTest = async () => {
+    setIsRunningFullTest(true);
+    setFullTestResults([]);
+    
+    const allTiers = [...communityTiers, ...vendorTiers];
+    const results: typeof fullTestResults = [];
+    
+    for (const tier of allTiers) {
+      results.push({
+        tier: `${tier.name} ($${tier.price})`,
+        status: 'pending',
+        message: 'Testing...'
+      });
+      setFullTestResults([...results]);
+      
+      try {
+        // Test payment intent creation
+        const response = await fetch('/api/payments/create-payment-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: tier.price * 100,
+            productId: tier.id,
+            metadata: {
+              testMode: true,
+              tierName: tier.name,
+              tierType: tier.type
+            }
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.clientSecret) {
+          results[results.length - 1] = {
+            tier: `${tier.name} ($${tier.price})`,
+            status: 'success',
+            message: 'Payment intent created successfully'
+          };
+        } else {
+          results[results.length - 1] = {
+            tier: `${tier.name} ($${tier.price})`,
+            status: 'failed',
+            message: data.error || 'Failed to create payment intent'
+          };
+        }
+      } catch (error) {
+        results[results.length - 1] = {
+          tier: `${tier.name} ($${tier.price})`,
+          status: 'failed',
+          message: error instanceof Error ? error.message : 'Unknown error'
+        };
+      }
+      
+      setFullTestResults([...results]);
+      await new Promise(resolve => setTimeout(resolve, 500)); // Delay between tests
+    }
+    
+    setIsRunningFullTest(false);
+    
+    const successCount = results.filter(r => r.status === 'success').length;
+    toast({
+      title: "Test Complete",
+      description: `${successCount} of ${results.length} payment flows tested successfully`,
+      variant: successCount === results.length ? "default" : "destructive"
+    });
   };
 
   const getStatusIcon = (status: string | undefined) => {
@@ -245,22 +322,88 @@ export default function PaymentTestDashboard() {
           </TabsContent>
         </Tabs>
 
-        <Card className="mt-8 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-300 dark:border-blue-700">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <DollarSign className="w-5 h-5" />
-              Payment Flow Summary
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm">
-            <p><strong>Community Flow:</strong> Portal → Select Tier → Payment Element → Success</p>
-            <p><strong>Vendor Flow:</strong> Signup → Select Tier → Payment Element → Success</p>
-            <p><strong>Upgrade Flow:</strong> Dashboard → Upgrade Button → Tier Selection → Payment</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-4">
-              All payments use Stripe's secure Payment Element with PCI compliance
-            </p>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+          <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-300 dark:border-blue-700">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="w-5 h-5" />
+                Payment Flow Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <p><strong>Community Flow:</strong> Portal → Select Tier → Payment Element → Success</p>
+              <p><strong>Vendor Flow:</strong> Signup → Select Tier → Payment Element → Success</p>
+              <p><strong>Upgrade Flow:</strong> Dashboard → Upgrade Button → Tier Selection → Payment</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-4">
+                All payments use Stripe's secure Payment Element with PCI compliance
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-700">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Play className="w-5 h-5" />
+                Automated Testing
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={runFullEndToEndTest}
+                disabled={isRunningFullTest}
+                className="w-full mb-4"
+                variant="outline"
+              >
+                {isRunningFullTest ? (
+                  <>
+                    <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full mr-2" />
+                    Running Full Test Suite...
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4 mr-2" />
+                    Run Complete End-to-End Test
+                  </>
+                )}
+              </Button>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                Tests all payment tiers automatically
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {fullTestResults.length > 0 && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Test Results</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {fullTestResults.map((result, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-800">
+                    <span className="font-medium">{result.tier}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-600">{result.message}</span>
+                      {result.status === 'success' && <CheckCircle2 className="w-4 h-4 text-green-500" />}
+                      {result.status === 'failed' && <AlertCircle className="w-4 h-4 text-red-500" />}
+                      {result.status === 'pending' && <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full" />}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        <Alert className="mt-6">
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Test Mode Active:</strong> Using Stripe sandbox environment. Test cards: 
+            4242 4242 4242 4242 (Success), 4000 0000 0000 0002 (Decline). 
+            Visit the <a href="https://dashboard.stripe.com/test/payments" target="_blank" rel="noopener noreferrer" className="underline">Stripe Dashboard</a> to monitor test payments.
+          </AlertDescription>
+        </Alert>
       </div>
     </div>
   );
