@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -81,6 +81,20 @@ export default function VendorMarketplaceTiers() {
   const [selectedTier, setSelectedTier] = useState<string>('featured');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  
+  // Check if this is an upgrade flow for existing vendor
+  const [existingVendorData, setExistingVendorData] = useState<any>(null);
+  
+  useEffect(() => {
+    const storedData = sessionStorage.getItem('vendorUpgradeData');
+    if (storedData) {
+      const data = JSON.parse(storedData);
+      setExistingVendorData(data);
+      // Pre-select the next tier up from their current tier
+      if (data.currentTier === 'basic') setSelectedTier('featured');
+      else if (data.currentTier === 'featured') setSelectedTier('national');
+    }
+  }, []);
 
   // Fetch vendor tiers
   const { data: vendorTiers, isLoading } = useQuery<Record<string, VendorTier>>({
@@ -101,25 +115,57 @@ export default function VendorMarketplaceTiers() {
 
   const handleUpgrade = async (tier: string) => {
     try {
-      // For vendor subscriptions, redirect to vendor signup with tier info
       const tierInfo = allTiers[tier as keyof typeof allTiers];
       if (!tierInfo) {
         throw new Error('Invalid tier selected');
       }
 
-      // Store selected tier in localStorage for vendor signup flow
-      localStorage.setItem('selectedVendorTier', tier);
-      localStorage.setItem('selectedVendorPrice', tierInfo.price.toString());
-      
-      toast({
-        title: "Let's Get Started!",
-        description: `Setting up your ${tierInfo.name} vendor account...`,
-      });
-      
-      // Redirect to vendor signup
-      setTimeout(() => {
-        setLocation('/vendor-signup');
-      }, 1000);
+      // Check if this is an existing vendor upgrading
+      if (existingVendorData && !existingVendorData.isNewVendor) {
+        // Map tier names to product IDs
+        const productIdMap: Record<string, string> = {
+          'basic': 'basic-vendor',
+          'featured': 'featured-vendor',
+          'national': 'national-partner'
+        };
+        
+        const productId = productIdMap[tier];
+        if (!productId) {
+          throw new Error('Invalid tier selected');
+        }
+        
+        // Store upgrade data for payment page
+        sessionStorage.setItem('vendorUpgradeData', JSON.stringify({
+          ...existingVendorData,
+          productId,
+          selectedTier: tier,
+          tierName: tierInfo.name,
+          price: tierInfo.price
+        }));
+        
+        toast({
+          title: "Upgrading Your Plan",
+          description: `Redirecting to secure payment for ${tierInfo.name}...`,
+        });
+        
+        // Go directly to payment for existing vendors
+        setTimeout(() => {
+          setLocation(`/vendor-mobile-payment/${productId}`);
+        }, 500);
+      } else {
+        // New vendors go through signup flow
+        localStorage.setItem('selectedVendorTier', tier);
+        localStorage.setItem('selectedVendorPrice', tierInfo.price.toString());
+        
+        toast({
+          title: "Let's Get Started!",
+          description: `Setting up your ${tierInfo.name} vendor account...`,
+        });
+        
+        setTimeout(() => {
+          setLocation('/vendor-signup');
+        }, 1000);
+      }
     } catch (error) {
       toast({
         title: "Error",

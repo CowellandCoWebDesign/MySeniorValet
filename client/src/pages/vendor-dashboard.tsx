@@ -406,9 +406,18 @@ export default function VendorDashboard() {
               </div>
 
               <div className="flex gap-3">
-                {vendor.subscriptionTier !== 'enterprise' && (
+                {vendor.subscriptionTier !== 'national' && (
                   <Button 
-                    onClick={() => setLocation('/vendor-marketplace-tiers')}
+                    onClick={() => {
+                      // Store vendor data for upgrade flow
+                      sessionStorage.setItem('vendorUpgradeData', JSON.stringify({
+                        vendorId: vendor.id,
+                        vendorName: vendor.businessName,
+                        currentTier: vendor.subscriptionTier || 'basic',
+                        isNewVendor: false
+                      }));
+                      setLocation('/vendor-marketplace-tiers');
+                    }}
                     className="flex-1"
                   >
                     <TrendingUp className="w-4 h-4 mr-2" />
