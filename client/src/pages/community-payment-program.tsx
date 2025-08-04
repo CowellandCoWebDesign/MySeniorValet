@@ -477,8 +477,6 @@ export default function CommunityPaymentProgram() {
           </Card>
         </div>
       </div>
-      
-      <Footer />
     </div>
   );
 }
