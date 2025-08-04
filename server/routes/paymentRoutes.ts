@@ -33,9 +33,12 @@ export function registerPaymentRoutes(app: Express) {
         maxPrice: formData.maxPrice ? parseInt(formData.maxPrice) : null,
         amenities: formData.amenities || [],
         healthcareServices: formData.healthcareServices || [],
-        tierName: 'Platinum', // Since they just paid
-        onboardingCompleted: false,
-        onboardingStep: stepId
+        subscriptionTier: 'platinum',
+        billingStatus: 'active',
+        careTypes: ['Senior Living'],
+        latitude: 0,
+        longitude: 0,
+        capacity: 0
       }).returning();
       
       res.json({ success: true, communityId: community.id });
@@ -54,7 +57,6 @@ export function registerPaymentRoutes(app: Express) {
       await db.update(communities)
         .set({
           ...formData,
-          onboardingStep: stepId,
           updatedAt: new Date()
         })
         .where(eq(communities.id, parseInt(communityId)));
@@ -72,7 +74,6 @@ export function registerPaymentRoutes(app: Express) {
       
       await db.update(communities)
         .set({
-          onboardingCompleted: true,
           updatedAt: new Date()
         })
         .where(eq(communities.id, parseInt(communityId)));
@@ -92,22 +93,18 @@ export function registerPaymentRoutes(app: Express) {
       // Create a new vendor record
       const [vendor] = await db.insert(vendors).values({
         businessName: formData.businessName || 'New Vendor',
-        category: formData.category,
-        phone: formData.phone,
-        email: formData.email,
+        businessType: formData.businessType || 'company',
+        primaryContactName: formData.contactName || formData.businessName,
+        primaryContactPhone: formData.phone,
+        primaryContactEmail: formData.email,
         website: formData.website,
         description: formData.description,
         serviceRadius: formData.serviceRadius,
-        nationalService: formData.nationalService,
-        languages: formData.languages || ['English'],
-        emergencyService: formData.emergencyService,
-        freeConsultation: formData.freeConsultation,
-        licensed: formData.licensed,
-        insured: formData.insured,
-        bonded: formData.bonded,
-        tier: 3, // They selected a paid tier
-        onboardingCompleted: false,
-        onboardingStep: stepId
+        serviceAreas: formData.serviceAreas || [],
+        subscriptionTier: 'professional', // They selected a paid tier
+        subscriptionStatus: 'active',
+        subscriptionStartDate: new Date(),
+        status: 'active'
       }).returning();
       
       res.json({ success: true, vendorId: vendor.id });
@@ -126,7 +123,6 @@ export function registerPaymentRoutes(app: Express) {
       await db.update(vendors)
         .set({
           ...formData,
-          onboardingStep: stepId,
           updatedAt: new Date()
         })
         .where(eq(vendors.id, parseInt(vendorId)));
@@ -144,7 +140,6 @@ export function registerPaymentRoutes(app: Express) {
       
       await db.update(vendors)
         .set({
-          onboardingCompleted: true,
           updatedAt: new Date()
         })
         .where(eq(vendors.id, parseInt(vendorId)));
@@ -218,7 +213,7 @@ export function registerPaymentRoutes(app: Express) {
             'national-partner': 'national-partner'
           };
           
-          await db.insert(vendors).values({
+          const [newVendor] = await db.insert(vendors).values({
             businessName: vendorData.businessName,
             businessType: vendorData.businessType || 'company',
             primaryContactName: vendorData.contactName,
@@ -233,7 +228,17 @@ export function registerPaymentRoutes(app: Express) {
             status: 'active',
             createdAt: new Date(),
             updatedAt: new Date()
+          }).returning();
+          
+          // Return vendor ID in response
+          res.json({ 
+            success: true, 
+            status: paymentIntent.status,
+            message: 'Payment processed successfully',
+            vendorId: newVendor.id
           });
+          
+          return; // Exit early after handling vendor
           
           // Send notification email
           await notifySuperAdmin(
@@ -261,7 +266,7 @@ export function registerPaymentRoutes(app: Express) {
           await db.update(communities)
             .set({
               subscriptionTier: tierMap[productId] || 'verified',
-              stripePaymentIntentId: paymentIntentId,
+              stripeCustomerId: paymentIntent.customer as string,
               updatedAt: new Date()
             })
             .where(eq(communities.id, parseInt(communityId)));
@@ -323,18 +328,63 @@ export function registerPaymentRoutes(app: Express) {
         // For new communities, we'll create a placeholder record
         console.log('New community payment confirmed:', { tier, paymentIntentId });
         
-        // Create new community entry
+        // Create new community entry with all required fields
         const [newCommunity] = await db
           .insert(communities)
           .values({
-            name: 'Pending Registration',
+            name: 'MySeniorValet Test Island 🏝️',
             address: 'Pending',
             city: 'Pending',
             state: 'Pending',
             zipCode: '00000',
-            careTypes: ['Pending'],
+            phone: 'Pending',
+            email: 'Pending',
+            website: null,
+            description: 'Pending community registration',
+            careTypes: ['Senior Living'],
+            amenities: [],
+            latitude: 0,
+            longitude: 0,
+            capacity: 0,
             subscriptionTier: tier,
+            yearEstablished: null,
+            virtualTours: false,
+            petFriendly: false,
+            languagesSpoken: ['English'],
+            transportationServices: false,
+            mealPlansIncluded: false,
+            specialPrograms: [],
+            insuranceAccepted: [],
+            minAge: null,
+            maxAge: null,
+            genderRestrictions: null,
+            religiousAffiliation: null,
+            veteranPrograms: false,
+            smokingPolicy: 'No Smoking',
+            alcoholPolicy: 'Not Allowed',
+            visitingHours: '24/7',
+            securityFeatures: [],
+            emergencyResponseTime: null,
+            staffingRatio: null,
+            medicaidAccepted: false,
+            medicareAccepted: false,
+            privatePayAccepted: true,
+            roomTypes: [],
+            roomAmenities: [],
+            startingPrice: null,
+            averagePrice: null,
+            pricingModel: 'Contact for Pricing',
+            allInclusive: false,
+            activitiesIncluded: [],
+            utilitiesIncluded: [],
+            depositsRequired: null,
+            applicationFee: null,
+            availableUnits: 0,
+            waitlistAvailable: false,
+            admissionRequirements: null,
+            dischargePolicy: null,
             billingStatus: 'active',
+            stripeCustomerId: paymentIntent.customer as string,
             createdAt: new Date(),
             updatedAt: new Date()
           })
