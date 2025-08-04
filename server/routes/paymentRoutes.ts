@@ -60,6 +60,77 @@ export function registerPaymentRoutes(app: Express) {
     }
   });
 
+  // Create vendor checkout session
+  app.post('/api/payments/create-vendor-checkout', async (req, res) => {
+    try {
+      const { productId, vendorData, successUrl, cancelUrl } = req.body;
+
+      if (!productId) {
+        return res.status(400).json({ error: 'Product ID is required' });
+      }
+
+      // Store vendor data temporarily (in production, save to database)
+      console.log('Creating vendor checkout for:', vendorData);
+      
+      const session = await stripeSubscriptionService.createCheckoutSession(
+        null, // No community ID for vendors
+        productId,
+        successUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/success`,
+        cancelUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/cancel`,
+        { 
+          type: 'vendor',
+          vendorData: JSON.stringify(vendorData)
+        }
+      );
+
+      res.json({ 
+        sessionId: session.id, 
+        url: session.url,
+        _version: "v4_vendor_checkout_" + Date.now()
+      });
+    } catch (error) {
+      console.error('Error creating vendor checkout session:', error);
+      res.status(500).json({ 
+        error: 'Failed to create vendor checkout session',
+        _version: "v4_vendor_checkout_" + Date.now()
+      });
+    }
+  });
+
+  // Create community checkout session  
+  app.post('/api/payments/create-community-checkout', async (req, res) => {
+    try {
+      const { productId, communityId, successUrl, cancelUrl } = req.body;
+
+      if (!productId) {
+        return res.status(400).json({ error: 'Product ID is required' });
+      }
+
+      const session = await stripeSubscriptionService.createCheckoutSession(
+        communityId || 1, // Default to community ID 1 if not specified
+        productId,
+        successUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/success`,
+        cancelUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/cancel`,
+        {
+          type: 'community',
+          communityId: communityId || 1
+        }
+      );
+
+      res.json({ 
+        sessionId: session.id, 
+        url: session.url,
+        _version: "v4_community_checkout_" + Date.now()
+      });
+    } catch (error) {
+      console.error('Error creating community checkout session:', error);
+      res.status(500).json({ 
+        error: 'Failed to create community checkout session',
+        _version: "v4_community_checkout_" + Date.now()
+      });
+    }
+  });
+
   // Handle Stripe webhook
   app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
