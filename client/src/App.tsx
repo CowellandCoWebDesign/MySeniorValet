@@ -9,6 +9,7 @@ import { MascotProvider } from "@/components/mascot";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { OnboardingProvider } from "@/contexts/OnboardingContext";
+import { DevModeIndicator } from "@/components/DevModeIndicator";
 
 // Import Leaflet CSS globally for map functionality
 import 'leaflet/dist/leaflet.css';
@@ -232,6 +233,7 @@ function App() {
                 <Toaster />
                 <Router />
                 <DisclaimerBanner />
+                <DevModeIndicator />
               </MascotProvider>
             </TooltipProvider>
           </OnboardingProvider>

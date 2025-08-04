@@ -22,7 +22,8 @@ export class DevCacheManager {
   }
   
   private generateVersionHash(): string {
-    return `dev-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    // More aggressive timestamping for development
+    return `dev-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${performance.now()}`;
   }
   
   private initializeCacheBusting(): void {
