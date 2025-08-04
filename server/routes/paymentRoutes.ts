@@ -53,10 +53,24 @@ export function registerPaymentRoutes(app: Express) {
       const { communityId } = req.params;
       const { stepId, formData } = req.body;
       
+      // Sanitize form data to handle empty strings for numeric fields
+      const sanitizedData: any = {};
+      
+      for (const [key, value] of Object.entries(formData)) {
+        // Handle numeric fields that might be empty strings
+        if (['startingPrice', 'maxPrice', 'capacity'].includes(key)) {
+          sanitizedData[key] = value === '' || value === null || value === undefined 
+            ? null 
+            : parseInt(value as string);
+        } else {
+          sanitizedData[key] = value;
+        }
+      }
+      
       // Update existing community
       await db.update(communities)
         .set({
-          ...formData,
+          ...sanitizedData,
           updatedAt: new Date()
         })
         .where(eq(communities.id, parseInt(communityId)));

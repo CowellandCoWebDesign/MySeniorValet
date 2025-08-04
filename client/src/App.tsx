@@ -114,6 +114,7 @@ import PaymentCancel from "@/pages/payment-cancel";
 import CommunityMobilePayment from "@/pages/community-mobile-payment";
 import PaymentTestDashboard from "@/pages/payment-test-dashboard";
 import PaymentDiagnostics from "@/pages/payment-diagnostics";
+import AdminDashboard from "@/pages/admin-dashboard";
 import CommunityOnboarding from "@/pages/community-onboarding";
 import VendorOnboarding from "@/pages/vendor-onboarding";
 
@@ -233,6 +234,7 @@ function Router() {
       <Route path="/payment/cancel" component={PaymentCancel} />
       <Route path="/payment-test-dashboard" component={PaymentTestDashboard} />
       <Route path="/payment-diagnostics" component={PaymentDiagnostics} />
+      <Route path="/admin-dashboard" component={AdminDashboard} />
       <Route path="/community-onboarding/:communityId" component={CommunityOnboarding} />
       <Route path="/vendor-onboarding/:vendorId" component={VendorOnboarding} />
       <Route component={NotFound} />
