@@ -55,7 +55,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const careServicesRoutes = await import('./routes/careServicesRoutes');
   const amazonRedirectRoutes = await import('./routes/amazonRedirectRoutes');
   const amazonComplianceRoutes = await import('./routes/amazonComplianceRoutes');
+  const stripeWebhookProxy = await import('./routes/stripeWebhookProxy');
   app.use('/api/webhooks', webhookRoutes.default);
+  app.use('/api/payments', stripeWebhookProxy.default); // Handle Stripe's configured webhook URL
   app.use('/api/webhook-dev', webhookDevelopment.default);
   app.use('/api/subscription-status', subscriptionStatusRoutes.default);
   app.use('/api', subscriptionIntegrationRoutes.default);

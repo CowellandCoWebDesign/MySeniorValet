@@ -29,14 +29,19 @@ export class PaymentNotificationService {
 
       // Log notification
       await db.insert(auditLogs).values({
-        action: `payment_notification_${notification.type}`,
+        entityType: 'payment_notification',
+        entityId: 0,
+        userId: null,
+        operation: `payment_notification_${notification.type}`,
         details: JSON.stringify({
           type: notification.type,
           recipient: notification.customerEmail,
           tier: notification.tierName,
           amount: notification.amount
         }),
-        timestamp: new Date()
+        ipAddress: 'system',
+        userAgent: 'payment-notification-service',
+        createdAt: new Date()
       });
 
     } catch (error) {

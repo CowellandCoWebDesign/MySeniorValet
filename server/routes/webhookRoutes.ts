@@ -70,13 +70,18 @@ router.post('/webhook', async (req: Request, res: Response) => {
 
     // Log webhook event
     await db.insert(auditLogs).values({
-      action: `webhook_${event.type}`,
+      entityType: 'webhook',
+      entityId: 0,
+      userId: null,
+      operation: `webhook_${event.type}`,
       details: JSON.stringify({ 
         event_id: event.id,
         event_type: event.type,
         processed_at: new Date().toISOString()
       }),
-      timestamp: new Date()
+      ipAddress: req.ip || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown',
+      createdAt: new Date()
     });
 
     res.status(200).json({ received: true });
