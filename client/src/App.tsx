@@ -113,6 +113,7 @@ import PaymentSuccess from "@/pages/payment-success";
 import PaymentCancel from "@/pages/payment-cancel";
 import TestPaymentFlow from "@/pages/test-payment-flow";
 import CommunityMobilePayment from "@/pages/community-mobile-payment";
+import PaymentTestDashboard from "@/pages/payment-test-dashboard";
 
 function Router() {
   const [location] = useLocation();
@@ -229,6 +230,7 @@ function Router() {
       <Route path="/payment/success" component={PaymentSuccess} />
       <Route path="/payment/cancel" component={PaymentCancel} />
       <Route path="/test-payment-flow" component={TestPaymentFlow} />
+      <Route path="/payment-test-dashboard" component={PaymentTestDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
