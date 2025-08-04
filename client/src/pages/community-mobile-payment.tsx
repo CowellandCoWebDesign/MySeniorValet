@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'wouter';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements } from '@stripe/react-stripe-js';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -11,12 +9,6 @@ import { MobilePaymentForm } from '@/components/MobilePaymentForm';
 import { toast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import PaymentJourneyTracker, { COMMUNITY_PAYMENT_STEPS, PaymentStep } from '@/components/PaymentJourneyTracker';
-
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
-}
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 const TIER_DETAILS = {
   standard: {
@@ -71,13 +63,11 @@ const TIER_DETAILS = {
 export default function CommunityMobilePayment() {
   const { tier } = useParams();
   const [, setLocation] = useLocation();
-  const [clientSecret, setClientSecret] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [communityData, setCommunityData] = useState<any>(null);
   const [error, setError] = useState('');
   const [currentStep, setCurrentStep] = useState('tier-selection');
   const [paymentSteps, setPaymentSteps] = useState<PaymentStep[]>(COMMUNITY_PAYMENT_STEPS);
-  const [paymentInitialized, setPaymentInitialized] = useState(false);
 
   const tierDetails = TIER_DETAILS[tier as keyof typeof TIER_DETAILS];
 
@@ -87,13 +77,6 @@ export default function CommunityMobilePayment() {
       setIsLoading(false);
       return;
     }
-
-    // Only create payment intent once
-    if (paymentInitialized) {
-      return;
-    }
-
-    setPaymentInitialized(true);
 
     // Initialize payment steps based on tier selection
     const updatedSteps = paymentSteps.map(step => {
@@ -110,7 +93,6 @@ export default function CommunityMobilePayment() {
     if (storedData) {
       const data = JSON.parse(storedData);
       setCommunityData(data);
-      createPaymentIntent(data);
     } else {
       // If no stored data, this is a direct navigation - create new community payment
       const newCommunityData = {
@@ -121,73 +103,12 @@ export default function CommunityMobilePayment() {
         planName: tierDetails.name
       };
       setCommunityData(newCommunityData);
-      createPaymentIntent(newCommunityData);
     }
-  }, [tier, tierDetails, paymentInitialized]);
+    
+    setIsLoading(false);
+  }, [tier, tierDetails]);
 
-  const createPaymentIntent = async (data: any) => {
-    try {
-      // Update progress to verification step
-      const updatedSteps = paymentSteps.map(step => {
-        if (step.id === 'payment-details') {
-          return { ...step, status: 'active' as const };
-        }
-        return step;
-      });
-      setPaymentSteps(updatedSteps);
 
-      const response = await fetch('/api/payments/create-payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          productId: tier,
-          amount: tierDetails.price * 100, // Convert to cents
-          metadata: {
-            communityId: data.communityId || 'new',
-            communityName: data.communityName || 'New Community',
-            tier: tier,
-            type: 'community_subscription',
-            isNewCommunity: String(data.isNewCommunity)
-          }
-        })
-      });
-
-      const paymentData = await response.json();
-      
-      if (paymentData.clientSecret) {
-        setClientSecret(paymentData.clientSecret);
-        
-        // Update progress - payment form ready
-        const readySteps = updatedSteps.map(step => {
-          if (step.id === 'payment-details') {
-            return { ...step, status: 'completed' as const };
-          }
-          if (step.id === 'verification') {
-            return { ...step, status: 'active' as const };
-          }
-          return step;
-        });
-        setPaymentSteps(readySteps);
-        setCurrentStep('verification');
-      } else {
-        throw new Error('Failed to create payment session');
-      }
-    } catch (err) {
-      console.error('Error creating payment intent:', err);
-      setError('Failed to initialize payment. Please try again.');
-      
-      // Update steps to show error
-      const errorSteps = paymentSteps.map(step => {
-        if (step.id === 'payment-details') {
-          return { ...step, status: 'error' as const };
-        }
-        return step;
-      });
-      setPaymentSteps(errorSteps);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handlePaymentSuccess = async (paymentIntent: any) => {
     try {
@@ -347,39 +268,19 @@ export default function CommunityMobilePayment() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {clientSecret ? (
-                <Elements 
-                  stripe={stripePromise} 
-                  options={{ 
-                    clientSecret,
-                    appearance: {
-                      theme: 'stripe',
-                      variables: {
-                        colorPrimary: '#3b82f6',
-                      },
-                    },
-                  }}
-                >
-                  <MobilePaymentForm
-                    productId={tier || ''}
-                    productName={`${tierDetails.name} Community Subscription`}
-                    price={tierDetails.price * 100}
-                    metadata={{
-                      communityId: communityData?.communityId || 'new',
-                      communityName: communityData?.communityName || 'New Community',
-                      tier: tier || '',
-                      type: 'community_subscription'
-                    }}
-                    onSuccess={handlePaymentSuccess}
-                    onCancel={handleCancel}
-                  />
-                </Elements>
-              ) : (
-                <div className="text-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-                  <p className="text-gray-600 dark:text-gray-400">Initializing payment...</p>
-                </div>
-              )}
+              <MobilePaymentForm
+                productId={tier || ''}
+                productName={`${tierDetails.name} Community Subscription`}
+                price={tierDetails.price * 100}
+                metadata={{
+                  communityId: communityData?.communityId || 'new',
+                  communityName: communityData?.communityName || 'New Community',
+                  tier: tier || '',
+                  type: 'community_subscription'
+                }}
+                onSuccess={handlePaymentSuccess}
+                onCancel={handleCancel}
+              />
             </CardContent>
           </Card>
           </div>

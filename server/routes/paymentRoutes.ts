@@ -21,10 +21,10 @@ export function registerPaymentRoutes(app: Express) {
       // Create a new community record
       const [community] = await db.insert(communities).values({
         name: formData.name || 'New Community',
-        address: formData.address,
-        city: formData.city,
-        state: formData.state,
-        zipCode: formData.zipCode,
+        address: formData.address || '',
+        city: formData.city || '',
+        state: formData.state || '',
+        zipCode: formData.zipCode || '',
         phone: formData.phone,
         email: formData.email,
         website: formData.website,
@@ -33,8 +33,8 @@ export function registerPaymentRoutes(app: Express) {
         maxPrice: formData.maxPrice ? parseInt(formData.maxPrice) : null,
         amenities: formData.amenities || [],
         healthcareServices: formData.healthcareServices || [],
-        subscriptionTier: 'platinum',
-        billingStatus: 'active',
+        subscriptionTier: 'platinum' as const,
+        billingStatus: 'active' as const,
         careTypes: ['Senior Living'],
         latitude: 0,
         longitude: 0,
@@ -256,7 +256,7 @@ export function registerPaymentRoutes(app: Express) {
           console.log('Processing community subscription:', { productId, communityId });
           
           // Map product ID to subscription tier
-          const tierMap: Record<string, string> = {
+          const tierMap: Record<string, 'standard' | 'featured' | 'platinum' | 'verified'> = {
             'standard': 'standard',
             'featured': 'featured',
             'platinum': 'platinum'
@@ -265,7 +265,7 @@ export function registerPaymentRoutes(app: Express) {
           // Update community in database
           await db.update(communities)
             .set({
-              subscriptionTier: tierMap[productId] || 'verified',
+              subscriptionTier: (tierMap[productId] || 'verified') as 'standard' | 'featured' | 'platinum' | 'verified',
               stripeCustomerId: paymentIntent.customer as string,
               updatedAt: new Date()
             })
@@ -346,7 +346,7 @@ export function registerPaymentRoutes(app: Express) {
             latitude: 0,
             longitude: 0,
             capacity: 0,
-            subscriptionTier: tier,
+            subscriptionTier: tier as 'standard' | 'featured' | 'platinum' | 'verified',
             yearEstablished: null,
             virtualTours: false,
             petFriendly: false,
@@ -406,8 +406,8 @@ export function registerPaymentRoutes(app: Express) {
         await db
           .update(communities)
           .set({
-            subscriptionTier: tier,
-            billingStatus: 'active',
+            subscriptionTier: tier as 'standard' | 'featured' | 'platinum' | 'verified',
+            billingStatus: 'active' as const,
             updatedAt: new Date()
           })
           .where(eq(communities.id, parsedCommunityId));
