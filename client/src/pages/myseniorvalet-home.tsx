@@ -2395,10 +2395,10 @@ export default function MySeniorValetHome() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Join the MySeniorValet Platform
+              Partner With MySeniorValet
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Whether you're a senior living community or a service provider, join thousands already connecting with families across North America
+              List your community or service on the platform families trust for senior care decisions
             </p>
           </div>
 
@@ -2417,10 +2417,10 @@ export default function MySeniorValetHome() {
                     <Building className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-                    Senior Living Communities
+                    For Community Owners & Operators
                   </h3>
                   <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-                    Join thousands of communities connecting with families actively searching for care
+                    List your senior living community and connect with qualified families actively searching for care
                   </p>
                   
                   {/* Enhanced Community Benefits */}
@@ -2428,8 +2428,8 @@ export default function MySeniorValetHome() {
                     <div className="flex items-start gap-3">
                       <Star className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0 animate-pulse" />
                       <div>
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Free Verified Listings</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Get started at no cost with verified status</p>
+                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Start Free - No Credit Card Required</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Claim your verified listing in minutes</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
@@ -2472,7 +2472,7 @@ export default function MySeniorValetHome() {
                     onClick={() => setLocation('/community-portal')}
                   >
                     <Building className="w-5 h-5 mr-2" />
-                    Claim Your Community
+                    List My Community
                   </Button>
                 </div>
               </CardContent>
@@ -2586,10 +2586,10 @@ export default function MySeniorValetHome() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setLocation('/claim-listing')}
+                    onClick={() => setLocation('/claim')}
                   >
                     <Shield className="w-4 h-4 mr-2" />
-                    Claim Your Listing
+                    Update My Community Info
                   </Button>
                   <Button
                     variant="outline"
