@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag } from "lucide-react";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -187,13 +188,68 @@ export default function MySeniorValetHome() {
         <div className="px-4 py-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm shadow-lg">
-                <div className="flex flex-col space-y-1">
-                  <div className="w-4 h-0.5 bg-white rounded-full"></div>
-                  <div className="w-4 h-0.5 bg-white rounded-full"></div>
-                  <div className="w-4 h-0.5 bg-white rounded-full"></div>
-                </div>
-              </div>
+              <Sheet>
+                <SheetTrigger asChild>
+                  <button className="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm shadow-lg hover:bg-white/30 transition-colors">
+                    <div className="flex flex-col space-y-1">
+                      <div className="w-4 h-0.5 bg-white rounded-full"></div>
+                      <div className="w-4 h-0.5 bg-white rounded-full"></div>
+                      <div className="w-4 h-0.5 bg-white rounded-full"></div>
+                    </div>
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-80">
+                  <div className="flex flex-col space-y-6 mt-8">
+                    <div className="flex items-center space-x-3 pb-4 border-b border-gray-200 dark:border-gray-700">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <Home className="text-white h-5 w-5" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-lg font-display font-bold text-gray-900 dark:text-white">MySeniorValet</span>
+                        <span className="text-sm text-gray-500 font-medium -mt-1">Senior Living Search</span>
+                      </div>
+                    </div>
+                    <nav className="flex flex-col space-y-2">
+                      <Link href="/search" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <Search className="h-5 w-5" />
+                        <span>Search Communities</span>
+                      </Link>
+                      <Link href="/services" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <Heart className="h-5 w-5" />
+                        <span>Healthcare & Services</span>
+                      </Link>
+                      <Link href="/hospitals" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <Building2 className="h-5 w-5" />
+                        <span>Hospital Directory</span>
+                      </Link>
+                      <Link href="/care-marketplace" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <ShoppingBag className="h-5 w-5" />
+                        <span>Care Marketplace</span>
+                      </Link>
+                      <Link href="/community-portal" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <Building className="h-5 w-5" />
+                        <span>Community Portal</span>
+                      </Link>
+                      <Link href="/care-guide" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <BookOpen className="h-5 w-5" />
+                        <span>Care Guide</span>
+                      </Link>
+                      <Link href="/about" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <Users className="h-5 w-5" />
+                        <span>About Us</span>
+                      </Link>
+                    </nav>
+                    <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
+                      <Link href="/login">
+                        <Button className="w-full">Sign In</Button>
+                      </Link>
+                      <Link href="/signup">
+                        <Button variant="outline" className="w-full">Sign Up</Button>
+                      </Link>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
               <div className="flex items-center space-x-1.5">
                 <div className="w-6 h-6 gradient-primary rounded-md flex items-center justify-center">
                   <Home className="w-4 h-4 text-white" />
