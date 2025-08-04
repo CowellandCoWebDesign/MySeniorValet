@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { 
   CreditCard, 
   CheckCircle2, 
@@ -104,6 +104,7 @@ export default function PaymentTestDashboard() {
     status: 'pending' | 'success' | 'failed';
     message: string;
   }>>([]);
+  const [showTestInstructions, setShowTestInstructions] = useState(true);
 
   const testPaymentFlow = async (tier: TierTest) => {
     setTestResults(prev => ({ ...prev, [tier.id]: 'testing' }));
@@ -292,6 +293,30 @@ export default function PaymentTestDashboard() {
             Click any tier to test the complete payment flow with Stripe
           </p>
         </div>
+
+        {/* Live Testing Alert */}
+        {showTestInstructions && (
+          <Alert className="mb-8">
+            <Info className="h-4 w-4" />
+            <AlertTitle>Live Payment Testing Instructions</AlertTitle>
+            <AlertDescription className="mt-2 space-y-2">
+              <div>✅ <strong>Live Mode Active</strong> - Using real Stripe payment processing</div>
+              <div>📧 <strong>Contact Email:</strong> hello@myseniorvalet.com (General) | billing@myseniorvalet.com (Billing)</div>
+              <div>💳 <strong>Test Cards:</strong></div>
+              <ul className="ml-6 mt-2 space-y-1">
+                <li>• Success: 4242 4242 4242 4242</li>
+                <li>• Decline: 4000 0000 0000 0002</li>
+                <li>• 3D Secure: 4000 0025 0000 3155</li>
+              </ul>
+              <div className="mt-3">
+                <Button variant="ghost" size="sm" onClick={() => setShowTestInstructions(false)}>
+                  <AlertCircle className="h-4 w-4 mr-2" />
+                  Hide Instructions
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Tabs defaultValue="community" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-8">
