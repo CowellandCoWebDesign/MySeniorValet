@@ -154,7 +154,7 @@ export default function VendorMarketplaceTiers() {
               <Info className="w-4 h-4" />
               <span className="font-medium">Important:</span> This marketplace is for commercial service providers only. 
               Healthcare providers (home health, hospice, therapy) should visit our 
-              <Link to="/" className="underline ml-1 hover:text-blue-600">free Senior Care Services Directory</Link>
+              <Link to="/" className="underline ml-1 hover:text-blue-600">free Healthcare and Care Services Directory</Link>
             </p>
           </div>
           
@@ -164,7 +164,7 @@ export default function VendorMarketplaceTiers() {
               Commercial Service Categories We're Seeking:
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 italic">
-              (Healthcare providers like home health, hospice, and therapy belong in our free Senior Care Services Directory)
+              (Healthcare providers like home health, hospice, and therapy belong in our free Healthcare and Care Services Directory)
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
               <div className="flex items-start gap-2">
