@@ -671,7 +671,7 @@ export function registerPaymentRoutes(app: Express) {
       const session = await stripeSubscriptionService.createCheckoutSession(
         communityId,
         productId,
-        successUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/success`,
+        successUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/cancel`
       );
 
@@ -721,7 +721,7 @@ export function registerPaymentRoutes(app: Express) {
       const session = await stripeSubscriptionService.createCheckoutSession(
         0, // Use 0 instead of null for vendor checkout
         productId,
-        successUrl || `${baseUrl}/payment/success`,
+        successUrl || `${baseUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl || `${baseUrl}/payment/cancel`
       );
 
@@ -766,7 +766,7 @@ export function registerPaymentRoutes(app: Express) {
       const session = await stripeSubscriptionService.createCheckoutSession(
         communityId || 1, // Default to community ID 1 if not specified
         productId,
-        successUrl || `${baseUrl}/payment/success`,
+        successUrl || `${baseUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl || `${baseUrl}/payment/cancel`,
         {
           type: 'community',
@@ -784,6 +784,65 @@ export function registerPaymentRoutes(app: Express) {
       res.status(500).json({ 
         error: 'Failed to create community checkout session',
         _version: "v4_community_checkout_" + Date.now()
+      });
+    }
+  });
+
+  // Get checkout session details
+  app.get('/api/payments/session/:sessionId', async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      
+      if (!sessionId) {
+        return res.status(400).json({ error: 'Session ID is required' });
+      }
+      
+      const session = await stripe.checkout.sessions.retrieve(sessionId, {
+        expand: ['subscription', 'customer']
+      });
+      
+      // Extract tier from price or metadata
+      let tier = 'verified';
+      const metadata = session.metadata || {};
+      
+      // Extract from product ID or line items
+      if (session.line_items) {
+        const lineItems = await stripe.checkout.sessions.listLineItems(sessionId);
+        const productName = lineItems.data[0]?.description?.toLowerCase() || '';
+        
+        if (productName.includes('platinum')) tier = 'platinum';
+        else if (productName.includes('featured')) tier = 'featured';
+        else if (productName.includes('standard')) tier = 'standard';
+        else if (productName.includes('national-partner')) tier = 'national-partner';
+        else if (productName.includes('featured-vendor')) tier = 'featured';
+        else if (productName.includes('basic-listing')) tier = 'basic';
+      }
+      
+      // Get community data if it's a community subscription
+      let communityData = null;
+      if (metadata.communityId) {
+        const [community] = await db.select().from(communities).where(eq(communities.id, parseInt(metadata.communityId)));
+        communityData = community;
+      }
+      
+      res.json({
+        success: true,
+        session: {
+          id: session.id,
+          customerEmail: session.customer_email,
+          amountTotal: session.amount_total,
+          currency: session.currency,
+          paymentStatus: session.payment_status,
+          tier,
+          metadata,
+          community: communityData
+        }
+      });
+    } catch (error) {
+      console.error('Error retrieving session:', error);
+      res.status(500).json({ 
+        error: 'Failed to retrieve session details',
+        _version: "v4_session_retrieve_" + Date.now()
       });
     }
   });
