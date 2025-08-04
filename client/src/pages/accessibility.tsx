@@ -3,15 +3,11 @@ import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Phone, FileText } from "lucide-react";
-import { NavigationHeader } from "@/components/NavigationHeader";
 
 export default function Accessibility() {
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavigationHeader 
-        title="Accessibility" 
-        subtitle="Our commitment to digital accessibility"
-      />
+      <Header />
       
       {/* Skip to main content link for accessibility */}
       <a 

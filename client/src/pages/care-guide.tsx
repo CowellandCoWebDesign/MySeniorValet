@@ -16,7 +16,7 @@ import {
   Info
 } from "lucide-react";
 import { Link } from "wouter";
-import { NavigationHeader } from "@/components/NavigationHeader";
+import { Header } from "@/components/header";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 
 export default function CareGuide() {
@@ -172,10 +172,7 @@ export default function CareGuide() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      <NavigationHeader 
-        title="Senior Care Guide" 
-        subtitle="Understanding care types and pricing across 25,782 communities"
-      />
+      <Header />
 
       {/* Breadcrumb Navigation */}
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">

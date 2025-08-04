@@ -31,7 +31,6 @@ import {
 } from "lucide-react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 
 interface Service {
@@ -367,10 +366,7 @@ export default function Services() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-blue-900 dark:to-purple-900 isolate">
-      <NavigationHeader 
-        title="Healthcare and Care Services Directory" 
-        subtitle="Comprehensive healthcare, caregiving, and support services for seniors"
-      />
+      <Header />
       
       {/* Breadcrumb Navigation */}
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">

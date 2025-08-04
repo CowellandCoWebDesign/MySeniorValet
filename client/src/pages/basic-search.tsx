@@ -16,7 +16,7 @@ import "leaflet/dist/leaflet.css";
 import L, { Icon } from "leaflet";
 import Map from "@/components/Map";
 import { useDebounce } from "@/hooks/useDebounce";
-import { NavigationHeader } from "@/components/NavigationHeader";
+import { Header } from "@/components/header";
 
 // Care type icons and colors mapping
 const careTypeConfig = {
@@ -712,10 +712,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pb-16">
-      <NavigationHeader 
-        title="Community Search" 
-        subtitle="Find the perfect senior living community"
-      />
+      <Header />
       {/* Enhanced Navigation Bar */}
       <div className="sticky top-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b-2 border-gray-200 dark:border-gray-700 shadow-lg z-40">
         <div className="px-4 py-3">

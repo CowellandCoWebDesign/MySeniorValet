@@ -24,7 +24,7 @@ import {
   ChevronUp
 } from "lucide-react";
 import { Link } from "wouter";
-import { NavigationHeader } from "@/components/NavigationHeader";
+import { Header } from "@/components/header";
 
 interface ServiceOption {
   id: string;
@@ -339,10 +339,7 @@ export default function AllInOnePlanner() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      <NavigationHeader 
-        title="All-in-One Move-In Planner" 
-        subtitle="Simplify your transition with comprehensive services"
-      />
+      <Header />
 
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
