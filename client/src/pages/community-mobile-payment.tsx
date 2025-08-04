@@ -78,18 +78,30 @@ export default function CommunityMobilePayment() {
   const tierDetails = TIER_DETAILS[tier as keyof typeof TIER_DETAILS];
 
   useEffect(() => {
-    const storedData = sessionStorage.getItem('communityUpgradeData');
-    if (!storedData || !tierDetails) {
-      setError('Invalid upgrade session. Please start from your community dashboard.');
+    if (!tierDetails) {
+      setError('Invalid tier selected. Please choose a valid subscription plan.');
       setIsLoading(false);
       return;
     }
 
-    const data = JSON.parse(storedData);
-    setCommunityData(data);
-
-    // Create payment intent
-    createPaymentIntent(data);
+    // Try to get data from sessionStorage first (from community portal)
+    const storedData = sessionStorage.getItem('communityUpgradeData');
+    if (storedData) {
+      const data = JSON.parse(storedData);
+      setCommunityData(data);
+      createPaymentIntent(data);
+    } else {
+      // If no stored data, this is a direct navigation - create new community payment
+      const newCommunityData = {
+        isNewCommunity: true,
+        communityId: null,
+        communityName: 'New Community',
+        productId: tier,
+        planName: tierDetails.name
+      };
+      setCommunityData(newCommunityData);
+      createPaymentIntent(newCommunityData);
+    }
   }, [tier]);
 
   const createPaymentIntent = async (data: any) => {
@@ -98,13 +110,14 @@ export default function CommunityMobilePayment() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          productId: `community-${tier}`,
+          productId: tier,
           amount: tierDetails.price * 100, // Convert to cents
           metadata: {
-            communityId: data.communityId,
-            communityName: data.communityName,
+            communityId: data.communityId || 'new',
+            communityName: data.communityName || 'New Community',
             tier: tier,
-            type: 'community_subscription'
+            type: 'community_subscription',
+            isNewCommunity: String(data.isNewCommunity)
           }
         })
       });
@@ -263,6 +276,15 @@ export default function CommunityMobilePayment() {
                   }}
                 >
                   <MobilePaymentForm
+                    productId={tier || ''}
+                    productName={`${tierDetails.name} Community Subscription`}
+                    price={tierDetails.price * 100}
+                    metadata={{
+                      communityId: communityData?.communityId || 'new',
+                      communityName: communityData?.communityName || 'New Community',
+                      tier: tier || '',
+                      type: 'community_subscription'
+                    }}
                     onSuccess={handlePaymentSuccess}
                     onCancel={handleCancel}
                   />

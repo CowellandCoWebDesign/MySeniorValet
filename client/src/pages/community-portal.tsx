@@ -163,10 +163,10 @@ export default function CommunityPortal() {
     try {
       // Map plan names to product IDs
       const productIdMap: Record<string, string> = {
-        'Verified': 'basic-listing',
-        'Standard': 'featured-spotlight', 
-        'Featured': 'premium-tools',
-        'Platinum': 'platinum-partner'
+        'Verified': 'verified',
+        'Standard': 'standard', 
+        'Featured': 'featured',
+        'Platinum': 'platinum'
       };
 
       const productId = productIdMap[planName];
@@ -174,8 +174,8 @@ export default function CommunityPortal() {
         throw new Error('Invalid plan selected');
       }
 
-      // For free tier, just show success message
-      if (productId === 'basic-listing') {
+      // For free tier, redirect to community claim
+      if (productId === 'verified') {
         toast({
           title: "Welcome to MySeniorValet!",
           description: "Your free verified listing is ready. Complete your profile to get started.",
@@ -186,27 +186,24 @@ export default function CommunityPortal() {
         return;
       }
 
-      // Call the actual payment API endpoint
-      toast({
-        title: "Redirecting to checkout...",
-        description: "Please wait while we prepare your payment session.",
-      });
-
-      const response = await apiRequest('POST', '/api/payments/create-community-checkout', {
+      // Store the selected plan info for the payment page
+      sessionStorage.setItem('communityUpgradeData', JSON.stringify({
         productId,
-        communityId: 1, // Default community ID for now
-        successUrl: `${window.location.origin}/payment/success?type=community&tier=${planName}`,
-        cancelUrl: `${window.location.origin}/community-portal`
+        planName,
+        isNewCommunity: true, // This can be dynamic based on user's auth status
+        communityId: null, // Will be set if user is upgrading existing community
+        communityName: 'New Community' // Default for new communities
+      }));
+
+      // Redirect to the mobile-optimized payment page
+      toast({
+        title: "Redirecting to payment...",
+        description: "Setting up your secure payment session.",
       });
 
-      const data = await response.json();
-      
-      if (data.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
-      } else {
-        throw new Error(data.error || 'Failed to create checkout session');
-      }
+      setTimeout(() => {
+        setLocation(`/community-mobile-payment/${productId}`);
+      }, 500);
 
     } catch (error: any) {
       console.error('Payment error:', error);
