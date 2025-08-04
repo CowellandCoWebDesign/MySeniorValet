@@ -1,6 +1,6 @@
 /**
- * TrueView Data Integration System
- * Imports scraped senior living community data into TrueView database
+ * MySeniorValet Data Integration System
+ * Imports scraped senior living community data into MySeniorValet database
  */
 
 const { Pool, neonConfig } = require('@neondatabase/serverless');
@@ -15,7 +15,7 @@ neonConfig.webSocketConstructor = ws;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 /**
- * Parse scraped data and convert to TrueView format
+ * Parse scraped data and convert to MySeniorValet format
  */
 function parseScrapedData(filePath) {
   console.log(`📖 Reading scraped data from: ${filePath}`);
@@ -33,9 +33,9 @@ function parseScrapedData(filePath) {
 }
 
 /**
- * Convert scraped community to TrueView database format
+ * Convert scraped community to MySeniorValet database format
  */
-function convertToTrueViewFormat(scrapedCommunity) {
+function convertToMySeniorValetFormat(scrapedCommunity) {
   // Parse care types
   const careTypes = scrapedCommunity.careTypes || [];
   
@@ -100,7 +100,7 @@ function convertToTrueViewFormat(scrapedCommunity) {
 }
 
 /**
- * Insert community into TrueView database
+ * Insert community into MySeniorValet database
  */
 async function insertCommunity(community) {
   // First check if community already exists
@@ -165,7 +165,7 @@ async function insertCommunity(community) {
  * Main integration function
  */
 async function integrateCommunityData(filePath) {
-  console.log('🚀 Starting TrueView Data Integration...');
+  console.log('🚀 Starting MySeniorValet Data Integration...');
   console.log('=' * 50);
   
   try {
@@ -189,8 +189,8 @@ async function integrateCommunityData(filePath) {
       try {
         console.log(`\n🏠 Processing ${i + 1}/${scrapedData.length}: ${scraped.name}`);
         
-        // Convert to TrueView format
-        const community = convertToTrueViewFormat(scraped);
+        // Convert to MySeniorValet format
+        const community = convertToMySeniorValetFormat(scraped);
         
         // Insert into database
         const result = await insertCommunity(community);
@@ -214,7 +214,7 @@ async function integrateCommunityData(filePath) {
     
     if (successCount > 0) {
       console.log('\n🔍 Next steps:');
-      console.log('  1. Review imported communities in TrueView admin dashboard');
+      console.log('  1. Review imported communities in MySeniorValet admin dashboard');
       console.log('  2. Verify and update community information');
       console.log('  3. Add photos and additional details');
       console.log('  4. Mark communities as verified after review');
@@ -231,12 +231,12 @@ async function integrateCommunityData(filePath) {
  * Run integration with command line arguments
  */
 async function main() {
-  const filePath = process.argv[2] || 'trueview_import_ready.json';
+  const filePath = process.argv[2] || 'myseniorvalet_import_ready.json';
   
   if (!fs.existsSync(filePath)) {
     console.error(`❌ File not found: ${filePath}`);
     console.log('Usage: node data-integration-system.cjs <scraped_data_file.json>');
-    console.log('Example: node data-integration-system.cjs trueview_import_ready.json');
+    console.log('Example: node data-integration-system.cjs myseniorvalet_import_ready.json');
     process.exit(1);
   }
   
@@ -250,6 +250,6 @@ if (require.main === module) {
 
 module.exports = {
   integrateCommunityData,
-  convertToTrueViewFormat,
+  convertToMySeniorValetFormat,
   insertCommunity
 };

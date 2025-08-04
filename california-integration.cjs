@@ -1,6 +1,6 @@
 /**
  * California Government Data Integration
- * Imports official CDSS facility data into TrueView database
+ * Imports official CDSS facility data into MySeniorValet database
  */
 
 const { Pool, neonConfig } = require('@neondatabase/serverless');
@@ -58,9 +58,9 @@ function parseCaliforniaFacilities(csvFile) {
 }
 
 /**
- * Convert to TrueView format
+ * Convert to MySeniorValet format
  */
-function convertToTrueViewFormat(facility) {
+function convertToMySeniorValetFormat(facility) {
   // Determine care types based on facility type and capacity
   const careTypes = [];
   if (facility.capacity && facility.capacity <= 6) {
@@ -188,8 +188,8 @@ async function integrateCalifornia() {
       
       for (const facility of batch) {
         try {
-          const trueviewFacility = convertToTrueViewFormat(facility);
-          const result = await insertCaliforniaFacility(trueviewFacility);
+          const myseniorvaletFacility = convertToMySeniorValetFormat(facility);
+          const result = await insertCaliforniaFacility(myseniorvaletFacility);
           
           if (result.existing) {
             existingCount++;

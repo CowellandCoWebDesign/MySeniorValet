@@ -1,6 +1,6 @@
 /**
  * Seed Script for Emotional Support Resources
- * Creates sample categories and curated content for TrueView Support Center
+ * Creates sample categories and curated content for MySeniorValet Support Center
  */
 
 import { Pool } from '@neondatabase/serverless';
@@ -161,7 +161,7 @@ Take time to discuss these options with your family and healthcare providers. Vi
         emotionalThemes: ["preparation"],
         readingTime: 5,
         difficulty: "beginner",
-        authorName: "TrueView Care Team",
+        authorName: "MySeniorValet Care Team",
         authorCredentials: "Senior Living Specialists",
         isFeatured: false
       },

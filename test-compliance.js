@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
 /**
- * TrueView Compliance Test Suite
+ * MySeniorValet Compliance Test Suite
  * Tests critical compliance endpoints and features
  */
 
 const TEST_BASE_URL = 'http://localhost:5000';
 
 async function runComplianceTests() {
-  console.log('🔍 TrueView Compliance Test Suite');
+  console.log('🔍 MySeniorValet Compliance Test Suite');
   console.log('=====================================\n');
 
   let passedTests = 0;
@@ -142,7 +142,7 @@ async function runComplianceTests() {
   
   if (passedTests === totalTests) {
     console.log('🎉 All compliance tests PASSED!');
-    console.log('✅ TrueView is ready for production deployment');
+    console.log('✅ MySeniorValet is ready for production deployment');
     process.exit(0);
   } else {
     console.log('⚠️  Some compliance tests FAILED');

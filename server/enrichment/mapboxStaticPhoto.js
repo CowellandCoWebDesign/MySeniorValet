@@ -80,7 +80,7 @@ async function geocodeAddress(address) {
     
     const response = await fetch(geocodeUrl, {
       headers: {
-        'User-Agent': 'TrueView-SeniorLiving/1.0'
+        'User-Agent': 'MySeniorValet-SeniorLiving/1.0'
       }
     });
 

@@ -273,22 +273,71 @@ const services: Service[] = [
 ];
 
 export default function Services() {
-  const [selectedCategory, setSelectedCategory] = useState("all");
-
-  const categories = [
-    { id: "all", name: "All Services", count: services.length },
-    { id: "healthcare", name: "Healthcare & Medical", count: services.filter(s => s.category === "healthcare").length },
-    { id: "personal-care", name: "Personal Care", count: services.filter(s => s.category === "personal-care").length },
-    { id: "moving", name: "Moving & Transition", count: services.filter(s => s.category === "moving").length },
-    { id: "insurance", name: "Insurance & Financial", count: services.filter(s => s.category === "insurance").length },
-    { id: "transportation", name: "Transportation", count: services.filter(s => s.category === "transportation").length },
-    { id: "professional", name: "Professional Services", count: services.filter(s => s.category === "professional").length },
-    { id: "technology", name: "Technology Support", count: services.filter(s => s.category === "technology").length }
+  const categoryGroups = [
+    { 
+      id: "healthcare", 
+      name: "Healthcare & Medical", 
+      icon: Heart,
+      color: "from-red-500 to-pink-600",
+      bgColor: "bg-red-50 dark:bg-red-900/20",
+      borderColor: "border-red-200 dark:border-red-800",
+      services: services.filter(s => s.category === "healthcare")
+    },
+    { 
+      id: "personal-care", 
+      name: "Personal Care", 
+      icon: Users,
+      color: "from-purple-500 to-pink-600",
+      bgColor: "bg-purple-50 dark:bg-purple-900/20",
+      borderColor: "border-purple-200 dark:border-purple-800",
+      services: services.filter(s => s.category === "personal-care")
+    },
+    { 
+      id: "moving", 
+      name: "Moving & Transition", 
+      icon: Truck,
+      color: "from-blue-500 to-cyan-600",
+      bgColor: "bg-blue-50 dark:bg-blue-900/20",
+      borderColor: "border-blue-200 dark:border-blue-800",
+      services: services.filter(s => s.category === "moving")
+    },
+    { 
+      id: "insurance", 
+      name: "Insurance & Financial", 
+      icon: Shield,
+      color: "from-green-500 to-emerald-600",
+      bgColor: "bg-green-50 dark:bg-green-900/20",
+      borderColor: "border-green-200 dark:border-green-800",
+      services: services.filter(s => s.category === "insurance")
+    },
+    { 
+      id: "transportation", 
+      name: "Transportation", 
+      icon: Car,
+      color: "from-orange-500 to-amber-600",
+      bgColor: "bg-orange-50 dark:bg-orange-900/20",
+      borderColor: "border-orange-200 dark:border-orange-800",
+      services: services.filter(s => s.category === "transportation")
+    },
+    { 
+      id: "professional", 
+      name: "Professional Services", 
+      icon: Briefcase,
+      color: "from-indigo-500 to-purple-600",
+      bgColor: "bg-indigo-50 dark:bg-indigo-900/20",
+      borderColor: "border-indigo-200 dark:border-indigo-800",
+      services: services.filter(s => s.category === "professional")
+    },
+    { 
+      id: "technology", 
+      name: "Technology Support", 
+      icon: Zap,
+      color: "from-yellow-500 to-orange-600",
+      bgColor: "bg-yellow-50 dark:bg-yellow-900/20",
+      borderColor: "border-yellow-200 dark:border-yellow-800",
+      services: services.filter(s => s.category === "technology")
+    }
   ];
-
-  const filteredServices = selectedCategory === "all" 
-    ? services 
-    : services.filter(service => service.category === selectedCategory);
 
   const getAvailabilityBadge = (availability: string) => {
     switch(availability) {
@@ -365,39 +414,31 @@ export default function Services() {
           </div>
         </div>
 
-        {/* Category Navigation - Seamlessly integrated */}
+        {/* Visual Category Grid */}
         <div className="mb-10 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
-          <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-            <TabsList className="flex flex-wrap justify-center gap-2 w-full max-w-7xl mx-auto h-auto p-3 bg-transparent border-0 dark:bg-transparent">
-              {categories.map((category) => (
-                <TabsTrigger 
-                  key={category.id} 
-                  value={category.id} 
-                  className={`
-                    px-5 py-3 rounded-xl font-medium transition-all duration-300
-                    ${selectedCategory === category.id 
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg transform scale-105' 
-                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
-                    }
-                  `}
-                >
-                  <span className="flex items-center gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {categoryGroups.map((category, index) => (
+              <a
+                key={category.id}
+                href={`#${category.id}`}
+                className={`group relative overflow-hidden rounded-xl ${category.bgColor} ${category.borderColor} border-2 p-6 transition-all duration-300 hover:shadow-xl hover:scale-105 animate-in fade-in slide-in-from-bottom-4 duration-500`}
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="flex flex-col items-center text-center space-y-3">
+                  <div className={`p-4 rounded-full bg-gradient-to-r ${category.color} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <category.icon className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="font-bold text-lg text-gray-900 dark:text-white">
                     {category.name}
-                    <Badge 
-                      variant="secondary" 
-                      className={`text-xs ${
-                        selectedCategory === category.id 
-                          ? 'bg-white/20 text-white' 
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
-                      }`}
-                    >
-                      {category.count}
-                    </Badge>
-                  </span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+                  </h3>
+                  <Badge className="bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-300">
+                    {category.services.length} Services
+                  </Badge>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              </a>
+            ))}
+          </div>
         </div>
 
         {/* Seamless transition content */}
@@ -408,9 +449,30 @@ export default function Services() {
           </p>
         </div>
 
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-400">
-          {filteredServices.map((service, index) => (
+        {/* Services by Category */}
+        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-400">
+          {categoryGroups.map((category) => (
+            <div key={category.id} id={category.id} className="scroll-mt-20">
+              {/* Category Header */}
+              <div className={`rounded-xl ${category.bgColor} ${category.borderColor} border-2 p-6 mb-6`}>
+                <div className="flex items-center space-x-4">
+                  <div className={`p-3 rounded-lg bg-gradient-to-r ${category.color} shadow-lg`}>
+                    <category.icon className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {category.name}
+                    </h2>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      {category.services.length} services available
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Services Grid for this Category */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {category.services.map((service, index) => (
             <Card key={service.id} className="hover:shadow-xl dark:hover:shadow-2xl transition-all duration-300 transform hover:scale-105 animate-in fade-in slide-in-from-bottom-4 duration-500 dark:bg-gray-800 dark:border-gray-700" style={{ animationDelay: `${index * 100}ms` }}>
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -481,6 +543,9 @@ export default function Services() {
                 </div>
               </CardContent>
             </Card>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
 
