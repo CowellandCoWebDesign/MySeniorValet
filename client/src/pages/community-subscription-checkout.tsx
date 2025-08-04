@@ -106,7 +106,7 @@ export default function CommunitySubscriptionCheckout() {
   // Handle checkout
   const createCheckoutSession = useMutation({
     mutationFn: async (tierKey: string) => {
-      const response = await apiRequest('POST', '/api/community-subscription/checkout', {
+      const response = await apiRequest('POST', '/api/community-subscription/create-checkout-session', {
         communityId: Number(communityId),
         tierKey
       });
