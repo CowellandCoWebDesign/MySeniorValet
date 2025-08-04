@@ -9,7 +9,108 @@ import { testStripeCharge } from "../stripe-test";
 import { notifySuperAdmin } from "../sendgrid-service";
 import Stripe from "stripe";
 
+// Import stripe payment service
+import { stripePaymentService } from "../stripe-payment-service";
+
 export function registerPaymentRoutes(app: Express) {
+  // Create payment intent for Payment Element
+  app.post('/api/payments/create-payment-intent', async (req, res) => {
+    try {
+      const { productId, amount, customerId, metadata } = req.body;
+
+      if (!amount || amount < 50) { // Stripe minimum is 50 cents
+        return res.status(400).json({ error: 'Invalid amount' });
+      }
+
+      // Create payment intent
+      const paymentIntent = await stripePaymentService.createPaymentIntent({
+        amount,
+        currency: 'usd',
+        customer: customerId,
+        metadata: {
+          ...metadata,
+          productId,
+          platform: 'myseniorvalet',
+          paymentType: productId?.includes('vendor') ? 'vendor_subscription' : 'community_subscription'
+        },
+        automatic_payment_methods: {
+          enabled: true,
+        },
+      });
+
+      res.json({ 
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id
+      });
+    } catch (error) {
+      console.error('Error creating payment intent:', error);
+      res.status(500).json({ 
+        error: 'Failed to create payment intent',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Confirm payment completion
+  app.post('/api/payments/confirm-payment', async (req, res) => {
+    try {
+      const { paymentIntentId, productId, vendorData, communityId } = req.body;
+
+      if (!paymentIntentId) {
+        return res.status(400).json({ error: 'Payment intent ID required' });
+      }
+
+      // Retrieve payment intent to verify status
+      const paymentIntent = await stripePaymentService.retrievePaymentIntent(paymentIntentId);
+
+      if (paymentIntent.status === 'succeeded') {
+        // Process the successful payment
+        if (productId?.includes('vendor') && vendorData) {
+          // Create vendor account and subscription
+          console.log('Processing vendor subscription:', { productId, vendorData });
+          
+          // Send notification email
+          await notifySuperAdmin(
+            'New Vendor Signup',
+            `A new vendor has signed up for ${productId}:\n\n` +
+            `Business: ${vendorData.businessName}\n` +
+            `Contact: ${vendorData.contactName}\n` +
+            `Email: ${vendorData.email}\n` +
+            `Phone: ${vendorData.phone}\n` +
+            `Plan: ${productId}\n` +
+            `Payment ID: ${paymentIntentId}`
+          );
+        } else if (communityId) {
+          // Update community subscription
+          console.log('Processing community subscription:', { productId, communityId });
+          
+          // Send notification email
+          await notifySuperAdmin(
+            'New Community Upgrade',
+            `Community ID ${communityId} upgraded to ${productId}\n` +
+            `Payment ID: ${paymentIntentId}`
+          );
+        }
+
+        res.json({ 
+          success: true, 
+          status: paymentIntent.status,
+          message: 'Payment processed successfully'
+        });
+      } else {
+        res.status(400).json({ 
+          error: 'Payment not completed',
+          status: paymentIntent.status
+        });
+      }
+    } catch (error) {
+      console.error('Error confirming payment:', error);
+      res.status(500).json({ 
+        error: 'Failed to confirm payment',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
   // Create checkout session for subscription
   app.post('/api/payments/create-session', async (req, res) => {
     try {

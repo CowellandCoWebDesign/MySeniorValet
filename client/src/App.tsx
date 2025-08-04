@@ -95,6 +95,7 @@ import AISearchIntelligence from "@/pages/ai-search-intelligence";
 import VendorSignup from "@/pages/vendor-signup";
 import VendorDashboard from "@/pages/vendor-dashboard";
 import VendorWelcome from "@/pages/vendor-welcome";
+import VendorMobilePayment from "@/pages/vendor-mobile-payment";
 import ServicesManagementDashboard from "@/pages/ServicesManagementDashboard";
 import TestTierAccess from "@/pages/test-tier-access";
 import AmazonProductAdmin from "@/pages/AmazonProductAdmin";
@@ -108,6 +109,8 @@ import { useAuth } from "@/hooks/useAuth";
 import CanadaPage from "@/pages/canada";
 import RedTagExample from "@/pages/red-tag-example";
 import HospitalDetails from "@/pages/hospital-details";
+import PaymentSuccess from "@/pages/payment-success";
+import PaymentCancel from "@/pages/payment-cancel";
 
 function Router() {
   const [location] = useLocation();
@@ -216,11 +219,12 @@ function Router() {
       <Route path="/vendor/signup" component={VendorSignup} />
       <Route path="/vendor-welcome" component={VendorWelcome} />
       <Route path="/vendor/dashboard" component={VendorDashboard} />
+      <Route path="/vendor-mobile-payment/:productId" component={VendorMobilePayment} />
       <Route path="/test-tier-access" component={TestTierAccess} />
       <Route path="/financial-dashboard" component={FinancialDashboard} />
       <Route path="/payment-monitoring" component={PaymentMonitoring} />
-      <Route path="/payment/success" component={() => import('./pages/payment-success').then(m => m.default)} />
-      <Route path="/payment/cancel" component={() => import('./pages/payment-cancel').then(m => m.default)} />
+      <Route path="/payment/success" component={PaymentSuccess} />
+      <Route path="/payment/cancel" component={PaymentCancel} />
       <Route component={NotFound} />
     </Switch>
   );

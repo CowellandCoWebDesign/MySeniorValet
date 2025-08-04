@@ -109,7 +109,7 @@ export default function VendorSignup() {
       
       // Map plan types to product IDs
       const productIdMap: Record<string, string> = {
-        'basic': 'basic-vendor-listing',
+        'basic': 'basic-vendor',
         'featured': 'featured-vendor',
         'national': 'national-partner'
       };
@@ -119,27 +119,11 @@ export default function VendorSignup() {
         throw new Error('Invalid plan selected');
       }
       
-      toast({
-        title: "Redirecting to checkout...",
-        description: "Please wait while we prepare your payment session.",
-      });
+      // Store vendor data in session storage
+      sessionStorage.setItem('vendorSignupData', JSON.stringify(data));
       
-      // Call the correct payment API endpoint
-      const response = await apiRequest('POST', '/api/payments/create-vendor-checkout', {
-        productId,
-        vendorData: data,
-        successUrl: `${window.location.origin}/payment/success?type=vendor&tier=${data.planType}`,
-        cancelUrl: `${window.location.origin}/vendor-signup`
-      });
-      
-      const result = await response.json();
-      
-      if (result.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = result.url;
-      } else {
-        throw new Error(result.error || 'Failed to create checkout session');
-      }
+      // Navigate to mobile payment page
+      setLocation(`/vendor-mobile-payment/${productId}`);
     } catch (error: any) {
       toast({
         title: "Error",
