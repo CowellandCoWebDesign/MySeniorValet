@@ -116,6 +116,7 @@ import CommunityMobilePayment from "@/pages/community-mobile-payment";
 import PaymentTestDashboard from "@/pages/payment-test-dashboard";
 import CommunityOnboarding from "@/pages/community-onboarding";
 import VendorOnboarding from "@/pages/vendor-onboarding";
+import TestingDashboard from "@/pages/testing-dashboard";
 
 function Router() {
   const [location] = useLocation();
@@ -233,6 +234,7 @@ function Router() {
       <Route path="/payment/cancel" component={PaymentCancel} />
       <Route path="/test-payment-flow" component={TestPaymentFlow} />
       <Route path="/payment-test-dashboard" component={PaymentTestDashboard} />
+      <Route path="/testing-dashboard" component={TestingDashboard} />
       <Route path="/community-onboarding/:communityId" component={CommunityOnboarding} />
       <Route path="/vendor-onboarding/:vendorId" component={VendorOnboarding} />
       <Route component={NotFound} />
