@@ -125,6 +125,15 @@ export default function VendorMobilePayment() {
         setPaymentSuccess(true);
         // Clear vendor data from session
         sessionStorage.removeItem('vendorSignupData');
+        
+        // Get vendor ID from response
+        const responseData = await response.json();
+        const vendorId = responseData.vendorId || 'new';
+        
+        // Redirect to vendor onboarding
+        setTimeout(() => {
+          setLocation(`/vendor-onboarding/${vendorId}`);
+        }, 2000);
       } else {
         throw new Error('Failed to confirm payment');
       }

@@ -13,6 +13,148 @@ import Stripe from "stripe";
 import { stripePaymentService } from "../stripe-payment-service";
 
 export function registerPaymentRoutes(app: Express) {
+  // Community Onboarding Routes
+  app.post('/api/communities/onboarding/create', async (req, res) => {
+    try {
+      const { stepId, formData } = req.body;
+      
+      // Create a new community record
+      const [community] = await db.insert(communities).values({
+        name: formData.name || 'New Community',
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        zipCode: formData.zipCode,
+        phone: formData.phone,
+        email: formData.email,
+        website: formData.website,
+        description: formData.description,
+        startingPrice: formData.startingPrice ? parseInt(formData.startingPrice) : null,
+        maxPrice: formData.maxPrice ? parseInt(formData.maxPrice) : null,
+        amenities: formData.amenities || [],
+        healthcareServices: formData.healthcareServices || [],
+        tierName: 'Platinum', // Since they just paid
+        onboardingCompleted: false,
+        onboardingStep: stepId
+      }).returning();
+      
+      res.json({ success: true, communityId: community.id });
+    } catch (error) {
+      console.error('Error creating community onboarding:', error);
+      res.status(500).json({ error: 'Failed to save onboarding data' });
+    }
+  });
+  
+  app.post('/api/communities/:communityId/onboarding', async (req, res) => {
+    try {
+      const { communityId } = req.params;
+      const { stepId, formData } = req.body;
+      
+      // Update existing community
+      await db.update(communities)
+        .set({
+          ...formData,
+          onboardingStep: stepId,
+          updatedAt: new Date()
+        })
+        .where(eq(communities.id, parseInt(communityId)));
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error updating community onboarding:', error);
+      res.status(500).json({ error: 'Failed to update onboarding data' });
+    }
+  });
+  
+  app.post('/api/communities/:communityId/complete-onboarding', async (req, res) => {
+    try {
+      const { communityId } = req.params;
+      
+      await db.update(communities)
+        .set({
+          onboardingCompleted: true,
+          updatedAt: new Date()
+        })
+        .where(eq(communities.id, parseInt(communityId)));
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+      res.status(500).json({ error: 'Failed to complete onboarding' });
+    }
+  });
+  
+  // Vendor Onboarding Routes
+  app.post('/api/vendors/onboarding/create', async (req, res) => {
+    try {
+      const { stepId, formData } = req.body;
+      
+      // Create a new vendor record
+      const [vendor] = await db.insert(vendors).values({
+        businessName: formData.businessName || 'New Vendor',
+        category: formData.category,
+        phone: formData.phone,
+        email: formData.email,
+        website: formData.website,
+        description: formData.description,
+        serviceRadius: formData.serviceRadius,
+        nationalService: formData.nationalService,
+        languages: formData.languages || ['English'],
+        emergencyService: formData.emergencyService,
+        freeConsultation: formData.freeConsultation,
+        licensed: formData.licensed,
+        insured: formData.insured,
+        bonded: formData.bonded,
+        tier: 3, // They selected a paid tier
+        onboardingCompleted: false,
+        onboardingStep: stepId
+      }).returning();
+      
+      res.json({ success: true, vendorId: vendor.id });
+    } catch (error) {
+      console.error('Error creating vendor onboarding:', error);
+      res.status(500).json({ error: 'Failed to save onboarding data' });
+    }
+  });
+  
+  app.post('/api/vendors/:vendorId/onboarding', async (req, res) => {
+    try {
+      const { vendorId } = req.params;
+      const { stepId, formData } = req.body;
+      
+      // Update existing vendor
+      await db.update(vendors)
+        .set({
+          ...formData,
+          onboardingStep: stepId,
+          updatedAt: new Date()
+        })
+        .where(eq(vendors.id, parseInt(vendorId)));
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error updating vendor onboarding:', error);
+      res.status(500).json({ error: 'Failed to update onboarding data' });
+    }
+  });
+  
+  app.post('/api/vendors/:vendorId/complete-onboarding', async (req, res) => {
+    try {
+      const { vendorId } = req.params;
+      
+      await db.update(vendors)
+        .set({
+          onboardingCompleted: true,
+          updatedAt: new Date()
+        })
+        .where(eq(vendors.id, parseInt(vendorId)));
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error completing vendor onboarding:', error);
+      res.status(500).json({ error: 'Failed to complete onboarding' });
+    }
+  });
   // Create payment intent for Payment Element
   app.post('/api/payments/create-payment-intent', async (req, res) => {
     try {

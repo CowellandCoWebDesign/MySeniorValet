@@ -228,9 +228,10 @@ export default function CommunityMobilePayment() {
         description: `Your community has been upgraded to ${tierDetails.name}.`,
       });
 
-      // Redirect to success page
+      // Redirect to onboarding flow
       setTimeout(() => {
-        setLocation(`/payment/success?type=community&tier=${tier}`);
+        const newCommunityId = communityData.communityId || 'new';
+        setLocation(`/community-onboarding/${newCommunityId}`);
       }, 2000);
     } catch (err) {
       console.error('Error confirming payment:', err);
