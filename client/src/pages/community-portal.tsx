@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,6 +55,21 @@ export default function CommunityPortal() {
   const [selectedTier, setSelectedTier] = useState<string>('featured');
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  
+  // Check if this is an upgrade flow for existing community
+  const [existingCommunityData, setExistingCommunityData] = useState<any>(null);
+  
+  useEffect(() => {
+    const storedData = sessionStorage.getItem('communityUpgradeData');
+    if (storedData) {
+      const data = JSON.parse(storedData);
+      setExistingCommunityData(data);
+      // Pre-select the next tier up from their current tier
+      if (data.currentTier === 'verified') setSelectedTier('standard');
+      else if (data.currentTier === 'standard') setSelectedTier('featured');
+      else if (data.currentTier === 'featured') setSelectedTier('platinum');
+    }
+  }, []);
 
   // Tier colors with beautiful gradients
   const tierColors = {
@@ -190,9 +205,9 @@ export default function CommunityPortal() {
       sessionStorage.setItem('communityUpgradeData', JSON.stringify({
         productId,
         planName,
-        isNewCommunity: true, // This can be dynamic based on user's auth status
-        communityId: null, // Will be set if user is upgrading existing community
-        communityName: 'New Community' // Default for new communities
+        isNewCommunity: !existingCommunityData,
+        communityId: existingCommunityData?.communityId || null,
+        communityName: existingCommunityData?.communityName || 'New Community'
       }));
 
       // Redirect to the mobile-optimized payment page
@@ -227,12 +242,37 @@ export default function CommunityPortal() {
               <Building className="w-12 h-12 text-white" />
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            Join MySeniorValet Community Portal
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-6">
-            Showcase your community to thousands of families searching for the perfect senior living solution
-          </p>
+          
+          {existingCommunityData ? (
+            <>
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                Upgrade Your Community Listing
+              </h1>
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-4">
+                Enhance your community's visibility and unlock premium features
+              </p>
+              <Card className="max-w-md mx-auto mb-6 bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20">
+                <CardContent className="p-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Currently Managing:</p>
+                  <p className="font-semibold text-lg">{existingCommunityData.communityName}</p>
+                  <div className="flex items-center justify-center gap-2 mt-2">
+                    <Badge variant="secondary">
+                      Current Plan: {existingCommunityData.currentTier?.charAt(0).toUpperCase() + existingCommunityData.currentTier?.slice(1)}
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          ) : (
+            <>
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                Join MySeniorValet Community Portal
+              </h1>
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-6">
+                Showcase your community to thousands of families searching for the perfect senior living solution
+              </p>
+            </>
+          )}
           <div className="flex flex-wrap justify-center gap-4 mb-8">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
@@ -283,8 +323,26 @@ export default function CommunityPortal() {
         {/* Pricing Tiers */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">
-            Choose Your Plan
+            {existingCommunityData ? 'Select Your New Plan' : 'Choose Your Plan'}
           </h2>
+          {existingCommunityData && (
+            <div className="text-center mb-6">
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                You can only upgrade to a higher tier. Contact support if you need to downgrade.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  sessionStorage.removeItem('communityUpgradeData');
+                  setLocation(`/community-dashboard/${existingCommunityData.communityId}`);
+                }}
+              >
+                <X className="w-4 h-4 mr-2" />
+                Cancel Upgrade
+              </Button>
+            </div>
+          )}
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {plans.map((plan) => (
@@ -332,6 +390,12 @@ export default function CommunityPortal() {
                   
                   <Button
                     onClick={() => handleUpgrade(plan.name)}
+                    disabled={(() => {
+                      if (!existingCommunityData) return false;
+                      const currentTierIndex = ['verified', 'standard', 'featured', 'platinum'].indexOf(existingCommunityData.currentTier);
+                      const planTierIndex = ['verified', 'standard', 'featured', 'platinum'].indexOf(plan.tier);
+                      return planTierIndex <= currentTierIndex;
+                    })()}
                     className={`w-full mt-6 ${
                       plan.tier === 'verified' 
                         ? 'bg-gray-600 hover:bg-gray-700' 
@@ -340,7 +404,7 @@ export default function CommunityPortal() {
                         : plan.tier === 'featured'
                         ? 'bg-purple-600 hover:bg-purple-700'
                         : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600'
-                    } text-white`}
+                    } text-white disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {plan.buttonText}
                     <ChevronRight className="w-4 h-4 ml-2" />

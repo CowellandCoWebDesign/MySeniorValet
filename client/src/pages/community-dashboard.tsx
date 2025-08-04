@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,24 +56,31 @@ export default function CommunityDashboard() {
   const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedDateRange, setSelectedDateRange] = useState("30");
   const [isEditing, setIsEditing] = useState(false);
 
+  // Fetch community details including subscription tier
+  const { data: community, isLoading: communityLoading } = useQuery<any>({
+    queryKey: [`/api/communities/${id}`],
+    enabled: !!id && !!user,
+  });
+
   // Fetch community dashboard overview
-  const { data: overview, isLoading: overviewLoading } = useQuery({
+  const { data: overview, isLoading: overviewLoading } = useQuery<any>({
     queryKey: [`/api/communities/${id}/dashboard/overview`],
     enabled: !!id && !!user,
   });
 
   // Fetch community messages
-  const { data: messages = [], isLoading: messagesLoading } = useQuery({
+  const { data: messages = [], isLoading: messagesLoading } = useQuery<any[]>({
     queryKey: [`/api/communities/${id}/dashboard/messages`],
     enabled: !!id && !!user,
   });
 
   // Fetch performance metrics
-  const { data: performance, isLoading: performanceLoading } = useQuery({
+  const { data: performance, isLoading: performanceLoading } = useQuery<any>({
     queryKey: [`/api/communities/${id}/dashboard/performance`],
     enabled: !!id && !!user,
   });
@@ -217,6 +224,117 @@ export default function CommunityDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Subscription Status Card - For Existing Communities */}
+        {community && (
+          <Card className="mb-8 border-2 border-purple-200 dark:border-purple-800">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-xl">Your Subscription</CardTitle>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    Manage your community listing features and visibility
+                  </p>
+                </div>
+                {community.subscriptionTier !== 'platinum' && (
+                  <Button
+                    onClick={() => {
+                      // Store community data for upgrade flow
+                      sessionStorage.setItem('communityUpgradeData', JSON.stringify({
+                        communityId: id,
+                        communityName: community.name,
+                        currentTier: community.subscriptionTier || 'verified',
+                        isNewCommunity: false
+                      }));
+                      setLocation('/community-portal');
+                    }}
+                    className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+                  >
+                    <Award className="w-4 h-4 mr-2" />
+                    Upgrade Plan
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Current Plan</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge 
+                      variant="default" 
+                      className={
+                        community.subscriptionTier === 'platinum' ? 'bg-gradient-to-r from-amber-500 to-orange-500' :
+                        community.subscriptionTier === 'featured' ? 'bg-purple-600' :
+                        community.subscriptionTier === 'standard' ? 'bg-blue-600' :
+                        'bg-gray-600'
+                      }
+                    >
+                      {community.subscriptionTier?.charAt(0).toUpperCase() + community.subscriptionTier?.slice(1) || 'Verified'}
+                    </Badge>
+                    <span className="text-sm font-medium">
+                      {community.subscriptionTier === 'platinum' ? '$349/month' :
+                       community.subscriptionTier === 'featured' ? '$249/month' :
+                       community.subscriptionTier === 'standard' ? '$149/month' :
+                       'Free'}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Features Used</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Progress value={65} className="h-2 flex-1" />
+                    <span className="text-sm font-medium">65%</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Next Billing</p>
+                  <p className="text-sm font-medium mt-1">
+                    {community.subscriptionTier && community.subscriptionTier !== 'verified' 
+                      ? format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'MMM d, yyyy')
+                      : 'No billing - Free tier'}
+                  </p>
+                </div>
+              </div>
+              
+              {/* Quick feature highlights based on tier */}
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Your plan includes:</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                  {community.subscriptionTier === 'platinum' ? (
+                    <>
+                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> 50 Photos</div>
+                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> 3 Videos</div>
+                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> Unlimited PDFs</div>
+                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> Top Priority</div>
+                    </>
+                  ) : community.subscriptionTier === 'featured' ? (
+                    <>
+                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> 25 Photos</div>
+                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> 1 Video</div>
+                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> 3 PDFs</div>
+                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> Featured Placement</div>
+                    </>
+                  ) : community.subscriptionTier === 'standard' ? (
+                    <>
+                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> 10 Photos</div>
+                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> 1 PDF</div>
+                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> Basic Analytics</div>
+                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> Review Responses</div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> 1 Photo</div>
+                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> Tour Scheduler</div>
+                      <div className="flex items-center gap-1"><X className="w-3 h-3 text-gray-400" /> No Analytics</div>
+                      <div className="flex items-center gap-1"><X className="w-3 h-3 text-gray-400" /> No Reviews</div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Performance Hero Section */}
         <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white mb-8">
