@@ -27,20 +27,24 @@ export class PaymentNotificationService {
       // Send customer notification
       await this.sendCustomerNotification(notification);
 
-      // Log notification
+      // Log notification with all required fields
       await db.insert(auditLogs).values({
-        entityType: 'payment_notification',
-        entityId: 0,
         userId: null,
-        operation: `payment_notification_${notification.type}`,
-        details: JSON.stringify({
+        adminId: null,
+        action: `payment_${notification.type}`,
+        entityType: 'payment',
+        entityId: '0',
+        metadata: {
           type: notification.type,
           recipient: notification.customerEmail,
           tier: notification.tierName,
           amount: notification.amount
-        }),
+        },
         ipAddress: 'system',
         userAgent: 'payment-notification-service',
+        sessionId: null,
+        severity: 'info',
+        outcome: 'success',
         createdAt: new Date()
       });
 

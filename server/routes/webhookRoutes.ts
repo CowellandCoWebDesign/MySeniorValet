@@ -5,6 +5,7 @@ import { db } from '../db';
 import { subscriptions, communities, auditLogs } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import { paymentNotificationService } from '../services/payment-notification-service';
+import { sendCommunityWelcomeEmail, sendVendorWelcomeEmail } from '../services/tier-welcome-service';
 
 const router = Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
@@ -122,6 +123,44 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       subscriptionType: 'community',
       metadata: { communityId, sessionId: session.id }
     });
+    
+    // Send welcome email with tier-specific features and next steps
+    const tierKey = session.metadata.tier_key || 
+      (session.metadata.tier_name?.toLowerCase().includes('standard') ? 'standard' :
+       session.metadata.tier_name?.toLowerCase().includes('featured') ? 'featured' :
+       session.metadata.tier_name?.toLowerCase().includes('platinum') ? 'platinum' : 'verified');
+    
+    await sendCommunityWelcomeEmail(
+      communityId,
+      tierKey,
+      session.customer_email || 'unknown@email.com'
+    );
+  }
+  
+  // Check if this is a vendor subscription
+  if (session.metadata?.vendor_id && session.subscription) {
+    const vendorId = parseInt(session.metadata.vendor_id);
+    
+    // Send payment notification for vendor
+    await paymentNotificationService.sendPaymentNotification({
+      type: 'subscription_created',
+      customerEmail: session.customer_email || 'unknown@email.com',
+      tierName: session.metadata.tier_name || 'Unknown Tier',
+      amount: Math.round((session.amount_total || 0) / 100),
+      subscriptionType: 'vendor',
+      metadata: { vendorId, sessionId: session.id }
+    });
+    
+    // Send vendor welcome email
+    const tierKey = session.metadata.tier_key || 
+      (session.metadata.tier_name?.toLowerCase().includes('basic') ? 'basic' :
+       session.metadata.tier_name?.toLowerCase().includes('featured') ? 'featured' : 'national');
+    
+    await sendVendorWelcomeEmail(
+      vendorId,
+      tierKey,
+      session.customer_email || 'unknown@email.com'
+    );
   }
 }
 
