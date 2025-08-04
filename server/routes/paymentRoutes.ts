@@ -173,31 +173,58 @@ export function registerPaymentRoutes(app: Express) {
         });
       }
 
-      // Validate and parse communityId
-      const parsedCommunityId = parseInt(communityId);
-      if (isNaN(parsedCommunityId)) {
-        console.error('Invalid communityId:', communityId);
-        return res.status(400).json({ 
-          error: "Invalid community ID", 
-          details: `Community ID must be a valid number, received: ${communityId}`
-        });
-      }
+      // Track the final community ID for notification
+      let finalCommunityId = communityId;
+      
+      // Handle new communities
+      if (communityId === 'new') {
+        // For new communities, we'll create a placeholder record
+        console.log('New community payment confirmed:', { tier, paymentIntentId });
+        
+        // Create new community entry
+        const [newCommunity] = await db
+          .insert(communities)
+          .values({
+            name: 'Pending Registration',
+            address: 'Pending',
+            city: 'Pending',
+            state: 'Pending',
+            zipCode: '00000',
+            careTypes: ['Pending'],
+            subscriptionTier: tier,
+            billingStatus: 'active',
+            createdAt: new Date(),
+            updatedAt: new Date()
+          })
+          .returning({ id: communities.id });
+          
+        finalCommunityId = newCommunity.id.toString();
+      } else {
+        // Validate and parse existing communityId
+        const parsedCommunityId = parseInt(communityId);
+        if (isNaN(parsedCommunityId)) {
+          console.error('Invalid communityId:', communityId);
+          return res.status(400).json({ 
+            error: "Invalid community ID", 
+            details: `Community ID must be a valid number, received: ${communityId}`
+          });
+        }
 
-      // Update community subscription in database
-      await db
-        .update(communities)
-        .set({
-          subscriptionTier: tier,
-          subscriptionStartDate: new Date(),
-          stripePaymentIntentId: paymentIntentId,
-          updatedAt: new Date()
-        })
-        .where(eq(communities.id, parsedCommunityId));
+        // Update existing community subscription in database
+        await db
+          .update(communities)
+          .set({
+            subscriptionTier: tier,
+            billingStatus: 'active',
+            updatedAt: new Date()
+          })
+          .where(eq(communities.id, parsedCommunityId));
+      }
 
       // Send email notification to super admin
       const emailContent = `
         <h2>New Community Upgrade!</h2>
-        <p><strong>Community ID:</strong> ${communityId}</p>
+        <p><strong>Community ID:</strong> ${finalCommunityId}</p>
         <p><strong>Tier:</strong> ${tier}</p>
         <p><strong>Payment Intent:</strong> ${paymentIntentId}</p>
         <p><strong>Amount:</strong> $${(paymentIntent.amount / 100).toFixed(2)}</p>
