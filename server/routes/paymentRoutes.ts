@@ -1,7 +1,7 @@
 import { type Express } from "express";
 import express from "express";
 import { db } from "../db";
-import { users, paymentTransactions } from "@shared/schema";
+import { users, paymentTransactions, vendors, communities } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { isAuthenticated as requireAuth } from "../replitAuth";
 import { stripeSubscriptionService } from "../stripe-subscription-service";
@@ -69,6 +69,30 @@ export function registerPaymentRoutes(app: Express) {
           // Create vendor account and subscription
           console.log('Processing vendor subscription:', { productId, vendorData });
           
+          // Create vendor in database
+          const tierMap: Record<string, string> = {
+            'basic-listing': 'basic',
+            'featured-vendor': 'featured',
+            'national-partner': 'national-partner'
+          };
+          
+          await db.insert(vendors).values({
+            businessName: vendorData.businessName,
+            businessType: vendorData.businessType || 'company',
+            primaryContactName: vendorData.contactName,
+            primaryContactEmail: vendorData.email,
+            primaryContactPhone: vendorData.phone,
+            website: vendorData.website || null,
+            description: vendorData.description,
+            serviceAreas: vendorData.serviceAreas ? [vendorData.serviceAreas] : [],
+            subscriptionTier: tierMap[productId] || 'basic',
+            subscriptionStatus: 'active',
+            subscriptionStartDate: new Date(),
+            status: 'active',
+            createdAt: new Date(),
+            updatedAt: new Date()
+          });
+          
           // Send notification email
           await notifySuperAdmin(
             'New Vendor Signup',
@@ -83,6 +107,22 @@ export function registerPaymentRoutes(app: Express) {
         } else if (communityId) {
           // Update community subscription
           console.log('Processing community subscription:', { productId, communityId });
+          
+          // Map product ID to subscription tier
+          const tierMap: Record<string, string> = {
+            'standard': 'standard',
+            'featured': 'featured',
+            'platinum': 'platinum'
+          };
+          
+          // Update community in database
+          await db.update(communities)
+            .set({
+              subscriptionTier: tierMap[productId] || 'verified',
+              stripePaymentIntentId: paymentIntentId,
+              updatedAt: new Date()
+            })
+            .where(eq(communities.id, parseInt(communityId)));
           
           // Send notification email
           await notifySuperAdmin(
