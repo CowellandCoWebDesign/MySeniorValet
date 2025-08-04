@@ -318,6 +318,12 @@ export default function Services() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-blue-900 dark:to-purple-900 isolate">
+      {/* Version indicator for debugging */}
+      {import.meta.env.DEV && (
+        <div className="fixed top-20 right-4 bg-red-600 text-white px-4 py-2 rounded-md z-50 text-sm font-bold">
+          v{Date.now()} - Hospital Cards Fixed
+        </div>
+      )}
       <NavigationHeader 
         title="Healthcare and Care Services Directory" 
         subtitle="Comprehensive healthcare, caregiving, and support services for seniors"
