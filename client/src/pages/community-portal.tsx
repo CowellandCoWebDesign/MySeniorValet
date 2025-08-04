@@ -186,15 +186,33 @@ export default function CommunityPortal() {
         return;
       }
 
-      // For now, redirect to community subscription checkout page
-      // The actual Stripe integration will be handled there
-      setLocation(`/community-subscription-checkout?tier=${planName.toLowerCase()}&price=${plans.find(p => p.name === planName)?.priceValue || 0}`);
+      // Call the actual payment API endpoint
+      toast({
+        title: "Redirecting to checkout...",
+        description: "Please wait while we prepare your payment session.",
+      });
 
-    } catch (error) {
+      const response = await apiRequest('POST', '/api/payments/create-community-checkout', {
+        productId,
+        communityId: 1, // Default community ID for now
+        successUrl: `${window.location.origin}/payment/success?type=community&tier=${planName}`,
+        cancelUrl: `${window.location.origin}/community-portal`
+      });
+
+      const data = await response.json();
+      
+      if (data.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
+
+    } catch (error: any) {
       console.error('Payment error:', error);
       toast({
         title: "Payment Error",
-        description: "Unable to process payment. Please try again or contact support.",
+        description: error.message || "Unable to process payment. Please try again or contact support.",
         variant: "destructive",
       });
     }
