@@ -61,8 +61,22 @@ app.use('/api', (req, res, next) => {
   return createRateLimit()(req, res, next);
 });
 
-// Basic parsing middleware
-app.use(express.json({ limit: '10mb' }));
+// CRITICAL: Webhook raw body handling MUST come before JSON parsing
+// Apply raw body parser ONLY to webhook routes
+app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
+
+// Apply JSON parser to all OTHER routes (excluding webhooks)
+app.use((req, res, next) => {
+  // Skip JSON parsing for webhook routes
+  if (req.path === '/api/payments/webhook' || req.originalUrl === '/api/payments/webhook') {
+    console.log('🔒 Webhook detected - skipping JSON parsing');
+    return next();
+  }
+  // Use JSON parser for all other routes
+  express.json({ limit: '10mb' })(req, res, next);
+});
+
+// URL-encoded data parsing
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 // Add cookie parser middleware early in the chain

@@ -23,6 +23,8 @@ import { storage } from "./storage";
 import { vendors } from "../shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Note: Webhook raw body handling is done in server/index.ts before JSON parsing
+
   // Initialize Replit Auth before other routes
   await setupAuth(app);
 

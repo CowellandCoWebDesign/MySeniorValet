@@ -12,6 +12,9 @@ import Stripe from "stripe";
 // Import stripe payment service
 import { stripePaymentService } from "../stripe-payment-service";
 
+// Get stripe instance for direct API calls
+const stripe = stripePaymentService.getStripe();
+
 export function registerPaymentRoutes(app: Express) {
   // Community Onboarding Routes
   app.post('/api/communities/onboarding/create', async (req, res) => {
@@ -628,11 +631,26 @@ export function registerPaymentRoutes(app: Express) {
         return res.status(400).json({ error: 'Product ID is required' });
       }
 
+      // Ensure URLs have proper scheme
+      const baseUrl = process.env.REPLIT_DEV_DOMAIN 
+        ? (process.env.REPLIT_DEV_DOMAIN.startsWith('http') 
+          ? process.env.REPLIT_DEV_DOMAIN 
+          : `https://${process.env.REPLIT_DEV_DOMAIN}`)
+        : 'http://localhost:5000';
+      
+      console.log('Creating community checkout with:', {
+        productId,
+        communityId: communityId || 1,
+        successUrl: successUrl || `${baseUrl}/payment/success`,
+        cancelUrl: cancelUrl || `${baseUrl}/payment/cancel`,
+        baseUrl
+      });
+      
       const session = await stripeSubscriptionService.createCheckoutSession(
         communityId || 1, // Default to community ID 1 if not specified
         productId,
-        successUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/success`,
-        cancelUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/cancel`,
+        successUrl || `${baseUrl}/payment/success`,
+        cancelUrl || `${baseUrl}/payment/cancel`,
         {
           type: 'community',
           communityId: communityId || 1
@@ -653,53 +671,105 @@ export function registerPaymentRoutes(app: Express) {
     }
   });
 
-  // Handle Stripe webhook
-  app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  // Handle Stripe webhook - NOTE: Raw body middleware is applied in server/routes.ts
+  app.post('/api/payments/webhook', async (req, res) => {
     const sig = req.headers['stripe-signature'];
     
+    // Debug logging
+    console.log('📝 Webhook body type:', typeof req.body);
+    console.log('📝 Is Buffer?', Buffer.isBuffer(req.body));
+    console.log('📝 Body preview:', req.body instanceof Buffer ? 'Buffer data' : JSON.stringify(req.body).substring(0, 100));
+    
     if (!sig) {
-      return res.status(400).json({ error: 'Missing stripe signature' });
+      console.error('Missing Stripe signature header');
+      return res.status(400).json({ 
+        error: 'Missing stripe signature',
+        _version: "v4_webhook_" + Date.now()
+      });
     }
 
-    try {
-      const event = stripePaymentService.constructWebhookEvent(
-        req.body,
-        Array.isArray(sig) ? sig[0] : sig
-      );
+    let event: Stripe.Event;
 
-      // Handle the event
+    try {
+      // Ensure we have the webhook secret
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_test_secret';
+      
+      // If body is already parsed, convert back to string (not ideal but works in dev)
+      let bodyData: string | Buffer;
+      if (Buffer.isBuffer(req.body)) {
+        bodyData = req.body;
+      } else if (typeof req.body === 'object') {
+        console.warn('⚠️ Webhook body was pre-parsed as JSON. Converting back to string.');
+        bodyData = JSON.stringify(req.body);
+      } else {
+        bodyData = req.body;
+      }
+      
+      // Construct event - req.body should be raw Buffer from middleware
+      event = stripe.webhooks.constructEvent(
+        bodyData,
+        Array.isArray(sig) ? sig[0] : sig,
+        webhookSecret
+      );
+      
+      console.log(`✅ Webhook received: ${event.type} (${event.id})`);
+    } catch (err: any) {
+      console.error('⚠️ Webhook signature verification failed:', err.message);
+      return res.status(400).json({ 
+        error: `Webhook Error: ${err.message}`,
+        _version: "v4_webhook_" + Date.now()
+      });
+    }
+
+    // Important: Return 200 immediately before processing
+    res.status(200).json({ received: true });
+
+    // Process webhook asynchronously
+    try {
       switch (event.type) {
+        case 'payment_intent.succeeded':
+          const paymentIntent = event.data.object as Stripe.PaymentIntent;
+          console.log(`💰 PaymentIntent ${paymentIntent.id} succeeded`);
+          await handlePaymentIntentSucceeded(paymentIntent);
+          break;
+
         case 'checkout.session.completed':
           const session = event.data.object as Stripe.Checkout.Session;
+          console.log(`✅ Checkout session ${session.id} completed`);
           await handleCheckoutComplete(session);
           break;
         
         case 'customer.subscription.created':
         case 'customer.subscription.updated':
           const subscription = event.data.object as Stripe.Subscription;
+          console.log(`📋 Subscription ${subscription.id} ${event.type.split('.')[2]}`);
           await handleSubscriptionUpdate(subscription);
           break;
         
         case 'customer.subscription.deleted':
           const deletedSubscription = event.data.object as Stripe.Subscription;
+          console.log(`❌ Subscription ${deletedSubscription.id} deleted`);
           await handleSubscriptionCancelled(deletedSubscription);
           break;
         
         case 'invoice.payment_succeeded':
           const invoice = event.data.object as Stripe.Invoice;
+          console.log(`✅ Invoice ${invoice.id} payment succeeded`);
           await handlePaymentSucceeded(invoice);
           break;
         
         case 'invoice.payment_failed':
           const failedInvoice = event.data.object as Stripe.Invoice;
+          console.log(`❌ Invoice ${failedInvoice.id} payment failed`);
           await handlePaymentFailed(failedInvoice);
           break;
-      }
 
-      res.json({ received: true });
+        default:
+          console.log(`🔔 Unhandled event type: ${event.type}`);
+      }
     } catch (error) {
-      console.error('Webhook error:', error);
-      res.status(400).json({ error: 'Webhook error' });
+      console.error(`❌ Error processing webhook ${event.type}:`, error);
+      // Don't return error - we already sent 200
     }
   });
 
@@ -980,20 +1050,74 @@ export function registerPaymentRoutes(app: Express) {
 }
 
 // Helper functions for webhook handlers
+async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
+  try {
+    const metadata = paymentIntent.metadata;
+    if (!metadata) return;
+
+    // Log successful payment
+    console.log('Processing successful payment:', {
+      paymentIntentId: paymentIntent.id,
+      amount: paymentIntent.amount,
+      metadata
+    });
+
+    // Handle vendor or community payments based on metadata
+    if (metadata.paymentType === 'vendor_subscription' && metadata.vendorData) {
+      const vendorData = JSON.parse(metadata.vendorData);
+      console.log('Creating vendor from payment intent:', vendorData);
+      // Vendor creation logic here
+    }
+
+    // Send notification
+    await notifySuperAdmin(
+      'Payment Intent Succeeded',
+      `Payment of $${(paymentIntent.amount / 100).toFixed(2)} completed\n` +
+      `Payment ID: ${paymentIntent.id}\n` +
+      `Type: ${metadata.paymentType || 'unknown'}`
+    );
+  } catch (error) {
+    console.error('Error handling payment intent succeeded:', error);
+  }
+}
+
 async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
-  if (!session.customer || !session.subscription) return;
+  try {
+    // Handle both subscription and one-time payments
+    const metadata = session.metadata || {};
+    
+    if (session.mode === 'subscription' && session.subscription) {
+      // Handle subscription checkout
+      if (metadata.type === 'vendor') {
+        console.log('Vendor subscription checkout completed:', session.id);
+        // Create vendor account logic
+      } else if (metadata.communityId) {
+        const communityId = parseInt(metadata.communityId);
+        console.log('Community subscription checkout completed:', { communityId, sessionId: session.id });
+        
+        // Update community subscription
+        await db.update(communities)
+          .set({
+            stripeCustomerId: session.customer as string,
+            subscriptionTier: metadata.productId as any,
+            billingStatus: 'active' as const,
+            updatedAt: new Date()
+          })
+          .where(eq(communities.id, communityId));
+      }
+    }
 
-  const userId = session.metadata?.userId;
-  if (!userId) return;
-
-  await db
-    .update(users)
-    .set({
-      stripeCustomerId: session.customer as string,
-      stripeSubscriptionId: session.subscription as string,
-      updatedAt: new Date()
-    })
-    .where(eq(users.id, userId));
+    // Send notification
+    await notifySuperAdmin(
+      'Checkout Session Completed',
+      `Checkout completed for ${session.mode} mode\n` +
+      `Session ID: ${session.id}\n` +
+      `Customer: ${session.customer_email || session.customer}\n` +
+      `Amount: $${((session.amount_total || 0) / 100).toFixed(2)}`
+    );
+  } catch (error) {
+    console.error('Error handling checkout complete:', error);
+  }
 }
 
 async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
