@@ -346,6 +346,78 @@ export default function CommunityPortal() {
           </Card>
         </div>
 
+        {/* How to Sign Up Guide */}
+        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 mb-8 max-w-4xl mx-auto">
+          <h2 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-4 flex items-center gap-2">
+            <Info className="h-5 w-5" />
+            How to Get Started
+          </h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                For Existing Communities
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                If your community is already listed on MySeniorValet:
+              </p>
+              <ol className="text-sm space-y-2 text-gray-600 dark:text-gray-300">
+                <li className="flex gap-2">
+                  <span className="text-blue-600 font-semibold">1.</span>
+                  Search for your community on our home page
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-blue-600 font-semibold">2.</span>
+                  Click on your community listing
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-blue-600 font-semibold">3.</span>
+                  Click "Claim This Community" button
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-blue-600 font-semibold">4.</span>
+                  Choose your plan below (Free or Paid)
+                </li>
+              </ol>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                For New Communities
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                If your community is NOT yet listed:
+              </p>
+              <ol className="text-sm space-y-2 text-gray-600 dark:text-gray-300">
+                <li className="flex gap-2">
+                  <span className="text-blue-600 font-semibold">1.</span>
+                  Choose "Verified Listing (Free)" below
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-blue-600 font-semibold">2.</span>
+                  Fill out the community information form
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-blue-600 font-semibold">3.</span>
+                  Your listing will be created instantly
+                </li>
+                <li className="flex gap-2">
+                  <span className="text-blue-600 font-semibold">4.</span>
+                  Upgrade anytime to unlock more features
+                </li>
+              </ol>
+            </div>
+          </div>
+          <div className="mt-4 p-3 bg-amber-100 dark:bg-amber-900/20 rounded-md">
+            <p className="text-sm text-amber-800 dark:text-amber-200 flex items-start gap-2">
+              <Award className="h-4 w-4 mt-0.5 flex-shrink-0" />
+              <span>
+                <strong>Free Tier Benefits:</strong> Basic listing with contact info, 1 photo upload, 
+                tour scheduler, and search visibility - perfect for getting started!
+              </span>
+            </p>
+          </div>
+        </div>
+
         {/* Pricing Tiers */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">
