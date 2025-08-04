@@ -260,7 +260,7 @@ export default function HospitalCarousel() {
 
   if (error) {
     return (
-      <Card className="flex-shrink-0 w-80 h-[36rem] border border-red-200 bg-red-50 dark:bg-red-950/20">
+      <Card className="flex-shrink-0 w-80 min-h-[40rem] border border-red-200 bg-red-50 dark:bg-red-950/20">
         <CardContent className="p-6 text-center">
           <Stethoscope className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h3 className="text-lg font-bold text-red-700 dark:text-red-300 mb-2">
@@ -281,7 +281,7 @@ export default function HospitalCarousel() {
     return (
       <>
         {Array.from({ length: 6 }).map((_, index) => (
-          <Card key={index} className="flex-shrink-0 w-80 h-[36rem] border border-gray-200 animate-pulse">
+          <Card key={index} className="flex-shrink-0 w-80 min-h-[40rem] border border-gray-200 animate-pulse">
             <div className="bg-gradient-to-r from-blue-200 to-cyan-200 dark:bg-gray-700 h-20"></div>
             <CardContent className="p-3">
               <div className="space-y-2">
@@ -306,7 +306,7 @@ export default function HospitalCarousel() {
 
   if (!hospitals || hospitals.length === 0) {
     return (
-      <Card className="flex-shrink-0 w-80 h-[32rem] border border-blue-200 bg-blue-50 dark:bg-blue-950/20">
+      <Card className="flex-shrink-0 w-80 min-h-[40rem] border border-blue-200 bg-blue-50 dark:bg-blue-950/20">
         <CardContent className="p-6 text-center">
           <Hospital className="w-12 h-12 text-blue-500 mx-auto mb-4" />
           <h3 className="text-lg font-bold text-blue-700 dark:text-blue-300 mb-2">
