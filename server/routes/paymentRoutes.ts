@@ -32,16 +32,12 @@ export function registerPaymentRoutes(app: Express) {
         email: formData.email,
         website: formData.website,
         description: formData.description,
-        startingPrice: formData.startingPrice ? parseInt(formData.startingPrice) : null,
-        maxPrice: formData.maxPrice ? parseInt(formData.maxPrice) : null,
         amenities: formData.amenities || [],
         healthcareServices: formData.healthcareServices || [],
-        subscriptionTier: 'platinum' as const,
-        billingStatus: 'active' as const,
+        subscriptionTier: 'platinum',
+        billingStatus: 'active',
         careTypes: ['Senior Living'],
-        latitude: 0,
-        longitude: 0,
-        capacity: 0
+        isValidated: true
       }).returning();
       
       res.json({ success: true, communityId: community.id });
@@ -363,30 +359,14 @@ export function registerPaymentRoutes(app: Express) {
             phone: claimerPhone || null,
             email: claimerEmail || null,
             subscriptionTier: 'verified',
-            billingStatus: 'active' as const,
+            billingStatus: 'active',
             isValidated: true,
             isClaimed: true,
             // Default fields for new communities
-            careTypes: ['assisted_living'],
-            licensureType: 'unknown',
-            mealPlansIncluded: [],
-            recreationalActivities: [],
-            specializedCare: [],
-            medicareAccepted: false,
-            medicaidAccepted: false,
-            roomTypes: ['private'],
-            financialAssistance: [],
-            petPolicy: 'Not Allowed',
-            transportationProvided: false,
-            culturalSpecialties: [],
+            careTypes: ['Assisted Living'],
             amenities: [],
-            languagesSpoken: ['English'],
-            securityFeatures: [],
-            smokingPolicy: 'No Smoking',
-            alcoholPolicy: 'Not Allowed',
-            visitingHours: '24/7',
-            pricingModel: 'Contact for Pricing',
-            availableUnits: 0
+            services: [],
+            primaryLanguage: 'English'
           })
           .returning({ id: communities.id });
           
