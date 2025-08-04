@@ -103,6 +103,7 @@ import MultiAITest from "@/pages/MultiAITest";
 import AISearchComparison from "@/pages/AISearchComparison";
 import SuperAdminDashboard from "@/pages/super-admin-dashboard";
 import FinancialDashboard from "@/pages/financial-dashboard";
+import PaymentMonitoring from "@/pages/payment-monitoring";
 import { useAuth } from "@/hooks/useAuth";
 import CanadaPage from "@/pages/canada";
 import RedTagExample from "@/pages/red-tag-example";
@@ -217,6 +218,7 @@ function Router() {
       <Route path="/vendor/dashboard" component={VendorDashboard} />
       <Route path="/test-tier-access" component={TestTierAccess} />
       <Route path="/financial-dashboard" component={FinancialDashboard} />
+      <Route path="/payment-monitoring" component={PaymentMonitoring} />
       <Route path="/payment/success" component={() => import('./pages/payment-success').then(m => m.default)} />
       <Route path="/payment/cancel" component={() => import('./pages/payment-cancel').then(m => m.default)} />
       <Route component={NotFound} />

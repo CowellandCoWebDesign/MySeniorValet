@@ -4,6 +4,7 @@ import Stripe from 'stripe';
 import { db } from '../db';
 import { subscriptions, communities, auditLogs } from '@shared/schema';
 import { eq } from 'drizzle-orm';
+import { paymentNotificationService } from '../services/payment-notification-service';
 
 const router = Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
@@ -106,6 +107,16 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     });
 
     console.log(`✅ Subscription created for community ${communityId}`);
+    
+    // Send payment notification
+    await paymentNotificationService.sendPaymentNotification({
+      type: 'subscription_created',
+      customerEmail: session.customer_email || 'unknown@email.com',
+      tierName: session.metadata.tier_name || 'Unknown Tier',
+      amount: Math.round((session.amount_total || 0) / 100),
+      subscriptionType: 'community',
+      metadata: { communityId, sessionId: session.id }
+    });
   }
 }
 
