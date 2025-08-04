@@ -74,6 +74,15 @@ export default function AISearchIntelligence() {
     urgency: 'planning'
   });
 
+  // Check URL parameters to auto-switch to perfect match tab
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    if (mode === 'perfect-match') {
+      setActiveTab('match');
+    }
+  }, []);
+
   // AI Search Mutation
   const aiSearchMutation = useMutation({
     mutationFn: async ({ query, type }: { query: string; type: string }) => {

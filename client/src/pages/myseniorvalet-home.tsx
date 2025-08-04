@@ -346,7 +346,7 @@ export default function MySeniorValetHome() {
           {/* Streamlined Primary Actions - Clean Flow */}
           <div className="flex flex-col items-center space-y-4 mb-6 animate-fade-in-up animation-delay-700 w-full px-4">
             {/* Top Priority: Perfect Match */}
-            <Link href="/quiz">
+            <Link href="/ai-search-intelligence?mode=perfect-match">
               <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 text-base md:text-xl px-8 md:px-10 py-4 md:py-5 rounded-2xl transform hover:scale-105">
                 ✨ Find My Perfect Match
               </Button>
