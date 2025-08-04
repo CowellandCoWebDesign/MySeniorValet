@@ -112,6 +112,7 @@ import HospitalDetails from "@/pages/hospital-details";
 import PaymentSuccess from "@/pages/payment-success";
 import PaymentCancel from "@/pages/payment-cancel";
 import TestPaymentFlow from "@/pages/test-payment-flow";
+import CommunityMobilePayment from "@/pages/community-mobile-payment";
 
 function Router() {
   const [location] = useLocation();
@@ -221,6 +222,7 @@ function Router() {
       <Route path="/vendor-welcome" component={VendorWelcome} />
       <Route path="/vendor/dashboard" component={VendorDashboard} />
       <Route path="/vendor-mobile-payment/:productId" component={VendorMobilePayment} />
+      <Route path="/community-mobile-payment/:tier" component={CommunityMobilePayment} />
       <Route path="/test-tier-access" component={TestTierAccess} />
       <Route path="/financial-dashboard" component={FinancialDashboard} />
       <Route path="/payment-monitoring" component={PaymentMonitoring} />

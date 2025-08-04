@@ -104,6 +104,7 @@ export default function CommunitySubscriptionCheckout() {
   });
 
   // Handle checkout
+  // Remove the old checkout session mutation as we're now using Payment Element
   const createCheckoutSession = useMutation({
     mutationFn: async (tierKey: string) => {
       const response = await apiRequest('POST', '/api/community-subscription/create-checkout-session', {
@@ -136,8 +137,30 @@ export default function CommunitySubscriptionCheckout() {
   });
 
   const handleCheckout = async (tierKey: string) => {
-    setIsProcessing(true);
-    createCheckoutSession.mutate(tierKey);
+    if (tierKey === 'verified') {
+      // Free tier - no payment needed
+      setIsProcessing(true);
+      // TODO: Handle free tier activation
+      toast({
+        title: "Free Plan Activated",
+        description: "Your community listing has been verified.",
+      });
+      setTimeout(() => {
+        window.location.href = `/community/${communityId}`;
+      }, 1000);
+      return;
+    }
+
+    // Store data in session for payment page
+    const upgradeData = {
+      communityId: communityId,
+      communityName: (community as any).name || 'Community',
+      tier: tierKey
+    };
+    sessionStorage.setItem('communityUpgradeData', JSON.stringify(upgradeData));
+    
+    // Redirect to mobile payment page
+    window.location.href = `/community-mobile-payment/${tierKey}`;
   };
 
   if (communityLoading) {

@@ -111,6 +111,68 @@ export function registerPaymentRoutes(app: Express) {
       });
     }
   });
+
+  // Confirm payment for communities
+  app.post("/api/payments/confirm-community-payment", async (req, res) => {
+    try {
+      const { paymentIntentId, communityId, tier } = req.body;
+      
+      if (!paymentIntentId || !communityId || !tier) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      // Verify payment status with Stripe
+      const paymentIntent = await stripePaymentService.retrievePaymentIntent(paymentIntentId);
+      
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ 
+          error: "Payment not completed", 
+          status: paymentIntent.status,
+          _version: "v4_streamlined_hero_1754286184480",
+          _timestamp: Date.now()
+        });
+      }
+
+      // Update community subscription in database
+      await db
+        .update(communities)
+        .set({
+          subscriptionTier: tier,
+          subscriptionStartDate: new Date(),
+          stripePaymentIntentId: paymentIntentId,
+          updatedAt: new Date()
+        })
+        .where(eq(communities.id, parseInt(communityId)));
+
+      // Send email notification to super admin
+      const emailContent = `
+        <h2>New Community Upgrade!</h2>
+        <p><strong>Community ID:</strong> ${communityId}</p>
+        <p><strong>Tier:</strong> ${tier}</p>
+        <p><strong>Payment Intent:</strong> ${paymentIntentId}</p>
+        <p><strong>Amount:</strong> $${(paymentIntent.amount / 100).toFixed(2)}</p>
+        <p>Please verify the upgrade in the admin dashboard.</p>
+      `;
+
+      await notifySuperAdmin(
+        'New Community Subscription Upgrade',
+        emailContent
+      );
+
+      res.json({ 
+        success: true, 
+        message: "Community upgraded successfully",
+        tier: tier
+      });
+    } catch (error) {
+      console.error("Error confirming community payment:", error);
+      res.status(500).json({ 
+        error: "Failed to confirm payment",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Create checkout session for subscription
   app.post('/api/payments/create-session', async (req, res) => {
     try {
