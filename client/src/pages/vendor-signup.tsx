@@ -29,49 +29,55 @@ const vendorSignupSchema = z.object({
   businessType: z.string().min(1, 'Please select a business type'),
   description: z.string().min(50, 'Description must be at least 50 characters'),
   serviceAreas: z.string().min(2, 'Please specify your service areas'),
-  planType: z.enum(['basic', 'professional', 'enterprise'])
+  planType: z.enum(['basic', 'featured', 'national'])
 });
 
 type VendorSignupForm = z.infer<typeof vendorSignupSchema>;
 
-// Pricing plans
+// Pricing plans - OFFICIAL VENDOR PRICING (3 TIERS ONLY)
 const pricingPlans = [
   {
     id: 'basic',
     name: 'Basic Listing',
-    price: 49,
+    price: 99,
     features: [
-      'Basic business listing',
-      'Contact information display',
-      'Service area coverage',
-      'Monthly analytics report'
+      'Public listing in vendor directory',
+      'Region-limited to 1 zip cluster',
+      'Name, phone, category, description',
+      'Optional $25 verified badge',
+      'User reviews allowed',
+      'Affiliate link support (if provided)'
     ]
   },
   {
-    id: 'professional',
-    name: 'Professional',
-    price: 149,
+    id: 'featured',
+    name: 'Featured Vendor',
+    price: 249,
     badge: 'Most Popular',
     features: [
-      'Everything in Basic',
-      'Priority listing placement',
-      'Enhanced profile with photos',
-      'Weekly analytics reports',
-      'Direct messaging from families',
-      'Verified Partner badge'
+      'Everything in Basic, plus:',
+      'Coverage across 5 regions',
+      'Upload logo, brand colors, CTA button',
+      'Basic analytics (views, clicks, leads)',
+      'Post vendor promos',
+      'Featured placement in vendor carousels',
+      'Must have affiliate link for "Approved" badge'
     ]
   },
   {
-    id: 'enterprise',
-    name: 'Enterprise',
-    price: 299,
+    id: 'national',
+    name: 'National Partner',
+    price: 499,
     features: [
-      'Everything in Professional',
-      'Top placement in all categories',
-      'Custom branding options',
-      'Real-time analytics dashboard',
-      'API integration access',
-      'Dedicated account manager'
+      'Everything in Featured, plus:',
+      'Nationwide visibility (no geo cap)',
+      'Banner rotation in major discovery areas',
+      'Concierge system priority & routing',
+      'AI-generated lead summaries + scoring',
+      'Optional API or CSV lead passback',
+      'Dedicated vendor microsite',
+      'Quarterly performance report',
+      'Optional vendor success call'
     ]
   }
 ];
@@ -153,7 +159,7 @@ function CheckoutForm({ vendorData }: { vendorData: VendorSignupForm }) {
 export default function VendorSignup() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [selectedPlan, setSelectedPlan] = useState<string>('professional');
+  const [selectedPlan, setSelectedPlan] = useState<string>('featured');
   const [showPayment, setShowPayment] = useState(false);
   const [clientSecret, setClientSecret] = useState('');
   const [vendorFormData, setVendorFormData] = useState<VendorSignupForm | null>(null);
@@ -169,7 +175,7 @@ export default function VendorSignup() {
       businessType: '',
       description: '',
       serviceAreas: '',
-      planType: 'professional'
+      planType: 'featured'
     }
   });
 
@@ -360,7 +366,7 @@ export default function VendorSignup() {
                       <span className="text-4xl font-bold">${plan.price}</span>
                       <span className="text-gray-600 dark:text-gray-400 ml-1">/month</span>
                     </div>
-                    {plan.id === 'professional' && (
+                    {plan.id === 'featured' && (
                       <p className="text-sm text-green-600 dark:text-green-400 mt-1">Save $178/year with annual billing</p>
                     )}
                   </div>

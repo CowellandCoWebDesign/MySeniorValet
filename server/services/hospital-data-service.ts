@@ -51,27 +51,79 @@ export class HospitalDataService {
   
   // Get featured hospitals (top rated, major medical centers) - optimized for carousel
   async getFeaturedHospitals(limit: number = 30) {
-    return await db
-      .select({
-        id: hospitals.id,
-        name: hospitals.name,
-        slug: hospitals.slug,
-        city: hospitals.city,
-        state: hospitals.state,
-        hospitalType: hospitals.hospitalType,
-        bedCount: hospitals.bedCount,
-        emergencyServices: hospitals.emergencyServices,
-        traumaLevel: hospitals.traumaLevel,
-        ownership: hospitals.ownership,
-        phone: hospitals.phone,
-        cmsRating: hospitals.cmsRating,
-        services: hospitals.services,
-        dataSourceNote: hospitals.dataSourceNote
-      })
-      .from(hospitals)
-      .where(eq(hospitals.isActive, true))
-      .orderBy(desc(hospitals.bedCount), desc(hospitals.cmsRating))
-      .limit(limit);
+    console.log("Fetching featured hospitals with limit:", limit);
+    
+    try {
+      const results = await db
+        .select({
+          id: hospitals.id,
+          name: hospitals.name,
+          slug: hospitals.slug,
+          city: hospitals.city,
+          state: hospitals.state,
+          hospital_type: hospitals.hospitalType,
+          bed_count: hospitals.bedCount,
+          emergency_services: hospitals.emergencyServices,
+          trauma_level: hospitals.traumaLevel,
+          ownership: hospitals.ownership,
+          phone: hospitals.phone,
+          cms_rating: hospitals.cmsRating,
+          services: hospitals.services,
+          data_source_note: hospitals.dataSourceNote,
+          address: hospitals.address,
+          county: hospitals.county,
+          zip_code: hospitals.zipCode,
+          description: hospitals.description,
+          specialties: hospitals.specialties,
+          tags: hospitals.tags,
+          emergency_phone: hospitals.emergencyPhone,
+          mortality_rating: hospitals.mortalityRating,
+          safety_rating: hospitals.safetyRating,
+          readmission_rating: hospitals.readmissionRating,
+          experience_rating: hospitals.experienceRating
+        })
+        .from(hospitals)
+        .where(eq(hospitals.isActive, true))
+        .orderBy(desc(hospitals.bedCount), desc(hospitals.cmsRating))
+        .limit(limit);
+      
+      console.log("Database query results count:", results.length);
+      if (results.length > 0) {
+        console.log("First hospital raw data:", results[0]);
+      }
+    } catch (error) {
+      console.error("Error querying hospitals from database:", error);
+      throw error;
+    }
+    
+    // Transform snake_case to camelCase for frontend compatibility
+    return results.map(hospital => ({
+      id: hospital.id,
+      name: hospital.name,
+      slug: hospital.slug,
+      city: hospital.city,
+      state: hospital.state,
+      zipCode: hospital.zip_code,
+      county: hospital.county,
+      address: hospital.address,
+      phone: hospital.phone,
+      hospitalType: hospital.hospital_type,
+      ownership: hospital.ownership,
+      services: hospital.services || [],
+      specialties: hospital.specialties || [],
+      traumaLevel: hospital.trauma_level,
+      emergencyServices: hospital.emergency_services,
+      bedCount: hospital.bed_count,
+      cmsRating: hospital.cms_rating,
+      mortalityRating: hospital.mortality_rating,
+      safetyRating: hospital.safety_rating,
+      readmissionRating: hospital.readmission_rating,
+      experienceRating: hospital.experience_rating,
+      tags: hospital.tags || [],
+      emergencyPhone: hospital.emergency_phone,
+      dataSourceNote: hospital.data_source_note,
+      description: hospital.description
+    }));
   }
   
   // Get hospitals by state
