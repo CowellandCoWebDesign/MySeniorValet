@@ -53,8 +53,36 @@ export class HospitalDataService {
   async getFeaturedHospitals(limit: number = 30) {
     console.log("Fetching featured hospitals with limit:", limit);
     
+    let results: Array<{
+      id: number;
+      name: string;
+      slug: string | null;
+      city: string;
+      state: string;
+      hospital_type: string | null;
+      bed_count: number | null;
+      emergency_services: boolean | null;
+      trauma_level: string | null;
+      ownership: string | null;
+      phone: string | null;
+      cms_rating: number | null;
+      services: string[] | null;
+      data_source_note: string | null;
+      address: string | null;
+      county: string | null;
+      zip_code: string | null;
+      description: string | null;
+      specialties: string[] | null;
+      tags: string[] | null;
+      emergency_phone: string | null;
+      mortality_rating: string | null;
+      safety_rating: string | null;
+      readmission_rating: string | null;
+      experience_rating: string | null;
+    }> = [];
+    
     try {
-      const results = await db
+      results = await db
         .select({
           id: hospitals.id,
           name: hospitals.name,

@@ -206,10 +206,11 @@ export const ADD_ON_PRODUCTS: SubscriptionProduct[] = [
 export class StripeSubscriptionService {
   
   async createCheckoutSession(
-    communityId: number,
+    communityId: number | null,
     productId: string,
     successUrl: string,
-    cancelUrl: string
+    cancelUrl: string,
+    metadata?: Record<string, any>
   ) {
     const product = [...SUBSCRIPTION_PRODUCTS, ...ADD_ON_PRODUCTS, ...VENDOR_PRODUCTS].find(p => p.id === productId);
     
@@ -217,27 +218,58 @@ export class StripeSubscriptionService {
       throw new Error('Invalid product or free product');
     }
 
-    // Get Stripe price ID from metadata or create on demand
-    const stripeProducts = await stripe.products.list({
-      limit: 100
-    });
+    // In development mode, create price on the fly
+    let priceId: string;
+    
+    try {
+      // Try to find existing product and price
+      const stripeProducts = await stripe.products.list({
+        limit: 100
+      });
 
-    const stripeProduct = stripeProducts.data.find(p => 
-      p.name === product.name && p.metadata?.platform === 'myseniorvalet'
-    );
+      const stripeProduct = stripeProducts.data.find(p => 
+        p.metadata?.productId === productId && p.metadata?.platform === 'myseniorvalet'
+      );
 
-    if (!stripeProduct) {
-      throw new Error('Stripe product not found');
-    }
+      if (stripeProduct) {
+        const prices = await stripe.prices.list({
+          product: stripeProduct.id
+        });
+        const price = prices.data[0];
+        if (price) {
+          priceId = price.id;
+        } else {
+          // Create price for existing product
+          const newPrice = await stripe.prices.create({
+            product: stripeProduct.id,
+            unit_amount: product.price,
+            currency: 'usd',
+            recurring: product.interval ? { interval: product.interval } : undefined
+          });
+          priceId = newPrice.id;
+        }
+      } else {
+        // Create new product and price
+        const newProduct = await stripe.products.create({
+          name: product.name,
+          description: product.description,
+          metadata: {
+            productId: productId,
+            platform: 'myseniorvalet'
+          }
+        });
 
-    const prices = await stripe.prices.list({
-      product: stripeProduct.id
-    });
-
-    const price = prices.data[0];
-
-    if (!price) {
-      throw new Error('Stripe price not found');
+        const newPrice = await stripe.prices.create({
+          product: newProduct.id,
+          unit_amount: product.price,
+          currency: 'usd',
+          recurring: product.interval ? { interval: product.interval } : undefined
+        });
+        priceId = newPrice.id;
+      }
+    } catch (error) {
+      console.error('Error creating/finding Stripe product:', error);
+      throw new Error('Failed to create checkout session');
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -245,16 +277,17 @@ export class StripeSubscriptionService {
       payment_method_types: ['card'],
       line_items: [
         {
-          price: price.id,
+          price: priceId,
           quantity: 1,
         },
       ],
       success_url: successUrl,
       cancel_url: cancelUrl,
       metadata: {
-        communityId: communityId.toString(),
+        ...(communityId ? { communityId: communityId.toString() } : {}),
         productId: productId,
-        platform: 'myseniorvalet'
+        platform: 'myseniorvalet',
+        ...(metadata || {})
       }
     });
 

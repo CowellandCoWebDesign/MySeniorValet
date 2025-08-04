@@ -583,15 +583,26 @@ export function registerPaymentRoutes(app: Express) {
       // Store vendor data temporarily (in production, save to database)
       console.log('Creating vendor checkout for:', vendorData);
       
+      if (!stripeSubscriptionService) {
+        console.error('stripeSubscriptionService is not initialized');
+        return res.status(500).json({ 
+          error: 'Payment service not available',
+          _version: "v4_vendor_checkout_" + Date.now()
+        });
+      }
+      
+      // Ensure URLs have proper scheme
+      const baseUrl = process.env.REPLIT_DEV_DOMAIN 
+        ? (process.env.REPLIT_DEV_DOMAIN.startsWith('http') 
+          ? process.env.REPLIT_DEV_DOMAIN 
+          : `https://${process.env.REPLIT_DEV_DOMAIN}`)
+        : 'http://localhost:5000';
+      
       const session = await stripeSubscriptionService.createCheckoutSession(
-        null, // No community ID for vendors
+        0, // Use 0 instead of null for vendor checkout
         productId,
-        successUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/success`,
-        cancelUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/cancel`,
-        { 
-          type: 'vendor',
-          vendorData: JSON.stringify(vendorData)
-        }
+        successUrl || `${baseUrl}/payment/success`,
+        cancelUrl || `${baseUrl}/payment/cancel`
       );
 
       res.json({ 
@@ -653,7 +664,7 @@ export function registerPaymentRoutes(app: Express) {
     try {
       const event = stripePaymentService.constructWebhookEvent(
         req.body,
-        sig
+        Array.isArray(sig) ? sig[0] : sig
       );
 
       // Handle the event
@@ -710,7 +721,7 @@ export function registerPaymentRoutes(app: Express) {
         return res.json({ paymentMethods: [] });
       }
 
-      const paymentMethods = await stripePaymentService.getPaymentMethods(user.stripeCustomerId);
+      const paymentMethods = await stripePaymentService.listPaymentMethods(user.stripeCustomerId);
       res.json({ paymentMethods });
     } catch (error) {
       console.error('Error fetching payment methods:', error);
@@ -746,9 +757,10 @@ export function registerPaymentRoutes(app: Express) {
 
       // Create Stripe customer if doesn't exist
       if (!customerId) {
-        const customer = await stripePaymentService.createCustomer({
-          email: user.email,
-          name: `${user.firstName} ${user.lastName}`,
+        const stripe = stripePaymentService.getStripe();
+        const customer = await stripe.customers.create({
+          email: user.email || undefined,
+          name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || undefined,
           metadata: { userId: user.id.toString() }
         });
         
@@ -762,7 +774,7 @@ export function registerPaymentRoutes(app: Express) {
 
       const paymentMethod = await stripePaymentService.attachPaymentMethod(
         paymentMethodId,
-        customerId
+        customerId!
       );
 
       res.json({ paymentMethod });
@@ -844,7 +856,6 @@ export function registerPaymentRoutes(app: Express) {
         .update(users)
         .set({ 
           stripeSubscriptionId: null,
-          subscriptionStatus: 'cancelled',
           updatedAt: new Date()
         })
         .where(eq(users.id, userId));
@@ -877,6 +888,95 @@ export function registerPaymentRoutes(app: Express) {
       res.status(500).json({ message: 'Failed to fetch payment history' });
     }
   });
+
+  // Create payment intent
+  app.post('/api/payment-intent/create', async (req, res) => {
+    try {
+      const { amount, currency = 'usd', metadata } = req.body;
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: currency,
+        automatic_payment_methods: { enabled: true },
+        metadata: metadata || {}
+      });
+
+      res.json({
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id,
+        _version: "v4_payment_intent_" + Date.now()
+      });
+    } catch (error) {
+      console.error('Error creating payment intent:', error);
+      res.status(500).json({ 
+        error: 'Failed to create payment intent',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Test payment intent confirmation
+  app.get('/api/payment-intent/confirm-test', async (req, res) => {
+    try {
+      // Create a test payment intent
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: 1000, // $10.00
+        currency: 'usd',
+        automatic_payment_methods: { enabled: true },
+        metadata: { test: 'true' }
+      });
+
+      res.json({
+        message: 'Test payment intent created',
+        paymentIntentId: paymentIntent.id,
+        clientSecret: paymentIntent.client_secret,
+        status: paymentIntent.status,
+        _version: "v4_test_confirm_" + Date.now()
+      });
+    } catch (error) {
+      console.error('Error in confirm test:', error);
+      res.status(500).json({ 
+        error: 'Failed to create test payment intent',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // List payment methods
+  app.get('/api/payments/list-methods', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
+
+      const [user] = await db
+        .select({ stripeCustomerId: users.stripeCustomerId })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+
+      if (!user?.stripeCustomerId) {
+        return res.json({ paymentMethods: [] });
+      }
+
+      const paymentMethods = await stripe.paymentMethods.list({
+        customer: user.stripeCustomerId,
+        type: 'card'
+      });
+
+      res.json({ 
+        paymentMethods: paymentMethods.data,
+        _version: "v4_list_methods_" + Date.now()
+      });
+    } catch (error) {
+      console.error('Error listing payment methods:', error);
+      res.status(500).json({ 
+        error: 'Failed to list payment methods',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
 }
 
 // Helper functions for webhook handlers
@@ -891,10 +991,9 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
     .set({
       stripeCustomerId: session.customer as string,
       stripeSubscriptionId: session.subscription as string,
-      subscriptionStatus: 'active',
       updatedAt: new Date()
     })
-    .where(eq(users.id, parseInt(userId)));
+    .where(eq(users.id, userId));
 }
 
 async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
@@ -905,10 +1004,9 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
     .update(users)
     .set({
       stripeSubscriptionId: subscription.id,
-      subscriptionStatus: subscription.status as any,
       updatedAt: new Date()
     })
-    .where(eq(users.id, parseInt(userId)));
+    .where(eq(users.id, userId));
 }
 
 async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
@@ -919,14 +1017,13 @@ async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
     .update(users)
     .set({
       stripeSubscriptionId: null,
-      subscriptionStatus: 'cancelled',
       updatedAt: new Date()
     })
-    .where(eq(users.id, parseInt(userId)));
+    .where(eq(users.id, userId));
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
-  if (!invoice.subscription || !invoice.customer) return;
+  if (!invoice.customer) return;
 
   // Record payment
   const customerId = invoice.customer as string;
@@ -939,13 +1036,13 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
   if (!user) return;
 
   await db
-    .insert(payments)
+    .insert(paymentTransactions)
     .values({
       userId: user.id,
       amount: invoice.amount_paid / 100, // Convert from cents
       currency: invoice.currency,
-      status: 'succeeded',
-      stripePaymentIntentId: invoice.payment_intent as string,
+      status: 'succeeded' as const,
+      stripePaymentIntentId: typeof invoice.payment_intent === 'string' ? invoice.payment_intent : null,
       description: 'Subscription payment'
     });
 }

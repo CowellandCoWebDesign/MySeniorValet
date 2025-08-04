@@ -35,7 +35,7 @@ export default function AdminDashboard() {
   const [refreshing, setRefreshing] = useState(false);
   
   // Check if user is super admin
-  const isSuperAdmin = user?.email === 'william.cowell01@gmail.com';
+  const isSuperAdmin = (user as any)?.email === 'william.cowell01@gmail.com';
   
   if (!isSuperAdmin) {
     return (
@@ -54,14 +54,26 @@ export default function AdminDashboard() {
   }
 
   // Platform stats
-  const { data: platformStats } = useQuery({
+  const { data: platformStats } = useQuery<{
+    totalCommunities: number;
+    totalUsers: number;
+    totalVendors: number;
+    activeSubscriptions: number;
+  }>({
     queryKey: ['/api/platform/stats'],
   });
 
   // Recent errors
   const { data: recentErrors } = useQuery({
     queryKey: ['/api/admin/errors/recent'],
-    queryFn: () => apiRequest('GET', '/api/admin/errors/recent').catch(() => ({ errors: [] }))
+    queryFn: async () => {
+      try {
+        const response = await apiRequest('GET', '/api/admin/errors/recent');
+        return response as { errors: Array<{ message: string; timestamp: string; type: string }> };
+      } catch {
+        return { errors: [] };
+      }
+    }
   });
 
   const handleRefresh = () => {
@@ -134,7 +146,7 @@ export default function AdminDashboard() {
                 Super Admin Dashboard
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-2">
-                Welcome back, {user?.email}
+                Welcome back, {(user as any)?.email}
               </p>
             </div>
             <Button onClick={handleRefresh} variant="outline">
@@ -240,7 +252,7 @@ export default function AdminDashboard() {
           <CardContent>
             {recentErrors?.errors?.length > 0 ? (
               <div className="space-y-4">
-                {recentErrors.errors.slice(0, 5).map((error: any, index: number) => (
+                {recentErrors?.errors?.slice(0, 5).map((error: any, index: number) => (
                   <Alert key={index} variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>

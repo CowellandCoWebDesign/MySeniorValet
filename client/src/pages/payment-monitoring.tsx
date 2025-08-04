@@ -53,7 +53,7 @@ export default function PaymentMonitoring() {
   const [notifications, setNotifications] = useState<string[]>([]);
 
   // Super admin check
-  const isSuperAdmin = user?.email === 'william.cowell01@gmail.com';
+  const isSuperAdmin = (user as any)?.email === 'william.cowell01@gmail.com';
 
   const runPaymentTest = async (test: PaymentTest) => {
     setTests(prev => prev.map(t => 
