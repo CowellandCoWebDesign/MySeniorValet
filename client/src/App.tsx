@@ -73,6 +73,7 @@ import VendorMarketplace from "@/pages/vendor-marketplace";
 import VendorMarketplaceTiers from "@/pages/vendor-marketplace-tiers";
 import FamilyConnect from "@/pages/family-connect";
 import CommunityPaymentProgram from "@/pages/community-payment-program";
+import CommunitySubscriptionCheckout from "@/pages/community-subscription-checkout";
 import ResidentOnboarding from "@/pages/resident-onboarding";
 import LeaseDocumentManagement from "@/pages/lease-document-management";
 import { NotificationPreferencesPage } from "@/pages/notification-preferences";
@@ -195,6 +196,7 @@ function Router() {
       <Route path="/amazon-supplies" component={AmazonServices} />
       <Route path="/vendor/:vendorId" component={VendorProfile} />
       <Route path="/community-payment-program" component={CommunityPaymentProgram} />
+      <Route path="/community-subscription-checkout" component={CommunitySubscriptionCheckout} />
       <Route path="/resident-onboarding" component={ResidentOnboarding} />
       <Route path="/lease-management/:applicationId" component={LeaseDocumentManagement} />
       <Route path="/quiz" component={QuizPage} />

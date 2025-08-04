@@ -20,6 +20,7 @@ import { eq } from "drizzle-orm";
 import cookieParser from "cookie-parser";
 import { isAuthenticated } from "./replitAuth";
 import { storage } from "./storage";
+import { vendors } from "../shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize Replit Auth before other routes
@@ -81,6 +82,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register vendor Stripe payment routes
   const { registerVendorStripeRoutes } = await import('./routes/vendor-stripe');
   registerVendorStripeRoutes(app);
+  
+  // Register community Stripe payment routes
+  const { registerCommunityStripeRoutes } = await import('./routes/community-stripe');
+  registerCommunityStripeRoutes(app);
 
   // Vendor dashboard API routes
   app.get("/api/vendors/:vendorId/dashboard", isAuthenticated, async (req, res) => {
