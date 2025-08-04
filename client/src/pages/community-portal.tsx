@@ -178,7 +178,7 @@ export default function CommunityPortal() {
     try {
       // Map plan names to product IDs
       const productIdMap: Record<string, string> = {
-        'Verified': 'verified',
+        'Verified Listing': 'verified',
         'Standard': 'standard', 
         'Featured': 'featured',
         'Platinum': 'platinum'
@@ -189,15 +189,41 @@ export default function CommunityPortal() {
         throw new Error('Invalid plan selected');
       }
 
-      // For free tier, redirect to community claim
+      // For free tier, handle differently
       if (productId === 'verified') {
-        toast({
-          title: "Welcome to MySeniorValet!",
-          description: "Your free verified listing is ready. Complete your profile to get started.",
-        });
-        setTimeout(() => {
-          setLocation('/community-claim');
-        }, 1500);
+        // If it's an existing community claiming free tier
+        if (existingCommunityData) {
+          try {
+            await apiRequest('POST', '/api/payments/claim-free-tier', {
+              communityId: existingCommunityData.communityId
+            });
+            
+            toast({
+              title: "Success!",
+              description: "Your free verified listing has been activated.",
+            });
+            
+            sessionStorage.removeItem('communityUpgradeData');
+            setTimeout(() => {
+              setLocation(`/community-dashboard/${existingCommunityData.communityId}`);
+            }, 1500);
+          } catch (error) {
+            toast({
+              title: "Error",
+              description: "Failed to activate free tier. Please try again.",
+              variant: "destructive"
+            });
+          }
+        } else {
+          // New community claiming free tier
+          toast({
+            title: "Welcome to MySeniorValet!",
+            description: "Your free verified listing is ready. Complete your profile to get started.",
+          });
+          setTimeout(() => {
+            setLocation('/community-claim');
+          }, 1500);
+        }
         return;
       }
 

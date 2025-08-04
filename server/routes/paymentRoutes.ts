@@ -276,14 +276,25 @@ export function registerPaymentRoutes(app: Express) {
           const tierMap: Record<string, 'standard' | 'featured' | 'platinum' | 'verified'> = {
             'standard': 'standard',
             'featured': 'featured',
-            'platinum': 'platinum'
+            'platinum': 'platinum',
+            'verified': 'verified'
           };
+          
+          const tier = tierMap[productId];
+          if (!tier || tier === 'verified') {
+            // Free tier should not go through payment confirmation
+            return res.status(400).json({ 
+              error: 'Invalid plan selected. Free tier does not require payment.',
+              productId 
+            });
+          }
           
           // Update community in database
           await db.update(communities)
             .set({
-              subscriptionTier: (tierMap[productId] || 'verified') as 'standard' | 'featured' | 'platinum' | 'verified',
+              subscriptionTier: tier,
               stripeCustomerId: paymentIntent.customer as string,
+              billingStatus: 'active',
               updatedAt: new Date()
             })
             .where(eq(communities.id, parseInt(communityId)));
@@ -316,6 +327,43 @@ export function registerPaymentRoutes(app: Express) {
     }
   });
 
+  // Claim free tier (no payment required)
+  app.post("/api/payments/claim-free-tier", async (req, res) => {
+    try {
+      const { communityId } = req.body;
+      
+      if (!communityId) {
+        return res.status(400).json({ error: "Community ID required" });
+      }
+      
+      // Update community to verified tier
+      await db.update(communities)
+        .set({
+          subscriptionTier: 'verified',
+          billingStatus: 'active',
+          updatedAt: new Date()
+        })
+        .where(eq(communities.id, parseInt(communityId)));
+      
+      // Send notification
+      await notifySuperAdmin(
+        'Free Tier Claimed',
+        `Community ID ${communityId} claimed free tier`
+      );
+      
+      res.json({ 
+        success: true,
+        message: 'Free tier activated successfully'
+      });
+    } catch (error) {
+      console.error('Error claiming free tier:', error);
+      res.status(500).json({ 
+        error: 'Failed to claim free tier',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Confirm payment for communities
   app.post("/api/payments/confirm-community-payment", async (req, res) => {
     try {
@@ -323,6 +371,14 @@ export function registerPaymentRoutes(app: Express) {
       
       if (!paymentIntentId || !communityId || !tier) {
         return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      // Free tier should not go through payment confirmation
+      if (tier === 'verified') {
+        return res.status(400).json({ 
+          error: "Invalid request. Free tier does not require payment confirmation.", 
+          tier
+        });
       }
 
       // Verify payment status with Stripe
@@ -345,6 +401,13 @@ export function registerPaymentRoutes(app: Express) {
         // For new communities, we'll create a placeholder record
         console.log('New community payment confirmed:', { tier, paymentIntentId });
         
+        // Validate tier is paid tier
+        if (!['standard', 'featured', 'platinum'].includes(tier)) {
+          return res.status(400).json({ 
+            error: `Invalid tier "${tier}". Only paid tiers are allowed for new communities.`
+          });
+        }
+        
         // Create new community entry with minimal required fields
         // Fix array initialization to prevent map errors
         const [newCommunity] = await db
@@ -355,7 +418,7 @@ export function registerPaymentRoutes(app: Express) {
             city: 'Pending',
             state: 'Pending',
             zipCode: '00000',
-            subscriptionTier: tier as 'standard' | 'featured' | 'platinum' | 'verified',
+            subscriptionTier: tier as 'standard' | 'featured' | 'platinum',
             billingStatus: 'active' as const,
             stripeCustomerId: paymentIntent.customer as string || null,
             // Set non-nullable fields with defaults
@@ -423,12 +486,20 @@ export function registerPaymentRoutes(app: Express) {
           });
         }
 
+        // Validate tier for existing communities
+        if (!['standard', 'featured', 'platinum'].includes(tier)) {
+          return res.status(400).json({ 
+            error: `Invalid tier "${tier}". Only paid tiers can be processed through payment confirmation.`
+          });
+        }
+        
         // Update existing community subscription in database
         await db
           .update(communities)
           .set({
-            subscriptionTier: tier as 'standard' | 'featured' | 'platinum' | 'verified',
+            subscriptionTier: tier as 'standard' | 'featured' | 'platinum',
             billingStatus: 'active' as const,
+            stripeCustomerId: paymentIntent.customer as string || null,
             updatedAt: new Date()
           })
           .where(eq(communities.id, parsedCommunityId));
