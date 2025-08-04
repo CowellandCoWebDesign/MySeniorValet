@@ -330,29 +330,95 @@ export function registerPaymentRoutes(app: Express) {
   // Claim free tier (no payment required)
   app.post("/api/payments/claim-free-tier", async (req, res) => {
     try {
-      const { communityId } = req.body;
+      const { communityId, isNewCommunity, ...claimData } = req.body;
       
-      if (!communityId) {
-        return res.status(400).json({ error: "Community ID required" });
+      if (!communityId && !isNewCommunity) {
+        return res.status(400).json({ error: "Community ID or new community flag required" });
       }
       
-      // Update community to verified tier
-      await db.update(communities)
-        .set({
-          subscriptionTier: 'verified',
-          billingStatus: 'active',
-          updatedAt: new Date()
-        })
-        .where(eq(communities.id, parseInt(communityId)));
+      let finalCommunityId = communityId;
       
-      // Send notification
-      await notifySuperAdmin(
-        'Free Tier Claimed',
-        `Community ID ${communityId} claimed free tier`
-      );
+      // If it's a new community, create it first
+      if (isNewCommunity) {
+        const { companyName, businessAddress, claimerEmail, claimerPhone } = claimData;
+        
+        if (!companyName || !businessAddress) {
+          return res.status(400).json({ error: "Company name and address are required" });
+        }
+        
+        // Extract city, state, zip from address (basic parsing)
+        const addressParts = businessAddress.split(',').map((p: string) => p.trim());
+        const city = addressParts[1] || 'Pending';
+        const stateZip = addressParts[2] || 'Pending';
+        const [state, zipCode] = stateZip.split(' ').filter(Boolean);
+        
+        // Create new community
+        const [newCommunity] = await db.insert(communities)
+          .values({
+            name: companyName,
+            address: addressParts[0] || businessAddress,
+            city,
+            state: state || 'Pending',
+            zipCode: zipCode || '00000',
+            phone: claimerPhone || null,
+            email: claimerEmail || null,
+            subscriptionTier: 'verified',
+            billingStatus: 'active' as const,
+            isValidated: true,
+            isClaimed: true,
+            // Default fields for new communities
+            careTypes: ['assisted_living'],
+            licensureType: 'unknown',
+            mealPlansIncluded: [],
+            recreationalActivities: [],
+            specializedCare: [],
+            medicareAccepted: false,
+            medicaidAccepted: false,
+            roomTypes: ['private'],
+            financialAssistance: [],
+            petPolicy: 'Not Allowed',
+            transportationProvided: false,
+            culturalSpecialties: [],
+            amenities: [],
+            languagesSpoken: ['English'],
+            securityFeatures: [],
+            smokingPolicy: 'No Smoking',
+            alcoholPolicy: 'Not Allowed',
+            visitingHours: '24/7',
+            pricingModel: 'Contact for Pricing',
+            availableUnits: 0
+          })
+          .returning({ id: communities.id });
+          
+        finalCommunityId = newCommunity.id;
+        
+        // Send notification
+        await notifySuperAdmin(
+          'New Community Created - Free Tier',
+          `New community "${companyName}" created with ID ${finalCommunityId}\n` +
+          `Contact: ${claimerEmail}\n` +
+          `Phone: ${claimerPhone}`
+        );
+      } else {
+        // Update existing community to verified tier
+        await db.update(communities)
+          .set({
+            subscriptionTier: 'verified',
+            billingStatus: 'active',
+            updatedAt: new Date()
+          })
+          .where(eq(communities.id, parseInt(communityId)));
+          
+        // Send notification
+        await notifySuperAdmin(
+          'Free Tier Claimed',
+          `Community ID ${communityId} claimed free tier`
+        );
+      }
       
       res.json({ 
         success: true,
+        communityId: finalCommunityId,
         message: 'Free tier activated successfully'
       });
     } catch (error) {

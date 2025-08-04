@@ -144,6 +144,7 @@ function Router() {
       <Route path="/hospital/:slug" component={HospitalDetails} />
       <Route path="/community/:id/contribute" component={CommunityContribute} />
       <Route path="/claim/:communityId" component={Claim} />
+      <Route path="/community-claim" component={Claim} />
       <Route path="/admin" component={AdminCreative} />
       <Route path="/admin-creative" component={AdminCreative} />
       <Route path="/admin-unified" component={AdminUnified} />

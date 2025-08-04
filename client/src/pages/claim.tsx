@@ -46,7 +46,10 @@ interface ClaimCheckResponse {
 
 export default function ClaimCommunity() {
   const [, params] = useRoute('/claim/:communityId');
+  const [, location] = useRoute('/community-claim');
+  // Support both routes - with and without communityId
   const communityId = params?.communityId ? parseInt(params.communityId) : null;
+  const isNewCommunity = location ? true : false;
   const { toast } = useToast();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [claimId, setClaimId] = useState<number | null>(null);
@@ -69,7 +72,7 @@ export default function ClaimCommunity() {
   // Check if community can be claimed
   const { data: claimCheck, isLoading: checkLoading } = useQuery<ClaimCheckResponse>({
     queryKey: ['/api/claims/check', communityId],
-    enabled: !!communityId,
+    enabled: !!communityId && !isNewCommunity,
     retry: false
   });
 
@@ -101,9 +104,219 @@ export default function ClaimCommunity() {
     }
   });
 
+  // Submit new community mutation
+  const submitNewCommunity = useMutation({
+    mutationFn: async (data: ClaimFormData) => {
+      const response = await apiRequest('/api/payments/claim-free-tier', 'POST', {
+        ...data,
+        isNewCommunity: true
+      });
+      return response;
+    },
+    onSuccess: (data: any) => {
+      setIsSubmitted(true);
+      setClaimId(data.communityId);
+      toast({
+        title: "Free Tier Activated!",
+        description: "Your community has been created with a free verified listing.",
+      });
+      // Redirect to community dashboard after a short delay
+      setTimeout(() => {
+        window.location.href = `/community-dashboard/${data.communityId}`;
+      }, 2000);
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to Create Community",
+        description: error.message || "Please try again later",
+        variant: "destructive",
+      });
+    }
+  });
+
   const onSubmit = (data: ClaimFormData) => {
     submitClaim.mutate(data);
   };
+
+  // If it's a new community claim, skip the check and go straight to form
+  if (isNewCommunity) {
+
+    if (isSubmitted) {
+      return (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
+          <div className="max-w-2xl mx-auto px-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="h-6 w-6 text-green-500" />
+                  Community Created Successfully!
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  Your free verified listing has been activated. Redirecting to your dashboard...
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Header />
+        <div className="max-w-2xl mx-auto px-4 py-12">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building className="h-6 w-6" />
+                Create Your Free Community Listing
+              </CardTitle>
+              <CardDescription>
+                Complete this form to activate your free verified listing on MySeniorValet
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit((data) => submitNewCommunity.mutate(data))} className="space-y-6">
+                  {/* Form fields here - same as existing form */}
+                  <FormField
+                    control={form.control}
+                    name="claimerName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Your Full Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John Doe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="claimerEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Your Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="john@example.com" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          We'll use this email to verify your claim and send updates
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="claimerPhone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Your Phone Number</FormLabel>
+                        <FormControl>
+                          <Input type="tel" placeholder="(555) 123-4567" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="position"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Your Position/Title</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Executive Director" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="companyName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Community Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Sunrise Senior Living" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="businessAddress"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Community Address</FormLabel>
+                        <FormControl>
+                          <Input placeholder="123 Main St, City, State 12345" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="reasonForClaim"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Your Role</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select your role" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Owner">Owner</SelectItem>
+                            <SelectItem value="Administrator">Administrator</SelectItem>
+                            <SelectItem value="Marketing Director">Marketing Director</SelectItem>
+                            <SelectItem value="General Manager">General Manager</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="pt-4">
+                    <Button 
+                      type="submit" 
+                      className="w-full"
+                      disabled={submitNewCommunity.isPending}
+                    >
+                      {submitNewCommunity.isPending ? (
+                        <>
+                          <Clock className="h-4 w-4 mr-2 animate-spin" />
+                          Creating Community...
+                        </>
+                      ) : (
+                        'Create Free Listing'
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   if (!communityId) {
     return (
