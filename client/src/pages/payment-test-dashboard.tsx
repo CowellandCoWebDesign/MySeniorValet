@@ -117,7 +117,7 @@ export default function PaymentTestDashboard() {
           productId: tier.id,
           planName: tier.name,
           isNewCommunity: false,
-          communityId: 'test-community-123',
+          communityId: '1', // Use a valid numeric ID for testing
           communityName: 'Test Community'
         }));
         

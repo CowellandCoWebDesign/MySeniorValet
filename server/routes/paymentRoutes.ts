@@ -173,6 +173,16 @@ export function registerPaymentRoutes(app: Express) {
         });
       }
 
+      // Validate and parse communityId
+      const parsedCommunityId = parseInt(communityId);
+      if (isNaN(parsedCommunityId)) {
+        console.error('Invalid communityId:', communityId);
+        return res.status(400).json({ 
+          error: "Invalid community ID", 
+          details: `Community ID must be a valid number, received: ${communityId}`
+        });
+      }
+
       // Update community subscription in database
       await db
         .update(communities)
@@ -182,7 +192,7 @@ export function registerPaymentRoutes(app: Express) {
           stripePaymentIntentId: paymentIntentId,
           updatedAt: new Date()
         })
-        .where(eq(communities.id, parseInt(communityId)));
+        .where(eq(communities.id, parsedCommunityId));
 
       // Send email notification to super admin
       const emailContent = `
