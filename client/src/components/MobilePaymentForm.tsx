@@ -65,9 +65,9 @@ function PaymentForm({ productId, productName, price, customerId, metadata, onSu
         });
         onSuccess(paymentIntent);
       }
-    } catch (err) {
-      setErrorMessage('Payment failed. Please try again.');
-      console.error('Payment error:', err);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Payment failed. Please try again.');
+      console.error('Error confirming payment:', err);
     } finally {
       setIsProcessing(false);
     }

@@ -77,6 +77,7 @@ export default function CommunityMobilePayment() {
   const [error, setError] = useState('');
   const [currentStep, setCurrentStep] = useState('tier-selection');
   const [paymentSteps, setPaymentSteps] = useState<PaymentStep[]>(COMMUNITY_PAYMENT_STEPS);
+  const [paymentInitialized, setPaymentInitialized] = useState(false);
 
   const tierDetails = TIER_DETAILS[tier as keyof typeof TIER_DETAILS];
 
@@ -86,6 +87,13 @@ export default function CommunityMobilePayment() {
       setIsLoading(false);
       return;
     }
+
+    // Only create payment intent once
+    if (paymentInitialized) {
+      return;
+    }
+
+    setPaymentInitialized(true);
 
     // Initialize payment steps based on tier selection
     const updatedSteps = paymentSteps.map(step => {
@@ -115,7 +123,7 @@ export default function CommunityMobilePayment() {
       setCommunityData(newCommunityData);
       createPaymentIntent(newCommunityData);
     }
-  }, [tier]);
+  }, [tier, tierDetails, paymentInitialized]);
 
   const createPaymentIntent = async (data: any) => {
     try {
@@ -199,7 +207,7 @@ export default function CommunityMobilePayment() {
       // Confirm payment on backend
       await apiRequest('POST', '/api/payments/confirm-community-payment', {
         paymentIntentId: paymentIntent.id,
-        communityId: communityData.communityId,
+        communityId: communityData.communityId || 'new', // Use 'new' for new communities
         tier: tier
       });
 
