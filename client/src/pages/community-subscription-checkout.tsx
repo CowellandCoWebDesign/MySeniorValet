@@ -140,14 +140,36 @@ export default function CommunitySubscriptionCheckout() {
     if (tierKey === 'verified') {
       // Free tier - no payment needed
       setIsProcessing(true);
-      // TODO: Handle free tier activation
-      toast({
-        title: "Free Plan Activated",
-        description: "Your community listing has been verified.",
-      });
-      setTimeout(() => {
-        window.location.href = `/community/${communityId}`;
-      }, 1000);
+      
+      try {
+        const response = await apiRequest('POST', '/api/payments/claim-free-tier', {
+          communityId: communityId,
+          isNewCommunity: false
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          toast({
+            title: "Success!",
+            description: "Your free verified listing has been activated. You're now logged in!",
+          });
+          
+          // Redirect to community dashboard after a short delay
+          setTimeout(() => {
+            window.location.href = `/community-dashboard/${data.communityId || communityId}`;
+          }, 1500);
+        } else {
+          throw new Error(data.error || 'Failed to claim free tier');
+        }
+      } catch (error: any) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to activate free tier. Please try again.",
+          variant: "destructive",
+        });
+        setIsProcessing(false);
+      }
       return;
     }
 

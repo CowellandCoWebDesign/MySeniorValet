@@ -3,7 +3,7 @@ import express from "express";
 import { db } from "../db";
 import { users, paymentTransactions, vendors, communities } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
-import { isAuthenticated as requireAuth } from "../replitAuth";
+import { isAuthenticated as requireAuth, createAuthenticatedSession } from "../replitAuth";
 import { stripeSubscriptionService } from "../stripe-subscription-service";
 import { testStripeCharge } from "../stripe-test";
 import { notifySuperAdmin } from "../sendgrid-service";
@@ -243,12 +243,27 @@ export function registerPaymentRoutes(app: Express) {
             updatedAt: new Date()
           }).returning();
           
+          // Automatically log in the vendor
+          try {
+            await createAuthenticatedSession(
+              req, 
+              vendorData.email, 
+              vendorData.contactName?.split(' ')[0], 
+              vendorData.contactName?.split(' ')[1]
+            );
+            console.log(`Auto-login successful for vendor: ${vendorData.email}`);
+          } catch (authError) {
+            console.error('Failed to auto-login vendor:', authError);
+            // Continue anyway - payment was successful
+          }
+          
           // Return vendor ID in response
           res.json({ 
             success: true, 
             status: paymentIntent.status,
             message: 'Payment processed successfully',
-            vendorId: newVendor.id
+            vendorId: newVendor.id,
+            authenticated: req.isAuthenticated()
           });
           
           return; // Exit early after handling vendor
@@ -295,6 +310,28 @@ export function registerPaymentRoutes(app: Express) {
             })
             .where(eq(communities.id, parseInt(communityId)));
           
+          // Get community details for auto-login
+          const [community] = await db.select()
+            .from(communities)
+            .where(eq(communities.id, parseInt(communityId)))
+            .limit(1);
+          
+          // Automatically log in the community manager if we have an email
+          if (community?.email) {
+            try {
+              await createAuthenticatedSession(
+                req, 
+                community.email,
+                'Community',
+                'Manager'
+              );
+              console.log(`Auto-login successful for community: ${community.email}`);
+            } catch (authError) {
+              console.error('Failed to auto-login community manager:', authError);
+              // Continue anyway - payment was successful
+            }
+          }
+          
           // Send notification email
           await notifySuperAdmin(
             'New Community Upgrade',
@@ -306,7 +343,8 @@ export function registerPaymentRoutes(app: Express) {
         res.json({ 
           success: true, 
           status: paymentIntent.status,
-          message: 'Payment processed successfully'
+          message: 'Payment processed successfully',
+          authenticated: req.isAuthenticated()
         });
       } else {
         res.status(400).json({ 
@@ -396,10 +434,28 @@ export function registerPaymentRoutes(app: Express) {
         );
       }
       
+      // Automatically log in the community manager
+      const email = claimData.claimerEmail || claimData.email;
+      if (email) {
+        try {
+          await createAuthenticatedSession(
+            req, 
+            email,
+            'Community',
+            'Manager'
+          );
+          console.log(`Auto-login successful for free tier community: ${email}`);
+        } catch (authError) {
+          console.error('Failed to auto-login community manager:', authError);
+          // Continue anyway - free tier claim was successful
+        }
+      }
+      
       res.json({ 
         success: true,
         communityId: finalCommunityId,
-        message: 'Free tier activated successfully'
+        message: 'Free tier activated successfully',
+        authenticated: req.isAuthenticated()
       });
     } catch (error) {
       console.error('Error claiming free tier:', error);

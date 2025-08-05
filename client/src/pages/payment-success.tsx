@@ -15,10 +15,12 @@ import {
 import { Header } from "@/components/header";
 import confetti from "canvas-confetti";
 import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function PaymentSuccess() {
   const [, setLocation] = useLocation();
   const [paymentData, setPaymentData] = useState<any>(null);
+  const { isAuthenticated, user } = useAuth();
 
   useEffect(() => {
     const fetchPaymentData = async () => {
@@ -175,6 +177,15 @@ export default function PaymentSuccess() {
                 ))}
               </div>
             </div>
+
+            {/* Authentication Status */}
+            {isAuthenticated && (
+              <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 mb-6">
+                <p className="text-green-800 dark:text-green-200 text-sm font-medium">
+                  ✅ You're logged in! You can access your dashboard immediately.
+                </p>
+              </div>
+            )}
 
             {/* Next Steps */}
             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 mb-8">

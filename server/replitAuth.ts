@@ -327,3 +327,78 @@ export const checkRole = (allowedRoles: string[]): RequestHandler => {
     }
   };
 };
+
+// Helper function to programmatically log in a user after payment
+export async function createAuthenticatedSession(req: any, email: string, firstName?: string, lastName?: string): Promise<any> {
+  try {
+    // Check if user exists
+    let user = await storage.getUserByEmail(email);
+    
+    if (!user) {
+      // Create new user with a unique ID
+      const userId = `payment_user_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      
+      // Check if this is William Cowell (guaranteed super admin)
+      let userRole = 'user';
+      if (email === 'William.cowell01@gmail.com') {
+        userRole = 'super_admin';
+        console.log('🔑 Super admin access granted to William.cowell01@gmail.com');
+      } else {
+        // Check if this is the first user (no super_admin exists)
+        const superAdminCount = await storage.getSuperAdminCount();
+        userRole = superAdminCount === 0 ? 'super_admin' : 'user';
+      }
+      
+      user = await storage.createUser({
+        id: userId,
+        username: email,
+        email: email,
+        firstName: firstName || null,
+        lastName: lastName || null,
+        password: 'payment_auth_' + Math.random().toString(36).substring(7),
+        role: userRole
+      });
+      
+      console.log(`Created new user ${email} via payment flow`);
+    }
+    
+    // Create a session object that mimics the Replit Auth structure
+    const sessionUser = {
+      claims: {
+        sub: user.id,
+        email: user.email,
+        first_name: user.firstName,
+        last_name: user.lastName,
+        exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 1 week expiry
+      },
+      access_token: 'payment_session_' + Math.random().toString(36).substring(7),
+      refresh_token: 'payment_refresh_' + Math.random().toString(36).substring(7),
+      expires_at: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60)
+    };
+    
+    // Log the user in programmatically
+    await new Promise((resolve, reject) => {
+      req.logIn(sessionUser, (err: any) => {
+        if (err) {
+          console.error('Failed to create session:', err);
+          reject(err);
+        } else {
+          console.log(`Authenticated session created for ${email}`);
+          resolve(true);
+        }
+      });
+    });
+    
+    // Save the session
+    await new Promise((resolve) => {
+      req.session.save(() => {
+        resolve(true);
+      });
+    });
+    
+    return user;
+  } catch (error) {
+    console.error('Error creating authenticated session:', error);
+    throw error;
+  }
+};
