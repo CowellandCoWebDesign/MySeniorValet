@@ -22,8 +22,8 @@ export class DevCacheManager {
   }
   
   private generateVersionHash(): string {
-    // More aggressive timestamping for development
-    return `dev-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${performance.now()}`;
+    // Force new version for cache busting - Enhanced Card Update
+    return `dev-${Date.now()}-enhanced-cards-${Math.random().toString(36).substr(2, 9)}-${performance.now()}`;
   }
   
   private initializeCacheBusting(): void {
