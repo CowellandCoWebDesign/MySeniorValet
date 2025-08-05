@@ -352,7 +352,7 @@ export default function MySeniorValetHome() {
             </Link>
             
             {/* Secondary Actions - Responsive Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full max-w-4xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
               <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
                 <Button variant="outline" className="w-full border-2 border-white text-white hover:bg-white hover:text-gray-900 px-6 py-3.5 rounded-2xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
                   Explore Communities
@@ -364,12 +364,7 @@ export default function MySeniorValetHome() {
                   AI Map Intelligence
                 </Button>
               </Link>
-              <Link href="/ai-search-comparison" className="sm:col-span-2 lg:col-span-1">
-                <Button variant="outline" className="w-full border-2 border-purple-300 text-purple-200 hover:bg-purple-300 hover:text-gray-900 px-6 py-3.5 rounded-2xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-purple-400/10 backdrop-blur-sm">
-                  <Sparkles className="mr-1.5 h-4 w-4" />
-                  Compare AI Search
-                </Button>
-              </Link>
+
             </div>
           </div>
           
