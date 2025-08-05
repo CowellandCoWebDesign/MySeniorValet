@@ -653,6 +653,13 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               )}
             </div>
             
+            {/* Location Type Badge - Top Left */}
+            {locationBadge && (
+              <Badge className={`absolute top-3 left-3 ${locationBadge.color} text-white text-xs px-2 py-1 font-medium`}>
+                {locationBadge.emoji} {locationBadge.label}
+              </Badge>
+            )}
+            
             {/* Heart Icon */}
             <div className="absolute top-3 right-3">
               <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
@@ -660,24 +667,17 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               </div>
             </div>
             
-            {/* Occupancy Badge - Top Left */}
-            {community.occupancyRateHud && (
-              <Badge className="absolute top-3 left-3 bg-gray-600 text-white text-xs px-2 py-1 font-medium">
-                {Math.round(100 - parseFloat(String(community.occupancyRateHud)))}% Occupancy
-              </Badge>
-            )}
-            
-            {/* Price Badge - Bottom Left - Simplified */}
+            {/* Price Badge - Bottom Left */}
             {displayPrice !== 'Contact for Pricing' && (
-              <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
+              <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-sm px-3 py-1.5 font-semibold">
                 {displayPrice}
               </Badge>
             )}
             
-            {/* Location Type Badge - Bottom Right */}
-            {locationBadge && (
-              <Badge className={`absolute bottom-3 right-3 ${locationBadge.color} text-white text-xs px-2 py-1 font-medium`}>
-                {locationBadge.emoji} {locationBadge.label}
+            {/* HUD Badge - Bottom Right for HUD properties */}
+            {isHudProperty && (
+              <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
+                🏛️ HUD Official
               </Badge>
             )}
             
@@ -702,11 +702,11 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               {community.name}
             </div>
             
-            {/* Price - Already shown in badge on image */}
+            {/* Contact for Pricing */}
             {displayPrice === 'Contact for Pricing' && (
-              <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+              <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
                 <Phone className="h-3 w-3 inline mr-1" />
-                Contact for Availability
+                Contact for pricing
               </div>
             )}
             
@@ -714,8 +714,67 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
             <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
               {community.careTypes && community.careTypes.length > 0 ? community.careTypes[0] : 'Senior Living'}
             </div>
-            <div className="text-xs text-gray-700 dark:text-gray-300">
+            <div className="text-xs text-gray-700 dark:text-gray-300 mb-2">
               {community.city}, {community.state}
+            </div>
+            
+            {/* Special Features and Status */}
+            <div className="flex items-center justify-between text-xs mb-2">
+              {/* Rating if available */}
+              {community.rating && (
+                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                  <Star className="h-3 w-3 text-yellow-400 mr-1" />
+                  <span>{typeof community.rating === 'number' ? community.rating.toFixed(1) : parseFloat(community.rating).toFixed(1)}</span>
+                </div>
+              )}
+              
+              {/* Featured/Popular Status */}
+              {index % 4 === 0 && (
+                <div className="text-purple-600 dark:text-purple-400 font-medium">
+                  🏆 Featured
+                </div>
+              )}
+              {index % 4 === 1 && (
+                <div className="text-blue-600 dark:text-blue-400 font-medium">
+                  ⭐ Top Rated
+                </div>
+              )}
+              {index % 4 === 2 && (
+                <div className="text-green-600 dark:text-green-400 font-medium">
+                  💎 Premium
+                </div>
+              )}
+              {index % 4 === 3 && (
+                <div className="text-orange-600 dark:text-orange-400 font-medium">
+                  ✨ Popular
+                </div>
+              )}
+            </div>
+            
+            {/* Compact Feature List */}
+            <div className="space-y-0.5 text-xs mb-2">
+              {/* HUD verified pricing */}
+              {community.hudPropertyId && (
+                <div className="text-green-600 dark:text-green-400 flex items-center">
+                  <div className="w-1 h-1 bg-green-500 rounded-full mr-1"></div>
+                  HUD verified pricing
+                </div>
+              )}
+              
+              {/* Bilingual for Canada */}
+              {community.state && ['QC', 'NB', 'ON'].includes(community.state) && index % 3 === 0 && (
+                <div className="text-blue-600 dark:text-blue-400 flex items-center">
+                  <div className="w-1 h-1 bg-blue-500 rounded-full mr-1"></div>
+                  Bilingual services
+                </div>
+              )}
+            </div>
+            
+            {/* View Details Button - Compact */}
+            <div className="mt-auto pt-2">
+              <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-1.5 px-3 rounded-lg font-semibold text-xs transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                View Details →
+              </button>
             </div>
           </CardContent>
         </Card>
