@@ -50,6 +50,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { AdvancedAnalytics } from "@/components/analytics/AdvancedAnalytics";
+import EngagementScorecard from "@/components/EngagementScorecard";
 
 export default function CommunityDashboard() {
   const { id } = useParams();
@@ -504,8 +505,9 @@ export default function CommunityDashboard() {
 
         {/* Main Dashboard */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="engagement">Engagement</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="pricing">Pricing</TabsTrigger>
@@ -746,6 +748,13 @@ export default function CommunityDashboard() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Engagement Scorecard Tab */}
+          <TabsContent value="engagement" className="space-y-6">
+            {community && (
+              <EngagementScorecard communityId={parseInt(id || '0')} />
+            )}
           </TabsContent>
 
           {/* Messages Tab */}
