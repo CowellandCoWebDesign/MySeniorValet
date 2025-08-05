@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -45,28 +45,54 @@ export default function MySeniorValetHome() {
 
   const [showIntegrationSpotlight, setShowIntegrationSpotlight] = useState(true);
   
-  // ONLY get cached community count - no need for full community list on homepage
+  // Intersection observer refs for lazy loading
+  const hudSectionRef = useRef<HTMLDivElement>(null);
+  const hawaiiSectionRef = useRef<HTMLDivElement>(null);
+  const floridaSectionRef = useRef<HTMLDivElement>(null);
+  const texasSectionRef = useRef<HTMLDivElement>(null);
+  const newYorkSectionRef = useRef<HTMLDivElement>(null);
+  const californiaSectionRef = useRef<HTMLDivElement>(null);
+  const canadianSectionRef = useRef<HTMLDivElement>(null);
+  const careServicesSectionRef = useRef<HTMLDivElement>(null);
+
+  // Mobile-optimized intersection observer
+  const observeSection = useCallback((ref: React.RefObject<HTMLDivElement>, sectionName: string) => {
+    if (!ref.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setSectionsLoaded(prev => ({ ...prev, [sectionName]: true }));
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { 
+        rootMargin: '100px', // Start loading 100px before section is visible
+        threshold: 0.1 
+      }
+    );
+
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+  
+  // Mobile-optimized queries with reduced memory footprint
   const { data: communityStats, isLoading } = useQuery({
     queryKey: ["/api/communities/count"],
     retry: false,
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
-    gcTime: 30 * 60 * 1000,   // Keep in cache for 30 minutes
+    staleTime: 30 * 60 * 1000, // Cache for 30 minutes to reduce requests
+    gcTime: 60 * 60 * 1000,   // Keep in cache for 1 hour
   });
 
-  // Enhanced platform statistics for data-driven homepage (with longer caching)
+  // Lazy load platform stats only when needed
   const { data: platformStats } = useQuery({
     queryKey: ["/api/platform/stats"],
     retry: false,
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
-    gcTime: 30 * 60 * 1000,   // Keep in cache for 30 minutes
-  });
-
-  // Skip expensive image queries that aren't critical for initial load
-  const { data: conciergeImages } = useQuery({
-    queryKey: ["/api/images/concierge-services"],
-    retry: false,
-    staleTime: 24 * 60 * 60 * 1000, // Cache for 24 hours
-    enabled: false, // Disable automatic fetching - load on demand
+    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
+    gcTime: 60 * 60 * 1000,   // Keep in cache for 1 hour
+    enabled: false, // Load on demand to reduce initial memory usage
   });
 
 
@@ -78,39 +104,60 @@ export default function MySeniorValetHome() {
     staleTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
 
-  // HUD properties with live pricing
+  // Mobile performance optimization - lazy load sections
+  const [sectionsLoaded, setSectionsLoaded] = useState({
+    hud: false,
+    hawaii: false,
+    florida: false,
+    texas: false,
+    newYork: false,
+    california: false,
+    canadian: false,
+    careServices: false
+  });
+
+  // HUD properties - load only when section is visible
   const { data: hudProperties, isLoading: hudLoading } = useQuery({
     queryKey: ["/api/communities/hud-featured"],
     retry: false,
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    staleTime: 30 * 60 * 1000, // Extended cache
+    gcTime: 60 * 60 * 1000,
+    enabled: sectionsLoaded.hud,
   });
 
-  // HUD count query
+  // HUD count query - load immediately for stats
   const { data: hudCount } = useQuery({
     queryKey: ["/api/communities/hud-count"],
     retry: false,
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    staleTime: 60 * 60 * 1000, // Cache for 1 hour - rarely changes
+    gcTime: 120 * 60 * 1000,
   });
 
-  // Hawaii communities for featured slider
+  // Hawaii communities - load on demand
   const { data: hawaiiCommunities, isLoading: hawaiiLoading } = useQuery({
     queryKey: ["/api/communities/by-location/Hawaii"],
     retry: false,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    enabled: sectionsLoaded.hawaii,
   });
 
-  // Florida communities for Florida slider - use search with state filter
+  // Florida communities - load on demand
   const { data: floridaCommunities, isLoading: floridaLoading } = useQuery({
     queryKey: ["/api/communities/search?state=FL"],
     retry: false,
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    enabled: sectionsLoaded.florida,
   });
 
-  // Texas communities for Fort Worth slider - use search with state filter
+  // Texas communities - load on demand
   const { data: texasCommunities, isLoading: texasLoading } = useQuery({
     queryKey: ["/api/communities/search?state=TX"],
     retry: false,
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    enabled: sectionsLoaded.texas,
   });
 
   // Keep trending for other sections that may need it
@@ -130,19 +177,22 @@ export default function MySeniorValetHome() {
     enabled: false, // Disable automatic fetching - load on demand
   });
 
-  // New York communities - focus on populated results instead of coastal 
+  // New York communities - load on demand
   const { data: newYorkCommunities, isLoading: newYorkLoading } = useQuery({
     queryKey: ["/api/communities/search?state=NY"],
     retry: false,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    gcTime: 15 * 60 * 1000,   // Keep in cache for 15 minutes
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    enabled: sectionsLoaded.newYork,
   });
 
-  // California communities - search for California-wide communities
+  // California communities - load on demand
   const { data: californiaCommunities, isLoading: californiaLoading } = useQuery({
     queryKey: ["/api/communities/by-location/California"],
     retry: false,
-    staleTime: 0, // No cache - always fresh data
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    enabled: sectionsLoaded.california,
   });
 
   // Care services analytics for accurate totals
@@ -152,11 +202,13 @@ export default function MySeniorValetHome() {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
   
-  // Fetch real care services from database
+  // Fetch real care services from database - load on demand
   const { data: careServicesData, isLoading: careServicesLoading } = useQuery({
     queryKey: ["/api/care-services"],
     retry: false,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    enabled: sectionsLoaded.careServices,
   });
 
   // Fetch VA resources data
@@ -168,11 +220,13 @@ export default function MySeniorValetHome() {
 
   const vaFacilities = (vaResourcesData as any)?.facilities || {};
 
-  // Canadian communities query
+  // Canadian communities query - load on demand
   const { data: canadianCommunities, isLoading: canadianLoading } = useQuery({
     queryKey: ["/api/communities/canadian/featured"],
     retry: false,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    enabled: sectionsLoaded.canadian,
   });
 
   const featuredCommunities = (trendingCommunities as any[])?.slice(0, 8) || [];
@@ -180,6 +234,50 @@ export default function MySeniorValetHome() {
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
   };
+
+  // Set up intersection observers on mount for mobile performance
+  useEffect(() => {
+    const cleanupFunctions: (() => void)[] = [];
+
+    const setupObserver = (ref: React.RefObject<HTMLDivElement>, sectionName: string) => {
+      if (!ref.current) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setSectionsLoaded(prev => ({ ...prev, [sectionName]: true }));
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { 
+          rootMargin: '100px',
+          threshold: 0.1 
+        }
+      );
+
+      observer.observe(ref.current);
+      cleanupFunctions.push(() => observer.disconnect());
+    };
+
+    // Small delay to ensure refs are mounted
+    const timer = setTimeout(() => {
+      setupObserver(hudSectionRef, 'hud');
+      setupObserver(hawaiiSectionRef, 'hawaii');
+      setupObserver(floridaSectionRef, 'florida');
+      setupObserver(texasSectionRef, 'texas');
+      setupObserver(newYorkSectionRef, 'newYork');
+      setupObserver(californiaSectionRef, 'california');
+      setupObserver(canadianSectionRef, 'canadian');
+      setupObserver(careServicesSectionRef, 'careServices');
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      cleanupFunctions.forEach(cleanup => cleanup());
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -420,7 +518,7 @@ export default function MySeniorValetHome() {
       </div>
 
       {/* Featured Communities Slider - Visual Break */}
-      <section className="px-4 py-8 bg-white dark:bg-gray-900">
+      <section ref={hawaiiSectionRef} className="px-4 py-8 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -475,7 +573,7 @@ export default function MySeniorValetHome() {
       </section>
 
       {/* HUD Communities Showcase - Position 2 (Moved from Position 3) */}
-      <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
+      <section ref={hudSectionRef} className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
         {/* Background Government Building Image */}
         <div className="absolute inset-0 z-0">
           <img 
@@ -634,7 +732,7 @@ export default function MySeniorValetHome() {
       </section>
 
       {/* Florida Communities Section - Authentic Data */}
-      <section className="px-4 py-12 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+      <section ref={floridaSectionRef} className="px-4 py-12 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
@@ -711,7 +809,7 @@ export default function MySeniorValetHome() {
       </section>
 
       {/* Fort Worth, Texas Communities Promotional Section */}
-      <section className="px-4 py-12 bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800">
+      <section ref={texasSectionRef} className="px-4 py-12 bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
@@ -772,7 +870,7 @@ export default function MySeniorValetHome() {
       </section>
 
       {/* Featured & Coastal Communities Section - Position 3 (Moved from Position 2) */}
-      <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
+      <section ref={newYorkSectionRef} className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
         {/* Background New York Skyline Image */}
         <div className="absolute inset-0 z-0">
           <img 
@@ -842,7 +940,7 @@ export default function MySeniorValetHome() {
       </section>
 
       {/* Canadian Communities Section - NEW */}
-      <section className="px-4 py-12 relative dark:bg-gray-800">
+      <section ref={canadianSectionRef} className="px-4 py-12 relative dark:bg-gray-800">
         {/* Background Canadian-themed styling */}
         <div className="absolute inset-0 z-0">
           <div className="w-full h-full bg-gradient-to-br from-red-100 via-white to-red-50 dark:from-red-900/20 dark:via-gray-900 dark:to-red-900/10">
@@ -1111,7 +1209,7 @@ export default function MySeniorValetHome() {
 
 
       {/* Care Marketplace Section */}
-      <section className="px-4 py-8">
+      <section ref={careServicesSectionRef} className="px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
             <Card className="group bg-white dark:bg-gray-800 border-2 border-orange-200 dark:border-orange-400 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative">

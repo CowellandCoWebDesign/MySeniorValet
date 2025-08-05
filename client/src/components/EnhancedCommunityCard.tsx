@@ -1,3 +1,4 @@
+import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink, Languages } from "lucide-react";
@@ -70,7 +71,7 @@ interface CommunityCardProps {
   onSelect?: () => void;
 }
 
-export function EnhancedCommunityCard({ community, index = 0, variant = 'standard', onSelect }: CommunityCardProps) {
+function CommunityCard({ community, index = 0, variant = 'standard', onSelect }: CommunityCardProps) {
   // Only properties with actual HUD property IDs are HUD properties
   const isHudProperty = !!community.hudPropertyId;
   const hasAuthenticPricing = community.displayPricing?.priceLabel?.includes('HUD Official') || 
@@ -591,10 +592,10 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
     }
   };
 
-  // Standard card layout for featured, coastal, hud, and other variants
+  // Mobile-optimized card layout
   const cardClass = variant === 'featured' || variant === 'coastal' || variant === 'hud'
-    ? "flex-shrink-0 w-56 h-auto animate-float dark:bg-gray-700"
-    : "group hover:shadow-lg transition-all duration-200";
+    ? "flex-shrink-0 w-56 h-auto dark:bg-gray-700 will-change-transform"
+    : "group hover:shadow-lg transition-all duration-200 will-change-transform";
 
   if (variant === 'featured' || variant === 'coastal' || variant === 'hud') {
     // Determine background gradient based on state/location
@@ -880,3 +881,6 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
     </Card>
   );
 }
+
+// Export with React.memo for mobile performance optimization
+export const EnhancedCommunityCard = React.memo(CommunityCard);

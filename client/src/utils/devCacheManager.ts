@@ -22,8 +22,8 @@ export class DevCacheManager {
   }
   
   private generateVersionHash(): string {
-    // Force new version for cache busting - 44rem Carousel Heights Complete
-    return `dev-${Date.now()}-44rem-carousels-complete-${Math.random().toString(36).substr(2, 9)}-${performance.now()}`;
+    // Mobile performance optimized version with lazy loading
+    return `mobile-performance-${Date.now()}-lazy-loading-${Math.random().toString(36).substr(2, 9)}-${performance.now()}`;
   }
   
   private initializeCacheBusting(): void {
