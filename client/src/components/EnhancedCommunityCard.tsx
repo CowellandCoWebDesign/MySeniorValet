@@ -593,7 +593,7 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
 
   // Standard card layout for featured, coastal, hud, and other variants
   const cardClass = variant === 'featured' || variant === 'coastal' || variant === 'hud'
-    ? "overflow-hidden flex-shrink-0 w-56 h-[25rem] animate-float dark:bg-gray-700"
+    ? "overflow-hidden flex-shrink-0 w-56 h-[27rem] animate-float dark:bg-gray-700"
     : "group hover:shadow-lg transition-all duration-200";
 
   if (variant === 'featured' || variant === 'coastal' || variant === 'hud') {
@@ -697,57 +697,65 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
           </div>
           
           <CardContent className="p-3 flex flex-col h-full">
-            {/* Name */}
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-1 mb-2 text-sm">
-              {community.name}
-            </h3>
-            
-            {/* Care Type & Location */}
-            <div className="text-xs text-gray-600 dark:text-gray-400">
-              {community.careTypes && community.careTypes.length > 0 ? community.careTypes[0] : 'Senior Living'}
+            {/* Header Section */}
+            <div className="mb-2">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-1 text-sm mb-1">
+                {community.name}
+              </h3>
+              <div className="text-xs text-gray-600 dark:text-gray-400">
+                {community.careTypes && community.careTypes.length > 0 ? community.careTypes[0] : 'Senior Living'}
+              </div>
+              <div className="text-xs text-gray-700 dark:text-gray-300">
+                {community.city}, {community.state} {community.zipCode || ''}
+              </div>
             </div>
-            <div className="text-xs text-gray-700 dark:text-gray-300 mb-2">
-              {community.city}, {community.state}
-            </div>
             
-            {/* Key Features Grid */}
-            <div className="grid grid-cols-2 gap-1 mb-2 text-xs">
-              {/* Units/Size */}
-              {community.totalUnits && (
-                <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  <Building className="h-3 w-3 mr-1" />
-                  <span>{community.totalUnits} units</span>
-                </div>
-              )}
+            {/* Key Metrics Grid - 2x3 */}
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1 mb-2 text-xs bg-gray-50 dark:bg-gray-800/50 p-2 rounded">
+              {/* Units */}
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <Building className="h-3 w-3 mr-1 text-gray-500" />
+                <span>{community.totalUnits || community.totalUnitsHud || 'N/A'} units</span>
+              </div>
               
               {/* Rating */}
               <div className="flex items-center text-gray-600 dark:text-gray-400">
-                {community.rating ? (
-                  <>
-                    <Star className="h-3 w-3 text-yellow-400 mr-1" />
-                    <span>{typeof community.rating === 'number' ? community.rating.toFixed(1) : parseFloat(community.rating).toFixed(1)}</span>
-                  </>
-                ) : (
-                  <span>No rating</span>
-                )}
+                <Star className="h-3 w-3 mr-1 text-yellow-400" />
+                <span>{community.rating ? (typeof community.rating === 'number' ? community.rating.toFixed(1) : parseFloat(community.rating).toFixed(1)) : 'No rating'}</span>
               </div>
               
-              {/* License/ID */}
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <Shield className="h-3 w-3 mr-1" />
-                <span>ID: {community.id}</span>
-              </div>
+              {/* Occupancy if available */}
+              {(community.occupancyRate || community.occupancyRateHud) && (
+                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                  <Users className="h-3 w-3 mr-1 text-gray-500" />
+                  <span>{Math.round(Number(community.occupancyRate || community.occupancyRateHud))}% occupied</span>
+                </div>
+              )}
               
               {/* Community Size */}
               {community.sizeCategory && (
                 <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  <Users className="h-3 w-3 mr-1" />
+                  <Home className="h-3 w-3 mr-1 text-gray-500" />
                   <span className="capitalize">{community.sizeCategory}</span>
                 </div>
               )}
+              
+              {/* Senior percentage if high */}
+              {community.seniorPercentage && community.seniorPercentage >= 70 && (
+                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                  <Users className="h-3 w-3 mr-1 text-gray-500" />
+                  <span>{Math.round(community.seniorPercentage)}% seniors</span>
+                </div>
+              )}
+              
+              {/* License/ID */}
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <Shield className="h-3 w-3 mr-1 text-gray-500" />
+                <span>ID: {community.id}</span>
+              </div>
             </div>
             
-            {/* Special Badges */}
+            {/* Status & Verification Badges */}
             <div className="flex flex-wrap gap-1 mb-2">
               {/* Status Badge */}
               {index % 4 === 0 && (
@@ -777,15 +785,22 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                   ✓ Verified
                 </Badge>
               )}
+              
+              {/* Community subtype badge */}
+              {community.communitySubtype && (
+                <Badge className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                  {community.communitySubtype}
+                </Badge>
+              )}
             </div>
             
-            {/* Additional Features */}
-            <div className="space-y-0.5 text-xs mb-2">
+            {/* Special Features Section */}
+            <div className="space-y-1 text-xs mb-2">
               {/* HUD verified */}
               {community.hudPropertyId && (
-                <div className="text-green-600 dark:text-green-400 flex items-center">
+                <div className="text-green-600 dark:text-green-400 flex items-center font-medium">
                   <CheckCircle className="h-3 w-3 mr-1" />
-                  HUD verified pricing
+                  HUD Official Pricing Available
                 </div>
               )}
               
@@ -793,43 +808,68 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               {community.state && ['QC', 'NB', 'ON'].includes(community.state) && index % 3 === 0 && (
                 <div className="text-blue-600 dark:text-blue-400 flex items-center">
                   <Languages className="h-3 w-3 mr-1" />
-                  Bilingual services
+                  Services bilingues / Bilingual
                 </div>
               )}
               
-              {/* Senior percentage */}
-              {community.seniorPercentage && community.seniorPercentage >= 70 && (
-                <div className="text-purple-600 dark:text-purple-400 flex items-center">
-                  <Users className="h-3 w-3 mr-1" />
-                  {Math.round(community.seniorPercentage)}% senior residents
+              {/* Availability status */}
+              {community.availabilityStatus && community.availabilityStatus !== 'Unknown' && (
+                <div className="text-emerald-600 dark:text-emerald-400 flex items-center">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  {community.availabilityStatus}
                 </div>
               )}
               
-              {/* Amenities preview */}
+              {/* Amenities if available */}
               {community.amenities && community.amenities.length > 0 && (
+                <div className="text-gray-600 dark:text-gray-400 border-t dark:border-gray-700 pt-1">
+                  <div className="font-medium mb-0.5">Amenities:</div>
+                  <div className="pl-3">
+                    • {community.amenities.slice(0, 3).join(' • ')}
+                    {community.amenities.length > 3 && (
+                      <span className="text-blue-600 dark:text-blue-400"> +{community.amenities.length - 3} more</span>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {/* Care types if multiple */}
+              {community.careTypes && community.careTypes.length > 1 && (
                 <div className="text-gray-600 dark:text-gray-400">
-                  • {community.amenities.slice(0, 2).join(' • ')}
-                  {community.amenities.length > 2 && ` +${community.amenities.length - 2} more`}
+                  <span className="font-medium">Care: </span>
+                  {community.careTypes.slice(0, 2).join(', ')}
+                  {community.careTypes.length > 2 && ` +${community.careTypes.length - 2}`}
                 </div>
               )}
             </div>
             
-            {/* Contact info or pricing note */}
-            {displayPrice === 'Contact for Pricing' ? (
-              <div className="text-xs text-gray-600 dark:text-gray-400 mb-2 bg-gray-100 dark:bg-gray-800 p-2 rounded">
-                <Phone className="h-3 w-3 inline mr-1" />
-                Call for availability & pricing
-              </div>
-            ) : community.phone && (
-              <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                <Phone className="h-3 w-3 inline mr-1" />
-                {community.phone}
-              </div>
-            )}
-            
-            {/* View Details Button */}
-            <div className="mt-auto">
-              <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 px-3 rounded-lg font-semibold text-xs transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+            {/* Contact Section */}
+            <div className="mt-auto space-y-1">
+              {/* Contact info or pricing note */}
+              {displayPrice === 'Contact for Pricing' ? (
+                <div className="text-xs text-gray-700 dark:text-gray-300 bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded border border-yellow-200 dark:border-yellow-800">
+                  <Phone className="h-3 w-3 inline mr-1" />
+                  <span className="font-medium">Call for pricing & availability</span>
+                </div>
+              ) : (
+                <>
+                  {community.phone && (
+                    <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
+                      <Phone className="h-3 w-3 mr-1" />
+                      {community.phone}
+                    </div>
+                  )}
+                  {community.website && (
+                    <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      <span className="truncate">Visit website</span>
+                    </div>
+                  )}
+                </>
+              )}
+              
+              {/* View Details Button */}
+              <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 px-3 rounded-lg font-semibold text-xs transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl mt-2">
                 View Full Details →
               </button>
             </div>
