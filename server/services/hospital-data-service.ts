@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { hospitals, hospitalDepartments, hospitalQualityMetrics, type Hospital, type InsertHospital } from "@shared/schema";
-import { eq, sql, and, or, desc, asc, count, like, ilike } from "drizzle-orm";
+import { eq, sql, and, or, desc, asc, count, like, ilike, isNotNull } from "drizzle-orm";
 
 export class HospitalDataService {
   
@@ -111,8 +111,13 @@ export class HospitalDataService {
           experience_rating: hospitals.experienceRating
         })
         .from(hospitals)
-        .where(eq(hospitals.isActive, true))
-        .orderBy(desc(hospitals.bedCount), desc(hospitals.cmsRating))
+        .where(and(
+          eq(hospitals.isActive, true),
+          isNotNull(hospitals.bedCount),
+          isNotNull(hospitals.cmsRating),
+          isNotNull(hospitals.ownership)
+        ))
+        .orderBy(desc(hospitals.cmsRating), desc(hospitals.bedCount))
         .limit(limit);
       
       console.log("Database query results count:", results.length);
