@@ -22,8 +22,8 @@ export class DevCacheManager {
   }
   
   private generateVersionHash(): string {
-    // Force new version for cache busting - Full Height Cards No Scroll
-    return `dev-${Date.now()}-full-height-cards-${Math.random().toString(36).substr(2, 9)}-${performance.now()}`;
+    // Force new version for cache busting - 44rem Carousel Heights Complete
+    return `dev-${Date.now()}-44rem-carousels-complete-${Math.random().toString(36).substr(2, 9)}-${performance.now()}`;
   }
   
   private initializeCacheBusting(): void {
