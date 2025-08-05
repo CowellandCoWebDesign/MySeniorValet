@@ -678,55 +678,13 @@ export default function MySeniorValetHome() {
           ) : (
             <div className="relative">
               <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
-                {((floridaCommunities as any)?.communities || []).slice(0, 6).map((community: any) => (
-                  <Card key={community.id} className="min-w-[280px] hover:shadow-lg transition-shadow border-cyan-200 dark:border-cyan-800 cursor-pointer">
-                    <div className="relative h-40 overflow-hidden rounded-t-lg bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900 dark:to-blue-900">
-                      {community.photoUrl ? (
-                        <img 
-                          src={community.photoUrl} 
-                          alt={community.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Building className="w-16 h-16 text-cyan-600 dark:text-cyan-400" />
-                        </div>
-                      )}
-                      <Badge className="absolute top-2 left-2 bg-cyan-600 text-white">
-                        Florida
-                      </Badge>
-                      {community.monthlyRent && (
-                        <Badge className="absolute top-2 right-2 bg-blue-600 text-white">
-                          ${Number(community.monthlyRent).toLocaleString()}/mo
-                        </Badge>
-                      )}
-                    </div>
-                    
-                    <CardContent className="p-4">
-                      <h3 className="font-bold text-lg mb-1 line-clamp-2">{community.name}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        {community.city}, {community.state} {community.zipCode}
-                      </p>
-                      
-                      {community.careTypes && (
-                        <div className="mb-3">
-                          <Badge className="bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-200 text-xs">
-                            {community.careTypes}
-                          </Badge>
-                        </div>
-                      )}
-
-                      <Button 
-                        className="w-full bg-cyan-600 hover:bg-cyan-700 text-white"
-                        onClick={() => setLocation(`/community/${community.id}`)}
-                      >
-                        View Details
-                      </Button>
-                    </CardContent>
-                  </Card>
+                {((floridaCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => (
+                  <EnhancedCommunityCard
+                    key={`florida-${community.id}-${index}`}
+                    community={community}
+                    index={index}
+                    variant='featured'
+                  />
                 ))}
               </div>
               
@@ -798,55 +756,13 @@ export default function MySeniorValetHome() {
               </div>
             ) : (
               <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
-                {((texasCommunities as any)?.communities || []).slice(0, 6).map((community: any) => (
-                  <Card key={community.id} className="min-w-[280px] hover:shadow-lg transition-shadow border-orange-200 dark:border-orange-800 cursor-pointer">
-                    <div className="relative h-40 overflow-hidden rounded-t-lg bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900 dark:to-red-900">
-                      {community.photoUrl ? (
-                        <img 
-                          src={community.photoUrl} 
-                          alt={community.name}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Building className="w-16 h-16 text-orange-600 dark:text-orange-400" />
-                        </div>
-                      )}
-                      <Badge className="absolute top-2 left-2 bg-orange-600 text-white">
-                        Texas
-                      </Badge>
-                      {(community.displayPricing?.displayPrice || community.monthlyRent) && (
-                        <Badge className="absolute top-2 right-2 bg-red-600 text-white">
-                          {community.displayPricing?.displayPrice || `$${Number(community.monthlyRent).toLocaleString()}/mo`}
-                        </Badge>
-                      )}
-                    </div>
-                    
-                    <CardContent className="p-4">
-                      <h3 className="font-bold text-lg mb-1 line-clamp-2">{community.name}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        {community.city}, {community.state} {community.zipCode}
-                      </p>
-                      
-                      {community.careTypes && community.careTypes.length > 0 && (
-                        <div className="mb-3">
-                          <Badge className="bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 text-xs">
-                            {Array.isArray(community.careTypes) ? community.careTypes[0] : community.careTypes}
-                          </Badge>
-                        </div>
-                      )}
-
-                      <Button 
-                        className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-                        onClick={() => setLocation(`/community/${community.id}`)}
-                      >
-                        View Details
-                      </Button>
-                    </CardContent>
-                  </Card>
+                {((texasCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => (
+                  <EnhancedCommunityCard
+                    key={`texas-${community.id}-${index}`}
+                    community={community}
+                    index={index}
+                    variant='featured'
+                  />
                 ))}
               </div>
             )}
@@ -918,100 +834,14 @@ export default function MySeniorValetHome() {
                 <p>No New York communities available at this time.</p>
               </div>
             ) : (
-              ((newYorkCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => {
-                return (
-                  <Link key={`premium-${community.id}-${index}`} href={`/community/${community.id}`}>
-                    <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] animate-float premium-card dark:bg-gray-700 hover:shadow-xl transition-all" style={{animationDelay: `${index * 0.2}s`}}>
-                      <div className="relative">
-                        <div className="aspect-[4/3] bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900 flex items-center justify-center">
-                          <div className="text-center">
-                            <div className="text-2xl mb-2">📷</div>
-                            <div className="text-sm font-medium text-purple-800 dark:text-purple-200">Photos Coming Soon</div>
-                            <div className="text-xs text-purple-600 dark:text-purple-300">Verifying authentic images</div>
-                          </div>
-                        </div>
-                        
-                        {/* Heart Icon */}
-                        <div className="absolute top-3 right-3">
-                          <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
-                            <Heart className="w-4 h-4 text-gray-600" />
-                          </div>
-                        </div>
-                        
-                        {/* Only show verified occupancy data if available */}
-                        {community.occupancyRateHud && (
-                          <Badge className="absolute top-3 left-3 bg-gray-600 text-white text-xs px-2 py-1 font-medium">
-                            {Math.round(100 - parseFloat(community.occupancyRateHud))}% Occupancy
-                          </Badge>
-                        )}
-                        
-                        {/* Price Badge */}
-                        <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
-                          {community.priceRange && community.priceRange.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : '$3.5K+'}
-                          {!community.claimed && (
-                            <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
-                          )}
-                          {community.hudPropertyId && (
-                            <span className="text-xs text-green-300 ml-1">🏛️</span>
-                          )}
-                        </Badge>
-                        
-                        {/* Location Type Badge */}
-                        <Badge className="absolute bottom-3 right-3 bg-purple-600 text-white text-xs px-2 py-1 font-medium">
-                          🗽 New York
-                        </Badge>
-                      </div>
-                      
-                      <CardContent className="p-3">
-                        {/* Availability Status - Above Price */}
-                        {index % 3 === 0 && (
-                          <div className="flex items-center text-xs text-green-600 dark:text-green-400 font-medium mb-2">
-                            <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
-                            Available
-                          </div>
-                        )}
-                        
-                        <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                          <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '3,500'}
-                          {!community.claimed && (
-                            <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">est.</span>
-                          )}
-                        </div>
-                        
-                        <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
-                          {community.careTypes?.length > 0 ? 
-                            `${community.careTypes[0]} • Metro Access` : 
-                            `Assisted Living • New York State`
-                          }
-                        </div>
-                        
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-1">
-                          {community.name}
-                        </div>
-                        
-                        <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
-                          📍 {community.city}, {community.state}
-                        </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
-                          {community.address || 'Premium Community'} {community.zipCode}
-                        </div>
-                        
-                        {/* Special Features */}
-                        <div className="space-y-1">
-                          <div className="text-xs text-purple-600 dark:text-purple-400 flex items-center">
-                            <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-1"></div>
-                            Metro area access
-                          </div>
-                          <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
-                            <div className="w-1.5 h-1.5 bg-gray-500 rounded-full mr-1"></div>
-                            Highly rated community
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                );
-              })
+              ((newYorkCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => (
+                <EnhancedCommunityCard
+                  key={`newyork-${community.id}-${index}`}
+                  community={community}
+                  index={index}
+                  variant='featured'
+                />
+              ))
             )}
           </div>
         </div>
@@ -1083,79 +913,12 @@ export default function MySeniorValetHome() {
             ) : (
               <>
                 {((canadianCommunities as any[]) || []).slice(0, 12).map((community: any, index) => (
-                  <Link key={`canadian-${community.id}-${index}`} href={`/community/${community.id}`}>
-                    <Card className="overflow-hidden flex-shrink-0 w-64 animate-float canadian-card dark:bg-gray-700 hover:shadow-xl transition-all border-2 border-red-200" style={{animationDelay: `${index * 0.2}s`}}>
-                      <div className="relative">
-                        <div className="aspect-[4/3] bg-gradient-to-br from-red-100 to-white dark:from-red-900 dark:to-gray-800 flex items-center justify-center">
-                          <div className="text-center">
-                            <div className="text-2xl mb-2">🍁</div>
-                            <div className="text-sm font-medium text-red-800 dark:text-red-200">
-                              {language === 'en' ? 'Photos Coming Soon' : 'Photos à venir'}
-                            </div>
-                            <div className="text-xs text-red-600 dark:text-red-300">
-                              {language === 'en' ? 'Verifying authentic images' : 'Vérification des images'}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Heart Icon */}
-                        <div className="absolute top-3 right-3">
-                          <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
-                            <Heart className="w-4 h-4 text-gray-600" />
-                          </div>
-                        </div>
-                        
-                        {/* Price Badge */}
-                        <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
-                          ${community.priceRange?.min ? community.priceRange.min.toLocaleString() : '3,500'} CAD
-                        </Badge>
-                        
-                        {/* Bilingual Badge */}
-                        {community.bilingual && (
-                          <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium flex items-center gap-1">
-                            <Languages className="w-3 h-3" />
-                            {language === 'en' ? 'Bilingual' : 'Bilingue'}
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      <CardContent className="p-3 flex flex-col h-full">
-                        <div className="text-lg font-bold text-gray-900 dark:text-white mb-1">
-                          ${community.priceRange?.min ? community.priceRange.min.toLocaleString() : '3,500'} CAD
-                        </div>
-                        
-                        <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                          {language === 'en' ? 'Starting at' : 'À partir de'}
-                        </div>
-                        
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1 line-clamp-2">
-                          {community.name}
-                        </div>
-                        
-                        <div className="text-xs text-gray-700 dark:text-gray-300 mb-1">
-                          {community.careTypes?.[0] || 'Assisted Living'}
-                        </div>
-                        
-                        <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                          📍 {community.city}, {community.state}
-                        </div>
-                        
-                        {/* Special Features */}
-                        <div className="space-y-1 mt-auto">
-                          {community.bilingual && (
-                            <div className="text-xs text-blue-600 dark:text-blue-400 flex items-center">
-                              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1"></div>
-                              {language === 'en' ? 'Bilingual services' : 'Services bilingues'}
-                            </div>
-                          )}
-                          <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
-                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full mr-1"></div>
-                            {language === 'en' ? 'Canadian community' : 'Communauté canadienne'}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                  <EnhancedCommunityCard
+                    key={`canadian-${community.id}-${index}`}
+                    community={community}
+                    index={index}
+                    variant='featured'
+                  />
                 ))}
                 
                 {/* View All Canadian Communities Card */}
@@ -1255,130 +1018,12 @@ export default function MySeniorValetHome() {
               ))
             ) : (
               ((californiaCommunities as any[]) || []).map((community: any, index: number) => (
-                <Link key={`california-${community.id}-${index}`} href={`/community/${community.id}`}>
-                  <Card className="overflow-hidden flex-shrink-0 w-56 h-[30rem] animate-float california-card dark:bg-gray-700" style={{animationDelay: `${index * 0.2}s`}}>
-                    <div className="relative">
-                      <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 flex items-center justify-center">
-                        <div className="text-center">
-                          <div className="text-2xl mb-2">📷</div>
-                          <div className="text-sm font-medium text-blue-800 dark:text-blue-200">Photos Coming Soon</div>
-                          <div className="text-xs text-blue-600 dark:text-blue-300">Verifying authentic images</div>
-                        </div>
-                      </div>
-                      
-                      {/* Heart Icon */}
-                      <div className="absolute top-3 right-3">
-                        <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
-                          <Heart className="w-4 h-4 text-gray-600" />
-                        </div>
-                      </div>
-                      
-                      {/* Only show verified occupancy data if available */}
-                      {community.occupancyRateHud && (
-                        <Badge className="absolute top-3 left-3 bg-gray-600 text-white text-xs px-2 py-1 font-medium">
-                          {Math.round(100 - parseFloat(community.occupancyRateHud))}% Occupancy
-                        </Badge>
-                      )}
-                      
-                      {/* Price Badge */}
-                      <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
-                        {community.priceRange && community.priceRange.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : '$4K+'}
-                        {!community.claimed && (
-                          <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
-                        )}
-                        {community.hudPropertyId && (
-                          <span className="text-xs text-green-300 ml-1">🏛️</span>
-                        )}
-                      </Badge>
-                      
-                      {/* Only show HUD badge if it's a HUD property */}
-                      {community.hudPropertyId && (
-                        <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                          HUD Property
-                        </Badge>
-                      )}
-                    </div>
-                    
-                    <CardContent className="p-3">
-
-                      
-                      <div className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                        <span className="text-sm">Starting at</span> ${community.priceRange && community.priceRange.min ? community.priceRange.min.toLocaleString() : '4,200'}
-                        {!community.claimed && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400 ml-1 font-normal">est.</span>
-                        )}
-                      </div>
-                      
-                      <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
-                        {community.careTypes?.length > 0 ? 
-                          `${community.careTypes[0]} • California Living` : 
-                          'Assisted Living • Golden State Care'
-                        }
-                      </div>
-                      
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-1">
-                        {community.name}
-                      </div>
-                      
-                      <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
-                        {community.address || 'California Community'}, {community.city}, CA {community.zipCode}
-                      </div>
-                      
-                      {/* California Regional Badges - Bottom of Card */}
-                      <div className="mb-2">
-                        {index % 4 === 0 && (
-                          <Badge className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
-                            Silicon Valley
-                          </Badge>
-                        )}
-                        {index % 4 === 1 && (
-                          <Badge className="bg-orange-600/90 text-white text-xs px-2 py-1 font-medium">
-                            LA Metro
-                          </Badge>
-                        )}
-                        {index % 4 === 2 && (
-                          <Badge className="bg-yellow-600/90 text-white text-xs px-2 py-1 font-medium">
-                            San Diego
-                          </Badge>
-                        )}
-                        {index % 4 === 3 && (
-                          <Badge className="bg-red-600/90 text-white text-xs px-2 py-1 font-medium">
-                            Bay Area
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      {/* Enhanced Features Row */}
-                      <div className="flex items-center justify-between text-xs">
-                        <div className="flex items-center text-gray-500 dark:text-gray-400">
-                          <span>CA License #{20000 + community.id}</span>
-                        </div>
-                        {index % 4 === 0 && (
-                          <div className="text-purple-600 dark:text-purple-400 font-medium">
-                            🏆 Featured
-                          </div>
-                        )}
-                        {index % 4 === 1 && (
-                          <div className="text-blue-600 dark:text-blue-400 font-medium">
-                            ⭐ Top Rated
-                          </div>
-                        )}
-                        {index % 4 === 2 && (
-                          <div className="text-green-600 dark:text-green-400 font-medium">
-                            💎 Premium
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* View Details Button */}
-                      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
-                        <Button size="sm" variant="outline" className="w-full text-xs py-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700">
-                          View Full Details →
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <EnhancedCommunityCard
+                  key={`california-${community.id}-${index}`}
+                  community={community}
+                  index={index}
+                  variant='featured'
+                />
               ))
             )}
           </div>
