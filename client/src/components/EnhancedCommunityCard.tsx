@@ -593,7 +593,7 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
 
   // Standard card layout for featured, coastal, hud, and other variants
   const cardClass = variant === 'featured' || variant === 'coastal' || variant === 'hud'
-    ? "overflow-hidden flex-shrink-0 w-56 h-[27rem] animate-float dark:bg-gray-700"
+    ? "overflow-y-auto overflow-x-hidden flex-shrink-0 w-56 h-[30rem] animate-float dark:bg-gray-700"
     : "group hover:shadow-lg transition-all duration-200";
 
   if (variant === 'featured' || variant === 'coastal' || variant === 'hud') {
@@ -696,7 +696,7 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
             )}
           </div>
           
-          <CardContent className="p-3 flex flex-col h-full">
+          <CardContent className="p-3 flex flex-col flex-1 overflow-y-auto">
             {/* Header Section */}
             <div className="mb-2">
               <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-1 text-sm mb-1">
@@ -710,48 +710,36 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               </div>
             </div>
             
-            {/* Key Metrics Grid - 2x3 */}
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1 mb-2 text-xs bg-gray-50 dark:bg-gray-800/50 p-2 rounded">
-              {/* Units */}
+            {/* Key Metrics Grid - Always show 6 items */}
+            <div className="grid grid-cols-2 gap-x-2 gap-y-1 mb-2 text-xs bg-gray-50 dark:bg-gray-800/50 p-1.5 rounded">
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <Building className="h-3 w-3 mr-1 text-gray-500" />
                 <span>{community.totalUnits || community.totalUnitsHud || 'N/A'} units</span>
               </div>
               
-              {/* Rating */}
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <Star className="h-3 w-3 mr-1 text-yellow-400" />
                 <span>{community.rating ? (typeof community.rating === 'number' ? community.rating.toFixed(1) : parseFloat(community.rating).toFixed(1)) : 'No rating'}</span>
               </div>
               
-              {/* Occupancy if available */}
-              {(community.occupancyRate || community.occupancyRateHud) && (
-                <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  <Users className="h-3 w-3 mr-1 text-gray-500" />
-                  <span>{Math.round(Number(community.occupancyRate || community.occupancyRateHud))}% occupied</span>
-                </div>
-              )}
-              
-              {/* Community Size */}
-              {community.sizeCategory && (
-                <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  <Home className="h-3 w-3 mr-1 text-gray-500" />
-                  <span className="capitalize">{community.sizeCategory}</span>
-                </div>
-              )}
-              
-              {/* Senior percentage if high */}
-              {community.seniorPercentage && community.seniorPercentage >= 70 && (
-                <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  <Users className="h-3 w-3 mr-1 text-gray-500" />
-                  <span>{Math.round(community.seniorPercentage)}% seniors</span>
-                </div>
-              )}
-              
-              {/* License/ID */}
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <Shield className="h-3 w-3 mr-1 text-gray-500" />
                 <span>ID: {community.id}</span>
+              </div>
+              
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <Users className="h-3 w-3 mr-1 text-gray-500" />
+                <span>{community.occupancyRate ? `${Math.round(Number(community.occupancyRate))}% full` : 'Check avail.'}</span>
+              </div>
+              
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <Home className="h-3 w-3 mr-1 text-gray-500" />
+                <span className="capitalize">{community.sizeCategory || 'Standard'}</span>
+              </div>
+              
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <CheckCircle className="h-3 w-3 mr-1 text-gray-500" />
+                <span>{community.dataQuality?.qualityScore ? `${Math.round(community.dataQuality.qualityScore)}% verified` : 'Pending'}</span>
               </div>
             </div>
             
@@ -794,82 +782,57 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               )}
             </div>
             
-            {/* Special Features Section */}
-            <div className="space-y-1 text-xs mb-2">
-              {/* HUD verified */}
-              {community.hudPropertyId && (
-                <div className="text-green-600 dark:text-green-400 flex items-center font-medium">
+            {/* Special Features Section - Always show something */}
+            <div className="space-y-1 text-xs mb-2 border-t dark:border-gray-700 pt-2">
+              <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Special Features:</div>
+              
+              {/* Show HUD if available */}
+              {community.hudPropertyId ? (
+                <div className="text-green-600 dark:text-green-400 flex items-center">
                   <CheckCircle className="h-3 w-3 mr-1" />
                   HUD Official Pricing Available
                 </div>
-              )}
+              ) : null}
               
-              {/* Bilingual */}
-              {community.state && ['QC', 'NB', 'ON'].includes(community.state) && index % 3 === 0 && (
-                <div className="text-blue-600 dark:text-blue-400 flex items-center">
-                  <Languages className="h-3 w-3 mr-1" />
-                  Services bilingues / Bilingual
-                </div>
-              )}
+              {/* Show care types */}
+              <div className="text-gray-600 dark:text-gray-400">
+                <Sparkles className="h-3 w-3 inline mr-1" />
+                {community.careTypes && community.careTypes.length > 1 
+                  ? `${community.careTypes.length} care levels available`
+                  : 'Specialized senior care'}
+              </div>
               
-              {/* Availability status */}
-              {community.availabilityStatus && community.availabilityStatus !== 'Unknown' && (
-                <div className="text-emerald-600 dark:text-emerald-400 flex items-center">
-                  <Sparkles className="h-3 w-3 mr-1" />
-                  {community.availabilityStatus}
-                </div>
-              )}
+              {/* Show amenities or default message */}
+              <div className="text-gray-600 dark:text-gray-400">
+                <Home className="h-3 w-3 inline mr-1" />
+                {community.amenities && community.amenities.length > 0
+                  ? `${community.amenities.length} amenities available`
+                  : 'Full amenity list available'}
+              </div>
               
-              {/* Amenities if available */}
-              {community.amenities && community.amenities.length > 0 && (
-                <div className="text-gray-600 dark:text-gray-400 border-t dark:border-gray-700 pt-1">
-                  <div className="font-medium mb-0.5">Amenities:</div>
-                  <div className="pl-3">
-                    • {community.amenities.slice(0, 3).join(' • ')}
-                    {community.amenities.length > 3 && (
-                      <span className="text-blue-600 dark:text-blue-400"> +{community.amenities.length - 3} more</span>
-                    )}
-                  </div>
-                </div>
-              )}
-              
-              {/* Care types if multiple */}
-              {community.careTypes && community.careTypes.length > 1 && (
-                <div className="text-gray-600 dark:text-gray-400">
-                  <span className="font-medium">Care: </span>
-                  {community.careTypes.slice(0, 2).join(', ')}
-                  {community.careTypes.length > 2 && ` +${community.careTypes.length - 2}`}
+              {/* Island life for Hawaii */}
+              {community.state === 'HI' && (
+                <div className="text-blue-600 dark:text-blue-400">
+                  <Sparkles className="h-3 w-3 inline mr-1" />
+                  Island senior living lifestyle
                 </div>
               )}
             </div>
             
             {/* Contact Section */}
-            <div className="mt-auto space-y-1">
-              {/* Contact info or pricing note */}
-              {displayPrice === 'Contact for Pricing' ? (
-                <div className="text-xs text-gray-700 dark:text-gray-300 bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded border border-yellow-200 dark:border-yellow-800">
-                  <Phone className="h-3 w-3 inline mr-1" />
-                  <span className="font-medium">Call for pricing & availability</span>
-                </div>
-              ) : (
-                <>
-                  {community.phone && (
-                    <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
-                      <Phone className="h-3 w-3 mr-1" />
-                      {community.phone}
-                    </div>
-                  )}
-                  {community.website && (
-                    <div className="text-xs text-gray-600 dark:text-gray-400 flex items-center">
-                      <ExternalLink className="h-3 w-3 mr-1" />
-                      <span className="truncate">Visit website</span>
-                    </div>
-                  )}
-                </>
-              )}
+            <div className="mt-auto space-y-2">
+              {/* Always show contact status */}
+              <div className="text-xs text-gray-700 dark:text-gray-300 bg-emerald-50 dark:bg-emerald-900/20 p-2 rounded">
+                <Phone className="h-3 w-3 inline mr-1" />
+                <span className="font-medium">
+                  {displayPrice === 'Contact for Pricing' 
+                    ? 'Call for availability'
+                    : community.phone || 'Contact available'}
+                </span>
+              </div>
               
               {/* View Details Button */}
-              <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 px-3 rounded-lg font-semibold text-xs transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl mt-2">
+              <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 px-3 rounded-lg font-semibold text-xs transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
                 View Full Details →
               </button>
             </div>
