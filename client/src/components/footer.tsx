@@ -146,9 +146,9 @@ export function Footer() {
                   <Settings className="h-4 w-4" />
                   <span>Admin</span>
                 </Link>
-                <Link href="/community-portal" className="flex items-center space-x-1 text-gray-400 hover:text-green-400 text-sm transition-colors font-medium">
+                <Link href="/community-portal" className="flex items-center space-x-1 text-green-400 hover:text-green-300 text-sm transition-all font-semibold border border-green-600/50 px-3 py-1 rounded-md hover:bg-green-600/10">
                   <User className="h-4 w-4" />
-                  <span>Community</span>
+                  <span>Community Dashboard</span>
                 </Link>
                 <Link href="/vendor-dashboard" className="flex items-center space-x-1 text-gray-400 hover:text-purple-400 text-sm transition-colors font-medium">
                   <Store className="h-4 w-4" />
