@@ -696,77 +696,140 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
             )}
           </div>
           
-          <CardContent className="p-4 flex flex-col h-full">
+          <CardContent className="p-3 flex flex-col h-full">
             {/* Name */}
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 mb-3 text-base">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-1 mb-2 text-sm">
               {community.name}
             </h3>
             
-            {/* Care Type */}
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+            {/* Care Type & Location */}
+            <div className="text-xs text-gray-600 dark:text-gray-400">
               {community.careTypes && community.careTypes.length > 0 ? community.careTypes[0] : 'Senior Living'}
             </div>
-            
-            {/* Location */}
-            <div className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+            <div className="text-xs text-gray-700 dark:text-gray-300 mb-2">
               {community.city}, {community.state}
             </div>
             
-            {/* Features Row */}
-            <div className="flex items-center justify-between mb-3">
+            {/* Key Features Grid */}
+            <div className="grid grid-cols-2 gap-1 mb-2 text-xs">
+              {/* Units/Size */}
+              {community.totalUnits && (
+                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                  <Building className="h-3 w-3 mr-1" />
+                  <span>{community.totalUnits} units</span>
+                </div>
+              )}
+              
               {/* Rating */}
-              <div className="flex items-center text-sm">
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
                 {community.rating ? (
                   <>
-                    <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                    <span className="text-gray-700 dark:text-gray-300">{typeof community.rating === 'number' ? community.rating.toFixed(1) : parseFloat(community.rating).toFixed(1)}</span>
+                    <Star className="h-3 w-3 text-yellow-400 mr-1" />
+                    <span>{typeof community.rating === 'number' ? community.rating.toFixed(1) : parseFloat(community.rating).toFixed(1)}</span>
                   </>
                 ) : (
-                  <span className="text-gray-500 dark:text-gray-400 text-xs">No rating</span>
+                  <span>No rating</span>
                 )}
               </div>
               
-              {/* Status Badge */}
-              <div className="text-sm font-medium">
-                {index % 4 === 0 && <span className="text-purple-600 dark:text-purple-400">🏆 Featured</span>}
-                {index % 4 === 1 && <span className="text-blue-600 dark:text-blue-400">⭐ Top Rated</span>}
-                {index % 4 === 2 && <span className="text-green-600 dark:text-green-400">💎 Premium</span>}
-                {index % 4 === 3 && <span className="text-orange-600 dark:text-orange-400">✨ Popular</span>}
+              {/* License/ID */}
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <Shield className="h-3 w-3 mr-1" />
+                <span>ID: {community.id}</span>
               </div>
+              
+              {/* Community Size */}
+              {community.sizeCategory && (
+                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                  <Users className="h-3 w-3 mr-1" />
+                  <span className="capitalize">{community.sizeCategory}</span>
+                </div>
+              )}
             </div>
             
-            {/* Special Features - Only if applicable */}
-            {(community.hudPropertyId || (community.state && ['QC', 'NB', 'ON'].includes(community.state) && index % 3 === 0)) && (
-              <div className="space-y-1 text-sm mb-3">
-                {community.hudPropertyId && (
-                  <div className="text-green-600 dark:text-green-400 flex items-center">
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
-                    HUD verified pricing
-                  </div>
-                )}
-                {community.state && ['QC', 'NB', 'ON'].includes(community.state) && index % 3 === 0 && (
-                  <div className="text-blue-600 dark:text-blue-400 flex items-center">
-                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></div>
-                    Bilingual services
-                  </div>
-                )}
+            {/* Special Badges */}
+            <div className="flex flex-wrap gap-1 mb-2">
+              {/* Status Badge */}
+              {index % 4 === 0 && (
+                <Badge className="text-xs px-1.5 py-0.5 bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
+                  🏆 Featured
+                </Badge>
+              )}
+              {index % 4 === 1 && (
+                <Badge className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                  ⭐ Top Rated
+                </Badge>
+              )}
+              {index % 4 === 2 && (
+                <Badge className="text-xs px-1.5 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                  💎 Premium
+                </Badge>
+              )}
+              {index % 4 === 3 && (
+                <Badge className="text-xs px-1.5 py-0.5 bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300">
+                  ✨ Popular
+                </Badge>
+              )}
+              
+              {/* Verified Badge */}
+              {community.dataQuality?.qualityScore && community.dataQuality.qualityScore >= 80 && (
+                <Badge className="text-xs px-1.5 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                  ✓ Verified
+                </Badge>
+              )}
+            </div>
+            
+            {/* Additional Features */}
+            <div className="space-y-0.5 text-xs mb-2">
+              {/* HUD verified */}
+              {community.hudPropertyId && (
+                <div className="text-green-600 dark:text-green-400 flex items-center">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  HUD verified pricing
+                </div>
+              )}
+              
+              {/* Bilingual */}
+              {community.state && ['QC', 'NB', 'ON'].includes(community.state) && index % 3 === 0 && (
+                <div className="text-blue-600 dark:text-blue-400 flex items-center">
+                  <Languages className="h-3 w-3 mr-1" />
+                  Bilingual services
+                </div>
+              )}
+              
+              {/* Senior percentage */}
+              {community.seniorPercentage && community.seniorPercentage >= 70 && (
+                <div className="text-purple-600 dark:text-purple-400 flex items-center">
+                  <Users className="h-3 w-3 mr-1" />
+                  {Math.round(community.seniorPercentage)}% senior residents
+                </div>
+              )}
+              
+              {/* Amenities preview */}
+              {community.amenities && community.amenities.length > 0 && (
+                <div className="text-gray-600 dark:text-gray-400">
+                  • {community.amenities.slice(0, 2).join(' • ')}
+                  {community.amenities.length > 2 && ` +${community.amenities.length - 2} more`}
+                </div>
+              )}
+            </div>
+            
+            {/* Contact info or pricing note */}
+            {displayPrice === 'Contact for Pricing' ? (
+              <div className="text-xs text-gray-600 dark:text-gray-400 mb-2 bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                <Phone className="h-3 w-3 inline mr-1" />
+                Call for availability & pricing
+              </div>
+            ) : community.phone && (
+              <div className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                <Phone className="h-3 w-3 inline mr-1" />
+                {community.phone}
               </div>
             )}
             
-            {/* Contact for pricing if needed */}
-            {displayPrice === 'Contact for Pricing' && (
-              <div className="text-sm text-gray-600 dark:text-gray-400 mb-3 flex items-center">
-                <Phone className="h-4 w-4 mr-2" />
-                Call for pricing
-              </div>
-            )}
-            
-            {/* Spacer to push button to bottom */}
-            <div className="flex-1"></div>
-            
-            {/* View Details Button - Using all available space at bottom */}
-            <div className="mt-3">
-              <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+            {/* View Details Button */}
+            <div className="mt-auto">
+              <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 px-3 rounded-lg font-semibold text-xs transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
                 View Full Details →
               </button>
             </div>
