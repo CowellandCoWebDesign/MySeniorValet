@@ -674,8 +674,8 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               </Badge>
             )}
             
-            {/* HUD Badge - Bottom Right for HUD properties */}
-            {isHudProperty && (
+            {/* HUD Badge - Bottom Right ONLY for actual HUD properties */}
+            {community.hudPropertyId && (
               <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
                 🏛️ HUD Official
               </Badge>
@@ -696,83 +696,74 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
             )}
           </div>
           
-          <CardContent className="p-3 flex flex-col h-full">
+          <CardContent className="p-4 flex flex-col h-full">
             {/* Name */}
-            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 mb-2">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 mb-3 text-base">
               {community.name}
-            </div>
+            </h3>
             
-            {/* Contact for Pricing */}
-            {displayPrice === 'Contact for Pricing' && (
-              <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                <Phone className="h-3 w-3 inline mr-1" />
-                Contact for pricing
-              </div>
-            )}
-            
-            {/* Care Type and Location */}
-            <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+            {/* Care Type */}
+            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
               {community.careTypes && community.careTypes.length > 0 ? community.careTypes[0] : 'Senior Living'}
             </div>
-            <div className="text-xs text-gray-700 dark:text-gray-300 mb-2">
+            
+            {/* Location */}
+            <div className="text-sm text-gray-700 dark:text-gray-300 mb-3">
               {community.city}, {community.state}
             </div>
             
-            {/* Special Features and Status */}
-            <div className="flex items-center justify-between text-xs mb-2">
-              {/* Rating if available */}
-              {community.rating && (
-                <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  <Star className="h-3 w-3 text-yellow-400 mr-1" />
-                  <span>{typeof community.rating === 'number' ? community.rating.toFixed(1) : parseFloat(community.rating).toFixed(1)}</span>
-                </div>
-              )}
+            {/* Features Row */}
+            <div className="flex items-center justify-between mb-3">
+              {/* Rating */}
+              <div className="flex items-center text-sm">
+                {community.rating ? (
+                  <>
+                    <Star className="h-4 w-4 text-yellow-400 mr-1" />
+                    <span className="text-gray-700 dark:text-gray-300">{typeof community.rating === 'number' ? community.rating.toFixed(1) : parseFloat(community.rating).toFixed(1)}</span>
+                  </>
+                ) : (
+                  <span className="text-gray-500 dark:text-gray-400 text-xs">No rating</span>
+                )}
+              </div>
               
-              {/* Featured/Popular Status */}
-              {index % 4 === 0 && (
-                <div className="text-purple-600 dark:text-purple-400 font-medium">
-                  🏆 Featured
-                </div>
-              )}
-              {index % 4 === 1 && (
-                <div className="text-blue-600 dark:text-blue-400 font-medium">
-                  ⭐ Top Rated
-                </div>
-              )}
-              {index % 4 === 2 && (
-                <div className="text-green-600 dark:text-green-400 font-medium">
-                  💎 Premium
-                </div>
-              )}
-              {index % 4 === 3 && (
-                <div className="text-orange-600 dark:text-orange-400 font-medium">
-                  ✨ Popular
-                </div>
-              )}
+              {/* Status Badge */}
+              <div className="text-sm font-medium">
+                {index % 4 === 0 && <span className="text-purple-600 dark:text-purple-400">🏆 Featured</span>}
+                {index % 4 === 1 && <span className="text-blue-600 dark:text-blue-400">⭐ Top Rated</span>}
+                {index % 4 === 2 && <span className="text-green-600 dark:text-green-400">💎 Premium</span>}
+                {index % 4 === 3 && <span className="text-orange-600 dark:text-orange-400">✨ Popular</span>}
+              </div>
             </div>
             
-            {/* Compact Feature List */}
-            <div className="space-y-0.5 text-xs mb-2">
-              {/* HUD verified pricing */}
-              {community.hudPropertyId && (
-                <div className="text-green-600 dark:text-green-400 flex items-center">
-                  <div className="w-1 h-1 bg-green-500 rounded-full mr-1"></div>
-                  HUD verified pricing
-                </div>
-              )}
-              
-              {/* Bilingual for Canada */}
-              {community.state && ['QC', 'NB', 'ON'].includes(community.state) && index % 3 === 0 && (
-                <div className="text-blue-600 dark:text-blue-400 flex items-center">
-                  <div className="w-1 h-1 bg-blue-500 rounded-full mr-1"></div>
-                  Bilingual services
-                </div>
-              )}
-            </div>
+            {/* Special Features - Only if applicable */}
+            {(community.hudPropertyId || (community.state && ['QC', 'NB', 'ON'].includes(community.state) && index % 3 === 0)) && (
+              <div className="space-y-1 text-sm mb-3">
+                {community.hudPropertyId && (
+                  <div className="text-green-600 dark:text-green-400 flex items-center">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                    HUD verified pricing
+                  </div>
+                )}
+                {community.state && ['QC', 'NB', 'ON'].includes(community.state) && index % 3 === 0 && (
+                  <div className="text-blue-600 dark:text-blue-400 flex items-center">
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></div>
+                    Bilingual services
+                  </div>
+                )}
+              </div>
+            )}
             
-            {/* View Details Button - Compact */}
-            <div className="mt-auto pt-2">
-              <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-1.5 px-3 rounded-lg font-semibold text-xs transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+            {/* Contact for pricing if needed */}
+            {displayPrice === 'Contact for Pricing' && (
+              <div className="text-sm text-gray-600 dark:text-gray-400 mb-3 flex items-center">
+                <Phone className="h-4 w-4 mr-2" />
+                Call for pricing
+              </div>
+            )}
+            
+            {/* View Details Button */}
+            <div className="mt-auto">
+              <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
                 View Details →
               </button>
             </div>
