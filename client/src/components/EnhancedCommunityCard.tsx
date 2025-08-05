@@ -880,12 +880,7 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               )}
             </div>
             
-            {/* View Details Button */}
-            <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
-              <button className="w-full text-xs py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium text-gray-700 dark:text-gray-300">
-                View Full Details →
-              </button>
-            </div>
+
             
             {/* Only show actual regional info for coastal areas */}
             {variant === 'coastal' && (
