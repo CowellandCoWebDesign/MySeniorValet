@@ -71,10 +71,10 @@ interface CommunityCardProps {
 }
 
 export function EnhancedCommunityCard({ community, index = 0, variant = 'standard', onSelect }: CommunityCardProps) {
-  const isHudProperty = community.hudPropertyId || community.dataQuality?.isAuthentic || community.rentPerMonth;
+  // Only properties with actual HUD property IDs are HUD properties
+  const isHudProperty = !!community.hudPropertyId;
   const hasAuthenticPricing = community.displayPricing?.priceLabel?.includes('HUD Official') || 
-    (community.hudPropertyId && community.rentPerMonth) || 
-    (isHudProperty && community.rentPerMonth);
+    (community.hudPropertyId && community.rentPerMonth);
   const hasOccupancyData = community.displayAvailability?.occupancyDisplay;
 
   // Community subtype badge mapping
@@ -761,10 +761,13 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               </div>
             )}
             
-            {/* View Details Button */}
-            <div className="mt-auto">
-              <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 px-4 rounded-lg font-semibold text-sm transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                View Details →
+            {/* Spacer to push button to bottom */}
+            <div className="flex-1"></div>
+            
+            {/* View Details Button - Using all available space at bottom */}
+            <div className="mt-3">
+              <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                View Full Details →
               </button>
             </div>
           </CardContent>
