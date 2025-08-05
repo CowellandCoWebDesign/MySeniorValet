@@ -445,7 +445,7 @@ export default function MySeniorValetHome() {
             </Link>
           </div>
           
-          <div className="flex space-x-4 overflow-x-auto pb-12 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style={{minHeight: '32rem'}}>
+          <div className="flex space-x-4 overflow-x-auto overflow-y-visible pb-16 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style={{minHeight: '35rem'}}>
             {(hawaiiLoading || !hawaiiCommunities || (hawaiiCommunities as any[]).length === 0) ? (
               Array.from({ length: 6 }).map((_, index) => (
                 <Card key={index} className="overflow-hidden flex-shrink-0 w-64 h-80 animate-pulse">
@@ -523,7 +523,7 @@ export default function MySeniorValetHome() {
             </p>
           </div>
         
-          <div className="flex space-x-4 overflow-x-auto pb-12 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', minHeight: '32rem'}}>
+          <div className="flex space-x-4 overflow-x-auto overflow-y-visible pb-16 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', minHeight: '35rem'}}>
             {/* Show HUD communities */}
             {(!hudProperties || (hudProperties as any[]).length === 0) ? (
               // Loading skeleton cards
@@ -677,7 +677,7 @@ export default function MySeniorValetHome() {
             </div>
           ) : (
             <div className="relative">
-              <div className="flex space-x-4 overflow-x-auto pb-12 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style={{minHeight: '32rem'}}>
+              <div className="flex space-x-4 overflow-x-auto overflow-y-visible pb-16 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style={{minHeight: '35rem'}}>
                 {((floridaCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => (
                   <EnhancedCommunityCard
                     key={`florida-${community.id}-${index}`}
@@ -755,7 +755,7 @@ export default function MySeniorValetHome() {
                 </Button>
               </div>
             ) : (
-              <div className="flex space-x-4 overflow-x-auto pb-12 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style={{minHeight: '32rem'}}>
+              <div className="flex space-x-4 overflow-x-auto overflow-y-visible pb-16 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style={{minHeight: '35rem'}}>
                 {((texasCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => (
                   <EnhancedCommunityCard
                     key={`texas-${community.id}-${index}`}
@@ -813,7 +813,7 @@ export default function MySeniorValetHome() {
             Empire State senior living excellence
           </p>
         
-          <div className="flex space-x-4 overflow-x-auto pb-12 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', minHeight: '32rem'}}>
+          <div className="flex space-x-4 overflow-x-auto overflow-y-visible pb-16 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', minHeight: '35rem'}}>
             {/* Show New York communities */}
             {newYorkLoading ? (
               // Loading skeleton cards
@@ -894,8 +894,8 @@ export default function MySeniorValetHome() {
               : '24 communautés dans les 13 provinces et territoires • 10 avec services bilingues français/anglais'}
           </p>
         
-          <div className="relative overflow-hidden" style={{maxHeight: '400px'}}>
-            <div className="flex space-x-4 overflow-x-auto pb-12 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', minHeight: '32rem'}}>
+          <div className="relative overflow-hidden">
+            <div className="flex space-x-4 overflow-x-auto overflow-y-visible pb-16 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', minHeight: '35rem'}}>
               {/* Show Canadian communities */}
               {canadianLoading ? (
               // Loading skeleton cards
@@ -1002,7 +1002,7 @@ export default function MySeniorValetHome() {
           
           <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{(californiaCommunities as any[])?.length || 0} communities • Silicon Valley, LA Metro, San Diego with immediate openings</p>
         
-          <div className="flex space-x-4 overflow-x-auto pb-12 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', minHeight: '32rem'}}>
+          <div className="flex space-x-4 overflow-x-auto overflow-y-visible pb-16 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', minHeight: '35rem'}}>
             {californiaLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
