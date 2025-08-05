@@ -601,15 +601,22 @@ export class DatabaseStorage implements IStorage {
 
   async createUser(insertUser: any): Promise<User> {
     // Handle Replit auth user creation with proper fields
+    // If ID is provided and it's not an integer, omit it and let database auto-generate
+    const isNumericId = insertUser.id && !isNaN(parseInt(insertUser.id));
+    
     const result = await db.execute(
-      sql`INSERT INTO users (id, username, email, password, role, first_name, last_name) 
-          VALUES (${insertUser.id}, ${insertUser.username}, ${insertUser.email}, ${insertUser.password || 'replit_auth'}, ${insertUser.role || 'user'}, ${insertUser.firstName || null}, ${insertUser.lastName || null}) 
-          RETURNING id, username, email, password, role, first_name, last_name`
+      isNumericId 
+        ? sql`INSERT INTO users (id, username, email, password, role, first_name, last_name) 
+              VALUES (${insertUser.id}, ${insertUser.username}, ${insertUser.email}, ${insertUser.password || 'replit_auth'}, ${insertUser.role || 'user'}, ${insertUser.firstName || null}, ${insertUser.lastName || null}) 
+              RETURNING id, username, email, password, role, first_name, last_name`
+        : sql`INSERT INTO users (username, email, password, role, first_name, last_name) 
+              VALUES (${insertUser.username}, ${insertUser.email}, ${insertUser.password || 'replit_auth'}, ${insertUser.role || 'user'}, ${insertUser.firstName || null}, ${insertUser.lastName || null}) 
+              RETURNING id, username, email, password, role, first_name, last_name`
     );
     
     const userRow = result.rows[0];
     return {
-      id: userRow.id as string,
+      id: userRow.id as number,
       username: userRow.username as string,
       email: userRow.email as string,
       password: userRow.password as string,

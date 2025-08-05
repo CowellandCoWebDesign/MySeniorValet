@@ -335,9 +335,6 @@ export async function createAuthenticatedSession(req: any, email: string, firstN
     let user = await storage.getUserByEmail(email);
     
     if (!user) {
-      // Create new user with a unique ID
-      const userId = `payment_user_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-      
       // Check if this is William Cowell (guaranteed super admin)
       let userRole = 'user';
       if (email === 'William.cowell01@gmail.com') {
@@ -349,8 +346,8 @@ export async function createAuthenticatedSession(req: any, email: string, firstN
         userRole = superAdminCount === 0 ? 'super_admin' : 'user';
       }
       
+      // Don't pass an ID - let the database auto-generate it
       user = await storage.createUser({
-        id: userId,
         username: email,
         email: email,
         firstName: firstName || null,

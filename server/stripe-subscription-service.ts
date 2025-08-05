@@ -4,13 +4,11 @@ import { db } from './db';
 import { subscriptions, communities, users } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY environment variable is required');
-}
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2025-07-30.basil'
-});
+const stripe = process.env.STRIPE_SECRET_KEY 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-07-30.basil'
+    })
+  : null;
 
 export interface SubscriptionProduct {
   id: string;
@@ -212,6 +210,10 @@ export class StripeSubscriptionService {
     cancelUrl: string,
     metadata?: Record<string, any>
   ) {
+    if (!stripe) {
+      throw new Error('Stripe is not initialized. Please check STRIPE_SECRET_KEY environment variable.');
+    }
+    
     const product = [...SUBSCRIPTION_PRODUCTS, ...ADD_ON_PRODUCTS, ...VENDOR_PRODUCTS].find(p => p.id === productId);
     
     if (!product || product.price === 0) {
