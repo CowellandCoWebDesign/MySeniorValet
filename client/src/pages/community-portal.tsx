@@ -89,11 +89,11 @@ export default function CommunityPortal() {
 
   const plans = [
     {
-      id: 'verified',
-      name: 'Verified Listing',
+      id: 'basic',
+      name: 'Basic',
       price: 'Free',
       priceValue: 0,
-      tier: 'verified',
+      tier: 'basic',
       tagline: 'Get started for free',
       description: 'Perfect for communities just getting started',
       features: [
@@ -490,12 +490,12 @@ export default function CommunityPortal() {
                     onClick={() => handleUpgrade(plan.name)}
                     disabled={(() => {
                       if (!existingCommunityData) return false;
-                      const currentTierIndex = ['verified', 'standard', 'featured', 'platinum'].indexOf(existingCommunityData.currentTier);
-                      const planTierIndex = ['verified', 'standard', 'featured', 'platinum'].indexOf(plan.tier);
+                      const currentTierIndex = ['basic', 'standard', 'featured', 'platinum'].indexOf(existingCommunityData.currentTier);
+                      const planTierIndex = ['basic', 'standard', 'featured', 'platinum'].indexOf(plan.tier);
                       return planTierIndex <= currentTierIndex;
                     })()}
                     className={`w-full mt-6 ${
-                      plan.tier === 'verified' 
+                      plan.tier === 'basic' 
                         ? 'bg-gray-600 hover:bg-gray-700' 
                         : plan.tier === 'standard'
                         ? 'bg-blue-600 hover:bg-blue-700'

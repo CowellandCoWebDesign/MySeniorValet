@@ -192,7 +192,7 @@ export function CommunitySubscriptionManager({
             <Button 
               className="w-full" 
               onClick={() => window.location.href = `/community-subscription-checkout?communityId=${communityId}&tier=${
-                currentTier === 'verified' ? 'standard' : 
+                currentTier === 'basic' ? 'standard' : 
                 currentTier === 'standard' ? 'featured' : 
                 'platinum'
               }`}
@@ -237,7 +237,7 @@ export function CommunitySubscriptionManager({
                   <AlertDialogDescription>
                     Your subscription will remain active until {subscriptionData.nextBillingDate ? 
                     format(new Date(subscriptionData.nextBillingDate), 'MMMM dd, yyyy') : 
-                    'the end of the billing period'}. After that, your listing will revert to the free Verified tier.
+                    'the end of the billing period'}. After that, your listing will revert to the free Basic tier.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

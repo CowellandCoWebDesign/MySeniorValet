@@ -346,10 +346,10 @@ export default function CommunityDashboardWithSubscriptions() {
           {/* Analytics Tab */}
           <TabsContent value="analytics">
             {(() => {
-              const tier = community?.subscriptionTier || 'verified';
+              const tier = community?.subscriptionTier || 'basic';
               
-              // Verified tier - no analytics
-              if (tier === 'verified') {
+              // Basic tier - no analytics
+              if (tier === 'basic') {
                 return (
                   <Card className="lg:col-span-2">
                     <CardContent className="py-16 text-center">

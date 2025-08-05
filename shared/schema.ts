@@ -507,8 +507,8 @@ export const communities = pgTable("communities", {
   
   // Subscription and billing fields for communities
   subscriptionTier: text("subscription_tier", {
-    enum: ["verified", "standard", "featured", "platinum"]
-  }).default("verified"),
+    enum: ["basic", "standard", "featured", "platinum"]
+  }).default("basic"),
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
   stripePriceId: text("stripe_price_id"),

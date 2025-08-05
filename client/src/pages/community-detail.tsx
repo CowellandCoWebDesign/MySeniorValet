@@ -816,9 +816,9 @@ export default function CommunityDetail() {
                     <div className="mt-4">
                       {/* Check subscription tier for messaging access */}
                       {(() => {
-                        const tier = community.subscriptionTier || 'verified';
+                        const tier = community.subscriptionTier || 'basic';
                         
-                        if (tier === 'verified') {
+                        if (tier === 'basic') {
                           // Verified tier has no messaging access
                           return (
                             <Button
