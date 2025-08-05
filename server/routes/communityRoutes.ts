@@ -479,8 +479,65 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
-  // Update community (admin only)
-  app.put("/api/communities/:id", requireAuth, isAdmin, async (req, res) => {
+  // Update community contact information (owner only)
+  app.put("/api/communities/:id", requireAuth, async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const userId = req.user?.id;
+      
+      // First check if this user owns/claimed this community
+      const [claimedCommunity] = await db
+        .select()
+        .from(claimedCommunities)
+        .where(
+          and(
+            eq(claimedCommunities.communityId, communityId),
+            eq(claimedCommunities.userId, userId)
+          )
+        );
+      
+      // Check if user is admin
+      const isAdminUser = req.user?.role === 'admin' || req.user?.role === 'super_admin';
+      
+      if (!claimedCommunity && !isAdminUser) {
+        return res.status(403).json({ error: "You don't have permission to update this community" });
+      }
+      
+      // Only allow certain fields to be updated for non-admin users
+      const allowedFields = isAdminUser ? req.body : {
+        name: req.body.name,
+        description: req.body.description,
+        phone: req.body.phone,
+        email: req.body.email,
+        website: req.body.website,
+        address: req.body.address,
+        city: req.body.city,
+        state: req.body.state,
+        zipCode: req.body.zipCode
+      };
+
+      const [updated] = await db
+        .update(communities)
+        .set({
+          ...allowedFields,
+          updatedAt: new Date()
+        })
+        .where(eq(communities.id, communityId))
+        .returning();
+
+      if (!updated) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating community:", error);
+      res.status(500).json({ error: "Failed to update community" });
+    }
+  });
+
+  // Update community (admin only - full access)
+  app.put("/api/communities/:id/admin", requireAuth, isAdmin, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
       const updates = req.body;

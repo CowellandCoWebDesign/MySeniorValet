@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link, useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,12 +60,42 @@ export default function CommunityDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedDateRange, setSelectedDateRange] = useState("30");
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Form state for contact information
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    phone: '',
+    website: '',
+    email: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: ''
+  });
 
   // Fetch community details including subscription tier
   const { data: community, isLoading: communityLoading } = useQuery<any>({
     queryKey: [`/api/communities/${id}`],
     enabled: !!id && !!user,
   });
+
+  // Update form when community data loads
+  useEffect(() => {
+    if (community) {
+      setFormData({
+        name: community.name || '',
+        description: community.description || '',
+        phone: community.phone || '',
+        website: community.website || '',
+        email: community.email || '',
+        address: community.address || '',
+        city: community.city || '',
+        state: community.state || '',
+        zipCode: community.zipCode || ''
+      });
+    }
+  }, [community]);
 
   // Fetch community dashboard overview
   const { data: overview, isLoading: overviewLoading } = useQuery<any>({
@@ -109,6 +139,37 @@ export default function CommunityDashboard() {
       });
     }
   });
+
+  // Update community mutation
+  const updateCommunityMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest("PUT", `/api/communities/${id}`, data);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Your community information has been updated successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: [`/api/communities/${id}`] });
+      setIsEditing(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update community information.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleSaveChanges = () => {
+    updateCommunityMutation.mutate(formData);
+  };
+
+  const handleViewPublicProfile = () => {
+    window.open(`/communities/${id}`, '_blank');
+  };
 
   if (authLoading || !user) {
     return (
@@ -198,6 +259,14 @@ export default function CommunityDashboard() {
               </p>
             </div>
             <div className="flex items-center space-x-3">
+              <Button
+                onClick={handleViewPublicProfile}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Eye className="w-4 h-4" />
+                View Public Profile
+              </Button>
               <Select value={selectedDateRange} onValueChange={setSelectedDateRange}>
                 <SelectTrigger className="w-32">
                   <SelectValue />
@@ -377,68 +446,6 @@ export default function CommunityDashboard() {
                     </div>
                   </div>
                 )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-                      {community.subscriptionTier === 'platinum' ? '$349/month' :
-                       community.subscriptionTier === 'featured' ? '$249/month' :
-                       community.subscriptionTier === 'standard' ? '$149/month' :
-                       'Free'}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Features Used</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Progress value={65} className="h-2 flex-1" />
-                    <span className="text-sm font-medium">65%</span>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Next Billing</p>
-                  <p className="text-sm font-medium mt-1">
-                    {community.subscriptionTier && community.subscriptionTier !== 'verified' 
-                      ? format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'MMM d, yyyy')
-                      : 'No billing - Free tier'}
-                  </p>
-                </div>
-              </div>
-              
-              {/* Quick feature highlights based on tier */}
-              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Your plan includes:</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                  {community.subscriptionTier === 'platinum' ? (
-                    <>
-                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> 50 Photos</div>
-                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> 3 Videos</div>
-                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> Unlimited PDFs</div>
-                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> Top Priority</div>
-                    </>
-                  ) : community.subscriptionTier === 'featured' ? (
-                    <>
-                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> 25 Photos</div>
-                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> 1 Video</div>
-                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> 3 PDFs</div>
-                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> Featured Placement</div>
-                    </>
-                  ) : community.subscriptionTier === 'standard' ? (
-                    <>
-                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> 10 Photos</div>
-                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> 1 PDF</div>
-                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> Basic Analytics</div>
-                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> Review Responses</div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> 1 Photo</div>
-                      <div className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-500" /> Tour Scheduler</div>
-                      <div className="flex items-center gap-1"><X className="w-3 h-3 text-gray-400" /> No Analytics</div>
-                      <div className="flex items-center gap-1"><X className="w-3 h-3 text-gray-400" /> No Reviews</div>
-                    </>
-                  )}
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -798,26 +805,106 @@ export default function CommunityDashboard() {
                 <CardContent className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-1">Community Name</label>
-                    <Input placeholder="Your Community Name" />
+                    <Input 
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      placeholder="Your Community Name" 
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Description</label>
-                    <Textarea placeholder="Tell families about your community..." className="min-h-[100px]" />
+                    <Textarea 
+                      value={formData.description}
+                      onChange={(e) => setFormData({...formData, description: e.target.value})}
+                      placeholder="Tell families about your community..." 
+                      className="min-h-[100px]" 
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-1">Phone</label>
-                      <Input placeholder="(555) 123-4567" />
+                      <Input 
+                        value={formData.phone}
+                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                        placeholder="(555) 123-4567" 
+                      />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-1">Website</label>
-                      <Input placeholder="www.yourcommunity.com" />
+                      <label className="block text-sm font-medium mb-1">Email</label>
+                      <Input 
+                        value={formData.email}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        placeholder="contact@community.com" 
+                        type="email"
+                      />
                     </div>
                   </div>
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Changes
-                  </Button>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Website</label>
+                      <Input 
+                        value={formData.website}
+                        onChange={(e) => setFormData({...formData, website: e.target.value})}
+                        placeholder="www.yourcommunity.com" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Address</label>
+                      <Input 
+                        value={formData.address}
+                        onChange={(e) => setFormData({...formData, address: e.target.value})}
+                        placeholder="123 Main Street" 
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">City</label>
+                      <Input 
+                        value={formData.city}
+                        onChange={(e) => setFormData({...formData, city: e.target.value})}
+                        placeholder="City" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">State</label>
+                      <Input 
+                        value={formData.state}
+                        onChange={(e) => setFormData({...formData, state: e.target.value})}
+                        placeholder="State" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Zip Code</label>
+                      <Input 
+                        value={formData.zipCode}
+                        onChange={(e) => setFormData({...formData, zipCode: e.target.value})}
+                        placeholder="12345" 
+                      />
+                    </div>
+                  </div>
+                  <div className="pt-4">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      This information will be visible on your public community profile page.
+                    </p>
+                    <Button 
+                      onClick={handleSaveChanges}
+                      disabled={updateCommunityMutation.isPending}
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    >
+                      {updateCommunityMutation.isPending ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4 mr-2" />
+                          Save Changes
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
 
