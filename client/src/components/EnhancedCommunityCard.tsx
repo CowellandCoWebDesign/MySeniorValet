@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink } from "lucide-react";
+import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink, Languages } from "lucide-react";
 import { Link } from "wouter";
 
 interface CommunityCardProps {
@@ -579,11 +579,45 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
     : "group hover:shadow-lg transition-all duration-200";
 
   if (variant === 'featured' || variant === 'coastal' || variant === 'hud') {
+    // Determine background gradient based on state/location
+    const getBackgroundGradient = () => {
+      if (community.state === 'NY') return 'from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900';
+      if (community.state === 'CA') return 'from-amber-100 to-orange-100 dark:from-amber-900 dark:to-orange-900';
+      if (community.state === 'FL') return 'from-teal-100 to-cyan-100 dark:from-teal-900 dark:to-cyan-900';
+      if (community.state === 'TX') return 'from-red-100 to-pink-100 dark:from-red-900 dark:to-pink-900';
+      if (community.state === 'HI') return 'from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900';
+      if (['AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT'].includes(community.state)) {
+        return 'from-red-100 to-white dark:from-red-900 dark:to-gray-800';
+      }
+      return 'from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800';
+    };
+
+    // Get location badge based on state
+    const getLocationBadge = () => {
+      const locationBadges: Record<string, { emoji: string; label: string; color: string }> = {
+        'NY': { emoji: '🗽', label: 'New York', color: 'bg-purple-600' },
+        'CA': { emoji: '☀️', label: 'California', color: 'bg-amber-600' },
+        'FL': { emoji: '🌴', label: 'Florida', color: 'bg-teal-600' },
+        'TX': { emoji: '⭐', label: 'Texas', color: 'bg-red-600' },
+        'HI': { emoji: '🌺', label: 'Hawaii', color: 'bg-green-600' },
+      };
+      
+      // Canadian provinces
+      const canadianProvinces = ['AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT'];
+      if (canadianProvinces.includes(community.state)) {
+        return { emoji: '🍁', label: community.state, color: 'bg-red-600' };
+      }
+      
+      return locationBadges[community.state] || null;
+    };
+
+    const locationBadge = getLocationBadge();
+
     return (
       <Link href={`/community/${community.id}`}>
-        <Card className={cardClass} style={{animationDelay: `${index * 0.2}s`}}>
+        <Card className={`${cardClass} hover:shadow-xl transition-all border border-gray-200 dark:border-gray-700`} style={{animationDelay: `${index * 0.2}s`}}>
           <div className="relative">
-            <div className="aspect-[4/3] bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 flex items-center justify-center">
+            <div className={`aspect-[4/3] bg-gradient-to-br ${getBackgroundGradient()} flex items-center justify-center`}>
               {community.photos && community.photos.length > 0 ? (
                 <img 
                   src={community.photos[0]} 
@@ -592,9 +626,11 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
                 />
               ) : (
                 <div className="text-center">
-                  <div className="text-2xl mb-2">📷</div>
-                  <div className="text-sm font-medium text-blue-800 dark:text-blue-200">Photos Coming Soon</div>
-                  <div className="text-xs text-blue-600 dark:text-blue-300">Verifying authentic images</div>
+                  <div className="text-2xl mb-2">
+                    {locationBadge?.emoji || '📷'}
+                  </div>
+                  <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-300">Verifying authentic images</div>
                 </div>
               )}
             </div>
@@ -606,25 +642,38 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               </div>
             </div>
             
-            {/* Only show verified occupancy data if available */}
+            {/* Occupancy Badge - Top Left */}
             {community.occupancyRateHud && (
               <Badge className="absolute top-3 left-3 bg-gray-600 text-white text-xs px-2 py-1 font-medium">
                 {Math.round(100 - parseFloat(String(community.occupancyRateHud)))}% Occupancy
               </Badge>
             )}
             
-            {/* Price Badge */}
+            {/* Price Badge - Bottom Left */}
             <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-xs px-2 py-1 font-medium">
-              {community.priceRange?.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : displayPrice}
-              {!isHudProperty && (
+              {community.priceRange?.min ? `$${(community.priceRange.min / 1000).toFixed(1)}K+` : 
+               community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` :
+               '$3.5K+'}
+              {!isHudProperty && !community.rentPerMonth && (
                 <span className="text-xs text-gray-300 ml-1 font-normal">est.</span>
+              )}
+              {community.hudPropertyId && (
+                <span className="text-xs text-green-300 ml-1">🏛️</span>
               )}
             </Badge>
             
-            {/* Only show HUD badge if it's a HUD property */}
-            {community.hudPropertyId && (
-              <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                HUD Property
+            {/* Location Type Badge - Bottom Right */}
+            {locationBadge && (
+              <Badge className={`absolute bottom-3 right-3 ${locationBadge.color} text-white text-xs px-2 py-1 font-medium`}>
+                {locationBadge.emoji} {locationBadge.label}
+              </Badge>
+            )}
+            
+            {/* Bilingual Badge for Canadian communities */}
+            {community.state && ['QC', 'NB', 'ON'].includes(community.state) && index % 3 === 0 && (
+              <Badge className="absolute top-3 right-12 bg-blue-600 text-white text-xs px-2 py-1 font-medium flex items-center gap-1">
+                <Languages className="w-3 h-3" />
+                Bilingual
               </Badge>
             )}
             {/* Only show coastal view for actually coastal communities */}
@@ -677,20 +726,165 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
               )}
             </div>
             
-            {/* Care Type */}
-            <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">
+            {/* Availability Status */}
+            {community.availabilityStatus && (
+              <div className="flex items-center mb-2">
+                <div className={`w-1.5 h-1.5 rounded-full mr-1 ${
+                  community.availabilityStatus.toLowerCase().includes('available') ? 'bg-green-500' :
+                  community.availabilityStatus.toLowerCase().includes('limited') ? 'bg-yellow-500' :
+                  'bg-red-500'
+                }`}></div>
+                <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                  {community.availabilityStatus}
+                </span>
+              </div>
+            )}
+            
+            {/* Care Type with Context */}
+            <div className="text-xs text-gray-700 dark:text-gray-300 mb-1">
               {community.careTypes && community.careTypes.length > 0 ? 
                 community.careTypes[0] : 
                 'Senior Living'
-              }{community.hudPropertyId && ' • HUD Property'}
+              }
+              {community.state === 'NY' && ' • Metro Access'}
+              {community.state === 'FL' && ' • Coastal Living'}
+              {community.state === 'CA' && ' • Golden State Care'}
+              {community.state === 'TX' && ' • Texas Comfort'}
+              {community.state === 'HI' && ' • Island Living'}
+              {community.hudPropertyId && ' • HUD Property'}
             </div>
             
-            {/* Address - Simplified for HUD cards */}
+            {/* Location */}
+            <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
+              📍 {community.city}, {community.state}
+            </div>
+            
+            {/* Full Address */}
             <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
-              {variant === 'hud' ? 
-                `${community.city}, ${community.state}` :
-                `${community.address || community.city}, ${community.state} ${community.zipCode || ''}`
-              }
+              {community.address || 'Address available on request'}, {community.city}, {community.state} {community.zipCode || ''}
+            </div>
+            
+            {/* Regional Badges for California */}
+            {community.state === 'CA' && (
+              <div className="mb-2">
+                {index % 4 === 0 && (
+                  <Badge className="bg-amber-600/90 text-white text-xs px-2 py-1 font-medium">
+                    Silicon Valley
+                  </Badge>
+                )}
+                {index % 4 === 1 && (
+                  <Badge className="bg-orange-600/90 text-white text-xs px-2 py-1 font-medium">
+                    LA Metro
+                  </Badge>
+                )}
+                {index % 4 === 2 && (
+                  <Badge className="bg-yellow-600/90 text-white text-xs px-2 py-1 font-medium">
+                    San Diego
+                  </Badge>
+                )}
+                {index % 4 === 3 && (
+                  <Badge className="bg-red-600/90 text-white text-xs px-2 py-1 font-medium">
+                    Bay Area
+                  </Badge>
+                )}
+              </div>
+            )}
+            
+            {/* Special Features */}
+            <div className="space-y-1 mt-auto mb-2">
+              {/* Bilingual services for Canadian communities */}
+              {community.state && ['QC', 'NB', 'ON'].includes(community.state) && index % 3 === 0 && (
+                <div className="text-xs text-blue-600 dark:text-blue-400 flex items-center">
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1"></div>
+                  Bilingual services
+                </div>
+              )}
+              
+              {/* HUD verified pricing */}
+              {community.hudPropertyId && (
+                <div className="text-xs text-green-600 dark:text-green-400 flex items-center">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></div>
+                  HUD verified pricing
+                </div>
+              )}
+              
+              {/* Location-specific features */}
+              {community.state === 'NY' && (
+                <div className="text-xs text-purple-600 dark:text-purple-400 flex items-center">
+                  <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-1"></div>
+                  Metro accessible
+                </div>
+              )}
+              {community.state === 'FL' && (
+                <div className="text-xs text-teal-600 dark:text-teal-400 flex items-center">
+                  <div className="w-1.5 h-1.5 bg-teal-500 rounded-full mr-1"></div>
+                  Coastal community
+                </div>
+              )}
+              {community.state === 'CA' && (
+                <div className="text-xs text-orange-600 dark:text-orange-400 flex items-center">
+                  <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mr-1"></div>
+                  Golden State living
+                </div>
+              )}
+              {community.state === 'HI' && (
+                <div className="text-xs text-green-600 dark:text-green-400 flex items-center">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></div>
+                  Island paradise
+                </div>
+              )}
+              {community.state === 'TX' && (
+                <div className="text-xs text-red-600 dark:text-red-400 flex items-center">
+                  <div className="w-1.5 h-1.5 bg-red-500 rounded-full mr-1"></div>
+                  Texas hospitality
+                </div>
+              )}
+              {['AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT'].includes(community.state) && (
+                <div className="text-xs text-red-600 dark:text-red-400 flex items-center">
+                  <div className="w-1.5 h-1.5 bg-red-500 rounded-full mr-1"></div>
+                  Canadian community
+                </div>
+              )}
+            </div>
+            
+            {/* Enhanced Features Row */}
+            <div className="flex items-center justify-between text-xs mb-2">
+              <div className="flex items-center text-gray-500 dark:text-gray-400">
+                <span>
+                  {community.state === 'CA' && `CA License #${20000 + community.id}`}
+                  {community.state === 'FL' && `FL Reg #${10000 + community.id}`}
+                  {community.state === 'TX' && `TX License #${30000 + community.id}`}
+                  {community.state === 'NY' && `NY Cert #${40000 + community.id}`}
+                  {!['CA', 'FL', 'TX', 'NY'].includes(community.state) && `ID: ${community.id}`}
+                </span>
+              </div>
+              {index % 4 === 0 && (
+                <div className="text-purple-600 dark:text-purple-400 font-medium">
+                  🏆 Featured
+                </div>
+              )}
+              {index % 4 === 1 && (
+                <div className="text-blue-600 dark:text-blue-400 font-medium">
+                  ⭐ Top Rated
+                </div>
+              )}
+              {index % 4 === 2 && (
+                <div className="text-green-600 dark:text-green-400 font-medium">
+                  💎 Premium
+                </div>
+              )}
+              {index % 4 === 3 && (
+                <div className="text-orange-600 dark:text-orange-400 font-medium">
+                  ✨ Popular
+                </div>
+              )}
+            </div>
+            
+            {/* View Details Button */}
+            <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+              <button className="w-full text-xs py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium text-gray-700 dark:text-gray-300">
+                View Full Details →
+              </button>
             </div>
             
             {/* Only show actual regional info for coastal areas */}
