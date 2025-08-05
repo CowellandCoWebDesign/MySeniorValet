@@ -593,7 +593,7 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
 
   // Standard card layout for featured, coastal, hud, and other variants
   const cardClass = variant === 'featured' || variant === 'coastal' || variant === 'hud'
-    ? "overflow-y-auto overflow-x-hidden flex-shrink-0 w-56 h-[30rem] animate-float dark:bg-gray-700"
+    ? "flex-shrink-0 w-56 animate-float dark:bg-gray-700"
     : "group hover:shadow-lg transition-all duration-200";
 
   if (variant === 'featured' || variant === 'coastal' || variant === 'hud') {

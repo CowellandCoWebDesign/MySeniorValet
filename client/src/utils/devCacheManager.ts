@@ -22,8 +22,8 @@ export class DevCacheManager {
   }
   
   private generateVersionHash(): string {
-    // Force new version for cache busting - Enhanced Card Update
-    return `dev-${Date.now()}-enhanced-cards-${Math.random().toString(36).substr(2, 9)}-${performance.now()}`;
+    // Force new version for cache busting - Full Height Cards No Scroll
+    return `dev-${Date.now()}-full-height-cards-${Math.random().toString(36).substr(2, 9)}-${performance.now()}`;
   }
   
   private initializeCacheBusting(): void {
