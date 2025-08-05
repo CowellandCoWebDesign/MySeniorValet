@@ -12,7 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CareServiceCard } from "@/components/CareServiceCard";
-import { ShootingStars } from "@/components/ShootingStars";
+
 import { VendorMarketplaceTabs } from "@/components/VendorMarketplaceTabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -283,8 +283,7 @@ export default function MySeniorValetHome() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60 dark:from-black/60 dark:via-black/70 dark:to-black/80"></div>
         </div>
         
-        {/* Shooting Stars Animation */}
-        <ShootingStars />
+
         
         <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-8 mobile-keyboard-safe">
           {/* Centered Headlines - Optimized for Desktop */}
