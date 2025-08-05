@@ -284,15 +284,15 @@ export function registerPaymentRoutes(app: Express) {
           console.log('Processing community subscription:', { productId, communityId });
           
           // Map product ID to subscription tier
-          const tierMap: Record<string, 'standard' | 'featured' | 'platinum' | 'basic'> = {
+          const tierMap: Record<string, 'standard' | 'featured' | 'platinum' | 'verified'> = {
             'standard': 'standard',
             'featured': 'featured',
             'platinum': 'platinum',
-            'basic': 'basic'
+            'verified': 'verified'
           };
           
           const tier = tierMap[productId];
-          if (!tier || tier === 'basic') {
+          if (!tier || tier === 'verified') {
             // Free tier should not go through payment confirmation
             return res.status(400).json({ 
               error: 'Invalid plan selected. Free tier does not require payment.',
@@ -396,7 +396,7 @@ export function registerPaymentRoutes(app: Express) {
             zipCode: zipCode || '00000',
             phone: claimerPhone || null,
             email: claimerEmail || null,
-            subscriptionTier: 'basic',
+            subscriptionTier: 'verified',
             billingStatus: 'active',
             isValidated: true,
             isClaimed: true,
@@ -421,7 +421,7 @@ export function registerPaymentRoutes(app: Express) {
         // Update existing community to verified tier
         await db.update(communities)
           .set({
-            subscriptionTier: 'basic',
+            subscriptionTier: 'verified',
             billingStatus: 'active',
             updatedAt: new Date()
           })
@@ -476,7 +476,7 @@ export function registerPaymentRoutes(app: Express) {
       }
 
       // Free tier should not go through payment confirmation
-      if (tier === 'basic') {
+      if (tier === 'verified') {
         return res.status(400).json({ 
           error: "Invalid request. Free tier does not require payment confirmation.", 
           tier

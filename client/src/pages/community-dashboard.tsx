@@ -254,7 +254,7 @@ export default function CommunityDashboard() {
                         {community.subscriptionTier === 'platinum' && 'Platinum Community Dashboard'}
                         {community.subscriptionTier === 'featured' && 'Featured Community Dashboard'}
                         {community.subscriptionTier === 'standard' && 'Standard Community Dashboard'}
-                        {(community.subscriptionTier === 'basic' || !community.subscriptionTier) && 'Basic Community Dashboard'}
+                        {(community.subscriptionTier === 'verified' || !community.subscriptionTier) && 'Verified Community Dashboard'}
                       </CardTitle>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                         Welcome to your enhanced community management portal
@@ -323,7 +323,7 @@ export default function CommunityDashboard() {
                           <p className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-600" /> Review responses</p>
                         </>
                       )}
-                      {(community.subscriptionTier === 'basic' || !community.subscriptionTier) && (
+                      {(community.subscriptionTier === 'verified' || !community.subscriptionTier) && (
                         <>
                           <p className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-600" /> 1 photo upload</p>
                           <p className="flex items-center gap-1"><CheckCircle className="w-3 h-3 text-green-600" /> Tour scheduler</p>
@@ -381,17 +381,6 @@ export default function CommunityDashboard() {
             </CardContent>
           </Card>
         )}
-
-        {/* Subscription Info Card */}
-        {community.subscriptionTier && (
-          <Card className="mb-8">
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Subscription Details</h3>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Current Plan</span>
-                    <span className="font-medium">
                       {community.subscriptionTier === 'platinum' ? '$349/month' :
                        community.subscriptionTier === 'featured' ? '$249/month' :
                        community.subscriptionTier === 'standard' ? '$149/month' :
@@ -409,7 +398,7 @@ export default function CommunityDashboard() {
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">Next Billing</p>
                   <p className="text-sm font-medium mt-1">
-                    {community.subscriptionTier && community.subscriptionTier !== 'basic' 
+                    {community.subscriptionTier && community.subscriptionTier !== 'verified' 
                       ? format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'MMM d, yyyy')
                       : 'No billing - Free tier'}
                   </p>

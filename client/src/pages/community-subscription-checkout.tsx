@@ -10,9 +10,9 @@ import { apiRequest } from '@/lib/queryClient';
 import { NavigationHeader } from '@/components/NavigationHeader';
 
 const SUBSCRIPTION_TIERS = {
-  basic: {
-    key: 'basic',
-    displayName: 'Basic',
+  verified: {
+    key: 'verified',
+    displayName: 'Verified Listing',
     price: 0,
     color: 'bg-gray-100 text-gray-800',
     icon: CheckCircle2,
@@ -137,7 +137,7 @@ export default function CommunitySubscriptionCheckout() {
   });
 
   const handleCheckout = async (tierKey: string) => {
-    if (tierKey === 'basic') {
+    if (tierKey === 'verified') {
       // Free tier - no payment needed
       setIsProcessing(true);
       
@@ -152,7 +152,7 @@ export default function CommunitySubscriptionCheckout() {
         if (data.success) {
           toast({
             title: "Success!",
-            description: "Your free basic listing has been activated. You're now logged in!",
+            description: "Your free verified listing has been activated. You're now logged in!",
           });
           
           // Redirect to community dashboard after a short delay
