@@ -101,11 +101,29 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
   };
 
   // Get authentic pricing display - check HUD rentPerMonth first
-  const displayPrice = community.displayPricing?.displayPrice || 
-    (community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}/month` :
-     community.monthlyRentRangeStart ? `$${community.monthlyRentRangeStart.toLocaleString()}/month` :
-     community.priceRange?.min ? `$${community.priceRange.min.toLocaleString()}/month` : 
-     'Contact for Pricing');
+  // For cards, only show starting price to save space
+  const getStartingPrice = () => {
+    if (community.rentPerMonth) {
+      return `Starting at $${Number(community.rentPerMonth).toLocaleString()}`;
+    }
+    if (community.monthlyRentRangeStart) {
+      return `Starting at $${community.monthlyRentRangeStart.toLocaleString()}`;
+    }
+    if (community.priceRange?.min) {
+      return `Starting at $${community.priceRange.min.toLocaleString()}`;
+    }
+    if (community.displayPricing?.displayPrice) {
+      // Extract starting price from display price if it contains a range
+      const match = community.displayPricing.displayPrice.match(/\$[\d,]+/);
+      if (match) {
+        return `Starting at ${match[0]}`;
+      }
+      return community.displayPricing.displayPrice;
+    }
+    return 'Contact for Pricing';
+  };
+
+  const displayPrice = getStartingPrice();
 
   // Simple list variant for search results
   if (variant === 'list') {
@@ -575,7 +593,7 @@ export function EnhancedCommunityCard({ community, index = 0, variant = 'standar
 
   // Standard card layout for featured, coastal, hud, and other variants
   const cardClass = variant === 'featured' || variant === 'coastal' || variant === 'hud'
-    ? "overflow-visible flex-shrink-0 w-56 h-[30rem] animate-float dark:bg-gray-700"
+    ? "overflow-hidden flex-shrink-0 w-56 h-[25rem] animate-float dark:bg-gray-700"
     : "group hover:shadow-lg transition-all duration-200";
 
   if (variant === 'featured' || variant === 'coastal' || variant === 'hud') {
