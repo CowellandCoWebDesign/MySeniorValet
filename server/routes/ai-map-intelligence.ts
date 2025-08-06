@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { db } from '../db';
 import { communities } from '@shared/schema';
 import { multiAIOrchestrator } from '../services/multi-ai-orchestrator';
+import { spatialIntelligence } from '../services/spatial-intelligence';
 import { sql, and, isNotNull, between } from 'drizzle-orm';
 
 const router = Router();
@@ -162,7 +163,39 @@ router.post('/api/ai-map/match-communities', async (req, res) => {
   }
 });
 
-// Get all communities for map display
+// Get optimized communities based on viewport
+router.get('/api/ai-map/viewport-communities', async (req, res) => {
+  try {
+    const { minLat, maxLat, minLng, maxLng, zoom } = req.query;
+    
+    if (!minLat || !maxLat || !minLng || !maxLng) {
+      return res.status(400).json({ error: 'Viewport bounds required' });
+    }
+
+    const bounds = {
+      minLat: Number(minLat),
+      maxLat: Number(maxLat),
+      minLng: Number(minLng),
+      maxLng: Number(maxLng)
+    };
+
+    const communities = await spatialIntelligence.getCommunitiesInViewport(
+      bounds,
+      Number(zoom) || 10
+    );
+
+    res.json({
+      type: 'FeatureCollection',
+      features: communities,
+      total: communities.length
+    });
+  } catch (error) {
+    console.error('Failed to fetch viewport communities:', error);
+    res.status(500).json({ error: 'Failed to fetch communities' });
+  }
+});
+
+// Get all communities for map display (legacy endpoint)
 router.get('/api/ai-map/all-communities', async (req, res) => {
   try {
     // Get all communities with coordinates - simple query
@@ -201,6 +234,62 @@ router.get('/api/ai-map/all-communities', async (req, res) => {
       error: 'Failed to fetch communities',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
+  }
+});
+
+// Spatial analytics endpoint
+router.post('/api/ai-map/spatial-analytics', async (req, res) => {
+  try {
+    const { center, radius } = req.body;
+    
+    if (!center || !radius) {
+      return res.status(400).json({ error: 'Center and radius required' });
+    }
+
+    const statistics = await spatialIntelligence.calculateSpatialStatistics(
+      [center.lng, center.lat],
+      radius
+    );
+
+    res.json(statistics);
+  } catch (error) {
+    console.error('Spatial analytics failed:', error);
+    res.status(500).json({ error: 'Failed to perform spatial analysis' });
+  }
+});
+
+// Find optimal locations
+router.post('/api/ai-map/optimal-locations', async (req, res) => {
+  try {
+    const { criteria } = req.body;
+    
+    const locations = await spatialIntelligence.findOptimalLocations(criteria || {});
+
+    res.json({ locations });
+  } catch (error) {
+    console.error('Failed to find optimal locations:', error);
+    res.status(500).json({ error: 'Failed to find optimal locations' });
+  }
+});
+
+// Viewshed analysis
+router.post('/api/ai-map/viewshed', async (req, res) => {
+  try {
+    const { viewpoint, maxDistance } = req.body;
+    
+    if (!viewpoint) {
+      return res.status(400).json({ error: 'Viewpoint required' });
+    }
+
+    const visible = await spatialIntelligence.performViewshedAnalysis(
+      [viewpoint.lng, viewpoint.lat],
+      maxDistance || 50
+    );
+
+    res.json({ visibleCommunities: visible });
+  } catch (error) {
+    console.error('Viewshed analysis failed:', error);
+    res.status(500).json({ error: 'Failed to perform viewshed analysis' });
   }
 });
 

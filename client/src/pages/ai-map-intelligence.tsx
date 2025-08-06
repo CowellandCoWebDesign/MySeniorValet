@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import '../styles/map-fixes.css';
 
 // Fix Leaflet default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -72,12 +73,42 @@ interface AIAnalysisResult {
   };
 }
 
-// Map click handler component
-function MapClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
-  useMapEvents({
+// Map click and move handler component
+function MapEventHandler({ 
+  onMapClick, 
+  onMapMove 
+}: { 
+  onMapClick: (lat: number, lng: number) => void;
+  onMapMove?: (bounds: any, zoom: number) => void;
+}) {
+  const map = useMapEvents({
     click: (e) => {
       onMapClick(e.latlng.lat, e.latlng.lng);
     },
+    moveend: () => {
+      if (onMapMove) {
+        const bounds = map.getBounds();
+        const zoom = map.getZoom();
+        onMapMove({
+          minLat: bounds.getSouth(),
+          maxLat: bounds.getNorth(),
+          minLng: bounds.getWest(),
+          maxLng: bounds.getEast()
+        }, zoom);
+      }
+    },
+    zoomend: () => {
+      if (onMapMove) {
+        const bounds = map.getBounds();
+        const zoom = map.getZoom();
+        onMapMove({
+          minLat: bounds.getSouth(),
+          maxLat: bounds.getNorth(),
+          minLng: bounds.getWest(),
+          maxLng: bounds.getEast()
+        }, zoom);
+      }
+    }
   });
   return null;
 }
@@ -90,12 +121,35 @@ export default function AIMapIntelligence() {
   const [selectedCommunities, setSelectedCommunities] = useState<Community[]>([]);
   const [activeTab, setActiveTab] = useState('map');
   const mapRef = useRef<L.Map | null>(null);
+  const [mapBounds, setMapBounds] = useState<any>(null);
+  const [currentZoom, setCurrentZoom] = useState(4);
 
-  // Fetch all communities for the map
+  // Fetch all communities for the map - use viewport-based loading for better performance
   const { data: communitiesData, isLoading: isLoadingCommunities } = useQuery({
-    queryKey: ['/api/ai-map/all-communities'],
+    queryKey: mapBounds 
+      ? ['/api/ai-map/viewport-communities', mapBounds, currentZoom]
+      : ['/api/ai-map/all-communities'],
+    queryFn: async () => {
+      if (mapBounds && currentZoom > 6) {
+        // Use viewport-based loading for higher zoom levels
+        const params = new URLSearchParams({
+          minLat: mapBounds.minLat.toString(),
+          maxLat: mapBounds.maxLat.toString(),
+          minLng: mapBounds.minLng.toString(),
+          maxLng: mapBounds.maxLng.toString(),
+          zoom: currentZoom.toString()
+        });
+        const response = await fetch(`/api/ai-map/viewport-communities?${params}`);
+        return response.json();
+      } else {
+        // Load all communities for lower zoom levels
+        const response = await fetch('/api/ai-map/all-communities');
+        return response.json();
+      }
+    },
     refetchInterval: false,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    enabled: true
   });
 
   // Handle map click for AI analysis
@@ -242,9 +296,9 @@ export default function AIMapIntelligence() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Map Area */}
           <div className="lg:col-span-2">
-            <Card className="shadow-xl h-[600px]">
+            <Card className="shadow-xl h-[600px] overflow-hidden">
               <CardContent className="p-0 h-full">
-                <div className="relative h-full">
+                <div className="relative h-full" style={{ zIndex: 0 }}>
                   {isLoadingCommunities ? (
                     <div className="flex items-center justify-center h-full">
                       <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
@@ -257,19 +311,33 @@ export default function AIMapIntelligence() {
                       style={{ height: '100%', width: '100%' }}
                       className="rounded-lg"
                       ref={(map) => { if (map) mapRef.current = map; }}
+                      scrollWheelZoom={true}
+                      zoomControl={true}
+                      dragging={true}
+                      touchZoom={true}
+                      doubleClickZoom={true}
+                      boxZoom={true}
                     >
                       <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         attribution='&copy; OpenStreetMap contributors'
                       />
                       
-                      <MapClickHandler onMapClick={handleMapClick} />
+                      <MapEventHandler 
+                        onMapClick={handleMapClick}
+                        onMapMove={(bounds, zoom) => {
+                          setMapBounds(bounds);
+                          setCurrentZoom(zoom);
+                        }}
+                      />
 
                       {/* Community Markers with Clustering */}
                       <MarkerClusterGroup
                         chunkedLoading
                         maxClusterRadius={60}
                         showCoverageOnHover={false}
+                        spiderfyOnMaxZoom={true}
+                        disableClusteringAtZoom={16}
                       >
                         {communities.map((feature: any) => (
                           <Marker
