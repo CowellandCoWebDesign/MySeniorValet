@@ -55,12 +55,20 @@ interface Vendor {
 }
 
 interface HealthcareService {
-  id: number;
-  serviceName: string;
-  categoryName: string;
-  city: string;
-  state: string;
-  description: string;
+  id: number | string;
+  name: string;
+  category: string;
+  city?: string;
+  state?: string;
+  location?: string;
+  description?: string;
+  priceRange?: string;
+  availability?: string;
+  rating?: number;
+  reviewCount?: number;
+  isHospital?: boolean;
+  phone?: string;
+  website?: string;
 }
 
 interface Resource {
