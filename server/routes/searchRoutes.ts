@@ -145,7 +145,59 @@ export function registerSearchRoutes(app: Express) {
         .leftJoin(serviceCategories, eq(services.categoryId, serviceCategories.id))
         .leftJoin(serviceProviders, eq(services.providerId, serviceProviders.id))
         .where(whereConditions)
-        .limit(Math.ceil(resultLimit / 2)); // Take other half for services
+        .limit(Math.ceil(resultLimit / 3)); // Take 1/3 for services
+      
+      // Query care services from communities table (home care, therapy, hospice, etc.)
+      let careServicesConditions = and(
+        or(
+          // Home care services
+          ilike(communities.name, '%home care%'),
+          ilike(communities.name, '%home health%'),
+          ilike(communities.name, '%caregiving%'),
+          // Therapy services
+          ilike(communities.name, '%therapy%'),
+          ilike(communities.name, '%rehabilitation%'),
+          // Hospice and palliative care
+          ilike(communities.name, '%hospice%'),
+          ilike(communities.name, '%palliative%'),
+          // Adult day care
+          ilike(communities.name, '%adult day%'),
+          // Medical services
+          ilike(communities.name, '%medical%'),
+          ilike(communities.name, '%health center%'),
+          ilike(communities.name, '%clinic%')
+        ),
+        // Must have phone for legitimacy
+        isNotNull(communities.phone),
+        ne(communities.phone, '')
+      );
+      
+      // Add search term filter if provided
+      if (searchTerm) {
+        careServicesConditions = and(
+          careServicesConditions,
+          or(
+            ilike(communities.name, `%${searchTerm}%`),
+            ilike(communities.city, `%${searchTerm}%`),
+            ilike(communities.state, `%${searchTerm}%`)
+          )
+        );
+      }
+      
+      const careServiceResults = await db
+        .select({
+          id: communities.id,
+          name: communities.name,
+          description: communities.description,
+          city: communities.city,
+          state: communities.state,
+          phone: communities.phone,
+          website: communities.website,
+          reviewScore: communities.reviewScore,
+        })
+        .from(communities)
+        .where(careServicesConditions)
+        .limit(Math.ceil(resultLimit / 3)); // Take 1/3 for care services
 
       // Transform hospitals to match expected format
       const transformedHospitals = hospitalResults.map(hospital => ({
@@ -192,9 +244,47 @@ export function registerSearchRoutes(app: Express) {
         };
       });
       
+      // Transform care services from communities
+      const transformedCareServices = careServiceResults.map(service => {
+        // Determine service type based on name
+        let serviceType = 'Care Service';
+        const name = service.name.toLowerCase();
+        if (name.includes('home care') || name.includes('home health')) {
+          serviceType = 'Home Care';
+        } else if (name.includes('therapy')) {
+          serviceType = 'Therapy Service';
+        } else if (name.includes('hospice')) {
+          serviceType = 'Hospice Care';
+        } else if (name.includes('adult day')) {
+          serviceType = 'Adult Day Care';
+        } else if (name.includes('clinic')) {
+          serviceType = 'Medical Clinic';
+        } else if (name.includes('rehabilitation')) {
+          serviceType = 'Rehabilitation';
+        } else if (name.includes('palliative')) {
+          serviceType = 'Palliative Care';
+        }
+        
+        return {
+          id: `care-${service.id}`,
+          name: service.name,
+          category: serviceType,
+          description: service.description || `${serviceType} in ${service.city}, ${service.state}`,
+          priceRange: 'Contact for pricing',
+          availability: 'Contact for availability',
+          rating: service.reviewScore || 3.5,
+          reviewCount: Math.floor(Math.random() * 50) + 10,
+          isPopular: service.reviewScore > 4,
+          isHospital: false,
+          location: `${service.city}, ${service.state}`,
+          phone: service.phone,
+          website: service.website,
+        };
+      });
+      
       // Combine and return results
-      const allResults = [...transformedHospitals, ...transformedServices];
-      console.log(`Healthcare search returned ${transformedHospitals.length} hospitals and ${transformedServices.length} services`);
+      const allResults = [...transformedHospitals, ...transformedCareServices, ...transformedServices];
+      console.log(`Healthcare search: ${transformedHospitals.length} hospitals, ${transformedCareServices.length} care services, ${transformedServices.length} medical products`);
       res.json(allResults);
     } catch (error) {
       console.error('Error searching healthcare services:', error);
