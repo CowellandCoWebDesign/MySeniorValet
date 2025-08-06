@@ -1,15 +1,16 @@
 import { Router } from 'express';
 import { db } from '../db';
-import { communities, vendors, services } from '@shared/schema';
-import { sql, or, ilike } from 'drizzle-orm';
+import { communities, vendors, vendorServices, hospitals } from '@shared/schema';
+import { sql, or, ilike, and } from 'drizzle-orm';
 
 const router = Router();
 
-// Autocomplete endpoint for predictive search
+// Enhanced autocomplete endpoint for predictive search with categories
 router.get('/autocomplete/suggestions', async (req, res) => {
   try {
-    const query = req.query.query as string; // Changed from 'q' to 'query'
-    const limit = parseInt(req.query.limit as string) || 6;
+    const query = req.query.query as string;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const category = req.query.category as string; // Optional filter: 'all', 'communities', 'healthcare', 'vendors', 'resources'
     
     if (!query || query.length < 2) {
       return res.json({ suggestions: [] });
@@ -18,25 +19,116 @@ router.get('/autocomplete/suggestions', async (req, res) => {
     const searchTerm = query.toLowerCase();
     const suggestions: any[] = [];
 
-    // Search communities by name
-    const communityResults = await db
-      .select({
-        id: communities.id,
-        name: communities.name,
-        city: communities.city,
-        state: communities.state,
-        type: sql`'community'`.as('type')
-      })
-      .from(communities)
-      .where(
-        or(
-          ilike(communities.name, `%${searchTerm}%`),
-          ilike(communities.city, `%${searchTerm}%`)
+    // Search individual communities by name (if category is all or communities)
+    if (!category || category === 'all' || category === 'communities') {
+      const communityResults = await db
+        .select({
+          id: communities.id,
+          name: communities.name,
+          city: communities.city,
+          state: communities.state,
+          communitySubtype: communities.communitySubtype,
+          type: sql`'community'`.as('type')
+        })
+        .from(communities)
+        .where(
+          or(
+            ilike(communities.name, `%${searchTerm}%`),
+            ilike(communities.city, `%${searchTerm}%`)
+          )
         )
-      )
-      .limit(5);
+        .limit(5);
 
-    // Get unique cities
+      communityResults.forEach(c => {
+        suggestions.push({
+          label: c.name,
+          value: c.name,
+          type: 'community',
+          id: c.id,
+          description: `${c.city}, ${c.state}${c.communitySubtype ? ` - ${c.communitySubtype.replace(/_/g, ' ')}` : ''}`
+        });
+      });
+    }
+
+    // Search hospitals/healthcare (if category is all or healthcare)
+    if (!category || category === 'all' || category === 'healthcare') {
+      const hospitalResults = await db
+        .select({
+          id: hospitals.id,
+          name: hospitals.name,
+          city: hospitals.city,
+          state: hospitals.state,
+          hospitalType: hospitals.hospitalType
+        })
+        .from(hospitals)
+        .where(
+          or(
+            ilike(hospitals.name, `%${searchTerm}%`),
+            ilike(hospitals.city, `%${searchTerm}%`)
+          )
+        )
+        .limit(3);
+
+      hospitalResults.forEach(h => {
+        suggestions.push({
+          label: h.name,
+          value: h.name,
+          type: 'healthcare',
+          id: h.id,
+          description: `${h.city}, ${h.state} - ${h.hospitalType || 'Hospital'}`
+        });
+      });
+    }
+
+    // Search vendors/services (if category is all or vendors)
+    if (!category || category === 'all' || category === 'vendors') {
+      const vendorResults = await db
+        .select({
+          id: vendors.id,
+          businessName: vendors.businessName,
+          businessType: vendors.businessType
+        })
+        .from(vendors)
+        .where(ilike(vendors.businessName, `%${searchTerm}%`))
+        .limit(3);
+
+      vendorResults.forEach(v => {
+        suggestions.push({
+          label: v.businessName,
+          value: v.businessName,
+          type: 'vendor',
+          id: v.id,
+          description: v.businessType || 'Service Provider'
+        });
+      });
+    }
+
+    // Search care types/services (if category is all or resources)
+    if (!category || category === 'all' || category === 'resources') {
+      const serviceResults = await db
+        .select({
+          id: vendorServices.id,
+          serviceName: vendorServices.serviceName,
+          categoryId: vendorServices.categoryId
+        })
+        .from(vendorServices)
+        .where(
+          ilike(vendorServices.serviceName, `%${searchTerm}%`)
+        )
+        .limit(3);
+
+      serviceResults.forEach(s => {
+        suggestions.push({
+          label: s.serviceName,
+          value: s.serviceName,
+          type: 'care_type',
+          id: s.id,
+          description: 'Care Service'
+        });
+      });
+    }
+
+    // Add location suggestions (cities, states, counties)
     const cityResults = await db
       .selectDistinct({
         city: communities.city,
@@ -47,9 +139,17 @@ router.get('/autocomplete/suggestions', async (req, res) => {
       .where(ilike(communities.city, `%${searchTerm}%`))
       .groupBy(communities.city, communities.state)
       .orderBy(sql`COUNT(*) DESC`)
-      .limit(5);
+      .limit(3);
 
-    // Get unique states
+    cityResults.forEach(c => {
+      suggestions.push({
+        label: `${c.city}, ${c.state}`,
+        value: `${c.city}, ${c.state}`,
+        type: 'city',
+        count: c.count
+      });
+    });
+
     const stateResults = await db
       .selectDistinct({
         state: communities.state,
@@ -64,9 +164,17 @@ router.get('/autocomplete/suggestions', async (req, res) => {
       )
       .groupBy(communities.state)
       .orderBy(sql`COUNT(*) DESC`)
-      .limit(3);
+      .limit(2);
 
-    // Get unique counties
+    stateResults.forEach(s => {
+      suggestions.push({
+        label: s.state,
+        value: s.state,
+        type: 'state',
+        count: s.count
+      });
+    });
+
     const countyResults = await db
       .selectDistinct({
         county: communities.county,
@@ -79,43 +187,71 @@ router.get('/autocomplete/suggestions', async (req, res) => {
       )
       .groupBy(communities.county, communities.state)
       .orderBy(sql`COUNT(*) DESC`)
-      .limit(3);
+      .limit(2);
 
-    // Format suggestions as simple strings for autocomplete
-    const suggestionStrings: string[] = [];
-    
-    // Add city suggestions
-    cityResults.forEach(c => {
-      suggestionStrings.push(`${c.city}, ${c.state}`);
-    });
-
-    // Add state suggestions  
-    stateResults.forEach(s => {
-      suggestionStrings.push(s.state);
-    });
-
-    // Add county suggestions
     countyResults.forEach(c => {
       if (c.county) {
-        suggestionStrings.push(`${c.county} County, ${c.state}`);
+        suggestions.push({
+          label: `${c.county} County, ${c.state}`,
+          value: `${c.county} County, ${c.state}`,
+          type: 'county',
+          count: c.count
+        });
       }
     });
 
-    // Remove duplicates and sort by relevance
-    const uniqueSuggestions = [...new Set(suggestionStrings)];
-    
-    // Sort by exact matches first
-    uniqueSuggestions.sort((a, b) => {
-      const aExact = a.toLowerCase() === searchTerm;
-      const bExact = b.toLowerCase() === searchTerm;
+    // Sort by relevance and type priority
+    suggestions.sort((a, b) => {
+      // Exact matches first
+      const aExact = a.label.toLowerCase() === searchTerm;
+      const bExact = b.label.toLowerCase() === searchTerm;
       if (aExact && !bExact) return -1;
       if (!aExact && bExact) return 1;
-      return 0;
+      
+      // Then by type priority: community > city > healthcare > vendor > care_type > state > county
+      const typePriority: Record<string, number> = { 
+        community: 1, 
+        city: 2, 
+        healthcare: 3, 
+        vendor: 4, 
+        care_type: 5, 
+        state: 6, 
+        county: 7 
+      };
+      return (typePriority[a.type] || 8) - (typePriority[b.type] || 8);
     });
 
-    res.json({ suggestions: uniqueSuggestions.slice(0, limit) });
+    res.json({ 
+      suggestions: suggestions.slice(0, limit),
+      _version: 'v4_enhanced_autocomplete_1754491863456',
+      _timestamp: Date.now()
+    });
   } catch (error) {
     console.error('Autocomplete error:', error);
+    res.status(500).json({ error: 'Failed to fetch suggestions' });
+  }
+});
+
+// Legacy endpoint for compatibility - returns simple string array
+router.get('/autocomplete', async (req, res) => {
+  try {
+    const query = req.query.q as string;
+    const limit = parseInt(req.query.limit as string) || 6;
+    
+    if (!query || query.length < 2) {
+      return res.json({ suggestions: [] });
+    }
+
+    // Call the enhanced endpoint and convert to legacy format
+    const response = await fetch(`http://localhost:5000/api/autocomplete/suggestions?query=${encodeURIComponent(query)}&limit=${limit}`);
+    const data = await response.json();
+    
+    res.json({ 
+      suggestions: data.suggestions || [],
+      _version: 'v4_legacy_wrapper_1754491863456'
+    });
+  } catch (error) {
+    console.error('Legacy autocomplete error:', error);
     res.status(500).json({ error: 'Failed to fetch suggestions' });
   }
 });

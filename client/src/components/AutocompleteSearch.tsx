@@ -43,7 +43,7 @@ export function AutocompleteSearch({
   useEffect(() => {
     if (debouncedValue && debouncedValue.length >= 2) {
       setLoadingSuggestions(true);
-      apiRequest('GET', `/api/autocomplete?q=${encodeURIComponent(debouncedValue)}`)
+      apiRequest('GET', `/api/autocomplete/suggestions?query=${encodeURIComponent(debouncedValue)}&limit=10`)
         .then(res => res.json())
         .then(data => {
           setSuggestions(data.suggestions || []);
