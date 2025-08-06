@@ -71,14 +71,14 @@ async function testSmartSearch() {
   const queries = ['Los An', 'New Y', 'Sacr', 'Panama City'];
   
   for (const query of queries) {
-    const result = await makeRequest(`${API_BASE}/autocomplete?q=${encodeURIComponent(query)}`);
+    const result = await makeRequest(`${API_BASE}/autocomplete/suggestions?query=${encodeURIComponent(query)}&limit=6`);
     const suggestions = result.data?.suggestions || [];
     
     log(`   Query: "${query}"`);
     log(`   Status: ${result.status} | Suggestions: ${suggestions.length}`);
     
     if (suggestions.length > 0) {
-      log(`   Top match: ${suggestions[0].label}`, 'green');
+      log(`   Top match: ${suggestions[0]}`, 'green');
     }
     
     results.push({
