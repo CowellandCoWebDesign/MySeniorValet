@@ -120,6 +120,7 @@ export function AutocompleteSearch({
     if (!type) return <Search className="h-4 w-4" />;
     
     switch (type) {
+      case 'location':
       case 'city':
       case 'state':
       case 'county':
@@ -139,6 +140,7 @@ export function AutocompleteSearch({
 
   const getTypeColor = (type: string) => {
     switch (type) {
+      case 'location':
       case 'city':
       case 'state':
       case 'county':

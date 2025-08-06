@@ -684,7 +684,15 @@ export function registerSearchRoutes(app: Express) {
       if (searchParams.location) {
         try {
           console.log('🔍 Attempting to geocode location:', searchParams.location);
-          const geocoded = geocodeLocation(searchParams.location);
+          
+          // First try local geocoding
+          let geocoded = geocodeLocation(searchParams.location);
+          
+          // If local geocoding fails, try Nominatim for comprehensive coverage
+          if (!geocoded) {
+            const { geocodeAnyLocation } = await import('../nominatim-geocoding');
+            geocoded = await geocodeAnyLocation(searchParams.location);
+          }
           
           if (geocoded) {
             console.log('✅ Geocoded successfully:', geocoded);

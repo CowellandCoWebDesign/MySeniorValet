@@ -94,6 +94,27 @@ router.get('/autocomplete/suggestions', async (req, res) => {
       console.log(`📍 Parsed location - City: "${citySearch}", State/Province: "${stateSearch}"`);
     }
 
+    // Add city suggestions from Nominatim for comprehensive coverage
+    if (!category || category === 'all' || category === 'locations') {
+      try {
+        const { searchCitySuggestions } = await import('../nominatim-geocoding');
+        const citySuggestions = await searchCitySuggestions(searchTerm, 5);
+        
+        citySuggestions.forEach(city => {
+          suggestions.push({
+            label: city.name,
+            value: city.name,
+            type: 'location',
+            id: null,
+            description: 'City',
+            coordinates: { lat: city.lat, lng: city.lng }
+          });
+        });
+      } catch (error) {
+        console.error('Error fetching city suggestions:', error);
+      }
+    }
+
     // Search individual communities by name (if category is all or communities)
     if (!category || category === 'all' || category === 'communities') {
       // Build where conditions based on parsed location
