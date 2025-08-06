@@ -495,6 +495,12 @@ export default function AISearchIntelligence() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {[
                         {
+                          name: 'Stay at Home',
+                          description: '🏠 Home care services & support ($500-$4,000/mo)',
+                          icon: <Heart className="w-4 h-4 text-pink-600" />,
+                          popular: true
+                        },
+                        {
                           name: 'HUD Housing',
                           description: 'Government-subsidized senior housing ($0-$500/mo)',
                           icon: <Building2 className="w-4 h-4 text-indigo-600" />
@@ -532,7 +538,7 @@ export default function AISearchIntelligence() {
                       ].map((need) => (
                         <div 
                           key={need.name} 
-                          className={`border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md ${
+                          className={`border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md relative ${
                             matchProfile.careNeeds.includes(need.name) 
                               ? 'border-green-500 bg-green-50 dark:bg-green-900/20' 
                               : 'border-gray-200 dark:border-gray-700'
@@ -544,6 +550,11 @@ export default function AISearchIntelligence() {
                             setMatchProfile({ ...matchProfile, careNeeds: newNeeds });
                           }}
                         >
+                          {need.popular && (
+                            <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-400 text-xs font-bold text-white px-2 py-1 rounded-full shadow-lg">
+                              Most Popular! 🌟
+                            </div>
+                          )}
                           <div className="flex items-start gap-3">
                             <input
                               type="checkbox"
