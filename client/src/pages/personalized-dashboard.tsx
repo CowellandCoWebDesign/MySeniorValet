@@ -196,62 +196,93 @@ export default function PersonalizedDashboard() {
           </p>
         </div>
 
-        {/* Search Progress Section */}
+        {/* Search Progress Section - Optimized Horizontal Layout */}
         <Card className="bg-white dark:bg-gray-800 shadow-lg mb-8">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-              <TrendingUp className="h-6 w-6 mr-2 text-blue-600" />
-              Your Search Progress
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Overall Progress</span>
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{searchProgress.completionPercentage}%</span>
+          <CardHeader className="pb-4">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+                <TrendingUp className="h-6 w-6 mr-2 text-blue-600" />
+                Welcome Back to Your Search Journey
+              </CardTitle>
+              
+              {/* Progress Bar - Inline on Large Screens */}
+              <div className="flex-1 max-w-sm">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">Progress</span>
+                  <Progress value={searchProgress.completionPercentage} className="flex-1 h-2" />
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{searchProgress.completionPercentage}%</span>
                 </div>
-                <Progress value={searchProgress.completionPercentage} className="h-3" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            {/* Horizontal Stats Layout */}
+            <div className="flex flex-row items-center justify-between gap-2 overflow-x-auto pb-2">
+              {/* Saved Communities */}
+              <div className="flex items-center gap-3 min-w-fit px-4 py-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                <Heart className="h-8 w-8 text-green-600 dark:text-green-400 flex-shrink-0" />
+                <div className="flex flex-col">
+                  <span className="text-2xl font-bold text-green-600 dark:text-green-400">{searchProgress.saved}</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">Saved</span>
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{searchProgress.viewed}</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">Communities Viewed</div>
+              {/* Tours Scheduled */}
+              <div className="flex items-center gap-3 min-w-fit px-4 py-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
+                <Calendar className="h-8 w-8 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+                <div className="flex flex-col">
+                  <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">{searchProgress.toursScheduled}</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">Tours</span>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">{searchProgress.saved}</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">Communities Saved</div>
+              </div>
+
+              {/* Recent Views */}
+              <div className="flex items-center gap-3 min-w-fit px-4 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                <Eye className="h-8 w-8 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                <div className="flex flex-col">
+                  <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{searchProgress.viewed}</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">Recent</span>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">{searchProgress.toursScheduled}</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">Tours Scheduled</div>
+              </div>
+
+              {/* Total Communities */}
+              <div className="flex items-center gap-3 min-w-fit px-4 py-2 rounded-lg bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800">
+                <Building className="h-8 w-8 text-orange-600 dark:text-orange-400 flex-shrink-0" />
+                <div className="flex flex-col">
+                  <span className="text-2xl font-bold text-orange-600 dark:text-orange-400">{searchProgress.totalCommunities.toLocaleString()}</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap">Available</span>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">{searchProgress.totalCommunities.toLocaleString()}</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">Total Available</div>
-                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="flex items-center gap-2 ml-auto">
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/map-search">
+                    <Search className="h-4 w-4 mr-1" />
+                    Continue Search
+                  </Link>
+                </Button>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Current Preferences */}
+        {/* Current Preferences - Compact Horizontal */}
         <Card className="bg-white dark:bg-gray-800 shadow-lg mb-8">
-          <CardHeader>
+          <CardHeader className="pb-3">
             <div className="flex justify-between items-center">
-              <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-                <Target className="h-6 w-6 mr-2 text-green-600" />
+              <CardTitle className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                <Target className="h-5 w-5 mr-2 text-green-600" />
                 Your Preferences
               </CardTitle>
-              <Button onClick={handleUpdatePreferences} variant="outline">
-                <Edit className="h-4 w-4 mr-2" />
-                Update Preferences
+              <Button onClick={handleUpdatePreferences} variant="outline" size="sm">
+                <Edit className="h-3 w-3 mr-1" />
+                Update
               </Button>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <CardContent className="pt-0">
+            <div className="flex flex-row items-center justify-start gap-6 overflow-x-auto">
               <div>
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Budget</span>
                 <p className="text-lg font-semibold text-gray-900 dark:text-white">Up to ${preferences.maxBudget.toLocaleString()}/month</p>
@@ -417,8 +448,6 @@ export default function PersonalizedDashboard() {
           </Card>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }
