@@ -283,7 +283,7 @@ export default function MySeniorValetHome() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Header - Reduced height */}
-      <header className="absolute top-0 left-0 right-0 z-50 bg-black/10 dark:bg-black/30 backdrop-blur-md border-b border-white/10 dark:border-white/20">
+      <header className="absolute top-0 left-0 right-0 z-40 bg-black/10 dark:bg-black/30 backdrop-blur-md border-b border-white/10 dark:border-white/20">
         <div className="px-4 py-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -384,7 +384,7 @@ export default function MySeniorValetHome() {
         
 
         
-        <div className="relative z-10 flex flex-col items-center justify-center hero-content min-h-screen px-6 py-8 mobile-keyboard-safe">
+        <div className="relative flex flex-col items-center justify-center hero-content min-h-screen px-6 py-8 mobile-keyboard-safe">
           {/* Centered Headlines - Optimized for Desktop */}
           <div className="text-center mb-6 md:mb-8 max-w-7xl">
             <div className="space-y-6 mb-6">
@@ -400,16 +400,16 @@ export default function MySeniorValetHome() {
 
 
           {/* Search Bar - Enhanced with AutocompleteSearch Component */}
-          <div className="w-full max-w-5xl mb-6 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
+          <div className="w-full max-w-5xl mb-6 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
             <form onSubmit={(e) => {
               e.preventDefault();
               if (searchQuery) {
                 window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
               }
             }}>
-              <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden">
+              <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-2xl" style={{ overflow: 'visible' }}>
                 <div className="flex items-center">
-                  <div className="flex-1">
+                  <div className="flex-1 relative">
                     <AutocompleteSearch
                       value={searchQuery}
                       onChange={setSearchQuery}

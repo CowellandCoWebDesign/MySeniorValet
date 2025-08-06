@@ -185,7 +185,8 @@ export function AutocompleteSearch({
       {showSuggestions && (suggestions.length > 0 || loadingSuggestions) && (
         <Card 
           ref={suggestionsRef}
-          className="absolute z-50 w-full mt-1 max-h-80 overflow-y-auto shadow-lg"
+          className="absolute w-full mt-1 max-h-80 overflow-y-auto shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+          style={{ zIndex: 999999, position: 'absolute', top: '100%', left: 0, right: 0 }}
         >
           {loadingSuggestions ? (
             <div className="p-4 text-center">
