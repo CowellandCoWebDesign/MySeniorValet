@@ -592,51 +592,6 @@ export default function AIMapIntelligence() {
           </div>
         </div>
 
-        {/* Community List Section */}
-        {selectedCommunities.length > 0 && (
-          <div className="mt-8">
-            <Card className="shadow-xl">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-                <CardTitle className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5" />
-                    AI-Selected Communities ({selectedCommunities.length})
-                  </span>
-                  <Badge variant="secondary" className="bg-white/20 text-white">
-                    Based on AI Analysis
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {selectedCommunities.slice(0, 9).map((community) => (
-                    <div key={community.id} className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
-                      <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {community.city}, {community.state}
-                      </p>
-                      {community.type && (
-                        <Badge variant="outline" className="mt-2">
-                          {community.type}
-                        </Badge>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                
-                {selectedCommunities.length > 9 && (
-                  <div className="text-center mt-4">
-                    <Button variant="outline">
-                      View All {selectedCommunities.length} Communities
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
         {/* Research & Insights Section */}
         <div className="mt-8">
           <Card className="shadow-xl bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950">
@@ -762,6 +717,51 @@ export default function AIMapIntelligence() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Community List Section - Displayed after all AI insights */}
+        {selectedCommunities.length > 0 && (
+          <div className="mt-8">
+            <Card className="shadow-xl">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Building2 className="h-5 w-5" />
+                    AI-Selected Communities ({selectedCommunities.length})
+                  </span>
+                  <Badge variant="secondary" className="bg-white/20 text-white">
+                    Based on AI Analysis
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {selectedCommunities.slice(0, 9).map((community) => (
+                    <div key={community.id} className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
+                      <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {community.city}, {community.state}
+                      </p>
+                      {community.type && (
+                        <Badge variant="outline" className="mt-2">
+                          {community.type}
+                        </Badge>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                
+                {selectedCommunities.length > 9 && (
+                  <div className="text-center mt-4">
+                    <Button variant="outline">
+                      View All {selectedCommunities.length} Communities
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
