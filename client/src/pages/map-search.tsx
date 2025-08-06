@@ -1389,22 +1389,15 @@ export default function MapSearch() {
                   </div>
                 )}
               </h3>
-              {/* Real-time Status Display */}
-              <div className="text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
-                <div className="font-semibold mb-2 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                  Live Search Status
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div>📍 Map Region: {mapBounds ? 'Active' : 'Loading'}</div>
-                  <div>🏠 Communities: {mapCommunities.length}</div>
-                  <div>📊 Panel: {showBottomPanel ? 'Open' : 'Closed'}</div>
-                  <div>⚡ Status: {isLoadingCommunities ? 'Searching' : 'Ready'}</div>
-                </div>
+              {/* Compact Dev Status Bar */}
+              <div className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded border border-blue-200 dark:border-blue-700 flex items-center gap-3">
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
+                <span>📍 {mapBounds ? 'Active' : 'Loading'}</span>
+                <span>🏠 {mapCommunities.length}</span>
+                <span>📊 {showBottomPanel ? 'Open' : 'Closed'}</span>
+                <span>⚡ {isLoadingCommunities ? 'Searching...' : 'Ready'}</span>
                 {communitiesError && (
-                  <div className="text-red-600 text-xs mt-2">
-                    ⚠ Error loading communities - please try refreshing
-                  </div>
+                  <span className="text-red-600">⚠ Error</span>
                 )}
               </div>
             </div>
