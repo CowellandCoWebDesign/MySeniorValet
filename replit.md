@@ -34,6 +34,8 @@ The platform is built with a modern web stack emphasizing transparency and user 
 - **Payment System**: Integrated dual payment system supporting Stripe Checkout Sessions and Payment Element for mobile-optimized, on-platform payment experiences. All payment flows, including free tier claims and paid subscriptions, are production-ready with automatic user authentication post-payment.
 - **Search & Navigation**: "Find My Perfect Match" button on the home page redirects to an AI search intelligence page with automatic Perfect Match tab activation, offering comprehensive care type, budget, location, and urgency options. Live Market Intelligence section integrates the 7-level care spectrum from HUD-Sponsored Housing to Skilled Nursing with visual indicators and community counts. Healthcare search includes enhanced map filtering and color-coded hospital cards with CMS ratings.
 
+- **Onboarding System Enhancements** (Completed August 6, 2025): Fixed z-index layering issue where hero search bar appeared above onboarding popup by setting DialogContent z-index to 9999. Added "Sign Up & Save" functionality to the final onboarding step, allowing users to create an account with all their preferences pre-filled. Onboarding data is stored in localStorage and automatically applied after signup, seamlessly transitioning users to map search with their selected preferences (location, care types, budget). This creates a smooth user journey from initial exploration through account creation.
+
 ## External Dependencies
 - **Database Connectivity**: `@neondatabase/serverless`
 - **ORM**: `drizzle-orm`

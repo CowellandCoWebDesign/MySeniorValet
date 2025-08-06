@@ -169,7 +169,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
         onSkip();
       }
     }}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto" style={{ zIndex: 9999 }}>
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2">
@@ -380,23 +380,50 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
           >
             Back
           </Button>
-          <Button
-            onClick={handleNext}
-            disabled={!canProceed()}
-            className="gap-2"
-          >
-            {currentStep === steps.length - 1 ? (
-              <>
-                <Sparkles className="h-4 w-4" />
-                {step.action}
-              </>
-            ) : (
-              <>
-                Next
-                <ArrowRight className="h-4 w-4" />
-              </>
+          <div className="flex gap-2">
+            {currentStep === steps.length - 1 && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  // Apply data to signup
+                  const params = new URLSearchParams();
+                  if (userData.name) params.set('name', userData.name);
+                  if (userData.location) params.set('location', userData.location);
+                  if (userData.careType.length > 0) params.set('careTypes', userData.careType.join(','));
+                  if (userData.budget) params.set('budget', userData.budget);
+                  if (userData.timeline) params.set('timeline', userData.timeline);
+                  if (userData.preferredContact) params.set('contact', userData.preferredContact);
+                  
+                  // Store onboarding data in localStorage for post-signup retrieval
+                  localStorage.setItem('myseniorvalet_onboarding_data', JSON.stringify(userData));
+                  
+                  // Navigate to signup with pre-filled data
+                  window.location.href = `/api/login?onboarding=true&${params.toString()}`;
+                }}
+                className="gap-2"
+              >
+                <Users className="h-4 w-4" />
+                Sign Up & Save
+              </Button>
             )}
-          </Button>
+            <Button
+              onClick={handleNext}
+              disabled={!canProceed()}
+              className="gap-2"
+            >
+              {currentStep === steps.length - 1 ? (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  {step.action || 'Start Searching'}
+                </>
+              ) : (
+                <>
+                  Next
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
