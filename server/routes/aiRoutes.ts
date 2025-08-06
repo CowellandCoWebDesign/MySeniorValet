@@ -13,7 +13,7 @@ import { isAuthenticated as requireAuth } from "../replitAuth";
 const multiAIOrchestrator = new MultiAIOrchestrator();
 
 export function registerAIRoutes(app: Express) {
-  // AI-powered search - NOW TRAINED ON YOUR 26,306 COMMUNITIES DATABASE
+  // AI-powered search - NOW TRAINED ON YOUR 34,176 COMMUNITIES DATABASE
   app.post('/api/ai/search', async (req, res) => {
     try {
       const { query, searchType = 'housing', context } = req.body;
@@ -27,13 +27,78 @@ export function registerAIRoutes(app: Express) {
       // Use AI to parse the natural language query
       const parsedIntent = await aiSearchService.parseSearchQuery({ query, context });
       const { location, careTypes: parsedCareTypes, priceRange, searchInterpretation } = parsedIntent;
+      
+      console.log(`🔍 AI parsed intent:`, { location, careTypes: parsedCareTypes, priceRange, searchType });
 
-      // Build database query from YOUR actual communities
+      // If we have a location, use the enhanced search API with geocoding
+      if (location && searchType === 'housing') {
+        console.log(`📍 Using enhanced search with geocoding for: ${location}`);
+        
+        try {
+          // Build URL parameters for enhanced search
+          const params = new URLSearchParams();
+          params.append('location', location);
+          params.append('limit', '50');
+          
+          if (parsedCareTypes && parsedCareTypes.length > 0) {
+            params.append('careType', parsedCareTypes[0]); // Use first care type for now
+          }
+          
+          if (priceRange && priceRange.max) {
+            params.append('budget', `Under $${priceRange.max}`);
+          }
+          
+          // Make internal request to enhanced search endpoint
+          const enhancedSearchUrl = `http://localhost:5000/api/communities/search/enhanced?${params.toString()}`;
+          console.log(`🔄 AI Search calling enhanced search: ${enhancedSearchUrl}`);
+          const response = await fetch(enhancedSearchUrl);
+          
+          if (response.ok) {
+            const enhancedData = await response.json();
+            console.log(`✅ AI Search enhanced search succeeded with ${enhancedData.communities?.length || 0} results`);
+            
+            // Return the enhanced search results with AI interpretation
+            return res.json({
+              communities: enhancedData.communities || [],
+              searchInterpretation,
+              appliedFilters: {
+                location,
+                careTypes: parsedCareTypes,
+                priceRange
+              },
+              searchMetadata: enhancedData.searchMetadata,
+              aiInsights: {
+                topRecommendations: (enhancedData.communities || []).slice(0, 3).map((c: any) => ({
+                  name: c.name,
+                  city: c.city,
+                  state: c.state,
+                  reason: c.hudPropertyId ? 'HUD-verified affordable housing' : 
+                         c.rating >= 4 ? 'Highly rated community' : 
+                         'Matches your criteria'
+                })),
+                priceAnalysis: enhancedData.searchMetadata?.averagePrice 
+                  ? `Average price in area: $${enhancedData.searchMetadata.averagePrice}/month`
+                  : 'Contact communities for pricing',
+                locationInsights: enhancedData.searchMetadata?.totalInArea 
+                  ? `${enhancedData.searchMetadata.totalInArea} communities found in ${location}`
+                  : `Showing communities in ${location}`,
+                careTypeMatch: parsedCareTypes?.length > 0 
+                  ? `Filtered for ${parsedCareTypes.join(', ')} care`
+                  : 'Showing all care types'
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Enhanced search failed, falling back to basic search:', error);
+        }
+      }
+
+      // Fallback to basic database query if enhanced search fails or for non-housing searches
       const conditions = [];
       
-      // Location search - in YOUR communities
+      // Location search - in YOUR communities  
       if (location) {
-        console.log(`📍 Searching YOUR communities in: ${location}`);
+        console.log(`📍 Basic search in: ${location}`);
         
         // Split city and state if they're combined (e.g., "Los Angeles, CA")
         const locationParts = location.split(',').map(part => part.trim());
@@ -357,7 +422,141 @@ export function registerAIRoutes(app: Express) {
     try {
       const { preferences, budget, location, careNeeds, urgency } = req.body;
 
-      // Build base query
+      console.log('🎯 AI Recommendations Request:', { location, budget, careNeeds, preferences, urgency });
+
+      // If location is provided, use the enhanced search API with geocoding
+      if (location) {
+        console.log(`📍 Using enhanced search with geocoding for recommendations: ${location}`);
+        
+        try {
+          // Build URL parameters for enhanced search
+          const params = new URLSearchParams();
+          params.append('location', location);
+          params.append('limit', '100'); // Get more results for better recommendation matching
+          
+          // Add care type filter if specified
+          if (careNeeds && careNeeds.length > 0) {
+            params.append('careType', careNeeds[0]); // Use first care type
+          }
+          
+          // Add budget filter if specified
+          if (budget && budget.max > 0) {
+            params.append('budget', `Under $${budget.max}`);
+          }
+          
+          // Make internal request to enhanced search endpoint
+          const enhancedSearchUrl = `http://localhost:5000/api/communities/search/enhanced?${params.toString()}`;
+          console.log(`🔄 Recommendations calling enhanced search: ${enhancedSearchUrl}`);
+          const response = await fetch(enhancedSearchUrl);
+          
+          if (response.ok) {
+            const enhancedData = await response.json();
+            const foundCommunities = enhancedData.communities || [];
+            
+            console.log(`✅ Recommendations enhanced search found ${foundCommunities.length} communities in ${location}`);
+            
+            // Score and rank communities based on preferences
+            const scoredCommunities = foundCommunities.map((community: any) => {
+              let matchScore = 70; // Base score for location match
+              const reasons = [`Located in ${location}`];
+              
+              // Score based on care needs match
+              if (careNeeds && careNeeds.length > 0 && community.careTypes) {
+                const matchingCareTypes = careNeeds.filter((need: string) => 
+                  community.careTypes?.includes(need)
+                );
+                if (matchingCareTypes.length > 0) {
+                  matchScore += 10 * matchingCareTypes.length;
+                  reasons.push(`Offers ${matchingCareTypes.join(', ')}`);
+                }
+              }
+              
+              // Score based on budget match
+              if (budget && budget.max > 0) {
+                const communityPrice = community.rentPerMonth || 
+                  community.priceRange?.min || 
+                  community.pricingDetails?.basePrice;
+                
+                if (communityPrice && communityPrice <= budget.max) {
+                  matchScore += 10;
+                  reasons.push('Within budget');
+                } else if (community.hudPropertyId) {
+                  matchScore += 15;
+                  reasons.push('HUD-verified affordable housing');
+                }
+              }
+              
+              // Score based on preferences match
+              if (preferences && preferences.length > 0 && community.amenities) {
+                const matchingAmenities = preferences.filter((pref: string) => {
+                  const prefLower = pref.toLowerCase();
+                  return community.amenities?.some((amenity: string) => 
+                    amenity.toLowerCase().includes(prefLower)
+                  );
+                });
+                if (matchingAmenities.length > 0) {
+                  matchScore += 5 * matchingAmenities.length;
+                  reasons.push(`Has ${matchingAmenities.join(', ')}`);
+                }
+              }
+              
+              // Bonus for high ratings
+              if (community.rating >= 4) {
+                matchScore += 5;
+                reasons.push(`Highly rated (${community.rating} stars)`);
+              }
+              
+              // Cap score at 100
+              matchScore = Math.min(100, matchScore);
+              
+              return {
+                community,
+                matchScore,
+                matchReasons: reasons
+              };
+            });
+            
+            // Sort by match score and take top results
+            const topRecommendations = scoredCommunities
+              .sort((a: any, b: any) => b.matchScore - a.matchScore)
+              .slice(0, 10);
+            
+            // Generate AI insights
+            const insights = {
+              totalFound: foundCommunities.length,
+              locationInsights: `Found ${foundCommunities.length} communities in ${location}`,
+              budgetAnalysis: budget ? 
+                `Showing communities within $${budget.min}-$${budget.max}/month` : 
+                'No budget restrictions applied',
+              careTypeMatch: careNeeds?.length > 0 ? 
+                `Filtered for ${careNeeds.join(', ')} care` : 
+                'Showing all care types',
+              urgencyResponse: urgency === 'immediate' ? 
+                'Prioritizing communities with immediate availability' :
+                urgency === 'soon' ? 
+                'Showing communities with upcoming availability' :
+                'Showing all available communities'
+            };
+            
+            return res.json({
+              recommendations: topRecommendations,
+              searchMetadata: enhancedData.searchMetadata,
+              insights,
+              appliedFilters: {
+                location,
+                budget,
+                careNeeds,
+                preferences,
+                urgency
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Enhanced search failed for recommendations, falling back to basic search:', error);
+        }
+      }
+
+      // Fallback to basic database query if enhanced search fails or no location
       let baseQuery = db.select().from(communities);
       let locationConditions = null;
       
