@@ -19,16 +19,11 @@ router.get('/api/ai-map/full-dataset', async (req, res) => {
         phone,
         website,
         CASE 
-          WHEN hud_housing = true THEN true
+          WHEN accepts_hud_vouchers = true THEN true
           WHEN community_subtype IN ('HUD-Sponsored Housing', 'Public Housing', 'LIHTC', 'Section 8') THEN true
           ELSE false
         END as "isHUD",
-        CASE 
-          WHEN hud_base_rent IS NOT NULL THEN hud_base_rent::text
-          WHEN hud_fair_market_rent IS NOT NULL THEN hud_fair_market_rent::text
-          WHEN base_pricing IS NOT NULL THEN base_pricing::text
-          ELSE 'Contact for pricing'
-        END as price
+        'Contact for pricing' as price
       FROM communities
       WHERE latitude IS NOT NULL 
         AND longitude IS NOT NULL

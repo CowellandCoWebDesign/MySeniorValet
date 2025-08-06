@@ -205,7 +205,7 @@ export default function AIMapDeckGLFull() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+    <div className="h-screen overflow-auto bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto p-4 max-w-7xl">
         {/* Header */}
         <div className="text-center mb-8">
@@ -312,7 +312,7 @@ export default function AIMapDeckGLFull() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0 relative">
-            <div style={{ height: '600px', position: 'relative' }}>
+            <div style={{ height: '500px', position: 'relative' }}>
               <DeckGL
                 viewState={viewState}
                 onViewStateChange={(e: any) => setViewState(e.viewState)}
