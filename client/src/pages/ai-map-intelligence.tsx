@@ -112,6 +112,42 @@ export default function AIMapIntelligence() {
     refetchInterval: false,
     staleTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
+  
+  // Populate selected communities with a sample when data loads
+  useEffect(() => {
+    if (communitiesData?.features && selectedCommunities.length === 0 && !aiAnalysis) {
+      // Show first 10 communities as a sample in the list
+      const sampleCommunities = communitiesData.features.slice(0, 10).map((f: any) => ({
+        id: f.properties.id,
+        name: f.properties.name || `${f.properties.city}, ${f.properties.state}`,
+        city: f.properties.city || '',
+        state: f.properties.state || '',
+        latitude: f.geometry.coordinates[1],
+        longitude: f.geometry.coordinates[0],
+        type: f.properties.types?.split(',')[0] || 'Senior Living',
+        count: f.properties.count
+      }));
+      setSelectedCommunities(sampleCommunities);
+    }
+  }, [communitiesData, selectedCommunities.length, aiAnalysis]);
+  
+  // Populate selected communities with a sample when data loads
+  useEffect(() => {
+    if (communitiesData?.features && selectedCommunities.length === 0 && !aiAnalysis) {
+      // Show first 10 communities as a sample in the list
+      const sampleCommunities = communitiesData.features.slice(0, 10).map((f: any) => ({
+        id: f.properties.id,
+        name: f.properties.name || `${f.properties.city}, ${f.properties.state}`,
+        city: f.properties.city || '',
+        state: f.properties.state || '',
+        latitude: f.geometry.coordinates[1],
+        longitude: f.geometry.coordinates[0],
+        type: f.properties.types?.split(',')[0] || 'Senior Living',
+        count: f.properties.count
+      }));
+      setSelectedCommunities(sampleCommunities);
+    }
+  }, [communitiesData, selectedCommunities.length, aiAnalysis]);
 
   // Handle map click for AI analysis
   const handleMapClick = useCallback(async (lat: number, lng: number) => {
@@ -320,12 +356,32 @@ export default function AIMapIntelligence() {
                             })}
                             eventHandlers={{
                               click: () => {
-                                // Zoom into the cluster area
-                                const targetZoom = feature.properties.clusterLevel === 'state' ? 7 : 10;
-                                mapRef.current?.setView(
-                                  [feature.geometry.coordinates[1], feature.geometry.coordinates[0]], 
-                                  targetZoom
-                                );
+                                // Get current zoom and zoom IN appropriately
+                                const currentMap = mapRef.current;
+                                if (currentMap) {
+                                  const currentZoom = currentMap.getZoom();
+                                  let targetZoom;
+                                  
+                                  // Always zoom IN, never out
+                                  if (feature.properties.clusterLevel === 'state') {
+                                    // From country view (zoom 4-5) to state view (zoom 7)
+                                    targetZoom = Math.max(7, currentZoom + 2);
+                                  } else if (feature.properties.clusterLevel === 'city') {
+                                    // From state view (zoom 6-8) to city view (zoom 10)
+                                    targetZoom = Math.max(10, currentZoom + 2);
+                                  } else {
+                                    // Default: zoom in by 2 levels
+                                    targetZoom = currentZoom + 2;
+                                  }
+                                  
+                                  console.log(`Cluster click: ${feature.properties.name} - Zoom ${currentZoom} -> ${targetZoom}`);
+                                  
+                                  currentMap.setView(
+                                    [feature.geometry.coordinates[1], feature.geometry.coordinates[0]], 
+                                    targetZoom,
+                                    { animate: true, duration: 0.5 }
+                                  );
+                                }
                               }
                             }}
                           >
@@ -576,49 +632,73 @@ export default function AIMapIntelligence() {
         </div>
 
         {/* Community List Section */}
-        {selectedCommunities.length > 0 && (
-          <div className="mt-8">
-            <Card className="shadow-xl">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-                <CardTitle className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5" />
-                    AI-Selected Communities ({selectedCommunities.length})
-                  </span>
-                  <Badge variant="secondary" className="bg-white/20 text-white">
-                    Based on AI Analysis
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {selectedCommunities.slice(0, 9).map((community) => (
-                    <div key={community.id} className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
-                      <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {community.city}, {community.state}
-                      </p>
-                      {community.type && (
-                        <Badge variant="outline" className="mt-2">
-                          {community.type}
-                        </Badge>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                
-                {selectedCommunities.length > 9 && (
-                  <div className="text-center mt-4">
-                    <Button variant="outline">
-                      View All {selectedCommunities.length} Communities
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
+        <div className="mt-8">
+          <Card className="shadow-xl">
+            <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5" />
+                  {aiAnalysis ? 'AI-Selected Communities' : 'Map Communities'} ({selectedCommunities.length})
+                </span>
+                <Badge variant="secondary" className="bg-white/20 text-white">
+                  {aiAnalysis ? 'Based on AI Analysis' : `Zoom Level ${currentZoom}`}
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              {selectedCommunities.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {selectedCommunities.slice(0, 9).map((community) => (
+                      <div 
+                        key={community.id} 
+                        className="border rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                        onClick={() => {
+                          if (community.latitude && community.longitude) {
+                            const targetZoom = community.count ? 8 : 14;
+                            mapRef.current?.setView([community.latitude, community.longitude], targetZoom);
+                          }
+                        }}
+                      >
+                        <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {community.city}{community.city && community.state ? ', ' : ''}{community.state}
+                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          {community.type && (
+                            <Badge variant="outline">
+                              {community.type}
+                            </Badge>
+                          )}
+                          {community.count && (
+                            <Badge variant="secondary">
+                              {community.count} communities
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
+                  
+                  {selectedCommunities.length > 9 && (
+                    <div className="text-center mt-4">
+                      <Button variant="outline">
+                        View All {selectedCommunities.length} Communities
+                        <ChevronRight className="h-4 w-4 ml-1" />
+                      </Button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <MapPin className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p className="text-lg mb-2">No Communities Selected</p>
+                  <p className="text-sm">Click on the map or search to find communities</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Research & Insights Section */}
         <div className="mt-8">
