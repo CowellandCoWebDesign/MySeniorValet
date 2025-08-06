@@ -293,12 +293,15 @@ export default function AISearchIntelligence() {
 
   const searchResults = useQuery<{
     communities?: any[];
+    results?: any[];
     services?: any[];
     vendors?: any[];
     resources?: any[];
     searchInterpretation?: string;
     appliedFilters?: any;
     aiInsights?: any;
+    noExactMatch?: boolean;
+    suggestions?: any;
   }>({
     queryKey: ['ai-search-results'],
     enabled: false
@@ -485,10 +488,10 @@ export default function AISearchIntelligence() {
             </Card>
 
             {/* Dynamic Results Display */}
-            {(searchResults.data?.communities || searchResults.data?.services || searchResults.data?.vendors || searchResults.data?.resources) && (
+            {(searchResults.data?.communities || searchResults.data?.results || searchResults.data?.services || searchResults.data?.vendors || searchResults.data?.resources || searchResults.data?.searchInterpretation) && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Interactive Map - Only show for housing */}
-                {searchType === 'housing' && searchResults.data?.communities && (
+                {searchType === 'housing' && (
                   <Card className="h-[600px]">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -517,7 +520,7 @@ export default function AISearchIntelligence() {
                   <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 pb-2">
                     <h3 className="text-lg font-semibold flex items-center gap-2">
                       <Shield className="w-5 h-5 text-green-600" />
-                      {searchType === 'housing' && `${searchResults.data.communities?.length || searchResults.data.results?.length || 0} AI-Verified Communities`}
+                      {searchType === 'housing' && `${searchResults.data?.communities?.length || searchResults.data?.results?.length || 0} AI-Verified Communities`}
                       {searchType === 'services' && `${searchResults.data.services?.length || 0} Care Services Found`}
                       {searchType === 'marketplace' && `${searchResults.data.vendors?.length || 0} Marketplace Vendors`}
                       {searchType === 'resources' && `VA Resources Available`}
@@ -549,7 +552,7 @@ export default function AISearchIntelligence() {
                   )}
                   
                   {/* Housing Results */}
-                  {searchType === 'housing' && (searchResults.data.communities || searchResults.data.results)?.map((community: any) => (
+                  {searchType === 'housing' && (searchResults.data?.communities || searchResults.data?.results || []).map((community: any) => (
                     <div key={community.id} className="relative">
                       <EnhancedCommunityCard
                         community={community}
