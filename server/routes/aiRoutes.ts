@@ -47,7 +47,9 @@ export function registerAIRoutes(app: Express) {
       const careTypes = parsedCareTypes && parsedCareTypes.length > 0 ? parsedCareTypes : [];
       if (careTypes.length > 0) {
         console.log(`🏥 Filtering by care types: ${careTypes.join(', ')}`);
-        conditions.push(sql`${communities.careTypes} && ${careTypes}`);
+        // Format array for PostgreSQL: ["Memory Care"] -> {"Memory Care"}
+        const pgArray = `{${careTypes.map(ct => `"${ct}"`).join(',')}}`;
+        conditions.push(sql`${communities.careTypes} && ${pgArray}::text[]`);
       }
 
       // Price filter - using YOUR actual pricing
@@ -271,7 +273,9 @@ export function registerAIRoutes(app: Express) {
 
       // Filter by care types
       if (careNeeds && careNeeds.length > 0) {
-        query = query.where(sql`${communities.careTypes} && ARRAY[${careNeeds}]::text[]`);
+        // Format array for PostgreSQL: ["Memory Care"] -> {"Memory Care"}
+        const pgArray = `{${careNeeds.map(ct => `"${ct}"`).join(',')}}`;
+        query = query.where(sql`${communities.careTypes} && ${pgArray}::text[]`);
       }
 
       // Get results
