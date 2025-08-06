@@ -525,12 +525,6 @@ export default function AIMapIntelligence() {
                           {community.type}
                         </Badge>
                       )}
-                      {community.priceMin && (
-                        <p className="text-sm mt-2 flex items-center gap-1">
-                          <DollarSign className="h-4 w-4" />
-                          ${community.priceMin} - ${community.priceMax || community.priceMin}/mo
-                        </p>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -547,6 +541,132 @@ export default function AIMapIntelligence() {
             </Card>
           </div>
         )}
+
+        {/* Research & Insights Section */}
+        <div className="mt-8">
+          <Card className="shadow-xl bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950">
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Globe className="h-6 w-6 text-purple-600" />
+                Research & Insights
+              </CardTitle>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
+                Comprehensive internet-wide research powered by multi-AI consensus
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-3 gap-6">
+                {/* ChatGPT Research */}
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">GPT</span>
+                    </div>
+                    <h3 className="font-semibold">ChatGPT Research</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                    Deep knowledge synthesis across healthcare, regulations, and senior living trends
+                  </p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-start gap-2">
+                      <ChevronRight className="h-4 w-4 text-green-600 mt-0.5" />
+                      <span>Real-time market analysis</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <ChevronRight className="h-4 w-4 text-green-600 mt-0.5" />
+                      <span>Care level recommendations</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <ChevronRight className="h-4 w-4 text-green-600 mt-0.5" />
+                      <span>Cost optimization strategies</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Claude Research */}
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">CL</span>
+                    </div>
+                    <h3 className="font-semibold">Claude Analysis</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                    Detailed community comparisons and quality-of-life assessments
+                  </p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-start gap-2">
+                      <ChevronRight className="h-4 w-4 text-blue-600 mt-0.5" />
+                      <span>Community quality scoring</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <ChevronRight className="h-4 w-4 text-blue-600 mt-0.5" />
+                      <span>Amenity comparisons</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <ChevronRight className="h-4 w-4 text-blue-600 mt-0.5" />
+                      <span>Geographic insights</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Perplexity Research */}
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">PX</span>
+                    </div>
+                    <h3 className="font-semibold">Perplexity Web Search</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                    Live internet research for latest reviews, news, and updates
+                  </p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-start gap-2">
+                      <ChevronRight className="h-4 w-4 text-purple-600 mt-0.5" />
+                      <span>Current reviews & ratings</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <ChevronRight className="h-4 w-4 text-purple-600 mt-0.5" />
+                      <span>Recent news & updates</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <ChevronRight className="h-4 w-4 text-purple-600 mt-0.5" />
+                      <span>Regulatory compliance</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Consensus Analysis */}
+              <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg p-4">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-indigo-600" />
+                  Multi-AI Consensus Analysis
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  When multiple AI providers agree on insights, confidence levels increase dramatically. 
+                  Our system cross-references findings across all three AI platforms to provide the most 
+                  accurate and reliable recommendations.
+                </p>
+                <div className="flex gap-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-green-600"></div>
+                    <span>High Confidence (3/3 agree)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-yellow-600"></div>
+                    <span>Medium Confidence (2/3 agree)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                    <span>Low Confidence (1/3 data)</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

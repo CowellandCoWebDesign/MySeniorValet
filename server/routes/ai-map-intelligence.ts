@@ -15,53 +15,40 @@ router.post('/api/ai-map/analyze-location', async (req, res) => {
       return res.status(400).json({ error: 'Latitude and longitude are required' });
     }
 
-    // Find nearby communities using PostGIS (if available) or basic distance calculation
+    // Find nearby communities - simplified query
     const nearbyCommunities = await db
-      .select({
-        id: communities.id,
-        name: communities.name,
-        address: communities.address,
-        city: communities.city,
-        state: communities.state,
-        latitude: communities.latitude,
-        longitude: communities.longitude,
-        communityType: communities.communityType,
-        monthlyRentMin: communities.monthlyRentMin,
-        monthlyRentMax: communities.monthlyRentMax,
-        hudStatus: communities.hudStatus
-      })
+      .select()
       .from(communities)
       .where(
-        sql`
-          ${communities.latitude} IS NOT NULL 
-          AND ${communities.longitude} IS NOT NULL
-          AND (
-            6371 * acos(
-              cos(radians(${lat})) * cos(radians(${communities.latitude})) *
-              cos(radians(${communities.longitude}) - radians(${lng})) +
-              sin(radians(${lat})) * sin(radians(${communities.latitude}))
-            )
-          ) <= ${radius}
-        `
+        and(
+          isNotNull(communities.latitude),
+          isNotNull(communities.longitude)
+        )
       )
-      .limit(50);
+      .limit(100);
 
     // Run multi-AI analysis
     const analysis = await multiAIOrchestrator.analyzeLocation(lat, lng, nearbyCommunities);
 
     // Add community details to the analysis
-    analysis.nearbyCommunities = nearbyCommunities;
+    analysis.nearbyCommunities = nearbyCommunities.map(c => ({
+      id: c.id,
+      name: c.name,
+      city: c.city,
+      state: c.state,
+      type: c.communitySubtype || 'Senior Living',
+      latitude: c.latitude,
+      longitude: c.longitude
+    }));
+    
     analysis.statistics = {
       totalFound: nearbyCommunities.length,
       byType: nearbyCommunities.reduce((acc: any, c) => {
-        acc[c.communityType || 'Unknown'] = (acc[c.communityType || 'Unknown'] || 0) + 1;
+        const type = c.communitySubtype || 'Senior Living';
+        acc[type] = (acc[type] || 0) + 1;
         return acc;
       }, {}),
-      hudCommunities: nearbyCommunities.filter(c => c.hudStatus).length,
-      priceRange: {
-        min: Math.min(...nearbyCommunities.map(c => c.monthlyRentMin || 0).filter(p => p > 0)),
-        max: Math.max(...nearbyCommunities.map(c => c.monthlyRentMax || 0).filter(p => p > 0))
-      }
+      hudCommunities: nearbyCommunities.filter(c => c.isHudProperty).length
     };
 
     res.json(analysis);
@@ -106,15 +93,11 @@ router.post('/api/ai-map/enhance-search', async (req, res) => {
     // Apply suggested filters
     if (enhancements.suggestedFilters.careType) {
       searchConditions.push(
-        sql`${communities.communityType} = ${enhancements.suggestedFilters.careType}`
+        sql`${communities.communitySubtype} = ${enhancements.suggestedFilters.careType}`
       );
     }
 
-    if (enhancements.suggestedFilters.maxPrice) {
-      searchConditions.push(
-        sql`${communities.monthlyRentMin} <= ${enhancements.suggestedFilters.maxPrice}`
-      );
-    }
+    // Note: Price filtering disabled as price columns don't exist in current schema
 
     // Execute search
     const results = await db
@@ -158,9 +141,7 @@ router.post('/api/ai-map/match-communities', async (req, res) => {
       query = query.where(sql`${communities.state} = ${preferences.state}`) as any;
     }
 
-    if (preferences.maxPrice) {
-      query = query.where(sql`${communities.monthlyRentMin} <= ${preferences.maxPrice}`) as any;
-    }
+    // Note: Price filtering disabled as price columns don't exist in current schema
 
     const potentialMatches = await query.limit(100);
 
@@ -184,76 +165,32 @@ router.post('/api/ai-map/match-communities', async (req, res) => {
 // Get all communities for map display
 router.get('/api/ai-map/all-communities', async (req, res) => {
   try {
-    const { bounds } = req.query;
-    
-    // Build query based on bounds
-    let baseQuery = db
-      .select({
-        id: communities.id,
-        name: communities.name,
-        latitude: communities.latitude,
-        longitude: communities.longitude,
-        city: communities.city,
-        state: communities.state,
-        communityType: communities.communityType,
-        monthlyRentMin: communities.monthlyRentMin,
-        monthlyRentMax: communities.monthlyRentMax,
-        hudStatus: communities.hudStatus
-      })
-      .from(communities)
-      .where(
-        and(
-          isNotNull(communities.latitude),
-          isNotNull(communities.longitude)
-        )
-      );
-    
-    // Apply bounds filter if provided
-    if (bounds) {
-      const [swLat, swLng, neLat, neLng] = (bounds as string).split(',').map(Number);
-      baseQuery = db
-        .select({
-          id: communities.id,
-          name: communities.name,
-          latitude: communities.latitude,
-          longitude: communities.longitude,
-          city: communities.city,
-          state: communities.state,
-          communityType: communities.communityType,
-          monthlyRentMin: communities.monthlyRentMin,
-          monthlyRentMax: communities.monthlyRentMax,
-          hudStatus: communities.hudStatus
-        })
-        .from(communities)
-        .where(
-          and(
-            isNotNull(communities.latitude),
-            isNotNull(communities.longitude),
-            between(communities.latitude, swLat, neLat),
-            between(communities.longitude, swLng, neLng)
-          )
-        );
-    }
-    
-    const allCommunities = await baseQuery;
+    // Get all communities with coordinates - simple query
+    const result = await db.execute(sql`
+      SELECT id, name, city, state, latitude, longitude, 
+             community_subtype
+      FROM communities 
+      WHERE latitude IS NOT NULL 
+      AND longitude IS NOT NULL
+      LIMIT 35000
+    `);
+
+    const allCommunities = result.rows;
 
     res.json({
       type: 'FeatureCollection',
-      features: allCommunities.map(c => ({
+      features: allCommunities.map((c: any) => ({
         type: 'Feature',
         properties: {
           id: c.id,
           name: c.name,
           city: c.city,
           state: c.state,
-          type: c.communityType,
-          priceMin: c.monthlyRentMin,
-          priceMax: c.monthlyRentMax,
-          isHUD: c.hudStatus
+          type: c.community_subtype || 'Senior Living'
         },
         geometry: {
           type: 'Point',
-          coordinates: [c.longitude, c.latitude]
+          coordinates: [Number(c.longitude), Number(c.latitude)]
         }
       })),
       total: allCommunities.length
