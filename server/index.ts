@@ -160,14 +160,6 @@ app.use((req, res, next) => {
       console.error('Failed to initialize Supercluster service:', error);
     });
   });
-  
-  // Initialize smart clustering service (non-blocking)
-  import('./services/smart-clustering-service').then(({ smartClusteringService }) => {
-    console.log('Initializing Smart Clustering service...');
-    smartClusteringService.initialize().catch(error => {
-      console.error('Failed to initialize Smart Clustering service:', error);
-    });
-  });
 
   // Enhanced error handling middleware
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {

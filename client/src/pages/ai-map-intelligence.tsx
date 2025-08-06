@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,7 +34,6 @@ import {
 } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import '../styles/map-fixes.css';
 
 // Fix Leaflet default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -72,42 +72,12 @@ interface AIAnalysisResult {
   };
 }
 
-// Map click and move handler component
-function MapEventHandler({ 
-  onMapClick, 
-  onMapMove 
-}: { 
-  onMapClick: (lat: number, lng: number) => void;
-  onMapMove?: (bounds: any, zoom: number) => void;
-}) {
-  const map = useMapEvents({
+// Map click handler component
+function MapClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
+  useMapEvents({
     click: (e) => {
       onMapClick(e.latlng.lat, e.latlng.lng);
     },
-    moveend: () => {
-      if (onMapMove) {
-        const bounds = map.getBounds();
-        const zoom = map.getZoom();
-        onMapMove({
-          minLat: bounds.getSouth(),
-          maxLat: bounds.getNorth(),
-          minLng: bounds.getWest(),
-          maxLng: bounds.getEast()
-        }, zoom);
-      }
-    },
-    zoomend: () => {
-      if (onMapMove) {
-        const bounds = map.getBounds();
-        const zoom = map.getZoom();
-        onMapMove({
-          minLat: bounds.getSouth(),
-          maxLat: bounds.getNorth(),
-          minLng: bounds.getWest(),
-          maxLng: bounds.getEast()
-        }, zoom);
-      }
-    }
   });
   return null;
 }
@@ -120,30 +90,12 @@ export default function AIMapIntelligence() {
   const [selectedCommunities, setSelectedCommunities] = useState<Community[]>([]);
   const [activeTab, setActiveTab] = useState('map');
   const mapRef = useRef<L.Map | null>(null);
-  const [mapBounds, setMapBounds] = useState<any>(null);
-  const [currentZoom, setCurrentZoom] = useState(4);
 
-  // Fetch smart clustered communities based on zoom level
+  // Fetch all communities for the map
   const { data: communitiesData, isLoading: isLoadingCommunities } = useQuery({
-    queryKey: ['/api/ai-map/clustered-communities', mapBounds, currentZoom],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        zoom: currentZoom.toString(),
-        west: (mapBounds?.minLng || -130).toString(),
-        south: (mapBounds?.minLat || 24).toString(),
-        east: (mapBounds?.maxLng || -65).toString(),
-        north: (mapBounds?.maxLat || 50).toString()
-      });
-      
-      const response = await fetch(`/api/ai-map/clustered-communities?${params}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch communities');
-      }
-      return response.json();
-    },
+    queryKey: ['/api/ai-map/all-communities'],
     refetchInterval: false,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    enabled: true
   });
 
   // Handle map click for AI analysis
@@ -290,9 +242,9 @@ export default function AIMapIntelligence() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Map Area */}
           <div className="lg:col-span-2">
-            <Card className="shadow-xl h-[600px] overflow-hidden">
+            <Card className="shadow-xl h-[600px]">
               <CardContent className="p-0 h-full">
-                <div className="relative h-full" style={{ zIndex: 0 }}>
+                <div className="relative h-full">
                   {isLoadingCommunities ? (
                     <div className="flex items-center justify-center h-full">
                       <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
@@ -305,89 +257,47 @@ export default function AIMapIntelligence() {
                       style={{ height: '100%', width: '100%' }}
                       className="rounded-lg"
                       ref={(map) => { if (map) mapRef.current = map; }}
-                      scrollWheelZoom={true}
-                      zoomControl={true}
-                      dragging={true}
-                      touchZoom={true}
-                      doubleClickZoom={true}
-                      boxZoom={true}
                     >
                       <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         attribution='&copy; OpenStreetMap contributors'
                       />
                       
-                      <MapEventHandler 
-                        onMapClick={handleMapClick}
-                        onMapMove={(bounds, zoom) => {
-                          setMapBounds(bounds);
-                          setCurrentZoom(zoom);
-                        }}
-                      />
+                      <MapClickHandler onMapClick={handleMapClick} />
 
-                      {/* Smart Clustered Communities */}
-                      {communities.map((feature: any) => {
-                        if (feature.properties?.cluster) {
-                          // Render cluster marker
-                          const count = feature.properties.point_count;
-                          const size = count > 1000 ? 50 : count > 100 ? 40 : 30;
-                          
-                          return (
-                            <Marker
-                              key={`cluster-${feature.properties.cluster_id}`}
-                              position={[
-                                feature.geometry.coordinates[1],
-                                feature.geometry.coordinates[0]
-                              ]}
-                              icon={L.divIcon({
-                                html: `<div class="cluster-marker" style="width: ${size}px; height: ${size}px; line-height: ${size}px; font-size: ${size/3}px; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; text-align: center; border-radius: 50%; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.3); border: 2px solid white;">${count}</div>`,
-                                className: 'custom-cluster-icon',
-                                iconSize: L.point(size, size),
-                              })}
-                            >
-                              <Popup>
-                                <div className="p-2">
-                                  <h3 className="font-bold">{count} Communities</h3>
-                                  {feature.properties.state && (
-                                    <p className="text-sm">State: {feature.properties.state}</p>
-                                  )}
-                                  <p className="text-xs text-gray-500 mt-1">
-                                    Zoom in to see details
-                                  </p>
-                                </div>
-                              </Popup>
-                            </Marker>
-                          );
-                        } else {
-                          // Render individual community marker
-                          return (
-                            <Marker
-                              key={`community-${feature.properties.id}`}
-                              position={[
-                                feature.geometry.coordinates[1],
-                                feature.geometry.coordinates[0]
-                              ]}
-                            >
-                              <Popup>
-                                <div className="p-2">
-                                  <h3 className="font-bold">{feature.properties.name}</h3>
-                                  <p className="text-sm">{feature.properties.city}, {feature.properties.state}</p>
-                                  {feature.properties.type && (
-                                    <Badge variant="outline" className="mt-1 text-xs">
-                                      {feature.properties.type}
-                                    </Badge>
-                                  )}
-                                  {feature.properties.isHUD && (
-                                    <Badge className="mt-1 ml-1 bg-green-600 text-xs">
-                                      HUD Verified
-                                    </Badge>
-                                  )}
-                                </div>
-                              </Popup>
-                            </Marker>
-                          );
-                        }
-                      })}
+                      {/* Community Markers with Clustering */}
+                      <MarkerClusterGroup
+                        chunkedLoading
+                        maxClusterRadius={60}
+                        showCoverageOnHover={false}
+                      >
+                        {communities.map((feature: any) => (
+                          <Marker
+                            key={feature.properties.id}
+                            position={[
+                              feature.geometry.coordinates[1],
+                              feature.geometry.coordinates[0]
+                            ]}
+                          >
+                            <Popup>
+                              <div className="p-2">
+                                <h3 className="font-bold">{feature.properties.name}</h3>
+                                <p className="text-sm">{feature.properties.city}, {feature.properties.state}</p>
+                                {feature.properties.type && (
+                                  <Badge variant="outline" className="mt-1 text-xs">
+                                    {feature.properties.type}
+                                  </Badge>
+                                )}
+                                {feature.properties.isHUD && (
+                                  <Badge className="mt-1 ml-1 bg-green-600 text-xs">
+                                    HUD Verified
+                                  </Badge>
+                                )}
+                              </div>
+                            </Popup>
+                          </Marker>
+                        ))}
+                      </MarkerClusterGroup>
 
                       {/* Selected Location Marker */}
                       {selectedLocation && (
@@ -410,12 +320,7 @@ export default function AIMapIntelligence() {
                   <div className="absolute top-4 left-4 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-lg p-3 shadow-lg z-[400]">
                     <div className="flex items-center gap-2 text-sm">
                       <Building2 className="h-4 w-4 text-blue-600" />
-                      <span className="font-medium">
-                        {currentZoom < 8 
-                          ? `${communities.length} Clusters`
-                          : `${communities.length.toLocaleString()} Communities`
-                        }
-                      </span>
+                      <span className="font-medium">{communities.length.toLocaleString()} Communities</span>
                     </div>
                   </div>
 
@@ -592,6 +497,51 @@ export default function AIMapIntelligence() {
           </div>
         </div>
 
+        {/* Community List Section */}
+        {selectedCommunities.length > 0 && (
+          <div className="mt-8">
+            <Card className="shadow-xl">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Building2 className="h-5 w-5" />
+                    AI-Selected Communities ({selectedCommunities.length})
+                  </span>
+                  <Badge variant="secondary" className="bg-white/20 text-white">
+                    Based on AI Analysis
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {selectedCommunities.slice(0, 9).map((community) => (
+                    <div key={community.id} className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
+                      <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {community.city}, {community.state}
+                      </p>
+                      {community.type && (
+                        <Badge variant="outline" className="mt-2">
+                          {community.type}
+                        </Badge>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                
+                {selectedCommunities.length > 9 && (
+                  <div className="text-center mt-4">
+                    <Button variant="outline">
+                      View All {selectedCommunities.length} Communities
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Research & Insights Section */}
         <div className="mt-8">
           <Card className="shadow-xl bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950">
@@ -717,51 +667,6 @@ export default function AIMapIntelligence() {
             </CardContent>
           </Card>
         </div>
-
-        {/* Community List Section - Displayed after all AI insights */}
-        {selectedCommunities.length > 0 && (
-          <div className="mt-8">
-            <Card className="shadow-xl">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-                <CardTitle className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5" />
-                    AI-Selected Communities ({selectedCommunities.length})
-                  </span>
-                  <Badge variant="secondary" className="bg-white/20 text-white">
-                    Based on AI Analysis
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {selectedCommunities.slice(0, 9).map((community) => (
-                    <div key={community.id} className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
-                      <h3 className="font-semibold text-lg mb-1">{community.name}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {community.city}, {community.state}
-                      </p>
-                      {community.type && (
-                        <Badge variant="outline" className="mt-2">
-                          {community.type}
-                        </Badge>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                
-                {selectedCommunities.length > 9 && (
-                  <div className="text-center mt-4">
-                    <Button variant="outline">
-                      View All {selectedCommunities.length} Communities
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
       </div>
     </div>
   );
