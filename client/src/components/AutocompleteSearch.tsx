@@ -10,9 +10,10 @@ import { apiRequest } from '@/lib/queryClient';
 interface AutocompleteSuggestion {
   label: string;
   value: string;
-  type: 'city' | 'state' | 'county' | 'community' | 'care_type' | 'vendor';
+  type: 'city' | 'state' | 'county' | 'community' | 'care_type' | 'vendor' | 'healthcare';
   count?: number;
   id?: number;
+  description?: string;
 }
 
 interface AutocompleteSearchProps {
@@ -46,12 +47,18 @@ export function AutocompleteSearch({
       apiRequest('GET', `/api/autocomplete/suggestions?query=${encodeURIComponent(debouncedValue)}&limit=10`)
         .then(res => res.json())
         .then(data => {
-          setSuggestions(data.suggestions || []);
-          setShowSuggestions(true);
+          // Ensure suggestions are in the correct format
+          const validSuggestions = (data.suggestions || []).filter(s => 
+            s && s.label && s.value && s.type
+          );
+          setSuggestions(validSuggestions);
+          setShowSuggestions(validSuggestions.length > 0);
           setLoadingSuggestions(false);
         })
         .catch(error => {
           console.error('Autocomplete error:', error);
+          setSuggestions([]);
+          setShowSuggestions(false);
           setLoadingSuggestions(false);
         });
     } else {
@@ -113,6 +120,8 @@ export function AutocompleteSearch({
         return <Heart className="h-4 w-4" />;
       case 'vendor':
         return <Users className="h-4 w-4" />;
+      case 'healthcare':
+        return <Heart className="h-4 w-4" />;
       default:
         return <Search className="h-4 w-4" />;
     }
@@ -130,6 +139,8 @@ export function AutocompleteSearch({
         return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
       case 'vendor':
         return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300';
+      case 'healthcare':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
     }
