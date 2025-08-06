@@ -89,6 +89,11 @@ export default function MapSearch() {
   const [showTutorial, setShowTutorial] = useState(false);
   const [hasSeenTutorial, setHasSeenTutorial] = useState(false);
   
+  // Drag state for panel resizing
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartY, setDragStartY] = useState(0);
+  const [dragStartHeight, setDragStartHeight] = useState(70);
+  
   // Autocomplete state
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
@@ -154,6 +159,52 @@ export default function MapSearch() {
   const handleStartTutorial = () => {
     setShowTutorial(true);
   };
+
+  // Drag handlers for panel resizing
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    setIsDragging(true);
+    setDragStartY(clientY);
+    setDragStartHeight(panelHeight);
+  };
+
+  const handleDragMove = useCallback((e: MouseEvent | TouchEvent) => {
+    if (!isDragging) return;
+    
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    const deltaY = dragStartY - clientY;
+    const windowHeight = window.innerHeight;
+    const deltaPercent = (deltaY / windowHeight) * 100;
+    const newHeight = Math.min(Math.max(20, dragStartHeight + deltaPercent), 90); // Min 20%, Max 90%
+    
+    setPanelHeight(newHeight);
+  }, [isDragging, dragStartY, dragStartHeight]);
+
+  const handleDragEnd = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  // Add global mouse/touch move and up listeners when dragging
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleDragMove);
+      document.addEventListener('mouseup', handleDragEnd);
+      document.addEventListener('touchmove', handleDragMove);
+      document.addEventListener('touchend', handleDragEnd);
+      
+      // Prevent text selection while dragging
+      document.body.style.userSelect = 'none';
+      
+      return () => {
+        document.removeEventListener('mousemove', handleDragMove);
+        document.removeEventListener('mouseup', handleDragEnd);
+        document.removeEventListener('touchmove', handleDragMove);
+        document.removeEventListener('touchend', handleDragEnd);
+        document.body.style.userSelect = '';
+      };
+    }
+  }, [isDragging, handleDragMove, handleDragEnd]);
 
   // Debug log
   console.log('Map Search Component - showBottomPanel:', showBottomPanel, 'viewMode:', viewMode);
@@ -1339,41 +1390,26 @@ export default function MapSearch() {
 
       {/* Enhanced Bottom Slide Panel - Fixed visibility */}
       <div 
-        className={"fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 dark:bg-gray-900 shadow-2xl rounded-t-2xl transition-all duration-500 ease-out z-[998] border-t-4 border-blue-500 " + (
+        className={`fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 dark:bg-gray-900 shadow-2xl rounded-t-2xl z-[998] border-t-4 border-blue-500 ${
+          isDragging ? '' : 'transition-all duration-500 ease-out'
+        } ${
           showBottomPanel ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
-        )}
+        }`}
         style={{ 
           height: showBottomPanel ? panelHeight + 'vh' : '0vh',
           minHeight: showBottomPanel ? '300px' : '0px',
           maxHeight: '80vh'
         }}
       >
-        {/* Panel Handle - Enhanced visibility */}
-        <div className="flex justify-center pt-3 pb-2 bg-blue-50 dark:bg-blue-900/30">
-          <div 
-            className="w-16 h-2 bg-blue-400 rounded-full cursor-grab active:cursor-grabbing shadow-sm"
-            onMouseDown={(e) => {
-              // Add drag functionality for resizing panel
-              const startY = e.clientY;
-              const startHeight = panelHeight;
-
-              const handleMouseMove = (e: MouseEvent) => {
-                const deltaY = startY - e.clientY;
-                const newHeight = Math.max(20, Math.min(80, startHeight + (deltaY / window.innerHeight) * 100));
-                setPanelHeight(newHeight);
-              };
-
-              const handleMouseUp = () => {
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
-              };
-
-              document.addEventListener('mousemove', handleMouseMove);
-              document.addEventListener('mouseup', handleMouseUp);
-            }}
-          />
+        {/* Drag Handle - Combined and enhanced */}
+        <div 
+          className="flex justify-center py-2 bg-blue-50 dark:bg-blue-900/30 cursor-ns-resize hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          onMouseDown={handleDragStart}
+          onTouchStart={handleDragStart}
+        >
+          <div className={`w-16 h-1.5 rounded-full shadow-sm transition-all ${isDragging ? 'bg-blue-600 scale-110' : 'bg-blue-400'}`}></div>
         </div>
-
+        
         {/* Panel Header - Enhanced visibility */}
         <div className="px-4 pb-3 border-b-2 border-blue-200 dark:border-blue-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
           <div className="flex items-center justify-between">
