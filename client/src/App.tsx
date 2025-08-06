@@ -93,6 +93,7 @@ import AIDemoPage from "@/pages/ai-demo";
 import AIMapShowcase from "@/pages/ai-map-showcase";
 import AIMapIntelligence from "@/pages/ai-map-intelligence";
 import AIMapIntelligenceDeckGL from "@/pages/ai-map-intelligence-deckgl";
+import AIMapDeckGLFull from "@/pages/ai-map-deckgl-full";
 import AISearchIntelligence from "@/pages/ai-search-intelligence";
 import VendorSignup from "@/pages/vendor-signup";
 import VendorDashboard from "@/pages/vendor-dashboard";
@@ -228,6 +229,7 @@ function Router() {
       <Route path="/ai-map-showcase" component={AIMapShowcase} />
       <Route path="/ai-map-intelligence" component={AIMapIntelligence} />
       <Route path="/ai-map-intelligence-deckgl" component={AIMapIntelligenceDeckGL} />
+      <Route path="/ai-map-deckgl-full" component={AIMapDeckGLFull} />
       <Route path="/vendor-signup" component={VendorSignup} />
       <Route path="/vendor/signup" component={VendorSignup} />
       <Route path="/vendor-welcome" component={VendorWelcome} />

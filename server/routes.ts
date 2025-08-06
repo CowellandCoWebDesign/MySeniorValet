@@ -95,6 +95,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const aiMapIntelligenceRoutes = await import('./routes/ai-map-intelligence');
   app.use(aiMapIntelligenceRoutes.default);
   
+  const aiMapFullLoadRoutes = await import('./routes/ai-map-full-load');
+  app.use(aiMapFullLoadRoutes.default);
+  
   // Register community Stripe payment routes
   const { registerCommunityStripeRoutes } = await import('./routes/community-stripe');
   registerCommunityStripeRoutes(app);
