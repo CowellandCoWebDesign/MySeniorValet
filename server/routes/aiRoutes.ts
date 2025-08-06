@@ -88,17 +88,17 @@ export function registerAIRoutes(app: Express) {
         reviewCount: communities.reviewCount,
         photos: communities.photos,
         county: communities.county,
-        zip: communities.zip
+        zipCode: communities.zipCode
       }).from(communities);
       
       if (conditions.length > 0) {
-        dbQuery = dbQuery.where(and(...conditions));
+        dbQuery = dbQuery.where(and(...conditions)) as typeof dbQuery;
       }
 
       // Handle different search types
       if (searchType === 'housing') {
         // Get real communities from YOUR database
-        const results = await dbQuery.limit(50);
+        const results = await dbQuery.limit(50).execute();
         console.log(`✅ Found ${results.length} communities in YOUR database`);
 
         // Sort by relevance - prioritize HUD verified and communities with pricing

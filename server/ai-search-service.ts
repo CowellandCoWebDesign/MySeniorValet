@@ -93,8 +93,22 @@ Return a JSON object with the structured search parameters.`;
         throw new Error('Unexpected response type from Anthropic');
       }
 
-      // Parse the JSON response
-      const parsed = JSON.parse(content.text);
+      // Clean the response - remove markdown formatting if present
+      let cleanedText = content.text.trim();
+      
+      // Remove markdown code blocks if present
+      if (cleanedText.startsWith('```json')) {
+        cleanedText = cleanedText.substring(7);
+      }
+      if (cleanedText.startsWith('```')) {
+        cleanedText = cleanedText.substring(3);
+      }
+      if (cleanedText.endsWith('```')) {
+        cleanedText = cleanedText.substring(0, cleanedText.length - 3);
+      }
+      
+      // Parse the cleaned JSON response
+      const parsed = JSON.parse(cleanedText.trim());
       
       // Normalize the response
       return {
