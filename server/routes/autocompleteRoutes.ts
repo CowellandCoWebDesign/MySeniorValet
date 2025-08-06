@@ -16,11 +16,115 @@ router.get('/autocomplete/suggestions', async (req, res) => {
       return res.json({ suggestions: [] });
     }
 
-    const searchTerm = query.toLowerCase();
+    const searchTerm = query.toLowerCase().trim();
     const suggestions: any[] = [];
+    
+    // Parse location queries (e.g., "Kingston Ontario" or "San Francisco CA")
+    let citySearch = searchTerm;
+    let stateSearch: string | null = null;
+    
+    console.log(`🔍 Autocomplete search: "${searchTerm}"`);
+    
+    // Common state/province patterns
+    const stateProvincePatterns = [
+      // Canadian provinces
+      /\b(ontario|on|quebec|qc|british columbia|bc|alberta|ab|manitoba|mb|saskatchewan|sk|nova scotia|ns|new brunswick|nb|newfoundland|nl|prince edward island|pei|yukon|yt|northwest territories|nt|nunavut|nu)\b$/i,
+      // US states (common abbreviations and full names)
+      /\b(alabama|al|alaska|ak|arizona|az|arkansas|ar|california|ca|colorado|co|connecticut|ct|delaware|de|florida|fl|georgia|ga|hawaii|hi|idaho|id|illinois|il|indiana|in|iowa|ia|kansas|ks|kentucky|ky|louisiana|la|maine|me|maryland|md|massachusetts|ma|michigan|mi|minnesota|mn|mississippi|ms|missouri|mo|montana|mt|nebraska|ne|nevada|nv|new hampshire|nh|new jersey|nj|new mexico|nm|new york|ny|north carolina|nc|north dakota|nd|ohio|oh|oklahoma|ok|oregon|or|pennsylvania|pa|rhode island|ri|south carolina|sc|south dakota|sd|tennessee|tn|texas|tx|utah|ut|vermont|vt|virginia|va|washington|wa|west virginia|wv|wisconsin|wi|wyoming|wy)\b$/i
+    ];
+    
+    // Check if search contains state/province
+    for (const pattern of stateProvincePatterns) {
+      const match = searchTerm.match(pattern);
+      if (match) {
+        stateSearch = match[1].toUpperCase();
+        // Map common abbreviations and full names to standard format
+        const stateMap: Record<string, string> = {
+          'ONTARIO': 'ON', 'QUEBEC': 'QC', 'BRITISH COLUMBIA': 'BC', 'ALBERTA': 'AB',
+          'MANITOBA': 'MB', 'SASKATCHEWAN': 'SK', 'NOVA SCOTIA': 'NS', 'NEW BRUNSWICK': 'NB',
+          'NEWFOUNDLAND': 'NL', 'PRINCE EDWARD ISLAND': 'PE', 'YUKON': 'YT', 
+          'NORTHWEST TERRITORIES': 'NT', 'NUNAVUT': 'NU',
+          'ALABAMA': 'AL', 'ALASKA': 'AK', 'ARIZONA': 'AZ', 'ARKANSAS': 'AR',
+          'CALIFORNIA': 'CA', 'COLORADO': 'CO', 'CONNECTICUT': 'CT', 'DELAWARE': 'DE',
+          'FLORIDA': 'FL', 'GEORGIA': 'GA', 'HAWAII': 'HI', 'IDAHO': 'ID',
+          'ILLINOIS': 'IL', 'INDIANA': 'IN', 'IOWA': 'IA', 'KANSAS': 'KS',
+          'KENTUCKY': 'KY', 'LOUISIANA': 'LA', 'MAINE': 'ME', 'MARYLAND': 'MD',
+          'MASSACHUSETTS': 'MA', 'MICHIGAN': 'MI', 'MINNESOTA': 'MN', 'MISSISSIPPI': 'MS',
+          'MISSOURI': 'MO', 'MONTANA': 'MT', 'NEBRASKA': 'NE', 'NEVADA': 'NV',
+          'NEW HAMPSHIRE': 'NH', 'NEW JERSEY': 'NJ', 'NEW MEXICO': 'NM', 'NEW YORK': 'NY',
+          'NORTH CAROLINA': 'NC', 'NORTH DAKOTA': 'ND', 'OHIO': 'OH', 'OKLAHOMA': 'OK',
+          'OREGON': 'OR', 'PENNSYLVANIA': 'PA', 'RHODE ISLAND': 'RI', 'SOUTH CAROLINA': 'SC',
+          'SOUTH DAKOTA': 'SD', 'TENNESSEE': 'TN', 'TEXAS': 'TX', 'UTAH': 'UT',
+          'VERMONT': 'VT', 'VIRGINIA': 'VA', 'WASHINGTON': 'WA', 'WEST VIRGINIA': 'WV',
+          'WISCONSIN': 'WI', 'WYOMING': 'WY'
+        };
+        
+        // Convert to standard abbreviation if it's a full name
+        if (stateMap[stateSearch]) {
+          stateSearch = stateMap[stateSearch];
+        } else if (stateSearch.length > 2) {
+          // If not found in map and longer than 2 chars, keep original
+          stateSearch = stateSearch;
+        }
+        
+        // Extract city part (everything before the state/province)
+        citySearch = searchTerm.substring(0, match.index).trim();
+      }
+    }
+    
+    // Also check for comma-separated format (e.g., "Kingston, Ontario")
+    if (!stateSearch && searchTerm.includes(',')) {
+      const parts = searchTerm.split(',').map(p => p.trim());
+      if (parts.length === 2) {
+        citySearch = parts[0];
+        const potentialState = parts[1].toUpperCase();
+        // Map to standard abbreviation
+        const stateMap: Record<string, string> = {
+          'ONTARIO': 'ON', 'QUEBEC': 'QC', 'BRITISH COLUMBIA': 'BC', 'ALBERTA': 'AB',
+          'MANITOBA': 'MB', 'SASKATCHEWAN': 'SK', 'NOVA SCOTIA': 'NS', 'NEW BRUNSWICK': 'NB',
+          'NEWFOUNDLAND': 'NL', 'PRINCE EDWARD ISLAND': 'PE', 'YUKON': 'YT',
+          'NORTHWEST TERRITORIES': 'NT', 'NUNAVUT': 'NU'
+        };
+        stateSearch = stateMap[potentialState] || potentialState;
+      }
+    }
+    
+    // Log parsed location for debugging
+    if (citySearch || stateSearch) {
+      console.log(`📍 Parsed location - City: "${citySearch}", State/Province: "${stateSearch}"`);
+    }
 
     // Search individual communities by name (if category is all or communities)
     if (!category || category === 'all' || category === 'communities') {
+      // Build where conditions based on parsed location
+      let whereCondition;
+      
+      if (stateSearch && citySearch) {
+        // If we have both city and state, search for communities in that specific location
+        whereCondition = and(
+          or(
+            ilike(communities.name, `%${citySearch}%`),
+            ilike(communities.city, `%${citySearch}%`)
+          ),
+          or(
+            sql`UPPER(${communities.state}) = ${stateSearch}`,
+            ilike(communities.state, `%${stateSearch}%`)
+          )
+        );
+      } else if (stateSearch && !citySearch) {
+        // If only state, show communities in that state
+        whereCondition = or(
+          sql`UPPER(${communities.state}) = ${stateSearch}`,
+          ilike(communities.state, `%${stateSearch}%`)
+        );
+      } else {
+        // Regular search without state filtering
+        whereCondition = or(
+          ilike(communities.name, `%${searchTerm}%`),
+          ilike(communities.city, `%${searchTerm}%`)
+        );
+      }
+      
       const communityResults = await db
         .select({
           id: communities.id,
@@ -31,12 +135,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
           type: sql`'community'`.as('type')
         })
         .from(communities)
-        .where(
-          or(
-            ilike(communities.name, `%${searchTerm}%`),
-            ilike(communities.city, `%${searchTerm}%`)
-          )
-        )
+        .where(whereCondition)
         .limit(5);
 
       communityResults.forEach(c => {
@@ -129,6 +228,25 @@ router.get('/autocomplete/suggestions', async (req, res) => {
     }
 
     // Add location suggestions (cities, states, counties)
+    // Build city search conditions based on parsed location
+    let cityWhereCondition;
+    if (stateSearch && citySearch) {
+      // Search for cities in specific state
+      cityWhereCondition = and(
+        ilike(communities.city, `%${citySearch}%`),
+        or(
+          sql`UPPER(${communities.state}) = ${stateSearch}`,
+          ilike(communities.state, `%${stateSearch}%`)
+        )
+      );
+    } else if (citySearch) {
+      // Search for cities matching the search term
+      cityWhereCondition = ilike(communities.city, `%${citySearch}%`);
+    } else {
+      // Default city search
+      cityWhereCondition = ilike(communities.city, `%${searchTerm}%`);
+    }
+    
     const cityResults = await db
       .selectDistinct({
         city: communities.city,
@@ -136,7 +254,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
         count: sql<number>`COUNT(*)`.as('count')
       })
       .from(communities)
-      .where(ilike(communities.city, `%${searchTerm}%`))
+      .where(cityWhereCondition)
       .groupBy(communities.city, communities.state)
       .orderBy(sql`COUNT(*) DESC`)
       .limit(3);
@@ -146,7 +264,8 @@ router.get('/autocomplete/suggestions', async (req, res) => {
         label: `${c.city}, ${c.state}`,
         value: `${c.city}, ${c.state}`,
         type: 'city',
-        count: c.count
+        count: c.count,
+        description: `${c.count} communities`
       });
     });
 
@@ -175,6 +294,23 @@ router.get('/autocomplete/suggestions', async (req, res) => {
       });
     });
 
+    // Build county search conditions
+    let countyWhereCondition;
+    if (stateSearch && citySearch) {
+      // Search for counties in specific state
+      countyWhereCondition = and(
+        sql`${communities.county} IS NOT NULL AND LOWER(${communities.county}) LIKE LOWER(${'%' + citySearch + '%'})`,
+        or(
+          sql`UPPER(${communities.state}) = ${stateSearch}`,
+          ilike(communities.state, `%${stateSearch}%`)
+        )
+      );
+    } else if (citySearch) {
+      countyWhereCondition = sql`${communities.county} IS NOT NULL AND LOWER(${communities.county}) LIKE LOWER(${'%' + citySearch + '%'})`;
+    } else {
+      countyWhereCondition = sql`${communities.county} IS NOT NULL AND LOWER(${communities.county}) LIKE LOWER(${'%' + searchTerm + '%'})`;
+    }
+    
     const countyResults = await db
       .selectDistinct({
         county: communities.county,
@@ -182,9 +318,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
         count: sql<number>`COUNT(*)`.as('count')
       })
       .from(communities)
-      .where(
-        sql`${communities.county} IS NOT NULL AND LOWER(${communities.county}) LIKE LOWER(${'%' + searchTerm + '%'})`
-      )
+      .where(countyWhereCondition)
       .groupBy(communities.county, communities.state)
       .orderBy(sql`COUNT(*) DESC`)
       .limit(2);
