@@ -176,8 +176,10 @@ router.get('/api/ai-map/all-communities', async (req, res) => {
     // Determine clustering level based on zoom
     const zoomLevel = parseInt(zoom as string) || 4;
     
-    // For country-wide view (zoom < 6), return state-level clusters only
-    if (zoomLevel < 6) {
+    console.log('AI Map request - zoom level:', zoomLevel);
+    
+    // For country-wide view (zoom <= 5), return state-level clusters only
+    if (zoomLevel <= 5) {
       const result = await db.execute(sql`
         SELECT 
           MIN(id) as id,
@@ -196,6 +198,7 @@ router.get('/api/ai-map/all-communities', async (req, res) => {
       return res.json({
         type: 'FeatureCollection',
         clustered: true,
+        zoomLevel,
         features: result.rows.map((c: any) => ({
           type: 'Feature',
           properties: {
@@ -216,7 +219,52 @@ router.get('/api/ai-map/all-communities', async (req, res) => {
       });
     }
     
-    // For regional view (zoom 6-10), return top cities only
+    // For state view (zoom 6-8), return major cities in view
+    if (zoomLevel >= 6 && zoomLevel <= 8) {
+      const result = await db.execute(sql`
+        SELECT 
+          MIN(id) as id,
+          city,
+          state,
+          AVG(latitude) as latitude,
+          AVG(longitude) as longitude,
+          COUNT(*) as count,
+          STRING_AGG(DISTINCT community_subtype, ',') as types
+        FROM communities 
+        WHERE latitude IS NOT NULL 
+        AND longitude IS NOT NULL
+        GROUP BY state, city
+        HAVING COUNT(*) > 2
+        ORDER BY COUNT(*) DESC
+        LIMIT 300
+      `);
+      
+      return res.json({
+        type: 'FeatureCollection',
+        clustered: true,
+        zoomLevel,
+        features: result.rows.map((c: any) => ({
+          type: 'Feature',
+          properties: {
+            id: c.id,
+            name: `${c.city}, ${c.state}`,
+            city: c.city,
+            state: c.state,
+            count: c.count,
+            types: c.types,
+            cluster: true,
+            clusterLevel: 'city'
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: [Number(c.longitude), Number(c.latitude)]
+          }
+        })),
+        total: result.rows.length
+      });
+    }
+    
+    // For city view (zoom > 8), return all cities
     const result = await db.execute(sql`
       SELECT 
         MIN(id) as id,
@@ -230,9 +278,8 @@ router.get('/api/ai-map/all-communities', async (req, res) => {
       WHERE latitude IS NOT NULL 
       AND longitude IS NOT NULL
       GROUP BY state, city
-      HAVING COUNT(*) > 3
       ORDER BY COUNT(*) DESC
-      LIMIT 200
+      LIMIT 500
     `);
 
     res.json({

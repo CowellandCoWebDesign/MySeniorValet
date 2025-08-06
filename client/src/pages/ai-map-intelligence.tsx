@@ -313,15 +313,27 @@ export default function AIMapIntelligence() {
                                 font-size: 14px;
                                 border: 3px solid white;
                                 box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                                cursor: pointer;
                               ">${feature.properties.count || 1}</div>`,
                               iconSize: [Math.min(40 + (feature.properties.count || 1) * 0.5, 80), Math.min(40 + (feature.properties.count || 1) * 0.5, 80)],
                               iconAnchor: [Math.min(40 + (feature.properties.count || 1) * 0.5, 80) / 2, Math.min(40 + (feature.properties.count || 1) * 0.5, 80) / 2]
                             })}
+                            eventHandlers={{
+                              click: () => {
+                                // Zoom into the cluster area
+                                const targetZoom = feature.properties.clusterLevel === 'state' ? 7 : 10;
+                                mapRef.current?.setView(
+                                  [feature.geometry.coordinates[1], feature.geometry.coordinates[0]], 
+                                  targetZoom
+                                );
+                              }
+                            }}
                           >
                             <Popup>
                               <div className="p-2">
                                 <h3 className="font-bold">{feature.properties.name}</h3>
                                 <p className="text-sm font-medium">{feature.properties.count} communities</p>
+                                <p className="text-xs text-gray-600 mt-1">Click marker to zoom in</p>
                                 {feature.properties.types && (
                                   <p className="text-xs text-gray-600 mt-1">Types: {feature.properties.types}</p>
                                 )}
