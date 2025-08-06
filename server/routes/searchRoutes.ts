@@ -246,6 +246,14 @@ export function registerSearchRoutes(app: Express) {
             cmsRating: hospitals.cmsRating,
             services: hospitals.services,
             specialties: hospitals.specialties,
+            mortalityRating: hospitals.mortalityRating,
+            safetyRating: hospitals.safetyRating,
+            readmissionRating: hospitals.readmissionRating,
+            experienceRating: hospitals.experienceRating,
+            ownership: hospitals.ownership,
+            insuranceAccepted: hospitals.insuranceAccepted,
+            networkAffiliations: hospitals.networkAffiliations,
+            website: hospitals.website,
           })
           .from(hospitals)
           .where(and(...hospitalConditions))
@@ -268,6 +276,14 @@ export function registerSearchRoutes(app: Express) {
             cmsRating: hospitals.cmsRating,
             services: hospitals.services,
             specialties: hospitals.specialties,
+            mortalityRating: hospitals.mortalityRating,
+            safetyRating: hospitals.safetyRating,
+            readmissionRating: hospitals.readmissionRating,
+            experienceRating: hospitals.experienceRating,
+            ownership: hospitals.ownership,
+            insuranceAccepted: hospitals.insuranceAccepted,
+            networkAffiliations: hospitals.networkAffiliations,
+            website: hospitals.website,
           })
           .from(hospitals)
           .orderBy(desc(hospitals.cmsRating))
@@ -367,7 +383,7 @@ export function registerSearchRoutes(app: Express) {
         .where(careServicesConditions)
         .limit(resultLimit); // Show all care services in view
 
-      // Transform hospitals to match expected format
+      // Transform hospitals to match expected format with full data
       const transformedHospitals = hospitalResults.map(hospital => ({
         id: `hospital-${hospital.id}`,
         name: hospital.name,
@@ -380,7 +396,25 @@ export function registerSearchRoutes(app: Express) {
         isPopular: hospital.cmsRating >= 4,
         isHospital: true,
         location: `${hospital.city}, ${hospital.state}`,
+        city: hospital.city,
+        state: hospital.state,
+        // Extended hospital fields
+        hospitalType: hospital.hospitalType,
+        bedCount: hospital.bedCount,
+        emergencyServices: hospital.emergencyServices,
+        traumaLevel: hospital.traumaLevel,
+        cmsRating: hospital.cmsRating,
         specialties: hospital.specialties || [],
+        services: hospital.services || [],
+        phone: hospital.phone,
+        website: hospital.website,
+        mortalityRating: hospital.mortalityRating,
+        safetyRating: hospital.safetyRating,
+        readmissionRating: hospital.readmissionRating,
+        experienceRating: hospital.experienceRating,
+        ownership: hospital.ownership,
+        insuranceAccepted: hospital.insuranceAccepted || [],
+        networkAffiliations: hospital.networkAffiliations || [],
       }));
 
       // Transform services to match expected healthcare service format
