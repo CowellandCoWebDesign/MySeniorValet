@@ -57,6 +57,69 @@ export function registerSearchRoutes(app: Express) {
     }
   });
 
+  // Hospitals map endpoint - fetch hospitals within map bounds  
+  app.get('/api/healthcare/hospitals-map', async (req, res) => {
+    try {
+      const { west, south, east, north, limit = '100' } = req.query;
+      
+      // Validate bounds
+      if (!west || !south || !east || !north) {
+        return res.status(400).json({ 
+          error: 'Map bounds required',
+          hospitals: [] 
+        });
+      }
+
+      const bounds = {
+        west: parseFloat(west as string),
+        south: parseFloat(south as string),
+        east: parseFloat(east as string),
+        north: parseFloat(north as string)
+      };
+
+      console.log('🏥 Fetching hospitals for map bounds:', bounds);
+
+      // Query hospitals within bounds
+      const hospitalsResult = await db.select({
+        id: hospitals.id,
+        name: hospitals.name,
+        address: hospitals.address,
+        city: hospitals.city,
+        state: hospitals.state,
+        zipCode: hospitals.zipCode,
+        latitude: hospitals.latitude,
+        longitude: hospitals.longitude,
+        phone: hospitals.phone,
+        website: hospitals.website,
+        emergencyServices: hospitals.emergencyServices,
+        hospitalType: hospitals.hospitalType,
+
+        ownership: hospitals.ownership
+      })
+      .from(hospitals)
+      .where(sql`
+        latitude::decimal BETWEEN ${bounds.south} AND ${bounds.north}
+        AND longitude::decimal BETWEEN ${bounds.west} AND ${bounds.east}
+        AND latitude IS NOT NULL
+        AND longitude IS NOT NULL
+      `)
+      .limit(parseInt(limit as string))
+      .orderBy(
+        sql`CASE WHEN emergency_services = true THEN 0 ELSE 1 END`
+      );
+
+      console.log(`🏥 Found ${hospitalsResult.length} hospitals in view`);
+
+      res.json({ hospitals: hospitalsResult });
+    } catch (error) {
+      console.error('Error fetching hospitals for map:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch hospitals',
+        hospitals: [] 
+      });
+    }
+  });
+
   // Healthcare services search endpoint (comprehensive with dual filtering modes)
   app.get('/api/healthcare/search', async (req, res) => {
     try {

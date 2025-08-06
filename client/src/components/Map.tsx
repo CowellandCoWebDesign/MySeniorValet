@@ -59,6 +59,10 @@ const assistedLivingIcon = createSimpleIcon('#3b82f6'); // Blue
 const memoryCareIcon = createSimpleIcon('#8b5cf6'); // Purple
 const independentIcon = createSimpleIcon('#10b981'); // Green
 
+// Hospital icons
+const hospitalIcon = createSimpleIcon('#dc2626'); // Red for hospitals with emergency services
+const urgentCareIcon = createSimpleIcon('#f97316'); // Orange for urgent care facilities
+
 // Map View Controller - Updates map view when center/zoom props change
 const MapViewController: React.FC<{ center: [number, number]; zoom: number }> = ({ center, zoom }) => {
   const map = useMap();
@@ -803,6 +807,47 @@ export default function Map({
     retry: 1 // Only retry once on failure
   });
 
+  // Fetch hospitals for current map bounds
+  const { data: hospitalsData } = useQuery({
+    queryKey: ['hospitals-map', 
+      mapBounds ? {
+        west: mapBounds.getWest().toFixed(4),
+        east: mapBounds.getEast().toFixed(4),
+        south: mapBounds.getSouth().toFixed(4),
+        north: mapBounds.getNorth().toFixed(4)
+      } : 'default'
+    ],
+    queryFn: async () => {
+      const bounds = getOptimizedBounds(mapBounds);
+
+      const params = new URLSearchParams({
+        west: bounds.west.toString(),
+        south: bounds.south.toString(),
+        east: bounds.east.toString(),
+        north: bounds.north.toString(),
+        limit: '100' // Limit to top 100 hospitals to avoid clutter
+      });
+
+      console.log('🏥 Fetching hospitals for bounds:', bounds);
+
+      const response = await fetch(`/api/healthcare/hospitals-map?${params}`);
+
+      if (!response.ok) {
+        console.error('Failed to fetch hospitals');
+        return { hospitals: [] };
+      }
+
+      const data = await response.json();
+      console.log(`🏥 Found ${data.hospitals?.length || 0} hospitals in current view`);
+      return data;
+    },
+    enabled: !!mapBounds && currentZoom >= 10, // Only show hospitals at closer zoom levels
+    staleTime: 10000,
+    refetchOnWindowFocus: false,
+    gcTime: 60000,
+    retry: 1
+  });
+
   const getIconForCommunity = (community: Community, isHovered = false, isPulsing = false) => {
     // Check for LIVE DATA - green pin means we have real pricing/availability/contact info
     const hasLiveData = (community.rentPerMonth && community.rentPerMonth > 0) || // Has real pricing
@@ -1391,6 +1436,111 @@ export default function Map({
             </Marker>
           );
         }) || []}
+
+        {/* Hospital markers - show alongside communities */}
+        {!isLoading && hospitalsData?.hospitals && currentZoom >= 10 && hospitalsData.hospitals.map((hospital: any, index: number) => {
+          const isHovered = hoveredCommunity === `hospital-${hospital.id}`;
+          
+          // Use red icon for emergency services, orange for urgent care
+          const hospitalMarkerIcon = hospital.emergencyServices ? hospitalIcon : urgentCareIcon;
+          
+          return (
+            <Marker
+              key={`hospital-${hospital.id}`}
+              position={[parseFloat(hospital.latitude), parseFloat(hospital.longitude)]}
+              icon={hospitalMarkerIcon}
+              eventHandlers={{
+                mouseover: () => setHoveredCommunity(`hospital-${hospital.id}`),
+                mouseout: () => setHoveredCommunity(null),
+                click: () => {
+                  // You can add click handler for hospitals if needed
+                  console.log('Hospital clicked:', hospital.name);
+                }
+              }}
+            >
+              {/* Hospital tooltip */}
+              {isHovered && (
+                <Tooltip permanent direction="top" offset={[0, -15]}>
+                  <div className="bg-white/98 backdrop-blur-sm rounded-xl p-3 shadow-xl border border-gray-200 max-w-xs">
+                    <div className="font-bold text-sm text-gray-900 mb-1">
+                      🏥 {hospital.name}
+                    </div>
+                    <div className="text-xs text-gray-600 mb-1">
+                      📍 {hospital.city}, {hospital.state}
+                    </div>
+                    {hospital.emergencyServices && (
+                      <Badge className="bg-red-100 text-red-700 text-xs">
+                        🚨 Emergency Services
+                      </Badge>
+                    )}
+                    {hospital.cmsOverallRating && (
+                      <div className="text-xs text-blue-600 mt-1">
+                        ⭐ CMS Rating: {hospital.cmsOverallRating}/5
+                      </div>
+                    )}
+                  </div>
+                </Tooltip>
+              )}
+
+              {/* Hospital popup */}
+              <Popup className="hospital-popup" closeButton={true} autoPan={true} maxWidth={350}>
+                <div className="p-4">
+                  <h3 className="font-bold text-lg mb-2">
+                    {hospital.emergencyServices ? '🚨' : '🏥'} {hospital.name}
+                  </h3>
+                  
+                  {hospital.emergencyServices && (
+                    <Badge className="bg-red-100 text-red-700 mb-2">
+                      Emergency Services Available
+                    </Badge>
+                  )}
+                  
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start gap-2">
+                      <MapPin className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                      <span>
+                        {hospital.address}, {hospital.city}, {hospital.state} {hospital.zipCode}
+                      </span>
+                    </div>
+                    
+                    {hospital.phone && (
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-4 h-4 text-green-500" />
+                        <a href={`tel:${hospital.phone}`} className="text-blue-600 hover:underline">
+                          {hospital.phone}
+                        </a>
+                      </div>
+                    )}
+                    
+                    {hospital.website && (
+                      <div className="flex items-center gap-2">
+                        <Globe className="w-4 h-4 text-purple-500" />
+                        <a href={hospital.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                          Visit Website
+                        </a>
+                      </div>
+                    )}
+                    
+                    {hospital.cmsOverallRating && (
+                      <div className="flex items-center gap-2">
+                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                        <span>CMS Rating: {hospital.cmsOverallRating}/5</span>
+                      </div>
+                    )}
+                    
+                    {hospital.hospitalType && (
+                      <div className="mt-2">
+                        <Badge variant="secondary" className="text-xs">
+                          {hospital.hospitalType}
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
 
         </MapContainer>
 
