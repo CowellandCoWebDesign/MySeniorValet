@@ -268,16 +268,17 @@ export default function AISearchIntelligence() {
   });
 
   // Handle AI-powered search
-  const handleAISearch = useCallback(async () => {
-    if (!searchQuery.trim()) return;
+  const handleAISearch = useCallback(async (query?: string) => {
+    const searchText = query || searchQuery;
+    if (!searchText.trim()) return;
     
     setIsAnalyzing(true);
     try {
-      await aiSearchMutation.mutateAsync({ query: searchQuery, type: searchType });
+      await aiSearchMutation.mutateAsync({ query: searchText, type: searchType });
     } finally {
       setIsAnalyzing(false);
     }
-  }, [searchQuery, searchType]);
+  }, [searchQuery, searchType, aiSearchMutation]);
 
   // Handle Perfect Match analysis
   const handlePerfectMatch = useCallback(async () => {
@@ -425,7 +426,10 @@ export default function AISearchIntelligence() {
                   <AutocompleteSearch
                     value={searchQuery}
                     onChange={setSearchQuery}
-                    onSubmit={handleAISearch}
+                    onSubmit={(value) => {
+                      setSearchQuery(value); // Update state
+                      handleAISearch(value); // Execute search immediately with value
+                    }}
                     placeholder={
                       searchType === 'housing' ? "Search cities, communities, or care types..." :
                       searchType === 'services' ? "Search for care services..." :
@@ -785,7 +789,15 @@ export default function AISearchIntelligence() {
                     <AutocompleteSearch
                       value={matchProfile.location}
                       onChange={(value) => setMatchProfile({ ...matchProfile, location: value })}
-                      onSubmit={(value) => setMatchProfile({ ...matchProfile, location: value })}
+                      onSubmit={(value) => {
+                        setMatchProfile({ ...matchProfile, location: value });
+                        // Optionally trigger map update when location is selected
+                        const coords = getCityCoordinates(value.split(',')[0].trim(), value.split(',')[1]?.trim() || '');
+                        if (coords) {
+                          setMapCenter(coords);
+                          setMapZoom(11);
+                        }
+                      }}
                       placeholder="Start typing a city, state, or community name..."
                       isLoading={false}
                     />
