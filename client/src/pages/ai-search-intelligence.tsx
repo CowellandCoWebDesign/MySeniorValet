@@ -357,11 +357,14 @@ export default function AISearchIntelligence() {
                     </CardHeader>
                     <CardContent className="h-[calc(100%-5rem)] p-0">
                       <Map
-                        communities={searchResults.data.communities}
                         center={mapCenter}
                         zoom={mapZoom}
-                        onLocationAnalysis={(analysis) => {
-                          console.log('AI Location Analysis:', analysis);
+                        searchFilters={{
+                          careType: matchProfile.careNeeds[0],
+                          budget: `${matchProfile.budget.min}-${matchProfile.budget.max}`
+                        }}
+                        onBoundsChange={(bounds: any) => {
+                          console.log('Map bounds changed:', bounds);
                         }}
                       />
                     </CardContent>
@@ -453,152 +456,239 @@ export default function AISearchIntelligence() {
             )}
           </TabsContent>
 
-          {/* Perfect Match Tab */}
+          {/* Perfect Match Tab - Enhanced */}
           <TabsContent value="match" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+            <Card className="border-2 border-green-200 dark:border-green-800">
+              <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20">
+                <CardTitle className="flex items-center gap-2 text-xl">
                   <Target className="w-6 h-6 text-green-600" />
                   Build Your Perfect Match Profile
                 </CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                  Let our AI analyze your needs and find the ideal communities that match your unique requirements
+                </p>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <div className="grid gap-6">
-                  {/* Care Needs */}
+                  {/* Care Needs - Enhanced with descriptions */}
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Care Needs</label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {['Independent Living', 'Assisted Living', 'Memory Care', 'Skilled Nursing'].map((need) => (
-                        <label key={need} className="flex items-center space-x-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={matchProfile.careNeeds.includes(need)}
-                            onChange={(e) => {
-                              const newNeeds = e.target.checked
-                                ? [...matchProfile.careNeeds, need]
-                                : matchProfile.careNeeds.filter(n => n !== need);
-                              setMatchProfile({ ...matchProfile, careNeeds: newNeeds });
-                            }}
-                            className="rounded text-green-600"
-                          />
-                          <span className="text-sm">{need}</span>
-                        </label>
+                    <label className="text-sm font-medium mb-3 block flex items-center gap-2">
+                      <Heart className="w-4 h-4 text-red-500" />
+                      What Level of Care Do You Need?
+                    </label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {[
+                        {
+                          name: 'Independent Living',
+                          description: 'Active lifestyle with minimal assistance',
+                          icon: <Home className="w-4 h-4 text-green-600" />
+                        },
+                        {
+                          name: 'Assisted Living',
+                          description: 'Help with daily activities like bathing & medication',
+                          icon: <Users className="w-4 h-4 text-blue-600" />
+                        },
+                        {
+                          name: 'Memory Care',
+                          description: 'Specialized care for dementia & Alzheimer\'s',
+                          icon: <Brain className="w-4 h-4 text-purple-600" />
+                        },
+                        {
+                          name: 'Skilled Nursing',
+                          description: '24/7 medical care and rehabilitation',
+                          icon: <Activity className="w-4 h-4 text-red-600" />
+                        }
+                      ].map((need) => (
+                        <div 
+                          key={need.name} 
+                          className={`border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md ${
+                            matchProfile.careNeeds.includes(need.name) 
+                              ? 'border-green-500 bg-green-50 dark:bg-green-900/20' 
+                              : 'border-gray-200 dark:border-gray-700'
+                          }`}
+                          onClick={() => {
+                            const newNeeds = matchProfile.careNeeds.includes(need.name)
+                              ? matchProfile.careNeeds.filter(n => n !== need.name)
+                              : [...matchProfile.careNeeds, need.name];
+                            setMatchProfile({ ...matchProfile, careNeeds: newNeeds });
+                          }}
+                        >
+                          <div className="flex items-start gap-3">
+                            <input
+                              type="checkbox"
+                              checked={matchProfile.careNeeds.includes(need.name)}
+                              onChange={() => {}}
+                              className="mt-1 rounded text-green-600"
+                            />
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 font-medium">
+                                {need.icon}
+                                {need.name}
+                              </div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {need.description}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Budget Range */}
+                  {/* Budget Range - Enhanced with visual slider */}
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Monthly Budget</label>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-xs text-gray-500">Minimum</label>
-                        <Input
-                          type="number"
-                          placeholder="$0"
-                          value={matchProfile.budget.min}
-                          onChange={(e) => setMatchProfile({
-                            ...matchProfile,
-                            budget: { ...matchProfile.budget, min: parseInt(e.target.value) || 0 }
-                          })}
-                        />
+                    <label className="text-sm font-medium mb-3 block flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-green-600" />
+                      Monthly Budget Range
+                    </label>
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <label className="text-xs text-gray-500 dark:text-gray-400">Minimum</label>
+                          <div className="relative">
+                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              value={matchProfile.budget.min}
+                              onChange={(e) => setMatchProfile({
+                                ...matchProfile,
+                                budget: { ...matchProfile.budget, min: parseInt(e.target.value) || 0 }
+                              })}
+                              className="pl-8"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-xs text-gray-500 dark:text-gray-400">Maximum</label>
+                          <div className="relative">
+                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <Input
+                              type="number"
+                              placeholder="10000"
+                              value={matchProfile.budget.max}
+                              onChange={(e) => setMatchProfile({
+                                ...matchProfile,
+                                budget: { ...matchProfile.budget, max: parseInt(e.target.value) || 10000 }
+                              })}
+                              className="pl-8"
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <label className="text-xs text-gray-500">Maximum</label>
-                        <Input
-                          type="number"
-                          placeholder="$10,000"
-                          value={matchProfile.budget.max}
-                          onChange={(e) => setMatchProfile({
-                            ...matchProfile,
-                            budget: { ...matchProfile.budget, max: parseInt(e.target.value) || 10000 }
-                          })}
-                        />
+                      <div className="text-center text-sm text-gray-600 dark:text-gray-400">
+                        Budget: <span className="font-bold text-green-600">
+                          ${matchProfile.budget.min.toLocaleString()} - ${matchProfile.budget.max.toLocaleString()}
+                        </span> per month
                       </div>
                     </div>
                   </div>
 
-                  {/* Location */}
+                  {/* Location - Enhanced */}
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Preferred Location</label>
-                    <Input
-                      placeholder="City, State or ZIP code"
-                      value={matchProfile.location}
-                      onChange={(e) => setMatchProfile({ ...matchProfile, location: e.target.value })}
-                    />
+                    <label className="text-sm font-medium mb-3 block flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-blue-600" />
+                      Preferred Location
+                    </label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        placeholder="Enter city, state or ZIP code (e.g., Sacramento, CA or 95814)"
+                        value={matchProfile.location}
+                        onChange={(e) => setMatchProfile({ ...matchProfile, location: e.target.value })}
+                        className="pl-10"
+                      />
+                    </div>
                   </div>
 
-                  {/* Preferences */}
+                  {/* Preferences - Enhanced */}
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Important Features</label>
+                    <label className="text-sm font-medium mb-3 block flex items-center gap-2">
+                      <Star className="w-4 h-4 text-yellow-500" />
+                      Important Features & Amenities
+                    </label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {[
-                        'Pet Friendly', 'Pool/Spa', 'Fitness Center', 
-                        'Transportation', 'Religious Services', 'Gardens',
-                        'Private Rooms', 'Couples Housing', 'Veterans Programs'
-                      ].map((pref) => (
-                        <label key={pref} className="flex items-center space-x-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={matchProfile.preferences.includes(pref)}
-                            onChange={(e) => {
-                              const newPrefs = e.target.checked
-                                ? [...matchProfile.preferences, pref]
-                                : matchProfile.preferences.filter(p => p !== pref);
-                              setMatchProfile({ ...matchProfile, preferences: newPrefs });
-                            }}
-                            className="rounded text-green-600"
-                          />
-                          <span className="text-sm">{pref}</span>
-                        </label>
-                      ))}
+                        'Pet Friendly 🐕', 'Pool/Spa 🏊', 'Fitness Center 💪', 
+                        'Transportation 🚌', 'Religious Services 🙏', 'Gardens 🌷',
+                        'Private Rooms 🏠', 'Couples Housing 💑', 'Veterans Programs 🎖️'
+                      ].map((pref) => {
+                        const prefName = pref.split(' ')[0] + ' ' + (pref.split(' ')[1] || '').replace(/[^a-zA-Z]/g, '');
+                        return (
+                          <label key={pref} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded-lg transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={matchProfile.preferences.includes(prefName.trim())}
+                              onChange={(e) => {
+                                const newPrefs = e.target.checked
+                                  ? [...matchProfile.preferences, prefName.trim()]
+                                  : matchProfile.preferences.filter(p => p !== prefName.trim());
+                                setMatchProfile({ ...matchProfile, preferences: newPrefs });
+                              }}
+                              className="rounded text-green-600"
+                            />
+                            <span className="text-sm">{pref}</span>
+                          </label>
+                        );
+                      })}
                     </div>
                   </div>
 
-                  {/* Urgency */}
+                  {/* Urgency - Enhanced */}
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Timeline</label>
+                    <label className="text-sm font-medium mb-3 block flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-orange-500" />
+                      When Do You Need Care?
+                    </label>
                     <div className="grid grid-cols-3 gap-3">
                       {[
-                        { value: 'immediate', label: 'Need Now', icon: Zap },
-                        { value: 'soon', label: 'Within 3 Months', icon: Activity },
-                        { value: 'planning', label: 'Planning Ahead', icon: TrendingUp }
+                        { value: 'immediate', label: 'ASAP', sublabel: 'Urgent need', icon: AlertCircle, color: 'red' },
+                        { value: 'soon', label: '1-3 Months', sublabel: 'Coming soon', icon: Info, color: 'yellow' },
+                        { value: 'planning', label: 'Planning Ahead', sublabel: 'No rush', icon: CheckCircle, color: 'green' }
                       ].map((option) => (
                         <button
                           key={option.value}
                           onClick={() => setMatchProfile({ ...matchProfile, urgency: option.value as any })}
-                          className={`p-4 rounded-lg border-2 transition-all ${
+                          className={`p-4 rounded-lg border-2 transition-all hover:shadow-md ${
                             matchProfile.urgency === option.value
-                              ? 'border-green-600 bg-green-50 dark:bg-green-900/20'
-                              : 'border-gray-200 dark:border-gray-700'
+                              ? `border-${option.color}-500 bg-${option.color}-50 dark:bg-${option.color}-900/20`
+                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                           }`}
                         >
-                          <option.icon className={`w-6 h-6 mx-auto mb-2 ${
-                            matchProfile.urgency === option.value ? 'text-green-600' : 'text-gray-400'
-                          }`} />
+                          <option.icon className={`w-6 h-6 mx-auto mb-2 text-${option.color}-600`} />
                           <p className="text-sm font-medium">{option.label}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{option.sublabel}</p>
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  <Button 
-                    onClick={handlePerfectMatch}
-                    disabled={isAnalyzing || !matchProfile.location}
-                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-                  >
-                    {isAnalyzing ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Finding Your Perfect Matches...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Find My Perfect Match
-                      </>
+                  {/* Find Match Button - Enhanced */}
+                  <div className="pt-4 border-t">
+                    <Button 
+                      onClick={handlePerfectMatch}
+                      disabled={isAnalyzing || matchProfile.careNeeds.length === 0 || !matchProfile.location}
+                      className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02]"
+                      size="lg"
+                    >
+                      {isAnalyzing ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          AI Analyzing Your Perfect Match...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-5 h-5 mr-2" />
+                          Find My Perfect Match
+                        </>
+                      )}
+                    </Button>
+                    {(matchProfile.careNeeds.length === 0 || !matchProfile.location) && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
+                        Please select at least one care type and enter a location
+                      </p>
                     )}
-                  </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
