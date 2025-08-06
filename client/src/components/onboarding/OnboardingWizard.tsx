@@ -169,7 +169,7 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
         onSkip();
       }
     }}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto" style={{ zIndex: 9999 }}>
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto" style={{ zIndex: 50000 }}>
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2">

@@ -4,6 +4,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ensure onboarding dialog appears above all map elements */
+[data-radix-dialog-overlay] {
+  z-index: 50000 !important;
+}
+
+[data-radix-dialog-content] {
+  z-index: 50001 !important;
+}
+
+/* Ensure Leaflet map elements don't interfere with dialogs */
+.leaflet-container {
+  z-index: 1 !important;
+}
+
+.leaflet-pane {
+  z-index: auto !important;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 1000 !important;
+}
+
 /* Custom scrollbar hide utility for vendor marketplace sliders */
 @layer utilities {
   .scrollbar-hide {
