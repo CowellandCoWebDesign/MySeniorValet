@@ -1621,6 +1621,9 @@ export default function MapSearch() {
               className={`flex-shrink-0 ${resultType === 'vendors' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
             >
               Services
+              {vendors.length > 0 && (
+                <Badge className="ml-1 bg-blue-500 text-white">{vendors.length}</Badge>
+              )}
             </Button>
             <Button
               size="sm"
@@ -1629,6 +1632,9 @@ export default function MapSearch() {
               className={`flex-shrink-0 ${resultType === 'healthcare' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
             >
               Healthcare
+              {healthcareServices.length > 0 && (
+                <Badge className="ml-1 bg-blue-500 text-white">{healthcareServices.length}</Badge>
+              )}
             </Button>
             <Button
               size="sm"
@@ -1637,6 +1643,9 @@ export default function MapSearch() {
               className={`flex-shrink-0 ${resultType === 'resources' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
             >
               Resources
+              {resources.length > 0 && (
+                <Badge className="ml-1 bg-blue-500 text-white">{resources.length}</Badge>
+              )}
             </Button>
           </div>
         </div>

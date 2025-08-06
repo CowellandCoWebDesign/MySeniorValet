@@ -208,21 +208,21 @@ export function registerSearchRoutes(app: Express) {
         const { centerLat, centerLng, radius: radiusMiles } = radiusFilter;
         const milesToDegrees = radiusMiles / 69.0;
         
-        // Filter hospitals within radius using SQL comparisons for decimal fields
+        // Filter hospitals within radius - cast string coordinates to numeric for comparison
         hospitalConditions.push(
-          sql`${hospitals.latitude}::numeric >= ${centerLat - milesToDegrees} AND 
-              ${hospitals.latitude}::numeric <= ${centerLat + milesToDegrees} AND
-              ${hospitals.longitude}::numeric >= ${centerLng - (milesToDegrees / Math.cos(centerLat * Math.PI / 180))} AND
-              ${hospitals.longitude}::numeric <= ${centerLng + (milesToDegrees / Math.cos(centerLat * Math.PI / 180))}`
+          sql`CAST(${hospitals.latitude} AS DECIMAL) >= ${centerLat - milesToDegrees} AND 
+              CAST(${hospitals.latitude} AS DECIMAL) <= ${centerLat + milesToDegrees} AND
+              CAST(${hospitals.longitude} AS DECIMAL) >= ${centerLng - (milesToDegrees / Math.cos(centerLat * Math.PI / 180))} AND
+              CAST(${hospitals.longitude} AS DECIMAL) <= ${centerLng + (milesToDegrees / Math.cos(centerLat * Math.PI / 180))}`
         );
         console.log(`Healthcare radius filtering: ${radiusMiles} miles from (${centerLat}, ${centerLng})`);
       } else if (bounds) {
-        // Bounds-based filtering for map pan/zoom using SQL comparisons
+        // Bounds-based filtering for map pan/zoom - cast string coordinates to numeric for comparison
         hospitalConditions.push(
-          sql`${hospitals.latitude}::numeric >= ${bounds.swLat} AND 
-              ${hospitals.latitude}::numeric <= ${bounds.neLat} AND
-              ${hospitals.longitude}::numeric >= ${bounds.swLng} AND
-              ${hospitals.longitude}::numeric <= ${bounds.neLng}`
+          sql`CAST(${hospitals.latitude} AS DECIMAL) >= ${bounds.swLat} AND 
+              CAST(${hospitals.latitude} AS DECIMAL) <= ${bounds.neLat} AND
+              CAST(${hospitals.longitude} AS DECIMAL) >= ${bounds.swLng} AND
+              CAST(${hospitals.longitude} AS DECIMAL) <= ${bounds.neLng}`
         );
         console.log(`Healthcare bounds filtering: [${bounds.swLat}, ${bounds.swLng}] to [${bounds.neLat}, ${bounds.neLng}]`);
       } else {
