@@ -67,6 +67,11 @@ export default function PersonalizedDashboard() {
     toursScheduled: 1,
     completionPercentage: 25
   });
+  
+  // Force refresh - Horizontal Dashboard Update v2
+  useEffect(() => {
+    console.log('Dashboard v2.0 - Horizontal Layout Active - Timestamp:', Date.now());
+  }, []);
   const [preferences, setPreferences] = useState({
     maxBudget: 4000,
     careType: 'Assisted Living',
