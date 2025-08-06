@@ -5,26 +5,39 @@
 @tailwind utilities;
 
 /* Ensure onboarding dialog appears above all map elements */
-[data-radix-dialog-overlay] {
-  z-index: 50000 !important;
+[data-radix-dialog-overlay],
+[role="dialog"] {
+  z-index: 99999 !important;
 }
 
 [data-radix-dialog-content] {
-  z-index: 50001 !important;
+  z-index: 100000 !important;
 }
 
-/* Ensure Leaflet map elements don't interfere with dialogs */
-.leaflet-container {
+/* Force Leaflet map and ALL its children to stay below dialogs */
+.leaflet-container,
+.leaflet-container * {
   z-index: 1 !important;
+  position: relative !important;
 }
 
-.leaflet-pane {
+.leaflet-pane,
+.leaflet-pane * {
   z-index: auto !important;
+  max-z-index: 9998 !important;
 }
 
 .leaflet-top,
 .leaflet-bottom {
   z-index: 1000 !important;
+}
+
+/* Ensure map search panels stay below dialogs */
+.map-search-panel,
+.slide-panel,
+.community-details-panel {
+  z-index: 9990 !important;
+  max-z-index: 9998 !important;
 }
 
 /* Custom scrollbar hide utility for vendor marketplace sliders */
