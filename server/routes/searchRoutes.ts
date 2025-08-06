@@ -62,7 +62,7 @@ export function registerSearchRoutes(app: Express) {
     try {
       const { 
         q, 
-        limit = '30', 
+        limit = '500',  // Increased to show more healthcare facilities in view
         swLat, swLng, neLat, neLng,  // Map bounds filtering
         radius, centerLat, centerLng  // Radius filtering
       } = req.query;
@@ -227,7 +227,7 @@ export function registerSearchRoutes(app: Express) {
           .from(hospitals)
           .where(and(...hospitalConditions))
           .orderBy(desc(hospitals.cmsRating))
-          .limit(Math.floor(resultLimit / 2));
+          .limit(resultLimit);  // Show all hospitals in view, not just half
       } else {
         // No filters, get featured hospitals
         hospitalResults = await db
@@ -248,7 +248,7 @@ export function registerSearchRoutes(app: Express) {
           })
           .from(hospitals)
           .orderBy(desc(hospitals.cmsRating))
-          .limit(Math.floor(resultLimit / 2));
+          .limit(resultLimit);  // Show all hospitals, not just half
       }
       
       // Build where conditions for services
@@ -280,7 +280,7 @@ export function registerSearchRoutes(app: Express) {
         .leftJoin(serviceCategories, eq(services.categoryId, serviceCategories.id))
         .leftJoin(serviceProviders, eq(services.providerId, serviceProviders.id))
         .where(whereConditions)
-        .limit(Math.ceil(resultLimit / 3)); // Take 1/3 for services
+        .limit(resultLimit); // Show all services in view
       
       // Query care services from communities table (home care, therapy, hospice, etc.)
       let careServicesConditionsList: any[] = [
@@ -340,7 +340,7 @@ export function registerSearchRoutes(app: Express) {
         })
         .from(communities)
         .where(careServicesConditions)
-        .limit(Math.ceil(resultLimit / 3)); // Take 1/3 for care services
+        .limit(resultLimit); // Show all care services in view
 
       // Transform hospitals to match expected format
       const transformedHospitals = hospitalResults.map(hospital => ({
