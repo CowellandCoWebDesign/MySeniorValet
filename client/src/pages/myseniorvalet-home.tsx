@@ -505,17 +505,6 @@ export default function MySeniorValetHome() {
         </div>
       </div>
 
-      {/* Breadcrumb Navigation */}
-      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto">
-          <BreadcrumbNavigation 
-            items={[
-              { label: 'Home' }
-            ]}
-          />
-        </div>
-      </div>
-
       {/* Featured Communities Slider - Visual Break */}
       <section ref={hawaiiSectionRef} className="px-4 py-8 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
