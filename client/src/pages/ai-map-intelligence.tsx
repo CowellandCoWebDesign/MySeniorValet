@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
-import MarkerClusterGroup from 'react-leaflet-cluster';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -124,28 +123,23 @@ export default function AIMapIntelligence() {
   const [mapBounds, setMapBounds] = useState<any>(null);
   const [currentZoom, setCurrentZoom] = useState(4);
 
-  // Fetch all communities for the map - use viewport-based loading for better performance
+  // Fetch smart clustered communities based on zoom level
   const { data: communitiesData, isLoading: isLoadingCommunities } = useQuery({
-    queryKey: mapBounds 
-      ? ['/api/ai-map/viewport-communities', mapBounds, currentZoom]
-      : ['/api/ai-map/all-communities'],
+    queryKey: ['/api/ai-map/clustered-communities', mapBounds, currentZoom],
     queryFn: async () => {
-      if (mapBounds && currentZoom > 6) {
-        // Use viewport-based loading for higher zoom levels
-        const params = new URLSearchParams({
-          minLat: mapBounds.minLat.toString(),
-          maxLat: mapBounds.maxLat.toString(),
-          minLng: mapBounds.minLng.toString(),
-          maxLng: mapBounds.maxLng.toString(),
-          zoom: currentZoom.toString()
-        });
-        const response = await fetch(`/api/ai-map/viewport-communities?${params}`);
-        return response.json();
-      } else {
-        // Load all communities for lower zoom levels
-        const response = await fetch('/api/ai-map/all-communities');
-        return response.json();
+      const params = new URLSearchParams({
+        zoom: currentZoom.toString(),
+        west: (mapBounds?.minLng || -130).toString(),
+        south: (mapBounds?.minLat || 24).toString(),
+        east: (mapBounds?.maxLng || -65).toString(),
+        north: (mapBounds?.maxLat || 50).toString()
+      });
+      
+      const response = await fetch(`/api/ai-map/clustered-communities?${params}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch communities');
       }
+      return response.json();
     },
     refetchInterval: false,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
@@ -331,41 +325,69 @@ export default function AIMapIntelligence() {
                         }}
                       />
 
-                      {/* Community Markers with Clustering */}
-                      <MarkerClusterGroup
-                        chunkedLoading
-                        maxClusterRadius={60}
-                        showCoverageOnHover={false}
-                        spiderfyOnMaxZoom={true}
-                        disableClusteringAtZoom={16}
-                      >
-                        {communities.map((feature: any) => (
-                          <Marker
-                            key={feature.properties.id}
-                            position={[
-                              feature.geometry.coordinates[1],
-                              feature.geometry.coordinates[0]
-                            ]}
-                          >
-                            <Popup>
-                              <div className="p-2">
-                                <h3 className="font-bold">{feature.properties.name}</h3>
-                                <p className="text-sm">{feature.properties.city}, {feature.properties.state}</p>
-                                {feature.properties.type && (
-                                  <Badge variant="outline" className="mt-1 text-xs">
-                                    {feature.properties.type}
-                                  </Badge>
-                                )}
-                                {feature.properties.isHUD && (
-                                  <Badge className="mt-1 ml-1 bg-green-600 text-xs">
-                                    HUD Verified
-                                  </Badge>
-                                )}
-                              </div>
-                            </Popup>
-                          </Marker>
-                        ))}
-                      </MarkerClusterGroup>
+                      {/* Smart Clustered Communities */}
+                      {communities.map((feature: any) => {
+                        if (feature.properties?.cluster) {
+                          // Render cluster marker
+                          const count = feature.properties.point_count;
+                          const size = count > 1000 ? 50 : count > 100 ? 40 : 30;
+                          
+                          return (
+                            <Marker
+                              key={`cluster-${feature.properties.cluster_id}`}
+                              position={[
+                                feature.geometry.coordinates[1],
+                                feature.geometry.coordinates[0]
+                              ]}
+                              icon={L.divIcon({
+                                html: `<div class="cluster-marker" style="width: ${size}px; height: ${size}px; line-height: ${size}px; font-size: ${size/3}px; background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); color: white; text-align: center; border-radius: 50%; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.3); border: 2px solid white;">${count}</div>`,
+                                className: 'custom-cluster-icon',
+                                iconSize: L.point(size, size),
+                              })}
+                            >
+                              <Popup>
+                                <div className="p-2">
+                                  <h3 className="font-bold">{count} Communities</h3>
+                                  {feature.properties.state && (
+                                    <p className="text-sm">State: {feature.properties.state}</p>
+                                  )}
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    Zoom in to see details
+                                  </p>
+                                </div>
+                              </Popup>
+                            </Marker>
+                          );
+                        } else {
+                          // Render individual community marker
+                          return (
+                            <Marker
+                              key={`community-${feature.properties.id}`}
+                              position={[
+                                feature.geometry.coordinates[1],
+                                feature.geometry.coordinates[0]
+                              ]}
+                            >
+                              <Popup>
+                                <div className="p-2">
+                                  <h3 className="font-bold">{feature.properties.name}</h3>
+                                  <p className="text-sm">{feature.properties.city}, {feature.properties.state}</p>
+                                  {feature.properties.type && (
+                                    <Badge variant="outline" className="mt-1 text-xs">
+                                      {feature.properties.type}
+                                    </Badge>
+                                  )}
+                                  {feature.properties.isHUD && (
+                                    <Badge className="mt-1 ml-1 bg-green-600 text-xs">
+                                      HUD Verified
+                                    </Badge>
+                                  )}
+                                </div>
+                              </Popup>
+                            </Marker>
+                          );
+                        }
+                      })}
 
                       {/* Selected Location Marker */}
                       {selectedLocation && (
@@ -388,7 +410,12 @@ export default function AIMapIntelligence() {
                   <div className="absolute top-4 left-4 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-lg p-3 shadow-lg z-[400]">
                     <div className="flex items-center gap-2 text-sm">
                       <Building2 className="h-4 w-4 text-blue-600" />
-                      <span className="font-medium">{communities.length.toLocaleString()} Communities</span>
+                      <span className="font-medium">
+                        {currentZoom < 8 
+                          ? `${communities.length} Clusters`
+                          : `${communities.length.toLocaleString()} Communities`
+                        }
+                      </span>
                     </div>
                   </div>
 

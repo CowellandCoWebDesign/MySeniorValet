@@ -3,6 +3,7 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { multiAIOrchestrator } from '../services/multi-ai-orchestrator';
 import { spatialIntelligence } from '../services/spatial-intelligence';
+import { smartClusteringService } from '../services/smart-clustering-service';
 import { sql, and, isNotNull, between } from 'drizzle-orm';
 
 const router = Router();
@@ -195,39 +196,56 @@ router.get('/api/ai-map/viewport-communities', async (req, res) => {
   }
 });
 
-// Get all communities for map display (legacy endpoint)
+// Smart clustered communities endpoint
+router.get('/api/ai-map/clustered-communities', async (req, res) => {
+  try {
+    const { zoom = 4, west, south, east, north } = req.query;
+    
+    // Initialize clustering service if needed
+    await smartClusteringService.initialize();
+    
+    const bounds = {
+      west: Number(west) || -130,
+      south: Number(south) || 24,
+      east: Number(east) || -65,
+      north: Number(north) || 50
+    };
+    
+    const clusteredData = await smartClusteringService.getClusteredData({
+      zoom: Number(zoom),
+      bounds,
+      maxClusters: zoom < 5 ? 50 : (zoom < 8 ? 100 : 200)
+    });
+    
+    res.json(clusteredData);
+  } catch (error) {
+    console.error('Failed to get clustered communities:', error);
+    res.status(500).json({ 
+      error: 'Failed to get clustered communities',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Get all communities for map display (legacy endpoint - now uses smart clustering)
 router.get('/api/ai-map/all-communities', async (req, res) => {
   try {
-    // Get all communities with coordinates - simple query
-    const result = await db.execute(sql`
-      SELECT id, name, city, state, latitude, longitude, 
-             community_subtype
-      FROM communities 
-      WHERE latitude IS NOT NULL 
-      AND longitude IS NOT NULL
-      LIMIT 35000
-    `);
-
-    const allCommunities = result.rows;
-
-    res.json({
-      type: 'FeatureCollection',
-      features: allCommunities.map((c: any) => ({
-        type: 'Feature',
-        properties: {
-          id: c.id,
-          name: c.name,
-          city: c.city,
-          state: c.state,
-          type: c.community_subtype || 'Senior Living'
-        },
-        geometry: {
-          type: 'Point',
-          coordinates: [Number(c.longitude), Number(c.latitude)]
-        }
-      })),
-      total: allCommunities.length
+    // Initialize clustering service if needed
+    await smartClusteringService.initialize();
+    
+    // Return 50 clusters for country view
+    const clusteredData = await smartClusteringService.getClusteredData({
+      zoom: 4,
+      bounds: {
+        west: -130,
+        south: 24,
+        east: -65,
+        north: 50
+      },
+      maxClusters: 50
     });
+    
+    res.json(clusteredData);
   } catch (error) {
     console.error('Failed to fetch communities:', error);
     res.status(500).json({ 
