@@ -173,8 +173,50 @@ router.get('/api/ai-map/all-communities', async (req, res) => {
       zoom 
     } = req.query;
 
-    // Always return city-level aggregated data for performance
-    // This prevents overwhelming the browser with 30,000+ markers
+    // Determine clustering level based on zoom
+    const zoomLevel = parseInt(zoom as string) || 4;
+    
+    // For country-wide view (zoom < 6), return state-level clusters only
+    if (zoomLevel < 6) {
+      const result = await db.execute(sql`
+        SELECT 
+          MIN(id) as id,
+          state,
+          AVG(latitude) as latitude,
+          AVG(longitude) as longitude,
+          COUNT(*) as count,
+          STRING_AGG(DISTINCT community_subtype, ',') as types
+        FROM communities 
+        WHERE latitude IS NOT NULL 
+        AND longitude IS NOT NULL
+        GROUP BY state
+        ORDER BY COUNT(*) DESC
+      `);
+      
+      return res.json({
+        type: 'FeatureCollection',
+        clustered: true,
+        features: result.rows.map((c: any) => ({
+          type: 'Feature',
+          properties: {
+            id: c.id,
+            name: c.state,
+            state: c.state,
+            count: c.count,
+            types: c.types,
+            cluster: true,
+            clusterLevel: 'state'
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: [Number(c.longitude), Number(c.latitude)]
+          }
+        })),
+        total: result.rows.length
+      });
+    }
+    
+    // For regional view (zoom 6-10), return top cities only
     const result = await db.execute(sql`
       SELECT 
         MIN(id) as id,
@@ -188,9 +230,9 @@ router.get('/api/ai-map/all-communities', async (req, res) => {
       WHERE latitude IS NOT NULL 
       AND longitude IS NOT NULL
       GROUP BY state, city
-      HAVING COUNT(*) > 0
+      HAVING COUNT(*) > 3
       ORDER BY COUNT(*) DESC
-      LIMIT 2000
+      LIMIT 200
     `);
 
     res.json({

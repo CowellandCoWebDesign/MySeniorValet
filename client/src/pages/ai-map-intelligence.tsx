@@ -73,11 +73,20 @@ interface AIAnalysisResult {
   };
 }
 
-// Map click handler component  
-function MapClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
+// Map click and zoom handler component  
+function MapEventHandler({ 
+  onMapClick, 
+  onZoomChange 
+}: { 
+  onMapClick: (lat: number, lng: number) => void;
+  onZoomChange: (zoom: number) => void;
+}) {
   useMapEvents({
     click: (e) => {
       onMapClick(e.latlng.lat, e.latlng.lng);
+    },
+    zoomend: (e) => {
+      onZoomChange(e.target.getZoom());
     }
   });
   return null;
@@ -90,13 +99,14 @@ export default function AIMapIntelligence() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedCommunities, setSelectedCommunities] = useState<Community[]>([]);
   const [activeTab, setActiveTab] = useState('map');
+  const [currentZoom, setCurrentZoom] = useState(4);
   const mapRef = useRef<L.Map | null>(null);
 
-  // Fetch all communities for the map (simplified without viewport loading)
+  // Fetch all communities for the map with zoom-based clustering
   const { data: communitiesData, isLoading: isLoadingCommunities } = useQuery({
-    queryKey: ['/api/ai-map/all-communities'],
+    queryKey: ['/api/ai-map/all-communities', currentZoom],
     queryFn: async () => {
-      const response = await apiRequest('GET', '/api/ai-map/all-communities');
+      const response = await apiRequest('GET', `/api/ai-map/all-communities?zoom=${currentZoom}`);
       return await response.json();
     },
     refetchInterval: false,
@@ -273,7 +283,10 @@ export default function AIMapIntelligence() {
                         attribution='&copy; OpenStreetMap contributors'
                       />
                       
-                      <MapClickHandler onMapClick={handleMapClick} />
+                      <MapEventHandler 
+                        onMapClick={handleMapClick} 
+                        onZoomChange={setCurrentZoom}
+                      />
 
                       {/* Community Markers - clustered view or individual based on zoom */}
                       {communitiesData?.clustered ? (
