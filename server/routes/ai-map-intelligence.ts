@@ -48,7 +48,7 @@ router.post('/api/ai-map/analyze-location', async (req, res) => {
         acc[type] = (acc[type] || 0) + 1;
         return acc;
       }, {}),
-      hudCommunities: nearbyCommunities.filter(c => c.isHudProperty).length
+      hudCommunities: nearbyCommunities.filter(c => c.hudPropertyId).length
     };
 
     res.json(analysis);
@@ -162,39 +162,134 @@ router.post('/api/ai-map/match-communities', async (req, res) => {
   }
 });
 
-// Get all communities for map display
+// Get communities within viewport bounds for efficient map display
 router.get('/api/ai-map/all-communities', async (req, res) => {
   try {
-    // Get all communities with coordinates - simple query
-    const result = await db.execute(sql`
-      SELECT id, name, city, state, latitude, longitude, 
-             community_subtype
-      FROM communities 
-      WHERE latitude IS NOT NULL 
-      AND longitude IS NOT NULL
-      LIMIT 35000
-    `);
+    const { 
+      north, 
+      south, 
+      east, 
+      west,
+      zoom 
+    } = req.query;
 
-    const allCommunities = result.rows;
+    // If no bounds provided, return a subset for initial load
+    if (!north || !south || !east || !west) {
+      // Return major cities/states aggregated data for initial view
+      const result = await db.execute(sql`
+        SELECT 
+          MIN(id) as id,
+          city,
+          state,
+          AVG(latitude) as latitude,
+          AVG(longitude) as longitude,
+          COUNT(*) as count,
+          STRING_AGG(DISTINCT community_subtype, ',') as types
+        FROM communities 
+        WHERE latitude IS NOT NULL 
+        AND longitude IS NOT NULL
+        GROUP BY state, city
+        HAVING COUNT(*) > 5
+        ORDER BY COUNT(*) DESC
+        LIMIT 500
+      `);
 
-    res.json({
-      type: 'FeatureCollection',
-      features: allCommunities.map((c: any) => ({
-        type: 'Feature',
-        properties: {
-          id: c.id,
-          name: c.name,
-          city: c.city,
-          state: c.state,
-          type: c.community_subtype || 'Senior Living'
-        },
-        geometry: {
-          type: 'Point',
-          coordinates: [Number(c.longitude), Number(c.latitude)]
-        }
-      })),
-      total: allCommunities.length
-    });
+      return res.json({
+        type: 'FeatureCollection',
+        clustered: true,
+        features: result.rows.map((c: any) => ({
+          type: 'Feature',
+          properties: {
+            id: c.id,
+            name: `${c.city}, ${c.state}`,
+            city: c.city,
+            state: c.state,
+            count: c.count,
+            types: c.types,
+            cluster: true
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: [Number(c.longitude), Number(c.latitude)]
+          }
+        })),
+        total: result.rows.length
+      });
+    }
+
+    // For zoomed in views, get actual communities within bounds
+    const zoomLevel = parseInt(zoom as string) || 4;
+    
+    // Only show individual communities when zoomed in enough (zoom > 10)
+    if (zoomLevel > 10) {
+      const result = await db.execute(sql`
+        SELECT id, name, city, state, latitude, longitude, community_subtype
+        FROM communities 
+        WHERE latitude BETWEEN ${south} AND ${north}
+        AND longitude BETWEEN ${west} AND ${east}
+        AND latitude IS NOT NULL 
+        AND longitude IS NOT NULL
+        LIMIT 200
+      `);
+
+      return res.json({
+        type: 'FeatureCollection',
+        features: result.rows.map((c: any) => ({
+          type: 'Feature',
+          properties: {
+            id: c.id,
+            name: c.name,
+            city: c.city,
+            state: c.state,
+            type: c.community_subtype || 'Senior Living'
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: [Number(c.longitude), Number(c.latitude)]
+          }
+        })),
+        total: result.rows.length
+      });
+    } else {
+      // For mid-level zoom, return city-level clusters
+      const result = await db.execute(sql`
+        SELECT 
+          MIN(id) as id,
+          city,
+          state,
+          AVG(latitude) as latitude,
+          AVG(longitude) as longitude,
+          COUNT(*) as count
+        FROM communities 
+        WHERE latitude BETWEEN ${south} AND ${north}
+        AND longitude BETWEEN ${west} AND ${east}
+        AND latitude IS NOT NULL 
+        AND longitude IS NOT NULL
+        GROUP BY state, city
+        LIMIT 500
+      `);
+
+      return res.json({
+        type: 'FeatureCollection',
+        clustered: true,
+        features: result.rows.map((c: any) => ({
+          type: 'Feature',
+          properties: {
+            id: c.id,
+            name: `${c.city}, ${c.state}`,
+            city: c.city,
+            state: c.state,
+            count: c.count,
+            cluster: true
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: [Number(c.longitude), Number(c.latitude)]
+          }
+        })),
+        total: result.rows.length
+      });
+    }
   } catch (error) {
     console.error('Failed to fetch communities:', error);
     res.status(500).json({ 

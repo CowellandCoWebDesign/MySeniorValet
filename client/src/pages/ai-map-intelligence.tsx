@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
+import { debounce } from 'lodash';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -72,12 +73,28 @@ interface AIAnalysisResult {
   };
 }
 
-// Map click handler component
-function MapClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
-  useMapEvents({
+// Map event handlers component
+function MapEventHandlers({ 
+  onMapClick, 
+  onViewportChange 
+}: { 
+  onMapClick: (lat: number, lng: number) => void;
+  onViewportChange: (bounds: L.LatLngBounds, zoom: number) => void;
+}) {
+  const map = useMapEvents({
     click: (e) => {
       onMapClick(e.latlng.lat, e.latlng.lng);
     },
+    moveend: () => {
+      const bounds = map.getBounds();
+      const zoom = map.getZoom();
+      onViewportChange(bounds, zoom);
+    },
+    zoomend: () => {
+      const bounds = map.getBounds();
+      const zoom = map.getZoom();
+      onViewportChange(bounds, zoom);
+    }
   });
   return null;
 }
@@ -91,12 +108,53 @@ export default function AIMapIntelligence() {
   const [activeTab, setActiveTab] = useState('map');
   const mapRef = useRef<L.Map | null>(null);
 
-  // Fetch all communities for the map
+  // State for viewport-based loading
+  const [mapBounds, setMapBounds] = useState<L.LatLngBounds | null>(null);
+  const [mapZoom, setMapZoom] = useState(4);
+
+  // Fetch communities based on viewport
   const { data: communitiesData, isLoading: isLoadingCommunities } = useQuery({
-    queryKey: ['/api/ai-map/all-communities'],
+    queryKey: mapBounds ? 
+      ['/api/ai-map/all-communities', 
+       mapBounds.getNorth(), 
+       mapBounds.getSouth(), 
+       mapBounds.getEast(), 
+       mapBounds.getWest(),
+       mapZoom] : 
+      ['/api/ai-map/all-communities'],
+    queryFn: async () => {
+      if (mapBounds) {
+        const params = new URLSearchParams({
+          north: mapBounds.getNorth().toString(),
+          south: mapBounds.getSouth().toString(), 
+          east: mapBounds.getEast().toString(),
+          west: mapBounds.getWest().toString(),
+          zoom: mapZoom.toString()
+        });
+        const response = await apiRequest('GET', `/api/ai-map/all-communities?${params}`);
+        return await response.json();
+      } else {
+        const response = await apiRequest('GET', '/api/ai-map/all-communities');
+        return await response.json();
+      }
+    },
     refetchInterval: false,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
+
+  // Debounced viewport change handler for performance
+  const debouncedViewportChange = useMemo(
+    () => debounce((bounds: L.LatLngBounds, zoom: number) => {
+      setMapBounds(bounds);
+      setMapZoom(zoom);
+    }, 300),
+    []
+  );
+
+  // Handle viewport changes
+  const handleViewportChange = useCallback((bounds: L.LatLngBounds, zoom: number) => {
+    debouncedViewportChange(bounds, zoom);
+  }, [debouncedViewportChange]);
 
   // Handle map click for AI analysis
   const handleMapClick = useCallback(async (lat: number, lng: number) => {
@@ -104,11 +162,12 @@ export default function AIMapIntelligence() {
     setIsAnalyzing(true);
 
     try {
-      const analysis = await apiRequest('POST', '/api/ai-map/analyze-location', {
+      const response = await apiRequest('POST', '/api/ai-map/analyze-location', {
         lat,
         lng,
         radius: 10
       });
+      const analysis = await response.json();
 
       setAiAnalysis(analysis);
       
@@ -129,9 +188,10 @@ export default function AIMapIntelligence() {
 
     setIsAnalyzing(true);
     try {
-      const result = await apiRequest('POST', '/api/ai-map/enhance-search', {
+      const response = await apiRequest('POST', '/api/ai-map/enhance-search', {
         query: searchQuery
       });
+      const result = await response.json();
 
       // Update selected communities with search results
       if (result.results) {
@@ -257,21 +317,69 @@ export default function AIMapIntelligence() {
                       style={{ height: '100%', width: '100%' }}
                       className="rounded-lg"
                       ref={(map) => { if (map) mapRef.current = map; }}
+                      preferCanvas={true} // Use canvas renderer for better performance
+                      maxZoom={18}
+                      minZoom={3}
                     >
                       <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         attribution='&copy; OpenStreetMap contributors'
                       />
                       
-                      <MapClickHandler onMapClick={handleMapClick} />
+                      <MapEventHandlers 
+                        onMapClick={handleMapClick} 
+                        onViewportChange={handleViewportChange}
+                      />
 
-                      {/* Community Markers with Clustering */}
-                      <MarkerClusterGroup
-                        chunkedLoading
-                        maxClusterRadius={60}
-                        showCoverageOnHover={false}
-                      >
-                        {communities.map((feature: any) => (
+                      {/* Community Markers - clustered view or individual based on zoom */}
+                      {communitiesData?.clustered ? (
+                        // Show cluster markers for aggregated data
+                        communities.map((feature: any) => (
+                          <Marker
+                            key={feature.properties.id}
+                            position={[
+                              feature.geometry.coordinates[1],
+                              feature.geometry.coordinates[0]
+                            ]}
+                            icon={L.divIcon({
+                              className: 'custom-cluster-icon',
+                              html: `<div style="
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white;
+                                width: ${Math.min(40 + (feature.properties.count || 1) * 0.5, 80)}px;
+                                height: ${Math.min(40 + (feature.properties.count || 1) * 0.5, 80)}px;
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-weight: bold;
+                                font-size: 14px;
+                                border: 3px solid white;
+                                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                              ">${feature.properties.count || 1}</div>`,
+                              iconSize: [Math.min(40 + (feature.properties.count || 1) * 0.5, 80), Math.min(40 + (feature.properties.count || 1) * 0.5, 80)],
+                              iconAnchor: [Math.min(40 + (feature.properties.count || 1) * 0.5, 80) / 2, Math.min(40 + (feature.properties.count || 1) * 0.5, 80) / 2]
+                            })}
+                          >
+                            <Popup>
+                              <div className="p-2">
+                                <h3 className="font-bold">{feature.properties.name}</h3>
+                                <p className="text-sm font-medium">{feature.properties.count} communities</p>
+                                {feature.properties.types && (
+                                  <p className="text-xs text-gray-600 mt-1">Types: {feature.properties.types}</p>
+                                )}
+                              </div>
+                            </Popup>
+                          </Marker>
+                        ))
+                      ) : (
+                        // Show individual markers when zoomed in
+                        <MarkerClusterGroup
+                          chunkedLoading
+                          maxClusterRadius={60}
+                          showCoverageOnHover={false}
+                        >
+                          {communities.map((feature: any) => (
                           <Marker
                             key={feature.properties.id}
                             position={[
@@ -296,8 +404,9 @@ export default function AIMapIntelligence() {
                               </div>
                             </Popup>
                           </Marker>
-                        ))}
-                      </MarkerClusterGroup>
+                          ))}
+                        </MarkerClusterGroup>
+                      )}
 
                       {/* Selected Location Marker */}
                       {selectedLocation && (
@@ -430,7 +539,7 @@ export default function AIMapIntelligence() {
                                   {key.replace(/_/g, ' ')}:
                                 </span>
                                 <p className="text-gray-600 dark:text-gray-400 mt-1">
-                                  {typeof value === 'object' ? JSON.stringify(value, null, 2) : value}
+                                  {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
                                 </p>
                               </div>
                             ))}
