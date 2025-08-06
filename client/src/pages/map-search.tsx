@@ -447,18 +447,21 @@ export default function MapSearch() {
     gcTime: 15000
   });
   
-  // Fetch healthcare services
+  // Fetch healthcare services and hospitals
   const { data: healthcareServices = [], isLoading: isLoadingHealthcare } = useQuery({
-    queryKey: ['healthcare-services', searchQuery],
+    queryKey: ['healthcare-services', searchQuery, resultType],
     queryFn: async () => {
       if (resultType === 'communities' || resultType === 'vendors' || resultType === 'resources') return [];
       
-      const response = await fetch(`/api/care-services/search?q=${encodeURIComponent(searchQuery)}&limit=30`);
+      // Use the unified healthcare endpoint that includes hospitals and services
+      const response = await fetch(`/api/healthcare/search?q=${encodeURIComponent(searchQuery)}&limit=50`);
       if (!response.ok) return [];
       
-      return response.json();
+      const data = await response.json();
+      console.log('Healthcare data fetched:', data.length, 'items (hospitals + services)');
+      return data;
     },
-    enabled: showBottomPanel && searchQuery.length > 0 && (resultType === 'all' || resultType === 'healthcare'),
+    enabled: showBottomPanel && (resultType === 'all' || resultType === 'healthcare'),
     staleTime: 10000,
     gcTime: 30000
   });
