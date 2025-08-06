@@ -360,14 +360,50 @@ export function registerAIRoutes(app: Express) {
       // Build query based on preferences
       let query = db.select().from(communities);
       
-      // Filter by location
+      // Filter by location - improved logic for better matches
       if (location) {
-        query = query.where(
-          or(
-            sql`LOWER(${communities.city}) LIKE LOWER(${'%' + location + '%'})`,
-            sql`LOWER(${communities.state}) LIKE LOWER(${'%' + location + '%'})`
-          )
-        );
+        const locationLower = location.toLowerCase().trim();
+        
+        // Check if it's a state abbreviation (2 letters)
+        if (locationLower.length === 2) {
+          query = query.where(
+            sql`LOWER(${communities.state}) = LOWER(${locationLower})`
+          );
+        } 
+        // Check for city, state format
+        else if (locationLower.includes(',')) {
+          const [city, state] = locationLower.split(',').map(s => s.trim());
+          query = query.where(
+            and(
+              sql`LOWER(${communities.city}) = LOWER(${city})`,
+              state ? sql`LOWER(${communities.state}) = LOWER(${state})` : undefined
+            )
+          );
+        }
+        // For specific cities like "Panama City Beach", match exact city name
+        else {
+          // First try exact match
+          const exactMatchQuery = db.select().from(communities)
+            .where(sql`LOWER(${communities.city}) = LOWER(${locationLower})`)
+            .limit(5);
+          
+          const exactMatches = await exactMatchQuery;
+          
+          if (exactMatches.length > 0) {
+            // If we found exact matches, use them
+            query = db.select().from(communities)
+              .where(sql`LOWER(${communities.city}) = LOWER(${locationLower})`);
+          } else {
+            // Otherwise do a broader search but prioritize word boundaries
+            query = query.where(
+              or(
+                sql`LOWER(${communities.city}) = LOWER(${locationLower})`,
+                sql`LOWER(${communities.city}) LIKE LOWER(${locationLower + '%'})`,
+                sql`LOWER(${communities.city}) LIKE LOWER(${'% ' + locationLower + '%'})`
+              )
+            );
+          }
+        }
       }
 
       // Filter by care types
@@ -377,8 +413,70 @@ export function registerAIRoutes(app: Express) {
         query = query.where(sql`${communities.careTypes} && ${pgArray}::text[]`);
       }
 
+      // Filter by budget
+      if (budget && (budget.min > 0 || budget.max > 0)) {
+        const conditions = [];
+        
+        // HUD properties with verified pricing
+        if (budget.max && budget.max <= 2000) {
+          conditions.push(
+            and(
+              sql`${communities.hudPropertyId} IS NOT NULL`,
+              sql`CAST(${communities.rentPerMonth} AS DECIMAL) <= ${budget.max}`
+            )
+          );
+        }
+        
+        // Communities with price ranges
+        if (budget.max) {
+          conditions.push(
+            sql`CAST(${communities.priceRange}->>'min' AS DECIMAL) <= ${budget.max}`
+          );
+        }
+        
+        if (budget.min) {
+          conditions.push(
+            or(
+              sql`CAST(${communities.priceRange}->>'max' AS DECIMAL) >= ${budget.min}`,
+              sql`${communities.priceRange}->>'max' IS NULL`
+            )
+          );
+        }
+        
+        if (conditions.length > 0) {
+          query = query.where(or(...conditions));
+        }
+      }
+
       // Get results
       const results = await query.limit(10);
+      
+      // Log for debugging
+      console.log(`🎯 Perfect Match Search - Location: "${location}", Found: ${results.length} communities`);
+      if (results.length > 0) {
+        console.log(`📍 First result: ${results[0].name} in ${results[0].city}, ${results[0].state}`);
+      }
+
+      // If no results found for the specific location, provide helpful feedback
+      if (results.length === 0 && location) {
+        console.log(`⚠️ No communities found in "${location}". Searching broader area...`);
+        
+        // Try state-wide search if city search fails
+        const stateSearch = location.includes(',') 
+          ? location.split(',')[1].trim() 
+          : location.length === 2 ? location : null;
+          
+        if (stateSearch) {
+          const stateResults = await db.select().from(communities)
+            .where(sql`LOWER(${communities.state}) = LOWER(${stateSearch})`)
+            .limit(10);
+            
+          if (stateResults.length > 0) {
+            results.push(...stateResults);
+            console.log(`✅ Found ${stateResults.length} communities in state: ${stateSearch}`);
+          }
+        }
+      }
 
       // Calculate match scores
       const recommendations = results.map((community, index) => ({
@@ -386,9 +484,10 @@ export function registerAIRoutes(app: Express) {
         matchScore: Math.max(75, 95 - (index * 3)), // Simple scoring algorithm
         matchReasons: [
           careNeeds?.includes(community.careTypes?.[0]) && 'Offers the care type you need',
-          location && community.city?.toLowerCase().includes(location.toLowerCase()) && `Located in ${location}`,
+          location && `Located in ${community.city}, ${community.state}`,
           community.rating >= 4 && 'Highly rated by residents',
-          preferences?.includes('Pet Friendly') && 'Pet-friendly environment'
+          preferences?.includes('Pet Friendly') && 'Pet-friendly environment',
+          budget?.max && community.rentPerMonth && parseFloat(community.rentPerMonth) <= budget.max && 'Within your budget'
         ].filter(Boolean),
         aiInsights: `This community offers ${community.careTypes?.join(', ') || 'various care options'} in ${community.city}, ${community.state}. ${
           community.rating >= 4 ? 'It has excellent reviews from residents and families.' : 'Consider scheduling a tour to learn more.'
