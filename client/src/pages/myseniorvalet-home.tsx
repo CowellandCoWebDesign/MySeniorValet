@@ -456,10 +456,10 @@ export default function MySeniorValetHome() {
                   Explore Communities
                 </Button>
               </Link>
-              <Link href="/ai-map-intelligence">
+              <Link href="/ai-search-intelligence">
                 <Button variant="outline" className="w-full border-2 border-amber-300 text-amber-200 hover:bg-amber-300 hover:text-gray-900 px-6 py-3.5 rounded-2xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-amber-400/10 backdrop-blur-sm">
-                  <Brain className="mr-1.5 h-4 w-4" />
-                  AI Map Intelligence
+                  <MapPin className="mr-1.5 h-4 w-4" />
+                  Smart Search
                 </Button>
               </Link>
 

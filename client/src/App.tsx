@@ -91,7 +91,6 @@ import IntegrationsPage from "@/pages/integrations";
 import SubscriptionManagement from "@/pages/SubscriptionManagement";
 import AIDemoPage from "@/pages/ai-demo";
 import AIMapShowcase from "@/pages/ai-map-showcase";
-import AIMapIntelligence from "@/pages/ai-map-intelligence";
 import AISearchIntelligence from "@/pages/ai-search-intelligence";
 import VendorSignup from "@/pages/vendor-signup";
 import VendorDashboard from "@/pages/vendor-dashboard";
@@ -225,7 +224,6 @@ function Router() {
       <Route path="/subscriptions" component={SubscriptionManagement} />
       <Route path="/ai-demo" component={AIDemoPage} />
       <Route path="/ai-map-showcase" component={AIMapShowcase} />
-      <Route path="/ai-map-intelligence" component={AIMapIntelligence} />
       <Route path="/vendor-signup" component={VendorSignup} />
       <Route path="/vendor/signup" component={VendorSignup} />
       <Route path="/vendor-welcome" component={VendorWelcome} />
