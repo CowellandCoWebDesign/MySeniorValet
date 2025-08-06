@@ -3,7 +3,7 @@ import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
-         Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, 
+         Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, Lock,
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
          ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem } from 'lucide-react';
 import type { Community } from '@shared/schema';
@@ -821,20 +821,22 @@ export default function CommunityDetail() {
                         if (tier === 'verified') {
                           // Verified tier has no messaging access
                           return (
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                setUpgradeFeature('messaging');
-                                setShowUpgradeModal(true);
-                              }}
-                              className="bg-yellow-50 hover:bg-yellow-100 border-yellow-300 text-yellow-700 font-semibold px-6 py-3 shadow-sm hover:shadow-md transition-all"
-                            >
-                              <MessageSquare className="h-5 w-5 mr-2" />
-                              <span className="flex items-center gap-1">
-                                Upgrade to Message
-                                <Sparkles className="h-4 w-4" />
-                              </span>
-                            </Button>
+                            <div>
+                              <Button
+                                variant="outline"
+                                disabled
+                                className="bg-gray-50 border-gray-300 text-gray-500 font-semibold px-6 py-3 shadow-sm cursor-not-allowed opacity-70"
+                              >
+                                <MessageSquare className="h-5 w-5 mr-2" />
+                                <span className="flex items-center gap-1">
+                                  Messaging Locked
+                                  <Lock className="h-4 w-4" />
+                                </span>
+                              </Button>
+                              <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                                Community needs to upgrade to Standard+ tier to enable messaging
+                              </p>
+                            </div>
                           );
                         }
                         
