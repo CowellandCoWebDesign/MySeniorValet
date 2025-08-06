@@ -66,7 +66,11 @@ class MultiAIOrchestrator {
         
         // Combine recommendations
         if (result.value.recommendations) {
-          results.recommendations.push(...result.value.recommendations);
+          if (Array.isArray(result.value.recommendations)) {
+            results.recommendations.push(...result.value.recommendations);
+          } else {
+            results.recommendations.push(result.value.recommendations);
+          }
         }
       }
     });
@@ -231,7 +235,11 @@ class MultiAIOrchestrator {
           Object.assign(enhancements.suggestedFilters, result.value.filters);
         }
         if (result.value.expansions) {
-          enhancements.semanticExpansions.push(...result.value.expansions);
+          if (Array.isArray(result.value.expansions)) {
+            enhancements.semanticExpansions.push(...result.value.expansions);
+          } else {
+            enhancements.semanticExpansions.push(result.value.expansions);
+          }
         }
       }
     });
@@ -323,7 +331,7 @@ class MultiAIOrchestrator {
       });
 
       const data = await response.json();
-      const content = data.choices[0]?.message?.content || '';
+      const content = data.choices?.[0]?.message?.content || '';
       
       // Extract key terms from the response
       const terms = content.match(/["']([^"']+)["']/g) || [];
@@ -369,17 +377,20 @@ class MultiAIOrchestrator {
     const scoredCommunities = new Map();
     
     aiMatches.forEach((result) => {
-      if (result.status === 'fulfilled' && result.value?.matches) {
-        result.value.matches.forEach((match: any) => {
-          const existing = scoredCommunities.get(match.id) || { 
-            ...match, 
-            scores: [], 
-            reasons: [] 
-          };
-          existing.scores.push(match.score || 0);
-          existing.reasons.push(match.reason || '');
-          scoredCommunities.set(match.id, existing);
-        });
+      if (result.status === 'fulfilled' && result.value) {
+        const matches = result.value.matches || [];
+        if (Array.isArray(matches)) {
+          matches.forEach((match: any) => {
+            const existing = scoredCommunities.get(match.id) || { 
+              ...match, 
+              scores: [], 
+              reasons: [] 
+            };
+            existing.scores.push(match.score || 0);
+            existing.reasons.push(match.reason || '');
+            scoredCommunities.set(match.id, existing);
+          });
+        }
       }
     });
 
@@ -473,7 +484,7 @@ class MultiAIOrchestrator {
 
       const data = await response.json();
       // Perplexity provides context, not direct matches
-      return { context: data.choices[0]?.message?.content };
+      return { context: data.choices?.[0]?.message?.content || 'No additional context' };
     } catch (error) {
       console.error('Perplexity context error:', error);
       return null;

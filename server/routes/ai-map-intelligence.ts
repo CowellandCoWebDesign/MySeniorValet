@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { db } from '../db';
 import { communities } from '@shared/schema';
 import { multiAIOrchestrator } from '../services/multi-ai-orchestrator';
-import { sql } from 'drizzle-orm';
+import { sql, and, isNotNull, between } from 'drizzle-orm';
 
 const router = Router();
 
@@ -186,7 +186,8 @@ router.get('/api/ai-map/all-communities', async (req, res) => {
   try {
     const { bounds } = req.query;
     
-    let query = db
+    // Build query based on bounds
+    let baseQuery = db
       .select({
         id: communities.id,
         name: communities.name,
@@ -201,19 +202,40 @@ router.get('/api/ai-map/all-communities', async (req, res) => {
       })
       .from(communities)
       .where(
-        sql`${communities.latitude} IS NOT NULL AND ${communities.longitude} IS NOT NULL`
+        and(
+          isNotNull(communities.latitude),
+          isNotNull(communities.longitude)
+        )
       );
-
+    
     // Apply bounds filter if provided
     if (bounds) {
       const [swLat, swLng, neLat, neLng] = (bounds as string).split(',').map(Number);
-      query = query.where(
-        sql`${communities.latitude} BETWEEN ${swLat} AND ${neLat}
-            AND ${communities.longitude} BETWEEN ${swLng} AND ${neLng}`
-      ) as any;
+      baseQuery = db
+        .select({
+          id: communities.id,
+          name: communities.name,
+          latitude: communities.latitude,
+          longitude: communities.longitude,
+          city: communities.city,
+          state: communities.state,
+          communityType: communities.communityType,
+          monthlyRentMin: communities.monthlyRentMin,
+          monthlyRentMax: communities.monthlyRentMax,
+          hudStatus: communities.hudStatus
+        })
+        .from(communities)
+        .where(
+          and(
+            isNotNull(communities.latitude),
+            isNotNull(communities.longitude),
+            between(communities.latitude, swLat, neLat),
+            between(communities.longitude, swLng, neLng)
+          )
+        );
     }
-
-    const allCommunities = await query;
+    
+    const allCommunities = await baseQuery;
 
     res.json({
       type: 'FeatureCollection',
