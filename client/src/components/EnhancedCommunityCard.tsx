@@ -74,9 +74,10 @@ interface CommunityCardProps {
 function CommunityCard({ community, index = 0, variant = 'standard', onSelect }: CommunityCardProps) {
   // Only properties with actual HUD property IDs are HUD properties
   const isHudProperty = !!community.hudPropertyId;
-  const hasAuthenticPricing = community.displayPricing?.priceLabel?.includes('HUD Official') || 
-    (community.hudPropertyId && community.rentPerMonth);
-  const hasOccupancyData = community.displayAvailability?.occupancyDisplay;
+  const hasAuthenticPricing = !!(community.hudPropertyId && community.rentPerMonth) || 
+    community.pricingType === 'live' ||
+    !!community.pricingDetails?.basePrice;
+  const hasOccupancyData = false; // No occupancy data in current schema
 
   // Community subtype badge mapping
   const getSubtypeBadge = (subtype?: string) => {
@@ -104,23 +105,32 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
   // Get authentic pricing display - check HUD rentPerMonth first
   // For cards, only show starting price to save space
   const getStartingPrice = () => {
+    // HUD verified pricing takes priority
     if (community.rentPerMonth) {
-      return `Starting at $${Number(community.rentPerMonth).toLocaleString()}`;
+      return `$${Number(community.rentPerMonth).toLocaleString()}/mo`;
     }
-    if (community.monthlyRentRangeStart) {
-      return `Starting at $${community.monthlyRentRangeStart.toLocaleString()}`;
+    
+    // Check pricing details for base price
+    if (community.pricingDetails?.basePrice) {
+      return `$${Number(community.pricingDetails.basePrice).toLocaleString()}/mo`;
     }
+    
+    // Check monthly fees from pricing details
+    if (community.pricingDetails?.monthlyFees?.baseRent) {
+      return `$${Number(community.pricingDetails.monthlyFees.baseRent).toLocaleString()}/mo`;
+    }
+    
+    // Check price range
     if (community.priceRange?.min) {
-      return `Starting at $${community.priceRange.min.toLocaleString()}`;
-    }
-    if (community.displayPricing?.displayPrice) {
-      // Extract starting price from display price if it contains a range
-      const match = community.displayPricing.displayPrice.match(/\$[\d,]+/);
-      if (match) {
-        return `Starting at ${match[0]}`;
+      const min = Number(community.priceRange.min).toLocaleString();
+      const max = community.priceRange.max ? Number(community.priceRange.max).toLocaleString() : null;
+      if (max) {
+        return `$${min} - $${max}/mo`;
       }
-      return community.displayPricing.displayPrice;
+      return `Starting at $${min}/mo`;
     }
+    
+    // Default for no pricing data
     return 'Contact for Pricing';
   };
 
@@ -259,9 +269,9 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                   </Badge>
                 )}
                 
-                {displayPrice === 'Contact for Pricing' && community.sizeCategory && (
+                {displayPrice === 'Contact for Pricing' && (
                   <Badge className="text-xs bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 border border-orange-300 dark:border-orange-700">
-                    {community.sizeCategory}
+                    Call for Info
                   </Badge>
                 )}
                 
@@ -281,7 +291,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                 <div className="flex flex-col items-end">
                   <Phone className="h-5 w-5 text-gray-400 mb-1" />
                   <div className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Call for pricing
+                    Contact for pricing
                   </div>
                 </div>
               ) : (
@@ -289,23 +299,21 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                   <div className="text-lg font-bold text-gray-900 dark:text-white">
                     {displayPrice}
                   </div>
-                  {hasAuthenticPricing && (
+                  {community.hudPropertyId && community.rentPerMonth && (
                     <span className="text-xs text-green-600 dark:text-green-400 font-medium">
-                      Official
+                      HUD Verified
                     </span>
                   )}
-                  {!hasAuthenticPricing && community.displayPricing?.priceLabel === 'Market Estimate' && (
+                  {!community.hudPropertyId && community.pricingType === 'live' && (
                     <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                      Live Pricing
+                    </span>
+                  )}
+                  {!community.hudPropertyId && community.pricingType !== 'live' && displayPrice !== 'Contact for Pricing' && (
+                    <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
                       Market Estimate
                     </span>
                   )}
-                </div>
-              )}
-              
-              {/* Availability Status */}
-              {community.displayAvailability?.availabilityStatus && (
-                <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
-                  {community.displayAvailability.availabilityStatus}
                 </div>
               )}
             </div>
