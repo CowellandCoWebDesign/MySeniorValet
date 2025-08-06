@@ -396,7 +396,15 @@ export default function MapSearch() {
     retry: 1,
   });
 
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  interface AutocompleteSuggestion {
+    label: string;
+    value: string;
+    type: string;
+    id?: number;
+    description?: string;
+  }
+  
+  const [suggestions, setSuggestions] = useState<AutocompleteSuggestion[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
   // Fetch autocomplete suggestions
@@ -439,11 +447,12 @@ export default function MapSearch() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSuggestionClick = (suggestion: string) => {
-    setSearchQuery(suggestion);
+  const handleSuggestionClick = (suggestion: AutocompleteSuggestion | string) => {
+    const value = typeof suggestion === 'string' ? suggestion : suggestion.value;
+    setSearchQuery(value);
     setShowSuggestions(false);
     setSelectedSuggestionIndex(-1);
-    handleLocationSearch(suggestion);
+    handleLocationSearch(value);
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -1090,39 +1099,13 @@ export default function MapSearch() {
                   >
                     <div className="flex items-center">
                       <MapPin className="w-4 h-4 mr-2 text-gray-400" />
-                      <span className="text-sm">{suggestion}</span>
+                      <span className="text-sm">{typeof suggestion === 'string' ? suggestion : suggestion.label}</span>
                     </div>
                   </div>
                 ))}
               </div>
             )}
-            {/* Autocomplete suggestions */}
-            {showSuggestions && searchQuery.length > 0 && suggestions.length > 0 && (
-              <div className={"absolute top-full left-0 right-0 mt-1 rounded-md shadow-lg z-50 max-h-60 overflow-auto " + (
-                isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'
-              ) + " border"}>
-                {loadingSuggestions ? (
-                  <div className="px-4 py-2 text-gray-500">Loading...</div>
-                ) : (
-                  suggestions.map((suggestion, idx) => (
-                    <button
-                      key={idx}
-                      className={"w-full text-left px-4 py-2 hover:bg-blue-50 dark:hover:bg-gray-600 " + (
-                        isDarkMode ? 'text-gray-200' : 'text-gray-700'
-                      )}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        setSearchQuery(suggestion);
-                        handleLocationSearch(suggestion);
-                        setShowSuggestions(false);
-                      }}
-                    >
-                      <div className="font-medium">{suggestion}</div>
-                    </button>
-                  ))
-                )}
-              </div>
-            )}
+            {/* Removed duplicate autocomplete suggestions - using the one above */}
           </div>
           <Button 
             onClick={() => {

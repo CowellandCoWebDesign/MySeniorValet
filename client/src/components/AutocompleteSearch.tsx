@@ -52,9 +52,13 @@ export function AutocompleteSearch({
         .then(res => res.json())
         .then(data => {
           // Ensure suggestions are in the correct format
-          const validSuggestions = (data.suggestions || []).filter((s: AutocompleteSuggestion) => 
-            s && s.label && s.value && s.type
-          );
+          const validSuggestions = (data.suggestions || []).filter((s: AutocompleteSuggestion) => {
+            // Ensure all fields are strings, not objects
+            return s && 
+              typeof s.label === 'string' && 
+              typeof s.value === 'string' && 
+              typeof s.type === 'string';
+          });
           setSuggestions(validSuggestions);
           setShowSuggestions(validSuggestions.length > 0);
           setLoadingSuggestions(false);
@@ -112,7 +116,9 @@ export function AutocompleteSearch({
     onSubmit(suggestion.value);
   };
 
-  const getIcon = (type: string) => {
+  const getIcon = (type: string | undefined) => {
+    if (!type) return <Search className="h-4 w-4" />;
+    
     switch (type) {
       case 'city':
       case 'state':
@@ -207,10 +213,10 @@ export function AutocompleteSearch({
                     {getIcon(suggestion.type)}
                   </span>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{suggestion.label}</div>
+                    <div className="font-medium truncate">{String(suggestion.label || '')}</div>
                   </div>
                   <Badge variant="secondary" className="ml-auto">
-                    {suggestion.type.replace('_', ' ')}
+                    {String(suggestion.type || '').replace('_', ' ')}
                   </Badge>
                 </button>
               ))}
