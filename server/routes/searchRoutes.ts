@@ -415,7 +415,23 @@ export function registerSearchRoutes(app: Express) {
         ownership: hospital.ownership,
         insuranceAccepted: hospital.insuranceAccepted || [],
         networkAffiliations: hospital.networkAffiliations || [],
-      }));
+      })).sort((a, b) => {
+        // CRITICAL: Prioritize hospitals by emergency services and urgent care
+        // 1. Emergency services hospitals first
+        if (a.emergencyServices && !b.emergencyServices) return -1;
+        if (!a.emergencyServices && b.emergencyServices) return 1;
+        
+        // 2. Urgent care facilities next
+        const aIsUrgent = a.name.toLowerCase().includes('urgent') || a.category?.toLowerCase().includes('urgent');
+        const bIsUrgent = b.name.toLowerCase().includes('urgent') || b.category?.toLowerCase().includes('urgent');
+        if (aIsUrgent && !bIsUrgent) return -1;
+        if (!aIsUrgent && bIsUrgent) return 1;
+        
+        // 3. Then by CMS rating
+        const aRating = a.cmsRating || 0;
+        const bRating = b.cmsRating || 0;
+        return bRating - aRating;
+      });
 
       // Transform services to match expected healthcare service format
       const transformedServices = serviceResults.map(service => {
