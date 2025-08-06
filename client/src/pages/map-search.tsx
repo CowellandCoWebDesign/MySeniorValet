@@ -447,14 +447,29 @@ export default function MapSearch() {
     gcTime: 15000
   });
   
-  // Fetch healthcare services and hospitals
+  // Fetch healthcare services and hospitals with spatial filtering
   const { data: healthcareServices = [], isLoading: isLoadingHealthcare } = useQuery({
-    queryKey: ['healthcare-services', searchQuery, resultType],
+    queryKey: ['healthcare-services', searchQuery, boundsKey, resultType],
     queryFn: async () => {
       if (resultType === 'communities' || resultType === 'vendors' || resultType === 'resources') return [];
       
-      // Use the unified healthcare endpoint that includes hospitals and services
-      const response = await fetch(`/api/healthcare/search?q=${encodeURIComponent(searchQuery)}&limit=50`);
+      // Build query params with spatial bounds if available
+      const params = new URLSearchParams({
+        q: searchQuery,
+        limit: '50'
+      });
+      
+      // Add map bounds for spatial filtering
+      if (mapBounds) {
+        const sw = mapBounds.getSouthWest();
+        const ne = mapBounds.getNorthEast();
+        params.append('swLat', sw.lat.toString());
+        params.append('swLng', sw.lng.toString());
+        params.append('neLat', ne.lat.toString());
+        params.append('neLng', ne.lng.toString());
+      }
+      
+      const response = await fetch(`/api/healthcare/search?${params}`);
       if (!response.ok) return [];
       
       const data = await response.json();

@@ -1,7 +1,7 @@
 import { type Express } from "express";
 import { db } from "../db";
 import { communities, vendors, marketplaceVendors, services, marketplaceCategories, serviceCategories, serviceProviders, hospitals } from "@shared/schema";
-import { eq, and, or, desc, sql, ilike, gte, lte, isNotNull, ne } from "drizzle-orm";
+import { eq, and, or, desc, sql, ilike, gte, lte, isNotNull, ne, inArray } from "drizzle-orm";
 import { searchCommunitySchema } from "@shared/schema";
 import { enhancedSearchService } from "../enhanced-search-service";
 import { superclusterService } from "../services/supercluster";
@@ -57,12 +57,21 @@ export function registerSearchRoutes(app: Express) {
     }
   });
 
-  // Healthcare services search endpoint (comprehensive)
+  // Healthcare services search endpoint (comprehensive with spatial filtering)
   app.get('/api/healthcare/search', async (req, res) => {
     try {
-      const { q, limit = '30' } = req.query;
+      const { q, limit = '30', swLat, swLng, neLat, neLng } = req.query;
       let searchTerm = q as string || '';
       const resultLimit = parseInt(limit as string);
+      
+      // Parse bounds if provided
+      const hasBounds = swLat && swLng && neLat && neLng;
+      const bounds = hasBounds ? {
+        swLat: parseFloat(swLat as string),
+        swLng: parseFloat(swLng as string),
+        neLat: parseFloat(neLat as string),
+        neLng: parseFloat(neLng as string),
+      } : null;
       
       // Check if searchTerm looks like a location (contains comma or is a state abbreviation)
       const isLocationSearch = searchTerm && (
@@ -79,10 +88,68 @@ export function registerSearchRoutes(app: Express) {
         searchTerm = '';
       }
       
+      // Determine which states are in the bounds for filtering
+      let statesInBounds: string[] = [];
+      if (bounds) {
+        // Simple state mapping based on latitude/longitude ranges
+        // This is a simplified approach - in production you'd use proper geocoding
+        if (bounds.neLat >= 32 && bounds.swLat <= 42 && bounds.neLng >= -125 && bounds.swLng <= -114) {
+          statesInBounds.push('CA');
+        }
+        if (bounds.neLat >= 25 && bounds.swLat <= 31 && bounds.neLng >= -106 && bounds.swLng <= -93) {
+          statesInBounds.push('TX');
+        }
+        if (bounds.neLat >= 24 && bounds.swLat <= 31 && bounds.neLng >= -88 && bounds.swLng <= -80) {
+          statesInBounds.push('FL');
+        }
+        if (bounds.neLat >= 40 && bounds.swLat <= 45 && bounds.neLng >= -80 && bounds.swLng <= -72) {
+          statesInBounds.push('NY');
+        }
+        // Add more states as needed based on common search areas
+        
+        // If no specific states identified, use a broader approach
+        if (statesInBounds.length === 0) {
+          // West Coast
+          if (bounds.swLng <= -100) {
+            statesInBounds.push('CA', 'OR', 'WA', 'NV', 'AZ');
+          }
+          // East Coast
+          if (bounds.neLng >= -85) {
+            statesInBounds.push('NY', 'FL', 'MA', 'PA', 'NJ', 'MD', 'VA', 'NC', 'SC', 'GA');
+          }
+          // Central
+          if (bounds.swLng > -100 && bounds.neLng < -85) {
+            statesInBounds.push('TX', 'IL', 'OH', 'MI', 'IN', 'MO', 'TN', 'KY');
+          }
+        }
+      }
+      
       // Query hospitals first (these are the main healthcare facilities)
       let hospitalResults: any[] = [];
+      
+      // Build hospital query conditions
+      let hospitalConditions: any[] = [];
+      
+      // Add search term conditions if provided
       if (searchTerm && searchTerm.length > 2) {
-        // Only search if there's a meaningful non-location search term
+        hospitalConditions.push(
+          or(
+            ilike(hospitals.name, `%${searchTerm}%`),
+            ilike(hospitals.hospitalType, `%${searchTerm}%`),
+            ilike(hospitals.description, `%${searchTerm}%`)
+          )
+        );
+      }
+      
+      // Add state filtering if bounds are provided
+      if (statesInBounds.length > 0) {
+        hospitalConditions.push(
+          inArray(hospitals.state, statesInBounds)
+        );
+      }
+      
+      // Execute query with conditions
+      if (hospitalConditions.length > 0) {
         hospitalResults = await db
           .select({
             id: hospitals.id,
@@ -100,16 +167,11 @@ export function registerSearchRoutes(app: Express) {
             specialties: hospitals.specialties,
           })
           .from(hospitals)
-          .where(
-            or(
-              ilike(hospitals.name, `%${searchTerm}%`),
-              ilike(hospitals.hospitalType, `%${searchTerm}%`),
-              ilike(hospitals.description, `%${searchTerm}%`)
-            )
-          )
-          .limit(Math.floor(resultLimit / 2)); // Take half the limit for hospitals
+          .where(and(...hospitalConditions))
+          .orderBy(desc(hospitals.cmsRating))
+          .limit(Math.floor(resultLimit / 2));
       } else {
-        // If no search term or location search, get featured hospitals
+        // No filters, get featured hospitals
         hospitalResults = await db
           .select({
             id: hospitals.id,
@@ -163,7 +225,7 @@ export function registerSearchRoutes(app: Express) {
         .limit(Math.ceil(resultLimit / 3)); // Take 1/3 for services
       
       // Query care services from communities table (home care, therapy, hospice, etc.)
-      let careServicesConditions = and(
+      let careServicesConditionsList: any[] = [
         or(
           // Home care services
           ilike(communities.name, '%home care%'),
@@ -185,12 +247,11 @@ export function registerSearchRoutes(app: Express) {
         // Must have phone for legitimacy
         isNotNull(communities.phone),
         ne(communities.phone, '')
-      );
+      ];
       
       // Add search term filter if provided (only for non-location searches)
       if (searchTerm && searchTerm.length > 2) {
-        careServicesConditions = and(
-          careServicesConditions,
+        careServicesConditionsList.push(
           or(
             ilike(communities.name, `%${searchTerm}%`),
             ilike(communities.city, `%${searchTerm}%`),
@@ -198,6 +259,15 @@ export function registerSearchRoutes(app: Express) {
           )
         );
       }
+      
+      // Add state filtering if bounds are provided
+      if (statesInBounds.length > 0) {
+        careServicesConditionsList.push(
+          inArray(communities.state, statesInBounds)
+        );
+      }
+      
+      const careServicesConditions = and(...careServicesConditionsList);
       
       const careServiceResults = await db
         .select({
