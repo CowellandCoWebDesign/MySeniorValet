@@ -61,12 +61,28 @@ export function registerSearchRoutes(app: Express) {
   app.get('/api/healthcare/search', async (req, res) => {
     try {
       const { q, limit = '30' } = req.query;
-      const searchTerm = q as string || '';
+      let searchTerm = q as string || '';
       const resultLimit = parseInt(limit as string);
+      
+      // Check if searchTerm looks like a location (contains comma or is a state abbreviation)
+      const isLocationSearch = searchTerm && (
+        searchTerm.includes(',') || 
+        searchTerm.match(/^[A-Z]{2}$/i) ||
+        searchTerm.toLowerCase().includes(' ca') ||
+        searchTerm.toLowerCase().includes(' tx') ||
+        searchTerm.toLowerCase().includes(' ny')
+      );
+      
+      // If it's a location search, ignore the search term for healthcare
+      // Healthcare services should be shown regardless of location
+      if (isLocationSearch) {
+        searchTerm = '';
+      }
       
       // Query hospitals first (these are the main healthcare facilities)
       let hospitalResults: any[] = [];
-      if (searchTerm) {
+      if (searchTerm && searchTerm.length > 2) {
+        // Only search if there's a meaningful non-location search term
         hospitalResults = await db
           .select({
             id: hospitals.id,
@@ -87,14 +103,13 @@ export function registerSearchRoutes(app: Express) {
           .where(
             or(
               ilike(hospitals.name, `%${searchTerm}%`),
-              ilike(hospitals.city, `%${searchTerm}%`),
-              ilike(hospitals.state, `%${searchTerm}%`),
+              ilike(hospitals.hospitalType, `%${searchTerm}%`),
               ilike(hospitals.description, `%${searchTerm}%`)
             )
           )
           .limit(Math.floor(resultLimit / 2)); // Take half the limit for hospitals
       } else {
-        // If no search term, get featured hospitals
+        // If no search term or location search, get featured hospitals
         hospitalResults = await db
           .select({
             id: hospitals.id,
@@ -117,7 +132,7 @@ export function registerSearchRoutes(app: Express) {
       }
       
       // Build where conditions for services
-      const whereConditions = searchTerm 
+      const whereConditions = searchTerm && searchTerm.length > 2
         ? and(
             eq(services.isActive, true),
             or(
@@ -172,8 +187,8 @@ export function registerSearchRoutes(app: Express) {
         ne(communities.phone, '')
       );
       
-      // Add search term filter if provided
-      if (searchTerm) {
+      // Add search term filter if provided (only for non-location searches)
+      if (searchTerm && searchTerm.length > 2) {
         careServicesConditions = and(
           careServicesConditions,
           or(
