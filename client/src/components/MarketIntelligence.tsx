@@ -2,10 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { BarChart3, Brain, Shield, Eye, CheckCircle, TrendingUp, AlertCircle, Home, Users, Heart, Stethoscope } from "lucide-react";
+import { CareSpectrumSlider } from "./CareSpectrumSlider";
 
 export function MarketIntelligence() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="text-center mb-4">
         <h2 className="text-xl font-bold mb-2">Complete Care Spectrum & Live Market Intelligence</h2>
         <p className="text-sm text-muted-foreground">
@@ -227,6 +228,11 @@ export function MarketIntelligence() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Find Your Perfect Care Level - Interactive Slider */}
+      <div className="mt-6">
+        <CareSpectrumSlider />
+      </div>
     </div>
   );
 }

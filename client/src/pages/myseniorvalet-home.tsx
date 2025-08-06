@@ -862,12 +862,7 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Care Spectrum Slider Section - Interactive Housing Type Selection */}
-      <section className="px-4 py-12 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <CareSpectrumSlider />
-        </div>
-      </section>
+
 
       {/* Featured & Coastal Communities Section - Position 3 (Moved from Position 2) */}
       <section ref={newYorkSectionRef} className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
