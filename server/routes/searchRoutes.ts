@@ -57,15 +57,34 @@ export function registerSearchRoutes(app: Express) {
     }
   });
 
-  // Healthcare services search endpoint (comprehensive with spatial filtering)
+  // Healthcare services search endpoint (comprehensive with dual filtering modes)
   app.get('/api/healthcare/search', async (req, res) => {
     try {
-      const { q, limit = '30', swLat, swLng, neLat, neLng } = req.query;
+      const { 
+        q, 
+        limit = '30', 
+        swLat, swLng, neLat, neLng,  // Map bounds filtering
+        radius, centerLat, centerLng  // Radius filtering
+      } = req.query;
+      
       let searchTerm = q as string || '';
       const resultLimit = parseInt(limit as string);
       
-      // Parse bounds if provided
+      // Determine filtering mode
+      const isRadiusSearch = radius && centerLat && centerLng;
       const hasBounds = swLat && swLng && neLat && neLng;
+      
+      // Parse radius search parameters if provided
+      let radiusFilter = null;
+      if (isRadiusSearch) {
+        radiusFilter = {
+          radius: parseFloat(radius as string),
+          centerLat: parseFloat(centerLat as string),
+          centerLng: parseFloat(centerLng as string)
+        };
+      }
+      
+      // Parse bounds if provided (for map pan/zoom)
       const bounds = hasBounds ? {
         swLat: parseFloat(swLat as string),
         swLng: parseFloat(swLng as string),
@@ -82,17 +101,47 @@ export function registerSearchRoutes(app: Express) {
         searchTerm.toLowerCase().includes(' ny')
       );
       
-      // If it's a location search, ignore the search term for healthcare
-      // Healthcare services should be shown regardless of location
+      // Remove location from search term but keep other search criteria
       if (isLocationSearch) {
-        searchTerm = '';
+        // Remove "within X miles" pattern from search term
+        searchTerm = searchTerm.replace(/within\s+\d+\s+miles?/i, '').trim();
+        // If only location remains, clear search term
+        if (searchTerm.match(/^[^,]+,\s*[A-Z]{2}$/i)) {
+          searchTerm = '';
+        }
       }
       
-      // Determine which states are in the bounds for filtering
+      // Determine which states are in the bounds/radius for filtering
       let statesInBounds: string[] = [];
-      if (bounds) {
-        // Simple state mapping based on latitude/longitude ranges
-        // This is a simplified approach - in production you'd use proper geocoding
+      
+      if (radiusFilter) {
+        // For radius searches, determine states based on center point and radius
+        // This is simplified - in production you'd calculate actual geographic boundaries
+        const { centerLat, centerLng, radius: radiusMiles } = radiusFilter;
+        
+        // California regions
+        if (centerLng >= -125 && centerLng <= -114 && centerLat >= 32 && centerLat <= 42) {
+          statesInBounds.push('CA');
+          if (radiusMiles > 50) statesInBounds.push('NV', 'OR', 'AZ');
+        }
+        // Texas regions
+        if (centerLng >= -106 && centerLng <= -93 && centerLat >= 25 && centerLat <= 37) {
+          statesInBounds.push('TX');
+          if (radiusMiles > 50) statesInBounds.push('OK', 'NM', 'LA', 'AR');
+        }
+        // Florida regions
+        if (centerLng >= -88 && centerLng <= -80 && centerLat >= 24 && centerLat <= 31) {
+          statesInBounds.push('FL');
+          if (radiusMiles > 50) statesInBounds.push('GA', 'AL');
+        }
+        // New York regions
+        if (centerLng >= -80 && centerLng <= -72 && centerLat >= 40 && centerLat <= 45) {
+          statesInBounds.push('NY');
+          if (radiusMiles > 50) statesInBounds.push('NJ', 'CT', 'MA', 'PA', 'VT');
+        }
+        
+      } else if (bounds) {
+        // Original bounds-based state detection for pan/zoom
         if (bounds.neLat >= 32 && bounds.swLat <= 42 && bounds.neLng >= -125 && bounds.swLng <= -114) {
           statesInBounds.push('CA');
         }
@@ -105,7 +154,6 @@ export function registerSearchRoutes(app: Express) {
         if (bounds.neLat >= 40 && bounds.swLat <= 45 && bounds.neLng >= -80 && bounds.swLng <= -72) {
           statesInBounds.push('NY');
         }
-        // Add more states as needed based on common search areas
         
         // If no specific states identified, use a broader approach
         if (statesInBounds.length === 0) {
@@ -122,6 +170,15 @@ export function registerSearchRoutes(app: Express) {
             statesInBounds.push('TX', 'IL', 'OH', 'MI', 'IN', 'MO', 'TN', 'KY');
           }
         }
+      }
+      
+      // Log filtering mode for debugging
+      if (radiusFilter) {
+        console.log(`Healthcare radius search: ${radiusFilter.radius} miles from (${radiusFilter.centerLat}, ${radiusFilter.centerLng})`);
+      } else if (bounds) {
+        console.log(`Healthcare bounds search: [${bounds.swLat}, ${bounds.swLng}] to [${bounds.neLat}, ${bounds.neLng}]`);
+      } else {
+        console.log('Healthcare search: No spatial filtering applied');
       }
       
       // Query hospitals first (these are the main healthcare facilities)
@@ -141,11 +198,12 @@ export function registerSearchRoutes(app: Express) {
         );
       }
       
-      // Add state filtering if bounds are provided
+      // Add state filtering if spatial filtering is active
       if (statesInBounds.length > 0) {
         hospitalConditions.push(
           inArray(hospitals.state, statesInBounds)
         );
+        console.log(`Filtering healthcare by states: ${statesInBounds.join(', ')}`);
       }
       
       // Execute query with conditions
@@ -534,16 +592,22 @@ export function registerSearchRoutes(app: Express) {
     }
   });
 
-  // PostGIS-enabled spatial search endpoint
+  // PostGIS-enabled spatial search endpoint - DUAL MODE: bounds or radius
   app.get('/api/communities/search/spatial', async (req, res) => {
     try {
       console.log('PostGIS spatial search request received:', req.query);
       
       const {
+        // Bounds parameters (map pan/zoom)
         swLat,
         swLng,
         neLat,
         neLng,
+        // Radius parameters ("within X miles")
+        radius,
+        centerLat,
+        centerLng,
+        // Common parameters
         limit = 4000,
         careTypes,
         priceRanges,
@@ -552,30 +616,49 @@ export function registerSearchRoutes(app: Express) {
         amenities
       } = req.query;
 
-      // Validate required bounding box parameters
-      if (!swLat || !swLng || !neLat || !neLng) {
+      const startTime = Date.now();
+      let whereConditions = [];
+      
+      // DUAL-MODE FILTERING: Support both bounds and radius searches
+      if (radius && centerLat && centerLng) {
+        // RADIUS MODE: "within X miles" search
+        const radiusMiles = parseFloat(radius as string);
+        const center = {
+          lat: parseFloat(centerLat as string),
+          lng: parseFloat(centerLng as string)
+        };
+        
+        // Convert miles to degrees (rough approximation: 1 degree latitude = ~69 miles)
+        const milesToDegrees = radiusMiles / 69.0;
+        
+        whereConditions = [
+          sql`${communities.latitude}::float >= ${center.lat - milesToDegrees}`,
+          sql`${communities.latitude}::float <= ${center.lat + milesToDegrees}`,
+          sql`${communities.longitude}::float >= ${center.lng - milesToDegrees}`,
+          sql`${communities.longitude}::float <= ${center.lng + milesToDegrees}`
+        ];
+        
+        console.log(`RADIUS MODE: ${radiusMiles} miles from (${center.lat}, ${center.lng})`);
+      } else if (swLat && swLng && neLat && neLng) {
+        // BOUNDS MODE: Default map pan/zoom filtering
+        const swLatFloat = parseFloat(swLat as string);
+        const swLngFloat = parseFloat(swLng as string);
+        const neLatFloat = parseFloat(neLat as string);
+        const neLngFloat = parseFloat(neLng as string);
+        
+        whereConditions = [
+          sql`${communities.latitude}::float >= ${swLatFloat}`,
+          sql`${communities.latitude}::float <= ${neLatFloat}`,
+          sql`${communities.longitude}::float >= ${swLngFloat}`,
+          sql`${communities.longitude}::float <= ${neLngFloat}`
+        ];
+        
+        console.log(`BOUNDS MODE: [${swLngFloat}, ${swLatFloat}, ${neLngFloat}, ${neLatFloat}]`);
+      } else {
         return res.status(400).json({ 
-          error: 'Missing bounding box parameters. Required: swLat, swLng, neLat, neLng' 
+          error: 'Missing required parameters. Provide either (swLat, swLng, neLat, neLng) for bounds or (radius, centerLat, centerLng) for radius search' 
         });
       }
-
-      const startTime = Date.now();
-      
-      // Parse coordinates
-      const swLatFloat = parseFloat(swLat as string);
-      const swLngFloat = parseFloat(swLng as string);
-      const neLatFloat = parseFloat(neLat as string);
-      const neLngFloat = parseFloat(neLng as string);
-      
-      console.log(`Bounds: [${swLngFloat}, ${swLatFloat}, ${neLngFloat}, ${neLatFloat}]`);
-      
-      // Build where conditions
-      let whereConditions = [
-        sql`${communities.latitude}::float >= ${swLatFloat}`,
-        sql`${communities.latitude}::float <= ${neLatFloat}`,
-        sql`${communities.longitude}::float >= ${swLngFloat}`,
-        sql`${communities.longitude}::float <= ${neLngFloat}`
-      ];
 
       // Add care type filter
       if (careTypes && careTypes !== 'All Types') {

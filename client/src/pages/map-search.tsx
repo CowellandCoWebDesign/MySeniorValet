@@ -316,31 +316,48 @@ export default function MapSearch() {
         const sw = mapBounds.getSouthWest();
         const ne = mapBounds.getNorthEast();
 
-        // No buffer - use exact viewport bounds for precise list synchronization
-        const latBuffer = 0;
-        const lngBuffer = 0;
+        // Check if search includes radius filtering (e.g., "within 25 miles")
+        const radiusMatch = searchQuery.match(/within\s+(\d+)\s+miles?/i);
+        
+        let params: URLSearchParams;
+        
+        if (radiusMatch) {
+          // Radius search mode - use center point and radius
+          const center = mapBounds.getCenter();
+          params = new URLSearchParams({
+            radius: radiusMatch[1],
+            centerLat: center.lat.toString(),
+            centerLng: center.lng.toString(),
+            limit: '500',
+            ...(filters.careType !== 'All Types' && { careType: filters.careType }),
+            ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
+          });
+          console.log('📍 RADIUS SEARCH MODE:', {
+            radius: radiusMatch[1],
+            center: { lat: center.lat, lng: center.lng },
+            showBottomPanel
+          });
+        } else {
+          // Default map bounds mode for pan/zoom
+          // No buffer - use exact viewport bounds for precise list synchronization
+          const latBuffer = 0;
+          const lngBuffer = 0;
 
-        console.log('📍 BOUNDS DATA:', {
-          sw: { lat: sw.lat, lng: sw.lng },
-          ne: { lat: ne.lat, lng: ne.lng },
-          showBottomPanel,
-          actualBounds: {
-            swLat: sw.lat - latBuffer,
-            swLng: sw.lng - lngBuffer,
-            neLat: ne.lat + latBuffer,
-            neLng: ne.lng + lngBuffer
-          }
-        });
-
-        const params = new URLSearchParams({
-          swLat: (sw.lat - latBuffer).toString(),
-          swLng: (sw.lng - lngBuffer).toString(),
-          neLat: (ne.lat + latBuffer).toString(),
-          neLng: (ne.lng + lngBuffer).toString(),
-          limit: '500',
-          ...(filters.careType !== 'All Types' && { careType: filters.careType }),
-          ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
-        });
+          params = new URLSearchParams({
+            swLat: (sw.lat - latBuffer).toString(),
+            swLng: (sw.lng - lngBuffer).toString(),
+            neLat: (ne.lat + latBuffer).toString(),
+            neLng: (ne.lng + lngBuffer).toString(),
+            limit: '500',
+            ...(filters.careType !== 'All Types' && { careType: filters.careType }),
+            ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
+          });
+          console.log('📍 BOUNDS SEARCH MODE:', {
+            sw: { lat: sw.lat, lng: sw.lng },
+            ne: { lat: ne.lat, lng: ne.lng },
+            showBottomPanel
+          });
+        }
 
         const requestUrl = `/api/communities/search/spatial?${params}`;
         console.log('🌐 MAKING SPATIAL REQUEST:', {
@@ -447,20 +464,30 @@ export default function MapSearch() {
     gcTime: 15000
   });
   
-  // Fetch healthcare services and hospitals with spatial filtering
+  // Fetch healthcare services and hospitals
   const { data: healthcareServices = [], isLoading: isLoadingHealthcare } = useQuery({
     queryKey: ['healthcare-services', searchQuery, boundsKey, resultType],
     queryFn: async () => {
       if (resultType === 'communities' || resultType === 'vendors' || resultType === 'resources') return [];
       
-      // Build query params with spatial bounds if available
+      // Build query params
       const params = new URLSearchParams({
         q: searchQuery,
         limit: '50'
       });
       
-      // Add map bounds for spatial filtering
-      if (mapBounds) {
+      // Check if search includes radius filtering (e.g., "within 25 miles")
+      const radiusMatch = searchQuery.match(/within\s+(\d+)\s+miles?/i);
+      if (radiusMatch) {
+        params.append('radius', radiusMatch[1]);
+        // For radius searches, include center point if available
+        if (mapBounds) {
+          const center = mapBounds.getCenter();
+          params.append('centerLat', center.lat.toString());
+          params.append('centerLng', center.lng.toString());
+        }
+      } else if (mapBounds) {
+        // Default behavior: use map bounds for filtering (pan/zoom)
         const sw = mapBounds.getSouthWest();
         const ne = mapBounds.getNorthEast();
         params.append('swLat', sw.lat.toString());
