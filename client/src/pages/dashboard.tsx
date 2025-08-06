@@ -559,88 +559,111 @@ export default function Dashboard() {
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {savedCommunities.map((community) => (
-                  <Card key={community.id} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
-                    <CardHeader className="p-6 border-b border-gray-100 dark:border-gray-700">
+                  <Card key={community.id} className="group bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 shadow-lg rounded-xl overflow-hidden hover:shadow-2xl hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200">
+                    <CardHeader className="p-5 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-750 border-b border-gray-200 dark:border-gray-700">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <CardTitle className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                          <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-1">
                             {community.name}
                           </CardTitle>
-                          <p className="text-gray-600 dark:text-gray-300 flex items-center">
-                            <MapPin className="h-4 w-4 mr-2 text-blue-500" />
-                            {community.address}, {community.city}, {community.state}
-                          </p>
+                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
+                            <span>{community.city}, {community.state} {community.zipCode || ''}</span>
+                          </div>
                         </div>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRemoveCommunity(community.id)}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </CardHeader>
-                    <CardContent className="p-6">
-                      <div className="space-y-4">
-                        <div className="flex flex-wrap gap-2">
-                          <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full px-3 py-1">
-                            {community.careType}
-                          </Badge>
-                          <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full px-3 py-1">
-                            {community.priceRange}
-                          </Badge>
-                          <Badge className={`rounded-full px-3 py-1 ${
-                            community.availability === 'Available' 
-                              ? 'bg-gradient-to-r from-green-400 to-green-500 text-white'
-                              : 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white'
-                          }`}>
-                            {community.availability}
-                          </Badge>
+                    <CardContent className="p-5">
+                      <div className="space-y-3">
+                        {/* Key Information Row */}
+                        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-2 border border-gray-200 dark:border-gray-700">
+                          <div className="flex flex-wrap items-center gap-3 text-sm">
+                            {/* Pricing Display - Following Golden Data Rule */}
+                            <div className="flex items-center font-semibold text-gray-900 dark:text-white">
+                              <DollarSign className="h-4 w-4 mr-1 text-green-600 dark:text-green-400" />
+                              <span className="text-base">
+                                {community.priceRange || 'Contact for pricing'}
+                              </span>
+                            </div>
+                            
+                            {/* Care Type Badge */}
+                            {community.careType && (
+                              <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                {community.careType}
+                              </Badge>
+                            )}
+                            
+                            {/* Availability Badge */}
+                            {community.availability && (
+                              <Badge className={
+                                community.availability === 'Available' 
+                                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                  : 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+                              }>
+                                {community.availability}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
 
-                        <div className="flex items-center space-x-4">
-                          <div className="flex items-center">
-                            <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                            <span className="font-medium text-gray-900 dark:text-white">{community.rating}</span>
-                          </div>
-                          <span className="text-sm text-gray-500">
+                        {/* Reviews & Saved Date Row */}
+                        <div className="flex items-center justify-between text-sm">
+                          {community.rating && (
+                            <div className="flex items-center">
+                              <Star className="h-3 w-3 text-yellow-400 mr-1" />
+                              <span className="font-medium text-gray-900 dark:text-white">
+                                {community.rating}
+                              </span>
+                            </div>
+                          )}
+                          <span className="text-gray-500 dark:text-gray-400">
                             Saved {new Date(community.savedDate).toLocaleDateString()}
                           </span>
                         </div>
 
                         {community.notes && (
-                          <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-2xl">
+                          <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                             <p className="text-sm text-gray-700 dark:text-gray-300">
                               <strong className="text-blue-600 dark:text-blue-400">Notes:</strong> {community.notes}
                             </p>
                           </div>
                         )}
 
-                        <div className="flex flex-wrap gap-3 pt-2">
+                        {/* Action Buttons */}
+                        <div className="pt-3 border-t border-gray-200 dark:border-gray-700 flex gap-2">
                           <Link href={`/community/${community.id}`}>
-                            <Button size="sm" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl">
-                              <Eye className="h-4 w-4 mr-2" />
-                              View Details
+                            <Button 
+                              size="sm" 
+                              className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                            >
+                              <Eye className="h-3 w-3 mr-1" />
+                              Details
                             </Button>
                           </Link>
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handleScheduleTour(community.id, community.name)}
-                            className="rounded-xl border-green-200 text-green-600 hover:bg-green-50"
+                            className="flex-1 border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg"
                           >
-                            <Calendar className="h-4 w-4 mr-2" />
+                            <Calendar className="h-3 w-3 mr-1" />
                             Schedule Tour
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handleShareCommunity(community)}
-                            className="rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50"
+                            className="border-gray-400 text-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg"
                           >
-                            <Share2 className="h-4 w-4 mr-2" />
-                            Share
+                            <Share2 className="h-3 w-3" />
                           </Button>
                         </div>
                       </div>

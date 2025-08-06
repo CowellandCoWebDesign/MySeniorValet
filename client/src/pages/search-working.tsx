@@ -54,7 +54,7 @@ export default function SearchWorking() {
     if (q) setSearchQuery(q);
   }, [location]);
 
-  const { data: communitiesResponse, isLoading, error } = useQuery({
+  const { data: communitiesResponse, isLoading, error } = useQuery<{communities: Community[]}>({
     queryKey: ["/api/communities"],
     retry: false,
   });
@@ -65,7 +65,7 @@ export default function SearchWorking() {
   // Debug logging
   console.log('SearchWorking - communities:', communities?.length, 'loading:', isLoading, 'error:', error);
 
-  const filteredCommunities = communities?.filter(community => {
+  const filteredCommunities = communities?.filter((community: Community) => {
     // If no search query, show all communities
     if (!searchQuery) {
       return true;
@@ -76,7 +76,7 @@ export default function SearchWorking() {
     const matches = 
       community.name?.toLowerCase().includes(query) ||
       community.city?.toLowerCase().includes(query) ||
-      community.careTypes?.some(type => type.toLowerCase().includes(query));
+      community.careTypes?.some((type: string) => type.toLowerCase().includes(query));
     return matches;
   }) || [];
 
@@ -273,7 +273,7 @@ export default function SearchWorking() {
     communitiesLength: communities?.length, 
     isLoading, 
     error,
-    filteredLength: displayCommunities?.length 
+    filteredLength: filteredCommunities?.length 
   });
 
   // Simple fallback if there are any issues

@@ -75,8 +75,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
   // Only properties with actual HUD property IDs are HUD properties
   const isHudProperty = !!community.hudPropertyId;
   const hasAuthenticPricing = !!(community.hudPropertyId && community.rentPerMonth) || 
-    community.pricingType === 'live' ||
-    !!community.pricingDetails?.basePrice;
+    !!(community as any).pricingDetails?.basePrice;
   const hasOccupancyData = false; // No occupancy data in current schema
 
   // Community subtype badge mapping
@@ -111,13 +110,13 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     }
     
     // Check pricing details for base price
-    if (community.pricingDetails?.basePrice) {
-      return `$${Number(community.pricingDetails.basePrice).toLocaleString()}/mo`;
+    if ((community as any).pricingDetails?.basePrice) {
+      return `$${Number((community as any).pricingDetails.basePrice).toLocaleString()}/mo`;
     }
     
     // Check monthly fees from pricing details
-    if (community.pricingDetails?.monthlyFees?.baseRent) {
-      return `$${Number(community.pricingDetails.monthlyFees.baseRent).toLocaleString()}/mo`;
+    if ((community as any).pricingDetails?.monthlyFees?.baseRent) {
+      return `$${Number((community as any).pricingDetails.monthlyFees.baseRent).toLocaleString()}/mo`;
     }
     
     // Check price range
@@ -284,12 +283,12 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                       HUD Verified
                     </span>
                   )}
-                  {!community.hudPropertyId && community.pricingType === 'live' && (
+                  {!community.hudPropertyId && (community as any).pricingDetails?.basePrice && (
                     <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                       Live Pricing
                     </span>
                   )}
-                  {!community.hudPropertyId && community.pricingType !== 'live' && displayPrice !== 'Contact for Pricing' && (
+                  {!community.hudPropertyId && !(community as any).pricingDetails?.basePrice && displayPrice !== 'Contact for Pricing' && (
                     <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
                       Market Estimate
                     </span>

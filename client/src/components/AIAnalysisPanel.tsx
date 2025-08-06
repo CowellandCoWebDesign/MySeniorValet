@@ -180,18 +180,19 @@ export const AIAnalysisPanel: React.FC<AIAnalysisPanelProps> = ({
             {communities.map((community) => (
               <Card 
                 key={community.id} 
-                className="hover:shadow-lg transition-shadow cursor-pointer"
+                className="group bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 shadow-lg rounded-xl overflow-hidden hover:shadow-2xl hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 cursor-pointer"
                 onClick={() => onCommunityClick(community)}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-5">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-1">
                         {community.name}
                       </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        {community.address}, {community.city}, {community.state}
-                      </p>
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
+                        <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
+                        <span>{community.city}, {community.state}</span>
+                      </div>
                       
                       <div className="flex items-center gap-4 text-sm">
                         {community.rating > 0 && (
