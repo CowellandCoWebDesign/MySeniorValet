@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 import { 
   Search, 
   MapPin, 
@@ -297,20 +298,23 @@ export default function SearchWorking() {
     <div className="min-h-screen bg-white pb-16">
       {/* Header */}
       <div className="sticky top-0 bg-white z-30 border-b border-gray-200">
-        {/* Search Bar */}
+        {/* Search Bar - Enhanced with AutocompleteSearch */}
         <div className="px-4 py-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              type="text"
-              placeholder="Senior living communities, city, region"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-12 h-9 text-sm border-gray-300 rounded-lg"
-            />
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <AutocompleteSearch
+                value={searchQuery}
+                onChange={setSearchQuery}
+                onSubmit={(value) => {
+                  setSearchQuery(value);
+                  // Trigger search with the selected value
+                }}
+                placeholder="Search communities, cities, care types..."
+              />
+            </div>
             <Button 
               size="sm" 
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white px-2 h-7"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-3 h-9"
             >
               <Filter className="w-3 h-3" />
             </Button>

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag } from "lucide-react";
+import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -43,13 +44,7 @@ export default function MySeniorValetHome() {
   const [showProtectionModal, setShowProtectionModal] = useState(false);
   const [protectionSearchQuery, setProtectionSearchQuery] = useState('');
   const [showRemovalModal, setShowRemovalModal] = useState(false);
-  
-  // Autocomplete state
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
-  const searchRef = useRef<HTMLDivElement>(null);
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
 
   const [showIntegrationSpotlight, setShowIntegrationSpotlight] = useState(true);
   
@@ -239,76 +234,7 @@ export default function MySeniorValetHome() {
 
   const featuredCommunities = (trendingCommunities as any[])?.slice(0, 8) || [];
 
-  // Fetch autocomplete suggestions
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (debouncedSearchQuery && debouncedSearchQuery.length >= 2) {
-        try {
-          const response = await fetch(
-            `/api/autocomplete/suggestions?query=${encodeURIComponent(debouncedSearchQuery)}&limit=6`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            setSuggestions(data.suggestions || []);
-            setShowSuggestions(true);
-          }
-        } catch (error) {
-          console.error('Error fetching suggestions:', error);
-        }
-      } else {
-        setSuggestions([]);
-        setShowSuggestions(false);
-      }
-    };
 
-    fetchSuggestions();
-  }, [debouncedSearchQuery]);
-
-  // Handle click outside to close suggestions
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setShowSuggestions(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
-    setSelectedSuggestionIndex(-1);
-  }
-
-  const handleSuggestionClick = (suggestion: string) => {
-    setSearchQuery(suggestion);
-    setShowSuggestions(false);
-    // Navigate to search with the selected suggestion
-    window.location.href = `/map-search?q=${encodeURIComponent(suggestion)}`;
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setSelectedSuggestionIndex(prev => 
-        prev < suggestions.length - 1 ? prev + 1 : prev
-      );
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setSelectedSuggestionIndex(prev => prev > 0 ? prev - 1 : -1);
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < suggestions.length) {
-        handleSuggestionClick(suggestions[selectedSuggestionIndex]);
-      } else if (searchQuery) {
-        window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
-      }
-    } else if (e.key === 'Escape') {
-      setShowSuggestions(false);
-      setSelectedSuggestionIndex(-1);
-    }
-  };
 
   // Set up intersection observers on mount for mobile performance
   useEffect(() => {
@@ -473,30 +399,30 @@ export default function MySeniorValetHome() {
           
 
 
-          {/* Search Bar - Enhanced for Desktop with Autocomplete */}
-          <div className="w-full max-w-5xl mb-6 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }} ref={searchRef}>
-            <form onSubmit={async (e) => {
+          {/* Search Bar - Enhanced with AutocompleteSearch Component */}
+          <div className="w-full max-w-5xl mb-6 relative animate-fade-in-up animation-delay-600" style={{ zIndex: 99999 }}>
+            <form onSubmit={(e) => {
               e.preventDefault();
-              if (!searchQuery) return;
-              
-              // Navigate to map-search with the query - let that page handle the AI search
-              window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
+              if (searchQuery) {
+                window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
+              }
             }}>
               <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden">
                 <div className="flex items-center">
-                  <input
-                    type="text"
-                    placeholder={t('hero.searchPlaceholder')}
-                    value={searchQuery}
-                    onChange={(e) => handleSearchChange(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    onFocus={() => {
-                      if (suggestions.length > 0) {
-                        setShowSuggestions(true);
-                      }
-                    }}
-                    className="flex-1 px-8 py-5 text-lg md:text-xl border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                  />
+                  <div className="flex-1">
+                    <AutocompleteSearch
+                      value={searchQuery}
+                      onChange={setSearchQuery}
+                      onSubmit={(value) => {
+                        if (value) {
+                          window.location.href = `/map-search?q=${encodeURIComponent(value)}`;
+                        }
+                      }}
+                      placeholder={t('hero.searchPlaceholder')}
+                      hideSearchButton={true}
+                      inputClassName="w-full pl-14 pr-6 py-5 text-lg md:text-xl border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                    />
+                  </div>
                   <div className="flex items-center mr-3">
                     <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-sm md:text-base px-4 py-2 font-semibold">
                       AI-Powered
@@ -509,29 +435,6 @@ export default function MySeniorValetHome() {
                     <Search className="w-7 h-7" />
                   </button>
                 </div>
-                
-                {/* Autocomplete Suggestions Dropdown */}
-                {showSuggestions && suggestions.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
-                    {suggestions.map((suggestion, index) => (
-                      <div
-                        key={index}
-                        className={`px-6 py-3 cursor-pointer transition-colors ${
-                          index === selectedSuggestionIndex
-                            ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                            : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100'
-                        } ${index !== suggestions.length - 1 ? 'border-b border-gray-100 dark:border-gray-700' : ''}`}
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        onMouseEnter={() => setSelectedSuggestionIndex(index)}
-                      >
-                        <div className="flex items-center">
-                          <MapPin className="w-4 h-4 mr-3 text-gray-400" />
-                          <span className="text-base">{suggestion}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             </form>
           </div>

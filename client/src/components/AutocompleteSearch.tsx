@@ -22,6 +22,8 @@ interface AutocompleteSearchProps {
   onSubmit: (value: string) => void;
   placeholder?: string;
   isLoading?: boolean;
+  hideSearchButton?: boolean;
+  inputClassName?: string;
 }
 
 export function AutocompleteSearch({ 
@@ -29,7 +31,9 @@ export function AutocompleteSearch({
   onChange, 
   onSubmit, 
   placeholder = "Search cities, communities, care types...",
-  isLoading = false 
+  isLoading = false,
+  hideSearchButton = false,
+  inputClassName = ""
 }: AutocompleteSearchProps) {
   const [suggestions, setSuggestions] = useState<AutocompleteSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -48,7 +52,7 @@ export function AutocompleteSearch({
         .then(res => res.json())
         .then(data => {
           // Ensure suggestions are in the correct format
-          const validSuggestions = (data.suggestions || []).filter(s => 
+          const validSuggestions = (data.suggestions || []).filter((s: AutocompleteSuggestion) => 
             s && s.label && s.value && s.type
           );
           setSuggestions(validSuggestions);
@@ -149,8 +153,8 @@ export function AutocompleteSearch({
   return (
     <div className="relative w-full">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-        <Input
+        <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 z-10" />
+        <input
           ref={inputRef}
           type="text"
           value={value}
@@ -158,21 +162,23 @@ export function AutocompleteSearch({
           onKeyDown={handleKeyDown}
           onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
           placeholder={placeholder}
-          className="pl-10 pr-24"
+          className={inputClassName || "w-full pl-14 pr-6 py-5 text-lg md:text-xl border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"}
           disabled={isLoading}
         />
-        <Button 
-          onClick={() => onSubmit(value)}
-          disabled={isLoading || !value}
-          className="absolute right-1 top-1/2 transform -translate-y-1/2"
-          size="sm"
-        >
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            'Search'
-          )}
-        </Button>
+        {!hideSearchButton && (
+          <Button 
+            onClick={() => onSubmit(value)}
+            disabled={isLoading || !value}
+            className="absolute right-1 top-1/2 transform -translate-y-1/2"
+            size="sm"
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              'Search'
+            )}
+          </Button>
+        )}
       </div>
 
       {/* Autocomplete Suggestions Dropdown */}
