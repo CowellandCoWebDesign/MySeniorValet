@@ -454,7 +454,7 @@ export default function AIMapIntelligence() {
                               <span>HUD Communities:</span>
                               <span className="font-medium">{aiAnalysis.statistics.hudCommunities}</span>
                             </div>
-                            {aiAnalysis.statistics.priceRange.min > 0 && (
+                            {aiAnalysis.statistics.priceRange && aiAnalysis.statistics.priceRange.min > 0 && (
                               <div className="flex justify-between text-sm">
                                 <span>Price Range:</span>
                                 <span className="font-medium">
