@@ -103,6 +103,72 @@ export function registerAIRoutes(app: Express) {
         const results = await dbQuery.limit(50).execute();
         console.log(`✅ Found ${results.length} communities in YOUR database`);
 
+        // Handle no results - provide helpful suggestions
+        if (results.length === 0) {
+          // Try a broader search without care type filter
+          let broaderQuery = db.select({
+            id: communities.id,
+            name: communities.name,
+            city: communities.city,
+            state: communities.state,
+            address: communities.address,
+            phone: communities.phone,
+            website: communities.website,
+            description: communities.description,
+            careTypes: communities.careTypes,
+            priceRange: communities.priceRange,
+            pricingDetails: communities.pricingDetails,
+            pricingType: communities.pricingType,
+            pricingLastUpdated: communities.pricingLastUpdated,
+            rentPerMonth: communities.rentPerMonth,
+            hudPropertyId: communities.hudPropertyId,
+            rating: communities.rating,
+            communitySubtype: communities.communitySubtype,
+            amenities: communities.amenities,
+            reviewCount: communities.reviewCount,
+            photos: communities.photos,
+            county: communities.county,
+            zipCode: communities.zipCode
+          }).from(communities);
+
+          // Only apply location filter for broader search
+          if (location) {
+            broaderQuery = broaderQuery.where(
+              or(
+                sql`LOWER(${communities.city}) LIKE LOWER(${'%' + location + '%'})`,
+                sql`LOWER(${communities.state}) LIKE LOWER(${'%' + location + '%'})`,
+                sql`LOWER(${communities.county}) LIKE LOWER(${'%' + location + '%'})`
+              )
+            );
+          }
+
+          const broaderResults = await broaderQuery.limit(10).execute();
+          
+          return res.json({
+            results: broaderResults,
+            searchInterpretation,
+            appliedFilters: {
+              location,
+              careTypes,
+              priceRange
+            },
+            noExactMatch: true,
+            suggestions: {
+              message: "No exact matches found. Here are some alternatives in your area:",
+              tips: [
+                careTypes.length > 0 ? "Try broadening your care type selection" : null,
+                priceRange?.max ? "Consider adjusting your budget range" : null,
+                location ? `Expand your search beyond ${location}` : "Try adding a location",
+                "Contact communities directly for current availability"
+              ].filter(Boolean)
+            },
+            aiInsights: {
+              marketAnalysis: `Limited options found for your specific criteria. ${broaderResults.length} communities available in the broader area.`,
+              recommendations: broaderResults.slice(0, 3)
+            }
+          });
+        }
+
         // Sort by relevance - prioritize HUD verified and communities with pricing
         const sortedResults = results.sort((a, b) => {
           // HUD properties first

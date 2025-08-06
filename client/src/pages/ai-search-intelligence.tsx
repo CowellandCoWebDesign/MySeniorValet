@@ -392,15 +392,39 @@ export default function AISearchIntelligence() {
                   <div className="sticky top-0 bg-white dark:bg-gray-900 z-10 pb-2">
                     <h3 className="text-lg font-semibold flex items-center gap-2">
                       <Shield className="w-5 h-5 text-green-600" />
-                      {searchType === 'housing' && `${searchResults.data.communities?.length || 0} AI-Verified Communities`}
+                      {searchType === 'housing' && `${searchResults.data.communities?.length || searchResults.data.results?.length || 0} AI-Verified Communities`}
                       {searchType === 'services' && `${searchResults.data.services?.length || 0} Care Services Found`}
                       {searchType === 'marketplace' && `${searchResults.data.vendors?.length || 0} Marketplace Vendors`}
                       {searchType === 'resources' && `VA Resources Available`}
                     </h3>
                   </div>
                   
+                  {/* No Exact Match - Show Suggestions */}
+                  {searchType === 'housing' && searchResults.data.noExactMatch && searchResults.data.suggestions && (
+                    <Card className="border-2 border-orange-200 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-900/20">
+                      <CardContent className="pt-6">
+                        <div className="flex items-start gap-3 mb-4">
+                          <AlertCircle className="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5" />
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                              {searchResults.data.suggestions.message}
+                            </h4>
+                            <ul className="space-y-1">
+                              {searchResults.data.suggestions.tips.map((tip: string, idx: number) => (
+                                <li key={idx} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
+                                  <ChevronRight className="w-3 h-3 text-gray-400 mt-0.5" />
+                                  <span>{tip}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                  
                   {/* Housing Results */}
-                  {searchType === 'housing' && searchResults.data.communities?.map((community: any) => (
+                  {searchType === 'housing' && (searchResults.data.communities || searchResults.data.results)?.map((community: any) => (
                     <div key={community.id} className="relative">
                       <EnhancedCommunityCard
                         community={community}

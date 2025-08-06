@@ -255,26 +255,6 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                   </Badge>
                 )}
                 
-                {community.dataQuality?.qualityScore && community.dataQuality.qualityScore >= 80 && (
-                  <Badge className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border border-blue-300 dark:border-blue-700">
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Verified
-                  </Badge>
-                )}
-                
-                {community.transparencyBadges && community.transparencyBadges.length > 0 && (
-                  <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 border border-purple-300 dark:border-purple-700">
-                    <Award className="h-3 w-3 mr-1" />
-                    {community.transparencyBadges.length} Badges
-                  </Badge>
-                )}
-                
-                {displayPrice === 'Contact for Pricing' && (
-                  <Badge className="text-xs bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 border border-orange-300 dark:border-orange-700">
-                    Call for Info
-                  </Badge>
-                )}
-                
                 {/* Amenities Badge */}
                 {community.amenities && community.amenities.length > 5 && (
                   <Badge className="text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-700">
