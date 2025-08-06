@@ -55,6 +55,105 @@ interface PerfectMatchProfile {
   urgency: 'immediate' | 'soon' | 'planning';
 }
 
+// Helper function to get city coordinates
+const getCityCoordinates = (city: string, state: string): [number, number] | null => {
+  const cityKey = city.toLowerCase().trim();
+  const stateKey = state.toLowerCase().trim();
+  
+  // Major US cities with coordinates
+  const cityCoords: { [key: string]: [number, number] } = {
+    'new york': [40.7128, -74.0060],
+    'brooklyn': [40.6782, -73.9442],
+    'queens': [40.7282, -73.7949],
+    'bronx': [40.8448, -73.8648],
+    'manhattan': [40.7831, -73.9712],
+    'los angeles': [34.0522, -118.2437],
+    'chicago': [41.8781, -87.6298],
+    'houston': [29.7604, -95.3698],
+    'phoenix': [33.4484, -112.0740],
+    'philadelphia': [39.9526, -75.1652],
+    'san antonio': [29.4241, -98.4936],
+    'san diego': [32.7157, -117.1611],
+    'dallas': [32.7767, -96.7970],
+    'san jose': [37.3382, -121.8863],
+    'austin': [30.2672, -97.7431],
+    'jacksonville': [30.3322, -81.6557],
+    'fort worth': [32.7555, -97.3308],
+    'columbus': [39.9612, -82.9988],
+    'indianapolis': [39.7684, -86.1581],
+    'charlotte': [35.2271, -80.8431],
+    'san francisco': [37.7749, -122.4194],
+    'seattle': [47.6062, -122.3321],
+    'denver': [39.7392, -104.9903],
+    'washington': [38.9072, -77.0369],
+    'boston': [42.3601, -71.0589],
+    'nashville': [36.1627, -86.7816],
+    'detroit': [42.3314, -83.0458],
+    'memphis': [35.1495, -90.0490],
+    'portland': [45.5152, -122.6784],
+    'las vegas': [36.1699, -115.1398],
+    'louisville': [38.2527, -85.7585],
+    'baltimore': [39.2904, -76.6122],
+    'milwaukee': [43.0389, -87.9065],
+    'albuquerque': [35.0844, -106.6504],
+    'tucson': [32.2226, -110.9747],
+    'fresno': [36.7378, -119.7871],
+    'mesa': [33.4152, -111.8315],
+    'sacramento': [38.5816, -121.4944],
+    'atlanta': [33.7490, -84.3880],
+    'miami': [25.7617, -80.1918],
+    'orlando': [28.5383, -81.3792],
+    'tampa': [27.9506, -82.4572],
+    'pittsburgh': [40.4406, -79.9959],
+    'cincinnati': [39.1031, -84.5120],
+    'kansas city': [39.0997, -94.5786],
+    'minneapolis': [44.9778, -93.2650],
+    'st louis': [38.6270, -90.1994],
+    'cleveland': [41.4993, -81.6944],
+    'salt lake city': [40.7608, -111.8910],
+    'richmond': [37.5407, -77.4360],
+    'buffalo': [42.8864, -78.8784],
+    'birmingham': [33.5186, -86.8104],
+    'rochester': [43.1566, -77.6088],
+    'des moines': [41.5868, -93.6250],
+    'providence': [41.8240, -71.4128],
+    'spokane': [47.6588, -117.4260],
+    'omaha': [41.2565, -95.9345],
+    'anchorage': [61.2181, -149.9003],
+    'honolulu': [21.3099, -157.8581]
+  };
+  
+  // Try exact city match
+  if (cityCoords[cityKey]) {
+    return cityCoords[cityKey];
+  }
+  
+  // Try partial match
+  for (const [key, coords] of Object.entries(cityCoords)) {
+    if (cityKey.includes(key) || key.includes(cityKey)) {
+      return coords;
+    }
+  }
+  
+  // State center coordinates as fallback
+  const stateCoords: { [key: string]: [number, number] } = {
+    'ny': [42.1657, -74.9481],
+    'new york': [42.1657, -74.9481],
+    'ca': [36.7783, -119.4179],
+    'california': [36.7783, -119.4179],
+    'tx': [31.9686, -99.9018],
+    'texas': [31.9686, -99.9018],
+    'fl': [27.6648, -81.5158],
+    'florida': [27.6648, -81.5158]
+  };
+  
+  if (stateCoords[stateKey]) {
+    return stateCoords[stateKey];
+  }
+  
+  return null;
+};
+
 export default function AISearchIntelligence() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -100,6 +199,32 @@ export default function AISearchIntelligence() {
     },
     onSuccess: (data) => {
       queryClient.setQueryData(['ai-search-results'], data);
+      
+      // Update map center based on search results
+      const communities = data.communities || data.results || [];
+      if (communities.length > 0) {
+        // Get the first community with valid coordinates
+        const firstCommunity = communities.find((c: any) => c.latitude && c.longitude);
+        
+        if (firstCommunity) {
+          // Center map on first result
+          setMapCenter([firstCommunity.latitude, firstCommunity.longitude]);
+          setMapZoom(12); // Zoom in to city level
+          console.log('🗺️ Relocating map to:', firstCommunity.city, firstCommunity.state);
+        } else {
+          // Try to determine location from city/state
+          const locationCommunity = communities[0];
+          if (locationCommunity?.city && locationCommunity?.state) {
+            // Use geocoding estimates for major cities
+            const cityCoords = getCityCoordinates(locationCommunity.city, locationCommunity.state);
+            if (cityCoords) {
+              setMapCenter(cityCoords);
+              setMapZoom(11);
+              console.log('🗺️ Relocating map to estimated location:', locationCommunity.city, locationCommunity.state);
+            }
+          }
+        }
+      }
     }
   });
 
