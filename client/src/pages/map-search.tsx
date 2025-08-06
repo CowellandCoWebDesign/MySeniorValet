@@ -951,6 +951,7 @@ export default function MapSearch() {
       } else {
         setMapZoom(12); // Cities and smaller areas
       }
+      setShowBottomPanel(true); // Show results panel when using fallback location
     }
   };
 

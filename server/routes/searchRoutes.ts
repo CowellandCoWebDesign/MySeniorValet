@@ -10,6 +10,48 @@ import { eliminateCallForPricing } from "../intelligent-pricing-system";
 import { z } from "zod";
 
 export function registerSearchRoutes(app: Express) {
+  // Vendor spatial search endpoint for map
+  app.get('/api/vendors/search/spatial', async (req, res) => {
+    try {
+      const { swLat, swLng, neLat, neLng, limit = '50' } = req.query;
+      
+      // For now, return empty array until vendor data is populated
+      // In production, this would query vendors within the spatial bounds
+      res.json([]);
+    } catch (error) {
+      console.error('Error searching vendors:', error);
+      res.status(500).json({ error: 'Failed to search vendors' });
+    }
+  });
+
+  // Healthcare services search endpoint
+  app.get('/api/care-services/search', async (req, res) => {
+    try {
+      const { q, limit = '30' } = req.query;
+      
+      // For now, return empty array until healthcare service data is populated
+      // In production, this would search healthcare services by query
+      res.json([]);
+    } catch (error) {
+      console.error('Error searching healthcare services:', error);
+      res.status(500).json({ error: 'Failed to search healthcare services' });
+    }
+  });
+
+  // Resources search endpoint
+  app.get('/api/resources/search', async (req, res) => {
+    try {
+      const { q, limit = '20' } = req.query;
+      
+      // For now, return empty array until resources data is populated
+      // In production, this would search resources by query
+      res.json([]);
+    } catch (error) {
+      console.error('Error searching resources:', error);
+      res.status(500).json({ error: 'Failed to search resources' });
+    }
+  });
+  
   // Basic search endpoint
   app.get("/api/search", async (req, res) => {
     try {
