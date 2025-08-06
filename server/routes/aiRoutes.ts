@@ -78,8 +78,17 @@ export function registerAIRoutes(app: Express) {
         careTypes: communities.careTypes,
         priceRange: communities.priceRange,
         rentPerMonth: communities.rentPerMonth,
+        monthlyRentRangeStart: communities.monthlyRentRangeStart,
+        monthlyRentRangeEnd: communities.monthlyRentRangeEnd,
         hudPropertyId: communities.hudPropertyId,
-        rating: communities.rating
+        rating: communities.rating,
+        displayPricing: communities.displayPricing,
+        displayAvailability: communities.displayAvailability,
+        communitySubtype: communities.communitySubtype,
+        sizeCategory: communities.sizeCategory,
+        amenities: communities.amenities,
+        transparencyBadges: communities.transparencyBadges,
+        dataQuality: communities.dataQuality
       }).from(communities);
       
       if (conditions.length > 0) {
@@ -92,15 +101,65 @@ export function registerAIRoutes(app: Express) {
         const results = await dbQuery.limit(50);
         console.log(`✅ Found ${results.length} communities in YOUR database`);
 
+        // Process results to ensure proper pricing display
+        const processedResults = results.map(community => {
+          // Ensure proper pricing display for HUD properties
+          if (community.hudPropertyId && community.rentPerMonth) {
+            community.displayPricing = {
+              displayPrice: `$${Number(community.rentPerMonth).toLocaleString()}/mo`,
+              priceLabel: 'HUD Verified',
+              priceType: 'monthly'
+            };
+          }
+          // Ensure proper pricing display for communities with rent ranges
+          else if (community.monthlyRentRangeStart) {
+            const startPrice = Number(community.monthlyRentRangeStart).toLocaleString();
+            const endPrice = community.monthlyRentRangeEnd ? 
+              Number(community.monthlyRentRangeEnd).toLocaleString() : null;
+            community.displayPricing = {
+              displayPrice: endPrice ? 
+                `$${startPrice} - $${endPrice}/mo` : 
+                `Starting at $${startPrice}/mo`,
+              priceLabel: 'Monthly Rent',
+              priceType: 'monthly'
+            };
+          }
+          // Ensure proper pricing display for communities with price ranges
+          else if (community.priceRange?.min) {
+            const minPrice = Number(community.priceRange.min).toLocaleString();
+            const maxPrice = community.priceRange.max ? 
+              Number(community.priceRange.max).toLocaleString() : null;
+            community.displayPricing = {
+              displayPrice: maxPrice ? 
+                `$${minPrice} - $${maxPrice}/mo` : 
+                `Starting at $${minPrice}/mo`,
+              priceLabel: 'Market Estimate',
+              priceType: 'monthly'
+            };
+          }
+          // Default to Contact for Pricing if no pricing data
+          else {
+            community.displayPricing = {
+              displayPrice: 'Contact for Pricing',
+              priceLabel: '',
+              priceType: ''
+            };
+          }
+          
+          return community;
+        });
+
         // Sort by relevance - prioritize HUD verified and communities with pricing
-        const sortedResults = results.sort((a, b) => {
+        const sortedResults = processedResults.sort((a, b) => {
           // HUD properties first
           if (a.hudPropertyId && !b.hudPropertyId) return -1;
           if (!a.hudPropertyId && b.hudPropertyId) return 1;
           
-          // Then communities with pricing
-          if (a.priceRange && !b.priceRange) return -1;
-          if (!a.priceRange && b.priceRange) return 1;
+          // Then communities with actual pricing (not "Contact for Pricing")
+          const aPricing = a.displayPricing?.displayPrice !== 'Contact for Pricing';
+          const bPricing = b.displayPricing?.displayPrice !== 'Contact for Pricing';
+          if (aPricing && !bPricing) return -1;
+          if (!aPricing && bPricing) return 1;
           
           // Then by rating
           if (a.rating && b.rating) return b.rating - a.rating;
