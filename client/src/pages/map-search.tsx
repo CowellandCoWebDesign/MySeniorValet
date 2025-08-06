@@ -693,6 +693,10 @@ export default function MapSearch() {
 
     setHasSearched(true);
     console.log('🔍 Searching for location:', location);
+    
+    // Clear any existing map bounds to force a fresh search
+    setMapBounds(null);
+    setShowBottomPanel(false); // Hide panel during search
 
     // Try to geocode the location using enhanced API
     try {
@@ -713,7 +717,10 @@ export default function MapSearch() {
           setMapCenter([data.searchMetadata.coordinates.lat, data.searchMetadata.coordinates.lng]);
           setMapZoom(data.searchMetadata.searchType === 'state' ? 7 : 
                     data.searchMetadata.searchType === 'city' ? 12 : 10);
-          setShowBottomPanel(true); // Show results
+          // Delay showing panel to allow map to update first
+          setTimeout(() => {
+            setShowBottomPanel(true); // Show results
+          }, 500);
           return;
         }
 
@@ -724,7 +731,10 @@ export default function MapSearch() {
             console.log('✅ Using first community coordinates:', firstCommunity);
             setMapCenter([firstCommunity.latitude, firstCommunity.longitude]);
             setMapZoom(12);
-            setShowBottomPanel(true); // Show results
+            // Delay showing panel to allow map to update first
+            setTimeout(() => {
+              setShowBottomPanel(true); // Show results
+            }, 500);
             return;
           }
         }
@@ -1268,10 +1278,15 @@ export default function MapSearch() {
 
       {/* Search Bar */}
       <div className={"border-b p-4 " + (isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700')}>
-        <div className="flex gap-2">
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          handleLocationSearch(searchQuery);
+          setShowSuggestions(false);
+        }} className="flex gap-2">
           <div className="relative flex-1" ref={searchRef}>
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
+              type="text"
               placeholder="Search city, state or ZIP code"
               value={searchQuery}
               onChange={(e) => {
@@ -1320,15 +1335,12 @@ export default function MapSearch() {
             {/* Removed duplicate autocomplete suggestions - using the one above */}
           </div>
           <Button 
-            onClick={() => {
-              handleLocationSearch(searchQuery);
-              setShowSuggestions(false);
-            }}
+            type="submit"
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             Search
           </Button>
-        </div>
+        </form>
       </div>
 
       {/* Filters Bar */}
