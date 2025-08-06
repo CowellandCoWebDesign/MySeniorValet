@@ -17,6 +17,7 @@ import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 import { AISearchInsights } from '@/components/AISearchInsights';
 import { useQuery } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
+import { useDebounce } from '@/hooks/use-debounce';
 
 interface Community {
   id: number;
@@ -87,7 +88,12 @@ export default function MapSearch() {
   const [panelHeight, setPanelHeight] = useState(70); // Percentage of screen height - increased for better visibility
   const [showTutorial, setShowTutorial] = useState(false);
   const [hasSeenTutorial, setHasSeenTutorial] = useState(false);
+  
+  // Autocomplete state
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   // Tutorial disabled - keeping localStorage check for compatibility
   useEffect(() => {
@@ -392,6 +398,75 @@ export default function MapSearch() {
 
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+
+  // Fetch autocomplete suggestions
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (debouncedSearchQuery && debouncedSearchQuery.length >= 2) {
+        setLoadingSuggestions(true);
+        try {
+          const response = await fetch(
+            `/api/autocomplete/suggestions?query=${encodeURIComponent(debouncedSearchQuery)}&limit=6`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setSuggestions(data.suggestions || []);
+            setShowSuggestions(true);
+          }
+        } catch (error) {
+          console.error('Error fetching suggestions:', error);
+        } finally {
+          setLoadingSuggestions(false);
+        }
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    };
+
+    fetchSuggestions();
+  }, [debouncedSearchQuery]);
+
+  // Handle click outside to close suggestions
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchQuery(suggestion);
+    setShowSuggestions(false);
+    setSelectedSuggestionIndex(-1);
+    handleLocationSearch(suggestion);
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedSuggestionIndex(prev => 
+        prev < suggestions.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedSuggestionIndex(prev => prev > 0 ? prev - 1 : -1);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < suggestions.length) {
+        handleSuggestionClick(suggestions[selectedSuggestionIndex]);
+      } else if (searchQuery) {
+        handleLocationSearch(searchQuery);
+      }
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+      setSelectedSuggestionIndex(-1);
+    }
+  }
 
   const handleLocationSearch = async (location: string) => {
     if (!location || location.trim() === '') return;
@@ -757,31 +832,7 @@ export default function MapSearch() {
     }
   }, []); // Only run once on mount
 
-  // Debounced search suggestions
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (searchQuery.length < 2) {
-        setSuggestions([]);
-        return;
-      }
 
-      setLoadingSuggestions(true);
-      try {
-        const response = await fetch('/api/search/suggestions?q=' + encodeURIComponent(searchQuery));
-        if (response.ok) {
-          const data = await response.json();
-          setSuggestions(data.slice(0, 8));
-        }
-      } catch (error) {
-        console.error('Error fetching suggestions:', error);
-      } finally {
-        setLoadingSuggestions(false);
-      }
-    };
-
-    const debounceTimer = setTimeout(fetchSuggestions, 300);
-    return () => clearTimeout(debounceTimer);
-  }, [searchQuery]);
 
   const handleCommunityClick = (community: Community) => {
     setSelectedCommunity(community);
@@ -997,28 +1048,54 @@ export default function MapSearch() {
       {/* Search Bar */}
       <div className={"border-b p-4 " + (isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700')}>
         <div className="flex gap-2">
-          <div className="relative flex-1">
+          <div className="relative flex-1" ref={searchRef}>
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder="Search city, state or ZIP code"
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
-                setShowSuggestions(true);
+                setSelectedSuggestionIndex(-1);
               }}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  handleLocationSearch(searchQuery);
-                  setShowSuggestions(false);
+              onKeyDown={handleKeyDown}
+              onFocus={() => {
+                if (suggestions.length > 0) {
+                  setShowSuggestions(true);
                 }
               }}
-              onFocus={() => setShowSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
               className={"pl-10 " + (isDarkMode 
                 ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500' 
                 : 'bg-white dark:bg-gray-800 border-gray-300 text-gray-900 dark:text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500'
               )}
             />
+            
+            {/* Autocomplete Suggestions Dropdown */}
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                {loadingSuggestions && (
+                  <div className="px-4 py-2 text-gray-500 dark:text-gray-400 text-sm">
+                    Loading suggestions...
+                  </div>
+                )}
+                {!loadingSuggestions && suggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    className={`px-4 py-2.5 cursor-pointer transition-colors ${
+                      index === selectedSuggestionIndex
+                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                        : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100'
+                    } ${index !== suggestions.length - 1 ? 'border-b border-gray-100 dark:border-gray-700' : ''}`}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                    onMouseEnter={() => setSelectedSuggestionIndex(index)}
+                  >
+                    <div className="flex items-center">
+                      <MapPin className="w-4 h-4 mr-2 text-gray-400" />
+                      <span className="text-sm">{suggestion}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
             {/* Autocomplete suggestions */}
             {showSuggestions && searchQuery.length > 0 && suggestions.length > 0 && (
               <div className={"absolute top-full left-0 right-0 mt-1 rounded-md shadow-lg z-50 max-h-60 overflow-auto " + (

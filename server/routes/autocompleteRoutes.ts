@@ -6,9 +6,11 @@ import { sql, or, ilike } from 'drizzle-orm';
 const router = Router();
 
 // Autocomplete endpoint for predictive search
-router.get('/autocomplete', async (req, res) => {
+router.get('/autocomplete/suggestions', async (req, res) => {
   try {
-    const query = req.query.q as string;
+    const query = req.query.query as string; // Changed from 'q' to 'query'
+    const limit = parseInt(req.query.limit as string) || 6;
+    
     if (!query || query.length < 2) {
       return res.json({ suggestions: [] });
     }
@@ -79,78 +81,39 @@ router.get('/autocomplete', async (req, res) => {
       .orderBy(sql`COUNT(*) DESC`)
       .limit(3);
 
-    // Format suggestions
-    communityResults.forEach(c => {
-      suggestions.push({
-        label: `${c.name} - ${c.city}, ${c.state}`,
-        value: c.name,
-        type: 'community',
-        id: c.id
-      });
-    });
-
+    // Format suggestions as simple strings for autocomplete
+    const suggestionStrings: string[] = [];
+    
+    // Add city suggestions
     cityResults.forEach(c => {
-      suggestions.push({
-        label: `${c.city}, ${c.state} (${c.count} communities)`,
-        value: `${c.city}, ${c.state}`,
-        type: 'city',
-        count: c.count
-      });
+      suggestionStrings.push(`${c.city}, ${c.state}`);
     });
 
+    // Add state suggestions  
     stateResults.forEach(s => {
-      suggestions.push({
-        label: `${s.state} (${s.count} communities)`,
-        value: s.state,
-        type: 'state',
-        count: s.count
-      });
+      suggestionStrings.push(s.state);
     });
 
+    // Add county suggestions
     countyResults.forEach(c => {
       if (c.county) {
-        suggestions.push({
-          label: `${c.county} County, ${c.state} (${c.count} communities)`,
-          value: `${c.county} County, ${c.state}`,
-          type: 'county',
-          count: c.count
-        });
+        suggestionStrings.push(`${c.county} County, ${c.state}`);
       }
     });
 
-    // Common care types
-    const careTypes = [
-      'Independent Living',
-      'Assisted Living', 
-      'Memory Care',
-      'Skilled Nursing',
-      'Home Care',
-      'Adult Day Care',
-      'Continuing Care'
-    ];
+    // Remove duplicates and sort by relevance
+    const uniqueSuggestions = [...new Set(suggestionStrings)];
     
-    const matchingCareTypes = careTypes.filter(ct => 
-      ct.toLowerCase().includes(searchTerm)
-    );
-    
-    matchingCareTypes.forEach(ct => {
-      suggestions.push({
-        label: ct,
-        value: ct,
-        type: 'care_type'
-      });
-    });
-
-    // Sort by relevance (exact matches first)
-    suggestions.sort((a, b) => {
-      const aExact = a.value.toLowerCase() === searchTerm;
-      const bExact = b.value.toLowerCase() === searchTerm;
+    // Sort by exact matches first
+    uniqueSuggestions.sort((a, b) => {
+      const aExact = a.toLowerCase() === searchTerm;
+      const bExact = b.toLowerCase() === searchTerm;
       if (aExact && !bExact) return -1;
       if (!aExact && bExact) return 1;
       return 0;
     });
 
-    res.json({ suggestions: suggestions.slice(0, 10) });
+    res.json({ suggestions: uniqueSuggestions.slice(0, limit) });
   } catch (error) {
     console.error('Autocomplete error:', error);
     res.status(500).json({ error: 'Failed to fetch suggestions' });
