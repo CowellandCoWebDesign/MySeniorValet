@@ -135,23 +135,42 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
 
   const displayPrice = getStartingPrice();
 
-  // Simple list variant for search results
+  // Enhanced list variant for search results - with prominent care level badges
   if (variant === 'list') {
+    // Get care level badge info at the start
+    const subtypeBadge = community.communitySubtype ? getSubtypeBadge(community.communitySubtype) : null;
+    
     return (
       <Card 
-        className="group cursor-pointer hover:shadow-lg transition-all duration-200 border-2 hover:border-blue-300 dark:hover:border-blue-600"
+        className="group cursor-pointer hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50/20 dark:from-gray-800 dark:to-gray-700/30 hover:from-blue-50/30 hover:to-purple-50/30 dark:hover:from-gray-700 dark:hover:to-gray-600 border-2 border-gray-200 hover:border-blue-300 dark:border-gray-700 dark:hover:border-blue-600 transform hover:-translate-y-0.5"
         onClick={onSelect}
       >
         <CardContent className="p-4">
+          {/* Care Level Badge - PROMINENT AT TOP */}
+          {subtypeBadge && (
+            <div className="mb-3">
+              <Badge className={`inline-flex items-center px-3 py-1.5 text-sm font-semibold ${subtypeBadge.color} border-0 shadow-sm`}>
+                <span className="mr-1.5 text-lg">{subtypeBadge.emoji}</span>
+                {subtypeBadge.label}
+              </Badge>
+            </div>
+          )}
+          
           <div className="flex items-start justify-between">
             <div className="flex-1 pr-4">
               {/* Name and Location */}
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-1">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-1 flex items-center gap-2">
                 {community.name}
+                {isHudProperty && (
+                  <Badge className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 border-0">
+                    <Shield className="h-3 w-3 mr-0.5" />
+                    HUD
+                  </Badge>
+                )}
               </h3>
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
-                <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
-                <span>{community.city}, {community.state} {community.zipCode || ''}</span>
+                <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0 text-blue-500" />
+                <span className="font-medium">{community.city}, {community.state} {community.zipCode || ''}</span>
               </div>
 
               {/* Key Information Row - Prominent Unit Count & Occupancy */}
@@ -192,68 +211,40 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                 </div>
               </div>
 
-              {/* Reviews Row with Links */}
+              {/* Reviews and Care Type Info */}
               <div className="flex flex-wrap items-center gap-3 text-sm mb-2">
                 {/* Google Reviews */}
                 {community.rating && (
-                  <a 
-                    href={`https://www.google.com/search?q=${encodeURIComponent(community.name + ' ' + community.city + ' ' + community.state)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 transition-colors group"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <img src="https://www.google.com/favicon.ico" alt="Google" className="h-3 w-3" />
-                    <Star className="h-3 w-3 text-yellow-400" />
-                    <span className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                  <div className="flex items-center gap-1">
+                    <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
+                    <span className="font-medium text-gray-900 dark:text-white">
                       {community.rating.toFixed(1)}
                     </span>
-                    <ExternalLink className="h-2.5 w-2.5 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
-                  </a>
+                    {community.reviewCount && (
+                      <span className="text-gray-500 dark:text-gray-400">
+                        ({community.reviewCount} reviews)
+                      </span>
+                    )}
+                  </div>
                 )}
                 
-                {/* Yelp Reviews - Placeholder for now */}
-                <a 
-                  href={`https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name)}&find_loc=${encodeURIComponent(community.city + ', ' + community.state)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-400 transition-colors group"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <img src="https://www.yelp.com/favicon.ico" alt="Yelp" className="h-3 w-3" />
-                  <span className="text-xs text-gray-600 dark:text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400">
-                    View on Yelp
-                  </span>
-                  <ExternalLink className="h-2.5 w-2.5 text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400" />
-                </a>
-                
-                {community.careTypes && community.careTypes.length > 0 && (
+                {/* Total Units if available */}
+                {(community.totalUnits || community.totalUnitsHud) && (
                   <span className="text-gray-600 dark:text-gray-400">
-                    • {community.careTypes[0]}
+                    • {community.totalUnits || community.totalUnitsHud} units
+                  </span>
+                )}
+                
+                {/* Senior Population if available */}
+                {community.seniorPercentage && (
+                  <span className="text-gray-600 dark:text-gray-400">
+                    • {Math.round(community.seniorPercentage)}% senior residents
                   </span>
                 )}
               </div>
 
-              {/* Badges */}
+              {/* Additional Badges - Only show amenities since care level is at top */}
               <div className="flex flex-wrap gap-1.5">
-                {/* Community Subtype Badge */}
-                {community.communitySubtype && (() => {
-                  const badge = getSubtypeBadge(community.communitySubtype);
-                  return badge ? (
-                    <Badge className={`text-xs ${badge.color} border-0`}>
-                      <span className="mr-1">{badge.emoji}</span>
-                      {badge.label}
-                    </Badge>
-                  ) : null;
-                })()}
-                
-                {isHudProperty && !community.communitySubtype?.includes('hud') && (
-                  <Badge className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border border-green-300 dark:border-green-700">
-                    <Shield className="h-3 w-3 mr-1" />
-                    HUD Verified
-                  </Badge>
-                )}
-                
                 {/* Amenities Badge */}
                 {community.amenities && community.amenities.length > 5 && (
                   <Badge className="text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-700">
@@ -261,36 +252,48 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                     {community.amenities.length} Amenities
                   </Badge>
                 )}
+                
+                {/* Care Types if no subtype */}
+                {!community.communitySubtype && community.careTypes && community.careTypes.length > 0 && (
+                  <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 border-0">
+                    {community.careTypes[0]}
+                  </Badge>
+                )}
               </div>
             </div>
 
-            {/* Pricing Column */}
-            <div className="text-right">
+            {/* Enhanced Pricing Column */}
+            <div className="text-right min-w-[120px]">
               {displayPrice === 'Contact for Pricing' ? (
-                <div className="flex flex-col items-end">
-                  <Phone className="h-5 w-5 text-gray-400 mb-1" />
-                  <div className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Contact for pricing
+                <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-3 py-2">
+                  <Phone className="h-5 w-5 text-gray-500 dark:text-gray-400 mb-1 ml-auto" />
+                  <div className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                    Contact for
+                  </div>
+                  <div className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                    pricing
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col items-end">
-                  <div className="text-lg font-bold text-gray-900 dark:text-white">
+                <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700">
+                  <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                     {displayPrice}
                   </div>
                   {community.hudPropertyId && community.rentPerMonth && (
-                    <span className="text-xs text-green-600 dark:text-green-400 font-medium">
+                    <span className="text-xs text-green-600 dark:text-green-400 font-semibold flex items-center justify-end gap-1">
+                      <Shield className="h-3 w-3" />
                       HUD Verified
                     </span>
                   )}
                   {!community.hudPropertyId && (community as any).pricingDetails?.basePrice && (
-                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                    <span className="text-xs text-blue-600 dark:text-blue-400 font-semibold flex items-center justify-end gap-1">
+                      <Zap className="h-3 w-3" />
                       Live Pricing
                     </span>
                   )}
                   {!community.hudPropertyId && !(community as any).pricingDetails?.basePrice && displayPrice !== 'Contact for Pricing' && (
-                    <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                      Market Estimate
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      Est. Range
                     </span>
                   )}
                 </div>
