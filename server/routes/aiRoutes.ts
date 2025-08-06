@@ -357,69 +357,67 @@ export function registerAIRoutes(app: Express) {
     try {
       const { preferences, budget, location, careNeeds, urgency } = req.body;
 
-      // Build query based on preferences
-      let query = db.select().from(communities);
+      // Build base query
+      let baseQuery = db.select().from(communities);
+      let locationConditions = null;
       
-      // Filter by location - improved logic for better matches
+      // Filter by location - simplified and fixed logic
       if (location) {
         const locationLower = location.toLowerCase().trim();
         
         // Check if it's a state abbreviation (2 letters)
         if (locationLower.length === 2) {
-          query = query.where(
-            sql`LOWER(${communities.state}) = LOWER(${locationLower})`
-          );
+          locationConditions = sql`LOWER(${communities.state}) = LOWER(${locationLower})`;
         } 
         // Check for city, state format
         else if (locationLower.includes(',')) {
           const [city, state] = locationLower.split(',').map(s => s.trim());
-          query = query.where(
-            and(
+          if (state) {
+            locationConditions = and(
               sql`LOWER(${communities.city}) = LOWER(${city})`,
-              state ? sql`LOWER(${communities.state}) = LOWER(${state})` : undefined
-            )
-          );
-        }
-        // For specific cities like "Panama City Beach", match exact city name
-        else {
-          // First try exact match
-          const exactMatchQuery = db.select().from(communities)
-            .where(sql`LOWER(${communities.city}) = LOWER(${locationLower})`)
-            .limit(5);
-          
-          const exactMatches = await exactMatchQuery;
-          
-          if (exactMatches.length > 0) {
-            // If we found exact matches, use them
-            query = db.select().from(communities)
-              .where(sql`LOWER(${communities.city}) = LOWER(${locationLower})`);
+              sql`LOWER(${communities.state}) = LOWER(${state})`
+            );
           } else {
-            // Otherwise do a broader search but prioritize word boundaries
-            query = query.where(
-              or(
-                sql`LOWER(${communities.city}) = LOWER(${locationLower})`,
-                sql`LOWER(${communities.city}) LIKE LOWER(${locationLower + '%'})`,
-                sql`LOWER(${communities.city}) LIKE LOWER(${'% ' + locationLower + '%'})`
-              )
+            locationConditions = sql`LOWER(${communities.city}) = LOWER(${city})`;
+          }
+        }
+        // For specific cities
+        else {
+          // Try exact city match first
+          locationConditions = sql`LOWER(${communities.city}) = LOWER(${locationLower})`;
+          
+          // Check if we have any exact matches
+          const testQuery = await db.select()
+            .from(communities)
+            .where(locationConditions)
+            .limit(1);
+          
+          // If no exact matches, try broader search
+          if (testQuery.length === 0) {
+            locationConditions = or(
+              sql`LOWER(${communities.city}) LIKE LOWER(${'%' + locationLower + '%'})`,
+              sql`LOWER(${communities.state}) = LOWER(${locationLower})`,
+              sql`LOWER(${communities.state}) LIKE LOWER(${'%' + locationLower + '%'})`
             );
           }
         }
       }
-
-      // Filter by care types
+      
+      // Build all conditions
+      const allConditions = [];
+      if (locationConditions) allConditions.push(locationConditions);
       if (careNeeds && careNeeds.length > 0) {
-        // Format array for PostgreSQL: ["Memory Care"] -> {"Memory Care"}
         const pgArray = `{${careNeeds.map(ct => `"${ct}"`).join(',')}}`;
-        query = query.where(sql`${communities.careTypes} && ${pgArray}::text[]`);
+        allConditions.push(sql`${communities.careTypes} && ${pgArray}::text[]`);
       }
-
+      
       // Filter by budget
       if (budget && (budget.min > 0 || budget.max > 0)) {
-        const conditions = [];
+        const budgetConditions = [];
         
         // HUD properties with verified pricing
         if (budget.max && budget.max <= 2000) {
-          conditions.push(
+          budgetConditions.push(
             and(
               sql`${communities.hudPropertyId} IS NOT NULL`,
               sql`CAST(${communities.rentPerMonth} AS DECIMAL) <= ${budget.max}`
@@ -429,13 +427,13 @@ export function registerAIRoutes(app: Express) {
         
         // Communities with price ranges
         if (budget.max) {
-          conditions.push(
+          budgetConditions.push(
             sql`CAST(${communities.priceRange}->>'min' AS DECIMAL) <= ${budget.max}`
           );
         }
         
         if (budget.min) {
-          conditions.push(
+          budgetConditions.push(
             or(
               sql`CAST(${communities.priceRange}->>'max' AS DECIMAL) >= ${budget.min}`,
               sql`${communities.priceRange}->>'max' IS NULL`
@@ -443,9 +441,17 @@ export function registerAIRoutes(app: Express) {
           );
         }
         
-        if (conditions.length > 0) {
-          query = query.where(or(...conditions));
+        if (budgetConditions.length > 0) {
+          allConditions.push(or(...budgetConditions));
         }
+      }
+      
+      // Apply all conditions
+      let query;
+      if (allConditions.length > 0) {
+        query = baseQuery.where(and(...allConditions));
+      } else {
+        query = baseQuery;
       }
 
       // Get results
