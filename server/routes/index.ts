@@ -10,6 +10,7 @@ import { registerUserRoutes } from "./userRoutes";
 import { registerAIRoutes } from "./aiRoutes";
 import { registerPerplexityRoutes } from "./perplexityRoutes";
 import { registerAIInsightsRoutes } from "./aiInsightsRoutes";
+import autocompleteRoutes from "./autocompleteRoutes";
 
 import { registerAdminRoutes } from "./adminRoutes";
 import { registerVendorRoutes } from "./vendorRoutes";
@@ -86,6 +87,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerAIRoutes(app);
   registerPerplexityRoutes(app);
   registerAIInsightsRoutes(app);
+  app.use('/api', autocompleteRoutes); // Register autocomplete routes
 
   registerAdminRoutes(app);
   registerVendorRoutes(app);

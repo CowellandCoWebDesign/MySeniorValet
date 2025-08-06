@@ -5,10 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import Map from '@/components/Map';
 import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
+import { AutocompleteSearch } from '@/components/AutocompleteSearch';
 import { 
   Brain, 
   MapPin, 
@@ -31,7 +35,10 @@ import {
   Zap,
   Building2,
   BarChart3,
-  Target
+  Target,
+  Calendar,
+  Clock,
+  TrendingDown
 } from 'lucide-react';
 
 interface AISearchResult {
@@ -414,58 +421,19 @@ export default function AISearchIntelligence() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="relative">
-                    <Input
-                      placeholder={
-                        searchType === 'housing' ? "Ask me anything: 'Memory care near Sacramento under $4000 with good reviews'" :
-                        searchType === 'services' ? "Search for: 'Home care agencies in San Francisco'" :
-                        searchType === 'marketplace' ? "Find: 'Medical equipment rental near me'" :
-                        "Explore: 'VA medical centers in California'"
-                      }
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleAISearch()}
-                      className="pl-12 pr-32 py-6 text-lg"
-                    />
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <Button 
-                      onClick={handleAISearch}
-                      disabled={isAnalyzing || !searchQuery.trim()}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                    >
-                      {isAnalyzing ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Analyzing...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-4 h-4 mr-2" />
-                          AI Search
-                        </>
-                      )}
-                    </Button>
-                  </div>
-
-                  {/* Search Examples */}
-                  <div className="flex flex-wrap gap-2">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">Try:</span>
-                    {[
-                      "Pet-friendly assisted living with pool",
-                      "Memory care near me under $5000",
-                      "5-star communities with available rooms",
-                      "Veterans discount senior living"
-                    ].map((example) => (
-                      <Badge
-                        key={example}
-                        variant="outline"
-                        className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
-                        onClick={() => setSearchQuery(example)}
-                      >
-                        {example}
-                      </Badge>
-                    ))}
-                  </div>
+                  {/* Use AutocompleteSearch component for predictive text */}
+                  <AutocompleteSearch
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    onSubmit={handleAISearch}
+                    placeholder={
+                      searchType === 'housing' ? "Search cities, communities, or care types..." :
+                      searchType === 'services' ? "Search for care services..." :
+                      searchType === 'marketplace' ? "Search for vendors..." :
+                      "Search for VA resources..."
+                    }
+                    isLoading={isAnalyzing}
+                  />
                 </div>
 
                 {/* AI Search Interpretation */}
@@ -711,7 +679,12 @@ export default function AISearchIntelligence() {
                             <input
                               type="checkbox"
                               checked={matchProfile.careNeeds.includes(need.name)}
-                              onChange={() => {}}
+                              onChange={(e) => {
+                                const newCareNeeds = e.target.checked
+                                  ? [...matchProfile.careNeeds, need.name]
+                                  : matchProfile.careNeeds.filter(n => n !== need.name);
+                                setMatchProfile({ ...matchProfile, careNeeds: newCareNeeds });
+                              }}
                               className="mt-1 rounded text-green-600"
                             />
                             <div className="flex-1">
@@ -729,13 +702,26 @@ export default function AISearchIntelligence() {
                     </div>
                   </div>
 
-                  {/* Budget Range - Enhanced with care level indicators */}
+                  {/* Budget Range - Enhanced with slider and care level indicators */}
                   <div>
                     <label className="text-sm font-medium mb-3 block flex items-center gap-2">
                       <DollarSign className="w-4 h-4 text-green-600" />
                       Monthly Budget Range
                     </label>
                     <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                      <div className="mb-4">
+                        <Slider
+                          value={[matchProfile.budget.min, matchProfile.budget.max]}
+                          onValueChange={(values) => setMatchProfile({
+                            ...matchProfile,
+                            budget: { min: values[0], max: values[1] }
+                          })}
+                          max={15000}
+                          min={0}
+                          step={100}
+                          className="mb-6"
+                        />
+                      </div>
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
                           <label className="text-xs text-gray-500 dark:text-gray-400">Minimum</label>
@@ -790,21 +776,19 @@ export default function AISearchIntelligence() {
                     </div>
                   </div>
 
-                  {/* Location - Enhanced */}
+                  {/* Location - Enhanced with Autocomplete */}
                   <div>
                     <label className="text-sm font-medium mb-3 block flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-blue-600" />
                       Preferred Location
                     </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        placeholder="Enter city, state or ZIP code (e.g., Sacramento, CA or 95814)"
-                        value={matchProfile.location}
-                        onChange={(e) => setMatchProfile({ ...matchProfile, location: e.target.value })}
-                        className="pl-10"
-                      />
-                    </div>
+                    <AutocompleteSearch
+                      value={matchProfile.location}
+                      onChange={(value) => setMatchProfile({ ...matchProfile, location: value })}
+                      onSubmit={(value) => setMatchProfile({ ...matchProfile, location: value })}
+                      placeholder="Start typing a city, state, or community name..."
+                      isLoading={false}
+                    />
                   </div>
 
                   {/* Preferences - Enhanced */}
