@@ -34,13 +34,30 @@ export function registerAIRoutes(app: Express) {
       // Location search - in YOUR communities
       if (location) {
         console.log(`📍 Searching YOUR communities in: ${location}`);
-        conditions.push(
-          or(
-            sql`LOWER(${communities.city}) LIKE LOWER(${'%' + location + '%'})`,
-            sql`LOWER(${communities.state}) LIKE LOWER(${'%' + location + '%'})`,
-            sql`LOWER(${communities.county}) LIKE LOWER(${'%' + location + '%'})`
-          )
-        );
+        
+        // Split city and state if they're combined (e.g., "Los Angeles, CA")
+        const locationParts = location.split(',').map(part => part.trim());
+        const primaryLocation = locationParts[0]; // City name
+        const stateAbbr = locationParts[1]; // State abbreviation if present
+        
+        if (stateAbbr) {
+          // Search for city in the specific state
+          conditions.push(
+            and(
+              sql`LOWER(${communities.city}) LIKE LOWER(${'%' + primaryLocation + '%'})`,
+              sql`LOWER(${communities.state}) LIKE LOWER(${'%' + stateAbbr + '%'})`
+            )
+          );
+        } else {
+          // Search for city/state/county containing the location
+          conditions.push(
+            or(
+              sql`LOWER(${communities.city}) LIKE LOWER(${'%' + location + '%'})`,
+              sql`LOWER(${communities.state}) LIKE LOWER(${'%' + location + '%'})`,
+              sql`LOWER(${communities.county}) LIKE LOWER(${'%' + location + '%'})`
+            )
+          );
+        }
       }
 
       // Care type filter - from YOUR data
@@ -133,13 +150,29 @@ export function registerAIRoutes(app: Express) {
 
           // Only apply location filter for broader search
           if (location) {
-            broaderQuery = broaderQuery.where(
-              or(
-                sql`LOWER(${communities.city}) LIKE LOWER(${'%' + location + '%'})`,
-                sql`LOWER(${communities.state}) LIKE LOWER(${'%' + location + '%'})`,
-                sql`LOWER(${communities.county}) LIKE LOWER(${'%' + location + '%'})`
-              )
-            );
+            // Split city and state if they're combined (e.g., "Los Angeles, CA")
+            const locationParts = location.split(',').map(part => part.trim());
+            const primaryLocation = locationParts[0]; // City name
+            const stateAbbr = locationParts[1]; // State abbreviation if present
+            
+            if (stateAbbr) {
+              // Search for city in the specific state
+              broaderQuery = broaderQuery.where(
+                and(
+                  sql`LOWER(${communities.city}) LIKE LOWER(${'%' + primaryLocation + '%'})`,
+                  sql`LOWER(${communities.state}) LIKE LOWER(${'%' + stateAbbr + '%'})`
+                )
+              ) as typeof broaderQuery;
+            } else {
+              // Search for city/state/county containing the location
+              broaderQuery = broaderQuery.where(
+                or(
+                  sql`LOWER(${communities.city}) LIKE LOWER(${'%' + location + '%'})`,
+                  sql`LOWER(${communities.state}) LIKE LOWER(${'%' + location + '%'})`,
+                  sql`LOWER(${communities.county}) LIKE LOWER(${'%' + location + '%'})`
+                )
+              ) as typeof broaderQuery;
+            }
           }
 
           const broaderResults = await broaderQuery.limit(10).execute();
