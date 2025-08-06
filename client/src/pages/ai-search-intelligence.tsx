@@ -476,26 +476,41 @@ export default function AISearchIntelligence() {
                       <Heart className="w-4 h-4 text-red-500" />
                       What Level of Care Do You Need?
                     </label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {[
                         {
+                          name: 'HUD Housing',
+                          description: 'Government-subsidized senior housing ($0-$500/mo)',
+                          icon: <Building2 className="w-4 h-4 text-indigo-600" />
+                        },
+                        {
+                          name: '55+ Mobile Home',
+                          description: 'Affordable mobile home communities ($500-$1,500/mo)',
+                          icon: <Home className="w-4 h-4 text-cyan-600" />
+                        },
+                        {
+                          name: 'Active Adult 55+',
+                          description: 'Age-restricted communities with amenities ($1,500-$3,000/mo)',
+                          icon: <Users className="w-4 h-4 text-teal-600" />
+                        },
+                        {
                           name: 'Independent Living',
-                          description: 'Active lifestyle with minimal assistance',
+                          description: 'Active lifestyle with minimal assistance ($2,000-$5,000/mo)',
                           icon: <Home className="w-4 h-4 text-green-600" />
                         },
                         {
                           name: 'Assisted Living',
-                          description: 'Help with daily activities like bathing & medication',
-                          icon: <Users className="w-4 h-4 text-blue-600" />
+                          description: 'Help with daily activities ($3,000-$7,000/mo)',
+                          icon: <Heart className="w-4 h-4 text-blue-600" />
                         },
                         {
                           name: 'Memory Care',
-                          description: 'Specialized care for dementia & Alzheimer\'s',
+                          description: 'Specialized dementia care ($4,000-$10,000/mo)',
                           icon: <Brain className="w-4 h-4 text-purple-600" />
                         },
                         {
                           name: 'Skilled Nursing',
-                          description: '24/7 medical care and rehabilitation',
+                          description: '24/7 medical care ($6,000-$12,000+/mo)',
                           icon: <Activity className="w-4 h-4 text-red-600" />
                         }
                       ].map((need) => (
@@ -535,7 +550,7 @@ export default function AISearchIntelligence() {
                     </div>
                   </div>
 
-                  {/* Budget Range - Enhanced with visual slider */}
+                  {/* Budget Range - Enhanced with care level indicators */}
                   <div>
                     <label className="text-sm font-medium mb-3 block flex items-center gap-2">
                       <DollarSign className="w-4 h-4 text-green-600" />
@@ -565,11 +580,11 @@ export default function AISearchIntelligence() {
                             <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <Input
                               type="number"
-                              placeholder="10000"
+                              placeholder="12000"
                               value={matchProfile.budget.max}
                               onChange={(e) => setMatchProfile({
                                 ...matchProfile,
-                                budget: { ...matchProfile.budget, max: parseInt(e.target.value) || 10000 }
+                                budget: { ...matchProfile.budget, max: parseInt(e.target.value) || 12000 }
                               })}
                               className="pl-8"
                             />
@@ -580,6 +595,18 @@ export default function AISearchIntelligence() {
                         Budget: <span className="font-bold text-green-600">
                           ${matchProfile.budget.min.toLocaleString()} - ${matchProfile.budget.max.toLocaleString()}
                         </span> per month
+                      </div>
+                      {/* Budget guide for care levels */}
+                      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                          {matchProfile.budget.max <= 500 && '💰 HUD Housing range'}
+                          {matchProfile.budget.max > 500 && matchProfile.budget.max <= 1500 && '🏡 Mobile Home range'}
+                          {matchProfile.budget.max > 1500 && matchProfile.budget.max <= 3000 && '🏘️ Active Adult range'}
+                          {matchProfile.budget.max > 3000 && matchProfile.budget.max <= 5000 && '🏠 Independent Living range'}
+                          {matchProfile.budget.max > 5000 && matchProfile.budget.max <= 7000 && '💙 Assisted Living range'}
+                          {matchProfile.budget.max > 7000 && matchProfile.budget.max <= 10000 && '🧠 Memory Care range'}
+                          {matchProfile.budget.max > 10000 && '🏥 Skilled Nursing range'}
+                        </p>
                       </div>
                     </div>
                   </div>
