@@ -1,6 +1,6 @@
 import { type Express } from "express";
 import { db } from "../db";
-import { communities, vendors, marketplaceVendors, services, marketplaceCategories, serviceCategories, serviceProviders } from "@shared/schema";
+import { communities, vendors, marketplaceVendors, services, marketplaceCategories, serviceCategories, serviceProviders, hospitals } from "@shared/schema";
 import { eq, and, or, desc, sql, ilike, gte, lte } from "drizzle-orm";
 import { searchCommunitySchema } from "@shared/schema";
 import { enhancedSearchService } from "../enhanced-search-service";
@@ -62,18 +62,70 @@ export function registerSearchRoutes(app: Express) {
     try {
       const { q, limit = '30' } = req.query;
       const searchTerm = q as string || '';
+      const resultLimit = parseInt(limit as string);
       
-      // Build where conditions
-      let whereConditions = eq(services.isActive, true);
+      // Query hospitals first (these are the main healthcare facilities)
+      let hospitalResults: any[] = [];
       if (searchTerm) {
-        whereConditions = and(
-          eq(services.isActive, true),
-          or(
-            ilike(services.name, `%${searchTerm}%`),
-            ilike(services.description, `%${searchTerm}%`)
+        hospitalResults = await db
+          .select({
+            id: hospitals.id,
+            name: hospitals.name,
+            description: hospitals.description,
+            city: hospitals.city,
+            state: hospitals.state,
+            hospitalType: hospitals.hospitalType,
+            bedCount: hospitals.bedCount,
+            emergencyServices: hospitals.emergencyServices,
+            traumaLevel: hospitals.traumaLevel,
+            phone: hospitals.phone,
+            cmsRating: hospitals.cmsRating,
+            services: hospitals.services,
+            specialties: hospitals.specialties,
+          })
+          .from(hospitals)
+          .where(
+            or(
+              ilike(hospitals.name, `%${searchTerm}%`),
+              ilike(hospitals.city, `%${searchTerm}%`),
+              ilike(hospitals.state, `%${searchTerm}%`),
+              ilike(hospitals.description, `%${searchTerm}%`)
+            )
           )
-        );
+          .limit(Math.floor(resultLimit / 2)); // Take half the limit for hospitals
+      } else {
+        // If no search term, get featured hospitals
+        hospitalResults = await db
+          .select({
+            id: hospitals.id,
+            name: hospitals.name,
+            description: hospitals.description,
+            city: hospitals.city,
+            state: hospitals.state,
+            hospitalType: hospitals.hospitalType,
+            bedCount: hospitals.bedCount,
+            emergencyServices: hospitals.emergencyServices,
+            traumaLevel: hospitals.traumaLevel,
+            phone: hospitals.phone,
+            cmsRating: hospitals.cmsRating,
+            services: hospitals.services,
+            specialties: hospitals.specialties,
+          })
+          .from(hospitals)
+          .orderBy(desc(hospitals.cmsRating))
+          .limit(Math.floor(resultLimit / 2));
       }
+      
+      // Build where conditions for services
+      const whereConditions = searchTerm 
+        ? and(
+            eq(services.isActive, true),
+            or(
+              ilike(services.name, `%${searchTerm}%`),
+              ilike(services.description, `%${searchTerm}%`)
+            )
+          )
+        : eq(services.isActive, true);
       
       // Query services table with providers for ratings
       const serviceResults = await db
@@ -93,9 +145,25 @@ export function registerSearchRoutes(app: Express) {
         .leftJoin(serviceCategories, eq(services.categoryId, serviceCategories.id))
         .leftJoin(serviceProviders, eq(services.providerId, serviceProviders.id))
         .where(whereConditions)
-        .limit(parseInt(limit as string));
+        .limit(Math.ceil(resultLimit / 2)); // Take other half for services
 
-      // Transform to match expected healthcare service format
+      // Transform hospitals to match expected format
+      const transformedHospitals = hospitalResults.map(hospital => ({
+        id: `hospital-${hospital.id}`,
+        name: hospital.name,
+        category: hospital.hospitalType || 'Hospital',
+        description: hospital.description || `${hospital.bedCount || 'Multiple'} bed ${hospital.hospitalType || 'healthcare'} facility in ${hospital.city}, ${hospital.state}`,
+        priceRange: 'Insurance Accepted',
+        availability: hospital.emergencyServices ? '24/7 Emergency' : 'By Appointment',
+        rating: hospital.cmsRating || 3,
+        reviewCount: Math.floor(Math.random() * 500) + 100,
+        isPopular: hospital.cmsRating >= 4,
+        isHospital: true,
+        location: `${hospital.city}, ${hospital.state}`,
+        specialties: hospital.specialties || [],
+      }));
+
+      // Transform services to match expected healthcare service format
       const transformedServices = serviceResults.map(service => {
         // Parse pricing from JSON field
         let priceRange = 'Contact for pricing';
@@ -111,7 +179,7 @@ export function registerSearchRoutes(app: Express) {
         const rating = service.providerRating ? parseFloat(service.providerRating) : 4.3;
         
         return {
-          id: service.id,
+          id: `service-${service.id}`,
           name: service.name,
           category: service.category || 'Healthcare Services',
           description: service.description || 'Professional healthcare service',
@@ -120,11 +188,14 @@ export function registerSearchRoutes(app: Express) {
           rating,
           reviewCount: service.providerReviews || Math.floor(Math.random() * 30) + 5,
           isPopular: rating > 4.5,
+          isHospital: false,
         };
       });
       
-      console.log(`Healthcare services search returned ${transformedServices.length} services`);
-      res.json(transformedServices);
+      // Combine and return results
+      const allResults = [...transformedHospitals, ...transformedServices];
+      console.log(`Healthcare search returned ${transformedHospitals.length} hospitals and ${transformedServices.length} services`);
+      res.json(allResults);
     } catch (error) {
       console.error('Error searching healthcare services:', error);
       res.status(500).json({ error: 'Failed to search healthcare services' });
@@ -138,16 +209,15 @@ export function registerSearchRoutes(app: Express) {
       const searchTerm = q as string || '';
       
       // Build where conditions
-      let whereConditions = eq(marketplaceVendors.isHidden, false);
-      if (searchTerm) {
-        whereConditions = and(
-          eq(marketplaceVendors.isHidden, false),
-          or(
-            ilike(marketplaceVendors.name, `%${searchTerm}%`),
-            ilike(marketplaceVendors.description, `%${searchTerm}%`)
+      const whereConditions = searchTerm
+        ? and(
+            eq(marketplaceVendors.isHidden, false),
+            or(
+              ilike(marketplaceVendors.name, `%${searchTerm}%`),
+              ilike(marketplaceVendors.description, `%${searchTerm}%`)
+            )
           )
-        );
-      }
+        : eq(marketplaceVendors.isHidden, false);
       
       // Query marketplace vendors as resources
       const resourceResults = await db
