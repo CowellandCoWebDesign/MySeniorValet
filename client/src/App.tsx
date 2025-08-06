@@ -91,6 +91,7 @@ import IntegrationsPage from "@/pages/integrations";
 import SubscriptionManagement from "@/pages/SubscriptionManagement";
 import AIDemoPage from "@/pages/ai-demo";
 import AIMapShowcase from "@/pages/ai-map-showcase";
+import AIMapIntelligence from "@/pages/ai-map-intelligence";
 import AISearchIntelligence from "@/pages/ai-search-intelligence";
 import VendorSignup from "@/pages/vendor-signup";
 import VendorDashboard from "@/pages/vendor-dashboard";
@@ -155,6 +156,7 @@ function Router() {
       <Route path="/admin/perplexity-test" component={PerplexityTest} />
       <Route path="/admin/multi-ai-test" component={MultiAITest} />
       <Route path="/ai-search-comparison" component={AISearchComparison} />
+      <Route path="/ai-search-intelligence" component={AISearchIntelligence} />
       <Route path="/expansion-monitor" component={ExpansionMonitor} />
       <Route path="/api-costs" component={ApiCostDashboard} />
       <Route path="/dashboard" component={Dashboard} />
@@ -223,6 +225,7 @@ function Router() {
       <Route path="/subscriptions" component={SubscriptionManagement} />
       <Route path="/ai-demo" component={AIDemoPage} />
       <Route path="/ai-map-showcase" component={AIMapShowcase} />
+      <Route path="/ai-map-intelligence" component={AIMapIntelligence} />
       <Route path="/vendor-signup" component={VendorSignup} />
       <Route path="/vendor/signup" component={VendorSignup} />
       <Route path="/vendor-welcome" component={VendorWelcome} />
