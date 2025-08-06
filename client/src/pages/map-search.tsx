@@ -141,6 +141,10 @@ export default function MapSearch() {
   const [dragStartY, setDragStartY] = useState(0);
   const [dragStartHeight, setDragStartHeight] = useState(70);
   
+  // Refs for pull-down gesture
+  const listContentRef = useRef<HTMLDivElement>(null);
+  const [pullDownStart, setPullDownStart] = useState<number | null>(null);
+  
   // Autocomplete state
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
@@ -223,7 +227,12 @@ export default function MapSearch() {
     const deltaY = dragStartY - clientY;
     const windowHeight = window.innerHeight;
     const deltaPercent = (deltaY / windowHeight) * 100;
-    const newHeight = Math.min(Math.max(20, dragStartHeight + deltaPercent), 90); // Min 20%, Max 90%
+    
+    // Calculate max height to reach just below navbar (64px navbar + 10px gap = 74px from top)
+    const navbarHeight = 74; // pixels
+    const maxHeightPercent = ((windowHeight - navbarHeight) / windowHeight) * 100;
+    
+    const newHeight = Math.min(Math.max(20, dragStartHeight + deltaPercent), maxHeightPercent); // Min 20%, Max to navbar
     
     setPanelHeight(newHeight);
   }, [isDragging, dragStartY, dragStartHeight]);
@@ -1550,7 +1559,7 @@ export default function MapSearch() {
         style={{ 
           height: showBottomPanel ? panelHeight + 'vh' : '0vh',
           minHeight: showBottomPanel ? '300px' : '0px',
-          maxHeight: '80vh'
+          maxHeight: 'calc(100vh - 74px)' // Full height minus navbar height
         }}
       >
         {/* Drag Handle - Combined and enhanced */}
@@ -1651,7 +1660,47 @@ export default function MapSearch() {
         </div>
 
         {/* Enhanced Panel Content - Beautiful List View */}
-        <div className="overflow-y-auto p-4 bg-gradient-to-b from-blue-50/30 to-white dark:from-blue-900/10 dark:to-gray-900" style={{ height: 'calc(' + panelHeight + 'vh - 140px)' }}>
+        <div 
+          ref={listContentRef}
+          className="overflow-y-auto p-4 bg-gradient-to-b from-blue-50/30 to-white dark:from-blue-900/10 dark:to-gray-900" 
+          style={{ height: 'calc(' + panelHeight + 'vh - 140px)' }}
+          onTouchStart={(e) => {
+            // Check if we're at the top of the scroll
+            if (listContentRef.current && listContentRef.current.scrollTop === 0) {
+              setPullDownStart(e.touches[0].clientY);
+            }
+          }}
+          onTouchMove={(e) => {
+            // If we're pulling down from the top
+            if (pullDownStart !== null && listContentRef.current && listContentRef.current.scrollTop === 0) {
+              const currentY = e.touches[0].clientY;
+              const deltaY = currentY - pullDownStart;
+              
+              // If pulling down (positive delta), start collapsing the panel
+              if (deltaY > 50) { // Threshold of 50px
+                const windowHeight = window.innerHeight;
+                const pullPercent = Math.min((deltaY - 50) / 200, 1); // Normalize pull distance
+                const newHeight = Math.max(20, panelHeight - (pullPercent * 30)); // Reduce height based on pull
+                setPanelHeight(newHeight);
+                
+                // If pulled enough, close the panel
+                if (deltaY > 200) {
+                  setShowBottomPanel(false);
+                  setPullDownStart(null);
+                }
+              }
+            }
+          }}
+          onTouchEnd={() => {
+            setPullDownStart(null);
+          }}
+          onScroll={(e) => {
+            // Reset pull-down start if user starts scrolling normally
+            if (listContentRef.current && listContentRef.current.scrollTop > 0) {
+              setPullDownStart(null);
+            }
+          }}
+        >
           {!mapBounds ? (
             <div className="text-center py-12">
               <div className="bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl p-8 mx-4">
