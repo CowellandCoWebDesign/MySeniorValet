@@ -1,7 +1,7 @@
 import { type Express } from "express";
 import { db } from "../db";
 import { communities, vendors, marketplaceVendors, services, marketplaceCategories, serviceCategories, serviceProviders, hospitals } from "@shared/schema";
-import { eq, and, or, desc, sql, ilike, gte, lte } from "drizzle-orm";
+import { eq, and, or, desc, sql, ilike, gte, lte, isNotNull, ne } from "drizzle-orm";
 import { searchCommunitySchema } from "@shared/schema";
 import { enhancedSearchService } from "../enhanced-search-service";
 import { superclusterService } from "../services/supercluster";
@@ -57,8 +57,8 @@ export function registerSearchRoutes(app: Express) {
     }
   });
 
-  // Healthcare services search endpoint
-  app.get('/api/care-services/search', async (req, res) => {
+  // Healthcare services search endpoint (comprehensive)
+  app.get('/api/healthcare/search', async (req, res) => {
     try {
       const { q, limit = '30' } = req.query;
       const searchTerm = q as string || '';
@@ -193,7 +193,7 @@ export function registerSearchRoutes(app: Express) {
           state: communities.state,
           phone: communities.phone,
           website: communities.website,
-          reviewScore: communities.reviewScore,
+          rating: communities.rating,
         })
         .from(communities)
         .where(careServicesConditions)
@@ -272,9 +272,9 @@ export function registerSearchRoutes(app: Express) {
           description: service.description || `${serviceType} in ${service.city}, ${service.state}`,
           priceRange: 'Contact for pricing',
           availability: 'Contact for availability',
-          rating: service.reviewScore || 3.5,
+          rating: service.rating || 3.5,
           reviewCount: Math.floor(Math.random() * 50) + 10,
-          isPopular: service.reviewScore > 4,
+          isPopular: (service.rating || 3.5) > 4,
           isHospital: false,
           location: `${service.city}, ${service.state}`,
           phone: service.phone,
