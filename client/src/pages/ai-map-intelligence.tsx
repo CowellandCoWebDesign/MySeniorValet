@@ -73,27 +73,11 @@ interface AIAnalysisResult {
   };
 }
 
-// Map event handlers component
-function MapEventHandlers({ 
-  onMapClick, 
-  onViewportChange 
-}: { 
-  onMapClick: (lat: number, lng: number) => void;
-  onViewportChange: (bounds: L.LatLngBounds, zoom: number) => void;
-}) {
-  const map = useMapEvents({
+// Map click handler component  
+function MapClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
+  useMapEvents({
     click: (e) => {
       onMapClick(e.latlng.lat, e.latlng.lng);
-    },
-    moveend: () => {
-      const bounds = map.getBounds();
-      const zoom = map.getZoom();
-      onViewportChange(bounds, zoom);
-    },
-    zoomend: () => {
-      const bounds = map.getBounds();
-      const zoom = map.getZoom();
-      onViewportChange(bounds, zoom);
     }
   });
   return null;
@@ -108,53 +92,16 @@ export default function AIMapIntelligence() {
   const [activeTab, setActiveTab] = useState('map');
   const mapRef = useRef<L.Map | null>(null);
 
-  // State for viewport-based loading
-  const [mapBounds, setMapBounds] = useState<L.LatLngBounds | null>(null);
-  const [mapZoom, setMapZoom] = useState(4);
-
-  // Fetch communities based on viewport
+  // Fetch all communities for the map (simplified without viewport loading)
   const { data: communitiesData, isLoading: isLoadingCommunities } = useQuery({
-    queryKey: mapBounds ? 
-      ['/api/ai-map/all-communities', 
-       mapBounds.getNorth(), 
-       mapBounds.getSouth(), 
-       mapBounds.getEast(), 
-       mapBounds.getWest(),
-       mapZoom] : 
-      ['/api/ai-map/all-communities'],
+    queryKey: ['/api/ai-map/all-communities'],
     queryFn: async () => {
-      if (mapBounds) {
-        const params = new URLSearchParams({
-          north: mapBounds.getNorth().toString(),
-          south: mapBounds.getSouth().toString(), 
-          east: mapBounds.getEast().toString(),
-          west: mapBounds.getWest().toString(),
-          zoom: mapZoom.toString()
-        });
-        const response = await apiRequest('GET', `/api/ai-map/all-communities?${params}`);
-        return await response.json();
-      } else {
-        const response = await apiRequest('GET', '/api/ai-map/all-communities');
-        return await response.json();
-      }
+      const response = await apiRequest('GET', '/api/ai-map/all-communities');
+      return await response.json();
     },
     refetchInterval: false,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
   });
-
-  // Debounced viewport change handler for performance
-  const debouncedViewportChange = useMemo(
-    () => debounce((bounds: L.LatLngBounds, zoom: number) => {
-      setMapBounds(bounds);
-      setMapZoom(zoom);
-    }, 300),
-    []
-  );
-
-  // Handle viewport changes
-  const handleViewportChange = useCallback((bounds: L.LatLngBounds, zoom: number) => {
-    debouncedViewportChange(bounds, zoom);
-  }, [debouncedViewportChange]);
 
   // Handle map click for AI analysis
   const handleMapClick = useCallback(async (lat: number, lng: number) => {
@@ -326,10 +273,7 @@ export default function AIMapIntelligence() {
                         attribution='&copy; OpenStreetMap contributors'
                       />
                       
-                      <MapEventHandlers 
-                        onMapClick={handleMapClick} 
-                        onViewportChange={handleViewportChange}
-                      />
+                      <MapClickHandler onMapClick={handleMapClick} />
 
                       {/* Community Markers - clustered view or individual based on zoom */}
                       {communitiesData?.clustered ? (
