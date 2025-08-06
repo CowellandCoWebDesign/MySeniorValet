@@ -185,7 +185,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       // Get recent leads (placeholder for now)
-      const recentLeads = [];
+      const recentLeads: any[] = [];
 
       res.json({
         vendor: {

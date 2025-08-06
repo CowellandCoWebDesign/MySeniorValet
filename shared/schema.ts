@@ -2584,11 +2584,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   firstName: true,
   lastName: true,
   phone: true,
-  // dateOfBirth: true, // Field doesn't exist in database
-  // relationshipToCare: true, // Field doesn't exist in database
-  careNeeds: true,
-  searchPreferences: true,
-  notifications: true,
+  // Only include fields that actually exist in the database
 });
 
 export const insertCommunitySchema = createInsertSchema(communities).omit({
