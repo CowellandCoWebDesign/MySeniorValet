@@ -202,21 +202,29 @@ export function registerSearchRoutes(app: Express) {
         );
       }
       
-      // Add geographic filtering based on bounds or radius
+      // Add geographic filtering based on bounds or radius using actual coordinates
       if (radiusFilter) {
-        // Radius-based filtering for "within X miles" searches
+        // Radius-based filtering for "within X miles" searches using lat/lng
         const { centerLat, centerLng, radius: radiusMiles } = radiusFilter;
         const milesToDegrees = radiusMiles / 69.0;
         
-        // Filter hospitals within the radius (using city/state since no lat/lng)
-        if (statesInBounds.length > 0) {
-          hospitalConditions.push(inArray(hospitals.state, statesInBounds));
-          console.log(`Healthcare radius filtering: ${radiusMiles} miles, states: ${statesInBounds.join(', ')}`);
-        }
-      } else if (bounds && statesInBounds.length > 0) {
-        // Bounds-based filtering for map pan/zoom
-        hospitalConditions.push(inArray(hospitals.state, statesInBounds));
-        console.log(`Healthcare bounds filtering by states: ${statesInBounds.join(', ')}`);
+        // Filter hospitals within radius using SQL comparisons for decimal fields
+        hospitalConditions.push(
+          sql`${hospitals.latitude}::numeric >= ${centerLat - milesToDegrees} AND 
+              ${hospitals.latitude}::numeric <= ${centerLat + milesToDegrees} AND
+              ${hospitals.longitude}::numeric >= ${centerLng - (milesToDegrees / Math.cos(centerLat * Math.PI / 180))} AND
+              ${hospitals.longitude}::numeric <= ${centerLng + (milesToDegrees / Math.cos(centerLat * Math.PI / 180))}`
+        );
+        console.log(`Healthcare radius filtering: ${radiusMiles} miles from (${centerLat}, ${centerLng})`);
+      } else if (bounds) {
+        // Bounds-based filtering for map pan/zoom using SQL comparisons
+        hospitalConditions.push(
+          sql`${hospitals.latitude}::numeric >= ${bounds.swLat} AND 
+              ${hospitals.latitude}::numeric <= ${bounds.neLat} AND
+              ${hospitals.longitude}::numeric >= ${bounds.swLng} AND
+              ${hospitals.longitude}::numeric <= ${bounds.neLng}`
+        );
+        console.log(`Healthcare bounds filtering: [${bounds.swLat}, ${bounds.swLng}] to [${bounds.neLat}, ${bounds.neLng}]`);
       } else {
         console.log('Healthcare search: No geographic filtering (showing all)');
       }
