@@ -62,7 +62,7 @@ export function registerSearchRoutes(app: Express) {
     try {
       const { 
         q, 
-        limit = '500',  // Increased to show more healthcare facilities in view
+        limit = '5000',  // Show ALL healthcare facilities - full database access
         swLat, swLng, neLat, neLng,  // Map bounds filtering
         radius, centerLat, centerLng  // Radius filtering
       } = req.query;
@@ -198,13 +198,9 @@ export function registerSearchRoutes(app: Express) {
         );
       }
       
-      // Add state filtering if spatial filtering is active
-      if (statesInBounds.length > 0) {
-        hospitalConditions.push(
-          inArray(hospitals.state, statesInBounds)
-        );
-        console.log(`Filtering healthcare by states: ${statesInBounds.join(', ')}`);
-      }
+      // Remove state filtering - show ALL hospitals regardless of location
+      // Users want access to the entire database through search
+      console.log('Healthcare search: Showing ALL facilities (no state filtering)');
       
       // Execute query with conditions
       if (hospitalConditions.length > 0) {
@@ -318,12 +314,8 @@ export function registerSearchRoutes(app: Express) {
         );
       }
       
-      // Add state filtering if bounds are provided
-      if (statesInBounds.length > 0) {
-        careServicesConditionsList.push(
-          inArray(communities.state, statesInBounds)
-        );
-      }
+      // Remove state filtering - show ALL care services 
+      // Users want access to the entire database
       
       const careServicesConditions = and(...careServicesConditionsList);
       
