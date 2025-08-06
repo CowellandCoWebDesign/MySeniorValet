@@ -177,9 +177,11 @@ export default function SearchWorking() {
                       ${community.monthlyRent.toLocaleString()}/mo
                     </p>
                   )}
-                  <p className="text-xs text-gray-500 mt-1">
-                    {community.careTypes.slice(0, 2).join(' • ')}
-                  </p>
+                  {community.careTypes && community.careTypes.length > 0 && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {community.careTypes.slice(0, 2).join(' • ')}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -371,7 +373,7 @@ export default function SearchWorking() {
             ) : (
               filteredCommunities.map((community, index) => (
                 <Link key={community.id} href={`/community/${community.id}`}>
-                  <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
+                  <Card className="group bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 shadow-lg rounded-xl overflow-hidden hover:shadow-2xl hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 cursor-pointer">
                     <div className="flex">
                       {/* Photo Section */}
                       <div className="relative w-32 h-32 flex-shrink-0">
@@ -413,31 +415,33 @@ export default function SearchWorking() {
                       </div>
 
                       {/* Content Section */}
-                      <CardContent className="flex-1 p-4">
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="text-xl font-bold text-gray-900">
+                      <CardContent className="flex-1 p-5">
+                        <div className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-2 line-clamp-1">
+                          {community.name}
+                        </div>
+                        
+                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
+                          <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+                          <span className="line-clamp-1">{community.city}, {community.state}</span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="text-xl font-bold text-gray-900 dark:text-white">
                             {community.monthlyRent ? `$${community.monthlyRent.toLocaleString()}` : 'Contact for pricing'}
                           </div>
                           {community.googleRating && (
                             <div className="flex items-center">
                               <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                              <span className="text-sm font-medium text-gray-900">{community.googleRating}</span>
+                              <span className="text-sm font-medium text-gray-900 dark:text-white">{community.googleRating}</span>
                             </div>
                           )}
                         </div>
                         
-                        <div className="text-sm text-gray-600 mb-2">
-                          {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
-                        </div>
-                        
-                        <div className="text-base font-medium text-gray-900 mb-2 line-clamp-1">
-                          {community.name}
-                        </div>
-                        
-                        <div className="flex items-center text-sm text-gray-600 mb-2">
-                          <MapPin className="w-3 h-3 mr-1" />
-                          <span className="line-clamp-1">{community.city}, {community.state}</span>
-                        </div>
+                        {community.careTypes && community.careTypes.length > 0 && (
+                          <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            {community.careTypes.slice(0, 2).join(' • ')}
+                          </div>
+                        )}
 
                         {community.googleReviewCount && (
                           <div className="text-xs text-gray-500">
