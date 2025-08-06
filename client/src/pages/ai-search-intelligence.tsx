@@ -180,24 +180,40 @@ export default function AISearchIntelligence() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <NavigationHeader />
+    <div className="min-h-screen relative">
+      {/* Cosmic background image - same as hero page */}
+      <div 
+        className="fixed inset-0 z-0"
+        style={{
+          backgroundImage: 'url(https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed'
+        }}
+      >
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 bg-black/50 dark:bg-black/70" />
+      </div>
       
-      <div className="container mx-auto px-4 py-8">
-        {/* Hero Section */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full text-white text-sm font-semibold mb-4">
-            <Brain className="w-4 h-4 mr-2" />
-            AI-Powered Intelligence
+      {/* Content */}
+      <div className="relative z-10">
+        <NavigationHeader />
+        
+        <div className="container mx-auto px-4 py-8">
+          {/* Hero Section */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full text-white text-sm font-semibold mb-4">
+              <Brain className="w-4 h-4 mr-2" />
+              AI-Powered Intelligence
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
+              Find Your Perfect Senior Living Match
+            </h1>
+            <p className="text-xl text-gray-200 max-w-3xl mx-auto drop-shadow">
+              Our multi-AI system analyzes thousands of communities to find your perfect match,
+              providing transparent insights and personalized recommendations
+            </p>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            Find Your Perfect Senior Living Match
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Our multi-AI system analyzes thousands of communities to find your perfect match,
-            providing transparent insights and personalized recommendations
-          </p>
-        </div>
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -882,6 +898,7 @@ export default function AISearchIntelligence() {
             Powered by Multi-AI Transparency System (Claude + Gemini + ChatGPT)
           </Badge>
         </div>
+      </div>
       </div>
     </div>
   );
