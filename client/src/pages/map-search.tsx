@@ -14,6 +14,9 @@ import Map from '@/components/Map';
 import MapTutorial from '@/components/MapTutorial';
 import MapErrorBoundary from '@/components/MapErrorBoundary';
 import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
+import { VendorCard } from '@/components/VendorCard';
+import { HealthcareServiceCard } from '@/components/HealthcareServiceCard';
+import { ResourceCard } from '@/components/ResourceCard';
 import { AISearchInsights } from '@/components/AISearchInsights';
 import { useQuery } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
@@ -38,6 +41,41 @@ interface Community {
   photos: string[];
   description: string;
 }
+
+interface Vendor {
+  id: number;
+  businessName: string;
+  businessType: string;
+  city: string;
+  state: string;
+  address: string;
+  phone: string;
+  rating: number;
+  description: string;
+}
+
+interface HealthcareService {
+  id: number;
+  serviceName: string;
+  categoryName: string;
+  city: string;
+  state: string;
+  description: string;
+}
+
+interface Resource {
+  id: number;
+  title: string;
+  type: string;
+  category: string;
+  description: string;
+  url?: string;
+}
+
+type SearchResult = {
+  type: 'community' | 'vendor' | 'healthcare' | 'resource';
+  data: Community | Vendor | HealthcareService | Resource;
+};
 
 interface SearchFilters {
   careType: string;
@@ -73,6 +111,7 @@ export default function MapSearch() {
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode for eye comfort
   const [hasSearched, setHasSearched] = useState(false);
+  const [resultType, setResultType] = useState<'all' | 'communities' | 'vendors' | 'healthcare' | 'resources'>('all');
   const [filters, setFilters] = useState<SearchFilters>({
     careType: careTypesParam || 'All Types',
     minRating: 0,
@@ -380,6 +419,65 @@ export default function MapSearch() {
 
   // State for expanded search
   const [showExpandedSearch, setShowExpandedSearch] = useState(false);
+  
+  // Fetch vendors within map bounds
+  const { data: vendors = [], isLoading: isLoadingVendors } = useQuery({
+    queryKey: ['vendors-map-bounds', boundsKey, showBottomPanel],
+    queryFn: async () => {
+      if (!mapBounds || resultType === 'communities' || resultType === 'healthcare' || resultType === 'resources') return [];
+      
+      const sw = mapBounds.getSouthWest();
+      const ne = mapBounds.getNorthEast();
+      
+      const params = new URLSearchParams({
+        swLat: sw.lat.toString(),
+        swLng: sw.lng.toString(),
+        neLat: ne.lat.toString(),
+        neLng: ne.lng.toString(),
+        limit: '50'
+      });
+      
+      const response = await fetch(`/api/vendors/search/spatial?${params}`);
+      if (!response.ok) return [];
+      
+      return response.json();
+    },
+    enabled: showBottomPanel && !!mapBounds && (resultType === 'all' || resultType === 'vendors'),
+    staleTime: 5000,
+    gcTime: 15000
+  });
+  
+  // Fetch healthcare services
+  const { data: healthcareServices = [], isLoading: isLoadingHealthcare } = useQuery({
+    queryKey: ['healthcare-services', searchQuery],
+    queryFn: async () => {
+      if (resultType === 'communities' || resultType === 'vendors' || resultType === 'resources') return [];
+      
+      const response = await fetch(`/api/care-services/search?q=${encodeURIComponent(searchQuery)}&limit=30`);
+      if (!response.ok) return [];
+      
+      return response.json();
+    },
+    enabled: showBottomPanel && searchQuery.length > 0 && (resultType === 'all' || resultType === 'healthcare'),
+    staleTime: 10000,
+    gcTime: 30000
+  });
+  
+  // Fetch resources
+  const { data: resources = [], isLoading: isLoadingResources } = useQuery({
+    queryKey: ['resources', searchQuery],
+    queryFn: async () => {
+      if (resultType === 'communities' || resultType === 'vendors' || resultType === 'healthcare') return [];
+      
+      const response = await fetch(`/api/resources/search?q=${encodeURIComponent(searchQuery)}&limit=20`);
+      if (!response.ok) return [];
+      
+      return response.json();
+    },
+    enabled: showBottomPanel && searchQuery.length > 0 && (resultType === 'all' || resultType === 'resources'),
+    staleTime: 10000,
+    gcTime: 30000
+  });
 
   // Remove complex local state management - use query data directly
 
@@ -465,7 +563,7 @@ export default function MapSearch() {
         setLoadingSuggestions(true);
         try {
           const response = await fetch(
-            `/api/autocomplete/suggestions?query=${encodeURIComponent(debouncedSearchQuery)}&limit=6`
+            `/api/autocomplete/suggestions?query=${encodeURIComponent(debouncedSearchQuery)}&limit=8&type=${resultType}`
           );
           if (response.ok) {
             const data = await response.json();
@@ -484,7 +582,7 @@ export default function MapSearch() {
     };
 
     fetchSuggestions();
-  }, [debouncedSearchQuery]);
+  }, [debouncedSearchQuery, resultType]);
 
   // Handle click outside to close suggestions
   useEffect(() => {
@@ -1412,12 +1510,17 @@ export default function MapSearch() {
         
         {/* Panel Header - Enhanced visibility */}
         <div className="px-4 pb-3 border-b-2 border-blue-200 dark:border-blue-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex flex-col gap-2">
               <h3 className="text-xl font-bold text-blue-800 dark:text-blue-200 flex items-center gap-2">
-                🏠 {!mapBounds ? 'Position map to see communities' : 
-                 isLoadingCommunities || isFetchingCommunities ? 'Loading communities...' : 
-                 mapCommunities.length + ' Communities Found'}
+                {resultType === 'all' ? '🔍' : resultType === 'communities' ? '🏠' : resultType === 'vendors' ? '🛍️' : resultType === 'healthcare' ? '🏥' : '📚'} 
+                {!mapBounds ? 'Position map to see results' : 
+                 isLoadingCommunities || isFetchingCommunities ? 'Loading results...' : 
+                 resultType === 'communities' ? mapCommunities.length + ' Communities Found' :
+                 resultType === 'all' ? 'All Results' :
+                 resultType === 'vendors' ? 'Local Services & Vendors' :
+                 resultType === 'healthcare' ? 'Healthcare Marketplace' :
+                 'Resources & Information'}
                 {(isLoadingCommunities || isFetchingCommunities) && (
                   <div className="inline-flex items-center gap-1 text-sm font-normal text-blue-600 dark:text-blue-400">
                     <div className="w-3 h-3 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full animate-spin"></div>
@@ -1425,17 +1528,6 @@ export default function MapSearch() {
                   </div>
                 )}
               </h3>
-              {/* Compact Dev Status Bar */}
-              <div className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded border border-blue-200 dark:border-blue-700 flex items-center gap-3">
-                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
-                <span>📍 {mapBounds ? 'Active' : 'Loading'}</span>
-                <span>🏠 {mapCommunities.length}</span>
-                <span>📊 {showBottomPanel ? 'Open' : 'Closed'}</span>
-                <span>⚡ {isLoadingCommunities ? 'Searching...' : 'Ready'}</span>
-                {communitiesError && (
-                  <span className="text-red-600">⚠ Error</span>
-                )}
-              </div>
             </div>
             <Button
               variant="ghost"
@@ -1444,6 +1536,53 @@ export default function MapSearch() {
               className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:text-gray-400 dark:hover:text-gray-200"
             >
               <X className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          {/* Result Type Filter Tabs */}
+          <div className="flex items-center gap-1 overflow-x-auto pb-2">
+            <Button
+              size="sm"
+              variant={resultType === 'all' ? 'default' : 'ghost'}
+              onClick={() => setResultType('all')}
+              className={`flex-shrink-0 ${resultType === 'all' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
+            >
+              All
+            </Button>
+            <Button
+              size="sm"
+              variant={resultType === 'communities' ? 'default' : 'ghost'}
+              onClick={() => setResultType('communities')}
+              className={`flex-shrink-0 ${resultType === 'communities' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
+            >
+              Communities
+              {mapCommunities.length > 0 && (
+                <Badge className="ml-1 bg-blue-500 text-white">{mapCommunities.length}</Badge>
+              )}
+            </Button>
+            <Button
+              size="sm"
+              variant={resultType === 'vendors' ? 'default' : 'ghost'}
+              onClick={() => setResultType('vendors')}
+              className={`flex-shrink-0 ${resultType === 'vendors' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
+            >
+              Services
+            </Button>
+            <Button
+              size="sm"
+              variant={resultType === 'healthcare' ? 'default' : 'ghost'}
+              onClick={() => setResultType('healthcare')}
+              className={`flex-shrink-0 ${resultType === 'healthcare' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
+            >
+              Healthcare
+            </Button>
+            <Button
+              size="sm"
+              variant={resultType === 'resources' ? 'default' : 'ghost'}
+              onClick={() => setResultType('resources')}
+              className={`flex-shrink-0 ${resultType === 'resources' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
+            >
+              Resources
             </Button>
           </div>
         </div>
@@ -1510,7 +1649,7 @@ export default function MapSearch() {
           ) : (
             <div className="space-y-3">
               {/* AI-powered insights for communities in view */}
-              {mapBounds && mapCommunities.length > 0 && (
+              {mapBounds && mapCommunities.length > 0 && resultType === 'communities' && (
                 <AISearchInsights 
                   bounds={{
                     north: mapBounds.getNorth(),
@@ -1522,8 +1661,8 @@ export default function MapSearch() {
                 />
               )}
               
-              {/* Use mapCommunities directly for immediate updates - sorted by distance from map center */}
-              {mapCommunities
+              {/* Display results based on selected filter */}
+              {resultType === 'communities' && mapCommunities
                 .sort((a: Community, b: Community) => {
                   // Sort by distance from map center if bounds available
                   if (mapBounds) {
@@ -1537,13 +1676,119 @@ export default function MapSearch() {
                 })
                 .map((community: Community, index: number) => (
                   <EnhancedCommunityCard
-                    key={community.id}
+                    key={`community-${community.id}`}
                     community={community}
                     index={index}
                     variant="list"
                     onSelect={() => handleCommunityClick(community)}
                   />
                 ))}
+              
+              {/* Display vendors */}
+              {resultType === 'vendors' && vendors.map((vendor: Vendor, index: number) => (
+                <VendorCard
+                  key={`vendor-${vendor.id}`}
+                  vendor={vendor}
+                  onClick={() => console.log('Vendor clicked:', vendor)}
+                />
+              ))}
+              
+              {/* Display healthcare services */}
+              {resultType === 'healthcare' && healthcareServices.map((service: HealthcareService, index: number) => (
+                <HealthcareServiceCard
+                  key={`healthcare-${service.id}`}
+                  service={service}
+                  onClick={() => console.log('Healthcare service clicked:', service)}
+                />
+              ))}
+              
+              {/* Display resources */}
+              {resultType === 'resources' && resources.map((resource: Resource, index: number) => (
+                <ResourceCard
+                  key={`resource-${resource.id}`}
+                  resource={resource}
+                  onClick={() => {
+                    if (resource.url) {
+                      window.open(resource.url, '_blank');
+                    }
+                  }}
+                />
+              ))}
+              
+              {/* Display all results mixed */}
+              {resultType === 'all' && (
+                <>
+                  {/* Communities section */}
+                  {mapCommunities.length > 0 && (
+                    <>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2">
+                        🏠 Communities ({mapCommunities.length})
+                      </h4>
+                      {mapCommunities.slice(0, 5).map((community: Community, index: number) => (
+                        <EnhancedCommunityCard
+                          key={`all-community-${community.id}`}
+                          community={community}
+                          index={index}
+                          variant="list"
+                          onSelect={() => handleCommunityClick(community)}
+                        />
+                      ))}
+                    </>
+                  )}
+                  
+                  {/* Vendors section */}
+                  {vendors.length > 0 && (
+                    <>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2 mt-4">
+                        🛍️ Services & Vendors ({vendors.length})
+                      </h4>
+                      {vendors.slice(0, 3).map((vendor: Vendor) => (
+                        <VendorCard
+                          key={`all-vendor-${vendor.id}`}
+                          vendor={vendor}
+                          onClick={() => console.log('Vendor clicked:', vendor)}
+                        />
+                      ))}
+                    </>
+                  )}
+                  
+                  {/* Healthcare section */}
+                  {healthcareServices.length > 0 && (
+                    <>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2 mt-4">
+                        🏥 Healthcare Marketplace ({healthcareServices.length})
+                      </h4>
+                      {healthcareServices.slice(0, 3).map((service: HealthcareService) => (
+                        <HealthcareServiceCard
+                          key={`all-healthcare-${service.id}`}
+                          service={service}
+                          onClick={() => console.log('Healthcare service clicked:', service)}
+                        />
+                      ))}
+                    </>
+                  )}
+                  
+                  {/* Resources section */}
+                  {resources.length > 0 && (
+                    <>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2 mt-4">
+                        📚 Resources & Information ({resources.length})
+                      </h4>
+                      {resources.slice(0, 3).map((resource: Resource) => (
+                        <ResourceCard
+                          key={`all-resource-${resource.id}`}
+                          resource={resource}
+                          onClick={() => {
+                            if (resource.url) {
+                              window.open(resource.url, '_blank');
+                            }
+                          }}
+                        />
+                      ))}
+                    </>
+                  )}
+                </>
+              )}
             </div>
           )}
         </div>
