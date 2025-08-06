@@ -141,16 +141,20 @@ export function registerSearchRoutes(app: Express) {
         }
         
       } else if (bounds) {
-        // Original bounds-based state detection for pan/zoom
+        // Comprehensive state detection for all US states based on bounds
+        // California (includes Los Angeles, San Francisco, San Diego)
         if (bounds.neLat >= 32 && bounds.swLat <= 42 && bounds.neLng >= -125 && bounds.swLng <= -114) {
           statesInBounds.push('CA');
         }
-        if (bounds.neLat >= 25 && bounds.swLat <= 31 && bounds.neLng >= -106 && bounds.swLng <= -93) {
+        // Texas (includes Houston, Dallas, Austin, San Antonio)
+        if (bounds.neLat >= 25 && bounds.swLat <= 37 && bounds.neLng >= -106 && bounds.swLng <= -93) {
           statesInBounds.push('TX');
         }
+        // Florida (includes Miami, Orlando, Tampa)
         if (bounds.neLat >= 24 && bounds.swLat <= 31 && bounds.neLng >= -88 && bounds.swLng <= -80) {
           statesInBounds.push('FL');
         }
+        // New York (includes NYC, Buffalo, Albany)
         if (bounds.neLat >= 40 && bounds.swLat <= 45 && bounds.neLng >= -80 && bounds.swLng <= -72) {
           statesInBounds.push('NY');
         }
@@ -198,9 +202,24 @@ export function registerSearchRoutes(app: Express) {
         );
       }
       
-      // Remove state filtering - show ALL hospitals regardless of location
-      // Users want access to the entire database through search
-      console.log('Healthcare search: Showing ALL facilities (no state filtering)');
+      // Add geographic filtering based on bounds or radius
+      if (radiusFilter) {
+        // Radius-based filtering for "within X miles" searches
+        const { centerLat, centerLng, radius: radiusMiles } = radiusFilter;
+        const milesToDegrees = radiusMiles / 69.0;
+        
+        // Filter hospitals within the radius (using city/state since no lat/lng)
+        if (statesInBounds.length > 0) {
+          hospitalConditions.push(inArray(hospitals.state, statesInBounds));
+          console.log(`Healthcare radius filtering: ${radiusMiles} miles, states: ${statesInBounds.join(', ')}`);
+        }
+      } else if (bounds && statesInBounds.length > 0) {
+        // Bounds-based filtering for map pan/zoom
+        hospitalConditions.push(inArray(hospitals.state, statesInBounds));
+        console.log(`Healthcare bounds filtering by states: ${statesInBounds.join(', ')}`);
+      } else {
+        console.log('Healthcare search: No geographic filtering (showing all)');
+      }
       
       // Execute query with conditions
       if (hospitalConditions.length > 0) {
@@ -314,8 +333,14 @@ export function registerSearchRoutes(app: Express) {
         );
       }
       
-      // Remove state filtering - show ALL care services 
-      // Users want access to the entire database
+      // Add geographic filtering for care services based on location
+      if (radiusFilter && statesInBounds.length > 0) {
+        careServicesConditionsList.push(inArray(communities.state, statesInBounds));
+        console.log(`Care services radius filtering by states: ${statesInBounds.join(', ')}`);
+      } else if (bounds && statesInBounds.length > 0) {
+        careServicesConditionsList.push(inArray(communities.state, statesInBounds));
+        console.log(`Care services bounds filtering by states: ${statesInBounds.join(', ')}`);
+      }
       
       const careServicesConditions = and(...careServicesConditionsList);
       
