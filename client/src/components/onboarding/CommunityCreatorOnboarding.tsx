@@ -207,7 +207,7 @@ export function CommunityCreatorOnboarding({
         if (!Array.isArray(value) || value.length === 0) {
           return false;
         }
-      } else if (field !== 'website' && field !== 'description') {
+      } else if (field !== 'description') { // Only description is optional
         if (!value || (typeof value === 'string' && value.trim() === '')) {
           return false;
         }
