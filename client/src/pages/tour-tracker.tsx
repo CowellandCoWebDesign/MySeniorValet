@@ -457,7 +457,7 @@ export default function TourTracker() {
       </Dialog>
 
       <NavigationHeader 
-        title="Tour Track™" 
+        title="Tour Tracker™" 
         subtitle="Advanced tour management and review system"
       />
       <div className="container mx-auto px-4 py-8">
@@ -581,7 +581,7 @@ export default function TourTracker() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-purple-600" />
-                  Tour Track™ Review
+                  Tour Tracker™ Review
                 </CardTitle>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Help families make informed decisions with your tour experience
@@ -1110,7 +1110,7 @@ export default function TourTracker() {
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 mb-4">
                     <Sparkles className="w-6 h-6 text-blue-600" />
-                    <h3 className="text-lg font-semibold">Tour Track™ Intelligence</h3>
+                    <h3 className="text-lg font-semibold">Tour Tracker™ Intelligence</h3>
                   </div>
                   <div className="grid md:grid-cols-3 gap-4">
                     <div className="text-center">
