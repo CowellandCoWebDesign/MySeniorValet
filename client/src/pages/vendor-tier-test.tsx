@@ -129,6 +129,13 @@ export default function VendorTierTest() {
     const testData = generateTestVendorData(tier);
     
     try {
+      // Map tier to product ID
+      const productIdMap: Record<string, string> = {
+        'basic': 'basic-vendor',
+        'featured': 'featured-vendor',
+        'national': 'national-partner'
+      };
+      
       // Store vendor data in session
       sessionStorage.setItem('vendorSignupData', JSON.stringify(testData));
       
@@ -137,9 +144,10 @@ export default function VendorTierTest() {
         description: `Testing ${vendorTiers[tier as keyof typeof vendorTiers].name} tier flow`,
       });
 
-      // Redirect to payment page for the selected tier
+      // Redirect to payment page with correct product ID
       setTimeout(() => {
-        setLocation(`/vendor-mobile-payment/${tier}`);
+        const productId = productIdMap[tier] || tier;
+        setLocation(`/vendor-mobile-payment/${productId}`);
       }, 1000);
       
     } catch (error) {
@@ -158,48 +166,65 @@ export default function VendorTierTest() {
     setIsProcessing(`payment-${tier}`);
     
     try {
-      // Create test payment intent
-      const response = await fetch('/api/payment/create-vendor-payment', {
+      const testData = generateTestVendorData(tier);
+      
+      // Create test payment intent using the correct endpoint
+      const response = await fetch('/api/payments/create-payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: vendorTiers[tier as keyof typeof vendorTiers].price * 100,
           tier: tier,
-          metadata: generateTestVendorData(tier)
+          type: 'vendor',
+          metadata: {
+            ...testData,
+            productName: vendorTiers[tier as keyof typeof vendorTiers].name,
+            productId: tier
+          }
         })
       });
 
       const data = await response.json();
       
       if (data.clientSecret) {
-        // Simulate successful payment
-        const confirmResponse = await fetch('/api/payment/confirm-vendor-payment', {
+        // Store vendor data for the payment flow
+        sessionStorage.setItem('vendorSignupData', JSON.stringify(testData));
+        
+        toast({
+          title: "Payment Intent Created",
+          description: `Test payment ready for ${vendorTiers[tier as keyof typeof vendorTiers].name}`,
+        });
+        
+        // For direct test, create a vendor immediately
+        const vendorResponse = await fetch('/api/vendors', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            paymentIntentId: `pi_test_${tier}_${Date.now()}`,
-            vendorData: generateTestVendorData(tier)
+            ...testData,
+            subscriptionTier: tier,
+            stripePaymentIntentId: `pi_test_${tier}_${Date.now()}`
           })
         });
 
-        const confirmData = await confirmResponse.json();
-        
-        setTestResults(prev => [...prev, {
-          tier,
-          success: confirmData.success,
-          vendorId: confirmData.vendorId,
-          timestamp: new Date().toLocaleTimeString()
-        }]);
+        if (vendorResponse.ok) {
+          const vendorData = await vendorResponse.json();
+          
+          setTestResults(prev => [...prev, {
+            tier,
+            success: true,
+            vendorId: vendorData.vendor?.id || 'test',
+            timestamp: new Date().toLocaleTimeString()
+          }]);
 
-        toast({
-          title: "Payment Test Complete",
-          description: `Vendor created with ID: ${confirmData.vendorId}`,
-        });
+          toast({
+            title: "Test Vendor Created",
+            description: `${vendorTiers[tier as keyof typeof vendorTiers].name} vendor created successfully`,
+          });
 
-        if (confirmData.vendorId) {
-          setTimeout(() => {
-            setLocation(`/vendor/${confirmData.vendorId}`);
-          }, 2000);
+          if (vendorData.vendor?.id) {
+            setTimeout(() => {
+              setLocation(`/vendor-onboarding-wizard/${vendorData.vendor.id}`);
+            }, 2000);
+          }
         }
       }
     } catch (error) {
