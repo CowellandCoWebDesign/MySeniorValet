@@ -85,11 +85,6 @@ router.post('/create-payment-intent', async (req: Request, res: Response) => {
         message: 'Free tier - no payment required',
       });
     }
-
-    // Validate amount (Stripe requires minimum 50 cents)
-    if (tierInfo.price < 50) {
-      return res.status(400).json({ error: 'Invalid amount - minimum is $0.50' });
-    }
     
     // Create payment intent
     const paymentIntent = await stripe.paymentIntents.create({
