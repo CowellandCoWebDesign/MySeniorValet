@@ -170,7 +170,7 @@ export const welcomeEmail: EmailTemplate = {
     </p>
     
     <p style="color: #6b7280; font-size: 12px; text-align: center; margin-top: 20px; font-style: italic;">
-      Thanks for joining the fight for transparency and access to affordable housing and care for seniors.
+      The trusted platform for authentic senior living community information. Helping families make informed decisions with verified data and transparent pricing.
     </p>
   `)
 };
@@ -664,7 +664,7 @@ export const onboardingDay7Email: EmailTemplate = {
     </p>
     
     <p style="color: #6b7280; font-size: 12px; text-align: center; margin-top: 15px; font-style: italic;">
-      Thanks for joining the fight for transparency and access to affordable housing and care for seniors.
+      The trusted platform for authentic senior living community information. Helping families make informed decisions with verified data and transparent pricing.
     </p>
   `)
 };
