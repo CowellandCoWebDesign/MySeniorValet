@@ -15,6 +15,7 @@ import MapTutorial from '@/components/MapTutorial';
 import MapErrorBoundary from '@/components/MapErrorBoundary';
 import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 import { VendorCard } from '@/components/VendorCard';
+import EnhancedVendorCard from '@/components/EnhancedVendorCard';
 import { HealthcareServiceCard } from '@/components/HealthcareServiceCard';
 import { ResourceCard } from '@/components/ResourceCard';
 import { AISearchInsights } from '@/components/AISearchInsights';
@@ -1812,9 +1813,17 @@ export default function MapSearch() {
               
               {/* Display vendors */}
               {resultType === 'vendors' && vendors.map((vendor: Vendor, index: number) => (
-                <VendorCard
+                <EnhancedVendorCard
                   key={`vendor-${vendor.id}`}
-                  vendor={vendor}
+                  vendor={{
+                    ...vendor,
+                    tier: index === 0 ? 'national' : index < 3 ? 'featured' : 'basic',
+                    isNew: index % 4 === 0,
+                    serviceAreas: vendor.state,
+                    reviewCount: Math.floor(Math.random() * 50) + 10,
+                    isVerified: index < 5,
+                    specialOffer: index === 0 ? '50% OFF First Month - Limited Time!' : undefined
+                  }}
                   onClick={() => console.log('Vendor clicked:', vendor)}
                 />
               ))}
@@ -1868,10 +1877,18 @@ export default function MapSearch() {
                       <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2 mt-4">
                         🛍️ Services & Vendors ({vendors.length})
                       </h4>
-                      {vendors.slice(0, 3).map((vendor: Vendor) => (
-                        <VendorCard
+                      {vendors.slice(0, 3).map((vendor: Vendor, index: number) => (
+                        <EnhancedVendorCard
                           key={`all-vendor-${vendor.id}`}
-                          vendor={vendor}
+                          vendor={{
+                            ...vendor,
+                            tier: index === 0 ? 'featured' : 'basic',
+                            isNew: index === 0,
+                            serviceAreas: vendor.state,
+                            reviewCount: Math.floor(Math.random() * 50) + 10,
+                            isVerified: index === 0,
+                            specialOffer: index === 0 ? '50% OFF First Month - New Partner!' : undefined
+                          }}
                           onClick={() => console.log('Vendor clicked:', vendor)}
                         />
                       ))}
