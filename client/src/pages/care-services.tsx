@@ -531,171 +531,69 @@ export default function CareServices() {
                 );
               } else {
                 const provider = item as HealthcareProvider & { type: 'provider' };
-                const serviceTypeIcons: { [key: string]: any } = {
-                  home_health: Heart,
-                  hospice: Heart,
-                  physical_therapy: Activity,
-                  adult_day: Users,
-                  medical_equipment: Package,
-                  mental_health: Brain,
-                  personal_care: User,
-                  speech_therapy: MessageCircle,
-                  respite: Clock,
-                  transportation: Car
-                };
-                const IconComponent = serviceTypeIcons[provider.serviceType] || Heart;
-                const serviceTypeColors: { [key: string]: string } = {
-                  home_health: 'from-green-500 to-emerald-500',
-                  hospice: 'from-purple-500 to-pink-500',
-                  physical_therapy: 'from-orange-500 to-red-500',
-                  adult_day: 'from-blue-500 to-indigo-500',
-                  medical_equipment: 'from-gray-500 to-slate-500',
-                  mental_health: 'from-indigo-500 to-purple-500',
-                  personal_care: 'from-pink-500 to-rose-500',
-                  speech_therapy: 'from-teal-500 to-cyan-500',
-                  respite: 'from-amber-500 to-yellow-500',
-                  transportation: 'from-slate-500 to-gray-500'
-                };
-                const bgColor = serviceTypeColors[provider.serviceType] || 'from-gray-500 to-slate-500';
                 
                 return (
                   <Card 
                     key={`provider-${provider.id}`} 
-                    className="relative overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border-2 border-gray-200 dark:border-gray-700"
+                    className="hover:shadow-lg transition-shadow cursor-pointer"
                     onClick={() => handleProviderClick(provider)}
                   >
-                    {/* Verified Badge */}
-                    {provider.isVerified && (
-                      <div className="absolute top-2 right-2 z-10">
-                        <Badge className="bg-green-600 text-white px-2 py-1">
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Verified
-                        </Badge>
-                      </div>
-                    )}
-                    
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start gap-3">
-                        <div className={`w-12 h-12 bg-gradient-to-br ${bgColor} rounded-xl flex items-center justify-center shadow-md flex-shrink-0`}>
-                          <IconComponent className="w-6 h-6 text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <CardTitle className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">
-                            {provider.businessName}
-                          </CardTitle>
-                          <Badge variant="outline" className="mt-2">
-                            {serviceTypeLabels[provider.serviceType] || provider.otherServiceType}
-                          </Badge>
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg">{provider.businessName}</CardTitle>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge variant="outline">
+                              {serviceTypeLabels[provider.serviceType] || provider.otherServiceType}
+                            </Badge>
+                            {provider.isVerified && (
+                              <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                ✓ Verified
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent className="pt-0">
+                    <CardContent>
+                      {/* Brief Description */}
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
                         {provider.description}
                       </p>
                       
-                      {/* Services */}
-                      <div className="mb-4">
-                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Services:</p>
-                        <div className="flex flex-wrap gap-1">
-                          {provider.services.slice(0, 3).map((service) => (
-                            <Badge key={service} variant="secondary" className="text-xs">
-                              {service}
-                            </Badge>
-                          ))}
-                          {provider.services.length > 3 && (
+                      {/* Location */}
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-3">
+                        <MapPin className="w-4 h-4" />
+                        <span>{provider.city}, {provider.state}</span>
+                      </div>
+                      
+                      {/* Key Badges - Simple */}
+                      {(provider.metadata?.emergencyAvailable || provider.metadata?.acceptingNewPatients) && (
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {provider.metadata?.emergencyAvailable && (
                             <Badge variant="secondary" className="text-xs">
-                              +{provider.services.length - 3} more
+                              24/7 Available
+                            </Badge>
+                          )}
+                          {provider.metadata?.acceptingNewPatients && (
+                            <Badge variant="secondary" className="text-xs">
+                              Accepting New Patients
                             </Badge>
                           )}
                         </div>
-                      </div>
+                      )}
                       
-                      {/* Coverage Area */}
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                        <MapPin className="w-4 h-4" />
-                        <span>
-                          {provider.states.length === 1 
-                            ? provider.states[0]
-                            : `${provider.states.length} states`}
-                        </span>
+                      {/* Contact */}
+                      <div className="flex items-center gap-2 text-sm">
+                        <Phone className="w-4 h-4 text-gray-400" />
+                        <a 
+                          href={`tel:${provider.phone}`}
+                          className="text-blue-600 hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {provider.phone}
+                        </a>
                       </div>
-                      
-                      {/* Metadata Badges */}
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {provider.metadata?.emergencyAvailable && (
-                          <Badge variant="outline" className="text-xs">
-                            <Clock className="w-3 h-3 mr-1" />
-                            24/7 Available
-                          </Badge>
-                        )}
-                        {provider.metadata?.acceptingNewPatients && (
-                          <Badge variant="outline" className="text-xs text-green-600">
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Accepting Patients
-                          </Badge>
-                        )}
-                        {provider.certifications?.includes("Medicare Certified") && (
-                          <Badge variant="outline" className="text-xs">
-                            Medicare
-                          </Badge>
-                        )}
-                        {provider.certifications?.includes("Medicaid Certified") && (
-                          <Badge variant="outline" className="text-xs">
-                            Medicaid
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      {/* Contact Information */}
-                      <div className="space-y-2 border-t pt-4">
-                        <div className="flex items-center gap-2 text-sm">
-                          <Phone className="w-4 h-4 text-gray-400" />
-                          <a 
-                            href={`tel:${provider.phone}`}
-                            className="text-blue-600 hover:underline"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {provider.phone}
-                          </a>
-                        </div>
-                        {provider.website && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <Globe className="w-4 h-4 text-gray-400" />
-                            <a 
-                              href={provider.website}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline truncate"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              Visit Website
-                            </a>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-2 text-sm">
-                          <Mail className="w-4 h-4 text-gray-400" />
-                          <a 
-                            href={`mailto:${provider.email}`}
-                            className="text-blue-600 hover:underline truncate"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {provider.email}
-                          </a>
-                        </div>
-                      </div>
-                      
-                      <Button 
-                        className="w-full mt-4" 
-                        variant="outline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleProviderClick(provider);
-                        }}
-                      >
-                        View Details
-                        <ChevronRight className="w-4 h-4 ml-2" />
-                      </Button>
                     </CardContent>
                   </Card>
                 );
