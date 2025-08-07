@@ -115,8 +115,9 @@ export function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-6 text-white">Legal & Compliance</h3>
             <ul className="space-y-3 text-gray-300">
-              <li><Link href="/privacy" className="hover:text-blue-400 transition-colors font-medium">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="hover:text-blue-400 transition-colors font-medium">Terms of Service</Link></li>
+              <li><Link href="/privacy-policy" className="hover:text-blue-400 transition-colors font-medium">Privacy Policy</Link></li>
+              <li><Link href="/terms-of-service" className="hover:text-blue-400 transition-colors font-medium">Terms of Service</Link></li>
+              <li><Link href="/cookie-policy" className="hover:text-blue-400 transition-colors font-medium">Cookie Policy</Link></li>
               <li><Link href="/disclaimer" className="hover:text-blue-400 transition-colors font-medium">Disclaimer</Link></li>
               <li><Link href="/accessibility" className="hover:text-blue-400 transition-colors font-medium">Accessibility</Link></li>
             </ul>
@@ -135,8 +136,9 @@ export function Footer() {
             </div>
             <div className="flex flex-wrap justify-center md:justify-end space-x-6">
               <Link href="/veterans" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Veterans Housing</Link>
-              <Link href="/privacy" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Privacy</Link>
-              <Link href="/terms" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Terms</Link>
+              <Link href="/privacy-policy" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Privacy</Link>
+              <Link href="/terms-of-service" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Terms</Link>
+              <Link href="/cookie-policy" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Cookies</Link>
               <Link href="/disclaimer" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Disclaimer</Link>
               <Link href="/accessibility" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Accessibility</Link>
               

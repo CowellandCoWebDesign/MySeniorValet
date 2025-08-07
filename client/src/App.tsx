@@ -108,6 +108,7 @@ import FinancialDashboard from "@/pages/financial-dashboard";
 import EnhancedFinancialDashboard from "@/pages/enhanced-financial-dashboard";
 import PaymentMonitoring from "@/pages/payment-monitoring";
 import { useAuth } from "@/hooks/useAuth";
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import CanadaPage from "@/pages/canada";
 import RedTagExample from "@/pages/red-tag-example";
 import HospitalDetails from "@/pages/hospital-details";
@@ -117,6 +118,9 @@ import CommunityMobilePayment from "@/pages/community-mobile-payment";
 import PaymentTestDashboard from "@/pages/payment-test-dashboard";
 import PaymentDiagnostics from "@/pages/payment-diagnostics";
 import AdminDashboard from "@/pages/admin-dashboard";
+import TermsOfService from "@/pages/terms-of-service";
+import PrivacyPolicy from "@/pages/privacy-policy";
+import CookiePolicy from "@/pages/cookie-policy";
 import PaymentRecovery from "@/pages/payment-recovery";
 import CommunityOnboarding from "@/pages/community-onboarding";
 import VendorOnboarding from "@/pages/vendor-onboarding";
@@ -184,6 +188,9 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/privacy" component={Privacy} />
       <Route path="/terms" component={Terms} />
+      <Route path="/terms-of-service" component={TermsOfService} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/cookie-policy" component={CookiePolicy} />
       <Route path="/disclaimer" component={Disclaimer} />
       <Route path="/accessibility" component={Accessibility} />
       <Route path="/mission" component={Mission} />
@@ -267,6 +274,7 @@ function App() {
               <MascotProvider>
                 <Toaster />
                 <Router />
+                <CookieConsentBanner />
                 <DisclaimerBanner />
                 <DevModeIndicator />
               </MascotProvider>
