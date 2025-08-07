@@ -2282,12 +2282,19 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
 
-                  {/* Enhanced Pricing Display */}
+                  {/* Enhanced Pricing Display with Promotions */}
                   <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/30 dark:to-indigo-900/30 rounded-lg p-4 mb-6 w-full border border-purple-200 dark:border-purple-700">
+                    <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg p-3 mb-3">
+                      <div className="flex items-center justify-center gap-4 text-xs sm:text-sm font-bold">
+                        <span>🎉 50% OFF First Month</span>
+                        <span className="hidden sm:inline">•</span>
+                        <span className="hidden sm:inline">💰 20% OFF Annual Plans</span>
+                      </div>
+                    </div>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Professional tiers starting at:</p>
                     <div className="flex flex-wrap justify-center gap-2 text-sm">
-                      <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300">$99 Basic Listing</Badge>
-                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">$249 Featured</Badge>
+                      <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300">$99 Basic (1 State)</Badge>
+                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">$249 Featured (3 States)</Badge>
                       <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">$499 National Partner</Badge>
                     </div>
                   </div>

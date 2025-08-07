@@ -166,9 +166,30 @@ export default function VendorSignup() {
           <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Become a MySeniorValet Partner
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300">
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
             Join thousands of trusted vendors serving senior communities across North America
           </p>
+          
+          {/* Prominent Promotional Banner */}
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl p-6 shadow-xl max-w-3xl mx-auto">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-6">
+              <div className="flex items-center gap-3">
+                <Sparkle className="w-8 h-8 animate-pulse" />
+                <div>
+                  <p className="text-2xl font-bold">Limited Time Offer!</p>
+                  <p className="text-lg">50% OFF Your First Month</p>
+                </div>
+              </div>
+              <div className="h-16 w-px bg-white/30 hidden md:block" />
+              <div className="flex items-center gap-3">
+                <DollarSign className="w-8 h-8" />
+                <div>
+                  <p className="text-2xl font-bold">Save Even More!</p>
+                  <p className="text-lg">20% OFF Annual Plans</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Impact Statistics Section */}
