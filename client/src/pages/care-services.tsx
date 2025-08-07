@@ -9,7 +9,8 @@ import { Header } from "@/components/header";
 import { useLocation } from "wouter";
 import { 
   Heart, Search, Filter, MapPin, Phone, Globe, Mail, CheckCircle, 
-  Shield, Clock, Users, Star, Building2, ChevronRight, Info, Plus
+  Shield, Clock, Users, Star, Building2, ChevronRight, Info, Plus,
+  Activity, Package, Brain, User, MessageCircle, Car
 } from "lucide-react";
 
 interface HealthcareProvider {
@@ -375,22 +376,39 @@ export default function CareServices() {
                 return (
                   <Card 
                     key={`hospital-${hospital.id}`} 
-                    className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-900"
+                    className="relative overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-blue-900/20 dark:via-gray-900 dark:to-cyan-900/20 border-2 border-blue-200 dark:border-blue-800"
                     onClick={() => handleProviderClick(hospital)}
                   >
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg flex items-center gap-2">
+                    {/* CMS Rating Badge */}
+                    {hospital.cmsRating && (
+                      <div className="absolute top-2 right-2 z-10">
+                        <Badge className="bg-blue-600 text-white px-2 py-1">
+                          <Star className="w-3 h-3 mr-1 fill-current" />
+                          CMS {hospital.cmsRating}/5
+                        </Badge>
+                      </div>
+                    )}
+                    
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start gap-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+                          <Building2 className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">
                             {hospital.name}
-                            {hospital.cmsRating && hospital.cmsRating >= 4 && (
-                              <Shield className="w-4 h-4 text-blue-600" title="High CMS Rating" />
-                            )}
                           </CardTitle>
-                          <div className="flex items-center gap-2 mt-2">
-                            <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                              🏥 Hospital
-                            </Badge>
+                          <div className="flex flex-wrap items-center gap-2 mt-2">
+                            {hospital.emergencyServices && (
+                              <Badge className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 text-xs">
+                                🚑 Emergency
+                              </Badge>
+                            )}
+                            {hospital.traumaLevel && (
+                              <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 text-xs">
+                                {hospital.traumaLevel}
+                              </Badge>
+                            )}
                             {hospital.hospitalType && (
                               <Badge variant="outline" className="text-xs">
                                 {hospital.hospitalType}
@@ -400,46 +418,54 @@ export default function CareServices() {
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      {/* CMS Rating */}
+                    <CardContent className="pt-0">
+                      {/* Rating Stars Display */}
                       {hospital.cmsRating && (
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-sm font-semibold">CMS Rating:</span>
-                          <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                              <Star 
-                                key={i} 
-                                className={`w-4 h-4 ${i < hospital.cmsRating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} 
-                              />
-                            ))}
-                          </div>
+                        <div className="flex items-center gap-1 mb-3">
+                          {[...Array(5)].map((_, i) => (
+                            <Star 
+                              key={i} 
+                              className={`w-4 h-4 ${i < hospital.cmsRating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300 dark:text-gray-600'}`} 
+                            />
+                          ))}
+                          <span className="text-sm text-gray-600 dark:text-gray-400 ml-1">
+                            ({hospital.cmsRating}/5)
+                          </span>
                         </div>
                       )}
                       
-                      {/* Location */}
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                        <MapPin className="w-4 h-4" />
-                        <span>{hospital.city}, {hospital.state}</span>
+                      {/* Location with enhanced styling */}
+                      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 mb-3">
+                        <div className="flex items-center gap-2 text-sm">
+                          <MapPin className="w-4 h-4 text-blue-500" />
+                          <span className="font-medium text-gray-700 dark:text-gray-300">
+                            {hospital.city}, {hospital.state}
+                          </span>
+                        </div>
+                        {hospital.address && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-6">
+                            {hospital.address}
+                          </p>
+                        )}
                       </div>
                       
-                      {/* Hospital Info */}
-                      <div className="space-y-2 mb-3">
+                      {/* Key Stats Grid */}
+                      <div className="grid grid-cols-2 gap-2 mb-3">
                         {hospital.bedCount && (
-                          <div className="flex items-center gap-2 text-sm">
-                            <Building2 className="w-4 h-4 text-gray-400" />
-                            <span>{hospital.bedCount} beds</span>
+                          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2 text-center">
+                            <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                              {hospital.bedCount}
+                            </div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400">Beds</div>
                           </div>
                         )}
-                        {hospital.emergencyServices && (
-                          <Badge variant="outline" className="text-xs text-green-600">
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Emergency Services
-                          </Badge>
-                        )}
-                        {hospital.traumaLevel && (
-                          <Badge variant="outline" className="text-xs">
-                            {hospital.traumaLevel}
-                          </Badge>
+                        {hospital.ownership && (
+                          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-2 text-center">
+                            <div className="text-xs font-medium text-green-600 dark:text-green-400">
+                              {hospital.ownership.split(' - ')[0]}
+                            </div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400">Type</div>
+                          </div>
                         )}
                       </div>
                       
@@ -505,20 +531,57 @@ export default function CareServices() {
                 );
               } else {
                 const provider = item as HealthcareProvider & { type: 'provider' };
+                const serviceTypeIcons: { [key: string]: any } = {
+                  home_health: Heart,
+                  hospice: Heart,
+                  physical_therapy: Activity,
+                  adult_day: Users,
+                  medical_equipment: Package,
+                  mental_health: Brain,
+                  personal_care: User,
+                  speech_therapy: MessageCircle,
+                  respite: Clock,
+                  transportation: Car
+                };
+                const IconComponent = serviceTypeIcons[provider.serviceType] || Heart;
+                const serviceTypeColors: { [key: string]: string } = {
+                  home_health: 'from-green-500 to-emerald-500',
+                  hospice: 'from-purple-500 to-pink-500',
+                  physical_therapy: 'from-orange-500 to-red-500',
+                  adult_day: 'from-blue-500 to-indigo-500',
+                  medical_equipment: 'from-gray-500 to-slate-500',
+                  mental_health: 'from-indigo-500 to-purple-500',
+                  personal_care: 'from-pink-500 to-rose-500',
+                  speech_therapy: 'from-teal-500 to-cyan-500',
+                  respite: 'from-amber-500 to-yellow-500',
+                  transportation: 'from-slate-500 to-gray-500'
+                };
+                const bgColor = serviceTypeColors[provider.serviceType] || 'from-gray-500 to-slate-500';
+                
                 return (
                   <Card 
                     key={`provider-${provider.id}`} 
-                    className="hover:shadow-lg transition-shadow cursor-pointer"
+                    className="relative overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border-2 border-gray-200 dark:border-gray-700"
                     onClick={() => handleProviderClick(provider)}
                   >
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg flex items-center gap-2">
+                    {/* Verified Badge */}
+                    {provider.isVerified && (
+                      <div className="absolute top-2 right-2 z-10">
+                        <Badge className="bg-green-600 text-white px-2 py-1">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Verified
+                        </Badge>
+                      </div>
+                    )}
+                    
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start gap-3">
+                        <div className={`w-12 h-12 bg-gradient-to-br ${bgColor} rounded-xl flex items-center justify-center shadow-md flex-shrink-0`}>
+                          <IconComponent className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">
                             {provider.businessName}
-                            {provider.isVerified && (
-                              <Shield className="w-4 h-4 text-blue-600" title="Verified Provider" />
-                            )}
                           </CardTitle>
                           <Badge variant="outline" className="mt-2">
                             {serviceTypeLabels[provider.serviceType] || provider.otherServiceType}
@@ -526,8 +589,8 @@ export default function CareServices() {
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
+                    <CardContent className="pt-0">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
                         {provider.description}
                       </p>
                       
