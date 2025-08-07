@@ -217,30 +217,28 @@ export default function VendorMarketplaceTiers() {
               <span className="font-semibold text-sm sm:text-base">Save 20% with annual billing!</span>
             </div>
           </div>
-          {/* Enhanced Healthcare Directory Link */}
+          {/* Healthcare Directory Notice - Clear Explanation */}
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-5 max-w-4xl mx-auto mb-6 border border-blue-200 dark:border-blue-800">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
-                  <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div className="text-left">
-                  <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Healthcare Providers</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    Home health, hospice & therapy services
+            <div className="flex flex-col gap-3">
+              <div className="flex items-start gap-3">
+                <Heart className="w-6 h-6 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Are you a Healthcare Provider?</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                    This marketplace is for commercial vendors only (moving services, medical supplies, professional services, etc.). 
+                    Healthcare providers like home health agencies, hospice care, and therapy services get listed FREE in our Healthcare Directory.
                   </p>
+                  <Link 
+                    to="/care-services" 
+                    className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 px-5 py-2.5 rounded-lg border-2 border-blue-400 dark:border-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all hover:scale-105 group"
+                  >
+                    <span className="font-semibold text-blue-600 dark:text-blue-400">
+                      Go to Free Healthcare Directory
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition-transform" />
+                  </Link>
                 </div>
               </div>
-              <Link 
-                to="/care-services" 
-                className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 px-5 py-2.5 rounded-lg border-2 border-blue-400 dark:border-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all hover:scale-105 group"
-              >
-                <Heart className="w-5 h-5 text-blue-600 dark:text-blue-400 group-hover:animate-pulse" />
-                <span className="font-semibold text-blue-600 dark:text-blue-400">
-                  Free Healthcare Directory
-                </span>
-                <ChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              </Link>
             </div>
           </div>
           
