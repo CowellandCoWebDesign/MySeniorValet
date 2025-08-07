@@ -100,7 +100,7 @@ export default function VendorMobilePayment() {
       setCurrentStep('marketplace-setup');
 
       // Confirm payment on the backend
-      const response = await fetch('/api/payments/confirm-payment', {
+      const response = await fetch('/api/payment/confirm-vendor-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -130,9 +130,9 @@ export default function VendorMobilePayment() {
         const responseData = await response.json();
         const vendorId = responseData.vendorId || 'new';
         
-        // Redirect to vendor onboarding
+        // Redirect to vendor profile page
         setTimeout(() => {
-          setLocation(`/vendor-onboarding/${vendorId}`);
+          setLocation(`/vendor/${vendorId}`);
         }, 2000);
       } else {
         throw new Error('Failed to confirm payment');

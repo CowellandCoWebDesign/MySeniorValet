@@ -1,6 +1,6 @@
 import { type Express } from "express";
 import { db } from "../db";
-import { vendors, vendorServices } from "@shared/schema";
+import { vendors, vendorServices, vendorReviews } from "@shared/schema";
 import { eq, and, desc, sql, or } from "drizzle-orm";
 import { isAuthenticated as requireAuth, checkRole } from "../replitAuth";
 import { z } from "zod";
@@ -78,6 +78,97 @@ export function registerVendorRoutes(app: Express) {
     } catch (error) {
       console.error("Error fetching featured vendors:", error);
       res.status(500).json({ error: "Failed to fetch featured vendors" });
+    }
+  });
+
+  // Get vendor by ID
+  app.get('/api/vendors/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const vendor = await db
+        .select({
+          id: vendors.id,
+          businessName: vendors.businessName,
+          businessType: vendors.businessType,
+          description: vendors.description,
+          shortDescription: vendors.shortDescription,
+          primaryContactEmail: vendors.primaryContactEmail,
+          primaryContactPhone: vendors.primaryContactPhone,
+          businessCity: vendors.businessCity,
+          businessState: vendors.businessState,
+          website: vendors.website,
+          logoUrl: vendors.logoUrl,
+          serviceAreas: vendors.serviceAreas,
+          subscriptionTier: vendors.subscriptionTier,
+          isVerified: vendors.isVerified,
+          averageRating: vendors.averageRating,
+          totalReviews: vendors.totalReviews,
+          featured: vendors.featured,
+          status: vendors.status,
+          analytics: sql`json_build_object(
+            'profileViews', COALESCE(${vendors.profileViews}, 0),
+            'leadsReceived', COALESCE(${vendors.leadsReceived}, 0),
+            'responseRate', COALESCE(${vendors.responseRate}, 95)
+          )`
+        })
+        .from(vendors)
+        .where(eq(vendors.id, parseInt(id)))
+        .limit(1);
+      
+      if (!vendor || vendor.length === 0) {
+        return res.status(404).json({ error: 'Vendor not found' });
+      }
+      
+      // Update profile views
+      await db
+        .update(vendors)
+        .set({ profileViews: sql`COALESCE(${vendors.profileViews}, 0) + 1` })
+        .where(eq(vendors.id, parseInt(id)));
+      
+      res.json(vendor[0]);
+    } catch (error) {
+      console.error('Error fetching vendor:', error);
+      res.status(500).json({ error: 'Failed to fetch vendor' });
+    }
+  });
+
+  // Get vendor services
+  app.get('/api/vendors/:id/services', async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const services = await db
+        .select()
+        .from(vendorServices)
+        .where(eq(vendorServices.vendorId, parseInt(id)));
+      
+      res.json(services);
+    } catch (error) {
+      console.error('Error fetching vendor services:', error);
+      res.status(500).json({ error: 'Failed to fetch services' });
+    }
+  });
+
+  // Get vendor reviews
+  app.get('/api/vendors/:id/reviews', async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const reviews = await db
+        .select()
+        .from(vendorReviews)
+        .where(and(
+          eq(vendorReviews.vendorId, parseInt(id)),
+          eq(vendorReviews.status, 'published')
+        ))
+        .orderBy(desc(vendorReviews.createdAt))
+        .limit(10);
+      
+      res.json(reviews);
+    } catch (error) {
+      console.error('Error fetching vendor reviews:', error);
+      res.status(500).json({ error: 'Failed to fetch reviews' });
     }
   });
 

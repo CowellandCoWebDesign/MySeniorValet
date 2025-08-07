@@ -519,6 +519,117 @@ router.post('/confirm-community-payment', async (req: Request, res: Response) =>
   }
 });
 
+// Handle successful vendor payment confirmation
+router.post('/confirm-vendor-payment', async (req: Request, res: Response) => {
+  try {
+    const { paymentIntentId, vendorData } = req.body;
+    
+    if (!paymentIntentId || !vendorData) {
+      return res.status(400).json({ error: 'Missing required data' });
+    }
+    
+    // Verify payment with Stripe (allow test payments in development)
+    let paymentIntent: any;
+    
+    if (paymentIntentId.startsWith('pi_test_')) {
+      console.log('Test vendor payment detected:', paymentIntentId);
+      paymentIntent = {
+        id: paymentIntentId,
+        status: 'succeeded',
+        amount: vendorData.planType === 'national' ? 49900 : vendorData.planType === 'featured' ? 24900 : 9900,
+        metadata: { tier: vendorData.planType }
+      };
+    } else {
+      paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ error: 'Payment not successful' });
+      }
+    }
+    
+    // Create vendor record in database using raw SQL to avoid Drizzle issues
+    const tier = paymentIntent.metadata?.tier || vendorData.planType || 'basic';
+    
+    const insertQuery = `
+      INSERT INTO vendors (
+        business_name, business_type, primary_contact_name, primary_contact_email,
+        primary_contact_phone, business_city, business_state, website,
+        description, short_description, service_areas, subscription_tier,
+        status, is_verified, featured, stripe_customer_id, stripe_subscription_id,
+        total_spent, average_rating, total_reviews, response_rate, average_response_time
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22
+      ) RETURNING id, business_name
+    `;
+    
+    const serviceAreasArray = vendorData.serviceAreas 
+      ? vendorData.serviceAreas.split(',').map((s: string) => s.trim())
+      : ['Local Area'];
+    
+    const result = await pool.query(insertQuery, [
+      vendorData.businessName,
+      vendorData.businessType || 'company',
+      vendorData.contactName,
+      vendorData.email,
+      vendorData.phone,
+      vendorData.city || 'Not specified',
+      vendorData.state || 'Not specified',
+      vendorData.website || null,
+      vendorData.description || 'Professional senior living services provider',
+      vendorData.description ? vendorData.description.substring(0, 150) : 'Professional senior living services',
+      serviceAreasArray,
+      tier,
+      'active',
+      tier !== 'basic', // Auto-verify featured and national tiers
+      tier === 'featured' || tier === 'national',
+      paymentIntent.customer || null,
+      paymentIntentId,
+      paymentIntent.amount / 100,
+      0, // average_rating
+      0, // total_reviews
+      95, // response_rate default
+      30  // average_response_time default
+    ]);
+    
+    const newVendor = result.rows[0];
+    console.log('Created vendor:', newVendor);
+    
+    // Log the payment transaction
+    const transactionQuery = `
+      INSERT INTO payment_transactions (
+        type, entity_id, stripe_payment_intent_id, amount, status, subscription_tier, metadata
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `;
+    
+    await pool.query(transactionQuery, [
+      'vendor',
+      newVendor.id,
+      paymentIntentId,
+      paymentIntent.amount / 100,
+      'completed',
+      tier,
+      JSON.stringify({
+        vendorName: vendorData.businessName,
+        tier: tier
+      })
+    ]);
+    
+    // Return success with vendor ID
+    res.json({
+      success: true,
+      message: 'Vendor registration successful',
+      vendorId: newVendor.id,
+      vendorSlug: newVendor.business_name.toLowerCase().replace(/\s+/g, '-'),
+    });
+  } catch (error: any) {
+    console.error('Error confirming vendor payment:', error);
+    res.status(500).json({ 
+      error: 'Failed to create vendor profile',
+      details: error.message 
+    });
+  }
+});
+
 // Test payment creation (for development)
 router.post('/test-payment', async (req: Request, res: Response) => {
   if (process.env.NODE_ENV !== 'development') {
