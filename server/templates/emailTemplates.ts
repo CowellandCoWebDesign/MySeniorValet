@@ -78,41 +78,90 @@ const buttonHTML = (text: string, url: string, color: string = BRAND_PRIMARY) =>
 // ============= USER ACCOUNT TEMPLATES =============
 
 export const welcomeEmail: EmailTemplate = {
-  subject: 'Welcome to MySeniorValet - Your Journey Starts Here! 🎉',
+  subject: 'Welcome to MySeniorValet - Your Complete Senior Living Solution! 🎉',
   html: (data: { name: string; email: string }) => baseTemplate(`
-    <h2 style="color: ${BRAND_PRIMARY}; margin: 0 0 20px 0;">Welcome aboard, ${data.name}! 🏡</h2>
+    <h2 style="color: ${BRAND_PRIMARY}; margin: 0 0 20px 0;">Welcome ${data.name} - Your One-Stop Senior Living Shop is Ready! 🏡</h2>
     
     <p style="color: #374151; line-height: 1.6; font-size: 16px;">
-      We're thrilled to have you join MySeniorValet, where finding the perfect senior living community is made simple, transparent, and stress-free.
+      You've just joined MySeniorValet - the ONLY platform you'll need for your entire senior living journey. 
+      From finding communities to managing care, accessing benefits, and connecting with services - we handle it all!
     </p>
     
-    <div style="background-color: #f0f9ff; border-left: 4px solid ${BRAND_PRIMARY}; padding: 20px; margin: 30px 0;">
-      <h3 style="color: ${BRAND_PRIMARY}; margin: 0 0 15px 0;">What you can do with MySeniorValet:</h3>
-      <ul style="color: #374151; line-height: 1.8; margin: 0; padding-left: 20px;">
-        <li><strong>34,180+ Communities:</strong> Search verified senior living options nationwide</li>
-        <li><strong>Transparent Pricing:</strong> See real HUD-verified pricing and market rates</li>
-        <li><strong>Tour Tracker™:</strong> Schedule and track your community visits</li>
-        <li><strong>Family Collaboration:</strong> Share and compare communities with loved ones</li>
-        <li><strong>AI Recommendations:</strong> Get personalized matches based on your needs</li>
-        <li><strong>Senior Resources:</strong> Access 32+ government and support programs</li>
-      </ul>
+    <div style="background: linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 100%); border-radius: 8px; padding: 25px; margin: 30px 0;">
+      <h3 style="color: #1e293b; margin: 0 0 20px 0; text-align: center;">🌟 Your Complete Senior Living Command Center</h3>
+      
+      <div style="background-color: white; border-radius: 6px; padding: 20px; margin-bottom: 15px;">
+        <h4 style="color: ${BRAND_PRIMARY}; margin: 0 0 10px 0;">🏠 Community Discovery & Tours</h4>
+        <ul style="color: #374151; line-height: 1.6; margin: 0; padding-left: 20px;">
+          <li>Search 34,180+ verified communities nationwide</li>
+          <li>Compare HUD-verified pricing transparently</li>
+          <li>Schedule tours with Tour Tracker™</li>
+          <li>Read authentic family reviews</li>
+          <li>Get AI-powered Perfect Match recommendations</li>
+        </ul>
+      </div>
+      
+      <div style="background-color: white; border-radius: 6px; padding: 20px; margin-bottom: 15px;">
+        <h4 style="color: ${BRAND_SECONDARY}; margin: 0 0 10px 0;">💰 Financial Planning & Benefits</h4>
+        <ul style="color: #374151; line-height: 1.6; margin: 0; padding-left: 20px;">
+          <li>Calculate senior living costs with our Budget Planner</li>
+          <li>Access 32+ government assistance programs</li>
+          <li>Find HUD-subsidized housing options</li>
+          <li>Discover VA benefits for veterans</li>
+          <li>Medicare/Medicaid guidance and resources</li>
+        </ul>
+      </div>
+      
+      <div style="background-color: white; border-radius: 6px; padding: 20px; margin-bottom: 15px;">
+        <h4 style="color: #10b981; margin: 0 0 10px 0;">🏥 Healthcare & Services</h4>
+        <ul style="color: #374151; line-height: 1.6; margin: 0; padding-left: 20px;">
+          <li>Find nearby hospitals with CMS ratings</li>
+          <li>Connect with home care providers</li>
+          <li>Browse trusted vendor marketplace</li>
+          <li>Access medical equipment suppliers</li>
+          <li>Locate specialty care services</li>
+        </ul>
+      </div>
+      
+      <div style="background-color: white; border-radius: 6px; padding: 20px;">
+        <h4 style="color: #7c3aed; margin: 0 0 10px 0;">👨‍👩‍👧‍👦 Family Collaboration Tools</h4>
+        <ul style="color: #374151; line-height: 1.6; margin: 0; padding-left: 20px;">
+          <li>Share favorites with family members</li>
+          <li>Compare communities side-by-side</li>
+          <li>Collaborate on decisions in real-time</li>
+          <li>Track your journey with progress reports</li>
+          <li>Get expert guidance from our concierge team</li>
+        </ul>
+      </div>
     </div>
     
-    ${buttonHTML('Start Your Search', 'https://myseniorvalet.com/search')}
-    
-    <div style="background-color: #fef3c7; border-radius: 6px; padding: 20px; margin: 30px 0;">
-      <h4 style="color: #92400e; margin: 0 0 10px 0;">💡 Quick Start Tips:</h4>
-      <ol style="color: #92400e; line-height: 1.6; margin: 0; padding-left: 20px;">
-        <li>Complete your profile for better recommendations</li>
-        <li>Set your budget and care level preferences</li>
-        <li>Save your favorite communities to compare</li>
-        <li>Invite family members to collaborate</li>
-      </ol>
+    <div style="background-color: #fef3c7; border: 2px solid ${BRAND_SECONDARY}; border-radius: 8px; padding: 20px; margin: 30px 0; text-align: center;">
+      <h3 style="color: #92400e; margin: 0 0 15px 0;">🎯 Start With What Matters Most to You:</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+        <a href="https://myseniorvalet.com/search" style="background-color: ${BRAND_PRIMARY}; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Find Communities</a>
+        <a href="https://myseniorvalet.com/resources" style="background-color: ${BRAND_SUCCESS}; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Get Benefits Info</a>
+        <a href="https://myseniorvalet.com/hospitals" style="background-color: #ef4444; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Find Healthcare</a>
+        <a href="https://myseniorvalet.com/marketplace" style="background-color: ${BRAND_SECONDARY}; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Shop Services</a>
+      </div>
     </div>
+    
+    <div style="background-color: #ecfdf5; border-radius: 6px; padding: 20px; margin: 30px 0;">
+      <h4 style="color: #065f46; margin: 0 0 10px 0;">✨ Why Families Choose MySeniorValet:</h4>
+      <p style="color: #065f46; line-height: 1.6; margin: 10px 0;">
+        <strong>"Finally, everything in one place!"</strong> - No more juggling 20 different websites<br>
+        <strong>"The transparency is incredible"</strong> - Real pricing, real reviews, real help<br>
+        <strong>"Saved us months of research"</strong> - AI matches you perfectly<br>
+        <strong>"The support team is amazing"</strong> - Expert guidance when you need it
+      </p>
+    </div>
+    
+    ${buttonHTML('Explore Your Dashboard', 'https://myseniorvalet.com/dashboard')}
     
     <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 30px;">
-      Your account is ready! Sign in with:<br>
-      <strong>Email:</strong> ${data.email}
+      <strong>Need help getting started?</strong><br>
+      📧 Email: support@myseniorvalet.com<br>
+      📞 Call: 1-888-SENIOR-V<br>
+      💬 Live chat available on our website
     </p>
   `)
 };
@@ -488,6 +537,296 @@ export const tourReminderEmail: EmailTemplate = {
   `)
 };
 
+// ============= ONBOARDING SERIES =============
+
+export const onboardingDay3Email: EmailTemplate = {
+  subject: 'Day 3: Discover Your Senior Living Benefits & Resources 💰',
+  html: (data: { name: string }) => baseTemplate(`
+    <h2 style="color: ${BRAND_PRIMARY}; margin: 0 0 20px 0;">Hi ${data.name}, Let's Talk About Saving Money!</h2>
+    
+    <p style="color: #374151; line-height: 1.6; font-size: 16px;">
+      Did you know that the average family leaves <strong>$3,000+ per month</strong> in unclaimed senior benefits on the table? 
+      Today, we'll help you discover every dollar you're entitled to.
+    </p>
+    
+    <div style="background-color: #f0fdf4; border: 2px solid ${BRAND_SUCCESS}; border-radius: 8px; padding: 20px; margin: 30px 0;">
+      <h3 style="color: #065f46; margin: 0 0 15px 0;">💵 Your Personal Benefits Checklist:</h3>
+      
+      <div style="background-color: white; border-radius: 6px; padding: 15px; margin: 10px 0;">
+        <strong>✓ HUD Housing Programs</strong><br>
+        <span style="color: #6b7280;">5,936 HUD communities with verified subsidized pricing</span>
+      </div>
+      
+      <div style="background-color: white; border-radius: 6px; padding: 15px; margin: 10px 0;">
+        <strong>✓ VA Benefits (Veterans)</strong><br>
+        <span style="color: #6b7280;">Aid & Attendance can provide up to $2,300/month</span>
+      </div>
+      
+      <div style="background-color: white; border-radius: 6px; padding: 15px; margin: 10px 0;">
+        <strong>✓ Medicare/Medicaid Programs</strong><br>
+        <span style="color: #6b7280;">Coverage for care, equipment, and services</span>
+      </div>
+      
+      <div style="background-color: white; border-radius: 6px; padding: 15px; margin: 10px 0;">
+        <strong>✓ State & Local Assistance</strong><br>
+        <span style="color: #6b7280;">Property tax exemptions, utility discounts, food programs</span>
+      </div>
+    </div>
+    
+    ${buttonHTML('Check Your Benefits Eligibility', 'https://myseniorvalet.com/resources', BRAND_SUCCESS)}
+    
+    <div style="background-color: #fef3c7; border-radius: 6px; padding: 20px; margin: 30px 0;">
+      <h4 style="color: #92400e; margin: 0 0 10px 0;">📊 Real Family Savings Examples:</h4>
+      <p style="color: #92400e; line-height: 1.6; margin: 10px 0;">
+        • <strong>The Johnson Family:</strong> Found HUD housing, saved $2,100/month<br>
+        • <strong>Vietnam Veteran Bob:</strong> VA benefits covered $1,800/month in care<br>
+        • <strong>Medicare Discovery:</strong> Sarah's mom qualified for $500/month in services
+      </p>
+    </div>
+    
+    <p style="color: #6b7280; font-size: 14px; text-align: center;">
+      Tomorrow: We'll show you how to find and compare the best healthcare options nearby 🏥
+    </p>
+  `)
+};
+
+export const onboardingDay7Email: EmailTemplate = {
+  subject: 'Your First Week Complete! Here\'s Your Personalized Action Plan 🎯',
+  html: (data: { name: string }) => baseTemplate(`
+    <h2 style="color: ${BRAND_PRIMARY}; margin: 0 0 20px 0;">${data.name}, You're Already Ahead of 90% of Families!</h2>
+    
+    <p style="color: #374151; line-height: 1.6; font-size: 16px;">
+      In just one week, you've discovered more resources than most families find in months of searching. 
+      Now let's put it all together with your personalized action plan.
+    </p>
+    
+    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%); border-radius: 8px; padding: 25px; margin: 30px 0;">
+      <h3 style="color: #92400e; margin: 0 0 20px 0; text-align: center;">📋 Your Personalized 30-Day Action Plan</h3>
+      
+      <div style="background-color: white; border-radius: 6px; padding: 20px; margin-bottom: 15px;">
+        <h4 style="color: ${BRAND_PRIMARY}; margin: 0 0 10px 0;">Week 1-2: Research & Discovery ✅</h4>
+        <ul style="color: #374151; line-height: 1.6; margin: 0; padding-left: 20px;">
+          <li>Use AI Perfect Match to get your top 10 communities</li>
+          <li>Compare pricing and amenities side-by-side</li>
+          <li>Check benefit eligibility (could save $1,000s)</li>
+          <li>Review hospital ratings in target areas</li>
+        </ul>
+      </div>
+      
+      <div style="background-color: white; border-radius: 6px; padding: 20px; margin-bottom: 15px;">
+        <h4 style="color: ${BRAND_SECONDARY}; margin: 0 0 10px 0;">Week 2-3: Tours & Evaluation 🏃</h4>
+        <ul style="color: #374151; line-height: 1.6; margin: 0; padding-left: 20px;">
+          <li>Schedule 3-5 tours with Tour Tracker™</li>
+          <li>Use our tour checklist (we'll email it to you)</li>
+          <li>Compare notes with family members</li>
+          <li>Request pricing and availability updates</li>
+        </ul>
+      </div>
+      
+      <div style="background-color: white; border-radius: 6px; padding: 20px;">
+        <h4 style="color: ${BRAND_SUCCESS}; margin: 0 0 10px 0;">Week 3-4: Decision & Transition 🎯</h4>
+        <ul style="color: #374151; line-height: 1.6; margin: 0; padding-left: 20px;">
+          <li>Review contracts with our checklist</li>
+          <li>Connect with moving services in marketplace</li>
+          <li>Set up healthcare providers</li>
+          <li>Complete benefit applications</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div style="background-color: #e0f2fe; border-radius: 8px; padding: 20px; margin: 30px 0; text-align: center;">
+      <h3 style="color: #0369a1; margin: 0 0 15px 0;">🎁 Your Week 1 Achievement Rewards:</h3>
+      <p style="color: #0369a1; line-height: 1.8; margin: 0;">
+        ✨ Priority support queue access<br>
+        📱 Mobile app early access (coming soon)<br>
+        📊 Advanced analytics on saved communities<br>
+        🎯 Personalized weekly recommendations
+      </p>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 30px 0;">
+      <a href="https://myseniorvalet.com/perfect-match" style="background-color: ${BRAND_PRIMARY}; color: white; padding: 14px; text-decoration: none; border-radius: 6px; text-align: center; display: block;">Get AI Matches</a>
+      <a href="https://myseniorvalet.com/schedule-tours" style="background-color: ${BRAND_SUCCESS}; color: white; padding: 14px; text-decoration: none; border-radius: 6px; text-align: center; display: block;">Schedule Tours</a>
+    </div>
+    
+    <p style="color: #6b7280; font-size: 14px; text-align: center;">
+      <strong>Your dedicated concierge team is here to help!</strong><br>
+      Reply to this email with any questions or call 1-888-SENIOR-V
+    </p>
+  `)
+};
+
+export const comprehensiveServicesEmail: EmailTemplate = {
+  subject: 'Your Complete MySeniorValet Services Guide - Everything in One Place! 🌟',
+  html: (data: { name: string }) => baseTemplate(`
+    <h2 style="color: ${BRAND_PRIMARY}; margin: 0 0 20px 0;">${data.name}, Here's Everything MySeniorValet Can Do For You</h2>
+    
+    <p style="color: #374151; line-height: 1.6; font-size: 16px;">
+      We know senior living decisions are overwhelming. That's why we've built the ONLY platform that handles 
+      every aspect of your journey. Save this email - it's your complete guide to all our services!
+    </p>
+    
+    <div style="background-color: #1e40af; color: white; padding: 20px; border-radius: 8px; margin: 30px 0; text-align: center;">
+      <h3 style="margin: 0 0 10px 0;">🌟 THE MYSENIORVALET DIFFERENCE</h3>
+      <p style="margin: 0; line-height: 1.6;">
+        <strong>34,180+ Communities</strong> | <strong>5,936 HUD Properties</strong> | <strong>32+ Benefits Programs</strong><br>
+        <strong>12,000+ Hospitals</strong> | <strong>50+ Vendor Services</strong> | <strong>100% Transparent Pricing</strong>
+      </p>
+    </div>
+    
+    <!-- Core Services Grid -->
+    <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin: 30px 0;">
+      
+      <!-- Community Search -->
+      <div style="border: 2px solid ${BRAND_PRIMARY}; border-radius: 8px; padding: 20px;">
+        <h3 style="color: ${BRAND_PRIMARY}; margin: 0 0 15px 0;">🏡 COMMUNITY SEARCH & DISCOVERY</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div>
+            <strong>Find & Compare:</strong>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+              <li>Assisted Living</li>
+              <li>Memory Care</li>
+              <li>Independent Living</li>
+              <li>55+ Communities</li>
+              <li>Nursing Homes</li>
+            </ul>
+          </div>
+          <div>
+            <strong>Features:</strong>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+              <li>Real-time availability</li>
+              <li>Verified pricing</li>
+              <li>Virtual tours</li>
+              <li>Family reviews</li>
+              <li>AI matching</li>
+            </ul>
+          </div>
+        </div>
+        <a href="https://myseniorvalet.com/search" style="display: inline-block; margin-top: 10px; color: ${BRAND_PRIMARY};">Start Searching →</a>
+      </div>
+      
+      <!-- Financial Help -->
+      <div style="border: 2px solid ${BRAND_SUCCESS}; border-radius: 8px; padding: 20px;">
+        <h3 style="color: ${BRAND_SUCCESS}; margin: 0 0 15px 0;">💰 FINANCIAL ASSISTANCE & BENEFITS</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div>
+            <strong>Government Programs:</strong>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+              <li>HUD Housing</li>
+              <li>VA Benefits</li>
+              <li>Medicare/Medicaid</li>
+              <li>SSI/SSDI</li>
+              <li>Food Assistance</li>
+            </ul>
+          </div>
+          <div>
+            <strong>Tools & Calculators:</strong>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+              <li>Budget planner</li>
+              <li>Benefit checker</li>
+              <li>Cost comparison</li>
+              <li>Savings finder</li>
+              <li>Application help</li>
+            </ul>
+          </div>
+        </div>
+        <a href="https://myseniorvalet.com/resources" style="display: inline-block; margin-top: 10px; color: ${BRAND_SUCCESS};">Check Eligibility →</a>
+      </div>
+      
+      <!-- Healthcare -->
+      <div style="border: 2px solid #ef4444; border-radius: 8px; padding: 20px;">
+        <h3 style="color: #ef4444; margin: 0 0 15px 0;">🏥 HEALTHCARE NAVIGATION</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div>
+            <strong>Find Providers:</strong>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+              <li>Hospitals (CMS rated)</li>
+              <li>Doctors & Specialists</li>
+              <li>Home Health</li>
+              <li>Hospice Care</li>
+              <li>Rehab Centers</li>
+            </ul>
+          </div>
+          <div>
+            <strong>Services:</strong>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+              <li>Quality ratings</li>
+              <li>Distance mapping</li>
+              <li>Insurance accepted</li>
+              <li>Emergency services</li>
+              <li>Specialties</li>
+            </ul>
+          </div>
+        </div>
+        <a href="https://myseniorvalet.com/hospitals" style="display: inline-block; margin-top: 10px; color: #ef4444;">Find Healthcare →</a>
+      </div>
+      
+      <!-- Marketplace -->
+      <div style="border: 2px solid ${BRAND_SECONDARY}; border-radius: 8px; padding: 20px;">
+        <h3 style="color: ${BRAND_SECONDARY}; margin: 0 0 15px 0;">🛍️ VENDOR MARKETPLACE</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div>
+            <strong>Services Available:</strong>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+              <li>Moving & Storage</li>
+              <li>Estate Planning</li>
+              <li>Home Modifications</li>
+              <li>Medical Equipment</li>
+              <li>Insurance</li>
+            </ul>
+          </div>
+          <div>
+            <strong>Benefits:</strong>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+              <li>Vetted vendors</li>
+              <li>Senior discounts</li>
+              <li>Reviews & ratings</li>
+              <li>Quote comparison</li>
+              <li>Local providers</li>
+            </ul>
+          </div>
+        </div>
+        <a href="https://myseniorvalet.com/marketplace" style="display: inline-block; margin-top: 10px; color: ${BRAND_SECONDARY};">Browse Services →</a>
+      </div>
+      
+    </div>
+    
+    <!-- Exclusive Tools -->
+    <div style="background-color: #ede9fe; border-radius: 8px; padding: 20px; margin: 30px 0;">
+      <h3 style="color: #7c3aed; margin: 0 0 15px 0; text-align: center;">🛠️ Exclusive MySeniorValet Tools</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+        <div style="background-color: white; padding: 10px; border-radius: 6px;">
+          <strong>🎯 AI Perfect Match</strong><br>
+          <span style="font-size: 14px;">Get personalized community recommendations</span>
+        </div>
+        <div style="background-color: white; padding: 10px; border-radius: 6px;">
+          <strong>📅 Tour Tracker™</strong><br>
+          <span style="font-size: 14px;">Schedule and manage all your tours</span>
+        </div>
+        <div style="background-color: white; padding: 10px; border-radius: 6px;">
+          <strong>👨‍👩‍👧 Family Portal</strong><br>
+          <span style="font-size: 14px;">Collaborate on decisions together</span>
+        </div>
+        <div style="background-color: white; padding: 10px; border-radius: 6px;">
+          <strong>📊 Comparison Tool</strong><br>
+          <span style="font-size: 14px;">Side-by-side community analysis</span>
+        </div>
+      </div>
+    </div>
+    
+    ${buttonHTML('Access Everything Now', 'https://myseniorvalet.com/dashboard', BRAND_PRIMARY)}
+    
+    <div style="background-color: #f9fafb; border-radius: 6px; padding: 20px; margin: 30px 0; text-align: center;">
+      <h4 style="color: #374151; margin: 0 0 10px 0;">Need Personal Assistance?</h4>
+      <p style="color: #6b7280; margin: 0;">
+        Our concierge team is ready to help you navigate any part of your journey<br>
+        📞 Call: 1-888-SENIOR-V | 💬 Live Chat | 📧 Email Support<br>
+        <strong>Average response time: Under 2 hours</strong>
+      </p>
+    </div>
+  `)
+};
+
 // ============= ENGAGEMENT TEMPLATES =============
 
 export const weeklyDigestEmail: EmailTemplate = {
@@ -695,6 +1034,11 @@ export const emailTemplates = {
   // User Account
   welcome: welcomeEmail,
   passwordReset: passwordResetEmail,
+  
+  // Onboarding Series
+  onboardingDay3: onboardingDay3Email,
+  onboardingDay7: onboardingDay7Email,
+  comprehensiveServices: comprehensiveServicesEmail,
   
   // Community
   communitySignup: communitySignupEmail,
