@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/header";
+import { CareServiceCard } from "@/components/CareServiceCard";
 import { useLocation } from "wouter";
 import { 
   Heart, Search, Filter, MapPin, Phone, Globe, Mail, CheckCircle, 
@@ -396,64 +397,96 @@ export default function CareServices() {
               {paginatedProviders.map((item) => {
               if (item.type === 'hospital') {
                 const hospital = item as Hospital & { type: 'hospital' };
+                
+                // Return hospital card with exact home page styling
                 return (
                   <Card 
-                    key={`hospital-${hospital.id}`} 
-                    className="relative overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer bg-gradient-to-br from-blue-50 via-white to-cyan-50 dark:from-blue-900/20 dark:via-gray-900 dark:to-cyan-900/20 border-2 border-blue-200 dark:border-blue-800"
+                    key={`hospital-${hospital.id}`}
+                    className="flex-shrink-0 w-full min-h-[40rem] border-2 border-blue-100 dark:border-blue-900/50 hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 bg-gradient-to-br from-white via-blue-50/30 to-cyan-50/20 dark:from-gray-800 dark:via-gray-900 dark:to-blue-900/20 backdrop-blur-sm relative overflow-visible group cursor-pointer"
                     onClick={() => handleProviderClick(hospital)}
                   >
-                    {/* CMS Rating Badge */}
-                    {hospital.cmsRating && (
-                      <div className="absolute top-2 right-2 z-10">
-                        <Badge className="bg-blue-600 text-white px-2 py-1">
-                          <Star className="w-3 h-3 mr-1 fill-current" />
-                          CMS {hospital.cmsRating}/5
-                        </Badge>
-                      </div>
-                    )}
+                    {/* Demo Data Banner - Exact styling from home page */}
+                    <div className="absolute top-0 left-0 right-0 bg-yellow-500 text-black text-xs font-bold px-2 py-1 text-center z-20">
+                      ⚠️ Nationwide Hospital Expansion 2025
+                    </div>
                     
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start gap-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
-                          <Building2 className="w-6 h-6 text-white" />
+                    {/* Premium Background Pattern */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200/20 to-transparent rounded-full -translate-y-16 translate-x-16"></div>
+                    
+                    {/* Enhanced Header - Exact from home page */}
+                    <div className="bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400 p-4 text-white relative overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-50"></div>
+                      <div className="relative z-10">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                              <Building2 className="w-6 h-6" />
+                            </div>
+                            <Badge className="bg-white/25 hover:bg-white/35 text-white text-xs font-medium px-3 py-1 rounded-full backdrop-blur-sm">
+                              {hospital.hospitalType}
+                            </Badge>
+                          </div>
+                          {hospital.cmsRating && (
+                            <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-400/20 to-orange-400/20 rounded-full px-3 py-1.5 backdrop-blur-sm border border-white/20">
+                              <Star className="w-4 h-4 fill-yellow-300 text-yellow-300" />
+                              <span className="text-sm font-bold">{hospital.cmsRating}/5</span>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <CardTitle className="text-lg font-bold text-gray-900 dark:text-gray-100 truncate">
-                            {hospital.name}
-                          </CardTitle>
-                          <div className="flex flex-wrap items-center gap-2 mt-2">
-                            {hospital.emergencyServices && (
-                              <Badge className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 text-xs">
-                                🚑 Emergency
-                              </Badge>
-                            )}
-                            {hospital.traumaLevel && (
-                              <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 text-xs">
-                                {hospital.traumaLevel}
-                              </Badge>
-                            )}
-                            {hospital.hospitalType && (
-                              <Badge variant="outline" className="text-xs">
-                                {hospital.hospitalType}
-                              </Badge>
+                        
+                        <h3 className="font-bold text-lg leading-tight mb-2 line-clamp-2 drop-shadow-sm">
+                          {hospital.name}
+                        </h3>
+                        
+                        <div className="flex items-center gap-2 text-sm opacity-95">
+                          <MapPin className="w-4 h-4" />
+                          <span className="truncate font-medium">{hospital.city}, {hospital.state}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Content Section */}
+                    <div className="p-4 flex flex-col flex-1 relative z-10">
+                      {/* Feature Badges */}
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {hospital.ownership && (
+                          <Badge className={hospital.ownership.includes("Non-profit") ? "bg-green-600 text-white" : "bg-gray-600 text-white"}>
+                            {hospital.ownership.includes("Non-profit") ? "Non-Profit" : "Private"}
+                          </Badge>
+                        )}
+                        {hospital.traumaLevel && (
+                          <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs">
+                            {hospital.traumaLevel}
+                          </Badge>
+                        )}
+                        {hospital.emergencyServices && (
+                          <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs">
+                            24/7 Emergency
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {/* Enhanced Services */}
+                      {hospital.services && hospital.services.length > 0 && (
+                        <div className="mb-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl p-3 border border-blue-100 dark:border-blue-800/50">
+                          <h4 className="text-sm font-bold text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-2">
+                            <Heart className="w-4 h-4" />
+                            Key Services
+                          </h4>
+                          <div className="space-y-2">
+                            {hospital.services.slice(0, 5).map((service, idx) => (
+                              <div key={idx} className="flex items-center gap-3 text-sm">
+                                <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex-shrink-0 shadow-sm"></div>
+                                <span className="text-gray-700 dark:text-gray-300 truncate font-medium">{service}</span>
+                              </div>
+                            ))}
+                            {hospital.services.length > 5 && (
+                              <div className="text-sm text-blue-600 dark:text-blue-400 font-semibold pl-5">
+                                +{hospital.services.length - 5} more specialties
+                              </div>
                             )}
                           </div>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      {/* Rating Stars Display */}
-                      {hospital.cmsRating !== undefined && (
-                        <div className="flex items-center gap-1 mb-3">
-                          {[...Array(5)].map((_, i) => (
-                            <Star 
-                              key={i} 
-                              className={`w-4 h-4 ${i < hospital.cmsRating! ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300 dark:text-gray-600'}`} 
-                            />
-                          ))}
-                          <span className="text-sm text-gray-600 dark:text-gray-400 ml-1">
-                            ({hospital.cmsRating}/5)
-                          </span>
                         </div>
                       )}
                       
@@ -540,7 +573,7 @@ export default function CareServices() {
                       </div>
                       
                       <Button 
-                        className="w-full mt-4 bg-blue-600 hover:bg-blue-700"
+                        className="w-full mt-4 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 hover:from-blue-700 hover:via-blue-600 hover:to-cyan-600 text-white text-sm py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleProviderClick(hospital);
@@ -549,113 +582,108 @@ export default function CareServices() {
                         View Hospital Details
                         <ChevronRight className="w-4 h-4 ml-2" />
                       </Button>
-                    </CardContent>
+                    </div>
                   </Card>
                 );
               } else {
                 const provider = item as HealthcareProvider & { type: 'provider' };
                 
-                const serviceTypeLabels2: { [key: string]: string } = {
-                  home_health: "Home Health Agency",
-                  hospice: "Hospice Care",
-                  physical_therapy: "Physical Therapy",
-                  occupational_therapy: "Occupational Therapy",
-                  speech_therapy: "Speech Therapy",
-                  adult_day: "Adult Day Care",
-                  personal_care: "Personal Care",
-                  respite: "Respite Care",
-                  medical_equipment: "Medical Equipment",
-                  mental_health: "Mental Health",
-                  transportation: "Medical Transport"
+                // Map service types to icons and colors - exactly matching home page
+                const getServiceConfig = (serviceType: string) => {
+                  switch (serviceType) {
+                    case 'home_health':
+                      return {
+                        icon: <Home className="w-6 h-6 text-teal-600" />,
+                        borderColor: "border-teal-200",
+                        hoverBorderColor: "hover:border-teal-400",
+                        iconBgColor: "bg-teal-50",
+                        iconRingColor: "ring-teal-100",
+                        categoryBadgeColor: "bg-teal-50 text-teal-700",
+                        categoryBadgeBorder: "border-teal-200",
+                        categoryLabel: "Home Health",
+                        buttonColor: "bg-teal-600",
+                        buttonHoverColor: "hover:bg-teal-700"
+                      };
+                    case 'hospice':
+                      return {
+                        icon: <HeartHandshake className="w-6 h-6 text-purple-600" />,
+                        borderColor: "border-purple-200",
+                        hoverBorderColor: "hover:border-purple-400",
+                        iconBgColor: "bg-purple-50",
+                        iconRingColor: "ring-purple-100",
+                        categoryBadgeColor: "bg-purple-50 text-purple-700",
+                        categoryBadgeBorder: "border-purple-200",
+                        categoryLabel: "Hospice Care",
+                        buttonColor: "bg-purple-600",
+                        buttonHoverColor: "hover:bg-purple-700"
+                      };
+                    case 'personal_care':
+                      return {
+                        icon: <Users className="w-6 h-6 text-blue-600" />,
+                        borderColor: "border-blue-200",
+                        hoverBorderColor: "hover:border-blue-400",
+                        iconBgColor: "bg-blue-50",
+                        iconRingColor: "ring-blue-100",
+                        categoryBadgeColor: "bg-blue-50 text-blue-700",
+                        categoryBadgeBorder: "border-blue-200",
+                        categoryLabel: "Personal Care",
+                        buttonColor: "bg-blue-600",
+                        buttonHoverColor: "hover:bg-blue-700"
+                      };
+                    case 'medical_equipment':
+                      return {
+                        icon: <Package className="w-6 h-6 text-green-600" />,
+                        borderColor: "border-green-200",
+                        hoverBorderColor: "hover:border-green-400",
+                        iconBgColor: "bg-green-50",
+                        iconRingColor: "ring-green-100",
+                        categoryBadgeColor: "bg-green-50 text-green-700",
+                        categoryBadgeBorder: "border-green-200",
+                        categoryLabel: "Medical Equipment",
+                        buttonColor: "bg-green-600",
+                        buttonHoverColor: "hover:bg-green-700"
+                      };
+                    default:
+                      return {
+                        icon: <Heart className="w-6 h-6 text-rose-600" />,
+                        borderColor: "border-rose-200",
+                        hoverBorderColor: "hover:border-rose-400",
+                        iconBgColor: "bg-rose-50",
+                        iconRingColor: "ring-rose-100",
+                        categoryBadgeColor: "bg-rose-50 text-rose-700",
+                        categoryBadgeBorder: "border-rose-200",
+                        categoryLabel: provider.otherServiceType || "Healthcare",
+                        buttonColor: "bg-rose-600",
+                        buttonHoverColor: "hover:bg-rose-700"
+                      };
+                  }
+                };
+                
+                const config = getServiceConfig(provider.serviceType);
+                
+                // Transform provider data to match CareServiceCard expectations
+                const serviceData = {
+                  id: provider.id,
+                  name: provider.businessName,
+                  address: provider.address || '',
+                  city: provider.city || 'Multiple Locations',
+                  state: provider.state || 'Multiple States',
+                  zipCode: provider.zipCode || '',
+                  phone: provider.phone,
+                  email: provider.email,
+                  website: provider.website,
+                  rating: 4.5, // Default rating for now
+                  careTypes: provider.services
                 };
                 
                 return (
-                  <Card 
-                    key={`provider-${provider.id}`} 
-                    className="relative overflow-hidden bg-gray-900 hover:shadow-xl transition-shadow cursor-pointer"
-                    onClick={() => handleProviderClick(provider)}
-                  >
-                    {/* Yellow Header Banner - simpler */}
-                    <div className="bg-amber-400 px-4 py-2 text-center">
-                      <p className="text-xs font-semibold text-gray-900">
-                        ⚠️ Healthcare Provider Network 2025
-                      </p>
-                    </div>
-                    
-                    {/* Blue Content Area - simplified gradient */}
-                    <div className="bg-blue-600 p-6">
-                      {/* Provider Type Badge */}
-                      <div className="flex items-center justify-between mb-4">
-                        <Badge className="bg-white/20 text-white border-white/30">
-                          {serviceTypeLabels2[provider.serviceType] || provider.otherServiceType}
-                        </Badge>
-                        {provider.isVerified && (
-                          <Badge className="bg-green-500 text-white">
-                            ★ Verified
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      {/* Provider Name */}
-                      <h3 className="text-xl font-bold text-white mb-3">
-                        {provider.businessName}
-                      </h3>
-                      
-                      {/* Location */}
-                      <div className="flex items-center gap-2 text-white/90 mb-4">
-                        <MapPin className="w-4 h-4" />
-                        <span className="text-base">
-                          {provider.city || 'Multiple'}, {provider.state}
-                        </span>
-                      </div>
-                      
-                      {/* Feature Badges - simplified */}
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {provider.metadata?.acceptingNewPatients && (
-                          <Badge className="bg-green-500 text-white text-xs">
-                            Accepting
-                          </Badge>
-                        )}
-                        {provider.metadata?.emergencyAvailable && (
-                          <Badge className="bg-red-500 text-white text-xs">
-                            24/7 Emergency
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      {/* Key Services Section - simplified */}
-                      <div className="mb-4">
-                        <div className="flex items-center gap-2 text-white mb-2">
-                          <Heart className="w-4 h-4" />
-                          <span className="font-semibold text-sm">Key Services</span>
-                        </div>
-                        <ul className="space-y-1">
-                          {provider.services.slice(0, 3).map((service) => (
-                            <li key={service} className="flex items-center gap-2 text-white/90 text-sm">
-                              <span className="text-cyan-300">●</span>
-                              <span>{service}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      
-                      {/* Bottom Stats Grid - simplified */}
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-gray-800 rounded-lg p-3 text-center">
-                          <div className="text-2xl font-bold text-cyan-300">
-                            {provider.metadata?.yearsInBusiness || '5'}+
-                          </div>
-                          <div className="text-xs text-gray-300">Years Experience</div>
-                        </div>
-                        <div className="bg-orange-600 rounded-lg p-3 text-center">
-                          <div className="text-2xl font-bold text-white">
-                            4/5
-                          </div>
-                          <div className="text-xs text-white">Rating</div>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
+                  <div key={`provider-${provider.id}`} onClick={() => handleProviderClick(provider)}>
+                    <CareServiceCard
+                      service={serviceData}
+                      index={0}
+                      {...config}
+                    />
+                  </div>
                 );
               }
             })}
