@@ -200,29 +200,20 @@ export default function VendorMarketplaceTiers() {
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
             Join MySeniorValet's Commercial Vendor Marketplace
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto mb-6">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto mb-8">
             Connect your business with 34,000+ senior living communities and millions of families 
             seeking trusted commercial services and products
           </p>
           
-          {/* Promotional Offers Banner */}
-          <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl p-4 md:p-6 shadow-xl max-w-3xl mx-auto mb-6">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-6">
-              <div className="flex items-center gap-2">
-                <DollarSign className="w-6 h-6 md:w-8 md:h-8 animate-pulse" />
-                <div className="text-center md:text-left">
-                  <p className="text-lg md:text-2xl font-bold">Limited Time!</p>
-                  <p className="text-sm md:text-lg">50% OFF First Month</p>
-                </div>
-              </div>
-              <div className="hidden md:block h-16 w-px bg-white/30" />
-              <div className="flex items-center gap-2">
-                <Zap className="w-6 h-6 md:w-8 md:h-8" />
-                <div className="text-center md:text-left">
-                  <p className="text-lg md:text-2xl font-bold">Save More!</p>
-                  <p className="text-sm md:text-lg">20% OFF Annual Plans</p>
-                </div>
-              </div>
+          {/* Clean Promotional Offers - Matching Vendor Signup Style */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+            <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full px-6 py-3 shadow-lg flex items-center gap-2">
+              <Sparkles className="w-5 h-5" />
+              <span className="font-semibold">Limited Time: First month 50% off!</span>
+            </div>
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full px-6 py-3 shadow-lg flex items-center gap-2">
+              <TrendingUp className="w-5 h-5" />
+              <span className="font-semibold">Save 20% with annual billing!</span>
             </div>
           </div>
           <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 max-w-3xl mx-auto mb-4">
@@ -625,193 +616,173 @@ export default function VendorMarketplaceTiers() {
         </Card>
       </div>
 
-      {/* Tier Cards */}
+      {/* Tier Cards - Clean Design Matching Vendor Signup */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        {Object.entries(allTiers).map(([key, tier]) => 
-          tier && tier.features ? (
+        {Object.entries(allTiers).map(([key, tier]) => {
+          const isFirstTimeCustomer = true; // For demo purposes, showing promo pricing
+          const monthlyPrice = tier.price;
+          const discountedPrice = Math.round(monthlyPrice / 2); // 50% off first month
+          
+          return tier && tier.features ? (
           <Card 
             key={key}
-            className={`relative overflow-hidden transition-all cursor-pointer hover:shadow-lg ${
-              selectedTier === key ? tierColors[key as keyof typeof tierColors] : 'bg-white dark:bg-gray-800'
-            }`}
-            onClick={() => setSelectedTier(key)}
+            className={`relative overflow-hidden transition-all bg-white dark:bg-gray-800 border-2 ${
+              key === 'featured' ? 'border-blue-500 shadow-xl scale-105' : 'border-gray-200 dark:border-gray-700'
+            } hover:shadow-lg`}
           >
             {key === 'featured' && (
-              <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 text-sm rounded-bl-lg">
+              <div className="absolute top-0 right-0 bg-blue-600 text-white px-4 py-2 text-sm font-semibold rounded-bl-lg">
                 Most Popular
               </div>
             )}
             
-            <CardHeader className="text-center pb-4">
-              <div className="flex justify-center mb-3">
-                {tierIcons[key as keyof typeof tierIcons]}
-              </div>
-              <CardTitle className="text-xl text-gray-900 dark:text-gray-100">{tier.name}</CardTitle>
-              <div className="mt-4">
-                <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                  {tier.price === 0 ? 'Free' : `$${tier.price}`}
-                </span>
-                {tier.price > 0 && <span className="text-gray-600 dark:text-gray-400">/month</span>}
+            <CardHeader className="text-center pb-6">
+              <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{tier.name}</CardTitle>
+              
+              {/* Pricing with Promo */}
+              <div className="space-y-2">
+                {isFirstTimeCustomer && monthlyPrice > 0 && (
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-gray-500 line-through text-lg">${monthlyPrice}</span>
+                    <Badge className="bg-green-600 text-white">50% OFF</Badge>
+                  </div>
+                )}
+                <div className="flex items-baseline justify-center">
+                  <span className="text-5xl font-bold text-gray-900 dark:text-gray-100">
+                    ${isFirstTimeCustomer && monthlyPrice > 0 ? discountedPrice : monthlyPrice}
+                  </span>
+                  <span className="text-gray-600 dark:text-gray-400 ml-1">/month</span>
+                </div>
+                {isFirstTimeCustomer && monthlyPrice > 0 && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    First month only, then ${monthlyPrice}/month
+                  </p>
+                )}
               </div>
             </CardHeader>
             
-            <CardContent className="space-y-3">
-              <div className="space-y-2">
+            <CardContent className="space-y-4">
+              <div className="space-y-3 pb-4">
                 {/* Tier-specific Features */}
                 {key === 'basic' && (
                   <>
-                    <div className="flex items-center gap-2">
-                      <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Full coverage: 1 State</span>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Full coverage across 1 entire state</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Professional vendor listing & profile</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
                       <span className="text-sm text-gray-700 dark:text-gray-300">Name, phone, category, description</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
                       <span className="text-sm text-gray-700 dark:text-gray-300">Optional $25 verified badge</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Affiliate link support (if provided)</span>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">User reviews & ratings</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Lock className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                      <span className="text-sm text-gray-500 dark:text-gray-400">No logo or analytics</span>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Affiliate link support</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Basic lead notifications</span>
                     </div>
                   </>
                 )}
                 
                 {key === 'featured' && (
                   <>
-                    <div className="flex items-center gap-2">
-                      <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
                       <span className="text-sm text-gray-700 dark:text-gray-300">Coverage across 3 States</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Logo, brand colors, CTA button</span>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Logo & brand customization</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <BarChart3 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Basic analytics (views, clicks, leads)</span>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Basic analytics dashboard</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Gift className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Post vendor promos</span>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Post promotional offers</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Featured placement in vendor carousels</span>
+                    <div className="flex items-start gap-2">
+                      <Star className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5" />
+                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Featured carousel placement</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Must have affiliate link for "Approved" badge</span>
+                    <div className="flex items-start gap-2">
+                      <Shield className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5" />
+                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">MySeniorValet Approved badge</span>
                     </div>
                   </>
                 )}
                 
                 {key === 'national' && (
                   <>
-                    <div className="flex items-center gap-2">
-                      <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Nationwide US & Canada</span>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Nationwide US & Canada coverage</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Banner rotation in vendor discovery areas</span>
+                    <div className="flex items-start gap-2">
+                      <Crown className="w-4 h-4 text-purple-600 dark:text-purple-400 mt-0.5" />
+                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Premium banner placement</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Crown className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Concierge system priority & routing</span>
+                    <div className="flex items-start gap-2">
+                      <Crown className="w-4 h-4 text-purple-600 dark:text-purple-400 mt-0.5" />
+                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Concierge priority routing</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <BarChart3 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">AI-generated lead summaries + scoring</span>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">AI-powered lead insights</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Optional API or CSV lead passback</span>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">API & CSV lead passback</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
                       <span className="text-sm text-gray-700 dark:text-gray-300">Dedicated vendor microsite</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Quarterly performance report</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <PhoneCall className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Optional vendor success call</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Banner rotation</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Briefcase className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Dedicated vendor page</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
                       <span className="text-sm text-gray-700 dark:text-gray-300">Quarterly performance reports</span>
                     </div>
-                  </>
-                )}
-                
-                {key === 'enterprise' && (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <Crown className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Exclusive category access</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Building className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Co-branded integrations</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Revenue share options</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Cross-platform placement</span>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Vendor success calls</span>
                     </div>
                   </>
-                )}
-                
-                {/* Verified Badge */}
-                {key === 'basic' && (
-                  <div className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">$25 verification badge add-on</span>
-                  </div>
-                )}
-                
-                {(key === 'featured' || key === 'national' || key === 'enterprise') && (
-                  <div className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">MySeniorValet Approved badge</span>
-                  </div>
                 )}
               </div>
               
               <Button 
-                className="w-full mt-4"
-                variant={selectedTier === key ? "default" : "outline"}
+                className={`w-full mt-4 ${
+                  key === 'featured' 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                    : key === 'national'
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white'
+                    : 'bg-gray-900 hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900'
+                }`}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleUpgrade(key);
                 }}
               >
-                {key === 'basic' ? 'Start Your Journey' : key === 'featured' ? 'Grow Your Impact' : 'Maximize Your Reach'}
+                {key === 'basic' ? 'Get Started' : key === 'featured' ? 'Choose Featured' : 'Go National'}
               </Button>
             </CardContent>
           </Card>
           ) : null
-        )}
+        })}
       </div>
 
       {/* Call to Action */}
