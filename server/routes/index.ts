@@ -52,6 +52,7 @@ import { registerStripeTestRoutes } from "./stripe-test";
 import { registerStripeRealChargeRoutes } from "./stripe-real-charge-test";
 import { registerCommunityStripeRoutes } from "./community-stripe";
 import { registerVendorStripeRoutes } from "./vendor-stripe";
+import unifiedPaymentRoutes from "./unifiedPaymentRoutes";
 
 // Import existing routers
 import { quizRouter } from "./quiz";
@@ -95,11 +96,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerClaimRoutes(app);
   registerReviewRoutes(app);
   registerFamilyRoutes(app);
+  
+  // Payment Routes - Legacy routes first for compatibility
   registerPaymentRoutes(app);
   registerStripeTestRoutes(app);
   registerStripeRealChargeRoutes(app);
   registerCommunityStripeRoutes(app);
   registerVendorStripeRoutes(app);
+  
+  // Unified Payment System (handles all tiers with Stripe Elements & Webhooks)
+  app.use('/api/payments', unifiedPaymentRoutes);
+  
   registerStatsRoutes(app);
   registerPricingRoutes(app);
   app.use(notificationRoutes);
