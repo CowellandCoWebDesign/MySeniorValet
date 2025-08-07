@@ -48,6 +48,7 @@ import authenticPricingRoutes from "./authentic-pricing-routes";
 import weaviateRoutes from "./weaviate-routes";
 import enhancedWeaviateRoutes from "./enhanced-weaviate-routes";
 import { registerPlatformRoutes } from "./platformRoutes";
+import { registerCommunityOnboardingRoutes } from "./communityOnboardingRoutes";
 // DISABLED: Old Stripe routes - replaced by unifiedPaymentRoutes
 // import { registerStripeTestRoutes } from "./stripe-test";
 // import { registerStripeRealChargeRoutes } from "./stripe-real-charge-test";
@@ -78,6 +79,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerAuthRoutes(app);
   registerQuickAuthRoutes(app);
   registerPlatformRoutes(app);
+  
+  // Register community onboarding routes
+  registerCommunityOnboardingRoutes(app);
   // CRITICAL: Register mapping routes BEFORE community routes to prevent /:id interception
   registerMappingRoutes(app);
   registerMappingFixRoutes(app);
