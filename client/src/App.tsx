@@ -83,6 +83,7 @@ import TestDebug from "@/pages/test-debug";
 import TestMapViews from "@/pages/test-map-views";
 import AuthDebug from "@/pages/auth-debug";
 import AISearch from "@/pages/ai-search";
+import PaymentDemo from "@/pages/payment-demo";
 import WeaviateTest from "@/pages/weaviate-test";
 import DataQualityDashboard from "@/pages/data-quality-dashboard";
 import DatabaseTest from "@/pages/database-test";
@@ -241,6 +242,7 @@ function Router() {
       <Route path="/payment-recovery" component={PaymentRecovery} />
       <Route path="/community-onboarding/:communityId" component={CommunityOnboarding} />
       <Route path="/vendor-onboarding/:vendorId" component={VendorOnboarding} />
+      <Route path="/payment-demo" component={PaymentDemo} />
       <Route component={NotFound} />
     </Switch>
   );
