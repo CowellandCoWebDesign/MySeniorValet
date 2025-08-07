@@ -944,27 +944,34 @@ export function registerSearchRoutes(app: Express) {
   // Supercluster endpoint for map clustering
   app.get('/api/communities/clusters', async (req, res) => {
     try {
-      const { swLat, swLng, neLat, neLng, zoom } = req.query;
+      // Support both parameter formats for compatibility
+      const west = req.query.west || req.query.swLng;
+      const south = req.query.south || req.query.swLat;
+      const east = req.query.east || req.query.neLng;
+      const north = req.query.north || req.query.neLat;
+      const zoom = req.query.zoom;
       
-      if (!swLat || !swLng || !neLat || !neLng || !zoom) {
+      if (!west || !south || !east || !north || !zoom) {
         return res.status(400).json({ 
-          error: 'Missing required parameters. Required: swLat, swLng, neLat, neLng, zoom' 
+          error: 'Missing required parameters. Required: west/swLng, south/swLat, east/neLng, north/neLat, zoom' 
         });
       }
 
-      const bounds = {
-        swLat: parseFloat(swLat as string),
-        swLng: parseFloat(swLng as string),
-        neLat: parseFloat(neLat as string),
-        neLng: parseFloat(neLng as string)
-      };
+      // Convert to bbox array format [west, south, east, north]
+      const bbox: [number, number, number, number] = [
+        parseFloat(west as string),
+        parseFloat(south as string),
+        parseFloat(east as string),
+        parseFloat(north as string)
+      ];
       
       const clusters = await superclusterService.getClusters(
-        bounds,
+        bbox,
         parseInt(zoom as string)
       );
       
-      res.json(clusters);
+      // Return in the format expected by the Map component
+      res.json({ clusters });
     } catch (error) {
       console.error('Cluster error:', error);
       res.status(500).json({ error: 'Failed to get clusters' });
