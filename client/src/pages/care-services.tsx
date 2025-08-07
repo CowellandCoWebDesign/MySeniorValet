@@ -45,15 +45,15 @@ export default function CareServices() {
       <div className="container mx-auto py-8 px-4 max-w-7xl mt-16">
         {/* Header Section */}
         <div className="text-center mb-8">
-          <Badge className="px-4 py-2 text-base bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 mb-4">
+          <Badge className="px-4 py-2 text-base bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 mb-4">
             <Heart className="w-4 h-4 mr-2" />
-            Comprehensive Healthcare Provider Directory - 100% FREE
+            Healthcare Provider Network - Join FREE
           </Badge>
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Complete Healthcare & Care Services Platform
+          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+            Healthcare Provider Portal
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-4">
-            Your gateway to hospitals, care services, and insurance networks - all in one place
+            List your healthcare services and connect with 34,000+ senior living communities
           </p>
           
           {/* Healthcare Ecosystem Overview */}
@@ -62,7 +62,7 @@ export default function CareServices() {
               {/* Active Services */}
               <div>
                 <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                  🟢 Active Healthcare Services (ALL SEARCHABLE):
+                  🟢 Service Categories You Can List:
                 </p>
                 
                 {/* Primary Healthcare */}
@@ -141,7 +141,7 @@ export default function CareServices() {
           
           <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <Info className="w-4 h-4" />
-            <span>One platform. Complete healthcare access. All for seniors.</span>
+            <span>Join our network to reach thousands of senior communities actively searching for services</span>
           </div>
           
           {/* Call to Action for Providers */}
