@@ -63,6 +63,8 @@ import financialRoutes from "./financial-api";
 import { registerLegalRoutes } from "./legal-api";
 import seniorServicesRoutes from "./senior-services";
 import realDataRoutes from "./real-data-api";
+import socialMediaRoutes from "./social-media-api";
+import emailCampaignRoutes from "./email-campaign-api";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize Replit Auth before other routes
@@ -164,6 +166,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerLegalRoutes(app);
   app.use('/api/services', seniorServicesRoutes);
   app.use('/api/real-data', realDataRoutes);
+  app.use('/api/social-media', socialMediaRoutes);
+  app.use('/api/email-campaign', emailCampaignRoutes);
 
   return httpServer;
 }

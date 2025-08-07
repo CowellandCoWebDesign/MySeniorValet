@@ -128,6 +128,7 @@ import VendorOnboarding from "@/pages/vendor-onboarding";
 import VendorOnboardingWizard from "@/pages/vendor-onboarding-wizard";
 import VendorTierTest from "@/pages/vendor-tier-test";
 import CommunityCreatorPortal from "@/pages/community-creator-portal";
+import MarketingHub from "@/pages/marketing-hub";
 
 function Router() {
   const [location] = useLocation();
@@ -260,6 +261,7 @@ function Router() {
       <Route path="/vendor-tier-test" component={VendorTierTest} />
       <Route path="/community-creator" component={CommunityCreatorPortal} />
       <Route path="/community-creator-portal" component={CommunityCreatorPortal} />
+      <Route path="/marketing-hub" component={MarketingHub} />
       <Route path="/payment-demo" component={PaymentDemo} />
       <Route component={NotFound} />
     </Switch>
