@@ -206,15 +206,15 @@ export default function VendorMarketplaceTiers() {
             seeking trusted commercial services and products
           </p>
           
-          {/* Clean Promotional Offers - Matching Vendor Signup Style */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-            <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full px-6 py-3 shadow-lg flex items-center gap-2">
-              <Sparkles className="w-5 h-5" />
-              <span className="font-semibold">Limited Time: First month 50% off!</span>
+          {/* Compact Promotional Offers - Mobile Optimized */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+            <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full px-4 py-2 sm:px-5 sm:py-2.5 shadow-lg flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              <span className="font-semibold text-sm sm:text-base">Limited Time: First month 50% off!</span>
             </div>
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full px-6 py-3 shadow-lg flex items-center gap-2">
-              <TrendingUp className="w-5 h-5" />
-              <span className="font-semibold">Save 20% with annual billing!</span>
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full px-4 py-2 sm:px-5 sm:py-2.5 shadow-lg flex items-center gap-2">
+              <TrendingUp className="w-4 h-4" />
+              <span className="font-semibold text-sm sm:text-base">Save 20% with annual billing!</span>
             </div>
           </div>
           {/* Enhanced Healthcare Directory Link */}
