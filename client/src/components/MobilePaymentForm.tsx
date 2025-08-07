@@ -153,8 +153,19 @@ export function MobilePaymentForm(props: MobilePaymentFormProps) {
     const createPaymentIntent = async () => {
       try {
         // Determine tier and type from productId
-        const tier = props.productId; // productId is actually the tier name (standard, featured, platinum, etc.)
-        const type = ['standard', 'featured', 'platinum'].includes(tier) ? 'community' : 'vendor';
+        // Map vendor product IDs to correct tier names
+        const tierMap: Record<string, string> = {
+          'basic-vendor': 'basic',
+          'featured-vendor': 'featured',
+          'national-partner': 'national',
+          'standard': 'standard',
+          'featured': 'featured',
+          'platinum': 'platinum',
+          'verified': 'verified'
+        };
+        
+        const tier = tierMap[props.productId] || props.productId;
+        const type = ['standard', 'featured', 'platinum', 'verified'].includes(tier) ? 'community' : 'vendor';
         
         const response = await fetch('/api/payments/create-payment-intent', {
           method: 'POST',

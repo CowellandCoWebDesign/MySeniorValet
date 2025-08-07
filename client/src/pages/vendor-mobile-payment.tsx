@@ -220,7 +220,7 @@ export default function VendorMobilePayment() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center pb-4 border-b">
                     <span className="font-semibold">{product.name}</span>
-                    <span className="text-2xl font-bold">${product.price}/mo</span>
+                    <span className="text-2xl font-bold">${product.price / 100}/mo</span>
                   </div>
                   
                   <div>
@@ -255,7 +255,7 @@ export default function VendorMobilePayment() {
                 <MobilePaymentForm
                   productId={product.id}
                   productName={product.name}
-                  price={product.price * 100}
+                  price={product.price}
                   metadata={{
                     businessName: vendorData.businessName,
                     email: vendorData.email,
