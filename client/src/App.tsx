@@ -121,6 +121,7 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import TermsOfService from "@/pages/terms-of-service";
 import PrivacyPolicy from "@/pages/privacy-policy";
 import CookiePolicy from "@/pages/cookie-policy";
+import LegalDocumentHistory from "@/pages/legal-document-history";
 import PaymentRecovery from "@/pages/payment-recovery";
 import CommunityOnboarding from "@/pages/community-onboarding";
 import VendorOnboarding from "@/pages/vendor-onboarding";
@@ -191,6 +192,7 @@ function Router() {
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/cookie-policy" component={CookiePolicy} />
+      <Route path="/legal-document-history" component={LegalDocumentHistory} />
       <Route path="/disclaimer" component={Disclaimer} />
       <Route path="/accessibility" component={Accessibility} />
       <Route path="/mission" component={Mission} />

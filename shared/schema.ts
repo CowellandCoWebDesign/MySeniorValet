@@ -223,6 +223,139 @@ export const communityReports = pgTable("community_reports", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Legal Document Version Control System
+export const legalDocumentVersions = pgTable("legal_document_versions", {
+  id: serial("id").primaryKey(),
+  documentType: varchar("document_type", { enum: ["terms", "privacy", "cookie"] }).notNull(),
+  version: varchar("version").notNull(), // e.g., "2.1", "3.0"
+  title: varchar("title").notNull(),
+  content: text("content").notNull(), // Full document content
+  contentHash: varchar("content_hash").notNull(), // SHA-256 hash for integrity
+  effectiveDate: timestamp("effective_date").notNull(),
+  publishedDate: timestamp("published_date"),
+  status: varchar("status", { enum: ["draft", "review", "approved", "active", "superseded", "archived"] }).default("draft"),
+  changes: json("changes").$type<string[]>().default([]), // List of changes made
+  authorId: varchar("author_id").references(() => users.id).notNull(),
+  reviewedBy: varchar("reviewed_by").references(() => users.id),
+  approvedBy: varchar("approved_by").references(() => users.id),
+  reviewDate: timestamp("review_date"),
+  approvalDate: timestamp("approval_date"),
+  complianceNotes: json("compliance_notes").$type<string[]>().default([]),
+  regulatoryRequirements: json("regulatory_requirements").$type<{
+    gdpr?: boolean;
+    ccpa?: boolean;
+    pipeda?: boolean; // Canada
+    stateSpecific?: string[]; // State-specific requirements
+    industryStandards?: string[];
+  }>().default({}),
+  metadata: json("metadata").$type<{
+    fileSize?: number;
+    wordCount?: number;
+    sections?: string[];
+    lastModified?: string;
+    template?: string;
+  }>().default({}),
+  supersededVersionId: integer("superseded_version_id").references(() => legalDocumentVersions.id),
+  isActive: boolean("is_active").default(false),
+  viewCount: integer("view_count").default(0),
+  downloadCount: integer("download_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("legal_document_versions_document_type_idx").on(table.documentType),
+  index("legal_document_versions_status_idx").on(table.status),
+  index("legal_document_versions_effective_date_idx").on(table.effectiveDate),
+  index("legal_document_versions_is_active_idx").on(table.isActive),
+]);
+
+// Legal Document Audit Trail
+export const legalDocumentAuditTrail = pgTable("legal_document_audit_trail", {
+  id: serial("id").primaryKey(),
+  documentVersionId: integer("document_version_id").references(() => legalDocumentVersions.id).notNull(),
+  documentType: varchar("document_type", { enum: ["terms", "privacy", "cookie"] }).notNull(),
+  version: varchar("version").notNull(),
+  action: varchar("action", { 
+    enum: ["created", "updated", "reviewed", "approved", "published", "superseded", "archived", "viewed", "downloaded", "accessed", "printed"] 
+  }).notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  userName: varchar("user_name"),
+  userRole: varchar("user_role"),
+  ipAddress: varchar("ip_address"),
+  userAgent: text("user_agent"),
+  sessionId: varchar("session_id"),
+  details: text("details"), // Additional context about the action
+  severity: varchar("severity", { enum: ["info", "warning", "critical"] }).default("info"),
+  location: varchar("location"), // Geographic location if available
+  deviceInfo: json("device_info").$type<{
+    browser?: string;
+    os?: string;
+    device?: string;
+    mobile?: boolean;
+  }>(),
+  referrer: varchar("referrer"), // How they accessed the document
+  previousVersion: varchar("previous_version"),
+  changesSummary: json("changes_summary").$type<{
+    added?: string[];
+    modified?: string[];
+    removed?: string[];
+    sections?: string[];
+  }>(),
+  complianceFlags: json("compliance_flags").$type<{
+    requiresReview?: boolean;
+    breakingChange?: boolean;
+    regulatoryImpact?: string[];
+    notificationRequired?: boolean;
+  }>(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+}, (table) => [
+  index("legal_document_audit_trail_document_type_idx").on(table.documentType),
+  index("legal_document_audit_trail_action_idx").on(table.action),
+  index("legal_document_audit_trail_timestamp_idx").on(table.timestamp),
+  index("legal_document_audit_trail_user_id_idx").on(table.userId),
+  index("legal_document_audit_trail_severity_idx").on(table.severity),
+]);
+
+// User Consent Records for GDPR/CCPA compliance
+export const userConsentRecords = pgTable("user_consent_records", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id),
+  sessionId: varchar("session_id"),
+  ipAddress: varchar("ip_address").notNull(),
+  userAgent: text("user_agent"),
+  consentType: varchar("consent_type", { 
+    enum: ["cookie", "privacy_policy", "terms_of_service", "marketing", "analytics"] 
+  }).notNull(),
+  consentStatus: boolean("consent_status").notNull(), // true = granted, false = denied
+  consentDetails: json("consent_details").$type<{
+    essential?: boolean;
+    analytics?: boolean;
+    marketing?: boolean;
+    personalization?: boolean;
+    specificCookies?: string[];
+    optOutMethods?: string[];
+  }>(),
+  legalBasis: varchar("legal_basis"), // GDPR legal basis (consent, legitimate interest, etc.)
+  documentVersion: varchar("document_version"), // Version of document consented to
+  jurisdiction: varchar("jurisdiction"), // User's jurisdiction (US-CA, EU, etc.)
+  withdrawalDate: timestamp("withdrawal_date"), // When consent was withdrawn
+  withdrawalMethod: varchar("withdrawal_method"), // How consent was withdrawn
+  renewalDate: timestamp("renewal_date"), // When consent needs renewal
+  isActive: boolean("is_active").default(true),
+  metadata: json("metadata").$type<{
+    pageUrl?: string;
+    referrer?: string;
+    campaignSource?: string;
+    consentMethod?: string; // banner, form, settings page
+  }>(),
+  consentedAt: timestamp("consented_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("user_consent_records_user_id_idx").on(table.userId),
+  index("user_consent_records_consent_type_idx").on(table.consentType),
+  index("user_consent_records_consented_at_idx").on(table.consentedAt),
+  index("user_consent_records_is_active_idx").on(table.isActive),
+]);
+
 export const communities = pgTable("communities", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),

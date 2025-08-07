@@ -60,6 +60,7 @@ import unifiedPaymentRoutes from "./unifiedPaymentRoutes";
 import { quizRouter } from "./quiz";
 import reservationRoutes from "./reservations";
 import financialRoutes from "./financial-api";
+import { registerLegalRoutes } from "./legal-api";
 import seniorServicesRoutes from "./senior-services";
 import realDataRoutes from "./real-data-api";
 
@@ -160,6 +161,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/quiz', quizRouter);
   app.use('/api/reservations', reservationRoutes);
   app.use('/api/financial', financialRoutes);
+  registerLegalRoutes(app);
   app.use('/api/services', seniorServicesRoutes);
   app.use('/api/real-data', realDataRoutes);
 
