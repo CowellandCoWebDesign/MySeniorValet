@@ -10,7 +10,7 @@ import { useLocation } from "wouter";
 import { 
   Heart, Search, Filter, MapPin, Phone, Globe, Mail, CheckCircle, 
   Shield, Clock, Users, Star, Building2, ChevronRight, Info, Plus,
-  Activity, Package, Brain, User, MessageCircle, Car
+  Activity, Package, Brain, User, MessageCircle, Car, Home
 } from "lucide-react";
 
 interface HealthcareProvider {
@@ -420,12 +420,12 @@ export default function CareServices() {
                     </CardHeader>
                     <CardContent className="pt-0">
                       {/* Rating Stars Display */}
-                      {hospital.cmsRating && (
+                      {hospital.cmsRating !== undefined && (
                         <div className="flex items-center gap-1 mb-3">
                           {[...Array(5)].map((_, i) => (
                             <Star 
                               key={i} 
-                              className={`w-4 h-4 ${i < hospital.cmsRating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300 dark:text-gray-600'}`} 
+                              className={`w-4 h-4 ${i < hospital.cmsRating! ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300 dark:text-gray-600'}`} 
                             />
                           ))}
                           <span className="text-sm text-gray-600 dark:text-gray-400 ml-1">
@@ -532,38 +532,8 @@ export default function CareServices() {
               } else {
                 const provider = item as HealthcareProvider & { type: 'provider' };
                 
-                // Define gradient colors for each service type
-                const serviceTypeColors: { [key: string]: string } = {
-                  home_health: 'from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800',
-                  hospice: 'from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800',
-                  physical_therapy: 'from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-orange-200 dark:border-orange-800',
-                  occupational_therapy: 'from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border-yellow-200 dark:border-yellow-800',
-                  speech_therapy: 'from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 border-teal-200 dark:border-teal-800',
-                  adult_day: 'from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800',
-                  personal_care: 'from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 border-pink-200 dark:border-pink-800',
-                  respite: 'from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border-amber-200 dark:border-amber-800',
-                  medical_equipment: 'from-gray-50 to-slate-50 dark:from-gray-900/20 dark:to-slate-900/20 border-gray-200 dark:border-gray-800',
-                  mental_health: 'from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-indigo-200 dark:border-indigo-800',
-                  transportation: 'from-slate-50 to-gray-50 dark:from-slate-900/20 dark:to-gray-900/20 border-slate-200 dark:border-slate-800'
-                };
-                
-                // Define icon colors
-                const iconColors: { [key: string]: string } = {
-                  home_health: 'from-green-500 to-emerald-600',
-                  hospice: 'from-purple-500 to-pink-600',
-                  physical_therapy: 'from-orange-500 to-red-600',
-                  occupational_therapy: 'from-yellow-500 to-amber-600',
-                  speech_therapy: 'from-teal-500 to-cyan-600',
-                  adult_day: 'from-blue-500 to-indigo-600',
-                  personal_care: 'from-pink-500 to-rose-600',
-                  respite: 'from-amber-500 to-yellow-600',
-                  medical_equipment: 'from-gray-500 to-slate-600',
-                  mental_health: 'from-indigo-500 to-purple-600',
-                  transportation: 'from-slate-500 to-gray-600'
-                };
-                
                 const serviceTypeIcons: { [key: string]: any } = {
-                  home_health: Heart,
+                  home_health: Home,
                   hospice: Heart,
                   physical_therapy: Activity,
                   occupational_therapy: Activity,
@@ -576,133 +546,111 @@ export default function CareServices() {
                   transportation: Car
                 };
                 
-                const bgColor = serviceTypeColors[provider.serviceType] || 'from-gray-50 to-slate-50 dark:from-gray-900/20 dark:to-slate-900/20 border-gray-200 dark:border-gray-800';
-                const iconGradient = iconColors[provider.serviceType] || 'from-gray-500 to-slate-600';
                 const IconComponent = serviceTypeIcons[provider.serviceType] || Heart;
                 
                 return (
                   <Card 
                     key={`provider-${provider.id}`} 
-                    className={`hover:shadow-xl transition-all duration-300 cursor-pointer bg-gradient-to-br ${bgColor} border-2 relative overflow-hidden`}
+                    className="hover:shadow-lg transition-shadow cursor-pointer"
                     onClick={() => handleProviderClick(provider)}
                   >
-                    {/* Verified Badge - Top Right */}
-                    {provider.isVerified && (
-                      <div className="absolute top-3 right-3 z-10">
-                        <Badge className="bg-green-500 text-white px-2 py-1">
-                          ✓ VERIFIED
-                        </Badge>
-                      </div>
-                    )}
-                    
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start gap-4">
-                        {/* Icon */}
-                        <div className={`w-14 h-14 bg-gradient-to-br ${iconGradient} rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0`}>
-                          <IconComponent className="w-7 h-7 text-white" />
+                    <CardHeader className="pb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                          <IconComponent className="w-6 h-6 text-white" />
                         </div>
-                        {/* Title and Service Type */}
-                        <div className="flex-1 min-w-0">
-                          <CardTitle className="text-xl font-bold text-gray-900 dark:text-gray-100 line-clamp-1">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg font-semibold">
                             {provider.businessName}
                           </CardTitle>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                            {serviceTypeLabels[provider.serviceType] || provider.otherServiceType}
-                          </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            {provider.metadata?.emergencyAvailable && (
+                              <Badge className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">
+                                🚨 Emergency
+                              </Badge>
+                            )}
+                            <span className="text-sm text-gray-600 dark:text-gray-400">
+                              {serviceTypeLabels[provider.serviceType] || provider.otherServiceType}
+                            </span>
+                          </div>
                         </div>
+                        {provider.isVerified && (
+                          <Badge className="bg-blue-600 text-white">
+                            ★ VERIFIED
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {/* Star rating placeholder - providers don't have ratings yet */}
+                      <div className="flex items-center gap-1 mt-3">
+                        {[1, 2, 3].map((star) => (
+                          <Star
+                            key={star}
+                            className="w-4 h-4 text-gray-300"
+                          />
+                        ))}
+                        <span className="text-sm text-gray-600 ml-1">(3/5)</span>
                       </div>
                     </CardHeader>
                     
-                    <CardContent className="pt-0">
-                      {/* Description */}
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-                        {provider.description}
-                      </p>
-                      
-                      {/* Services offered - Clean list */}
-                      {provider.services && provider.services.length > 0 && (
-                        <div className="mb-4">
-                          <div className="flex flex-wrap gap-1">
-                            {provider.services.slice(0, 3).map((service) => (
-                              <div key={service} className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
-                                <CheckCircle className="w-3 h-3 text-green-500" />
-                                <span>{service}</span>
-                              </div>
-                            ))}
-                          </div>
+                    <CardContent>
+                      {/* Location */}
+                      <div className="flex items-center gap-2 mb-4">
+                        <MapPin className="w-4 h-4 text-gray-500" />
+                        <div>
+                          <p className="text-sm font-medium">{(provider.city || 'Multiple Locations').toUpperCase()}, {provider.state}</p>
+                          <p className="text-xs text-gray-600">{provider.address || `Serving ${provider.city || 'multiple'} area`}</p>
                         </div>
-                      )}
-                      
-                      {/* Location and Insurance */}
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                          <MapPin className="w-4 h-4" />
-                          <span>{provider.city}, {provider.state}</span>
-                        </div>
-                        
-                        {/* Insurance badges */}
-                        {provider.insuranceAccepted && provider.insuranceAccepted.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {provider.insuranceAccepted.slice(0, 3).map((insurance) => (
-                              <Badge key={insurance} variant="secondary" className="text-xs">
-                                {insurance}
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
                       </div>
                       
-                      {/* Special Features */}
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {provider.metadata?.emergencyAvailable && (
-                          <Badge className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 text-xs">
-                            24/7 AVAILABLE
-                          </Badge>
-                        )}
-                        {provider.metadata?.acceptingNewPatients && (
-                          <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 text-xs">
-                            ACCEPTING NEW
-                          </Badge>
-                        )}
-                        {provider.metadata?.yearsInBusiness && provider.metadata.yearsInBusiness > 10 && (
-                          <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 text-xs">
-                            {provider.metadata.yearsInBusiness}+ YEARS
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      {/* Contact Information - Clean layout */}
-                      <div className="border-t pt-3 space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Phone className="w-4 h-4 text-gray-500" />
-                          <a 
-                            href={`tel:${provider.phone}`}
-                            className="text-sm font-medium text-blue-600 hover:underline"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {provider.phone}
-                          </a>
-                        </div>
-                        {provider.website && (
-                          <div className="flex items-center gap-2">
-                            <Globe className="w-4 h-4 text-gray-500" />
-                            <a 
-                              href={provider.website}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-sm text-blue-600 hover:underline truncate"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              Visit Website
-                            </a>
+                      {/* Key Stats - matching hospital card style */}
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        {provider.metadata?.yearsInBusiness && (
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-blue-600">
+                              {provider.metadata.yearsInBusiness}+
+                            </div>
+                            <div className="text-xs text-gray-600">Years</div>
                           </div>
                         )}
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-blue-600">
+                            {provider.metadata?.acceptingNewPatients ? 'Open' : 'Limited'}
+                          </div>
+                          <div className="text-xs text-gray-600">Availability</div>
+                        </div>
                       </div>
                       
-                      {/* View Details Button */}
+                      {/* Services */}
+                      <div className="mb-4">
+                        <p className="text-sm font-medium mb-2">Services:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {provider.services.slice(0, 4).map((service) => (
+                            <Badge key={service} className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                              {service}
+                            </Badge>
+                          ))}
+                          {provider.services.length > 4 && (
+                            <Badge variant="outline">+{provider.services.length - 4} more</Badge>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Phone */}
+                      <div className="flex items-center gap-2 mb-4">
+                        <Phone className="w-4 h-4 text-gray-500" />
+                        <a 
+                          href={`tel:${provider.phone}`}
+                          className="text-blue-600 hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {provider.phone}
+                        </a>
+                      </div>
+                      
+                      {/* Action Button */}
                       <Button 
-                        className="w-full mt-4" 
-                        variant="default"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleProviderClick(provider);
