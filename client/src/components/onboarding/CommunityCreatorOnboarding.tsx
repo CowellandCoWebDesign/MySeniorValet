@@ -283,10 +283,10 @@ export function CommunityCreatorOnboarding({
               <div>
                 <Label htmlFor="state">State *</Label>
                 <Select value={formData.state} onValueChange={(value) => updateFormData('state', value)}>
-                  <SelectTrigger className="mt-1">
+                  <SelectTrigger className="mt-1" id="state">
                     <SelectValue placeholder="Select state" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[200px] overflow-y-auto">
                     {stateOptions.map(state => (
                       <SelectItem key={state} value={state}>{state}</SelectItem>
                     ))}

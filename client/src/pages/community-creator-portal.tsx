@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { CommunityCreatorTutorial } from '@/components/onboarding/CommunityCreatorTutorial';
 import { CommunityCreatorOnboarding } from '@/components/onboarding/CommunityCreatorOnboarding';
+import { CommunityCreatorHighlights } from '@/components/onboarding/CommunityCreatorHighlights';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -242,34 +243,9 @@ export default function CommunityCreatorPortal() {
           ))}
         </div>
 
-        {/* Features Grid */}
+        {/* Platform Highlights */}
         <div className="mb-12">
-          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-8">
-            Everything You Need to Succeed
-          </h2>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
-              <Card key={index} className="text-center hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mx-auto mb-4">
-                    <feature.icon className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <CardTitle className="text-lg">{feature.title}</CardTitle>
-                    <Badge className={feature.badgeColor}>
-                      {feature.badge}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    {feature.description}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <CommunityCreatorHighlights />
         </div>
 
         {/* Success Stories */}

@@ -66,10 +66,10 @@ const tutorialSteps: TutorialStep[] = [
     content: 'Hello! I\'m Sage, and I\'m excited to help you join MySeniorValet\'s network of trusted senior living communities. Together, we\'ll create a compelling profile that showcases everything your community offers.',
     actionText: 'Let\'s get started!',
     benefits: [
-      'Reach 50,000+ families actively searching',
-      'Access to HUD-verified pricing transparency',
-      'Professional community management tools',
-      'Direct family communication features'
+      'Show real-time room availability instantly',
+      'Display live, transparent pricing to families',
+      'Respond to reviews and build trust',
+      'Message families directly in the app'
     ]
   },
   {
@@ -105,15 +105,15 @@ const tutorialSteps: TutorialStep[] = [
     description: 'Discover how paid tiers help you stand out and attract families',
     icon: Zap,
     character: 'builder',
-    content: 'Ready to supercharge your community\'s visibility? Paid tiers add photo galleries, detailed amenity listings, priority placement, and direct family messaging. Let me show you the impact.',
+    content: 'Ready to supercharge your community\'s visibility? Paid tiers unlock powerful features that convert browsers into residents. Show live availability, manage pricing in real-time, and track every tour with our new Tour Track super review system!',
     actionText: 'See the difference',
     visualDemo: 'feature-showcase',
     benefits: [
-      'Photo galleries and virtual tours',
-      'Priority search placement',
-      'Detailed amenity showcases',
-      'Direct family messaging system',
-      'Advanced analytics dashboard'
+      'Live availability updates - families see what\'s open NOW',
+      'Real-time pricing - no more "call for pricing" frustration',
+      'Tour Track™ - our exclusive tour review system',
+      'In-app messaging - respond to families instantly',
+      'Highlight specials and move-in incentives prominently'
     ]
   },
   {
@@ -150,13 +150,13 @@ const tutorialSteps: TutorialStep[] = [
     description: 'Join 34,000+ communities already connecting with families',
     icon: CheckCircle2,
     character: 'builder',
-    content: 'That\'s it! You now know everything you need to create a successful community profile. Whether you start free or jump to a paid tier, you\'ll be connecting with families in minutes.',
+    content: 'That\'s it! You now know everything you need to create a successful community profile. Remember - families love transparency! Show your availability, pricing, and respond to reviews to build trust and fill beds faster.',
     actionText: 'Create my community',
     benefits: [
-      'Join 34,000+ listed communities',
-      'Immediate family visibility',
-      'Professional support team',
-      'Continuous platform improvements'
+      'Families can see your real-time availability 24/7',
+      'No more "call for pricing" - show rates with confidence',
+      'Build trust with Tour Track™ reviews',
+      'Convert inquiries faster with in-app messaging'
     ]
   }
 ];
@@ -285,29 +285,34 @@ export function CommunityCreatorTutorial({
         <div className="space-y-4 mt-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
-              <div className="w-12 h-12 mx-auto bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center mb-2">
-                <Camera className="w-6 h-6 text-gray-400" />
+              <div className="w-12 h-12 mx-auto bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-2">
+                <CheckCircle2 className="w-6 h-6 text-green-600" />
               </div>
-              <p className="text-xs font-medium">Photo Galleries</p>
+              <p className="text-xs font-medium">Live Availability</p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 mx-auto bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-2">
-                <Users className="w-6 h-6 text-blue-600" />
+                <DollarSign className="w-6 h-6 text-blue-600" />
               </div>
-              <p className="text-xs font-medium">Family Messaging</p>
-            </div>
-            <div className="text-center">
-              <div className="w-12 h-12 mx-auto bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-2">
-                <Star className="w-6 h-6 text-green-600" />
-              </div>
-              <p className="text-xs font-medium">Priority Search</p>
+              <p className="text-xs font-medium">Real-Time Pricing</p>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 mx-auto bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-2">
-                <Heart className="w-6 h-6 text-purple-600" />
+                <Star className="w-6 h-6 text-purple-600" />
               </div>
-              <p className="text-xs font-medium">Amenity Showcase</p>
+              <p className="text-xs font-medium">Tour Track™</p>
             </div>
+            <div className="text-center">
+              <div className="w-12 h-12 mx-auto bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center mb-2">
+                <Gift className="w-6 h-6 text-yellow-600" />
+              </div>
+              <p className="text-xs font-medium">Specials & Incentives</p>
+            </div>
+          </div>
+          <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-3 text-center">
+            <p className="text-xs text-blue-800 dark:text-blue-200 font-medium">
+              💡 Tour Track™ lets families review their tour experience, building trust before move-in!
+            </p>
           </div>
         </div>
       );
