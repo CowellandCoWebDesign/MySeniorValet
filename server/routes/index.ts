@@ -97,12 +97,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerReviewRoutes(app);
   registerFamilyRoutes(app);
   
-  // Payment Routes - Legacy routes first for compatibility
-  registerPaymentRoutes(app);
-  registerStripeTestRoutes(app);
-  registerStripeRealChargeRoutes(app);
-  registerCommunityStripeRoutes(app);
-  registerVendorStripeRoutes(app);
+  // Payment Routes - Legacy routes disabled, using unified payment system
+  // registerPaymentRoutes(app); // DISABLED - conflicts with unified payment routes
+  // registerStripeTestRoutes(app); // DISABLED - replaced by unified system
+  // registerStripeRealChargeRoutes(app); // DISABLED - replaced by unified system
+  // registerCommunityStripeRoutes(app); // DISABLED - replaced by unified system
+  // registerVendorStripeRoutes(app); // DISABLED - replaced by unified system
   
   // Unified Payment System (handles all tiers with Stripe Elements & Webhooks)
   app.use('/api/payments', unifiedPaymentRoutes);

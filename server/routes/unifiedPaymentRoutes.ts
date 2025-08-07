@@ -90,15 +90,6 @@ router.post('/create-payment-intent', async (req: Request, res: Response) => {
     console.log(`Creating payment intent: $${tierInfo.price / 100} for ${tierInfo.name}`);
     console.log('Tier info:', { tier, type, price: tierInfo.price, name: tierInfo.name });
     
-    // Validate amount (Stripe requires minimum 50 cents)
-    if (tierInfo.price < 50) {
-      return res.status(400).json({ 
-        error: 'Invalid amount',
-        details: 'Stripe requires minimum 50 cents',
-        amount: tierInfo.price 
-      });
-    }
-    
     // Create payment intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: tierInfo.price,
@@ -316,8 +307,8 @@ async function handleWebhookEvent(event: Stripe.Event) {
           await db.update(subscriptions)
             .set({
               status: subscription.status as 'active' | 'canceled' | 'incomplete' | 'incomplete_expired' | 'past_due' | 'trialing' | 'unpaid',
-              currentPeriodStart: new Date(subscription.current_period_start * 1000),
-              currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+              currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+              currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
               updatedAt: new Date(),
             })
             .where(eq(subscriptions.stripeSubscriptionId, subscription.id));
