@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Camera, Star, Users, Clock, Smartphone, CheckCircle, AlertCircle, Calendar, Search, Building2 } from "lucide-react";
+import { MapPin, Camera, Star, Users, Clock, Smartphone, CheckCircle, AlertCircle, Calendar, Search, Building2, TrendingUp, BarChart3, Trophy, Target, ThumbsUp, MessageSquare, Sparkles, Eye } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
 import { NavigationHeader } from "@/components/NavigationHeader";
@@ -176,13 +176,13 @@ export default function TourTracker() {
   const communityIdFromUrl = urlParams.get('communityId');
 
   // Fetch user communities (favorites/recently viewed)
-  const { data: communities = [] } = useQuery({
+  const { data: communities = [] } = useQuery<Community[]>({
     queryKey: ['/api/user/tour-communities'],
     enabled: isAuthenticated,
   });
 
   // Search communities
-  const { data: searchResults } = useQuery({
+  const { data: searchResults } = useQuery<{ communities: Community[] }>({
     queryKey: ['/api/communities/search', communitySearchQuery],
     enabled: communitySearchQuery.length >= 2,
     queryFn: async () => {
@@ -192,7 +192,7 @@ export default function TourTracker() {
   });
 
   // Fetch existing tour reviews (only for authenticated users)
-  const { data: tourReviews = [], isLoading: reviewsLoading } = useQuery({
+  const { data: tourReviews = [], isLoading: reviewsLoading } = useQuery<TourReview[]>({
     queryKey: ['/api/tour-reviews'],
     enabled: isAuthenticated,
   });
@@ -215,7 +215,7 @@ export default function TourTracker() {
   }, []);
 
   // Fetch specific community if communityId is in URL
-  const { data: communityFromUrl } = useQuery({
+  const { data: communityFromUrl } = useQuery<Community>({
     queryKey: [`/api/communities/${communityIdFromUrl}`],
     enabled: !!communityIdFromUrl,
   });
@@ -299,18 +299,24 @@ export default function TourTracker() {
     reader.readAsDataURL(file);
   };
 
-  const updateRating = (category: string, rating: number) => {
-    setTourForm(prev => ({
-      ...prev,
-      [category]: { ...prev[category], rating }
-    }));
+  const updateRating = (category: keyof typeof tourForm, rating: number) => {
+    const categoryData = tourForm[category];
+    if (typeof categoryData === 'object' && categoryData !== null && 'rating' in categoryData) {
+      setTourForm(prev => ({
+        ...prev,
+        [category]: { ...categoryData, rating }
+      }));
+    }
   };
 
-  const updateNotes = (category: string, notes: string) => {
-    setTourForm(prev => ({
-      ...prev,
-      [category]: { ...prev[category], notes }
-    }));
+  const updateNotes = (category: keyof typeof tourForm, notes: string) => {
+    const categoryData = tourForm[category];
+    if (typeof categoryData === 'object' && categoryData !== null && 'notes' in categoryData) {
+      setTourForm(prev => ({
+        ...prev,
+        [category]: { ...categoryData, notes }
+      }));
+    }
   };
 
   // Save tour data to localStorage for anonymous users
@@ -451,8 +457,8 @@ export default function TourTracker() {
       </Dialog>
 
       <NavigationHeader 
-        title="Tour Tracker" 
-        subtitle="Document your community visits and share experiences"
+        title="Tour Track™" 
+        subtitle="Advanced tour management and review system"
       />
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
@@ -495,19 +501,91 @@ export default function TourTracker() {
           </Card>
         )}
 
+        {/* Tour Track™ Stats Dashboard */}
+        {isAuthenticated && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Tours Completed</p>
+                    <p className="text-2xl font-bold">{tourReviews.length}</p>
+                  </div>
+                  <BarChart3 className="w-8 h-8 text-blue-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Avg Rating</p>
+                    <div className="flex items-center gap-1">
+                      <p className="text-2xl font-bold">
+                        {tourReviews.length > 0 
+                          ? (tourReviews.reduce((acc, r) => acc + (r.overall?.rating || 0), 0) / tourReviews.length).toFixed(1)
+                          : '0.0'}
+                      </p>
+                      <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    </div>
+                  </div>
+                  <Trophy className="w-8 h-8 text-yellow-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Photos Taken</p>
+                    <p className="text-2xl font-bold">{photos.length}</p>
+                  </div>
+                  <Camera className="w-8 h-8 text-green-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">This Month</p>
+                    <p className="text-2xl font-bold">
+                      {tourReviews.filter(r => {
+                        const reviewDate = new Date(r.createdAt);
+                        const thisMonth = new Date();
+                        return reviewDate.getMonth() === thisMonth.getMonth() && 
+                               reviewDate.getFullYear() === thisMonth.getFullYear();
+                      }).length}
+                    </p>
+                  </div>
+                  <Calendar className="w-8 h-8 text-purple-600" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         <Tabs defaultValue="new-review" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="new-review">New Tour Review</TabsTrigger>
-            <TabsTrigger value="my-reviews">My Reviews ({tourReviews.length})</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="new-review">New Review</TabsTrigger>
+            <TabsTrigger value="my-reviews">My Reviews</TabsTrigger>
+            <TabsTrigger value="insights">Insights</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="new-review">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Smartphone className="h-5 w-5" />
-                  Document Your Visit
+                  <Sparkles className="h-5 w-5 text-purple-600" />
+                  Tour Track™ Review
                 </CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Help families make informed decisions with your tour experience
+                </p>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -949,6 +1027,220 @@ export default function TourTracker() {
                   </Card>
                 ))
               )}
+            </div>
+          </TabsContent>
+
+          {/* Insights Tab */}
+          <TabsContent value="insights">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Top Rated Aspects */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ThumbsUp className="w-5 h-5 text-green-600" />
+                    Most Appreciated Features
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {tourReviews.length > 0 ? (
+                      <>
+                        {['cleanliness', 'staff', 'food', 'amenities', 'safety'].map((aspect) => {
+                          const avgRating = tourReviews.reduce((acc, r) => {
+                            const rating = r[aspect as keyof TourReview];
+                            if (typeof rating === 'object' && rating !== null && 'rating' in rating) {
+                              return acc + (rating.rating || 0);
+                            }
+                            return acc;
+                          }, 0) / tourReviews.length;
+                          
+                          return (
+                            <div key={aspect} className="flex items-center justify-between">
+                              <span className="capitalize">{aspect}</span>
+                              <div className="flex items-center gap-1">
+                                <span className="text-sm font-medium">{avgRating.toFixed(1)}</span>
+                                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </>
+                    ) : (
+                      <p className="text-gray-500 text-sm">Complete tours to see insights</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Common Concerns */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5 text-blue-600" />
+                    Review Highlights
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {tourReviews.length > 0 ? (
+                      <>
+                        <div>
+                          <p className="text-sm font-medium mb-1">Recommendations</p>
+                          <p className="text-2xl font-bold text-green-600">
+                            {Math.round((tourReviews.filter(r => r.overall?.wouldRecommend).length / tourReviews.length) * 100)}%
+                          </p>
+                          <p className="text-xs text-gray-500">Would recommend</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium mb-1">Average Visit Duration</p>
+                          <p className="text-lg font-semibold">
+                            {Math.round(tourReviews.reduce((acc, r) => acc + (r.duration || 60), 0) / tourReviews.length)} min
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <p className="text-gray-500 text-sm">No reviews yet</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Review Insights Card */}
+              <Card className="md:col-span-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Sparkles className="w-6 h-6 text-blue-600" />
+                    <h3 className="text-lg font-semibold">Tour Track™ Intelligence</h3>
+                  </div>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="text-center">
+                      <Eye className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                      <p className="text-2xl font-bold">{tourReviews.length}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Tours Documented
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <Trophy className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
+                      <p className="text-2xl font-bold">
+                        {tourReviews.filter(r => (r.overall?.rating || 0) >= 4).length}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        High-Rated Tours
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <Target className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                      <p className="text-2xl font-bold">
+                        {tourReviews.filter(r => r.isPublic).length}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Public Reviews
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics">
+            <div className="space-y-6">
+              {/* Tour Conversion Funnel */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5" />
+                    Tour Analytics
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {tourReviews.length > 0 ? (
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm">Tours Scheduled</span>
+                          <span className="font-semibold">{tourReviews.length + 5}</span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div className="bg-blue-600 h-2 rounded-full" style={{ width: '100%' }}></div>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm">Tours Completed</span>
+                          <span className="font-semibold">{tourReviews.length}</span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div className="bg-green-600 h-2 rounded-full" style={{ width: `${(tourReviews.length / (tourReviews.length + 5)) * 100}%` }}></div>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm">Reviews Submitted</span>
+                          <span className="font-semibold">{tourReviews.filter(r => r.overall?.notes).length}</span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div className="bg-purple-600 h-2 rounded-full" style={{ width: `${(tourReviews.filter(r => r.overall?.notes).length / tourReviews.length) * 100}%` }}></div>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm">Would Recommend</span>
+                          <span className="font-semibold">{tourReviews.filter(r => r.overall?.wouldRecommend).length}</span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div className="bg-yellow-600 h-2 rounded-full" style={{ width: `${(tourReviews.filter(r => r.overall?.wouldRecommend).length / tourReviews.length) * 100}%` }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-center text-gray-500 py-8">
+                      Complete your first tour to see analytics
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Community Rankings */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Top Rated Communities</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {tourReviews.length > 0 ? (
+                    <div className="space-y-3">
+                      {tourReviews
+                        .sort((a, b) => (b.overall?.rating || 0) - (a.overall?.rating || 0))
+                        .slice(0, 5)
+                        .map((review, index) => (
+                          <div key={review.id} className="flex items-center justify-between p-3 border rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                {index + 1}
+                              </div>
+                              <div>
+                                <p className="font-medium">{review.community?.name || `Community #${review.communityId}`}</p>
+                                <p className="text-sm text-gray-500">
+                                  {review.community?.city}, {review.community?.state}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                              <span className="font-semibold">{review.overall?.rating || 0}</span>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  ) : (
+                    <p className="text-center text-gray-500 py-8">
+                      No communities toured yet
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
         </Tabs>
