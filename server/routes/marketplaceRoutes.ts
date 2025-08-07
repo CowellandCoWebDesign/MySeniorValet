@@ -26,7 +26,42 @@ router.get("/vendors", async (req: Request, res: Response) => {
     if (featured !== undefined) params.featured = featured === 'true';
     if (hidden !== undefined) params.hidden = hidden === 'true';
     
-    const vendors = await storage.getMarketplaceVendors(params);
+    let vendors = await storage.getMarketplaceVendors(params);
+    
+    // Filter out senior resources that should only appear in the Senior Resources section
+    const seniorResourceNames = [
+      'Social Security Administration',
+      'Adult Protective Services (APS)',
+      'Long-Term Care Ombudsman',
+      'Senior Centers',
+      'National Council on Aging - Senior Centers',
+      'Disability Action Centers',
+      'AARP',
+      'AARP Technology Training',
+      "Alzheimer's Association",
+      "Parkinson's Foundation",
+      'American Cancer Society',
+      'Elder Abuse Hotline',
+      'Meals on Wheels',
+      'PACE Programs',
+      'MediGap/Supplemental',
+      'Area Agency on Aging',
+      'SHIP (Medicare Counseling)',
+      'Veterans Crisis Line',
+      'OLLI (Lifelong Learning)',
+      'Senior Planet',
+      'Relay Services (711)',
+      'Language Line',
+      'NEMT Services',
+      'Medicare.gov',
+      'VA Benefits & Healthcare',
+      'Health Education for Seniors'
+    ];
+    
+    vendors = vendors.filter(vendor => 
+      !seniorResourceNames.includes(vendor.name)
+    );
+    
     res.json(vendors);
   } catch (error) {
     console.error("Error fetching marketplace vendors:", error);
