@@ -1946,15 +1946,15 @@ export default function MySeniorValetHome() {
 
           {/* End of reorganized care services */}
 
-          {/* Provider Sign-Up Button */}
+          {/* Browse All Services Button */}
           <div className="flex justify-center mt-12 mb-8">
             <Button
               size="lg"
-              className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               onClick={() => setLocation('/care-services')}
             >
               <Layers className="w-5 h-5 mr-2" />
-              Healthcare Providers: List Your Services
+              Browse All Services
             </Button>
           </div>
         </div>

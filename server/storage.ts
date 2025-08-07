@@ -1,7 +1,7 @@
 import { 
   users, communities, inspections, reviews, reviewHelpfulness, favorites, searchHistory, 
   messages, tours, userSessions, listingFlags, adminUsers, userActivity, leads, leadActivities,
-  removalRequests, auditLogs, healthcareProviders,
+  removalRequests, auditLogs,
   type User, type InsertUser, type UpsertUser, type Community, type InsertCommunity, 
   type Inspection, type InsertInspection, type Review, type InsertReview, 
   type InsertReviewHelpfulness, type SearchCommunity, type Favorite, type InsertFavorite,
@@ -10,7 +10,6 @@ import {
   type AdminUser, type InsertAdminUser, type UserActivity, type InsertUserActivity,
   type Lead, type InsertLead, type LeadActivity, type InsertLeadActivity,
   type RemovalRequest, type InsertRemovalRequest,
-  type HealthcareProvider, type InsertHealthcareProvider,
   chatConversations, chatParticipants, chatMessages,
   type ChatConversation, type InsertChatConversation,
   type ChatParticipant, type InsertChatParticipant,
@@ -183,13 +182,6 @@ export interface IStorage {
   getRemovalRequests(params?: { status?: string; requestType?: string }): Promise<RemovalRequest[]>;
   getRemovalRequestById(id: number): Promise<RemovalRequest | undefined>;
   updateRemovalRequest(id: number, updates: Partial<RemovalRequest>): Promise<RemovalRequest | undefined>;
-
-  // Healthcare Provider methods
-  createHealthcareProvider(provider: InsertHealthcareProvider): Promise<HealthcareProvider>;
-  getHealthcareProviders(): Promise<HealthcareProvider[]>;
-  getHealthcareProviderById(id: number): Promise<HealthcareProvider | undefined>;
-  updateHealthcareProvider(id: number, updates: Partial<HealthcareProvider>): Promise<HealthcareProvider | undefined>;
-  incrementHealthcareProviderView(id: number): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -2221,55 +2213,6 @@ export class DatabaseStorage implements IStorage {
     }
     
     return updated || undefined;
-  }
-
-  // Healthcare Provider methods
-  async createHealthcareProvider(provider: InsertHealthcareProvider): Promise<HealthcareProvider> {
-    const [created] = await db.insert(healthcareProviders).values({
-      ...provider,
-      isVerified: false,
-      isActive: true,
-      viewCount: 0,
-      clickCount: 0,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }).returning();
-    
-    return created;
-  }
-
-  async getHealthcareProviders(): Promise<HealthcareProvider[]> {
-    return db.select()
-      .from(healthcareProviders)
-      .where(eq(healthcareProviders.isActive, true))
-      .orderBy(desc(healthcareProviders.createdAt));
-  }
-
-  async getHealthcareProviderById(id: number): Promise<HealthcareProvider | undefined> {
-    const [provider] = await db.select()
-      .from(healthcareProviders)
-      .where(eq(healthcareProviders.id, id));
-    return provider || undefined;
-  }
-
-  async updateHealthcareProvider(id: number, updates: Partial<HealthcareProvider>): Promise<HealthcareProvider | undefined> {
-    const [updated] = await db.update(healthcareProviders)
-      .set({
-        ...updates,
-        updatedAt: new Date()
-      })
-      .where(eq(healthcareProviders.id, id))
-      .returning();
-    
-    return updated || undefined;
-  }
-
-  async incrementHealthcareProviderView(id: number): Promise<void> {
-    await db.update(healthcareProviders)
-      .set({
-        viewCount: sql`${healthcareProviders.viewCount} + 1`
-      })
-      .where(eq(healthcareProviders.id, id));
   }
 }
 

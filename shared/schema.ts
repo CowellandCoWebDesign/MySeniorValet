@@ -794,45 +794,6 @@ export const messageTemplates = pgTable("message_templates", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Healthcare Providers - Free listings for healthcare services
-export const healthcareProviders = pgTable("healthcare_providers", {
-  id: serial("id").primaryKey(),
-  businessName: text("business_name").notNull(),
-  contactName: text("contact_name").notNull(),
-  email: text("email").notNull().unique(),
-  phone: text("phone").notNull(),
-  website: text("website"),
-  serviceType: text("service_type", {
-    enum: ["home_health", "hospice", "physical_therapy", "occupational_therapy", "speech_therapy", "nursing", "medical_equipment", "pharmacy", "other"]
-  }).notNull(),
-  otherServiceType: text("other_service_type"), // For "other" category
-  description: text("description").notNull(),
-  services: text("services").array().default([]), // List of specific services offered
-  certifications: text("certifications").array().default([]), // Medicare, Medicaid, etc.
-  insuranceAccepted: text("insurance_accepted").array().default([]),
-  serviceAreas: text("service_areas").array().default([]), // States/cities served
-  states: text("states").array().default([]), // States where licensed
-  address: text("address"),
-  city: text("city"),
-  state: text("state"),
-  zipCode: text("zip_code"),
-  coordinates: json("coordinates").$type<{ lat: number; lng: number }>(),
-  isVerified: boolean("is_verified").default(false),
-  isActive: boolean("is_active").default(true),
-  viewCount: integer("view_count").default(0),
-  clickCount: integer("click_count").default(0),
-  metadata: json("metadata").$type<{
-    yearsInBusiness?: number;
-    employeeCount?: string;
-    languages?: string[];
-    specializations?: string[];
-    emergencyAvailable?: boolean;
-    acceptingNewPatients?: boolean;
-  }>().default({}),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
-});
-
 // Tours/Visits Scheduling and Tracking - Minimal schema matching actual database
 export const tours = pgTable("tours", {
   id: serial("id").primaryKey(),
@@ -2784,16 +2745,6 @@ export const createTourSchema = insertTourSchema.extend({
   })).optional(),
 });
 
-export const insertHealthcareProviderSchema = createInsertSchema(healthcareProviders).omit({
-  id: true,
-  isVerified: true,
-  isActive: true,
-  viewCount: true,
-  clickCount: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
 export const insertUserFavoriteSchema = createInsertSchema(userFavorites).omit({
   id: true,
   addedAt: true,
@@ -2873,8 +2824,6 @@ export type MessageTemplate = typeof messageTemplates.$inferSelect;
 export type InsertTour = z.infer<typeof insertTourSchema>;
 export type CreateTour = z.infer<typeof createTourSchema>;
 export type Tour = typeof tours.$inferSelect;
-export type InsertHealthcareProvider = z.infer<typeof insertHealthcareProviderSchema>;
-export type HealthcareProvider = typeof healthcareProviders.$inferSelect;
 export type InsertUserFavorite = z.infer<typeof insertUserFavoriteSchema>;
 export type UserFavorite = typeof userFavorites.$inferSelect;
 export type InsertUserSavedSearch = z.infer<typeof insertUserSavedSearchSchema>;

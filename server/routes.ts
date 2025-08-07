@@ -45,10 +45,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/reservations', reservationRoutes);
   app.use('/api/quiz', quizRouter);
   
-  // Register healthcare provider routes
-  const healthcareProviderRoutes = await import('./routes/healthcareProviderRoutes');
-  app.use('/api', healthcareProviderRoutes.default);
-  
   // Register tour routes
   const { tourRouter } = await import('./routes/tourRoutes');
   app.use(tourRouter);

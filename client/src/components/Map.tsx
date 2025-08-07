@@ -742,10 +742,10 @@ export default function Map({
       const bounds = getOptimizedBounds(mapBounds);
 
       const params = new URLSearchParams({
-        swLng: bounds.west.toString(),
-        swLat: bounds.south.toString(),
-        neLng: bounds.east.toString(),
-        neLat: bounds.north.toString(),
+        west: bounds.west.toString(),
+        south: bounds.south.toString(),
+        east: bounds.east.toString(),
+        north: bounds.north.toString(),
         zoom: Math.round(currentZoom).toString()
       });
 
@@ -780,18 +780,18 @@ export default function Map({
       const renderTime = performance.now() - renderStart;
 
       console.log('🎯 CLUSTER API RESPONSE:', {
-        featureCount: data.features?.length || 0,
+        featureCount: data.clusters?.length || 0,
         bounds: bounds,
         requestedZoom: Math.round(currentZoom),
-        clusters: data.features?.filter((f: any) => f.properties?.cluster).length || 0,
-        markers: data.features?.filter((f: any) => !f.properties?.cluster).length || 0,
-        firstFeature: data.features?.[0]
+        clusters: data.clusters?.filter((f: any) => f.properties?.cluster).length || 0,
+        markers: data.clusters?.filter((f: any) => !f.properties?.cluster).length || 0,
+        firstFeature: data.clusters?.[0]
       });
 
       // Update performance metrics
       setPerformanceMetrics(prev => ({
         renderTime: Math.round(renderTime),
-        markerCount: data.features?.length || 0,
+        markerCount: data.clusters?.length || 0,
         memoryUsage: (performance as any).memory?.usedJSHeapSize || 0,
         lastUpdate: Date.now()
       }));
@@ -1070,18 +1070,18 @@ export default function Map({
         )}
 
         {/* Supercluster-powered markers and clusters */}
-        {!isLoading && !error && clusterData?.features && (() => {
+        {!isLoading && !error && clusterData?.clusters && (() => {
           console.log('🎨 RENDERING MAP FEATURES:', {
-            totalFeatures: clusterData.features.length,
+            totalFeatures: clusterData.clusters.length,
             currentZoom: currentZoom,
             roundedZoom: Math.floor(currentZoom),
             isLoading,
             error,
-            clusters: clusterData.features.filter((f: any) => f.properties?.cluster).length,
-            markers: clusterData.features.filter((f: any) => !f.properties?.cluster).length
+            clusters: clusterData.clusters.filter((f: any) => f.properties?.cluster).length,
+            markers: clusterData.clusters.filter((f: any) => !f.properties?.cluster).length
           });
           return true;
-        })() && clusterData.features.map((feature: any, index: number) => {
+        })() && clusterData.clusters.map((feature: any, index: number) => {
           const [lng, lat] = feature.geometry.coordinates;
           const { properties } = feature;
 
