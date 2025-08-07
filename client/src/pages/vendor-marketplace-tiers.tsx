@@ -204,6 +204,27 @@ export default function VendorMarketplaceTiers() {
             Connect your business with 34,000+ senior living communities and millions of families 
             seeking trusted commercial services and products
           </p>
+          
+          {/* Promotional Offers Banner */}
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl p-4 md:p-6 shadow-xl max-w-3xl mx-auto mb-6">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-6">
+              <div className="flex items-center gap-2">
+                <DollarSign className="w-6 h-6 md:w-8 md:h-8 animate-pulse" />
+                <div className="text-center md:text-left">
+                  <p className="text-lg md:text-2xl font-bold">Limited Time!</p>
+                  <p className="text-sm md:text-lg">50% OFF First Month</p>
+                </div>
+              </div>
+              <div className="hidden md:block h-16 w-px bg-white/30" />
+              <div className="flex items-center gap-2">
+                <Zap className="w-6 h-6 md:w-8 md:h-8" />
+                <div className="text-center md:text-left">
+                  <p className="text-lg md:text-2xl font-bold">Save More!</p>
+                  <p className="text-sm md:text-lg">20% OFF Annual Plans</p>
+                </div>
+              </div>
+            </div>
+          </div>
           <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 max-w-3xl mx-auto mb-4">
             <p className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
               <Info className="w-4 h-4" />
@@ -362,16 +383,16 @@ export default function VendorMarketplaceTiers() {
                 <tr className="border-b border-gray-200 dark:border-gray-700">
                   <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100">Geographic Coverage</td>
                   <td className="text-center py-4 px-6 text-gray-700 dark:text-gray-300">
-                    <div className="font-medium">1 zip cluster</div>
-                    <div className="text-xs text-gray-500">Region-limited</div>
+                    <div className="font-medium">1 State</div>
+                    <div className="text-xs text-gray-500">Full state coverage</div>
                   </td>
                   <td className="text-center py-4 px-6 text-gray-700 dark:text-gray-300">
-                    <div className="font-medium">5 regions</div>
-                    <div className="text-xs text-gray-500">Coverage across 5 areas</div>
+                    <div className="font-medium">3 States</div>
+                    <div className="text-xs text-gray-500">Multi-state coverage</div>
                   </td>
                   <td className="text-center py-4 px-6 text-gray-700 dark:text-gray-300">
                     <div className="font-medium text-purple-600 dark:text-purple-400">Nationwide</div>
-                    <div className="text-xs text-gray-500">No geo cap</div>
+                    <div className="text-xs text-gray-500">US & Canada</div>
                   </td>
                 </tr>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
@@ -641,7 +662,7 @@ export default function VendorMarketplaceTiers() {
                   <>
                     <div className="flex items-center gap-2">
                       <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">1 zip cluster</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Full coverage: 1 State</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <User className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -666,7 +687,7 @@ export default function VendorMarketplaceTiers() {
                   <>
                     <div className="flex items-center gap-2">
                       <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Coverage across 5 regions</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Coverage across 3 States</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -695,7 +716,7 @@ export default function VendorMarketplaceTiers() {
                   <>
                     <div className="flex items-center gap-2">
                       <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Nationwide visibility (no geo cap)</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Nationwide US & Canada</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
