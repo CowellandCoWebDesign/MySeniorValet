@@ -1553,6 +1553,8 @@ export default function MapSearch() {
               zoom={mapZoom}
               height="100%"
               searchFilters={filters}
+              vendors={vendors}
+              healthcareServices={healthcareServices}
               onCommunityClick={handleCommunityClick}
               onBoundsChange={handleMapBoundsChange}
               onClusterClick={handleClusterClick}
