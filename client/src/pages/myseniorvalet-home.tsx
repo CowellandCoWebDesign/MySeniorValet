@@ -389,10 +389,10 @@ export default function MySeniorValetHome() {
           <div className="text-center mb-6 md:mb-8 max-w-7xl">
             <div className="space-y-6 mb-6">
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl tracking-tight">
-                <span className="block mb-3 hero-text-main animate-space-entry animate-cosmic-glow">{t('hero.title')}</span>
+                <span className="block mb-3 hero-text-main animate-space-entry animate-cosmic-glow">Empowering Families to Find Transparent, Affordable Senior Living and Care</span>
               </h1>
               <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-space-warp max-w-5xl mx-auto font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
-                {t('hero.subtitle')}
+                Explore trusted senior living communities and connect with services that make life easier. Transparent pricing, real-time availability, and seamless service integration, all in one place.
               </h2>
             </div>
           </div>
@@ -504,6 +504,39 @@ export default function MySeniorValetHome() {
           <PersonalizedBanner />
         </div>
       </div>
+
+      {/* Mission Statement Section */}
+      <section className="px-4 py-12 bg-gradient-to-r from-white to-blue-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="flex items-center justify-center mb-6">
+            <HeartHandshake className="h-12 w-12 text-blue-600 dark:text-blue-400 mr-3" />
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+              Our Mission
+            </h2>
+          </div>
+          <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-xl border-0">
+            <CardContent className="p-8 md:p-12">
+              <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 leading-relaxed">
+                Our mission at MySeniorValet is to transform the senior living experience by providing families with easy access to clear, upfront pricing and comprehensive services. We are committed to fostering transparency, empowering families to make confident decisions, and ensuring that every senior and their loved ones receive the care and support they deserve. Through a one-stop platform that connects seniors to trusted communities, healthcare resources, and essential services, we aim to simplify the journey of aging with dignity and independence.
+              </p>
+              <div className="mt-8 flex flex-wrap justify-center gap-4">
+                <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 px-4 py-2 text-sm font-semibold">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Transparency First
+                </Badge>
+                <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-4 py-2 text-sm font-semibold">
+                  <Heart className="w-4 h-4 mr-2" />
+                  Family Focused
+                </Badge>
+                <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 px-4 py-2 text-sm font-semibold">
+                  <Users className="w-4 h-4 mr-2" />
+                  Dignity & Independence
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
       {/* Featured Communities Slider - Visual Break */}
       <section ref={hawaiiSectionRef} className="px-4 py-8 bg-white dark:bg-gray-900">
