@@ -47,30 +47,57 @@ const healthcareProviderSchema = z.object({
 type HealthcareProviderForm = z.infer<typeof healthcareProviderSchema>;
 
 const serviceTypes = [
-  { value: "home_health", label: "Home Health Agency" },
-  { value: "hospice", label: "Hospice Care" },
+  // Primary Healthcare
+  { value: "hospital", label: "Hospital" },
+  
+  // Home & Personal Care
+  { value: "home_care_services", label: "Home Care Services" },
+  { value: "personal_care_services", label: "Personal Care Services" },
+  { value: "adult_day_care", label: "Adult Day Care" },
+  
+  // Medical Services
+  { value: "hospice_care", label: "Hospice Care" },
+  { value: "pharmacy_services", label: "Pharmacy Services" },
+  { value: "telemedicine", label: "Telemedicine Services" },
+  { value: "medical_equipment", label: "Medical Equipment & Supplies" },
+  
+  // Therapy Services
   { value: "physical_therapy", label: "Physical Therapy" },
   { value: "occupational_therapy", label: "Occupational Therapy" },
   { value: "speech_therapy", label: "Speech Therapy" },
-  { value: "nursing", label: "Skilled Nursing" },
-  { value: "medical_equipment", label: "Medical Equipment/DME" },
-  { value: "pharmacy", label: "Specialty Pharmacy" },
+  { value: "respiratory_therapy", label: "Respiratory Therapy" },
+  { value: "therapy_services", label: "General Therapy Services" },
+  
+  // Specialized Healthcare
   { value: "mental_health", label: "Mental Health Services" },
-  { value: "dental", label: "Dental Care" },
-  { value: "vision", label: "Vision/Eye Care" },
-  { value: "hearing", label: "Hearing/Audiology" },
-  { value: "podiatry", label: "Podiatry/Foot Care" },
-  { value: "nutrition", label: "Nutrition/Dietitian Services" },
-  { value: "transportation", label: "Medical Transportation" },
-  { value: "adult_day", label: "Adult Day Care" },
-  { value: "respite", label: "Respite Care" },
+  { value: "dental_care", label: "Dental Care" },
+  { value: "vision_care", label: "Vision Care" },
+  { value: "hearing_services", label: "Hearing Services" },
+  { value: "podiatry", label: "Podiatry Services" },
+  { value: "dialysis", label: "Dialysis Centers" },
   { value: "wound_care", label: "Wound Care" },
-  { value: "dialysis", label: "Dialysis Center" },
   { value: "pain_management", label: "Pain Management" },
+  
+  // Support Services
+  { value: "medical_transport", label: "Medical Transportation" },
+  { value: "nutrition_services", label: "Nutrition Services" },
+  { value: "respite_care", label: "Respite Care" },
+  { value: "social_services", label: "Social Services" },
+  
+  // Medical Specialties
+  { value: "skilled_nursing", label: "Skilled Nursing" },
   { value: "cardiology", label: "Cardiology" },
   { value: "neurology", label: "Neurology" },
   { value: "oncology", label: "Oncology/Cancer Care" },
   { value: "pulmonology", label: "Pulmonology/Respiratory" },
+  
+  // Professional Services
+  { value: "legal_services", label: "Legal Services" },
+  { value: "financial_planning", label: "Financial Planning" },
+  { value: "insurance_services", label: "Insurance Services" },
+  { value: "rehabilitation", label: "Rehabilitation Services" },
+  
+  // Other
   { value: "other", label: "Other Healthcare Service" },
 ];
 
@@ -232,20 +259,43 @@ export default function HealthcareProviderSignup() {
             
             {/* Current Services */}
             <div className="mb-4">
-              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">NOW AVAILABLE:</p>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">NOW AVAILABLE - ALL SERVICE TYPES:</p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                <div className="bg-green-50 dark:bg-green-900/30 p-2 rounded-lg shadow-sm border border-green-200 dark:border-green-700">🏥 Hospitals</div>
-                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Home Health</div>
-                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Physical Therapy</div>
-                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Hospice Care</div>
-                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Medical Equipment</div>
-                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Pharmacy Services</div>
-                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Mental Health</div>
-                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Dental Care</div>
-                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Vision Care</div>
-                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Hearing Services</div>
-                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Transportation</div>
-                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">25+ More Services</div>
+                {/* Primary Healthcare */}
+                <div className="bg-green-50 dark:bg-green-900/30 p-2 rounded-lg shadow-sm border border-green-200 dark:border-green-700 font-semibold">🏥 Hospitals (6,000+)</div>
+                
+                {/* Home & Personal Care */}
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">🏠 Home Care Services</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">👥 Personal Care Services</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">🌟 Adult Day Care</div>
+                
+                {/* Medical Services */}
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">🏥 Hospice Care</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">💊 Pharmacy Services</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">📱 Telemedicine</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">🩺 Medical Equipment</div>
+                
+                {/* Therapy & Rehabilitation */}
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">🏃 Physical Therapy</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">🤲 Occupational Therapy</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">🗣️ Speech Therapy</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">🧘 Respiratory Therapy</div>
+                
+                {/* Specialized Services */}
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">🧠 Mental Health</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">🦷 Dental Care</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">👁️ Vision Care</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">👂 Hearing Services</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">🦶 Podiatry</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">🩸 Dialysis Centers</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">💉 Wound Care</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">⚡ Pain Management</div>
+                
+                {/* Support Services */}
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">🚑 Medical Transport</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">🍎 Nutrition Services</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">🏥 Respite Care</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">👥 Social Services</div>
               </div>
             </div>
             

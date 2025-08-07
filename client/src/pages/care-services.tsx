@@ -131,19 +131,61 @@ export default function CareServices() {
               {/* Active Services */}
               <div>
                 <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                  🟢 Active Healthcare Services:
+                  🟢 Active Healthcare Services (ALL SEARCHABLE):
                 </p>
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                
+                {/* Primary Healthcare */}
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mt-3 mb-1">Primary Healthcare:</p>
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-1.5 text-xs mb-2">
                   <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">🏥 Hospitals (6,000+)</Badge>
-                  <Badge variant="secondary">Home Health</Badge>
-                  <Badge variant="secondary">Physical Therapy</Badge>
-                  <Badge variant="secondary">Hospice Care</Badge>
-                  <Badge variant="secondary">Medical Equipment</Badge>
-                  <Badge variant="secondary">Pharmacy</Badge>
-                  <Badge variant="secondary">Mental Health</Badge>
-                  <Badge variant="secondary">Dental Care</Badge>
-                  <Badge variant="secondary">Vision Care</Badge>
-                  <Badge variant="secondary">25+ More Services</Badge>
+                </div>
+                
+                {/* Home & Personal Care */}
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mt-2 mb-1">Home & Personal Care:</p>
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-1.5 text-xs mb-2">
+                  <Badge variant="secondary">🏠 Home Care Services</Badge>
+                  <Badge variant="secondary">👥 Personal Care Services</Badge>
+                  <Badge variant="secondary">🌟 Adult Day Care</Badge>
+                </div>
+                
+                {/* Medical Services */}
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mt-2 mb-1">Medical Services:</p>
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-1.5 text-xs mb-2">
+                  <Badge variant="secondary">🏥 Hospice Care</Badge>
+                  <Badge variant="secondary">💊 Pharmacy Services</Badge>
+                  <Badge variant="secondary">📱 Telemedicine</Badge>
+                  <Badge variant="secondary">🩺 Medical Equipment</Badge>
+                </div>
+                
+                {/* Therapy & Rehabilitation */}
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mt-2 mb-1">Therapy & Rehabilitation:</p>
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-1.5 text-xs mb-2">
+                  <Badge variant="secondary">🏃 Physical Therapy</Badge>
+                  <Badge variant="secondary">🤲 Occupational Therapy</Badge>
+                  <Badge variant="secondary">🗣️ Speech Therapy</Badge>
+                  <Badge variant="secondary">🧘 Respiratory Therapy</Badge>
+                </div>
+                
+                {/* Specialized Services */}
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mt-2 mb-1">Specialized Services:</p>
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-1.5 text-xs mb-2">
+                  <Badge variant="secondary">🧠 Mental Health</Badge>
+                  <Badge variant="secondary">🦷 Dental Care</Badge>
+                  <Badge variant="secondary">👁️ Vision Care</Badge>
+                  <Badge variant="secondary">👂 Hearing Services</Badge>
+                  <Badge variant="secondary">🦶 Podiatry</Badge>
+                  <Badge variant="secondary">🩸 Dialysis Centers</Badge>
+                  <Badge variant="secondary">💉 Wound Care</Badge>
+                  <Badge variant="secondary">⚡ Pain Management</Badge>
+                </div>
+                
+                {/* Support Services */}
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mt-2 mb-1">Support Services:</p>
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-1.5 text-xs">
+                  <Badge variant="secondary">🚑 Medical Transport</Badge>
+                  <Badge variant="secondary">🍎 Nutrition Services</Badge>
+                  <Badge variant="secondary">🏥 Respite Care</Badge>
+                  <Badge variant="secondary">👥 Social Services</Badge>
                 </div>
               </div>
               
