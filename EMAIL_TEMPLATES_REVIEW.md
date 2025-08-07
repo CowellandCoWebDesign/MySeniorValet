@@ -26,16 +26,16 @@ This document contains all 16 email templates for MySeniorValet platform, includ
 - **Subject:** Welcome to MySeniorValet - Your Complete Senior Living Solution! 🎉
 - **Triggered:** When new user signs up
 - **Content Highlights:**
-  - **NEW: Complete Service Command Center**
-    - 🏠 Community Discovery & Tours (34,180+ verified communities)
-    - 💰 Financial Planning & Benefits (32+ programs, HUD pricing)
-    - 🏥 Healthcare & Services (12,000+ hospitals, vendor marketplace)
-    - 👨‍👩‍👧‍👦 Family Collaboration Tools (share, compare, track)
-  - **4 Quick-Start Action Buttons:**
-    - Find Communities
-    - Get Benefits Info
-    - Find Healthcare
-    - Shop Services
+  - **NEW: Complete Service Command Center (Properly Prioritized)**
+    1. 🏠 Community Discovery & Tours with Family Tools (34,180+ communities, Tour Tracker™, collaboration)
+    2. 📦 Move-In Services/Vendor Marketplace (50+ vendors, movers, estate planning, home mods)
+    3. 🏥 Healthcare & Care Services (12,000+ hospitals, 6,806 home care, medical equipment)
+    4. 💰 Resources, Support & Financial Benefits (32+ programs, HUD, VA, concierge support)
+  - **4 Quick-Start Action Buttons (Priority Order):**
+    - Find Communities & Tours
+    - Move-In Services
+    - Healthcare & Care
+    - Resources & Benefits
   - Customer testimonials showcasing value
   - Multi-channel support options
   - CTA: "Explore Your Dashboard" button
@@ -86,11 +86,11 @@ This document contains all 16 email templates for MySeniorValet platform, includ
 - **Subject:** Your Complete MySeniorValet Services Guide - Everything in One Place! 🌟
 - **Triggered:** On-demand or Day 14
 - **Content Highlights:**
-  - **Complete Service Ecosystem Map:**
-    - Community Search & Discovery (all care types)
-    - Financial Assistance & Benefits (tools & calculators)
-    - Healthcare Navigation (CMS-rated hospitals)
-    - Vendor Marketplace (vetted services)
+  - **Complete Service Ecosystem Map (Properly Prioritized):**
+    1. **Community Discovery & Tours with Family Collaboration** (34,180+ communities, Tour Tracker™, family sharing)
+    2. **Move-In Services (Senior Vendor Marketplace)** (50+ vendors, movers, downsizing, estate sales)
+    3. **Healthcare & Care Services** (12,000+ hospitals, 6,806 home care, medical equipment)
+    4. **Resources, Support & Financial Benefits** (32+ programs, HUD housing, VA benefits, concierge)
   - **MySeniorValet by the Numbers:**
     - 34,180+ Communities
     - 5,936 HUD Properties

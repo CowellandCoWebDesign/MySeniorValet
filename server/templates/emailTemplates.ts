@@ -91,57 +91,61 @@ export const welcomeEmail: EmailTemplate = {
       <h3 style="color: #1e293b; margin: 0 0 20px 0; text-align: center;">🌟 Your Complete Senior Living Command Center</h3>
       
       <div style="background-color: white; border-radius: 6px; padding: 20px; margin-bottom: 15px;">
-        <h4 style="color: ${BRAND_PRIMARY}; margin: 0 0 10px 0;">🏠 Community Discovery & Tours</h4>
+        <h4 style="color: ${BRAND_PRIMARY}; margin: 0 0 10px 0;">🏠 Community Discovery & Tours with Family Tools</h4>
         <ul style="color: #374151; line-height: 1.6; margin: 0; padding-left: 20px;">
           <li>Search 34,180+ verified communities nationwide</li>
-          <li>Compare HUD-verified pricing transparently</li>
-          <li>Schedule tours with Tour Tracker™</li>
+          <li>Schedule and track tours with Tour Tracker™</li>
+          <li>Share favorites and collaborate with family members</li>
+          <li>Compare communities side-by-side</li>
           <li>Read authentic family reviews</li>
           <li>Get AI-powered Perfect Match recommendations</li>
         </ul>
       </div>
       
       <div style="background-color: white; border-radius: 6px; padding: 20px; margin-bottom: 15px;">
-        <h4 style="color: ${BRAND_SECONDARY}; margin: 0 0 10px 0;">💰 Financial Planning & Benefits</h4>
+        <h4 style="color: ${BRAND_SECONDARY}; margin: 0 0 10px 0;">📦 Move-In Services (Senior Vendor Marketplace)</h4>
         <ul style="color: #374151; line-height: 1.6; margin: 0; padding-left: 20px;">
-          <li>Calculate senior living costs with our Budget Planner</li>
-          <li>Access 32+ government assistance programs</li>
-          <li>Find HUD-subsidized housing options</li>
-          <li>Discover VA benefits for veterans</li>
-          <li>Medicare/Medicaid guidance and resources</li>
+          <li>Professional moving & downsizing services</li>
+          <li>Estate sales & senior transitions</li>
+          <li>Home modifications & safety equipment</li>
+          <li>Legal & estate planning services</li>
+          <li>Insurance & financial advisors</li>
+          <li>50+ vetted senior service vendors</li>
         </ul>
       </div>
       
       <div style="background-color: white; border-radius: 6px; padding: 20px; margin-bottom: 15px;">
-        <h4 style="color: #10b981; margin: 0 0 10px 0;">🏥 Healthcare & Services</h4>
+        <h4 style="color: #ef4444; margin: 0 0 10px 0;">🏥 Healthcare & Care Services</h4>
         <ul style="color: #374151; line-height: 1.6; margin: 0; padding-left: 20px;">
-          <li>Find nearby hospitals with CMS ratings</li>
+          <li>Find nearby hospitals with CMS quality ratings</li>
           <li>Connect with home care providers</li>
-          <li>Browse trusted vendor marketplace</li>
+          <li>Locate hospice & palliative care</li>
           <li>Access medical equipment suppliers</li>
-          <li>Locate specialty care services</li>
+          <li>Find specialty doctors & therapists</li>
+          <li>Emergency services information</li>
         </ul>
       </div>
       
       <div style="background-color: white; border-radius: 6px; padding: 20px;">
-        <h4 style="color: #7c3aed; margin: 0 0 10px 0;">👨‍👩‍👧‍👦 Family Collaboration Tools</h4>
+        <h4 style="color: #10b981; margin: 0 0 10px 0;">💰 Resources, Support & Financial Benefits</h4>
         <ul style="color: #374151; line-height: 1.6; margin: 0; padding-left: 20px;">
-          <li>Share favorites with family members</li>
-          <li>Compare communities side-by-side</li>
-          <li>Collaborate on decisions in real-time</li>
-          <li>Track your journey with progress reports</li>
-          <li>Get expert guidance from our concierge team</li>
+          <li>Access 32+ government assistance programs</li>
+          <li>HUD-subsidized housing (5,936 properties)</li>
+          <li>VA benefits for veterans (up to $2,300/month)</li>
+          <li>Medicare/Medicaid guidance</li>
+          <li>Budget planning & cost calculators</li>
+          <li>Expert concierge support team</li>
         </ul>
       </div>
     </div>
     
     <div style="background-color: #fef3c7; border: 2px solid ${BRAND_SECONDARY}; border-radius: 8px; padding: 20px; margin: 30px 0; text-align: center;">
-      <h3 style="color: #92400e; margin: 0 0 15px 0;">🎯 Start With What Matters Most to You:</h3>
+      <h3 style="color: #92400e; margin: 0 0 15px 0;">🎯 Start Your Journey - Choose Your Path:</h3>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
-        <a href="https://myseniorvalet.com/search" style="background-color: ${BRAND_PRIMARY}; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Find Communities</a>
-        <a href="https://myseniorvalet.com/resources" style="background-color: ${BRAND_SUCCESS}; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Get Benefits Info</a>
-        <a href="https://myseniorvalet.com/hospitals" style="background-color: #ef4444; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Find Healthcare</a>
-        <a href="https://myseniorvalet.com/marketplace" style="background-color: ${BRAND_SECONDARY}; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Shop Services</a>
+        <a href="https://myseniorvalet.com/search" style="background-color: ${BRAND_PRIMARY}; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Find Communities & Tours</a>
+        <a href="https://myseniorvalet.com/marketplace" style="background-color: ${BRAND_SECONDARY}; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Move-In Services</a>
+        <a href="https://myseniorvalet.com/hospitals" style="background-color: #ef4444; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Healthcare & Care</a>
+        <a href="https://myseniorvalet.com/resources" style="background-color: ${BRAND_SUCCESS}; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Resources & Benefits</a>
       </div>
     </div>
     
@@ -674,119 +678,119 @@ export const comprehensiveServicesEmail: EmailTemplate = {
       </p>
     </div>
     
-    <!-- Core Services Grid -->
+    <!-- Core Services Grid - Properly Prioritized -->
     <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin: 30px 0;">
       
-      <!-- Community Search -->
+      <!-- 1. Community Discovery & Tours with Family Tools -->
       <div style="border: 2px solid ${BRAND_PRIMARY}; border-radius: 8px; padding: 20px;">
-        <h3 style="color: ${BRAND_PRIMARY}; margin: 0 0 15px 0;">🏡 COMMUNITY SEARCH & DISCOVERY</h3>
+        <h3 style="color: ${BRAND_PRIMARY}; margin: 0 0 15px 0;">🏡 COMMUNITY DISCOVERY & TOURS WITH FAMILY TOOLS</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
           <div>
             <strong>Find & Compare:</strong>
             <ul style="margin: 5px 0; padding-left: 20px;">
-              <li>Assisted Living</li>
-              <li>Memory Care</li>
-              <li>Independent Living</li>
-              <li>55+ Communities</li>
-              <li>Nursing Homes</li>
+              <li>34,180+ Communities</li>
+              <li>Tour Tracker™ System</li>
+              <li>Family Collaboration</li>
+              <li>Side-by-Side Compare</li>
+              <li>Transparent Pricing</li>
             </ul>
           </div>
           <div>
             <strong>Features:</strong>
             <ul style="margin: 5px 0; padding-left: 20px;">
               <li>Real-time availability</li>
-              <li>Verified pricing</li>
               <li>Virtual tours</li>
-              <li>Family reviews</li>
-              <li>AI matching</li>
+              <li>Share with family</li>
+              <li>Tour scheduling</li>
+              <li>AI Perfect Match</li>
             </ul>
           </div>
         </div>
-        <a href="https://myseniorvalet.com/search" style="display: inline-block; margin-top: 10px; color: ${BRAND_PRIMARY};">Start Searching →</a>
+        <a href="https://myseniorvalet.com/search" style="display: inline-block; margin-top: 10px; color: ${BRAND_PRIMARY};">Start Your Search →</a>
       </div>
       
-      <!-- Financial Help -->
-      <div style="border: 2px solid ${BRAND_SUCCESS}; border-radius: 8px; padding: 20px;">
-        <h3 style="color: ${BRAND_SUCCESS}; margin: 0 0 15px 0;">💰 FINANCIAL ASSISTANCE & BENEFITS</h3>
+      <!-- 2. Move-In Services (Vendor Marketplace) -->
+      <div style="border: 2px solid ${BRAND_SECONDARY}; border-radius: 8px; padding: 20px;">
+        <h3 style="color: ${BRAND_SECONDARY}; margin: 0 0 15px 0;">📦 MOVE-IN SERVICES (SENIOR VENDOR MARKETPLACE)</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
           <div>
-            <strong>Government Programs:</strong>
+            <strong>Transition Services:</strong>
             <ul style="margin: 5px 0; padding-left: 20px;">
-              <li>HUD Housing</li>
-              <li>VA Benefits</li>
-              <li>Medicare/Medicaid</li>
-              <li>SSI/SSDI</li>
-              <li>Food Assistance</li>
+              <li>Senior Movers</li>
+              <li>Downsizing Experts</li>
+              <li>Estate Sales</li>
+              <li>Home Modifications</li>
+              <li>Storage Solutions</li>
             </ul>
           </div>
           <div>
-            <strong>Tools & Calculators:</strong>
+            <strong>Professional Support:</strong>
             <ul style="margin: 5px 0; padding-left: 20px;">
-              <li>Budget planner</li>
-              <li>Benefit checker</li>
-              <li>Cost comparison</li>
-              <li>Savings finder</li>
-              <li>Application help</li>
+              <li>Legal/Estate Planning</li>
+              <li>Insurance Advisors</li>
+              <li>Financial Planners</li>
+              <li>50+ Vetted Vendors</li>
+              <li>Senior Discounts</li>
             </ul>
           </div>
         </div>
-        <a href="https://myseniorvalet.com/resources" style="display: inline-block; margin-top: 10px; color: ${BRAND_SUCCESS};">Check Eligibility →</a>
+        <a href="https://myseniorvalet.com/marketplace" style="display: inline-block; margin-top: 10px; color: ${BRAND_SECONDARY};">Browse Services →</a>
       </div>
       
-      <!-- Healthcare -->
+      <!-- 3. Healthcare & Care Services -->
       <div style="border: 2px solid #ef4444; border-radius: 8px; padding: 20px;">
-        <h3 style="color: #ef4444; margin: 0 0 15px 0;">🏥 HEALTHCARE NAVIGATION</h3>
+        <h3 style="color: #ef4444; margin: 0 0 15px 0;">🏥 HEALTHCARE & CARE SERVICES</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
           <div>
             <strong>Find Providers:</strong>
             <ul style="margin: 5px 0; padding-left: 20px;">
-              <li>Hospitals (CMS rated)</li>
-              <li>Doctors & Specialists</li>
-              <li>Home Health</li>
+              <li>12,000+ Hospitals</li>
+              <li>Home Care (6,806)</li>
               <li>Hospice Care</li>
               <li>Rehab Centers</li>
+              <li>Medical Equipment</li>
             </ul>
           </div>
           <div>
-            <strong>Services:</strong>
+            <strong>Quality Features:</strong>
             <ul style="margin: 5px 0; padding-left: 20px;">
-              <li>Quality ratings</li>
-              <li>Distance mapping</li>
-              <li>Insurance accepted</li>
-              <li>Emergency services</li>
+              <li>CMS Quality Ratings</li>
+              <li>Distance Mapping</li>
+              <li>Emergency Services</li>
               <li>Specialties</li>
+              <li>Insurance Info</li>
             </ul>
           </div>
         </div>
         <a href="https://myseniorvalet.com/hospitals" style="display: inline-block; margin-top: 10px; color: #ef4444;">Find Healthcare →</a>
       </div>
       
-      <!-- Marketplace -->
-      <div style="border: 2px solid ${BRAND_SECONDARY}; border-radius: 8px; padding: 20px;">
-        <h3 style="color: ${BRAND_SECONDARY}; margin: 0 0 15px 0;">🛍️ VENDOR MARKETPLACE</h3>
+      <!-- 4. Resources, Support & Financial Benefits -->
+      <div style="border: 2px solid ${BRAND_SUCCESS}; border-radius: 8px; padding: 20px;">
+        <h3 style="color: ${BRAND_SUCCESS}; margin: 0 0 15px 0;">💰 RESOURCES, SUPPORT & FINANCIAL BENEFITS</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
           <div>
-            <strong>Services Available:</strong>
+            <strong>Government Programs:</strong>
             <ul style="margin: 5px 0; padding-left: 20px;">
-              <li>Moving & Storage</li>
-              <li>Estate Planning</li>
-              <li>Home Modifications</li>
-              <li>Medical Equipment</li>
-              <li>Insurance</li>
+              <li>HUD Housing (5,936)</li>
+              <li>VA Benefits ($2,300/mo)</li>
+              <li>Medicare/Medicaid</li>
+              <li>SSI/SSDI</li>
+              <li>32+ Programs</li>
             </ul>
           </div>
           <div>
-            <strong>Benefits:</strong>
+            <strong>Tools & Support:</strong>
             <ul style="margin: 5px 0; padding-left: 20px;">
-              <li>Vetted vendors</li>
-              <li>Senior discounts</li>
-              <li>Reviews & ratings</li>
-              <li>Quote comparison</li>
-              <li>Local providers</li>
+              <li>Budget Calculator</li>
+              <li>Benefit Checker</li>
+              <li>Cost Comparison</li>
+              <li>Concierge Team</li>
+              <li>Application Help</li>
             </ul>
           </div>
         </div>
-        <a href="https://myseniorvalet.com/marketplace" style="display: inline-block; margin-top: 10px; color: ${BRAND_SECONDARY};">Browse Services →</a>
+        <a href="https://myseniorvalet.com/resources" style="display: inline-block; margin-top: 10px; color: ${BRAND_SUCCESS};">Check Benefits →</a>
       </div>
       
     </div>
