@@ -321,6 +321,9 @@ interface MapProps {
   height?: string;
   center?: [number, number];
   zoom?: number;
+  vendors?: any[];
+  healthcareServices?: any[];
+  resources?: any[];
 }
 
 // Component to handle map bounds and zoom changes
@@ -459,7 +462,10 @@ export default function Map({
   onClusterClick,
   height = '600px',
   center: propCenter,
-  zoom: propZoom
+  zoom: propZoom,
+  vendors = [],
+  healthcareServices = [],
+  resources = []
 }: MapProps) {
   // Start with city-level zoom (no clusters), default to major city
   const [center, setCenter] = useState<[number, number]>(propCenter || [37.7749, -122.4194]); // Default: San Francisco

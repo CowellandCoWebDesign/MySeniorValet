@@ -532,12 +532,12 @@ export default function MapSearch() {
     queryFn: async () => {
       if (resultType === 'communities' || resultType === 'vendors' || resultType === 'healthcare') return [];
       
-      const response = await fetch(`/api/resources/search?q=${encodeURIComponent(searchQuery)}&limit=20`);
+      const response = await fetch(`/api/resources/search?q=${encodeURIComponent(searchQuery || '')}&limit=20`);
       if (!response.ok) return [];
       
       return response.json();
     },
-    enabled: showBottomPanel && searchQuery.length > 0 && (resultType === 'all' || resultType === 'resources'),
+    enabled: showBottomPanel && (resultType === 'all' || resultType === 'resources'),
     staleTime: 10000,
     gcTime: 30000
   });
@@ -1556,6 +1556,7 @@ export default function MapSearch() {
               searchFilters={filters}
               vendors={vendors}
               healthcareServices={healthcareServices}
+              resources={resources}
               onCommunityClick={handleCommunityClick}
               onBoundsChange={handleMapBoundsChange}
               onClusterClick={handleClusterClick}
