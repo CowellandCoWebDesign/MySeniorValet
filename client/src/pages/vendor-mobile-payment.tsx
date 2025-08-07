@@ -130,9 +130,9 @@ export default function VendorMobilePayment() {
         const responseData = await response.json();
         const vendorId = responseData.vendorId || 'new';
         
-        // Redirect to vendor profile page
+        // Redirect to vendor onboarding wizard
         setTimeout(() => {
-          setLocation(`/vendor/${vendorId}`);
+          setLocation(`/vendor-onboarding-wizard/${vendorId}`);
         }, 2000);
       } else {
         throw new Error('Failed to confirm payment');

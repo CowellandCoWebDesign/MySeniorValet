@@ -119,6 +119,7 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import PaymentRecovery from "@/pages/payment-recovery";
 import CommunityOnboarding from "@/pages/community-onboarding";
 import VendorOnboarding from "@/pages/vendor-onboarding";
+import VendorOnboardingWizard from "@/pages/vendor-onboarding-wizard";
 import CommunityCreatorPortal from "@/pages/community-creator-portal";
 
 function Router() {
@@ -243,6 +244,7 @@ function Router() {
       <Route path="/payment-recovery" component={PaymentRecovery} />
       <Route path="/community-onboarding/:communityId" component={CommunityOnboarding} />
       <Route path="/vendor-onboarding/:vendorId" component={VendorOnboarding} />
+      <Route path="/vendor-onboarding-wizard/:vendorId" component={VendorOnboardingWizard} />
       <Route path="/community-creator" component={CommunityCreatorPortal} />
       <Route path="/community-creator-portal" component={CommunityCreatorPortal} />
       <Route path="/payment-demo" component={PaymentDemo} />
