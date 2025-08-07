@@ -43,7 +43,30 @@ interface HealthcareProvider {
   };
 }
 
+interface Hospital {
+  id: number;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  phone: string;
+  emergencyPhone?: string;
+  hospitalType: string;
+  bedCount?: number;
+  emergencyServices: boolean;
+  traumaLevel?: string;
+  ownership?: string;
+  cmsRating?: number;
+  services?: string[];
+  specialties?: string[];
+  website?: string;
+}
+
+type CombinedProvider = (HealthcareProvider & { type: 'provider' }) | (Hospital & { type: 'hospital' });
+
 const serviceTypeLabels: Record<string, string> = {
+  hospital: "Hospital",
   home_health: "Home Health Agency",
   hospice: "Hospice Care",
   physical_therapy: "Physical Therapy",
@@ -77,34 +100,72 @@ export default function CareServices() {
   const [selectedServiceType, setSelectedServiceType] = useState("all");
   const [selectedState, setSelectedState] = useState("all");
 
-  const { data: providers = [], isLoading } = useQuery<HealthcareProvider[]>({
+  const { data: providers = [], isLoading: providersLoading } = useQuery<HealthcareProvider[]>({
     queryKey: ["/api/healthcare-providers"],
   });
 
-  // Filter providers based on search criteria
-  const filteredProviders = providers.filter((provider) => {
-    const matchesSearch = searchTerm === "" || 
-      provider.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      provider.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      provider.services.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesType = selectedServiceType === "all" || provider.serviceType === selectedServiceType;
-    
-    const matchesState = selectedState === "all" || provider.states.includes(selectedState);
-    
-    return matchesSearch && matchesType && matchesState;
+  const { data: hospitals = [], isLoading: hospitalsLoading } = useQuery<Hospital[]>({
+    queryKey: ["/api/hospitals"],
   });
 
-  // Get unique states from all providers
-  const allStates = Array.from(new Set(providers.flatMap(p => p.states))).sort();
+  const isLoading = providersLoading || hospitalsLoading;
 
-  const handleProviderClick = async (provider: HealthcareProvider) => {
-    // Track view
-    await fetch(`/api/healthcare-providers/${provider.id}/view`, { method: "POST" });
-    
-    // Open website or show contact info
-    if (provider.website) {
-      window.open(provider.website, "_blank");
+  // Combine hospitals and healthcare providers
+  const combinedProviders: CombinedProvider[] = [
+    ...hospitals.map(h => ({ ...h, type: 'hospital' as const })),
+    ...providers.map(p => ({ ...p, type: 'provider' as const }))
+  ];
+
+  // Filter combined providers based on search criteria
+  const filteredProviders = combinedProviders.filter((item) => {
+    if (item.type === 'hospital') {
+      const hospital = item as Hospital & { type: 'hospital' };
+      const matchesSearch = searchTerm === "" || 
+        hospital.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        hospital.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (hospital.services?.some(s => s.toLowerCase().includes(searchTerm.toLowerCase())) || false);
+      
+      const matchesType = selectedServiceType === "all" || selectedServiceType === "hospital";
+      
+      const matchesState = selectedState === "all" || hospital.state === selectedState;
+      
+      return matchesSearch && matchesType && matchesState;
+    } else {
+      const provider = item as HealthcareProvider & { type: 'provider' };
+      const matchesSearch = searchTerm === "" || 
+        provider.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        provider.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        provider.services.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      const matchesType = selectedServiceType === "all" || provider.serviceType === selectedServiceType;
+      
+      const matchesState = selectedState === "all" || provider.states.includes(selectedState);
+      
+      return matchesSearch && matchesType && matchesState;
+    }
+  });
+
+  // Get unique states from all providers and hospitals
+  const providerStates = providers.flatMap(p => p.states);
+  const hospitalStates = hospitals.map(h => h.state);
+  const allStates = Array.from(new Set([...providerStates, ...hospitalStates])).sort();
+
+  const handleProviderClick = async (item: CombinedProvider) => {
+    if (item.type === 'provider') {
+      const provider = item as HealthcareProvider & { type: 'provider' };
+      // Track view
+      await fetch(`/api/healthcare-providers/${provider.id}/view`, { method: "POST" });
+      
+      // Open website or show contact info
+      if (provider.website) {
+        window.open(provider.website, "_blank");
+      }
+    } else {
+      const hospital = item as Hospital & { type: 'hospital' };
+      // For hospitals, show more details or navigate to hospital detail page
+      if (hospital.website) {
+        window.open(hospital.website, "_blank");
+      }
     }
   };
 
@@ -279,7 +340,7 @@ export default function CareServices() {
             <div className="flex items-center gap-2 mt-4">
               <Filter className="w-4 h-4 text-gray-500" />
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Showing {filteredProviders.length} of {providers.length} healthcare providers
+                Showing {filteredProviders.length} of {combinedProviders.length} healthcare services ({hospitals.length} hospitals, {providers.length} providers)
               </p>
             </div>
           </CardContent>
@@ -308,166 +369,302 @@ export default function CareServices() {
           </Card>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProviders.map((provider) => (
-              <Card 
-                key={provider.id} 
-                className="hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => handleProviderClick(provider)}
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        {provider.businessName}
-                        {provider.isVerified && (
-                          <Shield className="w-4 h-4 text-blue-600" title="Verified Provider" />
-                        )}
-                      </CardTitle>
-                      <Badge variant="outline" className="mt-2">
-                        {serviceTypeLabels[provider.serviceType] || provider.otherServiceType}
-                      </Badge>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
-                    {provider.description}
-                  </p>
-                  
-                  {/* Services */}
-                  <div className="mb-4">
-                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Services:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {provider.services.slice(0, 3).map((service) => (
-                        <Badge key={service} variant="secondary" className="text-xs">
-                          {service}
-                        </Badge>
-                      ))}
-                      {provider.services.length > 3 && (
-                        <Badge variant="secondary" className="text-xs">
-                          +{provider.services.length - 3} more
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {/* Coverage Area */}
-                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-3">
-                    <MapPin className="w-4 h-4" />
-                    <span>
-                      {provider.states.length === 1 
-                        ? provider.states[0]
-                        : `${provider.states.length} states`}
-                    </span>
-                  </div>
-                  
-                  {/* Metadata Badges */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {provider.metadata?.emergencyAvailable && (
-                      <Badge variant="outline" className="text-xs">
-                        <Clock className="w-3 h-3 mr-1" />
-                        24/7 Available
-                      </Badge>
-                    )}
-                    {provider.metadata?.acceptingNewPatients && (
-                      <Badge variant="outline" className="text-xs text-green-600">
-                        <CheckCircle className="w-3 h-3 mr-1" />
-                        Accepting Patients
-                      </Badge>
-                    )}
-                    {provider.certifications?.includes("Medicare Certified") && (
-                      <Badge variant="outline" className="text-xs">
-                        Medicare
-                      </Badge>
-                    )}
-                    {provider.certifications?.includes("Medicaid Certified") && (
-                      <Badge variant="outline" className="text-xs">
-                        Medicaid
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  {/* Contact Information */}
-                  <div className="space-y-2 border-t pt-4">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Phone className="w-4 h-4 text-gray-400" />
-                      <a 
-                        href={`tel:${provider.phone}`}
-                        className="text-blue-600 hover:underline"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {provider.phone}
-                      </a>
-                    </div>
-                    {provider.website && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Globe className="w-4 h-4 text-gray-400" />
-                        <a 
-                          href={provider.website}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline truncate"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Visit Website
-                        </a>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="w-4 h-4 text-gray-400" />
-                      <a 
-                        href={`mailto:${provider.email}`}
-                        className="text-blue-600 hover:underline truncate"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {provider.email}
-                      </a>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    className="w-full mt-4" 
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleProviderClick(provider);
-                    }}
+            {filteredProviders.map((item) => {
+              if (item.type === 'hospital') {
+                const hospital = item as Hospital & { type: 'hospital' };
+                return (
+                  <Card 
+                    key={`hospital-${hospital.id}`} 
+                    className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-900"
+                    onClick={() => handleProviderClick(hospital)}
                   >
-                    View Details
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            {hospital.name}
+                            {hospital.cmsRating && hospital.cmsRating >= 4 && (
+                              <Shield className="w-4 h-4 text-blue-600" title="High CMS Rating" />
+                            )}
+                          </CardTitle>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                              🏥 Hospital
+                            </Badge>
+                            {hospital.hospitalType && (
+                              <Badge variant="outline" className="text-xs">
+                                {hospital.hospitalType}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {/* CMS Rating */}
+                      {hospital.cmsRating && (
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-sm font-semibold">CMS Rating:</span>
+                          <div className="flex">
+                            {[...Array(5)].map((_, i) => (
+                              <Star 
+                                key={i} 
+                                className={`w-4 h-4 ${i < hospital.cmsRating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} 
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Location */}
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-3">
+                        <MapPin className="w-4 h-4" />
+                        <span>{hospital.city}, {hospital.state}</span>
+                      </div>
+                      
+                      {/* Hospital Info */}
+                      <div className="space-y-2 mb-3">
+                        {hospital.bedCount && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <Building2 className="w-4 h-4 text-gray-400" />
+                            <span>{hospital.bedCount} beds</span>
+                          </div>
+                        )}
+                        {hospital.emergencyServices && (
+                          <Badge variant="outline" className="text-xs text-green-600">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Emergency Services
+                          </Badge>
+                        )}
+                        {hospital.traumaLevel && (
+                          <Badge variant="outline" className="text-xs">
+                            {hospital.traumaLevel}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {/* Services */}
+                      {hospital.services && hospital.services.length > 0 && (
+                        <div className="mb-4">
+                          <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Services:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {hospital.services.slice(0, 3).map((service) => (
+                              <Badge key={service} variant="secondary" className="text-xs">
+                                {service}
+                              </Badge>
+                            ))}
+                            {hospital.services.length > 3 && (
+                              <Badge variant="secondary" className="text-xs">
+                                +{hospital.services.length - 3} more
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Contact Information */}
+                      <div className="space-y-2 border-t pt-4">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Phone className="w-4 h-4 text-gray-400" />
+                          <a 
+                            href={`tel:${hospital.phone}`} 
+                            className="text-blue-600 hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {hospital.phone}
+                          </a>
+                        </div>
+                        {hospital.website && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <Globe className="w-4 h-4 text-gray-400" />
+                            <a 
+                              href={hospital.website} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline truncate"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              Visit Website
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <Button 
+                        className="w-full mt-4 bg-blue-600 hover:bg-blue-700"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleProviderClick(hospital);
+                        }}
+                      >
+                        View Hospital Details
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              } else {
+                const provider = item as HealthcareProvider & { type: 'provider' };
+                return (
+                  <Card 
+                    key={`provider-${provider.id}`} 
+                    className="hover:shadow-lg transition-shadow cursor-pointer"
+                    onClick={() => handleProviderClick(provider)}
+                  >
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            {provider.businessName}
+                            {provider.isVerified && (
+                              <Shield className="w-4 h-4 text-blue-600" title="Verified Provider" />
+                            )}
+                          </CardTitle>
+                          <Badge variant="outline" className="mt-2">
+                            {serviceTypeLabels[provider.serviceType] || provider.otherServiceType}
+                          </Badge>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
+                        {provider.description}
+                      </p>
+                      
+                      {/* Services */}
+                      <div className="mb-4">
+                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Services:</p>
+                        <div className="flex flex-wrap gap-1">
+                          {provider.services.slice(0, 3).map((service) => (
+                            <Badge key={service} variant="secondary" className="text-xs">
+                              {service}
+                            </Badge>
+                          ))}
+                          {provider.services.length > 3 && (
+                            <Badge variant="secondary" className="text-xs">
+                              +{provider.services.length - 3} more
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Coverage Area */}
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-3">
+                        <MapPin className="w-4 h-4" />
+                        <span>
+                          {provider.states.length === 1 
+                            ? provider.states[0]
+                            : `${provider.states.length} states`}
+                        </span>
+                      </div>
+                      
+                      {/* Metadata Badges */}
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {provider.metadata?.emergencyAvailable && (
+                          <Badge variant="outline" className="text-xs">
+                            <Clock className="w-3 h-3 mr-1" />
+                            24/7 Available
+                          </Badge>
+                        )}
+                        {provider.metadata?.acceptingNewPatients && (
+                          <Badge variant="outline" className="text-xs text-green-600">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Accepting Patients
+                          </Badge>
+                        )}
+                        {provider.certifications?.includes("Medicare Certified") && (
+                          <Badge variant="outline" className="text-xs">
+                            Medicare
+                          </Badge>
+                        )}
+                        {provider.certifications?.includes("Medicaid Certified") && (
+                          <Badge variant="outline" className="text-xs">
+                            Medicaid
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {/* Contact Information */}
+                      <div className="space-y-2 border-t pt-4">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Phone className="w-4 h-4 text-gray-400" />
+                          <a 
+                            href={`tel:${provider.phone}`}
+                            className="text-blue-600 hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {provider.phone}
+                          </a>
+                        </div>
+                        {provider.website && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <Globe className="w-4 h-4 text-gray-400" />
+                            <a 
+                              href={provider.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline truncate"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              Visit Website
+                            </a>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2 text-sm">
+                          <Mail className="w-4 h-4 text-gray-400" />
+                          <a 
+                            href={`mailto:${provider.email}`}
+                            className="text-blue-600 hover:underline truncate"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {provider.email}
+                          </a>
+                        </div>
+                      </div>
+                      
+                      <Button 
+                        className="w-full mt-4" 
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleProviderClick(provider);
+                        }}
+                      >
+                        View Details
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              }
+            })}
           </div>
         )}
         
         {/* Statistics Footer */}
-        {providers.length > 0 && (
+        {(hospitals.length > 0 || providers.length > 0) && (
           <Card className="mt-8 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
             <CardContent className="pt-6">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                 <div>
-                  <p className="text-2xl font-bold text-blue-600">{providers.length}</p>
+                  <p className="text-2xl font-bold text-blue-600">{hospitals.length}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Hospitals</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-purple-600">{providers.length}</p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">Healthcare Providers</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-purple-600">
+                  <p className="text-2xl font-bold text-green-600">
                     {providers.filter(p => p.isVerified).length}
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">Verified Providers</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-green-600">
-                    {Array.from(new Set(providers.flatMap(p => p.states))).length}
+                  <p className="text-2xl font-bold text-orange-600">
+                    {Array.from(new Set([...providers.flatMap(p => p.states), ...hospitals.map(h => h.state)])).length}
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">States Covered</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-orange-600">
-                    {providers.reduce((sum, p) => sum + p.services.length, 0)}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Services</p>
                 </div>
               </div>
             </CardContent>
