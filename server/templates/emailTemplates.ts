@@ -94,10 +94,10 @@ export const welcomeEmail: EmailTemplate = {
         <h4 style="color: ${BRAND_PRIMARY}; margin: 0 0 10px 0;">🏠 Community Discovery & Tours with Family Tools</h4>
         <ul style="color: #374151; line-height: 1.6; margin: 0; padding-left: 20px;">
           <li>Search 34,180+ verified communities nationwide</li>
-          <li><strong>Complete Care Spectrum & Live Market Intelligence</strong> - Live pricing from 34,180+ verified communities</li>
+          <li><strong>Complete Care Spectrum & Live Market Intelligence</strong> - National pricing insights and verified HUD data</li>
           <li>Schedule and track tours with Tour Tracker™</li>
           <li>Share favorites and collaborate with family members</li>
-          <li>Compare communities side-by-side with Complete Care Spectrum analysis</li>
+          <li>Compare communities with market intelligence and verified data</li>
           <li>Read authentic family reviews</li>
           <li>Get AI-powered Perfect Match recommendations</li>
         </ul>
@@ -167,6 +167,10 @@ export const welcomeEmail: EmailTemplate = {
       📧 Email: support@myseniorvalet.com<br>
       📞 Call: 1-888-SENIOR-V<br>
       💬 Live chat available on our website
+    </p>
+    
+    <p style="color: #6b7280; font-size: 12px; text-align: center; margin-top: 20px; font-style: italic;">
+      Thanks for joining the fight for transparency and access to affordable housing and care for seniors.
     </p>
   `)
 };
@@ -658,6 +662,10 @@ export const onboardingDay7Email: EmailTemplate = {
       <strong>Your dedicated concierge team is here to help!</strong><br>
       Reply to this email with any questions or call 1-888-SENIOR-V
     </p>
+    
+    <p style="color: #6b7280; font-size: 12px; text-align: center; margin-top: 15px; font-style: italic;">
+      Thanks for joining the fight for transparency and access to affordable housing and care for seniors.
+    </p>
   `)
 };
 
@@ -699,8 +707,8 @@ export const comprehensiveServicesEmail: EmailTemplate = {
           <div>
             <strong>Smart Features:</strong>
             <ul style="margin: 5px 0; padding-left: 20px;">
-              <li><strong>Real-time availability updates</strong></li>
-              <li>Transparent pricing data</li>
+              <li><strong>Community availability updates</strong></li>
+              <li>Verified pricing data</li>
               <li>Virtual tours</li>
               <li>Share with family</li>
               <li>AI Perfect Match</li>
