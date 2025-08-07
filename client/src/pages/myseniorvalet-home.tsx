@@ -384,14 +384,14 @@ export default function MySeniorValetHome() {
         
 
         
-        <div className="relative flex flex-col items-center justify-center hero-content min-h-screen px-6 py-8 mobile-keyboard-safe">
-          {/* Centered Headlines - Optimized for Desktop */}
-          <div className="text-center mb-6 md:mb-8 max-w-7xl">
-            <div className="space-y-6 mb-6">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl tracking-tight">
-                <span className="block mb-3 hero-text-main animate-space-entry animate-cosmic-glow">Empowering Families to Find Transparent, Affordable Senior Living and Care</span>
+        <div className="relative flex flex-col items-center justify-center hero-content min-h-screen px-6 py-12 md:py-16 mobile-keyboard-safe">
+          {/* Centered Headlines - Optimized for Desktop with Better Spacing */}
+          <div className="text-center mb-4 md:mb-6 max-w-6xl">
+            <div className="space-y-4 mb-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl tracking-tight">
+                <span className="block mb-2 hero-text-main animate-space-entry animate-cosmic-glow">Empowering Families to Find Transparent, Affordable Senior Living and Care</span>
               </h1>
-              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-space-warp max-w-5xl mx-auto font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
+              <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-space-warp max-w-4xl mx-auto font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
                 Explore trusted senior living communities and connect with services that make life easier. Transparent pricing, real-time availability, and seamless service integration, all in one place.
               </h2>
             </div>
@@ -400,14 +400,14 @@ export default function MySeniorValetHome() {
 
 
           {/* Search Bar - Enhanced with AutocompleteSearch Component */}
-          <div className="w-full max-w-5xl mb-6 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
+          <div className="w-full max-w-4xl mb-5 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
             <form onSubmit={(e) => {
               e.preventDefault();
               if (searchQuery) {
                 window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
               }
             }}>
-              <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-2xl" style={{ overflow: 'visible' }}>
+              <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl" style={{ overflow: 'visible' }}>
                 <div className="flex items-center">
                   <div className="flex-1 relative">
                     <AutocompleteSearch
@@ -420,19 +420,19 @@ export default function MySeniorValetHome() {
                       }}
                       placeholder={t('hero.searchPlaceholder')}
                       hideSearchButton={true}
-                      inputClassName="w-full pl-14 pr-6 py-5 text-lg md:text-xl border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                      inputClassName="w-full pl-12 pr-4 py-4 text-base md:text-lg border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                     />
                   </div>
-                  <div className="flex items-center mr-3">
-                    <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-sm md:text-base px-4 py-2 font-semibold">
+                  <div className="flex items-center mr-2">
+                    <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs md:text-sm px-3 py-1.5 font-semibold">
                       AI-Powered
                     </Badge>
                   </div>
                   <button
                     type="submit"
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-4 m-3 rounded-2xl transition-all flex items-center justify-center shadow-lg hover:shadow-xl"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-3 m-2 rounded-xl transition-all flex items-center justify-center shadow-lg hover:shadow-xl"
                   >
-                    <Search className="w-7 h-7" />
+                    <Search className="w-6 h-6" />
                   </button>
                 </div>
               </div>
@@ -440,23 +440,23 @@ export default function MySeniorValetHome() {
           </div>
 
           {/* Streamlined Primary Actions - Clean Flow */}
-          <div className="flex flex-col items-center space-y-4 mb-6 animate-fade-in-up animation-delay-700 w-full px-4">
+          <div className="flex flex-col items-center space-y-3 mb-5 animate-fade-in-up animation-delay-700 w-full px-4">
             {/* Top Priority: Perfect Match */}
             <Link href="/ai-search-intelligence?mode=perfect-match">
-              <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 text-base md:text-xl px-8 md:px-10 py-4 md:py-5 rounded-2xl transform hover:scale-105">
+              <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 text-sm md:text-lg px-6 md:px-8 py-3 md:py-4 rounded-xl transform hover:scale-105">
                 ✨ Find My Perfect Match
               </Button>
             </Link>
             
             {/* Secondary Actions - Responsive Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-xl">
               <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
-                <Button variant="outline" className="w-full border-2 border-white text-white hover:bg-white hover:text-gray-900 px-6 py-3.5 rounded-2xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
+                <Button variant="outline" className="w-full border-2 border-white text-white hover:bg-white hover:text-gray-900 px-5 py-3 rounded-xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
                   Explore Communities
                 </Button>
               </Link>
               <Link href="/ai-search-intelligence">
-                <Button variant="outline" className="w-full border-2 border-amber-300 text-amber-200 hover:bg-amber-300 hover:text-gray-900 px-6 py-3.5 rounded-2xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-amber-400/10 backdrop-blur-sm">
+                <Button variant="outline" className="w-full border-2 border-amber-300 text-amber-200 hover:bg-amber-300 hover:text-gray-900 px-5 py-3 rounded-xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-amber-400/10 backdrop-blur-sm">
                   <MapPin className="mr-1.5 h-4 w-4" />
                   Smart Search
                 </Button>
