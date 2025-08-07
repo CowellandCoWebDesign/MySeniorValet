@@ -27,7 +27,7 @@ This document contains all 16 email templates for MySeniorValet platform, includ
 - **Triggered:** When new user signs up
 - **Content Highlights:**
   - **NEW: Complete Service Command Center (Properly Prioritized)**
-    1. 🏠 Community Discovery & Tours with Family Tools (34,180+ communities, Tour Tracker™, collaboration)
+    1. 🏠 Community Discovery & Tours with Family Tools (34,180+ communities, Complete Care Spectrum & Live Market Intelligence, Tour Tracker™, collaboration)
     2. 📦 Move-In Services/Vendor Marketplace (50+ vendors, movers, estate planning, home mods)
     3. 🏥 Healthcare & Care Services (12,000+ hospitals, 6,806 home care, medical equipment)
     4. 💰 Resources, Support & Financial Benefits (32+ programs, HUD, VA, concierge support)
@@ -87,7 +87,7 @@ This document contains all 16 email templates for MySeniorValet platform, includ
 - **Triggered:** On-demand or Day 14
 - **Content Highlights:**
   - **Complete Service Ecosystem Map (Properly Prioritized):**
-    1. **Community Discovery & Tours with Family Collaboration** (34,180+ communities, Tour Tracker™, family sharing)
+    1. **Community Discovery & Tours with Family Collaboration** (34,180+ communities, Complete Care Spectrum & Live Market Intelligence, Tour Tracker™, family sharing)
     2. **Move-In Services (Senior Vendor Marketplace)** (50+ vendors, movers, downsizing, estate sales)
     3. **Healthcare & Care Services** (12,000+ hospitals, 6,806 home care, medical equipment)
     4. **Resources, Support & Financial Benefits** (32+ programs, HUD housing, VA benefits, concierge)
