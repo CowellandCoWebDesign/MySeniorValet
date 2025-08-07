@@ -94,9 +94,10 @@ export const welcomeEmail: EmailTemplate = {
         <h4 style="color: ${BRAND_PRIMARY}; margin: 0 0 10px 0;">🏠 Community Discovery & Tours with Family Tools</h4>
         <ul style="color: #374151; line-height: 1.6; margin: 0; padding-left: 20px;">
           <li>Search 34,180+ verified communities nationwide</li>
+          <li><strong>Live Pricing & Market Intelligence System</strong> - Real-time availability and transparent pricing</li>
           <li>Schedule and track tours with Tour Tracker™</li>
           <li>Share favorites and collaborate with family members</li>
-          <li>Compare communities side-by-side</li>
+          <li>Compare communities side-by-side with live market data</li>
           <li>Read authentic family reviews</li>
           <li>Get AI-powered Perfect Match recommendations</li>
         </ul>
@@ -689,19 +690,19 @@ export const comprehensiveServicesEmail: EmailTemplate = {
             <strong>Find & Compare:</strong>
             <ul style="margin: 5px 0; padding-left: 20px;">
               <li>34,180+ Communities</li>
+              <li><strong>Live Pricing Intelligence</strong></li>
               <li>Tour Tracker™ System</li>
               <li>Family Collaboration</li>
-              <li>Side-by-Side Compare</li>
-              <li>Transparent Pricing</li>
+              <li>Market Price Analysis</li>
             </ul>
           </div>
           <div>
-            <strong>Features:</strong>
+            <strong>Smart Features:</strong>
             <ul style="margin: 5px 0; padding-left: 20px;">
-              <li>Real-time availability</li>
+              <li><strong>Real-time availability updates</strong></li>
+              <li>Transparent pricing data</li>
               <li>Virtual tours</li>
               <li>Share with family</li>
-              <li>Tour scheduling</li>
               <li>AI Perfect Match</li>
             </ul>
           </div>
