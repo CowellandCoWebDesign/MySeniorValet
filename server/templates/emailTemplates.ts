@@ -674,8 +674,8 @@ export const comprehensiveServicesEmail: EmailTemplate = {
     <div style="background-color: #1e40af; color: white; padding: 20px; border-radius: 8px; margin: 30px 0; text-align: center;">
       <h3 style="margin: 0 0 10px 0;">🌟 THE MYSENIORVALET DIFFERENCE</h3>
       <p style="margin: 0; line-height: 1.6;">
-        <strong>34,180+ Communities</strong> | <strong>Complete Care Spectrum & Live Market Intelligence</strong> | <strong>5,936 HUD Properties</strong><br>
-        <strong>12,000+ Hospitals</strong> | <strong>50+ Vendor Services</strong> | <strong>3-AI Orchestra: Claude + Perplexity + ChatGPT</strong>
+        <strong>34,180+ Communities</strong> | <strong>5,936 HUD Properties</strong> | <strong>32+ Benefits Programs</strong><br>
+        <strong>12,000+ Hospitals</strong> | <strong>50+ Vendor Services</strong> | <strong>Complete Care Spectrum & Live Market Intelligence</strong>
       </p>
     </div>
     
@@ -699,11 +699,11 @@ export const comprehensiveServicesEmail: EmailTemplate = {
           <div>
             <strong>Smart Features:</strong>
             <ul style="margin: 5px 0; padding-left: 20px;">
-              <li><strong>Live pricing from verified communities</strong></li>
-              <li>All 7 care levels ($0 to $12,000+)</li>
-              <li>3-AI Orchestra: Claude + Perplexity + ChatGPT</li>
-              <li>Virtual tours & family sharing</li>
-              <li>AI Perfect Match system</li>
+              <li><strong>Real-time availability updates</strong></li>
+              <li>Transparent pricing data</li>
+              <li>Virtual tours</li>
+              <li>Share with family</li>
+              <li>AI Perfect Match</li>
             </ul>
           </div>
         </div>
