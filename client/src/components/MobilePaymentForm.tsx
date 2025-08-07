@@ -13,7 +13,7 @@ import { Loader2, CreditCard, Shield, Check, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 // Initialize Stripe with publishable key
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || '');
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
 interface MobilePaymentFormProps {
   productId: string;
@@ -152,19 +152,23 @@ export function MobilePaymentForm(props: MobilePaymentFormProps) {
     // Create payment intent when component mounts
     const createPaymentIntent = async () => {
       try {
+        // Determine tier and type from productId
+        const tier = props.productId; // productId is actually the tier name (standard, featured, platinum, etc.)
+        const type = ['standard', 'featured', 'platinum'].includes(tier) ? 'community' : 'vendor';
+        
         const response = await fetch('/api/payments/create-payment-intent', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            productId: props.productId,
-            amount: props.price,
-            customerId: props.customerId,
+            tier: tier,
+            type: type,
             metadata: {
               ...props.metadata,
               productName: props.productName,
-              productId: props.productId
+              productId: props.productId,
+              customerId: props.customerId || undefined
             }
           }),
         });
