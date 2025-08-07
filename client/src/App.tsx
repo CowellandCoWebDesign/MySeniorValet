@@ -123,6 +123,7 @@ import VendorOnboardingWizard from "@/pages/vendor-onboarding-wizard";
 import VendorTierTest from "@/pages/vendor-tier-test";
 import CommunityCreatorPortal from "@/pages/community-creator-portal";
 import HealthcareProviderSignup from "@/pages/healthcare-provider-signup";
+import HealthcareProviderDashboard from "@/pages/healthcare-provider-dashboard";
 import CareServices from "@/pages/care-services";
 
 function Router() {
@@ -208,6 +209,7 @@ function Router() {
       <Route path="/vendor-marketplace" component={VendorMarketplace} />
       <Route path="/vendor-marketplace-tiers" component={VendorMarketplaceTiers} />
       <Route path="/healthcare-provider-signup" component={HealthcareProviderSignup} />
+      <Route path="/healthcare-provider-dashboard/:id" component={HealthcareProviderDashboard} />
       <Route path="/care-services" component={CareServices} />
       <Route path="/florals" component={FloralServices} />
       <Route path="/moving" component={MovingServices} />

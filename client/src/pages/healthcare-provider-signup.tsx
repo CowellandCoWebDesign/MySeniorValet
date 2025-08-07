@@ -213,15 +213,21 @@ export default function HealthcareProviderSignup() {
         metadata,
       };
 
-      await apiRequest("POST", "/api/healthcare-providers/signup", submitData);
+      const response = await apiRequest("POST", "/api/healthcare-providers/signup", submitData);
       
       toast({
         title: "Success! 🎉",
         description: "Your healthcare service has been listed for FREE in our directory!",
       });
 
+      // Redirect to the provider dashboard
       setTimeout(() => {
-        setLocation("/care-services");
+        if (response.provider && response.provider.id) {
+          setLocation(`/healthcare-provider-dashboard/${response.provider.id}`);
+        } else {
+          // Fallback to care services page if no ID is returned
+          setLocation("/care-services");
+        }
       }, 2000);
     } catch (error) {
       toast({
