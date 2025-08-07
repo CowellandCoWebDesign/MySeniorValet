@@ -105,6 +105,7 @@ import MultiAITest from "@/pages/MultiAITest";
 import AISearchComparison from "@/pages/AISearchComparison";
 import SuperAdminDashboard from "@/pages/super-admin-dashboard";
 import FinancialDashboard from "@/pages/financial-dashboard";
+import EnhancedFinancialDashboard from "@/pages/enhanced-financial-dashboard";
 import PaymentMonitoring from "@/pages/payment-monitoring";
 import { useAuth } from "@/hooks/useAuth";
 import CanadaPage from "@/pages/canada";
@@ -236,6 +237,7 @@ function Router() {
       <Route path="/community-mobile-payment/:tier" component={CommunityMobilePayment} />
       <Route path="/test-tier-access" component={TestTierAccess} />
       <Route path="/financial-dashboard" component={FinancialDashboard} />
+      <Route path="/enhanced-financial-dashboard" component={EnhancedFinancialDashboard} />
       <Route path="/payment-monitoring" component={PaymentMonitoring} />
       <Route path="/payment/success" component={PaymentSuccess} />
       <Route path="/payment/cancel" component={PaymentCancel} />
