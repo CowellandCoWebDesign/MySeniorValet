@@ -1090,7 +1090,7 @@ export default function MySeniorValetHome() {
       </section>
 
       {/* California Communities Section */}
-      <section className="px-4 py-8 relative overflow-hidden">
+      <section ref={californiaSectionRef} className="px-4 py-8 relative overflow-hidden">
         {/* Background with California Golden State styling */}
         <div className="absolute inset-0 z-0">
           <div className="w-full h-full bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
@@ -1103,12 +1103,12 @@ export default function MySeniorValetHome() {
               Explore California Communities
             </h2>
             <div className="text-right">
-              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">$3,500 - $6,200</div>
+              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">$2,800 - $7,500</div>
               <div className="text-xs text-amber-600 dark:text-amber-400">Golden State living</div>
             </div>
           </div>
           
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{(californiaCommunities as any[])?.length || 0} communities • Silicon Valley, LA Metro, San Diego with immediate openings</p>
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{(californiaCommunities as any[] || []).length || 0} communities • Silicon Valley, LA Metro, San Diego with immediate openings</p>
         
           <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
             {californiaLoading ? (
@@ -1125,7 +1125,7 @@ export default function MySeniorValetHome() {
                 </Card>
               ))
             ) : (
-              ((californiaCommunities as any[]) || []).map((community: any, index: number) => (
+              ((californiaCommunities as any[] || []).slice(0, 12)).map((community: any, index: number) => (
                 <EnhancedCommunityCard
                   key={`california-${community.id}-${index}`}
                   community={community}
