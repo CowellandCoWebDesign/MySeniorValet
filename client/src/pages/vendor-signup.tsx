@@ -86,6 +86,8 @@ export default function VendorSignup() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [selectedPlan, setSelectedPlan] = useState<string>('featured');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [isFirstTimeCustomer, setIsFirstTimeCustomer] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<VendorSignupForm>({
@@ -119,11 +121,19 @@ export default function VendorSignup() {
         throw new Error('Invalid plan selected');
       }
       
-      // Store vendor data in session storage
-      sessionStorage.setItem('vendorSignupData', JSON.stringify(data));
+      // Store vendor data with billing preferences in session storage
+      sessionStorage.setItem('vendorSignupData', JSON.stringify({
+        ...data,
+        billingCycle,
+        applyPromo: isFirstTimeCustomer,
+      }));
       
-      // Navigate to mobile payment page
-      setLocation(`/vendor-mobile-payment/${productId}`);
+      // Navigate to mobile payment page with billing params
+      const params = new URLSearchParams({
+        billingCycle,
+        promo: isFirstTimeCustomer ? 'true' : 'false'
+      });
+      setLocation(`/vendor-mobile-payment/${productId}?${params.toString()}`);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -232,44 +242,116 @@ export default function VendorSignup() {
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold mb-2">Simple, Transparent Pricing</h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">No hidden fees. Cancel anytime. All plans include immediate activation.</p>
-            <div className="mt-4 inline-flex items-center bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-4 py-2 rounded-full">
-              <Sparkle className="w-4 h-4 mr-2" />
-              <span className="font-medium">Limited Time: First month 50% off!</span>
+            
+            {/* Promotional Badges */}
+            <div className="mt-4 flex flex-col sm:flex-row gap-3 items-center justify-center">
+              {isFirstTimeCustomer && (
+                <div className="inline-flex items-center bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-4 py-2 rounded-full">
+                  <Sparkle className="w-4 h-4 mr-2" />
+                  <span className="font-medium">Limited Time: First month 50% off!</span>
+                </div>
+              )}
+              <div className="inline-flex items-center bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-full">
+                <TrendingUp className="w-4 h-4 mr-2" />
+                <span className="font-medium">Save 1 month with annual billing!</span>
+              </div>
+            </div>
+            
+            {/* Billing Cycle Toggle */}
+            <div className="mt-6 flex items-center justify-center gap-4">
+              <span className={`text-lg font-medium ${billingCycle === 'monthly' ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>
+                Monthly
+              </span>
+              <button
+                type="button"
+                onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'annual' : 'monthly')}
+                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                  billingCycle === 'annual' ? 'bg-purple-600' : 'bg-gray-300 dark:bg-gray-600'
+                }`}
+              >
+                <span
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                    billingCycle === 'annual' ? 'translate-x-7' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+              <span className={`text-lg font-medium ${billingCycle === 'annual' ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>
+                Annual
+                <Badge className="ml-2 bg-green-600 text-white">Save 8%</Badge>
+              </span>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {pricingPlans.map((plan) => (
-              <Card 
-                key={plan.id}
-                className={`cursor-pointer transition-all ${
-                  selectedPlan === plan.id 
-                    ? 'ring-2 ring-purple-600 shadow-lg' 
-                    : 'hover:shadow-md'
-                }`}
-                onClick={() => {
-                  setSelectedPlan(plan.id);
-                  form.setValue('planType', plan.id as any);
-                }}
-              >
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>{plan.name}</CardTitle>
-                    {plan.badge && (
-                      <Badge className="bg-purple-600 text-white">
-                        {plan.badge}
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="mt-4">
-                    <div className="flex items-baseline">
-                      <span className="text-4xl font-bold">${plan.price}</span>
-                      <span className="text-gray-600 dark:text-gray-400 ml-1">/month</span>
+            {pricingPlans.map((plan) => {
+              // Calculate displayed price based on billing cycle and promotions
+              let displayPrice = plan.price;
+              let originalPrice = plan.price;
+              let savingsText = '';
+              
+              if (billingCycle === 'annual') {
+                // Annual pricing: 11 months for the price of 12
+                displayPrice = Math.round(plan.price * 11 / 12);
+                savingsText = `Save $${plan.price * 12 - plan.price * 11} per year`;
+              }
+              
+              if (isFirstTimeCustomer && billingCycle === 'monthly') {
+                // First month 50% off for monthly billing
+                originalPrice = plan.price;
+                displayPrice = Math.round(plan.price / 2);
+              }
+              
+              return (
+                <Card 
+                  key={plan.id}
+                  className={`cursor-pointer transition-all ${
+                    selectedPlan === plan.id 
+                      ? 'ring-2 ring-purple-600 shadow-lg' 
+                      : 'hover:shadow-md'
+                  }`}
+                  onClick={() => {
+                    setSelectedPlan(plan.id);
+                    form.setValue('planType', plan.id as any);
+                  }}
+                >
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>{plan.name}</CardTitle>
+                      {plan.badge && (
+                        <Badge className="bg-purple-600 text-white">
+                          {plan.badge}
+                        </Badge>
+                      )}
                     </div>
-                    {plan.id === 'featured' && (
-                      <p className="text-sm text-green-600 dark:text-green-400 mt-1">Save $178/year with annual billing</p>
-                    )}
-                  </div>
-                </CardHeader>
+                    <div className="mt-4">
+                      {isFirstTimeCustomer && billingCycle === 'monthly' && (
+                        <div className="mb-2">
+                          <span className="text-sm line-through text-gray-500">${originalPrice}</span>
+                          <Badge className="ml-2 bg-green-600 text-white text-xs">50% OFF</Badge>
+                        </div>
+                      )}
+                      <div className="flex items-baseline">
+                        <span className="text-4xl font-bold">${displayPrice}</span>
+                        <span className="text-gray-600 dark:text-gray-400 ml-1">
+                          /{billingCycle === 'annual' ? 'month' : 'month'}
+                        </span>
+                      </div>
+                      {billingCycle === 'annual' && (
+                        <div className="mt-2">
+                          <p className="text-sm text-green-600 dark:text-green-400">
+                            {savingsText}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            Billed annually at ${plan.price * 11}
+                          </p>
+                        </div>
+                      )}
+                      {isFirstTimeCustomer && billingCycle === 'monthly' && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                          First month only, then ${plan.price}/month
+                        </p>
+                      )}
+                    </div>
+                  </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
                     {plan.features.map((feature, idx) => (
@@ -279,9 +361,10 @@ export default function VendorSignup() {
                       </li>
                     ))}
                   </ul>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
 

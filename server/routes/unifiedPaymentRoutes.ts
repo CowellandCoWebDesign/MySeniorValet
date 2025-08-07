@@ -23,11 +23,29 @@ const COMMUNITY_TIERS = {
   platinum: { name: 'Platinum', price: 34900, interval: 'month' as const }, // $349 in cents
 };
 
-// Vendor Subscription Tiers
+// Vendor Subscription Tiers with Promotional Pricing
 const VENDOR_TIERS = {
-  basic: { name: 'Basic Listing', price: 9900, interval: 'month' as const }, // $99 in cents
-  featured: { name: 'Featured Vendor', price: 24900, interval: 'month' as const }, // $249 in cents
-  national: { name: 'National Partner', price: 49900, interval: 'month' as const }, // $499 in cents
+  basic: { 
+    name: 'Basic Listing', 
+    price: 9900, // $99 in cents
+    promoPrice: 4950, // $49.50 (50% off first month)
+    annualPrice: 107892, // $1078.92 (save $109.08/year - 1 month free)
+    interval: 'month' as const 
+  },
+  featured: { 
+    name: 'Featured Vendor', 
+    price: 24900, // $249 in cents
+    promoPrice: 12450, // $124.50 (50% off first month)
+    annualPrice: 271908, // $2719.08 (save $268.92/year - 1 month free)
+    interval: 'month' as const 
+  },
+  national: { 
+    name: 'National Partner', 
+    price: 49900, // $499 in cents
+    promoPrice: 24950, // $249.50 (50% off first month)
+    annualPrice: 544908, // $5449.08 (save $538.92/year - 1 month free)
+    interval: 'month' as const 
+  },
 };
 
 // Get Stripe configuration (public key for frontend)
@@ -62,7 +80,7 @@ router.get('/subscription-tiers', (req: Request, res: Response) => {
 // Create Payment Intent for Stripe Elements
 router.post('/create-payment-intent', async (req: Request, res: Response) => {
   try {
-    const { tier, type, metadata = {} } = req.body;
+    const { tier, type, metadata = {}, billingCycle = 'monthly', applyPromo = false } = req.body;
 
     // Validate input
     if (!tier || !type) {
@@ -86,13 +104,36 @@ router.post('/create-payment-intent', async (req: Request, res: Response) => {
       });
     }
     
+    // Calculate amount based on billing cycle and promotional pricing
+    let amount = tierInfo.price;
+    let description = `MySeniorValet ${tierInfo.name} - Monthly`;
+    
+    if (type === 'vendor') {
+      const vendorTier = tierInfo as typeof VENDOR_TIERS[keyof typeof VENDOR_TIERS];
+      
+      if (billingCycle === 'annual' && vendorTier.annualPrice) {
+        amount = vendorTier.annualPrice;
+        description = `MySeniorValet ${tierInfo.name} - Annual (Save 1 Month!)`;
+      } else if (applyPromo && vendorTier.promoPrice) {
+        amount = vendorTier.promoPrice;
+        description = `MySeniorValet ${tierInfo.name} - First Month 50% OFF`;
+      }
+    }
+    
     // Log what we're about to charge
-    console.log(`Creating payment intent: $${tierInfo.price / 100} for ${tierInfo.name}`);
-    console.log('Tier info:', { tier, type, price: tierInfo.price, name: tierInfo.name });
+    console.log(`Creating payment intent: $${amount / 100} for ${tierInfo.name}`);
+    console.log('Pricing details:', { 
+      tier, 
+      type, 
+      originalPrice: tierInfo.price, 
+      finalAmount: amount,
+      billingCycle,
+      applyPromo 
+    });
     
     // Create payment intent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: tierInfo.price,
+      amount,
       currency: 'usd',
       automatic_payment_methods: {
         enabled: true,
