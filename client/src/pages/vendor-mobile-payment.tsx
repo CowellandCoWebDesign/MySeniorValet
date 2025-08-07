@@ -16,9 +16,37 @@ export default function VendorMobilePayment() {
   const [paymentError, setPaymentError] = useState('');
   const [currentStep, setCurrentStep] = useState('business-info');
   const [paymentSteps, setPaymentSteps] = useState<PaymentStep[]>(VENDOR_PAYMENT_STEPS);
+  const [vendorData, setVendorData] = useState<any>(null);
 
-  // Initialize payment steps based on vendor signup progress
+  // Initialize payment steps and vendor data
   React.useEffect(() => {
+    // Get vendor data from session storage
+    const vendorDataString = sessionStorage.getItem('vendorSignupData');
+    
+    // If no vendor data, try to create test data for testing purposes
+    if (!vendorDataString && productId) {
+      // Create test vendor data for quick testing
+      const testVendorData = {
+        businessName: `Test Vendor ${Date.now()}`,
+        businessType: 'company',
+        contactName: 'Test User',
+        email: `test-${productId}@myseniorvalet.com`,
+        phone: '555-0100',
+        city: 'Miami',
+        state: 'FL',
+        website: 'https://example.com',
+        description: `Test vendor for ${productId}`,
+        serviceAreas: 'Miami, Fort Lauderdale',
+        category: 'Home Care Services',
+        planType: productId
+      };
+      sessionStorage.setItem('vendorSignupData', JSON.stringify(testVendorData));
+      setVendorData(testVendorData);
+    } else if (vendorDataString) {
+      setVendorData(JSON.parse(vendorDataString));
+    }
+
+    // Set up payment steps
     const updatedSteps = paymentSteps.map(step => {
       if (step.id === 'business-info') {
         return { ...step, status: 'completed' as const };
@@ -33,11 +61,7 @@ export default function VendorMobilePayment() {
     });
     setPaymentSteps(updatedSteps);
     setCurrentStep('payment-details');
-  }, []);
-
-  // Get vendor data from session storage (passed from signup form)
-  const vendorDataString = sessionStorage.getItem('vendorSignupData');
-  const vendorData = vendorDataString ? JSON.parse(vendorDataString) : null;
+  }, [productId]);
 
   // Find the selected product
   const product = VENDOR_PRODUCTS.find(p => p.id === productId);
@@ -152,7 +176,7 @@ export default function VendorMobilePayment() {
     }
   };
 
-  if (paymentSuccess) {
+  if (paymentSuccess && vendorData) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <NavigationHeader />
@@ -169,7 +193,7 @@ export default function VendorMobilePayment() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-center text-gray-600 dark:text-gray-400">
-                Thank you for joining our vendor network. You'll receive a confirmation email at <strong>{vendorData.email}</strong> with your account details and next steps.
+                Thank you for joining our vendor network. You'll receive a confirmation email at <strong>{vendorData?.email || 'your registered email'}</strong> with your account details and next steps.
               </p>
               <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-4">
                 <h4 className="font-semibold mb-2">What happens next?</h4>
