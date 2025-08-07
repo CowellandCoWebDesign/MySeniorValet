@@ -549,27 +549,81 @@ router.post('/confirm-vendor-payment', async (req: Request, res: Response) => {
     
     const tier = paymentIntent.metadata?.tier || vendorData.planType || 'basic';
     
-    // Check if vendor already exists with this email
-    const existingVendorQuery = `
-      SELECT id, business_name, subscription_tier, status
-      FROM vendors 
-      WHERE primary_contact_email = $1
-      LIMIT 1
-    `;
+    // Check if vendor already exists - check multiple fields for better matching
+    let existingVendor = null;
     
-    const existingVendorResult = await pool.query(existingVendorQuery, [vendorData.email]);
+    // First check by email if provided
+    if (vendorData.email) {
+      const emailQuery = `
+        SELECT id, business_name, subscription_tier, status, primary_contact_email
+        FROM vendors 
+        WHERE LOWER(primary_contact_email) = LOWER($1)
+        LIMIT 1
+      `;
+      const emailResult = await pool.query(emailQuery, [vendorData.email]);
+      if (emailResult.rows.length > 0) {
+        existingVendor = emailResult.rows[0];
+        console.log('Vendor matched by email:', existingVendor.business_name);
+      }
+    }
     
-    if (existingVendorResult.rows.length > 0) {
+    // If not found by email, check by business name (fuzzy match)
+    if (!existingVendor && vendorData.businessName) {
+      const nameQuery = `
+        SELECT id, business_name, subscription_tier, status, primary_contact_email
+        FROM vendors 
+        WHERE LOWER(business_name) = LOWER($1)
+           OR LOWER(business_name) LIKE LOWER($2)
+           OR similarity(LOWER(business_name), LOWER($1)) > 0.7
+        ORDER BY similarity(LOWER(business_name), LOWER($1)) DESC
+        LIMIT 1
+      `;
+      
+      const nameResult = await pool.query(nameQuery, [
+        vendorData.businessName,
+        `%${vendorData.businessName}%`
+      ]);
+      
+      if (nameResult.rows.length > 0) {
+        existingVendor = nameResult.rows[0];
+        console.log('Vendor matched by business name:', existingVendor.business_name);
+        
+        // For major vendors without email, update with provided email
+        if (!existingVendor.primary_contact_email && vendorData.email) {
+          await pool.query(
+            'UPDATE vendors SET primary_contact_email = $1 WHERE id = $2',
+            [vendorData.email, existingVendor.id]
+          );
+          console.log('Updated vendor email for:', existingVendor.business_name);
+        }
+      }
+    }
+    
+    // If still not found, check by phone number
+    if (!existingVendor && vendorData.phone) {
+      const phoneQuery = `
+        SELECT id, business_name, subscription_tier, status, primary_contact_email
+        FROM vendors 
+        WHERE primary_contact_phone = $1
+        LIMIT 1
+      `;
+      const phoneResult = await pool.query(phoneQuery, [vendorData.phone]);
+      if (phoneResult.rows.length > 0) {
+        existingVendor = phoneResult.rows[0];
+        console.log('Vendor matched by phone:', existingVendor.business_name);
+      }
+    }
+    
+    if (existingVendor) {
       // Vendor exists - update their subscription tier
-      const existingVendor = existingVendorResult.rows[0];
-      console.log('Existing vendor found:', existingVendor);
+      console.log('Updating existing vendor:', existingVendor.business_name, '(ID:', existingVendor.id, ')');
       
       const updateQuery = `
         UPDATE vendors 
         SET 
           subscription_tier = $1,
           stripe_subscription_id = $2,
-          total_spent = total_spent + $3,
+          lifetime_revenue = COALESCE(lifetime_revenue, 0) + $3,
           status = 'active',
           is_verified = $4,
           featured = $5,
