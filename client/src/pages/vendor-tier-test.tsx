@@ -87,10 +87,11 @@ const vendorTiers = {
     features: [
       'Everything in Featured',
       '👑 Premium placement everywhere',
+      'Custom vendor microsite',
       'Advanced analytics & insights',
       'Dedicated success manager',
       'Custom marketing campaigns',
-      'API access for integration',
+      'API access (Coming Soon)',
       'White-glove onboarding',
       'Quarterly business reviews',
       'Co-branded content opportunities',

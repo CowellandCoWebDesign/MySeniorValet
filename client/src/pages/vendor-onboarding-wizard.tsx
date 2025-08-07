@@ -316,10 +316,12 @@ export default function VendorOnboardingWizard() {
                     <ul className="text-sm space-y-1 text-gray-700 dark:text-gray-300">
                       {vendorTier === 'national' ? (
                         <>
+                          <li>• Custom vendor microsite</li>
                           <li>• Priority placement in all searches</li>
                           <li>• Advanced analytics dashboard</li>
                           <li>• Dedicated success manager</li>
                           <li>• Custom marketing campaigns</li>
+                          <li>• API access (Coming Soon)</li>
                         </>
                       ) : (
                         <>
