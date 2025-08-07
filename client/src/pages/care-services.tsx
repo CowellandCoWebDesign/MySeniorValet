@@ -100,6 +100,8 @@ export default function CareServices() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedServiceType, setSelectedServiceType] = useState("all");
   const [selectedState, setSelectedState] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12; // Show only 12 items per page to prevent crashes
 
   const { data: providers = [], isLoading: providersLoading } = useQuery<HealthcareProvider[]>({
     queryKey: ["/api/healthcare-providers"],
@@ -150,6 +152,17 @@ export default function CareServices() {
   const providerStates = providers.flatMap(p => p.states);
   const hospitalStates = hospitals.map(h => h.state);
   const allStates = Array.from(new Set([...providerStates, ...hospitalStates])).sort();
+  
+  // Pagination logic
+  const totalPages = Math.ceil(filteredProviders.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedProviders = filteredProviders.slice(startIndex, endIndex);
+  
+  // Reset to page 1 when filters change
+  const resetPage = () => {
+    setCurrentPage(1);
+  };
 
   const handleProviderClick = async (item: CombinedProvider) => {
     if (item.type === 'provider') {
@@ -307,13 +320,19 @@ export default function CareServices() {
                   <Input
                     placeholder="Search by name, service, or keyword..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      resetPage();
+                    }}
                     className="pl-10"
                   />
                 </div>
               </div>
               
-              <Select value={selectedServiceType} onValueChange={setSelectedServiceType}>
+              <Select value={selectedServiceType} onValueChange={(value) => {
+                setSelectedServiceType(value);
+                resetPage();
+              }}>
                 <SelectTrigger>
                   <SelectValue placeholder="All Service Types" />
                 </SelectTrigger>
@@ -325,7 +344,10 @@ export default function CareServices() {
                 </SelectContent>
               </Select>
               
-              <Select value={selectedState} onValueChange={setSelectedState}>
+              <Select value={selectedState} onValueChange={(value) => {
+                setSelectedState(value);
+                resetPage();
+              }}>
                 <SelectTrigger>
                   <SelectValue placeholder="All States" />
                 </SelectTrigger>
@@ -369,8 +391,9 @@ export default function CareServices() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProviders.map((item) => {
+          <>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginatedProviders.map((item) => {
               if (item.type === 'hospital') {
                 const hospital = item as Hospital & { type: 'hospital' };
                 return (
@@ -549,21 +572,21 @@ export default function CareServices() {
                 return (
                   <Card 
                     key={`provider-${provider.id}`} 
-                    className="relative overflow-hidden bg-gradient-to-b from-gray-900 to-gray-950 dark:from-gray-900 dark:to-black hover:shadow-2xl transition-all duration-300 cursor-pointer"
+                    className="relative overflow-hidden bg-gray-900 hover:shadow-xl transition-shadow cursor-pointer"
                     onClick={() => handleProviderClick(provider)}
                   >
-                    {/* Yellow Header Banner */}
+                    {/* Yellow Header Banner - simpler */}
                     <div className="bg-amber-400 px-4 py-2 text-center">
                       <p className="text-xs font-semibold text-gray-900">
                         ⚠️ Healthcare Provider Network 2025
                       </p>
                     </div>
                     
-                    {/* Blue Gradient Content Area */}
-                    <div className="bg-gradient-to-b from-blue-500 via-blue-600 to-cyan-500 p-6">
+                    {/* Blue Content Area - simplified gradient */}
+                    <div className="bg-blue-600 p-6">
                       {/* Provider Type Badge */}
                       <div className="flex items-center justify-between mb-4">
-                        <Badge className="bg-white/20 text-white border-white/30 backdrop-blur">
+                        <Badge className="bg-white/20 text-white border-white/30">
                           {serviceTypeLabels2[provider.serviceType] || provider.otherServiceType}
                         </Badge>
                         {provider.isVerified && (
@@ -574,46 +597,41 @@ export default function CareServices() {
                       </div>
                       
                       {/* Provider Name */}
-                      <h3 className="text-2xl font-bold text-white mb-3">
+                      <h3 className="text-xl font-bold text-white mb-3">
                         {provider.businessName}
                       </h3>
                       
                       {/* Location */}
-                      <div className="flex items-center gap-2 text-white/90 mb-6">
-                        <MapPin className="w-5 h-5" />
-                        <span className="text-lg">
+                      <div className="flex items-center gap-2 text-white/90 mb-4">
+                        <MapPin className="w-4 h-4" />
+                        <span className="text-base">
                           {provider.city || 'Multiple'}, {provider.state}
                         </span>
                       </div>
                       
-                      {/* Feature Badges */}
-                      <div className="flex flex-wrap gap-2 mb-6">
+                      {/* Feature Badges - simplified */}
+                      <div className="flex flex-wrap gap-2 mb-4">
                         {provider.metadata?.acceptingNewPatients && (
-                          <Badge className="bg-green-500 text-white px-3 py-1">
+                          <Badge className="bg-green-500 text-white text-xs">
                             Accepting
                           </Badge>
                         )}
                         {provider.metadata?.emergencyAvailable && (
-                          <Badge className="bg-red-500 text-white px-3 py-1">
+                          <Badge className="bg-red-500 text-white text-xs">
                             24/7 Emergency
-                          </Badge>
-                        )}
-                        {provider.certifications?.includes("Medicare Certified") && (
-                          <Badge className="bg-blue-700 text-white px-3 py-1">
-                            Medicare
                           </Badge>
                         )}
                       </div>
                       
-                      {/* Key Services Section */}
-                      <div className="mb-6">
-                        <div className="flex items-center gap-2 text-white mb-3">
-                          <Heart className="w-5 h-5" />
-                          <span className="font-semibold">Key Services</span>
+                      {/* Key Services Section - simplified */}
+                      <div className="mb-4">
+                        <div className="flex items-center gap-2 text-white mb-2">
+                          <Heart className="w-4 h-4" />
+                          <span className="font-semibold text-sm">Key Services</span>
                         </div>
-                        <ul className="space-y-2">
-                          {provider.services.slice(0, 5).map((service) => (
-                            <li key={service} className="flex items-center gap-2 text-white/90">
+                        <ul className="space-y-1">
+                          {provider.services.slice(0, 3).map((service) => (
+                            <li key={service} className="flex items-center gap-2 text-white/90 text-sm">
                               <span className="text-cyan-300">●</span>
                               <span>{service}</span>
                             </li>
@@ -621,19 +639,19 @@ export default function CareServices() {
                         </ul>
                       </div>
                       
-                      {/* Bottom Stats Grid */}
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-gray-800/50 backdrop-blur rounded-lg p-4 text-center">
-                          <div className="text-3xl font-bold text-cyan-300">
+                      {/* Bottom Stats Grid - simplified */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-gray-800 rounded-lg p-3 text-center">
+                          <div className="text-2xl font-bold text-cyan-300">
                             {provider.metadata?.yearsInBusiness || '5'}+
                           </div>
-                          <div className="text-sm text-gray-300">Years Experience</div>
+                          <div className="text-xs text-gray-300">Years Experience</div>
                         </div>
-                        <div className="bg-orange-600/80 backdrop-blur rounded-lg p-4 text-center">
-                          <div className="text-3xl font-bold text-white">
+                        <div className="bg-orange-600 rounded-lg p-3 text-center">
+                          <div className="text-2xl font-bold text-white">
                             4/5
                           </div>
-                          <div className="text-sm text-white">Rating</div>
+                          <div className="text-xs text-white">Rating</div>
                         </div>
                       </div>
                     </div>
@@ -642,6 +660,32 @@ export default function CareServices() {
               }
             })}
           </div>
+          
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <span className="px-4 py-2 text-sm">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          )}
+          </>
         )}
         
         {/* Statistics Footer */}
