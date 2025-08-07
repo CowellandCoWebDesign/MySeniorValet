@@ -1070,18 +1070,18 @@ export default function Map({
         )}
 
         {/* Supercluster-powered markers and clusters */}
-        {!isLoading && !error && clusterData?.clusters && (() => {
+        {!isLoading && !error && clusterData?.features && (() => {
           console.log('🎨 RENDERING MAP FEATURES:', {
-            totalFeatures: clusterData.clusters.length,
+            totalFeatures: clusterData.features.length,
             currentZoom: currentZoom,
             roundedZoom: Math.floor(currentZoom),
             isLoading,
             error,
-            clusters: clusterData.clusters.filter((f: any) => f.properties?.cluster).length,
-            markers: clusterData.clusters.filter((f: any) => !f.properties?.cluster).length
+            clusters: clusterData.features.filter((f: any) => f.properties?.cluster).length,
+            markers: clusterData.features.filter((f: any) => !f.properties?.cluster).length
           });
           return true;
-        })() && clusterData.clusters.map((feature: any, index: number) => {
+        })() && clusterData.features.map((feature: any, index: number) => {
           const [lng, lat] = feature.geometry.coordinates;
           const { properties } = feature;
 
