@@ -126,7 +126,7 @@ export default function CommunityMobilePayment() {
       setCurrentStep('activation');
 
       // Confirm payment on backend
-      await apiRequest('POST', '/api/payments/confirm-community-payment', {
+      const response = await apiRequest('POST', '/api/payments/confirm-community-payment', {
         paymentIntentId: paymentIntent.id,
         communityId: communityData.communityId || 'new', // Use 'new' for new communities
         tier: tier
@@ -146,13 +146,15 @@ export default function CommunityMobilePayment() {
 
       toast({
         title: "Payment Successful!",
-        description: `Your community has been upgraded to ${tierDetails.name}.`,
+        description: `Your community has been created and upgraded to ${tierDetails.name}.`,
       });
 
-      // Redirect to onboarding flow
+      // Redirect to the newly created community page
       setTimeout(() => {
-        const newCommunityId = communityData.communityId || 'new';
-        setLocation(`/community-onboarding/${newCommunityId}`);
+        // Use the actual communityId returned from the backend
+        const finalCommunityId = response.communityId || communityData.communityId || 'new';
+        console.log('Redirecting to community:', finalCommunityId);
+        setLocation(`/community/${finalCommunityId}`);
       }, 2000);
     } catch (err) {
       console.error('Error confirming payment:', err);
