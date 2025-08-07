@@ -55,6 +55,22 @@ const serviceTypes = [
   { value: "nursing", label: "Skilled Nursing" },
   { value: "medical_equipment", label: "Medical Equipment/DME" },
   { value: "pharmacy", label: "Specialty Pharmacy" },
+  { value: "mental_health", label: "Mental Health Services" },
+  { value: "dental", label: "Dental Care" },
+  { value: "vision", label: "Vision/Eye Care" },
+  { value: "hearing", label: "Hearing/Audiology" },
+  { value: "podiatry", label: "Podiatry/Foot Care" },
+  { value: "nutrition", label: "Nutrition/Dietitian Services" },
+  { value: "transportation", label: "Medical Transportation" },
+  { value: "adult_day", label: "Adult Day Care" },
+  { value: "respite", label: "Respite Care" },
+  { value: "wound_care", label: "Wound Care" },
+  { value: "dialysis", label: "Dialysis Center" },
+  { value: "pain_management", label: "Pain Management" },
+  { value: "cardiology", label: "Cardiology" },
+  { value: "neurology", label: "Neurology" },
+  { value: "oncology", label: "Oncology/Cancer Care" },
+  { value: "pulmonology", label: "Pulmonology/Respiratory" },
   { value: "other", label: "Other Healthcare Service" },
 ];
 
@@ -199,14 +215,44 @@ export default function HealthcareProviderSignup() {
         <div className="text-center mb-8">
           <Badge className="px-4 py-2 text-base bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 mb-4">
             <Gift className="w-4 h-4 mr-2" />
-            100% FREE Healthcare Provider Listing
+            100% FREE Healthcare Provider Listing - No Hidden Fees Ever!
           </Badge>
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            List Your Healthcare Service for FREE
+            Join Our Comprehensive Healthcare & Care Services Directory
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300">
-            Connect with 34,000+ senior living communities and millions of families seeking quality healthcare services
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
+            The central hub for ALL healthcare providers serving seniors nationwide
           </p>
+          
+          {/* Service Types Grid */}
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-6 mb-4">
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+              ✨ We Welcome ALL Healthcare & Care Service Providers:
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Home Health</div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Physical Therapy</div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Hospice Care</div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Medical Equipment</div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Pharmacy Services</div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Mental Health</div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Dental Care</div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Vision Care</div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Hearing Services</div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Podiatry</div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Transportation</div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Adult Day Care</div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Respite Care</div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Wound Care</div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Dialysis Centers</div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">And 20+ More...</div>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-center gap-2 text-lg text-blue-600 dark:text-blue-400">
+            <Info className="w-5 h-5" />
+            <span className="font-semibold">Join thousands of healthcare providers nationwide!</span>
+          </div>
         </div>
 
         {/* Benefits */}

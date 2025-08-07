@@ -52,6 +52,22 @@ const serviceTypeLabels: Record<string, string> = {
   nursing: "Skilled Nursing",
   medical_equipment: "Medical Equipment/DME",
   pharmacy: "Specialty Pharmacy",
+  mental_health: "Mental Health Services",
+  dental: "Dental Care",
+  vision: "Vision/Eye Care",
+  hearing: "Hearing/Audiology",
+  podiatry: "Podiatry/Foot Care",
+  nutrition: "Nutrition/Dietitian",
+  transportation: "Medical Transportation",
+  adult_day: "Adult Day Care",
+  respite: "Respite Care",
+  wound_care: "Wound Care",
+  dialysis: "Dialysis Center",
+  pain_management: "Pain Management",
+  cardiology: "Cardiology",
+  neurology: "Neurology",
+  oncology: "Oncology/Cancer Care",
+  pulmonology: "Pulmonology/Respiratory",
   other: "Healthcare Service",
 };
 
@@ -100,14 +116,46 @@ export default function CareServices() {
         <div className="text-center mb-8">
           <Badge className="px-4 py-2 text-base bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 mb-4">
             <Heart className="w-4 h-4 mr-2" />
-            Free Healthcare Provider Directory
+            Comprehensive Healthcare Provider Directory - 100% FREE
           </Badge>
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Healthcare & Care Services Directory
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-6">
-            Connect with trusted healthcare providers offering home health, hospice, therapy, and specialized care services
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-4">
+            The central hub for ALL healthcare providers serving seniors nationwide
           </p>
+          
+          {/* Service Types Overview */}
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 max-w-5xl mx-auto mb-6">
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+              Browse Our Growing Network of Healthcare Providers:
+            </p>
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-2 text-xs">
+              <Badge variant="secondary">Home Health</Badge>
+              <Badge variant="secondary">Physical Therapy</Badge>
+              <Badge variant="secondary">Hospice Care</Badge>
+              <Badge variant="secondary">Medical Equipment</Badge>
+              <Badge variant="secondary">Pharmacy</Badge>
+              <Badge variant="secondary">Mental Health</Badge>
+              <Badge variant="secondary">Dental Care</Badge>
+              <Badge variant="secondary">Vision Care</Badge>
+              <Badge variant="secondary">Hearing Services</Badge>
+              <Badge variant="secondary">Podiatry</Badge>
+              <Badge variant="secondary">Nutrition</Badge>
+              <Badge variant="secondary">Transportation</Badge>
+              <Badge variant="secondary">Adult Day Care</Badge>
+              <Badge variant="secondary">Respite Care</Badge>
+              <Badge variant="secondary">Wound Care</Badge>
+              <Badge variant="secondary">Dialysis</Badge>
+              <Badge variant="secondary">Pain Management</Badge>
+              <Badge variant="secondary">20+ More</Badge>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <Info className="w-4 h-4" />
+            <span>Thousands of healthcare providers nationwide are joining daily!</span>
+          </div>
           
           {/* Call to Action for Providers */}
           <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-xl p-6 max-w-3xl mx-auto border border-green-200 dark:border-green-800">
