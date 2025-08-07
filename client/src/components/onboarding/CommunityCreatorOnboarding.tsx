@@ -34,7 +34,7 @@ interface CommunityFormData {
   zipCode: string;
   phone: string;
   email: string;
-  website?: string;
+  website: string;
   description: string;
   careTypes: string[];
   amenities: string[];
@@ -336,7 +336,7 @@ export function CommunityCreatorOnboarding({
             </div>
             
             <div>
-              <Label htmlFor="website">Website (Optional)</Label>
+              <Label htmlFor="website">Website *</Label>
               <Input
                 id="website"
                 type="url"
@@ -344,6 +344,7 @@ export function CommunityCreatorOnboarding({
                 onChange={(e) => updateFormData('website', e.target.value)}
                 placeholder="https://www.sunsetmanor.com"
                 className="mt-1"
+                required
               />
             </div>
           </div>

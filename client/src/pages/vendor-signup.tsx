@@ -6,7 +6,7 @@ import { useLocation } from 'wouter';
 // Removed Stripe Elements imports - using Checkout Sessions instead
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -23,7 +23,7 @@ const vendorSignupSchema = z.object({
   contactName: z.string().min(2, 'Contact name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
   phone: z.string().min(10, 'Phone number must be at least 10 digits'),
-  website: z.string().url('Invalid website URL').optional().or(z.literal('')),
+  website: z.string().url('Invalid website URL (must include https://)').min(1, 'Website is required for verification'),
   businessType: z.string().min(1, 'Please select a business type'),
   description: z.string().min(50, 'Description must be at least 50 characters'),
   serviceAreas: z.string().min(2, 'Please specify your service areas'),
@@ -367,13 +367,16 @@ export default function VendorSignup() {
                     name="website"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Website (Optional)</FormLabel>
+                        <FormLabel>Website <span className="text-red-500">*</span></FormLabel>
                         <FormControl>
                           <div className="relative">
                             <Globe className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                            <Input {...field} className="pl-10" placeholder="https://yourbusiness.com" />
+                            <Input {...field} className="pl-10" placeholder="https://yourbusiness.com" required />
                           </div>
                         </FormControl>
+                        <FormDescription>
+                          Required for verification and customer access
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
