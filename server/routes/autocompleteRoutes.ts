@@ -152,7 +152,20 @@ router.get('/autocomplete/suggestions', async (req, res) => {
           name: communities.name,
           city: communities.city,
           state: communities.state,
+          address: communities.address,
+          phone: communities.phone,
           communitySubtype: communities.communitySubtype,
+          rating: communities.rating,
+          googleRating: communities.googleRating,
+          reviewCount: communities.reviewCount,
+          totalUnits: communities.totalUnits,
+          hudPropertyId: communities.hudPropertyId,
+          rentPerMonth: communities.rentPerMonth,
+          priceRange: communities.priceRange,
+          pricingDetails: communities.pricingDetails,
+          availabilityStatus: communities.availabilityStatus,
+          photos: communities.photos,
+          careTypes: communities.careTypes,
           type: sql`'community'`.as('type')
         })
         .from(communities)
@@ -160,12 +173,32 @@ router.get('/autocomplete/suggestions', async (req, res) => {
         .limit(5);
 
       communityResults.forEach(c => {
+        // Extract price range from JSON if available
+        const priceRange = c.priceRange as { min?: number; max?: number } | null;
+        
         suggestions.push({
           label: c.name,
           value: c.name,
           type: 'community',
           id: c.id,
-          description: `${c.city}, ${c.state}${c.communitySubtype ? ` - ${c.communitySubtype.replace(/_/g, ' ')}` : ''}`
+          description: `${c.city}, ${c.state}${c.communitySubtype ? ` - ${c.communitySubtype.replace(/_/g, ' ')}` : ''}`,
+          // Enhanced fields for rich cards
+          city: c.city,
+          state: c.state,
+          address: c.address,
+          phone: c.phone,
+          rating: c.rating || c.googleRating,
+          reviewCount: c.reviewCount,
+          communitySubtype: c.communitySubtype,
+          totalUnits: c.totalUnits,
+          hudPropertyId: c.hudPropertyId,
+          monthlyRentRangeStart: priceRange?.min,
+          monthlyRentRangeEnd: priceRange?.max,
+          rentPerMonth: c.rentPerMonth,
+          priceRange: priceRange,
+          availabilityStatus: c.availabilityStatus,
+          photos: c.photos,
+          careTypes: c.careTypes
         });
       });
     }
