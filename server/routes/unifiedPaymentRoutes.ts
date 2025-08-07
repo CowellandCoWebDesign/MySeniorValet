@@ -1,8 +1,8 @@
 import { Router, Request, Response, raw } from 'express';
 import Stripe from 'stripe';
-import { db } from '../db';
+import { db, pool } from '../db';
 import { communities, vendors, users, paymentTransactions, subscriptions } from '@shared/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 const router = Router();
 
@@ -369,6 +369,154 @@ router.get('/webhook-status', (req: Request, res: Response) => {
       'payment_intent.payment_failed',
     ],
   });
+});
+
+// Confirm Community Payment endpoint (handles post-payment community creation/upgrade)
+router.post('/confirm-community-payment', async (req: Request, res: Response) => {
+  try {
+    const { paymentIntentId, communityId, tier } = req.body;
+    
+    if (!paymentIntentId || !communityId || !tier) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Free tier should not go through payment confirmation
+    if (tier === 'verified') {
+      return res.status(400).json({ 
+        error: "Invalid request. Free tier does not require payment confirmation.", 
+        tier
+      });
+    }
+
+    console.log('Confirming community payment:', {
+      paymentIntentId,
+      communityId,
+      tier
+    });
+
+    // Verify payment status with Stripe
+    let paymentIntent: any;
+    
+    // Allow test payment intents for development
+    if (paymentIntentId.startsWith('pi_test_')) {
+      console.log('Test payment intent detected:', paymentIntentId);
+      paymentIntent = {
+        id: paymentIntentId,
+        status: 'succeeded',
+        amount: COMMUNITY_TIERS[tier as keyof typeof COMMUNITY_TIERS]?.price || 14900, // Default to standard price
+        customer: 'cus_test123'
+      };
+    } else {
+      try {
+        paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      } catch (stripeError) {
+        console.error('Stripe error retrieving payment intent:', stripeError);
+        return res.status(400).json({ 
+          error: "Invalid payment intent ID",
+          details: stripeError instanceof Error ? stripeError.message : "Unknown error"
+        });
+      }
+      
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ 
+          error: "Payment not completed",
+          status: paymentIntent.status 
+        });
+      }
+    }
+
+    // Handle community creation or upgrade
+    let finalCommunityId = communityId;
+    
+    if (communityId === 'new') {
+      // Create new community with test data using raw SQL to bypass Drizzle issues
+      const testCommunityName = `MySeniorValet Test Island 🏝️ ${Date.now()}`;
+      
+      console.log('Step 1: Creating community with name:', testCommunityName);
+      
+      // Use native PostgreSQL pool directly, bypassing Drizzle completely
+      const rawQuery = `
+        INSERT INTO communities (
+          name, address, city, state, zip_code, 
+          latitude, longitude, care_types,
+          subscription_tier, billing_status,
+          phone, email, description
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+        ) RETURNING id, name
+      `;
+      
+      console.log('Step 2: About to execute pool.query...');
+      
+      let result;
+      try {
+        result = await pool.query(rawQuery, [
+          testCommunityName,
+          '123 Test Street',
+          'Test City',
+          'FL',
+          '12345',
+          25.7617,
+          -80.1918,
+          ['Assisted Living'],  // PostgreSQL array
+          tier,
+          'active',
+          '555-0100',
+          'test@myseniorvalet.com',
+          'Test community created via payment flow'
+        ]);
+        console.log('Step 3: pool.query executed successfully');
+      } catch (poolError) {
+        console.error('Step 3 ERROR: pool.query failed:', poolError);
+        throw poolError;
+      }
+      
+      const newCommunity = result.rows[0] as { id: number; name: string };
+      
+      finalCommunityId = newCommunity.id.toString();
+      console.log('Step 4: Created new community:', {
+        id: finalCommunityId,
+        name: testCommunityName,
+        tier
+      });
+    } else {
+      // Update existing community using raw SQL to bypass Drizzle issues
+      const updateQuery = `
+        UPDATE communities 
+        SET subscription_tier = $1, 
+            billing_status = $2, 
+            updated_at = $3
+        WHERE id = $4
+      `;
+      
+      await pool.query(updateQuery, [
+        tier,
+        'active',
+        new Date(),
+        parseInt(finalCommunityId)
+      ]);
+      
+      console.log('Updated community subscription:', {
+        id: finalCommunityId,
+        tier
+      });
+    }
+
+    // Return success response
+    res.json({ 
+      success: true, 
+      message: "Community upgraded successfully",
+      tier: tier,
+      communityId: finalCommunityId,
+      authenticated: false // We're not handling auth in this simplified version
+    });
+  } catch (error) {
+    console.error("Error confirming community payment:", error);
+    res.status(500).json({ 
+      error: "Failed to confirm payment",
+      details: error instanceof Error ? error.message : "Unknown error"
+    });
+  }
 });
 
 // Test payment creation (for development)

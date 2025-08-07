@@ -97,8 +97,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerReviewRoutes(app);
   registerFamilyRoutes(app);
   
-  // Payment Routes - Legacy routes disabled, using unified payment system
-  // registerPaymentRoutes(app); // DISABLED - conflicts with unified payment routes
+  // Payment Routes - DISABLED to prevent conflicts with unifiedPaymentRoutes
+  // registerPaymentRoutes(app); // DISABLED - using unifiedPaymentRoutes instead
   // registerStripeTestRoutes(app); // DISABLED - replaced by unified system
   // registerStripeRealChargeRoutes(app); // DISABLED - replaced by unified system
   // registerCommunityStripeRoutes(app); // DISABLED - replaced by unified system

@@ -130,7 +130,7 @@ export default function CommunityMobilePayment() {
         paymentIntentId: paymentIntent.id,
         communityId: communityData.communityId || 'new', // Use 'new' for new communities
         tier: tier
-      });
+      }) as { success: boolean; communityId: string; message: string; tier: string; };
 
       // Complete all steps
       const completeSteps = successSteps.map(step => {
@@ -153,8 +153,17 @@ export default function CommunityMobilePayment() {
       setTimeout(() => {
         // Use the actual communityId returned from the backend
         const finalCommunityId = response.communityId || communityData.communityId || 'new';
-        console.log('Redirecting to community:', finalCommunityId);
-        setLocation(`/community/${finalCommunityId}`);
+        console.log('Payment response:', response);
+        console.log('Redirecting to community ID:', finalCommunityId);
+        
+        // If we have a valid community ID, redirect to it
+        if (finalCommunityId && finalCommunityId !== 'new') {
+          setLocation(`/community/${finalCommunityId}`);
+        } else {
+          // Fallback to search if no valid ID
+          console.error('No valid community ID received, redirecting to search');
+          setLocation('/search');
+        }
       }, 2000);
     } catch (err) {
       console.error('Error confirming payment:', err);
