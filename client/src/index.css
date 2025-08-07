@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import 'leaflet/dist/leaflet.css';
 
 @tailwind base;
 @tailwind components;
@@ -14,22 +15,36 @@
   z-index: 100000 !important;
 }
 
-/* Force Leaflet map and ALL its children to stay below dialogs */
-.leaflet-container,
-.leaflet-container * {
-  z-index: 1 !important;
-  position: relative !important;
+/* Leaflet map container - ensure proper sizing and layering */
+.leaflet-container {
+  z-index: 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  background: #f0f0f0;
 }
 
-.leaflet-pane,
-.leaflet-pane * {
-  z-index: auto !important;
-  max-z-index: 9998 !important;
+/* Ensure tile layer images load properly */
+.leaflet-tile-container img {
+  max-width: none !important;
+  max-height: none !important;
 }
 
+/* Allow Leaflet panes to use their default z-index values */
+.leaflet-pane {
+  z-index: auto;
+}
+
+/* Leaflet controls should be above map tiles but below dialogs */
 .leaflet-top,
 .leaflet-bottom {
-  z-index: 1000 !important;
+  z-index: 1000;
+}
+
+/* Fix for map tiles not loading */
+.leaflet-tile {
+  visibility: inherit !important;
 }
 
 /* Ensure map search panels stay below dialogs */

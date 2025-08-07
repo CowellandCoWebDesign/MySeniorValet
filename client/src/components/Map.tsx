@@ -1004,46 +1004,45 @@ export default function Map({
         {/* Map View Controller - Updates map view when center/zoom props change */}
         <MapViewController center={center} zoom={currentZoom} />
 
-        {/* Professional Basemap Selection */}
+        {/* Professional Basemap Selection with fallback */}
         <LayersControl position="topright">
-          {/* Default OpenStreetMap - Clean and readable */}
+          {/* Default OpenStreetMap - Most reliable */}
           <LayersControl.BaseLayer checked name="Street Map (Default)">
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              maxZoom={19}
+              errorTileUrl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
             />
           </LayersControl.BaseLayer>
 
-          {/* Esri World Street Map - Professional and clean */}
-          <LayersControl.BaseLayer name="Professional Streets">
-            <TileLayer
-              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"
-              attribution='&copy; <a href="https://www.esri.com/">Esri</a>, HERE, Garmin, USGS, Intermap, INCREMENT P, NRCan, Esri Japan, METI, Esri China (Hong Kong), Esri Korea, Esri (Thailand), NGCC, © OpenStreetMap contributors, and the GIS User Community'
-            />
-          </LayersControl.BaseLayer>
-
-          {/* CartoDB Positron - Clean, minimal design perfect for senior users */}
+          {/* CartoDB Positron - Clean, minimal design */}
           <LayersControl.BaseLayer name="Clean & Simple">
             <TileLayer
-              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
               subdomains="abcd"
+              maxZoom={19}
             />
           </LayersControl.BaseLayer>
 
-          {/* Esri World Imagery with Labels - Satellite view */}
-          <LayersControl.BaseLayer name="Satellite View">
+          {/* Stamen Toner Lite - High contrast */}
+          <LayersControl.BaseLayer name="High Contrast">
             <TileLayer
-              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-              attribution='&copy; <a href="https://www.esri.com/">Esri</a>, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+              url="https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.png"
+              attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+              subdomains="abcd"
+              maxZoom={20}
+              minZoom={0}
             />
           </LayersControl.BaseLayer>
 
-          {/* OpenTopoMap - Topographic style for rural areas */}
-          <LayersControl.BaseLayer name="Topographic">
+          {/* OpenStreetMap HOT - Humanitarian style */}
+          <LayersControl.BaseLayer name="Humanitarian">
             <TileLayer
-              url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-              attribution='Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+              url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a>'
+              maxZoom={19}
             />
           </LayersControl.BaseLayer>
         </LayersControl>
