@@ -119,42 +119,56 @@ export default function CareServices() {
             Comprehensive Healthcare Provider Directory - 100% FREE
           </Badge>
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Healthcare & Care Services Directory
+            Complete Healthcare & Care Services Platform
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-4">
-            The central hub for ALL healthcare providers serving seniors nationwide
+            Your gateway to hospitals, care services, and insurance networks - all in one place
           </p>
           
-          {/* Service Types Overview */}
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 max-w-5xl mx-auto mb-6">
-            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-              Browse Our Growing Network of Healthcare Providers:
-            </p>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-2 text-xs">
-              <Badge variant="secondary">Home Health</Badge>
-              <Badge variant="secondary">Physical Therapy</Badge>
-              <Badge variant="secondary">Hospice Care</Badge>
-              <Badge variant="secondary">Medical Equipment</Badge>
-              <Badge variant="secondary">Pharmacy</Badge>
-              <Badge variant="secondary">Mental Health</Badge>
-              <Badge variant="secondary">Dental Care</Badge>
-              <Badge variant="secondary">Vision Care</Badge>
-              <Badge variant="secondary">Hearing Services</Badge>
-              <Badge variant="secondary">Podiatry</Badge>
-              <Badge variant="secondary">Nutrition</Badge>
-              <Badge variant="secondary">Transportation</Badge>
-              <Badge variant="secondary">Adult Day Care</Badge>
-              <Badge variant="secondary">Respite Care</Badge>
-              <Badge variant="secondary">Wound Care</Badge>
-              <Badge variant="secondary">Dialysis</Badge>
-              <Badge variant="secondary">Pain Management</Badge>
-              <Badge variant="secondary">20+ More</Badge>
+          {/* Healthcare Ecosystem Overview */}
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 max-w-6xl mx-auto mb-6">
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Active Services */}
+              <div>
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                  🟢 Active Healthcare Services:
+                </p>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">🏥 Hospitals (6,000+)</Badge>
+                  <Badge variant="secondary">Home Health</Badge>
+                  <Badge variant="secondary">Physical Therapy</Badge>
+                  <Badge variant="secondary">Hospice Care</Badge>
+                  <Badge variant="secondary">Medical Equipment</Badge>
+                  <Badge variant="secondary">Pharmacy</Badge>
+                  <Badge variant="secondary">Mental Health</Badge>
+                  <Badge variant="secondary">Dental Care</Badge>
+                  <Badge variant="secondary">Vision Care</Badge>
+                  <Badge variant="secondary">25+ More Services</Badge>
+                </div>
+              </div>
+              
+              {/* Coming Soon */}
+              <div>
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                  🔜 Launching Soon:
+                </p>
+                <div className="space-y-2">
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-200 dark:border-yellow-700">
+                    <p className="font-medium text-sm">🚑 Urgent Care Centers</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Walk-in clinics for immediate care needs</p>
+                  </div>
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-200 dark:border-yellow-700">
+                    <p className="font-medium text-sm">🏥 Insurance Provider Networks</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Direct access to in-network doctor lookup portals</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           
           <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <Info className="w-4 h-4" />
-            <span>Thousands of healthcare providers nationwide are joining daily!</span>
+            <span>One platform. Complete healthcare access. All for seniors.</span>
           </div>
           
           {/* Call to Action for Providers */}

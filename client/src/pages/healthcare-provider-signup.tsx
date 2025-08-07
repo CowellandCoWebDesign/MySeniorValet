@@ -218,34 +218,45 @@ export default function HealthcareProviderSignup() {
             100% FREE Healthcare Provider Listing - No Hidden Fees Ever!
           </Badge>
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Join Our Comprehensive Healthcare & Care Services Directory
+            Join Our Complete Healthcare & Care Services Ecosystem
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
-            The central hub for ALL healthcare providers serving seniors nationwide
+            The unified platform connecting seniors to hospitals, care services, insurance networks, and healthcare providers nationwide
           </p>
           
-          {/* Service Types Grid */}
+          {/* Healthcare Ecosystem Grid */}
           <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-6 mb-4">
             <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-              ✨ We Welcome ALL Healthcare & Care Service Providers:
+              🏥 Part of Our Complete Healthcare Ecosystem:
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Home Health</div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Physical Therapy</div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Hospice Care</div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Medical Equipment</div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Pharmacy Services</div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Mental Health</div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Dental Care</div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Vision Care</div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Hearing Services</div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Podiatry</div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Transportation</div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Adult Day Care</div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Respite Care</div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Wound Care</div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Dialysis Centers</div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">And 20+ More...</div>
+            
+            {/* Current Services */}
+            <div className="mb-4">
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">NOW AVAILABLE:</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                <div className="bg-green-50 dark:bg-green-900/30 p-2 rounded-lg shadow-sm border border-green-200 dark:border-green-700">🏥 Hospitals</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Home Health</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Physical Therapy</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Hospice Care</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Medical Equipment</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Pharmacy Services</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Mental Health</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Dental Care</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Vision Care</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Hearing Services</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">Transportation</div>
+                <div className="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm">25+ More Services</div>
+              </div>
+            </div>
+            
+            {/* Coming Soon */}
+            <div>
+              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">COMING SOON:</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                <div className="bg-yellow-50 dark:bg-yellow-900/30 p-2 rounded-lg shadow-sm border border-yellow-200 dark:border-yellow-700">🚑 Urgent Care Centers</div>
+                <div className="bg-yellow-50 dark:bg-yellow-900/30 p-2 rounded-lg shadow-sm border border-yellow-200 dark:border-yellow-700">🏥 Insurance Networks</div>
+                <div className="bg-yellow-50 dark:bg-yellow-900/30 p-2 rounded-lg shadow-sm border border-yellow-200 dark:border-yellow-700">👨‍⚕️ Provider Directories</div>
+              </div>
             </div>
           </div>
           
