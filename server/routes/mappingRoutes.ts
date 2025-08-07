@@ -11,18 +11,26 @@ export function registerMappingRoutes(app: Express) {
   // FIXED: Supercluster-powered clustering endpoint
   app.get("/api/communities/clusters", async (req, res) => {
     try {
-      const { west, south, east, north, zoom = 10, limit = 5000 } = req.query;
+      // Accept both parameter formats for compatibility
+      const { 
+        swLat, swLng, neLat, neLng,  // Map component parameters
+        west, south, east, north,     // Legacy parameters
+        zoom = 10, limit = 5000 
+      } = req.query;
       
-      if (!west || !south || !east || !north) {
+      // Use the new parameters if available, otherwise fall back to legacy
+      const westFloat = swLng ? parseFloat(swLng as string) : parseFloat(west as string);
+      const southFloat = swLat ? parseFloat(swLat as string) : parseFloat(south as string);
+      const eastFloat = neLng ? parseFloat(neLng as string) : parseFloat(east as string);
+      const northFloat = neLat ? parseFloat(neLat as string) : parseFloat(north as string);
+      
+      if (!westFloat || !southFloat || !eastFloat || !northFloat || 
+          isNaN(westFloat) || isNaN(southFloat) || isNaN(eastFloat) || isNaN(northFloat)) {
         return res.status(400).json({ 
-          error: "Missing bounding box parameters. Required: west, south, east, north" 
+          error: "Missing bounding box parameters. Required: swLat, swLng, neLat, neLng (or west, south, east, north)" 
         });
       }
       
-      const westFloat = parseFloat(west as string);
-      const southFloat = parseFloat(south as string);
-      const eastFloat = parseFloat(east as string);
-      const northFloat = parseFloat(north as string);
       const zoomInt = parseInt(zoom as string);
       
       console.log(`Clustering request: zoom=${zoomInt}, bounds=[${westFloat},${southFloat},${eastFloat},${northFloat}]`);
@@ -35,11 +43,13 @@ export function registerMappingRoutes(app: Express) {
       
       console.log(`Supercluster returned ${clusters.length} clusters/points for zoom ${zoomInt}`);
       
+      // Return data in the format expected by the Map component
       res.json({
-        clusters,
+        features: clusters,  // Map component expects a 'features' property
+        clusters,           // Keep for backward compatibility
         zoom: zoomInt,
         bounds: { west: westFloat, south: southFloat, east: eastFloat, north: northFloat },
-        _version: "clustering_fix_v1",
+        _version: "map_fix_v2",
         _timestamp: Date.now()
       });
       

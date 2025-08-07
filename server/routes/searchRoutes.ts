@@ -952,19 +952,21 @@ export function registerSearchRoutes(app: Express) {
         });
       }
 
-      const bounds = {
-        swLat: parseFloat(swLat as string),
-        swLng: parseFloat(swLng as string),
-        neLat: parseFloat(neLat as string),
-        neLng: parseFloat(neLng as string)
-      };
+      // Convert parameters to proper bbox array format [west, south, east, north]
+      const bbox: [number, number, number, number] = [
+        parseFloat(swLng as string), // west
+        parseFloat(swLat as string), // south
+        parseFloat(neLng as string), // east
+        parseFloat(neLat as string)  // north
+      ];
       
       const clusters = await superclusterService.getClusters(
-        bounds,
+        bbox,
         parseInt(zoom as string)
       );
       
-      res.json(clusters);
+      // Return clusters wrapped in an object with a features property
+      res.json({ features: clusters });
     } catch (error) {
       console.error('Cluster error:', error);
       res.status(500).json({ error: 'Failed to get clusters' });
