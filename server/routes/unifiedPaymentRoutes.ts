@@ -12,7 +12,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-11-20' as any,
+  apiVersion: '2025-07-30.basil' as any,
 });
 
 // Community Subscription Tiers
@@ -85,6 +85,9 @@ router.post('/create-payment-intent', async (req: Request, res: Response) => {
         message: 'Free tier - no payment required',
       });
     }
+    
+    // Log what we're about to charge
+    console.log(`Creating payment intent: $${tierInfo.price / 100} for ${tierInfo.name}`);
     
     // Create payment intent
     const paymentIntent = await stripe.paymentIntents.create({
