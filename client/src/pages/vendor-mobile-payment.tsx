@@ -17,6 +17,24 @@ export default function VendorMobilePayment() {
   const [currentStep, setCurrentStep] = useState('business-info');
   const [paymentSteps, setPaymentSteps] = useState<PaymentStep[]>(VENDOR_PAYMENT_STEPS);
 
+  // Initialize payment steps based on vendor signup progress
+  React.useEffect(() => {
+    const updatedSteps = paymentSteps.map(step => {
+      if (step.id === 'business-info') {
+        return { ...step, status: 'completed' as const };
+      }
+      if (step.id === 'tier-selection') {
+        return { ...step, status: 'completed' as const };
+      }
+      if (step.id === 'payment-details') {
+        return { ...step, status: 'active' as const };
+      }
+      return step;
+    });
+    setPaymentSteps(updatedSteps);
+    setCurrentStep('payment-details');
+  }, []);
+
   // Get vendor data from session storage (passed from signup form)
   const vendorDataString = sessionStorage.getItem('vendorSignupData');
   const vendorData = vendorDataString ? JSON.parse(vendorDataString) : null;
@@ -65,24 +83,6 @@ export default function VendorMobilePayment() {
       </div>
     );
   }
-
-  // Initialize payment steps based on vendor signup progress
-  React.useEffect(() => {
-    const updatedSteps = paymentSteps.map(step => {
-      if (step.id === 'business-info') {
-        return { ...step, status: 'completed' as const };
-      }
-      if (step.id === 'tier-selection') {
-        return { ...step, status: 'completed' as const };
-      }
-      if (step.id === 'payment-details') {
-        return { ...step, status: 'active' as const };
-      }
-      return step;
-    });
-    setPaymentSteps(updatedSteps);
-    setCurrentStep('payment-details');
-  }, []);
 
   const handlePaymentSuccess = async (paymentIntent: any) => {
     try {
