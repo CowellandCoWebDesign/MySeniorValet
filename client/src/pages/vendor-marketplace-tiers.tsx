@@ -30,7 +30,8 @@ import {
   DollarSign,
   Zap,
   X,
-  Info
+  Info,
+  Heart
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
@@ -216,13 +217,31 @@ export default function VendorMarketplaceTiers() {
               <span className="font-semibold">Save 20% with annual billing!</span>
             </div>
           </div>
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 max-w-3xl mx-auto mb-4">
-            <p className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
-              <Info className="w-4 h-4" />
-              <span className="font-medium">Important:</span> This marketplace is for commercial service providers only. 
-              Healthcare providers (home health, hospice, therapy) should visit our 
-              <Link to="/" className="underline ml-1 hover:text-blue-600">free Healthcare and Care Services Directory</Link>
-            </p>
+          {/* Enhanced Healthcare Directory Link */}
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-5 max-w-4xl mx-auto mb-6 border border-blue-200 dark:border-blue-800">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
+                  <Info className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="text-left">
+                  <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Healthcare Providers</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    Home health, hospice & therapy services
+                  </p>
+                </div>
+              </div>
+              <Link 
+                to="/care-services" 
+                className="inline-flex items-center gap-2 bg-white dark:bg-gray-800 px-5 py-2.5 rounded-lg border-2 border-blue-400 dark:border-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all hover:scale-105 group"
+              >
+                <Heart className="w-5 h-5 text-blue-600 dark:text-blue-400 group-hover:animate-pulse" />
+                <span className="font-semibold text-blue-600 dark:text-blue-400">
+                  Free Healthcare Directory
+                </span>
+                <ChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              </Link>
+            </div>
           </div>
           
           {/* Service Categories */}
@@ -343,12 +362,6 @@ export default function VendorMarketplaceTiers() {
           </p>
         </CardHeader>
         <CardContent className="p-0 md:p-6">
-          {/* Mobile scroll hint */}
-          <div className="block md:hidden px-4 py-2 text-center">
-            <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1">
-              <span>👈</span> Swipe to see all features <span>👉</span>
-            </p>
-          </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[600px]">
               <thead>
