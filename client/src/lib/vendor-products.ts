@@ -11,47 +11,49 @@ export const VENDOR_PRODUCTS: VendorProduct[] = [
   {
     id: 'basic-vendor',
     name: 'Basic Listing',
-    description: 'Public listing in vendor directory, limited to 1 zip cluster',
+    description: 'Full state-wide coverage with professional vendor listing',
     price: 9900, // $99.00/month
     features: [
-      'Public listing in vendor directory',
-      'Region-limited to 1 zip cluster',
+      'Full coverage across 1 entire state',
+      'Professional vendor listing & profile',
       'Name, phone, category, description',
       'Optional $25 verified badge',
-      'User reviews allowed',
-      'Affiliate link support'
+      'User reviews & ratings',
+      'Affiliate link support',
+      'Basic lead notifications'
     ]
   },
   {
     id: 'featured-vendor',
     name: 'Featured Vendor',
-    description: 'Coverage across 5 regions, logo upload, analytics, featured placement',
+    description: 'Multi-state presence with enhanced branding and analytics',
     price: 24900, // $249.00/month
     features: [
-      'All Basic Listing features',
-      'Coverage across 5 regions',
+      'Coverage across up to 3 states',
+      'Featured placement in search results',
       'Upload logo, brand colors, CTA button',
-      'Basic analytics (views, clicks, leads)',
-      'Post vendor promos',
-      'Featured placement in vendor carousels',
-      'Must have affiliate link for "Approved" badge'
+      'Advanced analytics dashboard',
+      'Post vendor promos & special offers',
+      'Priority placement in vendor carousels',
+      'Approved vendor badge with verification',
+      'Enhanced lead scoring & insights'
     ]
   },
   {
     id: 'national-partner',
     name: 'National Partner',
-    description: 'Nationwide visibility, banner rotation, concierge priority, AI lead summaries',
+    description: 'Complete North American coverage with premium features',
     price: 49900, // $499.00/month
     features: [
-      'All Featured Vendor features',
-      'Nationwide visibility (no geo cap)',
-      'Banner rotation in major discovery areas',
-      'Concierge system priority & routing',
-      'AI-generated lead summaries + scoring',
-      'Optional API or CSV lead passback',
-      'Dedicated vendor microsite',
-      'Quarterly performance report',
-      'Optional vendor success call'
+      'Full US & Canada nationwide coverage',
+      'Premium banner rotation & placement',
+      'Concierge system priority routing',
+      'AI-powered lead summaries & scoring',
+      'API integration for lead passback',
+      'Custom branded vendor microsite',
+      'Quarterly performance reports',
+      'Dedicated success manager',
+      'International expansion ready'
     ]
   }
 ];

@@ -1630,9 +1630,12 @@ export const vendors = pgTable("vendors", {
     youtube?: string;
   }>().default({}),
   
-  // Service Coverage
-  serviceAreas: text("service_areas").array().default([]), // Cities/regions served
-  serviceRadius: integer("service_radius"), // Miles from business location
+  // Geographic Coverage (State-based and International)
+  coverageType: varchar("coverage_type", { length: 50 }).default('state'), // 'state', 'multi-state', 'national', 'international'
+  coverageStates: text("coverage_states").array().default([]), // Array of state codes covered
+  coverageCountries: text("coverage_countries").array().default(['US']), // Array of country codes covered
+  serviceAreas: text("service_areas").array().default([]), // Specific cities/regions served
+  serviceRadius: integer("service_radius"), // Miles from business location (for local vendors)
   
   // Verification & Compliance
   isVerified: boolean("is_verified").default(false),
@@ -1650,7 +1653,7 @@ export const vendors = pgTable("vendors", {
   
   // Subscription & Status
   subscriptionStatus: varchar("subscription_status", { length: 50 }).default('trial'), // 'trial', 'active', 'past_due', 'cancelled'
-  subscriptionTier: varchar("subscription_tier", { length: 50 }).default('basic'), // 'basic', 'professional', 'enterprise', 'platinum'
+  subscriptionTier: varchar("subscription_tier", { length: 50 }).default('basic'), // 'basic', 'featured', 'national'
   subscriptionStartDate: timestamp("subscription_start_date"),
   subscriptionEndDate: timestamp("subscription_end_date"),
   stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),

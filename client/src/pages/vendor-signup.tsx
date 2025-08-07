@@ -38,13 +38,15 @@ const pricingPlans = [
     id: 'basic',
     name: 'Basic Listing',
     price: 99,
+    badge: null,
     features: [
-      'Public listing in vendor directory',
-      'Region-limited to 1 zip cluster',
+      'Full coverage across 1 entire state',
+      'Professional vendor listing & profile',
       'Name, phone, category, description',
       'Optional $25 verified badge',
-      'User reviews allowed',
-      'Affiliate link support (if provided)'
+      'User reviews & ratings',
+      'Affiliate link support',
+      'Basic lead notifications'
     ]
   },
   {
@@ -53,29 +55,31 @@ const pricingPlans = [
     price: 249,
     badge: 'Most Popular',
     features: [
-      'Everything in Basic, plus:',
-      'Coverage across 5 regions',
+      'Coverage across up to 3 states',
+      'Featured placement in search results',
       'Upload logo, brand colors, CTA button',
-      'Basic analytics (views, clicks, leads)',
-      'Post vendor promos',
-      'Featured placement in vendor carousels',
-      'Must have affiliate link for "Approved" badge'
+      'Advanced analytics dashboard',
+      'Post vendor promos & special offers',
+      'Priority placement in vendor carousels',
+      'Approved vendor badge with verification',
+      'Enhanced lead scoring & insights'
     ]
   },
   {
     id: 'national',
     name: 'National Partner',
     price: 499,
+    badge: 'Best Value',
     features: [
-      'Everything in Featured, plus:',
-      'Nationwide visibility (no geo cap)',
-      'Banner rotation in major discovery areas',
-      'Concierge system priority & routing',
-      'AI-generated lead summaries + scoring',
-      'Optional API or CSV lead passback',
-      'Dedicated vendor microsite',
-      'Quarterly performance report',
-      'Optional vendor success call'
+      'Full US & Canada nationwide coverage',
+      'Premium banner rotation & placement',
+      'Concierge system priority routing',
+      'AI-powered lead summaries & scoring',
+      'API integration for lead passback',
+      'Custom branded vendor microsite',
+      'Quarterly performance reports',
+      'Dedicated success manager',
+      'International expansion ready'
     ]
   }
 ];
@@ -240,8 +244,8 @@ export default function VendorSignup() {
         {/* Pricing Plans */}
         <div className="mb-12">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2">Simple, Transparent Pricing</h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">No hidden fees. Cancel anytime. All plans include immediate activation.</p>
+            <h2 className="text-3xl font-bold mb-2">Powerful State & National Coverage</h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400">Reach seniors across entire states or nationwide. Instant activation, no setup fees.</p>
             
             {/* Promotional Badges */}
             <div className="mt-4 flex flex-col sm:flex-row gap-3 items-center justify-center">
