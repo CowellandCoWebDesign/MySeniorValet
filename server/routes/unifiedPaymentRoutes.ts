@@ -547,8 +547,83 @@ router.post('/confirm-vendor-payment', async (req: Request, res: Response) => {
       }
     }
     
-    // Create vendor record in database using raw SQL to avoid Drizzle issues
     const tier = paymentIntent.metadata?.tier || vendorData.planType || 'basic';
+    
+    // Check if vendor already exists with this email
+    const existingVendorQuery = `
+      SELECT id, business_name, subscription_tier, status
+      FROM vendors 
+      WHERE primary_contact_email = $1
+      LIMIT 1
+    `;
+    
+    const existingVendorResult = await pool.query(existingVendorQuery, [vendorData.email]);
+    
+    if (existingVendorResult.rows.length > 0) {
+      // Vendor exists - update their subscription tier
+      const existingVendor = existingVendorResult.rows[0];
+      console.log('Existing vendor found:', existingVendor);
+      
+      const updateQuery = `
+        UPDATE vendors 
+        SET 
+          subscription_tier = $1,
+          stripe_subscription_id = $2,
+          total_spent = total_spent + $3,
+          status = 'active',
+          is_verified = $4,
+          featured = $5,
+          updated_at = NOW()
+        WHERE id = $6
+        RETURNING id, business_name
+      `;
+      
+      const updateResult = await pool.query(updateQuery, [
+        tier,
+        paymentIntentId,
+        paymentIntent.amount / 100,
+        tier !== 'basic',
+        tier === 'featured' || tier === 'national',
+        existingVendor.id
+      ]);
+      
+      const updatedVendor = updateResult.rows[0];
+      console.log('Updated existing vendor subscription:', updatedVendor);
+      
+      // Log the upgrade transaction
+      const transactionQuery = `
+        INSERT INTO payment_transactions (
+          type, entity_id, stripe_payment_intent_id, amount, status, subscription_tier, metadata
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `;
+      
+      await pool.query(transactionQuery, [
+        'vendor_upgrade',
+        updatedVendor.id,
+        paymentIntentId,
+        paymentIntent.amount / 100,
+        'completed',
+        tier,
+        JSON.stringify({
+          vendorName: updatedVendor.business_name,
+          previousTier: existingVendor.subscription_tier,
+          newTier: tier,
+          action: 'upgrade'
+        })
+      ]);
+      
+      return res.json({
+        success: true,
+        message: 'Vendor subscription upgraded successfully',
+        vendorId: updatedVendor.id,
+        vendorSlug: updatedVendor.business_name.toLowerCase().replace(/\s+/g, '-'),
+        action: 'upgraded',
+        previousTier: existingVendor.subscription_tier,
+        newTier: tier
+      });
+    }
+    
+    // No existing vendor - create new vendor record
     
     const insertQuery = `
       INSERT INTO vendors (

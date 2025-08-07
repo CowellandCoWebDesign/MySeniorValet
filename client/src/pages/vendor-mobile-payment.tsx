@@ -137,6 +137,8 @@ export default function VendorMobilePayment() {
       });
 
       if (response.ok) {
+        const responseData = await response.json();
+        
         // Complete all steps
         const completeSteps = successSteps.map(step => {
           if (step.id === 'marketplace-setup') {
@@ -146,17 +148,25 @@ export default function VendorMobilePayment() {
         });
         setPaymentSteps(completeSteps);
         
+        // Store response data for success message
+        sessionStorage.setItem('vendorPaymentResult', JSON.stringify(responseData));
+        
         setPaymentSuccess(true);
         // Clear vendor data from session
         sessionStorage.removeItem('vendorSignupData');
         
         // Get vendor ID from response
-        const responseData = await response.json();
         const vendorId = responseData.vendorId || 'new';
         
-        // Redirect to vendor onboarding wizard
+        // Redirect based on action type
         setTimeout(() => {
-          setLocation(`/vendor-onboarding-wizard/${vendorId}`);
+          if (responseData.action === 'upgraded') {
+            // Existing vendor upgraded - go to dashboard
+            setLocation(`/vendor-dashboard/${vendorId}`);
+          } else {
+            // New vendor - go to onboarding
+            setLocation(`/vendor-onboarding-wizard/${vendorId}`);
+          }
         }, 2000);
       } else {
         throw new Error('Failed to confirm payment');
@@ -176,7 +186,11 @@ export default function VendorMobilePayment() {
     }
   };
 
-  if (paymentSuccess && vendorData) {
+  if (paymentSuccess) {
+    const paymentResult = sessionStorage.getItem('vendorPaymentResult');
+    const result = paymentResult ? JSON.parse(paymentResult) : null;
+    const isUpgrade = result?.action === 'upgraded';
+    
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <NavigationHeader />
@@ -186,27 +200,73 @@ export default function VendorMobilePayment() {
               <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mb-4">
                 <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
               </div>
-              <CardTitle>Payment Successful!</CardTitle>
+              <CardTitle>
+                {isUpgrade ? 'Subscription Upgraded!' : 'Payment Successful!'}
+              </CardTitle>
               <CardDescription>
-                Welcome to MySeniorValet's Vendor Network
+                {isUpgrade 
+                  ? `Your subscription has been upgraded to ${result?.newTier?.toUpperCase()} tier`
+                  : "Welcome to MySeniorValet's Vendor Network"
+                }
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-center text-gray-600 dark:text-gray-400">
-                Thank you for joining our vendor network. You'll receive a confirmation email at <strong>{vendorData?.email || 'your registered email'}</strong> with your account details and next steps.
-              </p>
-              <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-4">
-                <h4 className="font-semibold mb-2">What happens next?</h4>
-                <ul className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
-                  <li>• You'll receive login credentials via email</li>
-                  <li>• Complete your vendor profile</li>
-                  <li>• Start receiving qualified leads</li>
-                  <li>• Access your vendor dashboard</li>
-                </ul>
-              </div>
+              {isUpgrade ? (
+                <>
+                  <p className="text-center text-gray-600 dark:text-gray-400">
+                    Your vendor account has been successfully upgraded from <strong>{result?.previousTier}</strong> to <strong>{result?.newTier}</strong> tier.
+                  </p>
+                  <div className="bg-green-50 dark:bg-green-950 rounded-lg p-4">
+                    <h4 className="font-semibold mb-2">Your upgraded benefits:</h4>
+                    <ul className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
+                      {result?.newTier === 'national' && (
+                        <>
+                          <li>• National exposure across all markets</li>
+                          <li>• Custom microsite for your business</li>
+                          <li>• Priority lead routing</li>
+                          <li>• Advanced analytics dashboard</li>
+                        </>
+                      )}
+                      {result?.newTier === 'featured' && (
+                        <>
+                          <li>• Featured placement in search results</li>
+                          <li>• Enhanced profile with media gallery</li>
+                          <li>• Lead tracking and analytics</li>
+                          <li>• Priority support</li>
+                        </>
+                      )}
+                      {result?.newTier === 'basic' && (
+                        <>
+                          <li>• Basic vendor profile</li>
+                          <li>• Access to qualified leads</li>
+                          <li>• Standard support</li>
+                        </>
+                      )}
+                    </ul>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-center text-gray-600 dark:text-gray-400">
+                    Thank you for joining our vendor network. You'll receive a confirmation email at <strong>{vendorData?.email || 'your registered email'}</strong> with your account details.
+                  </p>
+                  <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-4">
+                    <h4 className="font-semibold mb-2">What happens next?</h4>
+                    <ul className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
+                      <li>• You'll receive login credentials via email</li>
+                      <li>• Complete your vendor profile</li>
+                      <li>• Start receiving qualified leads</li>
+                      <li>• Access your vendor dashboard</li>
+                    </ul>
+                  </div>
+                </>
+              )}
               <Button 
                 className="w-full"
-                onClick={() => setLocation('/')}
+                onClick={() => {
+                  sessionStorage.removeItem('vendorPaymentResult');
+                  setLocation('/');
+                }}
               >
                 Return to Home
               </Button>
