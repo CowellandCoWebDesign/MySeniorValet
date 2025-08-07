@@ -29,21 +29,21 @@ const VENDOR_TIERS = {
     name: 'Basic Listing', 
     price: 9900, // $99 in cents
     promoPrice: 4950, // $49.50 (50% off first month)
-    annualPrice: 107892, // $1078.92 (save $109.08/year - 1 month free)
+    annualPrice: 95040, // $950.40 (20% off annual - save $237.60/year)
     interval: 'month' as const 
   },
   featured: { 
     name: 'Featured Vendor', 
     price: 24900, // $249 in cents
     promoPrice: 12450, // $124.50 (50% off first month)
-    annualPrice: 271908, // $2719.08 (save $268.92/year - 1 month free)
+    annualPrice: 239040, // $2390.40 (20% off annual - save $597.60/year)
     interval: 'month' as const 
   },
   national: { 
     name: 'National Partner', 
     price: 49900, // $499 in cents
     promoPrice: 24950, // $249.50 (50% off first month)
-    annualPrice: 544908, // $5449.08 (save $538.92/year - 1 month free)
+    annualPrice: 479040, // $4790.40 (20% off annual - save $1197.60/year)
     interval: 'month' as const 
   },
 };
@@ -113,7 +113,7 @@ router.post('/create-payment-intent', async (req: Request, res: Response) => {
       
       if (billingCycle === 'annual' && vendorTier.annualPrice) {
         amount = vendorTier.annualPrice;
-        description = `MySeniorValet ${tierInfo.name} - Annual (Save 1 Month!)`;
+        description = `MySeniorValet ${tierInfo.name} - Annual (Save 20%!)`;
       } else if (applyPromo && vendorTier.promoPrice) {
         amount = vendorTier.promoPrice;
         description = `MySeniorValet ${tierInfo.name} - First Month 50% OFF`;

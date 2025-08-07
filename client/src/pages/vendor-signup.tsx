@@ -253,7 +253,7 @@ export default function VendorSignup() {
               )}
               <div className="inline-flex items-center bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-full">
                 <TrendingUp className="w-4 h-4 mr-2" />
-                <span className="font-medium">Save 1 month with annual billing!</span>
+                <span className="font-medium">Save 20% with annual billing!</span>
               </div>
             </div>
             
@@ -277,7 +277,7 @@ export default function VendorSignup() {
               </button>
               <span className={`text-lg font-medium ${billingCycle === 'annual' ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>
                 Annual
-                <Badge className="ml-2 bg-green-600 text-white">Save 8%</Badge>
+                <Badge className="ml-2 bg-green-600 text-white">Save 20%</Badge>
               </span>
             </div>
           </div>
@@ -289,9 +289,11 @@ export default function VendorSignup() {
               let savingsText = '';
               
               if (billingCycle === 'annual') {
-                // Annual pricing: 11 months for the price of 12
-                displayPrice = Math.round(plan.price * 11 / 12);
-                savingsText = `Save $${plan.price * 12 - plan.price * 11} per year`;
+                // Annual pricing: 20% off (pay 80% of full annual price)
+                const annualPrice = plan.price * 12 * 0.8; // 20% off
+                displayPrice = Math.round(annualPrice / 12); // Show monthly equivalent
+                const savings = (plan.price * 12) - annualPrice;
+                savingsText = `Save $${Math.round(savings)} per year`;
               }
               
               if (isFirstTimeCustomer && billingCycle === 'monthly') {
@@ -341,7 +343,7 @@ export default function VendorSignup() {
                             {savingsText}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            Billed annually at ${plan.price * 11}
+                            Billed annually at ${Math.round(plan.price * 12 * 0.8)}
                           </p>
                         </div>
                       )}

@@ -18,6 +18,11 @@ export default function VendorMobilePayment() {
   const [paymentSteps, setPaymentSteps] = useState<PaymentStep[]>(VENDOR_PAYMENT_STEPS);
   const [vendorData, setVendorData] = useState<any>(null);
 
+  // Get billing parameters from URL
+  const searchParams = new URLSearchParams(window.location.search);
+  const billingCycle = searchParams.get('billingCycle') || 'monthly';
+  const applyPromo = searchParams.get('promo') === 'true';
+  
   // Initialize payment steps and vendor data
   React.useEffect(() => {
     // Get vendor data from session storage
@@ -277,6 +282,20 @@ export default function VendorMobilePayment() {
     );
   }
 
+  // Calculate actual price based on billing cycle and promo
+  let displayPrice = product.price;
+  let priceDescription = `$${product.price / 100}/mo`;
+  
+  if (billingCycle === 'annual') {
+    // 20% off annual pricing
+    displayPrice = Math.round(product.price * 12 * 0.8); // Total annual price with 20% off
+    priceDescription = `$${Math.round(displayPrice / 12) / 100}/mo (billed annually)`;
+  } else if (applyPromo) {
+    // 50% off first month
+    displayPrice = Math.round(product.price / 2);
+    priceDescription = `$${displayPrice / 100} first month (then $${product.price / 100}/mo)`;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NavigationHeader />
@@ -303,8 +322,19 @@ export default function VendorMobilePayment() {
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center pb-4 border-b">
-                    <span className="font-semibold">{product.name}</span>
-                    <span className="text-2xl font-bold">${product.price / 100}/mo</span>
+                    <div>
+                      <span className="font-semibold block">{product.name}</span>
+                      {billingCycle === 'annual' && (
+                        <span className="text-sm text-green-600">Save 20% with annual billing</span>
+                      )}
+                      {applyPromo && billingCycle === 'monthly' && (
+                        <span className="text-sm text-green-600">50% off first month</span>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <span className="text-2xl font-bold block">{priceDescription.split(' ')[0]}</span>
+                      <span className="text-sm text-gray-500">{priceDescription.split(' ').slice(1).join(' ')}</span>
+                    </div>
                   </div>
                   
                   <div>
@@ -339,13 +369,15 @@ export default function VendorMobilePayment() {
                 <MobilePaymentForm
                   productId={product.id}
                   productName={product.name}
-                  price={product.price}
+                  price={displayPrice}
                   metadata={{
                     businessName: vendorData.businessName,
                     email: vendorData.email,
                     phone: vendorData.phone,
                     category: vendorData.category,
-                    type: 'vendor_subscription'
+                    type: 'vendor_subscription',
+                    billingCycle: billingCycle,
+                    applyPromo: applyPromo ? 'true' : 'false'
                   }}
                   onSuccess={handlePaymentSuccess}
                   onCancel={() => setLocation('/vendor-signup')}

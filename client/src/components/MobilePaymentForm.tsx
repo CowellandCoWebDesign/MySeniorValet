@@ -175,6 +175,8 @@ export function MobilePaymentForm(props: MobilePaymentFormProps) {
           body: JSON.stringify({
             tier: tier,
             type: type,
+            billingCycle: props.metadata?.billingCycle || 'monthly',
+            applyPromo: props.metadata?.applyPromo === 'true',
             metadata: {
               ...props.metadata,
               productName: props.productName,
