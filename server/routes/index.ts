@@ -48,10 +48,11 @@ import authenticPricingRoutes from "./authentic-pricing-routes";
 import weaviateRoutes from "./weaviate-routes";
 import enhancedWeaviateRoutes from "./enhanced-weaviate-routes";
 import { registerPlatformRoutes } from "./platformRoutes";
-import { registerStripeTestRoutes } from "./stripe-test";
-import { registerStripeRealChargeRoutes } from "./stripe-real-charge-test";
-import { registerCommunityStripeRoutes } from "./community-stripe";
-import { registerVendorStripeRoutes } from "./vendor-stripe";
+// DISABLED: Old Stripe routes - replaced by unifiedPaymentRoutes
+// import { registerStripeTestRoutes } from "./stripe-test";
+// import { registerStripeRealChargeRoutes } from "./stripe-real-charge-test";
+// import { registerCommunityStripeRoutes } from "./community-stripe";
+// import { registerVendorStripeRoutes } from "./vendor-stripe";
 import unifiedPaymentRoutes from "./unifiedPaymentRoutes";
 
 // Import existing routers

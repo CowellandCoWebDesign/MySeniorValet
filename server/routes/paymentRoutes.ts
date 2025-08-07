@@ -466,7 +466,10 @@ export function registerPaymentRoutes(app: Express) {
     }
   });
 
-  // Confirm payment for communities
+  // DISABLED: Duplicate endpoint - Using unifiedPaymentRoutes.ts instead
+  // This endpoint was causing conflicts with the unified payment system
+  // All payment confirmations now handled by unifiedPaymentRoutes.ts
+  /* COMMENTED OUT TO PREVENT CONFLICTS
   app.post("/api/payments/confirm-community-payment", async (req, res) => {
     try {
       const { paymentIntentId, communityId, tier } = req.body;
