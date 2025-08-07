@@ -1,243 +1,168 @@
-import React from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  ShoppingBag, 
-  MapPin, 
-  Phone, 
-  Globe, 
-  Star, 
-  Shield, 
-  Sparkle,
-  TrendingUp,
-  Award,
-  CheckCircle,
-  Clock,
-  DollarSign
-} from 'lucide-react';
+import { ShoppingCart, Pill, Car, Stethoscope, Phone, Home, DollarSign, ExternalLink, CheckCircle, Shield, Truck, Building, Users } from 'lucide-react';
 
 interface EnhancedVendorCardProps {
-  vendor: {
-    id: number;
-    businessName: string;
-    businessType: string;
-    description?: string;
-    city: string;
-    state: string;
-    phone?: string;
-    website?: string;
-    rating?: number;
-    reviewCount?: number;
-    tier?: 'basic' | 'featured' | 'national';
-    serviceAreas?: string;
-    isVerified?: boolean;
-    isNew?: boolean;
-    specialOffer?: string;
-  };
+  vendor: any;
   onClick?: () => void;
 }
 
-const tierConfig = {
-  basic: {
-    badge: 'Basic Partner',
-    color: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
-    borderColor: 'border-gray-400',
-    icon: CheckCircle,
-    coverage: '1 State Coverage'
-  },
-  featured: {
-    badge: 'Featured Partner',
-    color: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
-    borderColor: 'border-blue-500',
-    icon: Award,
-    coverage: 'Multi-State Coverage'
-  },
-  national: {
-    badge: 'National Partner',
-    color: 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
-    borderColor: 'border-purple-500',
-    icon: Shield,
-    coverage: 'Nationwide Coverage'
-  }
+const iconMap: Record<string, any> = {
+  ShoppingCart,
+  Pill,
+  Car,
+  Stethoscope,
+  Phone,
+  Home,
+  DollarSign,
+  Truck,
+  Building,
+  Users
 };
 
 export default function EnhancedVendorCard({ vendor, onClick }: EnhancedVendorCardProps) {
-  const tier = vendor.tier || 'basic';
-  const tierInfo = tierConfig[tier];
-  
-  // Calculate promotional pricing
-  const getPromotionalText = () => {
-    if (vendor.isNew) {
-      return '50% OFF First Month - New Partner Special!';
+  // Define vendor-specific styling matching home page
+  const vendorThemes: Record<string, any> = {
+    'walmart': {
+      borderColor: vendor.tier === 'featured' ? 'border-blue-400 dark:border-blue-500' : 'border-blue-300 dark:border-blue-600',
+      bgGradient: vendor.tier === 'featured' ? 'from-blue-100 to-sky-100 dark:from-blue-900/30 dark:to-sky-900/30' : 'from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20',
+      iconBg: 'bg-blue-100 dark:bg-blue-800',
+      iconColor: 'text-blue-600 dark:text-blue-300',
+      buttonBg: 'bg-blue-600 hover:bg-blue-700',
+      badge: 'Everyday Low Prices',
+      badgeBg: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
+      liveBadgeBg: 'bg-blue-500'
+    },
+    'featured': {
+      borderColor: 'border-purple-400 dark:border-purple-500',
+      bgGradient: 'from-purple-100 to-violet-100 dark:from-purple-900/30 dark:to-violet-900/30',
+      iconBg: 'bg-purple-100 dark:bg-purple-800',
+      iconColor: 'text-purple-600 dark:text-purple-300',
+      buttonBg: 'bg-purple-600 hover:bg-purple-700',
+      badge: 'Featured Partner',
+      badgeBg: 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200',
+      liveBadgeBg: 'bg-purple-500'
+    },
+    'national': {
+      borderColor: 'border-orange-400 dark:border-orange-500',
+      bgGradient: 'from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30',
+      iconBg: 'bg-orange-100 dark:bg-orange-800',
+      iconColor: 'text-orange-600 dark:text-orange-300',
+      buttonBg: 'bg-orange-600 hover:bg-orange-700',
+      badge: 'National Partner',
+      badgeBg: 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200',
+      liveBadgeBg: 'bg-orange-500'
+    },
+    'default': {
+      borderColor: 'border-gray-300 dark:border-gray-600',
+      bgGradient: 'from-gray-50 to-slate-50 dark:from-gray-900/20 dark:to-slate-900/20',
+      iconBg: 'bg-gray-100 dark:bg-gray-800',
+      iconColor: 'text-gray-600 dark:text-gray-300',
+      buttonBg: 'bg-gray-600 hover:bg-gray-700',
+      badge: 'Service Partner',
+      badgeBg: 'bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200',
+      liveBadgeBg: 'bg-gray-500'
     }
-    return '20% OFF Annual Plans - Limited Time';
   };
 
-  const businessTypeColors: Record<string, string> = {
-    'Home Care': 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
-    'Medical Equipment': 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
-    'Transportation': 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
-    'Groceries & Essentials': 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
-    'Legal Services': 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
-    'Financial Planning': 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300',
-    'Moving Services': 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300',
-  };
+  // Determine theme based on vendor name or tier
+  let theme = vendorThemes.default;
+  if (vendor.name?.toLowerCase().includes('walmart') || vendor.businessName?.toLowerCase().includes('walmart')) {
+    theme = vendorThemes.walmart;
+  } else if (vendor.tier === 'national') {
+    theme = vendorThemes.national;
+  } else if (vendor.tier === 'featured') {
+    theme = vendorThemes.featured;
+  }
+
+  // Get appropriate icon
+  const Icon = vendor.categoryIcon ? iconMap[vendor.categoryIcon] : ShoppingCart;
 
   return (
-    <Card 
-      className={`hover:shadow-xl transition-all duration-300 cursor-pointer border-l-4 ${tierInfo.borderColor} relative overflow-hidden group`}
+    <div 
       onClick={onClick}
+      className="w-full cursor-pointer hover:shadow-lg transition-all duration-200"
     >
-      {/* Promotional Banner */}
-      {(vendor.isNew || vendor.specialOffer) && (
-        <div className="absolute top-0 right-0 bg-gradient-to-l from-green-500 to-emerald-600 text-white px-3 py-1 rounded-bl-lg flex items-center gap-1 text-xs font-bold shadow-lg">
-          <Sparkle className="w-3 h-3 animate-pulse" />
-          {vendor.isNew ? 'NEW' : 'PROMO'}
-        </div>
-      )}
-
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <ShoppingBag className={`w-5 h-5 ${tier === 'national' ? 'text-purple-500' : tier === 'featured' ? 'text-blue-500' : 'text-gray-500'}`} />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {vendor.businessName}
-              </h3>
-              {vendor.isVerified && (
-                <Shield className="w-4 h-4 text-green-500" title="Verified Partner" />
+      <Card className={`border-2 ${theme.borderColor} bg-gradient-to-r ${theme.bgGradient} hover:shadow-xl transition-all duration-300`}>
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Logo with brand colors - matching home page */}
+            <div className={`w-full sm:w-24 h-24 ${theme.iconBg} rounded-lg p-2 shadow-sm overflow-hidden flex-shrink-0 border border-white/50 dark:border-gray-700/50 mx-auto sm:mx-0`}>
+              {vendor.logoUrl ? (
+                <img 
+                  src={vendor.logoUrl} 
+                  alt={vendor.name || vendor.businessName} 
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <div className={`w-full h-full flex items-center justify-center ${theme.iconColor}`}>
+                  <Icon className="w-12 h-12" />
+                </div>
               )}
             </div>
             
-            {/* Business Type and Tier Badges */}
-            <div className="flex flex-wrap gap-2 mt-2">
-              <Badge 
-                variant="secondary" 
-                className={businessTypeColors[vendor.businessType] || 'bg-gray-100 text-gray-700'}
-              >
-                {vendor.businessType}
-              </Badge>
-              <Badge 
-                variant="secondary" 
-                className={tierInfo.color}
-              >
-                <tierInfo.icon className="w-3 h-3 mr-1" />
-                {tierInfo.badge}
-              </Badge>
-              {vendor.isNew && (
-                <Badge 
-                  variant="secondary" 
-                  className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0"
+            {/* Content */}
+            <div className="flex-1">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-center gap-3 mb-2">
+                    <h4 className="font-bold text-lg sm:text-xl text-gray-900 dark:text-gray-100">
+                      {vendor.name || vendor.businessName}
+                    </h4>
+
+                    {(vendor.tier === 'featured' || vendor.tier === 'national' || vendor.isNew) && (
+                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs px-2 py-1 font-medium shadow-sm">
+                        ⭐ Featured
+                      </Badge>
+                    )}
+
+                    <Badge className={`${theme.badgeBg} text-xs px-2 py-1 font-medium`}>
+                      {theme.badge}
+                    </Badge>
+
+                    {vendor.specialOffer && (
+                      <Badge className="bg-red-500 text-white text-xs px-2 py-1 font-medium animate-pulse">
+                        {vendor.specialOffer}
+                      </Badge>
+                    )}
+
+                  </div>
+                  <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-3">
+                    {vendor.description || vendor.businessType || 'Premium senior services provider offering nationwide support and assistance'}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm">
+                    <span className={`flex items-center gap-1 ${theme.iconColor} font-medium`}>
+                      <Icon className="w-4 h-4" />
+                      {vendor.category || vendor.businessType || 'Senior Services'}
+                    </span>
+                    <span className="flex items-center gap-1 text-green-600 dark:text-green-400 font-medium">
+                      <CheckCircle className="w-4 h-4" />
+                      Available Service
+                    </span>
+                    <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400 font-medium">
+                      <Shield className="w-4 h-4" />
+                      Senior Specialists
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Action button with brand colors - matching home page */}
+                <Button 
+                  className={`w-full sm:w-auto px-6 py-3 ${theme.buttonBg} text-white rounded-lg transition-colors flex items-center justify-center gap-2 font-medium shadow-lg hover:shadow-xl`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClick?.();
+                  }}
                 >
-                  <Clock className="w-3 h-3 mr-1" />
-                  New Partner
-                </Badge>
-              )}
+                  Shop Now
+                  <ExternalLink className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </div>
-          
-          {/* Rating Display */}
-          {vendor.rating && (
-            <div className="flex flex-col items-center">
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-bold">{vendor.rating.toFixed(1)}</span>
-              </div>
-              {vendor.reviewCount && (
-                <span className="text-xs text-gray-500">({vendor.reviewCount})</span>
-              )}
-            </div>
-          )}
-        </div>
-      </CardHeader>
-
-      <CardContent className="pt-0">
-        {/* Promotional Message */}
-        {(vendor.isNew || vendor.specialOffer) && (
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-700 rounded-lg p-2 mb-3">
-            <div className="flex items-center gap-2 text-green-700 dark:text-green-300">
-              <DollarSign className="w-4 h-4" />
-              <span className="text-xs font-semibold">
-                {vendor.specialOffer || getPromotionalText()}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Description */}
-        {vendor.description && (
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
-            {vendor.description}
-          </p>
-        )}
-
-        {/* Service Coverage */}
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2 mb-3">
-          <div className="flex items-center gap-2 text-sm">
-            <TrendingUp className="w-4 h-4 text-gray-500" />
-            <span className="font-medium text-gray-700 dark:text-gray-300">
-              {tierInfo.coverage}
-            </span>
-            {vendor.serviceAreas && (
-              <span className="text-gray-500 dark:text-gray-400">
-                • {vendor.serviceAreas}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Contact Information */}
-        <div className="flex flex-col gap-2 text-sm">
-          <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-            <MapPin className="w-4 h-4" />
-            <span>{vendor.city}, {vendor.state}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            {vendor.phone && (
-              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                <Phone className="w-4 h-4" />
-                <span>{vendor.phone}</span>
-              </div>
-            )}
-            {vendor.website && (
-              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 ml-auto">
-                <Globe className="w-4 h-4" />
-                <span className="text-xs">Website</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Call to Action */}
-        <div className="mt-4 flex gap-2">
-          <Button 
-            size="sm" 
-            variant="outline" 
-            className="flex-1 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              console.log('View details for:', vendor.businessName);
-            }}
-          >
-            View Details
-          </Button>
-          {vendor.phone && (
-            <Button 
-              size="sm" 
-              variant="default"
-              className="flex-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                window.location.href = `tel:${vendor.phone}`;
-              }}
-            >
-              <Phone className="w-3 h-3 mr-1" />
-              Call Now
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
