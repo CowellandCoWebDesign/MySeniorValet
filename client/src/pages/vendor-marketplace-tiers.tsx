@@ -331,198 +331,203 @@ export default function VendorMarketplaceTiers() {
           </div>
         </div>
 
-      {/* Detailed Feature Comparison */}
+      {/* Detailed Feature Comparison - Mobile Optimized */}
       <Card className="bg-white dark:bg-gray-800 mb-12 border-2 border-purple-100 dark:border-purple-900/30">
         <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20">
-          <CardTitle className="text-2xl text-gray-900 dark:text-gray-100 flex items-center gap-2">
-            <Gift className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-            Your Partnership Benefits at a Glance
+          <CardTitle className="text-xl md:text-2xl text-gray-900 dark:text-gray-100 flex items-center gap-2">
+            <Gift className="w-5 h-5 md:w-6 md:h-6 text-purple-600 dark:text-purple-400" />
+            Partnership Benefits at a Glance
           </CardTitle>
-          <p className="text-base text-gray-600 dark:text-gray-400 mt-2">
-            Each tier is designed to support your unique journey. Find the perfect match for where you are today and where you're headed tomorrow!
+          <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-2">
+            Compare all features across our tiers
           </p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0 md:p-6">
+          {/* Mobile scroll hint */}
+          <div className="block md:hidden px-4 py-2 text-center">
+            <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-center gap-1">
+              <span>👈</span> Swipe to see all features <span>👉</span>
+            </p>
+          </div>
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[600px]">
               <thead>
                 <tr className="border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                  <th className="text-left py-4 px-6 text-gray-900 dark:text-gray-100 font-semibold">Feature</th>
-                  <th className="text-center py-4 px-6">
-                    <div className="text-gray-900 dark:text-gray-100 font-semibold">Tier 1: Basic Listing</div>
-                    <div className="text-2xl font-bold text-gray-700 dark:text-gray-300 mt-1">$99/mo</div>
+                  <th className="text-left py-3 px-3 md:py-4 md:px-6 text-gray-900 dark:text-gray-100 font-semibold text-sm md:text-base">Feature</th>
+                  <th className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <div className="text-gray-900 dark:text-gray-100 font-semibold text-sm md:text-base">Basic</div>
+                    <div className="text-lg md:text-2xl font-bold text-gray-700 dark:text-gray-300 mt-1">$99</div>
                   </th>
-                  <th className="text-center py-4 px-6 relative">
-                    <div className="absolute top-0 right-0 bg-blue-600 text-white px-2 py-1 text-xs rounded-bl-lg">Most Popular</div>
-                    <div className="text-gray-900 dark:text-gray-100 font-semibold">Tier 2: Featured Vendor</div>
-                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">$249/mo</div>
+                  <th className="text-center py-3 px-3 md:py-4 md:px-6 relative">
+                    <div className="absolute top-0 right-0 bg-blue-600 text-white px-1 py-0.5 text-xs rounded-bl-lg">Popular</div>
+                    <div className="text-gray-900 dark:text-gray-100 font-semibold text-sm md:text-base">Featured</div>
+                    <div className="text-lg md:text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">$249</div>
                   </th>
-                  <th className="text-center py-4 px-6">
-                    <div className="text-gray-900 dark:text-gray-100 font-semibold">Tier 3: National Partner</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">(Premium)</div>
-                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1">$499/mo</div>
+                  <th className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <div className="text-gray-900 dark:text-gray-100 font-semibold text-sm md:text-base">National</div>
+                    <div className="text-lg md:text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1">$499</div>
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {/* Coverage & Visibility */}
                 <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-                  <td colSpan={4} className="py-3 px-6 font-semibold text-gray-900 dark:text-gray-100 text-sm uppercase tracking-wider">
+                  <td colSpan={4} className="py-2 px-3 md:py-3 md:px-6 font-semibold text-gray-900 dark:text-gray-100 text-xs md:text-sm uppercase tracking-wider">
                     Coverage & Visibility
                   </td>
                 </tr>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100">Geographic Coverage</td>
-                  <td className="text-center py-4 px-6 text-gray-700 dark:text-gray-300">
-                    <div className="font-medium">1 State</div>
-                    <div className="text-xs text-gray-500">Full state coverage</div>
+                  <td className="py-3 px-3 md:py-4 md:px-6 font-medium text-gray-900 dark:text-gray-100 text-sm md:text-base">Geographic Coverage</td>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6 text-gray-700 dark:text-gray-300">
+                    <div className="font-medium text-sm md:text-base">1 State</div>
+                    <div className="text-xs text-gray-500 hidden md:block">Full state coverage</div>
                   </td>
-                  <td className="text-center py-4 px-6 text-gray-700 dark:text-gray-300">
-                    <div className="font-medium">3 States</div>
-                    <div className="text-xs text-gray-500">Multi-state coverage</div>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6 text-gray-700 dark:text-gray-300">
+                    <div className="font-medium text-sm md:text-base">3 States</div>
+                    <div className="text-xs text-gray-500 hidden md:block">Multi-state coverage</div>
                   </td>
-                  <td className="text-center py-4 px-6 text-gray-700 dark:text-gray-300">
-                    <div className="font-medium text-purple-600 dark:text-purple-400">Nationwide</div>
-                    <div className="text-xs text-gray-500">US & Canada</div>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6 text-gray-700 dark:text-gray-300">
+                    <div className="font-medium text-purple-600 dark:text-purple-400 text-sm md:text-base">Nationwide</div>
+                    <div className="text-xs text-gray-500 hidden md:block">US & Canada</div>
                   </td>
                 </tr>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100">Placement Priority</td>
-                  <td className="text-center py-4 px-6">
-                    <X className="w-5 h-5 text-gray-400 dark:text-gray-500 inline" />
-                    <div className="text-xs text-gray-500">Basic listing only</div>
+                  <td className="py-3 px-3 md:py-4 md:px-6 font-medium text-gray-900 dark:text-gray-100 text-sm md:text-base">Placement Priority</td>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <X className="w-4 h-4 md:w-5 md:h-5 text-gray-400 dark:text-gray-500 inline" />
+                    <div className="text-xs text-gray-500 hidden md:block">Basic listing only</div>
                   </td>
-                  <td className="text-center py-4 px-6">
-                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 inline" />
-                    <div className="text-xs text-green-600">Featured placement</div>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-600 dark:text-green-400 inline" />
+                    <div className="text-xs text-green-600 hidden md:block">Featured placement</div>
                   </td>
-                  <td className="text-center py-4 px-6">
-                    <Star className="w-5 h-5 text-purple-600 dark:text-purple-400 inline" />
-                    <div className="text-xs text-purple-600">Banner rotation + priority</div>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <Star className="w-4 h-4 md:w-5 md:h-5 text-purple-600 dark:text-purple-400 inline" />
+                    <div className="text-xs text-purple-600 hidden md:block">Banner rotation + priority</div>
                   </td>
                 </tr>
                 
                 {/* Branding & Profile */}
                 <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-                  <td colSpan={4} className="py-3 px-6 font-semibold text-gray-900 dark:text-gray-100 text-sm uppercase tracking-wider">
+                  <td colSpan={4} className="py-2 px-3 md:py-3 md:px-6 font-semibold text-gray-900 dark:text-gray-100 text-xs md:text-sm uppercase tracking-wider">
                     Branding & Profile
                   </td>
                 </tr>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100">Logo & Brand Colors</td>
-                  <td className="text-center py-4 px-6">
-                    <X className="w-5 h-5 text-gray-400 dark:text-gray-500 inline" />
-                    <div className="text-xs text-gray-500">No logo</div>
+                  <td className="py-3 px-3 md:py-4 md:px-6 font-medium text-gray-900 dark:text-gray-100 text-sm md:text-base">Logo & Brand Colors</td>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <X className="w-4 h-4 md:w-5 md:h-5 text-gray-400 dark:text-gray-500 inline" />
+                    <div className="text-xs text-gray-500 hidden md:block">No logo</div>
                   </td>
-                  <td className="text-center py-4 px-6">
-                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 inline" />
-                    <div className="text-xs text-green-600">Logo + brand colors</div>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-600 dark:text-green-400 inline" />
+                    <div className="text-xs text-green-600 hidden md:block">Logo + brand colors</div>
                   </td>
-                  <td className="text-center py-4 px-6">
-                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 inline" />
-                    <div className="text-xs text-green-600">Full branding</div>
-                  </td>
-                </tr>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100">Verified Badge</td>
-                  <td className="text-center py-4 px-6">
-                    <span className="text-gray-700 dark:text-gray-300">$25 add-on</span>
-                  </td>
-                  <td className="text-center py-4 px-6">
-                    <Shield className="w-5 h-5 text-blue-600 dark:text-blue-400 inline" />
-                    <div className="text-xs text-blue-600">Included (w/ affiliate link)</div>
-                  </td>
-                  <td className="text-center py-4 px-6">
-                    <Shield className="w-5 h-5 text-purple-600 dark:text-purple-400 inline" />
-                    <div className="text-xs text-purple-600">Premium verified</div>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-600 dark:text-green-400 inline" />
+                    <div className="text-xs text-green-600 hidden md:block">Full branding</div>
                   </td>
                 </tr>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100">Dedicated Profile Page</td>
-                  <td className="text-center py-4 px-6">
-                    <X className="w-5 h-5 text-gray-400 dark:text-gray-500 inline" />
+                  <td className="py-3 px-3 md:py-4 md:px-6 font-medium text-gray-900 dark:text-gray-100 text-sm md:text-base">Verified Badge</td>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <span className="text-gray-700 dark:text-gray-300 text-xs md:text-sm">$25 add-on</span>
                   </td>
-                  <td className="text-center py-4 px-6">
-                    <X className="w-5 h-5 text-gray-400 dark:text-gray-500 inline" />
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <Shield className="w-4 h-4 md:w-5 md:h-5 text-blue-600 dark:text-blue-400 inline" />
+                    <div className="text-xs text-blue-600 hidden md:block">Included (w/ affiliate link)</div>
                   </td>
-                  <td className="text-center py-4 px-6">
-                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 inline" />
-                    <div className="text-xs text-green-600">Vendor microsite</div>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <Shield className="w-4 h-4 md:w-5 md:h-5 text-purple-600 dark:text-purple-400 inline" />
+                    <div className="text-xs text-purple-600 hidden md:block">Premium verified</div>
+                  </td>
+                </tr>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <td className="py-3 px-3 md:py-4 md:px-6 font-medium text-gray-900 dark:text-gray-100 text-sm md:text-base">Dedicated Profile Page</td>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <X className="w-4 h-4 md:w-5 md:h-5 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <X className="w-4 h-4 md:w-5 md:h-5 text-gray-400 dark:text-gray-500 inline" />
+                  </td>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-600 dark:text-green-400 inline" />
+                    <div className="text-xs text-green-600 hidden md:block">Vendor microsite</div>
                   </td>
                 </tr>
                 
                 {/* Analytics & Insights */}
                 <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-                  <td colSpan={4} className="py-3 px-6 font-semibold text-gray-900 dark:text-gray-100 text-sm uppercase tracking-wider">
+                  <td colSpan={4} className="py-2 px-3 md:py-3 md:px-6 font-semibold text-gray-900 dark:text-gray-100 text-xs md:text-sm uppercase tracking-wider">
                     Analytics & Insights
                   </td>
                 </tr>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100">Analytics Access</td>
-                  <td className="text-center py-4 px-6">
-                    <X className="w-5 h-5 text-gray-400 dark:text-gray-500 inline" />
-                    <div className="text-xs text-gray-500">No analytics</div>
+                  <td className="py-3 px-3 md:py-4 md:px-6 font-medium text-gray-900 dark:text-gray-100 text-sm md:text-base">Analytics Access</td>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <X className="w-4 h-4 md:w-5 md:h-5 text-gray-400 dark:text-gray-500 inline" />
+                    <div className="text-xs text-gray-500 hidden md:block">No analytics</div>
                   </td>
-                  <td className="text-center py-4 px-6">
-                    <BarChart3 className="w-5 h-5 text-blue-600 dark:text-blue-400 inline" />
-                    <div className="text-xs text-blue-600">Basic analytics</div>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-blue-600 dark:text-blue-400 inline" />
+                    <div className="text-xs text-blue-600 hidden md:block">Basic analytics</div>
                   </td>
-                  <td className="text-center py-4 px-6">
-                    <TrendingUp className="w-5 h-5 text-purple-600 dark:text-purple-400 inline" />
-                    <div className="text-xs text-purple-600">AI-powered insights</div>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-purple-600 dark:text-purple-400 inline" />
+                    <div className="text-xs text-purple-600 hidden md:block">AI-powered insights</div>
                   </td>
                 </tr>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100">Performance Reports</td>
-                  <td className="text-center py-4 px-6">
-                    <X className="w-5 h-5 text-gray-400 dark:text-gray-500 inline" />
+                  <td className="py-3 px-3 md:py-4 md:px-6 font-medium text-gray-900 dark:text-gray-100 text-sm md:text-base">Performance Reports</td>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <X className="w-4 h-4 md:w-5 md:h-5 text-gray-400 dark:text-gray-500 inline" />
                   </td>
-                  <td className="text-center py-4 px-6">
-                    <X className="w-5 h-5 text-gray-400 dark:text-gray-500 inline" />
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <X className="w-4 h-4 md:w-5 md:h-5 text-gray-400 dark:text-gray-500 inline" />
                   </td>
-                  <td className="text-center py-4 px-6">
-                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 inline" />
-                    <div className="text-xs text-green-600">Quarterly reports</div>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-600 dark:text-green-400 inline" />
+                    <div className="text-xs text-green-600 hidden md:block">Quarterly reports</div>
                   </td>
                 </tr>
                 
                 {/* Lead Generation */}
                 <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-                  <td colSpan={4} className="py-3 px-6 font-semibold text-gray-900 dark:text-gray-100 text-sm uppercase tracking-wider">
+                  <td colSpan={4} className="py-2 px-3 md:py-3 md:px-6 font-semibold text-gray-900 dark:text-gray-100 text-xs md:text-sm uppercase tracking-wider">
                     Lead Generation & Support
                   </td>
                 </tr>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100">Promotional Offers</td>
-                  <td className="text-center py-4 px-6">
-                    <X className="w-5 h-5 text-gray-400 dark:text-gray-500 inline" />
+                  <td className="py-3 px-3 md:py-4 md:px-6 font-medium text-gray-900 dark:text-gray-100 text-sm md:text-base">Promotional Offers</td>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <X className="w-4 h-4 md:w-5 md:h-5 text-gray-400 dark:text-gray-500 inline" />
                   </td>
-                  <td className="text-center py-4 px-6">
-                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 inline" />
-                    <div className="text-xs text-green-600">Post vendor promos</div>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-600 dark:text-green-400 inline" />
+                    <div className="text-xs text-green-600 hidden md:block">Post vendor promos</div>
                   </td>
-                  <td className="text-center py-4 px-6">
-                    <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 inline" />
-                    <div className="text-xs text-purple-600">Priority promotions</div>
-                  </td>
-                </tr>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100">Lead Routing</td>
-                  <td className="text-center py-4 px-6">
-                    <span className="text-gray-700 dark:text-gray-300">Basic</span>
-                  </td>
-                  <td className="text-center py-4 px-6">
-                    <span className="text-gray-700 dark:text-gray-300">Priority routing</span>
-                  </td>
-                  <td className="text-center py-4 px-6">
-                    <div className="font-medium text-purple-600 dark:text-purple-400">Concierge priority</div>
-                    <div className="text-xs text-gray-500">+ AI lead scoring</div>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-purple-600 dark:text-purple-400 inline" />
+                    <div className="text-xs text-purple-600 hidden md:block">Priority promotions</div>
                   </td>
                 </tr>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100">API/CSV Lead Passback</td>
-                  <td className="text-center py-4 px-6">
-                    <X className="w-5 h-5 text-gray-400 dark:text-gray-500 inline" />
+                  <td className="py-3 px-3 md:py-4 md:px-6 font-medium text-gray-900 dark:text-gray-100 text-sm md:text-base">Lead Routing</td>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <span className="text-gray-700 dark:text-gray-300 text-xs md:text-sm">Basic</span>
+                  </td>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <span className="text-gray-700 dark:text-gray-300 text-xs md:text-sm">Priority routing</span>
+                  </td>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <div className="font-medium text-purple-600 dark:text-purple-400 text-xs md:text-sm">Concierge priority</div>
+                    <div className="text-xs text-gray-500 hidden md:block">+ AI lead scoring</div>
+                  </td>
+                </tr>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <td className="py-3 px-3 md:py-4 md:px-6 font-medium text-gray-900 dark:text-gray-100 text-sm md:text-base">API/CSV Lead Passback</td>
+                  <td className="text-center py-3 px-3 md:py-4 md:px-6">
+                    <X className="w-4 h-4 md:w-5 md:h-5 text-gray-400 dark:text-gray-500 inline" />
                   </td>
                   <td className="text-center py-4 px-6">
                     <X className="w-5 h-5 text-gray-400 dark:text-gray-500 inline" />
