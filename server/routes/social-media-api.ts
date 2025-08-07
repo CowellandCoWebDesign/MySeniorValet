@@ -1,8 +1,12 @@
 import { Router } from "express";
 import { db } from "../db";
 import { z } from "zod";
+import { requireAdmin } from "../middleware/admin-auth";
 
 const router = Router();
+
+// Apply admin authentication to all routes
+router.use(requireAdmin);
 
 // Social media platform configurations
 const socialPlatforms = {
@@ -11,21 +15,27 @@ const socialPlatforms = {
     apiEndpoint: "https://api.twitter.com/2/tweets",
     charLimit: 280,
     requiresAuth: true,
-    authType: "OAuth2"
+    authType: "OAuth2",
+    requiresImage: false,
+    requiresVideo: false
   },
   facebook: {
     name: "Facebook",
     apiEndpoint: "https://graph.facebook.com/v18.0/me/feed",
     charLimit: 63206,
     requiresAuth: true,
-    authType: "OAuth2"
+    authType: "OAuth2",
+    requiresImage: false,
+    requiresVideo: false
   },
   linkedin: {
     name: "LinkedIn",
     apiEndpoint: "https://api.linkedin.com/v2/ugcPosts",
     charLimit: 3000,
     requiresAuth: true,
-    authType: "OAuth2"
+    authType: "OAuth2",
+    requiresImage: false,
+    requiresVideo: false
   },
   instagram: {
     name: "Instagram",
@@ -33,7 +43,8 @@ const socialPlatforms = {
     charLimit: 2200,
     requiresAuth: true,
     authType: "OAuth2",
-    requiresImage: true
+    requiresImage: true,
+    requiresVideo: false
   },
   youtube: {
     name: "YouTube",
@@ -41,6 +52,7 @@ const socialPlatforms = {
     charLimit: 5000,
     requiresAuth: true,
     authType: "OAuth2",
+    requiresImage: false,
     requiresVideo: true
   }
 };

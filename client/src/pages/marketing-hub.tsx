@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,9 +30,13 @@ import {
   Sparkles,
   Zap,
   Globe,
-  MessageSquare
+  MessageSquare,
+  Shield,
+  Lock
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 
 const pressReleaseContent = `FOR IMMEDIATE RELEASE
 
@@ -229,6 +233,7 @@ Link in bio to start your search!
 
 export default function MarketingHub() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [emailRecipients, setEmailRecipients] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState({
     twitter: true,
@@ -239,6 +244,64 @@ export default function MarketingHub() {
   });
   const [scheduledDate, setScheduledDate] = useState("");
   const [scheduledTime, setScheduledTime] = useState("");
+  
+  // Check if user is authenticated and is admin
+  const { data: authData, isLoading: authLoading } = useQuery<{
+    authenticated: boolean;
+    user: {
+      id: string;
+      email: string;
+      isAdmin?: boolean;
+    } | null;
+  }>({
+    queryKey: ['/api/auth/status'],
+    retry: false
+  });
+  
+  useEffect(() => {
+    if (!authLoading && (!authData?.user || !authData?.user?.isAdmin)) {
+      toast({
+        title: "Access Denied",
+        description: "This page is restricted to administrators only.",
+        variant: "destructive"
+      });
+      setLocation('/');
+    }
+  }, [authData, authLoading, setLocation, toast]);
+  
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-950 dark:to-blue-950">
+        <div className="text-center space-y-4">
+          <div className="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto" />
+          <p className="text-gray-600 dark:text-gray-300">Verifying access...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Block access if not admin
+  if (!authData?.user?.isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-950 dark:to-blue-950">
+        <Card className="max-w-md">
+          <CardHeader className="text-center">
+            <Lock className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <CardTitle>Access Restricted</CardTitle>
+            <CardDescription>
+              This area is restricted to MySeniorValet administrators only.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-center">
+            <Button onClick={() => setLocation('/')} variant="outline">
+              Return to Home
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const copyToClipboard = (content: string, type: string) => {
     navigator.clipboard.writeText(content);
@@ -314,14 +377,14 @@ export default function MarketingHub() {
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full">
-            <Megaphone className="h-5 w-5" />
-            <span className="font-medium">Marketing Launch Center</span>
+            <Shield className="h-5 w-5" />
+            <span className="font-medium">Admin Marketing Center</span>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-            MySeniorValet Launch Marketing Hub
+            MySeniorValet Marketing Dashboard
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Everything you need to announce MySeniorValet to the world
+            Admin-only tools to manage marketing campaigns and announcements
           </p>
         </div>
 

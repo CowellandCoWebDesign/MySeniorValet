@@ -215,6 +215,56 @@ export function registerAuthRoutes(app: Express) {
     }
   });
 
+  // Auth status check
+  app.get("/api/auth/status", async (req: any, res) => {
+    try {
+      const sessionId = req.cookies?.sessionId;
+      
+      if (!sessionId) {
+        return res.json({ authenticated: false, user: null });
+      }
+
+      const userId = await authService.validateSession(sessionId);
+      
+      if (!userId) {
+        return res.json({ authenticated: false, user: null });
+      }
+
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+
+      if (!user) {
+        return res.json({ authenticated: false, user: null });
+      }
+
+      // Check if user is super admin by email
+      const SUPER_ADMIN_EMAILS = [
+        'william.cowell01@gmail.com',
+        'cowellandcowebdesign@gmail.com'
+      ];
+      
+      const isSuperAdmin = SUPER_ADMIN_EMAILS.includes(user.email?.toLowerCase() || '');
+      
+      res.json({
+        authenticated: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          isAdmin: user.role === 'admin' || isSuperAdmin
+        }
+      });
+    } catch (error) {
+      console.error("Auth status error:", error);
+      res.json({ authenticated: false, user: null });
+    }
+  });
+
   // Password reset request
   app.post("/api/auth/forgot-password", createRateLimitMiddleware(authLimiter), async (req, res) => {
     try {

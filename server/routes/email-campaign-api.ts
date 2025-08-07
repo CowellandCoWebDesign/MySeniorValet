@@ -2,8 +2,12 @@ import { Router } from "express";
 import { db } from "../db";
 import { z } from "zod";
 import sgMail from "@sendgrid/mail";
+import { requireAdmin } from "../middleware/admin-auth";
 
 const router = Router();
+
+// Apply admin authentication to all routes
+router.use(requireAdmin);
 
 // Initialize SendGrid if API key is available
 if (process.env.SENDGRID_API_KEY) {

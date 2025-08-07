@@ -261,7 +261,7 @@ function Router() {
       <Route path="/vendor-tier-test" component={VendorTierTest} />
       <Route path="/community-creator" component={CommunityCreatorPortal} />
       <Route path="/community-creator-portal" component={CommunityCreatorPortal} />
-      <Route path="/marketing-hub" component={MarketingHub} />
+      <Route path="/admin/marketing-hub" component={MarketingHub} />
       <Route path="/payment-demo" component={PaymentDemo} />
       <Route component={NotFound} />
     </Switch>
