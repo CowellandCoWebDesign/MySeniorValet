@@ -58,6 +58,176 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  // Vendor management endpoints
+  adminRouter.get('/vendors', async (req, res) => {
+    try {
+      const { page = 1, limit = 50, tier, search } = req.query;
+      const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
+
+      // Get all vendors with their details
+      const vendorsList = await db.select().from(vendors)
+        .orderBy(desc(vendors.createdAt))
+        .limit(parseInt(limit as string))
+        .offset(offset);
+
+      // Get total count
+      const [{ count }] = await db
+        .select({ count: sql<number>`COUNT(*)::integer` })
+        .from(vendors);
+
+      // Get tier counts
+      const tierCounts = await db
+        .select({
+          tier: vendors.tier,
+          count: sql<number>`COUNT(*)::integer`
+        })
+        .from(vendors)
+        .groupBy(vendors.tier);
+
+      res.json({
+        vendors: vendorsList,
+        total: count,
+        tierCounts: tierCounts.reduce((acc, { tier, count }) => {
+          acc[tier] = count;
+          return acc;
+        }, {} as Record<string, number>),
+        page: parseInt(page as string),
+        limit: parseInt(limit as string)
+      });
+    } catch (error) {
+      console.error('Error fetching vendors:', error);
+      res.status(500).json({ error: 'Failed to fetch vendors' });
+    }
+  });
+
+  // Add new vendor
+  adminRouter.post('/vendors', async (req, res) => {
+    try {
+      const vendorData = req.body;
+      const [newVendor] = await db.insert(vendors)
+        .values(vendorData)
+        .returning();
+      res.json(newVendor);
+    } catch (error) {
+      console.error('Error creating vendor:', error);
+      res.status(500).json({ error: 'Failed to create vendor' });
+    }
+  });
+
+  // Update vendor
+  adminRouter.put('/vendors/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const [updated] = await db.update(vendors)
+        .set(updates)
+        .where(eq(vendors.id, parseInt(id)))
+        .returning();
+      res.json(updated);
+    } catch (error) {
+      console.error('Error updating vendor:', error);
+      res.status(500).json({ error: 'Failed to update vendor' });
+    }
+  });
+
+  // Delete vendor
+  adminRouter.delete('/vendors/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      await db.delete(vendors)
+        .where(eq(vendors.id, parseInt(id)));
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting vendor:', error);
+      res.status(500).json({ error: 'Failed to delete vendor' });
+    }
+  });
+
+  // Community management endpoints
+  adminRouter.get('/communities', async (req, res) => {
+    try {
+      const { page = 1, limit = 50, tier, search } = req.query;
+      const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
+
+      // Get communities with their details
+      const communitiesList = await db.select().from(communities)
+        .orderBy(desc(communities.createdAt))
+        .limit(parseInt(limit as string))
+        .offset(offset);
+
+      // Get total count
+      const [{ count }] = await db
+        .select({ count: sql<number>`COUNT(*)::integer` })
+        .from(communities);
+
+      // Get tier counts
+      const tierCounts = await db
+        .select({
+          tier: communities.tier,
+          count: sql<number>`COUNT(*)::integer`
+        })
+        .from(communities)
+        .groupBy(communities.tier);
+
+      res.json({
+        communities: communitiesList,
+        total: count,
+        tierCounts: tierCounts.reduce((acc, { tier, count }) => {
+          acc[tier || 'verified'] = count;
+          return acc;
+        }, {} as Record<string, number>),
+        page: parseInt(page as string),
+        limit: parseInt(limit as string)
+      });
+    } catch (error) {
+      console.error('Error fetching communities:', error);
+      res.status(500).json({ error: 'Failed to fetch communities' });
+    }
+  });
+
+  // Add new community
+  adminRouter.post('/communities', async (req, res) => {
+    try {
+      const communityData = req.body;
+      const [newCommunity] = await db.insert(communities)
+        .values(communityData)
+        .returning();
+      res.json(newCommunity);
+    } catch (error) {
+      console.error('Error creating community:', error);
+      res.status(500).json({ error: 'Failed to create community' });
+    }
+  });
+
+  // Update community
+  adminRouter.put('/communities/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const [updated] = await db.update(communities)
+        .set(updates)
+        .where(eq(communities.id, parseInt(id)))
+        .returning();
+      res.json(updated);
+    } catch (error) {
+      console.error('Error updating community:', error);
+      res.status(500).json({ error: 'Failed to update community' });
+    }
+  });
+
+  // Delete community
+  adminRouter.delete('/communities/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      await db.delete(communities)
+        .where(eq(communities.id, parseInt(id)));
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting community:', error);
+      res.status(500).json({ error: 'Failed to delete community' });
+    }
+  });
+
   // User management
   adminRouter.get('/users', async (req, res) => {
     try {
@@ -509,10 +679,12 @@ export function registerAdminRoutes(app: Express) {
   adminRouter.get('/engagement/metrics', async (req, res) => {
     try {
       // Get user activity metrics
-      const [activeUsers] = await db
-        .select({ count: sql<number>`COUNT(DISTINCT ${users.id})::integer` })
-        .from(users)
-        .where(sql`${users.lastLoginAt} > NOW() - INTERVAL '30 days'`);
+      // TODO: Enable when lastLoginAt field is migrated to database
+      // const [activeUsers] = await db
+      //   .select({ count: sql<number>`COUNT(DISTINCT ${users.id})::integer` })
+      //   .from(users)
+      //   .where(sql`${users.lastLoginAt} > NOW() - INTERVAL '30 days'`);
+      const activeUsers = { count: 0 }; // Temporary fallback
 
       const [totalUsers] = await db
         .select({ count: sql<number>`COUNT(*)::integer` })
@@ -693,10 +865,12 @@ export function registerAdminRoutes(app: Express) {
         .select({ count: sql<number>`COUNT(*)::integer` })
         .from(users);
 
-      const [activeUsers] = await db
-        .select({ count: sql<number>`COUNT(*)::integer` })
-        .from(users)
-        .where(sql`${users.lastLoginAt} > NOW() - INTERVAL '30 days'`);
+      // TODO: Enable when lastLoginAt field is migrated to database
+      // const [activeUsers] = await db
+      //   .select({ count: sql<number>`COUNT(*)::integer` })
+      //   .from(users)
+      //   .where(sql`${users.lastLoginAt} > NOW() - INTERVAL '30 days'`);
+      const activeUsers = { count: 0 }; // Temporary fallback
 
       // Get vendor statistics
       const [totalVendors] = await db

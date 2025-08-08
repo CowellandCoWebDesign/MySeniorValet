@@ -33,7 +33,7 @@ import {
   MessageSquare, Phone, Mail, Bell, AlertTriangle,
   CheckCircle2, XCircle, Info, Sparkles, Hash,
   UserPlus, Edit, Trash2, Save, X, Loader2, Store, Map,
-  ExternalLink
+  ExternalLink, Pencil
 } from "lucide-react";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -125,7 +125,33 @@ export default function SuperAdminAnalytics() {
   const [refreshing, setRefreshing] = useState(false);
   const [activeMetricTab, setActiveMetricTab] = useState("overview");
   const [selectedProvider, setSelectedProvider] = useState("all");
+  const [vendorList, setVendorList] = useState<any[]>([]);
+  const [communityList, setCommunityList] = useState<any[]>([]);
   const { toast } = useToast();
+  
+  // Fetch vendors when tab changes to vendors
+  useEffect(() => {
+    if (activeMetricTab === 'vendors') {
+      apiRequest('GET', '/api/admin/vendors')
+        .then(data => setVendorList(data || []))
+        .catch(err => {
+          console.error('Failed to fetch vendors:', err);
+          setVendorList([]);
+        });
+    }
+  }, [activeMetricTab]);
+  
+  // Fetch communities when tab changes to communities  
+  useEffect(() => {
+    if (activeMetricTab === 'communities') {
+      apiRequest('GET', '/api/admin/communities')
+        .then(data => setCommunityList(data || []))
+        .catch(err => {
+          console.error('Failed to fetch communities:', err);
+          setCommunityList([]);
+        });
+    }
+  }, [activeMetricTab]);
   
   // Comprehensive metrics query - MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   const { data: metrics, isLoading, refetch } = useQuery<DashboardMetrics>({
@@ -1412,7 +1438,15 @@ export default function SuperAdminAnalytics() {
                         <SelectItem value="national">National</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Button variant="default">
+                    <Button 
+                      variant="default"
+                      onClick={() => {
+                        toast({
+                          title: "Add Vendor",
+                          description: "Vendor creation form will be available soon"
+                        });
+                      }}
+                    >
                       <ShoppingBag className="h-4 w-4 mr-2" />
                       Add Vendor
                     </Button>
@@ -1453,6 +1487,68 @@ export default function SuperAdminAnalytics() {
                     </CardContent>
                   </Card>
                 </div>
+
+                {/* Vendor List Table */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>All Vendors</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Tier</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Created</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {vendorList.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={6} className="text-center text-gray-500 py-8">
+                              No vendors found
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          vendorList.map((vendor) => (
+                            <TableRow key={vendor.id}>
+                              <TableCell className="font-medium">{vendor.businessName}</TableCell>
+                              <TableCell>{vendor.email}</TableCell>
+                              <TableCell>
+                                <Badge variant={vendor.tier === 'national' ? 'default' : vendor.tier === 'featured' ? 'secondary' : 'outline'}>
+                                  {vendor.tier}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant={vendor.status === 'active' ? 'default' : 'secondary'}>
+                                  {vendor.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>{new Date(vendor.createdAt).toLocaleDateString()}</TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Edit Vendor",
+                                      description: `Editing ${vendor.businessName}`
+                                    });
+                                  }}
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
               </TabsContent>
 
               {/* Payments Tab */}
