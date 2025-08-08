@@ -654,37 +654,44 @@ export default function AISearchIntelligence() {
                     </Card>
                   )}
                   
-                  {/* Housing Results */}
-                  {searchType === 'housing' && (searchResults.data?.communities || searchResults.data?.results || []).map((community: any) => (
-                    <div key={community.id} className="relative">
+                  {/* Housing Results - Enhanced Display */}
+                  {searchType === 'housing' && (searchResults.data?.communities || searchResults.data?.results || []).map((community: any, idx: number) => (
+                    <div key={community.id} className="relative group">
                       <EnhancedCommunityCard
                         community={community}
-                        variant="standard"
-                        index={0}
-                      />
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="absolute top-4 right-4"
-                        onClick={() => {
-                          const newSelected = selectedCommunities.find(c => c.id === community.id)
-                            ? selectedCommunities.filter(c => c.id !== community.id)
-                            : [...selectedCommunities, community];
-                          setSelectedCommunities(newSelected);
+                        variant="list"
+                        index={idx}
+                        onSelect={() => {
+                          // Navigate to community detail page
+                          window.location.href = `/community/${community.id}`;
                         }}
-                      >
-                        {selectedCommunities.find(c => c.id === community.id) ? (
-                          <>
-                            <CheckCircle className="w-4 h-4 mr-1 text-green-600" />
-                            Selected
-                          </>
-                        ) : (
-                          <>
-                            <Target className="w-4 h-4 mr-1" />
-                            Compare
-                          </>
-                        )}
-                      </Button>
+                      />
+                      <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const newSelected = selectedCommunities.find(c => c.id === community.id)
+                              ? selectedCommunities.filter(c => c.id !== community.id)
+                              : [...selectedCommunities, community];
+                            setSelectedCommunities(newSelected);
+                          }}
+                        >
+                          {selectedCommunities.find(c => c.id === community.id) ? (
+                            <>
+                              <CheckCircle className="w-4 h-4 mr-1 text-green-600" />
+                              Selected
+                            </>
+                          ) : (
+                            <>
+                              <Target className="w-4 h-4 mr-1" />
+                              Compare
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   ))}
 
