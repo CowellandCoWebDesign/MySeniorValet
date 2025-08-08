@@ -1429,145 +1429,133 @@ export default function AISearchIntelligence() {
                 ) : (simplifiedSearchMutation.data?.results?.length > 0 || mapCommunities.length > 0) ? (
                   <div className="space-y-2 p-3">
                     {(simplifiedSearchMutation.data?.results?.length > 0 ? simplifiedSearchMutation.data.results : mapCommunities).map((community: any) => (
-                      <div
+                      <Card 
                         key={community.id}
                         id={`community-${community.id}`}
-                        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden hover:shadow-xl transition-all cursor-pointer"
+                        className="w-full border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-800 rounded-lg overflow-hidden mb-3 cursor-pointer"
                         onClick={() => window.location.href = `/community/${community.id}`}
                       >
-                        {/* Community Image */}
-                        <div className="relative h-48 bg-gray-200 dark:bg-gray-700">
-                          {community.photos && community.photos.length > 0 ? (
-                            <img 
-                              src={community.photos[0]} 
-                              alt={community.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
-                              <Building2 className="w-12 h-12 text-gray-400" />
-                            </div>
-                          )}
-                          
-                          {/* Meal Plans Badge */}
-                          {community.mealPlans && (
-                            <div className="absolute top-2 left-2">
-                              <Badge className="bg-blue-600 text-white text-xs px-2 py-1">
-                                Meal Plans
-                              </Badge>
-                            </div>
-                          )}
-                          
-                          {/* Price Badge on Image */}
-                          {community.basePrice && (
-                            <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded">
-                              <span className="text-sm font-bold">${(community.basePrice || 0).toLocaleString()}</span>
-                              <span className="text-xs">/Month</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Community Details */}
-                        <div className="p-4 space-y-3">
-                          <div>
-                            <h3 className="font-bold text-base mb-1">{community.name}</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
-                              {community.description || `${community.careTypes?.join(', ') || 'Senior Living'} community in ${community.city}, ${community.state}`}
-                            </p>
-                          </div>
-
-                          {/* Pricing Section */}
-                          <div className="space-y-2 py-2 border-t border-gray-100 dark:border-gray-700">
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm text-gray-600 dark:text-gray-400">Average Price:</span>
-                              <span className="text-lg font-bold text-gray-900 dark:text-white">
-                                {community.basePrice ? 
-                                  `$${(community.basePrice || 0).toLocaleString()}/Month` : 
-                                  <span className="text-blue-600">Contact</span>
-                                }
-                              </span>
-                            </div>
+                        <div className="flex h-[140px]">
+                          {/* Left side - Image (matching home page style) */}
+                          <div className="w-[180px] h-full flex-shrink-0 relative bg-gray-200 dark:bg-gray-700">
+                            {/* Badge like home page */}
+                            {(community.mealPlans || community.featured) && (
+                              <div className="absolute top-2 left-2 z-10">
+                                <Badge className="bg-blue-600 hover:bg-blue-600 text-white text-xs px-2 py-0.5 rounded font-medium">
+                                  {community.featured ? 'Featured' : 'Meal Plans'}
+                                </Badge>
+                              </div>
+                            )}
                             
-                            {community.minPrice && community.minPrice !== community.basePrice && (
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-600 dark:text-gray-400">Starting Price:</span>
-                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                  ${(community.minPrice || 0).toLocaleString()}/Month
-                                </span>
+                            {community.photos && community.photos.length > 0 ? (
+                              <img 
+                                src={community.photos[0]} 
+                                alt={community.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+                                <div className="text-center">
+                                  <Building2 className="w-8 h-8 text-gray-400 mx-auto mb-1" />
+                                  <span className="text-xs text-gray-500">Photos Coming Soon</span>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Price overlay on image */}
+                            {community.priceRange && typeof community.priceRange === 'object' && (
+                              <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white px-2 py-1">
+                                <div className="text-xs font-bold">
+                                  ${(community.priceRange.min || 0).toLocaleString()} - ${(community.priceRange.max || 0).toLocaleString()}/mo
+                                </div>
                               </div>
                             )}
                           </div>
 
-                          {/* Availability */}
-                          <div className="flex justify-between items-center py-2 border-t border-gray-100 dark:border-gray-700">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">Availability:</span>
-                            <span className={`text-sm font-semibold ${
-                              community.hasAvailability ? 'text-green-600' : 'text-yellow-600'
-                            }`}>
-                              {community.hasAvailability ? 'Yes' : 'Call'}
-                            </span>
-                          </div>
+                          {/* Right side - Content (matching home page layout) */}
+                          <div className="flex-1 p-3 flex flex-col">
+                            {/* Top section */}
+                            <div className="flex-1">
+                              {/* Community Name */}
+                              <h3 className="font-semibold text-sm text-gray-900 dark:text-white mb-1 leading-tight line-clamp-1">
+                                {community.name}
+                              </h3>
+                              
+                              {/* Location with full address */}
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                <div className="font-medium text-gray-700 dark:text-gray-300">
+                                  {community.careTypes?.join(', ') || 'Adult Home'}
+                                </div>
+                                <div className="line-clamp-1">
+                                  {community.address || community.city}, {community.state} {community.zipCode || ''}
+                                </div>
+                              </div>
 
-                          {/* Services Section */}
-                          {(community.services || community.careTypes || 
-                            community.assistedLiving || community.memoryCare || community.independentLiving) && (
-                            <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-700">
-                              <div className="grid grid-cols-1 gap-1">
-                                {/* Display services if available */}
-                                {community.services && community.services.length > 0 ? (
-                                  community.services.slice(0, 4).map((service: string, idx: number) => (
-                                    <div key={idx} className="flex items-center gap-2 text-xs">
-                                      <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                      <span className="text-gray-700 dark:text-gray-300">{service}</span>
-                                    </div>
-                                  ))
-                                ) : (
-                                  <>
-                                    {/* Fallback to care type services */}
-                                    {community.assistedLiving && (
-                                      <div className="flex items-center gap-2 text-xs">
-                                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                        <span className="text-gray-700 dark:text-gray-300">24/7 Nursing Staff</span>
-                                      </div>
-                                    )}
-                                    {community.memoryCare && (
-                                      <div className="flex items-center gap-2 text-xs">
-                                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                        <span className="text-gray-700 dark:text-gray-300">Memory Care Services</span>
-                                      </div>
-                                    )}
-                                    {(community.assistedLiving || community.memoryCare) && (
-                                      <div className="flex items-center gap-2 text-xs">
-                                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                        <span className="text-gray-700 dark:text-gray-300">Medication Management</span>
-                                      </div>
-                                    )}
-                                    {community.independentLiving && (
-                                      <div className="flex items-center gap-2 text-xs">
-                                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                                        <span className="text-gray-700 dark:text-gray-300">Social Activities</span>
-                                      </div>
-                                    )}
-                                  </>
+                              {/* Meta info */}
+                              <div className="flex items-center gap-3 text-[10px] text-gray-500 dark:text-gray-400 mb-2">
+                                <span className="flex items-center gap-1">
+                                  <span className="text-gray-400">⭘</span> N/A units
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <span className="text-gray-400">⭘</span> No rating
+                                </span>
+                                {community.id && (
+                                  <span className="text-gray-400">
+                                    ID: {community.id}
+                                  </span>
                                 )}
                               </div>
-                            </div>
-                          )}
 
-                          {/* Care Type Badges */}
-                          <div className="flex flex-wrap gap-1 pt-2">
-                            {community.careTypes?.map((type: string, idx: number) => (
-                              <Badge 
-                                key={idx} 
-                                variant="secondary" 
-                                className="text-[10px] px-2 py-0.5"
-                              >
-                                {type}
-                              </Badge>
-                            ))}
+                              {/* Tier Badge */}
+                              <div className="mb-2">
+                                <Badge 
+                                  variant={community.featured ? 'default' : 'secondary'}
+                                  className={`text-[10px] px-2 py-0.5 ${
+                                    community.featured ? 'bg-yellow-500 text-white' : 
+                                    community.premium ? 'bg-purple-500 text-white' : 
+                                    'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                                  }`}
+                                >
+                                  <span className="mr-1">
+                                    {community.featured ? '✨' : community.premium ? '💎' : '⭘'}
+                                  </span>
+                                  {community.featured ? 'Featured' : community.premium ? 'Premium' : 'Standard'}
+                                </Badge>
+                              </div>
+                            </div>
+
+                            {/* Bottom section - Special Features */}
+                            <div className="border-t border-gray-200 dark:border-gray-700 pt-2">
+                              <div className="text-[10px] font-medium text-gray-600 dark:text-gray-400 mb-1">
+                                Special Features:
+                              </div>
+                              <div className="flex items-start gap-1 text-[10px] text-gray-700 dark:text-gray-300">
+                                <span className="text-green-600">✓</span>
+                                <span className="line-clamp-2">
+                                  {community.specialFeatures || 
+                                   community.services?.slice(0, 2).join(', ') ||
+                                   'Specialized senior living and care services, Full amenity list available'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 text-[10px] text-gray-700 dark:text-gray-300 mt-1">
+                                <span className="text-green-600">✓</span>
+                                <span>Full amenity list available</span>
+                              </div>
+                            </div>
+
+                            {/* View Details Button */}
+                            <Button 
+                              className="w-full mt-2 h-8 text-xs bg-green-600 hover:bg-green-700 text-white"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.location.href = `/community/${community.id}`;
+                              }}
+                            >
+                              View Full Details →
+                            </Button>
                           </div>
                         </div>
-                      </div>
+                      </Card>
                     ))}
                   </div>
                 ) : (
