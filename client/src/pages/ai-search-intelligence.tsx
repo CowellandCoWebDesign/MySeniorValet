@@ -172,6 +172,7 @@ export default function AISearchIntelligence() {
   const [showComparison, setShowComparison] = useState(false);
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]);
   const [mapZoom, setMapZoom] = useState(10);
+  const [mapCommunities, setMapCommunities] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('search');
   const [searchType, setSearchType] = useState<'housing' | 'services' | 'marketplace' | 'resources'>('housing');
   
@@ -1262,10 +1263,10 @@ export default function AISearchIntelligence() {
 
             {/* Map and List Layout */}
             <div className="flex gap-3 h-[700px]">
-              {/* Map Section - Left Side - Takes 70% */}
-              <div className="w-[70%] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
+              {/* Map Section - Left Side - Takes 60% */}
+              <div className="w-[60%] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
                 <Map
-                  communities={simplifiedSearchMutation.data?.results || []}
+                  communities={simplifiedSearchMutation.data?.results || mapCommunities}
                   center={mapCenter}
                   zoom={mapZoom}
                   onMarkerClick={(community) => {
@@ -1275,19 +1276,31 @@ export default function AISearchIntelligence() {
                       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                   }}
+                  onBoundsChange={(bounds) => {
+                    // Load communities when map bounds change
+                    if (bounds) {
+                      fetch(`/api/communities/search/map?west=${bounds.west}&east=${bounds.east}&south=${bounds.south}&north=${bounds.north}&limit=50`)
+                        .then(res => res.json())
+                        .then(data => {
+                          if (data.results) {
+                            setMapCommunities(data.results);
+                          }
+                        });
+                    }
+                  }}
                   className="h-full w-full"
                 />
               </div>
 
-              {/* List Section - Right Side - Takes 30% */}
-              <div className="w-[30%] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-y-auto">
+              {/* List Section - Right Side - Takes 40% */}
+              <div className="w-[40%] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-y-auto">
                 {simplifiedSearchMutation.isPending ? (
                   <div className="flex items-center justify-center h-full">
                     <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
                   </div>
-                ) : simplifiedSearchMutation.data?.results && simplifiedSearchMutation.data.results.length > 0 ? (
+                ) : (simplifiedSearchMutation.data?.results && simplifiedSearchMutation.data.results.length > 0) || mapCommunities.length > 0 ? (
                   <div className="space-y-2 p-3">
-                    {simplifiedSearchMutation.data.results.map((community: any) => (
+                    {(simplifiedSearchMutation.data?.results || mapCommunities).map((community: any) => (
                       <div
                         key={community.id}
                         id={`community-${community.id}`}
@@ -1355,7 +1368,7 @@ export default function AISearchIntelligence() {
                     <MapPin className="w-12 h-12 text-gray-400 mb-4" />
                     <h3 className="font-semibold text-lg mb-2">No Results Found</h3>
                     <p className="text-sm text-gray-500">
-                      Try adjusting your filters or search in a different location
+                      Try adjusting your filters, search in a different location, or navigate the map to see available communities
                     </p>
                   </div>
                 )}
