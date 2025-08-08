@@ -104,6 +104,7 @@ import PerplexityTest from "@/pages/PerplexityTest";
 import MultiAITest from "@/pages/MultiAITest";
 import AISearchComparison from "@/pages/AISearchComparison";
 import SuperAdminDashboard from "@/pages/super-admin-dashboard";
+import SuperAdminAnalytics from "@/pages/super-admin-analytics";
 import FinancialDashboard from "@/pages/financial-dashboard";
 import EnhancedFinancialDashboard from "@/pages/enhanced-financial-dashboard";
 import PaymentMonitoring from "@/pages/payment-monitoring";
@@ -160,6 +161,7 @@ function Router() {
       <Route path="/admin-creative" component={AdminCreative} />
       <Route path="/admin-unified" component={AdminUnified} />
       <Route path="/super-admin" component={SuperAdminDashboard} />
+      <Route path="/super-admin-analytics" component={SuperAdminAnalytics} />
       <Route path="/admin/service-listings" component={ServiceListingsAdmin} />
       <Route path="/admin/services-management" component={ServicesManagementDashboard} />
       <Route path="/admin/amazon-products" component={AmazonProductAdmin} />

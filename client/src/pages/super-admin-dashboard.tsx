@@ -15,7 +15,8 @@ import {
   Brain, Package, Truck, Phone, Heart, UserCheck,
   CreditCard, Store, Wrench, TestTube, LineChart,
   Layers, Palette, Lock, AlertTriangle, CheckCircle,
-  TrendingUp, FileSearch, Sparkles, Bot, Gauge, X
+  TrendingUp, FileSearch, Sparkles, Bot, Gauge, X,
+  Calculator
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -28,7 +29,7 @@ interface DashboardSection {
     href: string;
     description: string;
     icon: any;
-    status?: "active" | "beta" | "coming-soon";
+    status?: "active" | "beta" | "coming-soon" | "featured";
   }>;
 }
 
@@ -65,26 +66,29 @@ export default function SuperAdminDashboard() {
   // Define all dashboard sections
   const dashboardSections: DashboardSection[] = [
     {
+      title: "Primary Analytics Center",
+      icon: BarChart3,
+      links: [
+        { name: "🚀 Comprehensive Analytics Center", href: "/super-admin-analytics", description: "All-in-one analytics dashboard with real-time metrics", icon: Sparkles, status: "featured" },
+      ]
+    },
+    {
       title: "Core Admin Tools",
       icon: Shield,
       links: [
         { name: "Unified Admin Dashboard", href: "/admin-unified", description: "Main administrative dashboard", icon: LayoutDashboard, status: "active" },
-        { name: "Creative Admin", href: "/admin-creative", description: "Creative admin interface", icon: Palette, status: "active" },
-        { name: "Clean Admin", href: "/admin", description: "Original admin dashboard", icon: Settings, status: "active" },
         { name: "User Management", href: "/admin-unified?tab=users", description: "Manage platform users", icon: Users, status: "active" },
         { name: "Role Management", href: "/admin-unified?tab=security", description: "Manage user roles and permissions", icon: Lock, status: "active" },
       ]
     },
     {
-      title: "Analytics & Monitoring",
-      icon: BarChart3,
+      title: "Financial & Monitoring",
+      icon: DollarSign,
       links: [
-        { name: "API Cost Dashboard", href: "/api-cost-dashboard", description: "Monitor API usage and costs", icon: DollarSign, status: "active" },
-        { name: "Data Quality Dashboard", href: "/data-quality-dashboard", description: "Monitor data integrity and quality", icon: Gauge, status: "active" },
-        { name: "Expansion Monitor", href: "/expansion-monitor", description: "Track geographic expansion", icon: Map, status: "active" },
-        { name: "Financial Dashboard", href: "/financial-dashboard", description: "Revenue and financial analytics", icon: TrendingUp, status: "active" },
-        { name: "Integration Dashboard", href: "/integration-dashboard", description: "External service integrations", icon: Layers, status: "active" },
-        { name: "Platform Analytics", href: "/admin-unified?tab=analytics", description: "Platform usage analytics", icon: LineChart, status: "active" },
+        { name: "Enhanced Financial Dashboard", href: "/enhanced-financial-dashboard", description: "Advanced revenue analytics", icon: TrendingUp, status: "active" },
+        { name: "Payment Monitoring", href: "/payment-monitoring", description: "Payment system health", icon: CreditCard, status: "active" },
+        { name: "API Cost Dashboard", href: "/api-cost-dashboard", description: "Monitor API usage and costs", icon: Calculator, status: "active" },
+        { name: "Data Quality Dashboard", href: "/data-quality-dashboard", description: "Monitor data integrity", icon: Gauge, status: "active" },
       ]
     },
     {
@@ -350,6 +354,9 @@ export default function SuperAdminDashboard() {
                               {link.status === "active" && (
                                 <CheckCircle className="h-4 w-4 text-green-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                               )}
+                              {link.status === "featured" && (
+                                <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">Featured</Badge>
+                              )}
                             </div>
                           </div>
                         </Link>
@@ -411,6 +418,9 @@ export default function SuperAdminDashboard() {
                                 )}
                                 {link.status === "beta" && (
                                   <Badge variant="secondary" className="text-xs">Beta</Badge>
+                                )}
+                                {link.status === "featured" && (
+                                  <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs">Featured</Badge>
                                 )}
                               </div>
                               <p className="text-sm text-gray-600 line-clamp-2">{link.description}</p>
