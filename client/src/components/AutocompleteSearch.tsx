@@ -63,6 +63,7 @@ export function AutocompleteSearch({
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const [location, setLocation] = useLocation();
+  const justSelectedRef = useRef(false);
   
   const debouncedValue = useDebounce(value, 300);
   
@@ -81,6 +82,12 @@ export function AutocompleteSearch({
 
   // Fetch suggestions
   useEffect(() => {
+    // Skip fetching if we just selected a suggestion
+    if (justSelectedRef.current) {
+      justSelectedRef.current = false;
+      return;
+    }
+    
     if (debouncedValue && debouncedValue.length >= 2) {
       setLoadingSuggestions(true);
       apiRequest('GET', `/api/autocomplete/suggestions?query=${encodeURIComponent(debouncedValue)}&limit=10`)
@@ -157,8 +164,10 @@ export function AutocompleteSearch({
       setLocation(`/community/${suggestion.id}`);
     } else {
       // For other types (city, state, care_type, etc.), perform the search
+      justSelectedRef.current = true; // Prevent double-triggering autocomplete
       onChange(suggestion.value);
       setShowSuggestions(false);
+      setSuggestions([]); // Clear suggestions immediately
       setSelectedIndex(-1);
       onSubmit(suggestion.value);
     }
