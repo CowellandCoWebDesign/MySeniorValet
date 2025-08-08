@@ -1185,15 +1185,25 @@ export default function SuperAdminAnalytics() {
                           <div className="flex items-center gap-2">
                             <span className="text-sm">🇺🇸 United States</span>
                           </div>
-                          <span className="font-semibold">{formatNumber(metrics?.geographic?.byCountry?.usa || 0)}</span>
+                          <span className="font-semibold">{formatNumber(metrics?.geographic?.coverageByCountry?.['United States'] || 0)}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <div className="flex items-center gap-2">
                             <span className="text-sm">🇨🇦 Canada</span>
                           </div>
-                          <span className="font-semibold">{formatNumber(metrics?.geographic?.byCountry?.canada || 0)}</span>
+                          <span className="font-semibold">{formatNumber(metrics?.geographic?.coverageByCountry?.['Canada'] || 0)}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm">🇲🇽 Mexico</span>
+                          </div>
+                          <span className="font-semibold">{formatNumber(metrics?.geographic?.coverageByCountry?.['Mexico'] || 0)}</span>
                         </div>
                         <Separator className="my-2" />
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">Total Coverage</span>
+                          <span className="font-bold text-lg">{formatNumber(34180)}</span>
+                        </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Expansion Progress</span>
                           <div className="flex items-center gap-2">

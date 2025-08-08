@@ -397,14 +397,30 @@ export function registerAdminRoutes(app: Express) {
       const countryCounts = await db
         .select({
           country: sql<string>`CASE 
-            WHEN ${communities.state} IN ('AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT') THEN 'Canada'
+            WHEN ${communities.state} IN ('AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT',
+              'Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador', 
+              'Nova Scotia', 'Northwest Territories', 'Nunavut', 'Ontario', 'Prince Edward Island', 
+              'Quebec', 'Saskatchewan', 'Yukon') THEN 'Canada'
+            WHEN ${communities.state} IN ('Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 
+              'Chiapas', 'Chihuahua', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 'Guerrero', 'Hidalgo', 
+              'Jalisco', 'México', 'Mexico City', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 
+              'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 
+              'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas') THEN 'Mexico'
             ELSE 'United States'
           END`,
           count: sql<number>`COUNT(*)::integer`
         })
         .from(communities)
         .groupBy(sql`CASE 
-          WHEN ${communities.state} IN ('AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT') THEN 'Canada'
+          WHEN ${communities.state} IN ('AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT',
+              'Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador', 
+              'Nova Scotia', 'Northwest Territories', 'Nunavut', 'Ontario', 'Prince Edward Island', 
+              'Quebec', 'Saskatchewan', 'Yukon') THEN 'Canada'
+          WHEN ${communities.state} IN ('Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 
+              'Chiapas', 'Chihuahua', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 'Guerrero', 'Hidalgo', 
+              'Jalisco', 'México', 'Mexico City', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 
+              'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 
+              'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas') THEN 'Mexico'
           ELSE 'United States'
         END`);
 
@@ -453,11 +469,13 @@ export function registerAdminRoutes(app: Express) {
       // Format response
       const usCount = countryCounts.find(c => c.country === 'United States')?.count || 0;
       const canadaCount = countryCounts.find(c => c.country === 'Canada')?.count || 0;
+      const mexicoCount = countryCounts.find(c => c.country === 'Mexico')?.count || 0;
 
       const response = {
         coverageByCountry: {
           'United States': usCount,
-          'Canada': canadaCount
+          'Canada': canadaCount,
+          'Mexico': mexicoCount
         },
         expansionProgress: Math.round(expansionProgress * 10) / 10,
         topCities: topCities.map(city => ({
@@ -476,6 +494,7 @@ export function registerAdminRoutes(app: Express) {
       console.log('Geographic stats:', {
         us: usCount,
         canada: canadaCount,
+        mexico: mexicoCount,
         total: totalCommunities.count
       });
 
