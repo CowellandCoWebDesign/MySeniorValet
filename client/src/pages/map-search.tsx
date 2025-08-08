@@ -1578,67 +1578,6 @@ export default function MapSearch() {
                     </div>
                   </div>
                 </div>
-
-                {/* Budget Filter */}
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Budget</label>
-                  <Select value={filters.budget} onValueChange={(value) => setFilters({...filters, budget: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Any Budget">Any Budget</SelectItem>
-                      <SelectItem value="Under $3,000">Under $3,000</SelectItem>
-                      <SelectItem value="$3,000 - $5,000">$3,000 - $5,000</SelectItem>
-                      <SelectItem value="$5,000 - $7,000">$5,000 - $7,000</SelectItem>
-                      <SelectItem value="$7,000+">$7,000+</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Rating Filter */}
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Minimum Rating</label>
-                  <Select value={filters.minRating.toString()} onValueChange={(value) => setFilters({...filters, minRating: parseInt(value)})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0">Any Rating</SelectItem>
-                      <SelectItem value="3">3+ Stars</SelectItem>
-                      <SelectItem value="4">4+ Stars</SelectItem>
-                      <SelectItem value="5">5 Stars</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Amenities Filter */}
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Amenities</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {availableAmenities.map((amenity) => (
-                      <Button
-                        key={amenity}
-                        variant={filters.amenities.includes(amenity) ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => {
-                          const newAmenities = filters.amenities.includes(amenity)
-                            ? filters.amenities.filter(a => a !== amenity)
-                            : [...filters.amenities, amenity];
-                          setFilters({...filters, amenities: newAmenities});
-                        }}
-                      >
-                        {amenity}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex gap-2 pt-4">
-                  <Button onClick={clearFilters} variant="outline" className="flex-1">
-                    Clear All
-                  </Button>
-                </div>
               </div>
             </PopoverContent>
           </Popover>
