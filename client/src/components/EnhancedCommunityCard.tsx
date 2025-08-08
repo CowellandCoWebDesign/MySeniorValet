@@ -137,8 +137,38 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
 
   // Enhanced list variant for search results - with prominent care level badges
   if (variant === 'list') {
-    // Get care level badge info at the start
-    const subtypeBadge = community.communitySubtype ? getSubtypeBadge(community.communitySubtype) : null;
+    // Get care level badge info - check both communitySubtype and careTypes
+    let subtypeBadge = community.communitySubtype ? getSubtypeBadge(community.communitySubtype) : null;
+    
+    // If no communitySubtype, try to derive from careTypes array
+    if (!subtypeBadge && community.careTypes && community.careTypes.length > 0) {
+      const careTypeMapping: Record<string, string> = {
+        'Assisted Living': 'assisted_living',
+        'Memory Care': 'memory_care',
+        'Independent Living': 'independent_living',
+        'Skilled Nursing': 'skilled_nursing',
+        'Board and Care': 'board_and_care_home',
+        'CCRC': 'ccrc_life_plan',
+        'Life Plan Community': 'ccrc_life_plan',
+        'Mobile Home Park': 'mobile_home_park',
+        '55+ Active Adult': 'active_adult_55_plus',
+        'Active Adult': 'active_adult_55_plus',
+        'Senior Housing': 'hud_senior_housing',
+        'HUD Housing': 'hud_senior_housing',
+        'Veterans Housing': 'va_housing',
+        'VA Housing': 'va_housing',
+        'Manufactured Homes': 'manufactured_home_community',
+        'RV Park': 'rv_retirement_park',
+        'Senior Co-op': 'senior_cooperative'
+      };
+      
+      // Use the first care type to determine the badge
+      const primaryCareType = community.careTypes[0];
+      const mappedSubtype = careTypeMapping[primaryCareType];
+      if (mappedSubtype) {
+        subtypeBadge = getSubtypeBadge(mappedSubtype);
+      }
+    }
     
     return (
       <Card 
