@@ -88,6 +88,7 @@ import SubscriptionManagement from "@/pages/SubscriptionManagement";
 import AIDemoPage from "@/pages/ai-demo";
 import AIMapShowcase from "@/pages/ai-map-showcase";
 import AISearchIntelligence from "@/pages/ai-search-intelligence";
+import SimplifiedSearch from "@/pages/simplified-search";
 import VendorSignup from "@/pages/vendor-signup";
 import VendorDashboard from "@/pages/vendor-dashboard";
 import VendorWelcome from "@/pages/vendor-welcome";
@@ -143,7 +144,8 @@ function Router() {
       <Route path="/map-search" component={MapSearch} />
       <Route path="/ai-search" component={AISearch} />
       <Route path="/semantic-search" component={AISearch} />
-      <Route path="/ai-intelligence" component={AISearch} />
+      <Route path="/ai-intelligence" component={AISearchIntelligence} />
+      <Route path="/simplified-search" component={SimplifiedSearch} />
       <Route path="/community/:id" component={CommunityDetail} />
       <Route path="/communities/:id" component={CommunityDetail} />
       <Route path="/red-tag-example/:communitySlug" component={RedTagExample} />
