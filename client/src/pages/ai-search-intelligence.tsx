@@ -1267,13 +1267,17 @@ export default function AISearchIntelligence() {
                           setSimplifiedFilters({
                             location: '',
                             typeOfLiving: [],
-                            priceRange: [500, 8000]
+                            amenities: [],
+                            unitType: [],
+                            distance: 25,
+                            priceRange: [500, 8000],
+                            immediateAvailability: false
                           });
                         }}
                         variant="outline"
                         className="w-full text-xs py-2"
                       >
-                        <X className="w-3 h-3 mr-1" />
+                        <XCircle className="w-3 h-3 mr-1" />
                         Reset Filter
                       </Button>
                       
