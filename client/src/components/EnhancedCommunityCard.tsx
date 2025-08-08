@@ -177,17 +177,57 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     
     const tierInfo = getTierInfo();
     
-    // Format price display properly (no slashes unless it's a range)
+    // Format price display with live market intelligence data
     const formatPriceDisplay = () => {
+      // HUD Properties with verified pricing
       if (isHudProperty && community.rentPerMonth) {
-        return `$${Math.round(Number(community.rentPerMonth)).toLocaleString()}`;
+        return `$${Math.round(Number(community.rentPerMonth)).toLocaleString()}/mo`;
       }
+      
+      // Live pricing from claimed communities
+      if (community.livePricing && community.pricingType === 'live') {
+        const careTypes = community.careTypes || [];
+        if (careTypes.includes('Independent Living') && community.livePricing.independentLiving) {
+          const { min, max } = community.livePricing.independentLiving;
+          return min === max 
+            ? `$${Math.round(min).toLocaleString()}/mo` 
+            : `$${Math.round(min).toLocaleString()} - $${Math.round(max).toLocaleString()}/mo`;
+        }
+        if (careTypes.includes('Assisted Living') && community.livePricing.assistedLiving) {
+          const { min, max } = community.livePricing.assistedLiving;
+          return min === max 
+            ? `$${Math.round(min).toLocaleString()}/mo` 
+            : `$${Math.round(min).toLocaleString()} - $${Math.round(max).toLocaleString()}/mo`;
+        }
+        if (careTypes.includes('Memory Care') && community.livePricing.memoryCare) {
+          const { min, max } = community.livePricing.memoryCare;
+          return min === max 
+            ? `$${Math.round(min).toLocaleString()}/mo` 
+            : `$${Math.round(min).toLocaleString()} - $${Math.round(max).toLocaleString()}/mo`;
+        }
+      }
+      
+      // Pricing details with monthly fees breakdown
+      if (community.pricingDetails?.monthlyFees?.baseRent) {
+        const baseRent = community.pricingDetails.monthlyFees.baseRent;
+        const careLevel = community.pricingDetails.monthlyFees.careLevel || 0;
+        const total = baseRent + careLevel;
+        return `$${Math.round(total).toLocaleString()}/mo`;
+      }
+      
+      // Standard price range
       if (community.priceRange?.min && community.priceRange?.max) {
         if (community.priceRange.min === community.priceRange.max) {
-          return `$${Math.round(community.priceRange.min).toLocaleString()}`;
+          return `$${Math.round(community.priceRange.min).toLocaleString()}/mo`;
         }
-        return `$${Math.round(community.priceRange.min).toLocaleString()} - $${Math.round(community.priceRange.max).toLocaleString()} USD`;
+        return `$${Math.round(community.priceRange.min).toLocaleString()} - $${Math.round(community.priceRange.max).toLocaleString()}/mo`;
       }
+      
+      // Mobile home communities
+      if (community.lotRent) {
+        return `Lot: $${Math.round(Number(community.lotRent)).toLocaleString()}/mo`;
+      }
+      
       return null;
     };
     
@@ -305,22 +345,46 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
             </div>
           </div>
           
-          {/* Pricing display - Beautiful like the screenshots */}
+          {/* Pricing display - Beautiful like the screenshots with Live Market Intelligence */}
           <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3 mb-3">
             <div className="flex items-center justify-between">
-              <div>
+              <div className="flex-1">
                 <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                  {priceDisplay}
+                  {priceDisplay || 'Contact for pricing'}
                 </div>
-                {priceDisplay !== 'Contact for Pricing' && (
-                  <div className="text-xs text-gray-600 dark:text-gray-400">Est. Monthly</div>
+                {priceDisplay && (
+                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                    {isHudProperty ? '✓ HUD Verified' : 
+                     community.pricingType === 'live' ? '🔴 Live Pricing' : 
+                     '📊 Market Intelligence'}
+                  </div>
+                )}
+                
+                {/* Special Offers */}
+                {community.pricingDetails?.specialOffers && community.pricingDetails.specialOffers.length > 0 && (
+                  <div className="text-xs text-red-600 dark:text-red-400 font-semibold mt-1 animate-pulse">
+                    💰 {community.pricingDetails.specialOffers[0].title}
+                  </div>
+                )}
+                
+                {/* Move-in Specials */}
+                {community.pricingDetails?.moveinSpecials && community.pricingDetails.moveinSpecials.length > 0 && (
+                  <div className="text-xs text-purple-600 dark:text-purple-400 font-semibold mt-1">
+                    🎁 {community.pricingDetails.moveinSpecials[0]}
+                  </div>
                 )}
               </div>
-              {isHudProperty && (
-                <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                  HUD Verified
-                </Badge>
-              )}
+              
+              {/* Market Intelligence Badge */}
+              <Badge className={`
+                ${isHudProperty ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : ''}
+                ${community.pricingType === 'live' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' : ''}
+                ${!isHudProperty && community.pricingType !== 'live' ? 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300' : ''}
+              `}>
+                {isHudProperty ? 'HUD' : 
+                 community.pricingType === 'live' ? 'LIVE' : 
+                 'EST'}
+              </Badge>
             </div>
           </div>
           
