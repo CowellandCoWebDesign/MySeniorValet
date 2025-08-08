@@ -28,7 +28,18 @@ export default function AdminReports() {
   const [timeRange, setTimeRange] = useState("30d");
   const [reportType, setReportType] = useState("all");
   
-  // Check admin access
+  // Fetch reports data - hooks must be called unconditionally
+  const { data: reportsData } = useQuery({
+    queryKey: ["/api/admin/reports", timeRange],
+    enabled: !!user, // Only fetch if user is authenticated
+  });
+
+  const { data: stats } = useQuery({
+    queryKey: ["/api/platform/stats"],
+    enabled: !!user, // Only fetch if user is authenticated
+  });
+  
+  // Check admin access after all hooks
   const userRole = (user as any)?.role || '';
   const isAdmin = userRole === 'admin' || userRole === 'super_admin';
   
@@ -51,15 +62,6 @@ export default function AdminReports() {
       </div>
     );
   }
-
-  // Fetch reports data
-  const { data: reportsData } = useQuery({
-    queryKey: ["/api/admin/reports", timeRange],
-  });
-
-  const { data: stats } = useQuery({
-    queryKey: ["/api/platform/stats"],
-  });
 
   // Sample data for charts
   const revenueData = [
