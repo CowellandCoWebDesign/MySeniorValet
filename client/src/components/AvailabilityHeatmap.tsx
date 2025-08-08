@@ -105,9 +105,9 @@ export function AvailabilityHeatmap({
     }, 500); // Wait 500ms after user stops panning
   }, []);
 
-  // Fetch heatmap data
+  // Fetch heatmap data with care type filter
   const { data: heatmapData, isLoading: heatmapLoading, error: heatmapError, refetch: refetchHeatmap } = useQuery({
-    queryKey: ['heatmap', 'availability', mapBounds, mapZoom, refreshKey],
+    queryKey: ['heatmap', 'availability', mapBounds, mapZoom, refreshKey, careTypeFilter],
     queryFn: async () => {
       const params = new URLSearchParams({
         north: mapBounds.north.toString(),
@@ -116,6 +116,11 @@ export function AvailabilityHeatmap({
         west: mapBounds.west.toString(),
         zoom: mapZoom.toString()
       });
+      
+      // Add care type filter if not 'all'
+      if (careTypeFilter !== 'all') {
+        params.set('careType', careTypeFilter);
+      }
       
       const response = await fetch(`/api/heatmap/availability?${params}`);
       if (!response.ok) throw new Error('Failed to fetch heatmap data');

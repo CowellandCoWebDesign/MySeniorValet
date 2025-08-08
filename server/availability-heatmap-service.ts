@@ -12,9 +12,10 @@ export class AvailabilityHeatmapService {
    */
   async generateHeatmapData(
     bounds: { north: number; south: number; east: number; west: number },
-    zoomLevel: number
+    zoomLevel: number,
+    careType?: string
   ): Promise<HeatmapRegion> {
-    const cacheKey = `${bounds.north}_${bounds.south}_${bounds.east}_${bounds.west}_${zoomLevel}`;
+    const cacheKey = `${bounds.north}_${bounds.south}_${bounds.east}_${bounds.west}_${zoomLevel}_${careType || 'all'}`;
     
     // Check cache first
     const cached = this.cache.get(cacheKey);
@@ -25,7 +26,7 @@ export class AvailabilityHeatmapService {
     try {
       // Calculate grid size based on zoom level
       const gridSize = this.calculateGridSize(zoomLevel);
-      const heatmapData = await this.aggregateAvailabilityData(bounds, gridSize);
+      const heatmapData = await this.aggregateAvailabilityData(bounds, gridSize, careType);
       
       // Cache the results
       this.cache.set(cacheKey, { data: heatmapData, timestamp: Date.now() });
@@ -50,13 +51,58 @@ export class AvailabilityHeatmapService {
   }
 
   /**
+   * Map care type filter values to database care type fields
+   */
+  private mapCareTypeToField(careType: string): string | null {
+    const careTypeMap: Record<string, string> = {
+      'assisted_living': 'assistedLiving',
+      'memory_care': 'memoryCare',
+      'independent_living': 'independentLiving',
+      'skilled_nursing': 'skilledNursing',
+      'continuing_care': 'continuingCare',
+      '55_plus': 'active55Plus',
+      'mobile_home': 'mobileHomePark'
+    };
+    return careTypeMap[careType] || null;
+  }
+
+  /**
    * Aggregate availability data into grid cells
    */
   private async aggregateAvailabilityData(
     bounds: { north: number; south: number; east: number; west: number },
-    gridSize: number
+    gridSize: number,
+    careType?: string
   ): Promise<AvailabilityHeatmapData[]> {
     try {
+      // Build where conditions
+      const whereConditions = [
+        isNotNull(communities.latitude),
+        isNotNull(communities.longitude),
+        sql`${communities.latitude}::numeric >= ${bounds.south}`,
+        sql`${communities.latitude}::numeric <= ${bounds.north}`,
+        sql`${communities.longitude}::numeric >= ${bounds.west}`,
+        sql`${communities.longitude}::numeric <= ${bounds.east}`
+      ];
+
+      // Add care type filter if specified
+      if (careType && careType !== 'all') {
+        const careTypeMapping: Record<string, string> = {
+          'assisted_living': 'Assisted Living',
+          'memory_care': 'Memory Care',
+          'independent_living': 'Independent Living',
+          'skilled_nursing': 'Skilled Nursing',
+          'continuing_care': 'Continuing Care',
+          '55_plus': '55+ Active Adult',
+          'mobile_home': 'Mobile Home Park'
+        };
+        
+        const mappedCareType = careTypeMapping[careType];
+        if (mappedCareType) {
+          whereConditions.push(sql`${mappedCareType} = ANY(${communities.careTypes})`);
+        }
+      }
+
       // Fetch ALL communities within bounds in a SINGLE query
       const allCommunities = await db
         .select({
@@ -72,16 +118,7 @@ export class AvailabilityHeatmapService {
           state: communities.state
         })
         .from(communities)
-        .where(
-          and(
-            isNotNull(communities.latitude),
-            isNotNull(communities.longitude),
-            sql`${communities.latitude}::numeric >= ${bounds.south}`,
-            sql`${communities.latitude}::numeric <= ${bounds.north}`,
-            sql`${communities.longitude}::numeric >= ${bounds.west}`,
-            sql`${communities.longitude}::numeric <= ${bounds.east}`
-          )
-        )
+        .where(and(...whereConditions))
         .limit(1000); // Limit for performance
 
       // Group communities into grid cells

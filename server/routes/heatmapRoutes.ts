@@ -10,7 +10,8 @@ const heatmapQuerySchema = z.object({
   south: z.string().transform(Number),
   east: z.string().transform(Number),
   west: z.string().transform(Number),
-  zoom: z.string().transform(Number).optional().default(10)
+  zoom: z.string().transform(Number).optional().default(10),
+  careType: z.string().optional()
 });
 
 const regionDataSchema = z.object({
@@ -109,7 +110,8 @@ router.get("/availability", async (req, res) => {
 
     const heatmapData = await availabilityHeatmapService.generateHeatmapData(
       bounds, 
-      query.zoom
+      query.zoom,
+      query.careType
     );
 
     res.json({
