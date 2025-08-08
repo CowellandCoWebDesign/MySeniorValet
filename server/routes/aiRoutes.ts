@@ -415,28 +415,50 @@ export function registerAIRoutes(app: Express) {
           return 0;
         }).slice(0, 20);
 
-        // Generate deep AI insights using ChatGPT-5
-        const deepInsights = await generateDeepCommunityInsights(
+        // Return results immediately with basic insights (no waiting for deep AI analysis)
+        const basicInsights = {
+          interpretation: `Found ${sortedResults.length} communities matching your search criteria`,
+          comparativeAnalysis: {
+            priceComparison: "Various pricing options available",
+            valueLeaders: sortedResults.slice(0, 3).map(c => c.name),
+            premiumOptions: [],
+            hudAffordable: sortedResults.filter(c => c.hudPropertyId).map(c => c.name)
+          },
+          topRecommendations: sortedResults.slice(0, 3).map(c => ({
+            name: c.name,
+            strengths: ["Matches search criteria"],
+            idealFor: "Seniors seeking quality care"
+          })),
+          marketTrends: "Multiple options available in your search area",
+          actionableAdvice: "Review the communities below to find your best match"
+        };
+
+        // Generate deep AI insights asynchronously (don't wait for it)
+        generateDeepCommunityInsights(
           sortedResults,
           location || 'your search area',
           careTypes,
           priceRange
-        );
+        ).then(insights => {
+          console.log('🧠 Deep AI insights generated for search results');
+        }).catch(error => {
+          console.error('AI insights generation failed:', error);
+        });
 
         res.json({
           communities: sortedResults,
-          searchInterpretation: deepInsights.interpretation || searchInterpretation,
+          searchInterpretation: basicInsights.interpretation || searchInterpretation,
           appliedFilters: {
             location,
             careTypes,
             priceRange
           },
-          aiInsights: deepInsights,
+          aiInsights: basicInsights,
           // Keep legacy format for backwards compatibility
-          aiUnderstanding: deepInsights.interpretation,
-          comparativeAnalysis: deepInsights.comparativeAnalysis,
-          locationInsights: deepInsights.locationInsights,
-          topRecommendations: deepInsights.topRecommendations
+          aiUnderstanding: basicInsights.interpretation,
+          comparativeAnalysis: basicInsights.comparativeAnalysis,
+          locationInsights: basicInsights.locationInsights,
+          topRecommendations: basicInsights.topRecommendations
         });
       } else if (searchType === 'services') {
         // Search care services from communities table
