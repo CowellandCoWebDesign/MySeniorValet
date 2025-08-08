@@ -106,6 +106,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register admin community management routes
   const adminCommunityRoutes = await import('./routes/adminCommunityRoutes');
   app.use('/api', adminCommunityRoutes.default);
+  
+  const adminHeatmapRoutes = await import('./routes/adminHeatmapRoutes');
+  app.use('/api', adminHeatmapRoutes.default);
 
   // Vendor dashboard API routes
   app.get("/api/vendors/:vendorId/dashboard", isAuthenticated, async (req, res) => {

@@ -24,7 +24,7 @@ import {
   Calendar, Filter, Search, ChevronRight, BarChart3,
   LineChart as LineChartIcon, PieChart as PieChartIcon,
   Target, Award, Star, ArrowUp, ArrowDown, Minus,
-  Lock, Unlock, UserCheck, UserX, Package, ShoppingCart,
+  Lock, Unlock, UserCheck, UserX, Package, ShoppingCart, ShoppingBag,
   MessageSquare, Phone, Mail, Bell, AlertTriangle,
   CheckCircle2, XCircle, Info, Sparkles, Hash
 } from "lucide-react";
@@ -510,6 +510,26 @@ export default function SuperAdminAnalytics() {
                       <Button variant="outline" className="flex items-center gap-2" onClick={() => window.location.href = '/admin/audit-logs'}>
                         <Shield className="h-4 w-4" />
                         Audit Logs
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="flex items-center gap-2 border-2 border-green-600 hover:bg-green-50 dark:hover:bg-green-950" 
+                        onClick={() => window.location.href = '/admin/availability-heatmap'}
+                      >
+                        <MapPin className="h-4 w-4 text-green-600" />
+                        <span className="text-green-600 font-semibold">Enhanced Heatmap</span>
+                      </Button>
+                      <Button variant="outline" className="flex items-center gap-2" onClick={() => window.location.href = '/admin/marketing-hub'}>
+                        <TrendingUp className="h-4 w-4" />
+                        Marketing Hub
+                      </Button>
+                      <Button variant="outline" className="flex items-center gap-2" onClick={() => window.location.href = '/legal-document-history'}>
+                        <FileText className="h-4 w-4" />
+                        Legal Docs
+                      </Button>
+                      <Button variant="outline" className="flex items-center gap-2" onClick={() => window.location.href = '/admin/vendor-dashboard'}>
+                        <ShoppingBag className="h-4 w-4" />
+                        Vendor Portal
                       </Button>
                     </div>
                   </CardContent>

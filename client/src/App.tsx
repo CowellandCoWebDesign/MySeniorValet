@@ -132,6 +132,7 @@ import VendorTierTest from "@/pages/vendor-tier-test";
 import CommunityCreatorPortal from "@/pages/community-creator-portal";
 import MarketingHub from "@/pages/marketing-hub";
 import AvailabilityHeatmapPage from "@/pages/availability-heatmap";
+import AdminAvailabilityHeatmap from "@/pages/admin-availability-heatmap";
 
 function Router() {
   const [location] = useLocation();
@@ -268,6 +269,7 @@ function Router() {
       <Route path="/community-creator-portal" component={CommunityCreatorPortal} />
       <Route path="/admin/marketing-hub" component={MarketingHub} />
       <Route path="/availability-heatmap" component={AvailabilityHeatmapPage} />
+      <Route path="/admin/availability-heatmap" component={AdminAvailabilityHeatmap} />
       <Route path="/payment-demo" component={PaymentDemo} />
       <Route component={NotFound} />
     </Switch>
