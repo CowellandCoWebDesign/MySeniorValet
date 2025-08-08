@@ -1,6 +1,7 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink, Languages } from "lucide-react";
 import { Link } from "wouter";
 
@@ -135,7 +136,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
 
   const displayPrice = getStartingPrice();
 
-  // Enhanced list variant for search results - with prominent care level badges
+  // Enhanced list variant for search results - Red Tag quality display
   if (variant === 'list') {
     // Get care level badge info - check both communitySubtype and careTypes
     let subtypeBadge = community.communitySubtype ? getSubtypeBadge(community.communitySubtype) : null;
@@ -169,6 +170,229 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
         subtypeBadge = getSubtypeBadge(mappedSubtype);
       }
     }
+    
+    // Determine quality tier badge
+    const getTierBadge = () => {
+      if (isHudProperty) return { label: '🏛️ HUD Verified', color: 'bg-green-600 text-white' };
+      if (community.rating && community.rating >= 4.5) return { label: '⭐ Top Rated', color: 'bg-yellow-500 text-white' };
+      if (community.priceTier === 'platinum') return { label: '💎 Premium', color: 'bg-purple-600 text-white' };
+      if (community.priceTier === 'featured') return { label: '🏆 Featured', color: 'bg-blue-600 text-white' };
+      return null;
+    };
+    
+    const tierBadge = getTierBadge();
+    
+    return (
+      <Card 
+        className="group cursor-pointer hover:shadow-2xl transition-all duration-300 overflow-hidden border-0"
+        onClick={onSelect}
+      >
+        {/* Header with gradient background like Red Tag */}
+        <div className="relative h-32 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
+          {/* Photo placeholder or actual photo */}
+          {community.photos && community.photos[0] ? (
+            <img 
+              src={community.photos[0]} 
+              alt={community.name}
+              className="w-full h-full object-cover opacity-80"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-white/50">
+              <Home className="w-12 h-12" />
+            </div>
+          )}
+          
+          {/* Overlaid badges */}
+          <div className="absolute top-2 left-2 flex gap-2">
+            {tierBadge && (
+              <Badge className={`${tierBadge.color} px-3 py-1 text-sm font-bold shadow-lg`}>
+                {tierBadge.label}
+              </Badge>
+            )}
+            {community.availabilityStatus === 'Available' && (
+              <Badge className="bg-green-500 text-white px-3 py-1 text-sm font-bold shadow-lg">
+                Available Now
+              </Badge>
+            )}
+          </div>
+          
+          {/* Price display overlay - prominent like Red Tag */}
+          <div className="absolute bottom-2 right-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg">
+            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+              {displayPrice === 'Contact for Pricing' ? (
+                <span className="text-lg">Contact for Price</span>
+              ) : (
+                displayPrice
+              )}
+            </div>
+            {community.priceRange && community.priceRange.max && (
+              <div className="text-xs text-gray-500 dark:text-gray-400 line-through">
+                ${community.priceRange.max.toLocaleString()}/mo
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <CardContent className="p-5">
+          {/* Care Level Badge */}
+          {subtypeBadge && (
+            <Badge className={`inline-flex items-center px-2 py-1 text-xs font-semibold ${subtypeBadge.color} border-0 mb-3`}>
+              <span className="mr-1">{subtypeBadge.emoji}</span>
+              {subtypeBadge.label}
+            </Badge>
+          )}
+          
+          {/* Name and Location */}
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+            {community.name}
+          </h3>
+          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-3">
+            <MapPin className="h-3.5 w-3.5 mr-1 text-blue-500" />
+            <span>{community.city}, {community.state}</span>
+          </div>
+          
+          {/* Contact and Reviews Row */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              {community.phone && (
+                <a 
+                  href={`tel:${community.phone}`} 
+                  className="flex items-center text-blue-600 hover:text-blue-700 font-medium text-sm"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Phone className="h-3.5 w-3.5 mr-1" />
+                  Call
+                </a>
+              )}
+              {community.website && (
+                <a 
+                  href={community.website} 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center text-blue-600 hover:text-blue-700 font-medium text-sm"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ExternalLink className="h-3.5 w-3.5 mr-1" />
+                  Web
+                </a>
+              )}
+            </div>
+            {community.rating && (
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star 
+                    key={i} 
+                    className={`h-3.5 w-3.5 ${
+                      i < Math.floor(community.rating || 0) 
+                        ? 'text-yellow-400 fill-yellow-400' 
+                        : 'text-gray-300'
+                    }`} 
+                  />
+                ))}
+                <span className="text-sm ml-1">({community.rating.toFixed(1)})</span>
+              </div>
+            )}
+          </div>
+          
+          {/* Two-column layout for amenities and key info */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            {/* Amenities Column */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Amenities</h4>
+              <div className="space-y-1">
+                {community.amenities?.slice(0, 3).map((amenity: string, idx: number) => (
+                  <div key={idx} className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                    <CheckCircle className="h-3 w-3 mr-1 text-green-500" />
+                    <span>{amenity}</span>
+                  </div>
+                )) || (
+                  <>
+                    <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                      <CheckCircle className="h-3 w-3 mr-1 text-green-500" />
+                      <span>24/7 Care Staff</span>
+                    </div>
+                    <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                      <CheckCircle className="h-3 w-3 mr-1 text-green-500" />
+                      <span>Activities Program</span>
+                    </div>
+                    <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                      <CheckCircle className="h-3 w-3 mr-1 text-green-500" />
+                      <span>Transportation</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+            
+            {/* Key Info Column */}
+            <div>
+              <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Details</h4>
+              <div className="space-y-1">
+                {(community.totalUnits || community.totalUnitsHud) && (
+                  <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                    <Building className="h-3 w-3 mr-1 text-blue-500" />
+                    <span>{community.totalUnits || community.totalUnitsHud} units</span>
+                  </div>
+                )}
+                {(community.occupancyRate || community.occupancyRateHud) && (
+                  <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                    <Users className="h-3 w-3 mr-1 text-green-500" />
+                    <span>{Math.round(Number(community.occupancyRate || community.occupancyRateHud || 0))}% occupied</span>
+                  </div>
+                )}
+                {community.seniorPercentage && (
+                  <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                    <Award className="h-3 w-3 mr-1 text-purple-500" />
+                    <span>{Math.round(community.seniorPercentage)}% seniors</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          {/* Special Offers Section - Like Red Tag */}
+          {(isHudProperty || community.priceRange?.min) && (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-3 mb-4">
+              <div className="flex flex-wrap gap-2">
+                {isHudProperty && (
+                  <Badge className="bg-yellow-400 text-yellow-900 text-xs px-2 py-1">
+                    Income-based pricing
+                  </Badge>
+                )}
+                {community.availabilityStatus === 'Available' && (
+                  <Badge className="bg-yellow-400 text-yellow-900 text-xs px-2 py-1">
+                    Move-in ready
+                  </Badge>
+                )}
+                {community.priceRange?.min && community.priceRange.min < 2000 && (
+                  <Badge className="bg-yellow-400 text-yellow-900 text-xs px-2 py-1">
+                    Budget-friendly
+                  </Badge>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {/* Action Button - Prominent like Red Tag */}
+          <Button 
+            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg shadow-lg transform transition-transform hover:scale-105"
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation();
+              onSelect?.();
+            }}
+          >
+            <Shield className="h-4 w-4 mr-2" />
+            View Full Details
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // OLD VERSION OF LIST VARIANT (KEPT FOR REFERENCE)
+  if (false) {
+    // Get care level badge info at the start
+    const subtypeBadge = community.communitySubtype ? getSubtypeBadge(community.communitySubtype) : null;
     
     return (
       <Card 
