@@ -4,8 +4,12 @@ import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } fr
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, RefreshCw, Info, TrendingUp, AlertCircle, MapPin } from "lucide-react";
+import { Loader2, RefreshCw, Info, TrendingUp, AlertCircle, MapPin, Filter, ZoomIn, Download, ChevronRight } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import type { AvailabilityHeatmapData, HeatmapRegion } from "@shared/schema";
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -58,6 +62,18 @@ interface AvailabilityHeatmapProps {
   className?: string;
 }
 
+// Care type options for filtering
+const CARE_TYPES = [
+  { value: 'all', label: 'All Care Types' },
+  { value: 'assisted_living', label: 'Assisted Living' },
+  { value: 'memory_care', label: 'Memory Care' },
+  { value: 'independent_living', label: 'Independent Living' },
+  { value: 'skilled_nursing', label: 'Skilled Nursing' },
+  { value: 'continuing_care', label: 'Continuing Care' },
+  { value: '55_plus', label: '55+ Active Adult' },
+  { value: 'mobile_home', label: 'Mobile Home Parks' }
+];
+
 export function AvailabilityHeatmap({
   bounds: initialBounds = { north: 49.0, south: 25.0, east: -66.0, west: -125.0 }, // Default to USA
   zoom: initialZoom = 5,
@@ -69,6 +85,9 @@ export function AvailabilityHeatmap({
   const [selectedDataPoint, setSelectedDataPoint] = useState<AvailabilityHeatmapData | null>(null);
   const [mapBounds, setMapBounds] = useState(initialBounds);
   const [mapZoom, setMapZoom] = useState(initialZoom);
+  const [careTypeFilter, setCareTypeFilter] = useState('all');
+  const [showHeatGradient, setShowHeatGradient] = useState(false);
+  const [showTopRegions, setShowTopRegions] = useState(true);
   const mapRef = useRef<L.Map | null>(null);
   const boundsUpdateTimeout = useRef<NodeJS.Timeout | null>(null);
 
@@ -157,6 +176,39 @@ export function AvailabilityHeatmap({
   const handleDataPointClick = (dataPoint: AvailabilityHeatmapData) => {
     setSelectedDataPoint(dataPoint);
     onDataPointClick?.(dataPoint);
+    
+    // Zoom in to the selected region
+    if (mapRef.current) {
+      mapRef.current.setView([dataPoint.latitude, dataPoint.longitude], 10, {
+        animate: true,
+        duration: 1
+      });
+    }
+  };
+
+  // Export heatmap data as CSV
+  const exportData = () => {
+    if (!heatmapData?.region?.data) return;
+    
+    const csv = [
+      ['Latitude', 'Longitude', 'Availability Score', 'Community Count', 'Region Name', 'Average Availability'],
+      ...heatmapData.region.data.map((d: AvailabilityHeatmapData) => [
+        d.latitude,
+        d.longitude,
+        d.availabilityScore,
+        d.communityCount,
+        d.regionName,
+        d.averageAvailability
+      ])
+    ].map(row => row.join(',')).join('\n');
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `availability-heatmap-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   if (heatmapError) {
@@ -174,26 +226,79 @@ export function AvailabilityHeatmap({
     );
   }
 
+  // Get top regions sorted by availability score
+  const topRegions = heatmapData?.region?.data
+    ?.sort((a, b) => b.availabilityScore - a.availabilityScore)
+    ?.slice(0, 10) || [];
+
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* Availability Trends */}
-      {showTrends && trendsData?.success && (
+    <div className={`grid grid-cols-1 lg:grid-cols-4 gap-6 ${className}`}>
+      {/* Main Content Area */}
+      <div className="lg:col-span-3 space-y-6">
+        {/* Control Panel */}
         <Card>
-          <CardHeader className="pb-4">
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-blue-600" />
-                Real-time Availability Overview
-              </CardTitle>
-              <Button onClick={handleRefresh} variant="outline" size="sm" disabled={trendsLoading}>
-                {trendsLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
+              <CardTitle className="text-lg font-semibold">Map Controls</CardTitle>
+              <div className="flex items-center gap-2">
+                <Button onClick={exportData} variant="outline" size="sm">
+                  <Download className="h-4 w-4 mr-1" />
+                  Export CSV
+                </Button>
+                <Button onClick={handleRefresh} variant="outline" size="sm">
                   <RefreshCw className="h-4 w-4" />
-                )}
-              </Button>
+                </Button>
+              </div>
             </div>
           </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-4">
+              <div className="flex-1 min-w-[200px]">
+                <Label className="text-sm mb-1">Care Type Filter</Label>
+                <Select value={careTypeFilter} onValueChange={setCareTypeFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select care type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CARE_TYPES.map(type => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch 
+                  checked={showHeatGradient} 
+                  onCheckedChange={setShowHeatGradient}
+                  id="heat-gradient"
+                />
+                <Label htmlFor="heat-gradient" className="text-sm">Heat Gradient</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch 
+                  checked={showTopRegions} 
+                  onCheckedChange={setShowTopRegions}
+                  id="show-regions"
+                />
+                <Label htmlFor="show-regions" className="text-sm">Top Regions</Label>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Availability Trends */}
+        {showTrends && trendsData?.success && (
+          <Card>
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-blue-600" />
+                  Real-time Availability Overview
+                </CardTitle>
+              </div>
+            </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
               <div className="text-center">
@@ -403,6 +508,60 @@ export function AvailabilityHeatmap({
           )}
         </CardContent>
       </Card>
+      </div>
+
+      {/* Side Panel - Top Regions */}
+      {showTopRegions && (
+        <div className="lg:col-span-1">
+          <Card className="sticky top-6">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-green-600" />
+                Top Availability Regions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[400px]">
+                <div className="space-y-3">
+                  {topRegions.map((region, index) => (
+                    <div
+                      key={`${region.latitude}-${region.longitude}`}
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
+                      onClick={() => handleDataPointClick(region)}
+                    >
+                      <div className="flex-shrink-0">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ${
+                          index === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600' :
+                          index === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500' :
+                          index === 2 ? 'bg-gradient-to-br from-orange-400 to-orange-600' :
+                          'bg-gray-400'
+                        }`}>
+                          {index + 1}
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium text-sm">{region.regionName}</div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs">
+                            {region.communityCount} communities
+                          </Badge>
+                          <Badge 
+                            variant={region.availabilityScore >= 60 ? "default" : "destructive"}
+                            className="text-xs"
+                          >
+                            {region.availabilityScore}% available
+                          </Badge>
+                        </div>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-gray-400" />
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
