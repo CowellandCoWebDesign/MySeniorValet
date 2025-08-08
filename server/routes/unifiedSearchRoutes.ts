@@ -33,8 +33,8 @@ interface SearchParams {
 }
 
 export function registerUnifiedSearchRoutes(app: Express) {
-  // Unified intelligent search endpoint
-  app.get("/api/communities/search", async (req, res) => {
+  // Main search handler function
+  const handleUnifiedSearch = async (req: any, res: any) => {
     try {
       const params = req.query as unknown as SearchParams;
       const { 
@@ -296,7 +296,11 @@ export function registerUnifiedSearchRoutes(app: Express) {
         message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
-  });
+  };
+  
+  // Register both endpoint paths to handle frontend compatibility
+  app.get("/api/communities/search", handleUnifiedSearch);
+  app.get("/api/communities/search/unified", handleUnifiedSearch);
   
   // Quick search suggestions endpoint
   app.get("/api/communities/search/suggestions", async (req, res) => {
