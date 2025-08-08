@@ -75,8 +75,8 @@ const CARE_TYPES = [
 ];
 
 export function AvailabilityHeatmap({
-  bounds: initialBounds = { north: 49.0, south: 25.0, east: -66.0, west: -125.0 }, // Default to USA
-  zoom: initialZoom = 5,
+  bounds: initialBounds = { north: 42.0, south: 32.5, east: -114.0, west: -124.5 }, // Default to California
+  zoom: initialZoom = 6,
   onDataPointClick,
   showTrends = true,
   className = ""
@@ -383,7 +383,7 @@ export function AvailabilityHeatmap({
             )}
             
             <MapContainer
-              center={[39.8283, -98.5795]} // Center of USA
+              center={[36.778, -119.418]} // Center of California
               zoom={mapZoom}
               className="h-full w-full"
               ref={(map) => { if (map) mapRef.current = map; }}
