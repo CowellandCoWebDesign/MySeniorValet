@@ -940,26 +940,81 @@ export default function Map({
     retry: 1
   });
 
-  const getIconForCommunity = (community: Community, isHovered = false, isPulsing = false) => {
-    // Check for LIVE DATA - green pin means we have real pricing/availability/contact info
-    const hasLiveData = (community.rentPerMonth && community.rentPerMonth > 0) || // Has real pricing
-                        (community.priceRange && typeof community.priceRange === 'string' && !community.priceRange.includes('Contact')) || // Has transparent pricing
-                        (community.availability && community.availability !== 'Contact for availability') || // Has real availability
-                        community.hudPropertyId || // HUD properties have live data
-                        community.dataSource === 'HUD'; // HUD sourced data
-
-    if (hasLiveData) {
-      return liveDataIcon; // Green pin for communities with LIVE pricing/availability data
-    } else {
-      return noLiveDataIcon; // Red pin for communities without live data (call for pricing)
+  // Get care level emoji based on community type
+  const getCareEmoji = (community: Community) => {
+    // HUD properties get government building emoji
+    if (community.hudPropertyId || community.dataSource === 'HUD' || community.hudVerified) {
+      return '🏛️'; // Government/HUD properties
     }
+    
+    const careTypes = community.careTypes || [];
+    
+    // Check for specific care types (order matters - most specific first)
+    if (careTypes.some(type => type.toLowerCase().includes('memory') || type.toLowerCase().includes('alzheimer') || type.toLowerCase().includes('dementia'))) {
+      return '🧠'; // Memory Care
+    }
+    if (careTypes.some(type => type.toLowerCase().includes('skilled nursing') || type.toLowerCase().includes('nursing home'))) {
+      return '🏥'; // Skilled Nursing/Medical
+    }
+    if (careTypes.some(type => type.toLowerCase().includes('hospice') || type.toLowerCase().includes('palliative'))) {
+      return '🕊️'; // Hospice/End-of-life care
+    }
+    if (careTypes.some(type => type.toLowerCase().includes('assisted living'))) {
+      return '🤝'; // Assisted Living
+    }
+    if (careTypes.some(type => type.toLowerCase().includes('independent') || type.toLowerCase().includes('55+'))) {
+      return '🏡'; // Independent Living/55+
+    }
+    if (careTypes.some(type => type.toLowerCase().includes('ccrc') || type.toLowerCase().includes('continuing care'))) {
+      return '🏘️'; // Continuing Care/CCRC
+    }
+    if (careTypes.some(type => type.toLowerCase().includes('mobile home') || type.toLowerCase().includes('manufactured'))) {
+      return '🚐'; // Mobile/Manufactured homes
+    }
+    
+    // Default for general senior living
+    return '🏠'; // General senior living
+  };
 
-    // Original care type logic (no longer used, but kept for reference)
-    // const careTypes = community.careTypes || [];
-    // if (careTypes.includes('Memory Care')) return memoryCareIcon;
-    // if (careTypes.includes('Assisted Living')) return assistedLivingIcon;
-    // if (careTypes.includes('Independent Living')) return independentIcon;
-    // return communityIcon;
+  const getIconForCommunity = (community: Community, isHovered = false, isPulsing = false) => {
+    const emoji = getCareEmoji(community);
+    
+    // Check for live data to determine border color
+    const hasLiveData = (community.rentPerMonth && community.rentPerMonth > 0) || 
+                        (community.priceRange && typeof community.priceRange === 'string' && !community.priceRange.includes('Contact')) || 
+                        (community.availability && community.availability !== 'Contact for availability') || 
+                        community.hudPropertyId || 
+                        community.dataSource === 'HUD';
+
+    const borderColor = hasLiveData ? '#16a34a' : '#dc2626'; // Green for live data, red for no data
+    const bgColor = isHovered ? '#fef3c7' : '#ffffff'; // Yellow background on hover
+    const size = isHovered ? 40 : 35;
+
+    // Create HTML divIcon with emoji using encodeURIComponent for Unicode support
+    const svgString = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size + 10}" viewBox="0 0 ${size} ${size + 10}">
+        <defs>
+          <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.25)"/>
+          </filter>
+        </defs>
+        <!-- Pin shape -->
+        <path fill="${bgColor}" stroke="${borderColor}" stroke-width="2.5" filter="url(#shadow)"
+              d="M${size/2} 2C${size*0.2} 2 2 ${size*0.2} 2 ${size/2}c0 ${size*0.4} ${size/2-2} ${size-2} ${size/2-2} ${size-2}s${size/2-2} ${size*0.6-2} ${size/2-2} ${size-2}C${size-2} ${size*0.2} ${size*0.8} 2 ${size/2} 2z"/>
+        <!-- Emoji text -->
+        <text x="${size/2}" y="${size/2 + 3}" text-anchor="middle" font-size="${size * 0.5}" font-family="Arial, sans-serif">
+          ${emoji}
+        </text>
+      </svg>
+    `;
+
+    return new Icon({
+      iconUrl: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svgString)}`,
+      iconSize: [size, size + 10],
+      iconAnchor: [size/2, size + 10],
+      popupAnchor: [0, -(size + 10)],
+      className: `care-level-marker ${isHovered ? 'marker-hover' : ''}`
+    });
   };
 
   const handleCommunityClick = (community: Community) => {
@@ -1013,6 +1068,62 @@ export default function Map({
 
       {/* Map Container */}
       <div className="flex-1 relative" style={{ minHeight: '400px' }}>
+        {/* Care Level Legend */}
+        <div className="absolute top-20 left-4 z-[1000] bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-lg shadow-lg p-3 max-w-[220px]">
+          <h4 className="font-semibold text-sm mb-2 text-gray-900 dark:text-white">Care Level Icons</h4>
+          <div className="space-y-1 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🏛️</span>
+              <span className="text-gray-700 dark:text-gray-300">HUD/Government</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🧠</span>
+              <span className="text-gray-700 dark:text-gray-300">Memory Care</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🏥</span>
+              <span className="text-gray-700 dark:text-gray-300">Skilled Nursing</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🕊️</span>
+              <span className="text-gray-700 dark:text-gray-300">Hospice Care</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🤝</span>
+              <span className="text-gray-700 dark:text-gray-300">Assisted Living</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🏡</span>
+              <span className="text-gray-700 dark:text-gray-300">Independent/55+</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🏘️</span>
+              <span className="text-gray-700 dark:text-gray-300">CCRC</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🚐</span>
+              <span className="text-gray-700 dark:text-gray-300">Mobile Homes</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🏠</span>
+              <span className="text-gray-700 dark:text-gray-300">General Senior</span>
+            </div>
+          </div>
+          <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+            <h5 className="font-semibold text-xs mb-1 text-gray-900 dark:text-white">Border Colors</h5>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-green-500 border border-green-600"></div>
+                <span className="text-gray-700 dark:text-gray-300">Live Pricing</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500 border border-red-600"></div>
+                <span className="text-gray-700 dark:text-gray-300">Contact for Price</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Compact Location Button - Moved to bottom-left */}
         <div className="absolute bottom-4 left-4 z-[1000]">
           <Button
