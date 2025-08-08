@@ -195,114 +195,101 @@ export default function SuperAdminDashboard() {
       <NavigationHeader />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Welcome Hero Section */}
-        <div className="mb-8 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-2xl p-8 text-white shadow-2xl">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="p-4 bg-white/20 backdrop-blur-md rounded-xl">
-                <Shield className="h-10 w-10 text-white" />
+        {/* Compact Welcome Hero Section */}
+        <div className="mb-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-xl p-4 text-white shadow-xl">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-white/20 backdrop-blur-md rounded-lg">
+                <Shield className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold">Welcome to Command Center</h1>
-                <p className="text-blue-100 mt-1">MySeniorValet Platform Management</p>
+                <h1 className="text-xl font-bold">Command Center</h1>
+                <p className="text-blue-100 text-sm">MySeniorValet Platform Management</p>
               </div>
             </div>
-            <div className="flex flex-col items-end gap-2">
-              <Badge className="bg-white/20 backdrop-blur-md text-white border-white/30 px-4 py-2">
-                Super Admin Access
+            <div className="flex items-center gap-3">
+              <Badge className="bg-white/20 backdrop-blur-md text-white border-white/30 px-3 py-1 text-sm">
+                Super Admin
               </Badge>
-              <p className="text-sm text-blue-100">
-                {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-              </p>
+              <div className="hidden lg:block text-right">
+                <p className="text-xs text-blue-100">
+                  {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                </p>
+                <p className="text-xs text-blue-200">{user?.email || 'William.cowell01@gmail.com'}</p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Platform Overview</h2>
-              <p className="text-gray-600 mt-1">Monitor and manage all platform operations</p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search tools..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-64 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <Badge className="bg-gradient-to-r from-gray-300 to-gray-100 text-gray-900 border-gray-400 px-4 py-2 whitespace-nowrap">
-                {user?.email || 'William.cowell01@gmail.com'}
-              </Badge>
-            </div>
+        {/* Compact Search Bar */}
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <h2 className="text-lg font-semibold text-gray-900">Platform Overview</h2>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search tools..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-4 py-1.5 w-56 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Compact Stats Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
           {quickStats.map((stat) => (
-            <Card key={stat.label} className={`${stat.borderColor} hover:shadow-xl transition-all duration-300 hover:scale-105`}>
-              <CardContent className="p-6">
-                <div className={`${stat.bgColor} -m-6 mb-4 p-6 rounded-t-lg`}>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-700">{stat.label}</p>
-                      <p className="text-3xl font-bold mt-2 text-gray-900">{stat.value}</p>
-                    </div>
-                    <div className={`p-3 ${stat.bgColor} rounded-xl`}>
-                      <stat.icon className={`h-8 w-8 ${stat.color}`} />
-                    </div>
+            <Card key={stat.label} className={`${stat.borderColor} hover:shadow-lg transition-all duration-200`}>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-600 font-medium">{stat.label}</p>
+                    <p className="text-2xl font-bold mt-1 text-gray-900">{stat.value}</p>
+                    <p className={`text-xs mt-1 ${stat.color} font-medium`}>{stat.trend}</p>
                   </div>
-                </div>
-                <div className="flex items-center">
-                  <Badge variant="outline" className={`text-xs ${stat.color} ${stat.borderColor}`}>
-                    {stat.trend}
-                  </Badge>
+                  <div className={`p-2 ${stat.bgColor} rounded-lg`}>
+                    <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                  </div>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Main Dashboard Sections */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="flex flex-wrap gap-2 h-auto p-2 bg-gray-100">
-            <TabsTrigger value="overview" className="px-4 py-2">
-              <LayoutDashboard className="h-4 w-4 mr-2" />
+        {/* Compact Tab Navigation */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="flex flex-wrap gap-1 h-auto p-1 bg-gray-100">
+            <TabsTrigger value="overview" className="px-3 py-1.5 text-xs">
+              <LayoutDashboard className="h-3.5 w-3.5 mr-1" />
               Overview
             </TabsTrigger>
-            <TabsTrigger value="admin" className="px-4 py-2">
-              <Shield className="h-4 w-4 mr-2" />
+            <TabsTrigger value="admin" className="px-3 py-1.5 text-xs">
+              <Shield className="h-3.5 w-3.5 mr-1" />
               Admin
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="px-4 py-2">
-              <BarChart3 className="h-4 w-4 mr-2" />
+            <TabsTrigger value="analytics" className="px-3 py-1.5 text-xs">
+              <BarChart3 className="h-3.5 w-3.5 mr-1" />
               Analytics
             </TabsTrigger>
-            <TabsTrigger value="ai" className="px-4 py-2">
-              <Brain className="h-4 w-4 mr-2" />
-              AI Tools
+            <TabsTrigger value="ai" className="px-3 py-1.5 text-xs">
+              <Brain className="h-3.5 w-3.5 mr-1" />
+              AI
             </TabsTrigger>
-            <TabsTrigger value="community" className="px-4 py-2">
-              <Building2 className="h-4 w-4 mr-2" />
+            <TabsTrigger value="community" className="px-3 py-1.5 text-xs">
+              <Building2 className="h-3.5 w-3.5 mr-1" />
               Community
             </TabsTrigger>
-            <TabsTrigger value="vendor" className="px-4 py-2">
-              <Store className="h-4 w-4 mr-2" />
+            <TabsTrigger value="vendor" className="px-3 py-1.5 text-xs">
+              <Store className="h-3.5 w-3.5 mr-1" />
               Vendor
             </TabsTrigger>
-            <TabsTrigger value="testing" className="px-4 py-2">
-              <TestTube className="h-4 w-4 mr-2" />
+            <TabsTrigger value="testing" className="px-3 py-1.5 text-xs">
+              <TestTube className="h-3.5 w-3.5 mr-1" />
               Testing
             </TabsTrigger>
-            <TabsTrigger value="infra" className="px-4 py-2">
-              <Server className="h-4 w-4 mr-2" />
-              Infrastructure
+            <TabsTrigger value="infra" className="px-3 py-1.5 text-xs">
+              <Server className="h-3.5 w-3.5 mr-1" />
+              Infra
             </TabsTrigger>
           </TabsList>
 
@@ -323,115 +310,83 @@ export default function SuperAdminDashboard() {
               </div>
             )}
             
-            {/* Housing Type Breakdown */}
+            {/* Compact Housing Distribution */}
             {!searchQuery && (
-              <Card className="border-gray-200 shadow-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5" />
+              <Card className="border-gray-200 shadow-sm mb-4">
+                <CardHeader className="py-3">
+                  <CardTitle className="flex items-center gap-2 text-sm">
+                    <Building2 className="h-4 w-4" />
                     Housing Type Distribution
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                    <div className="text-center p-3 bg-blue-50 rounded-lg">
-                      <p className="text-2xl font-bold text-blue-600">{stats?.housingTypeBreakdown?.hud_senior_housing?.toLocaleString() || '5,936'}</p>
-                      <p className="text-sm text-gray-600">HUD Housing</p>
+                <CardContent className="pb-3">
+                  <div className="grid grid-cols-3 lg:grid-cols-5 gap-2">
+                    <div className="p-2 bg-blue-50 rounded text-center">
+                      <p className="text-lg font-bold text-blue-600">{stats?.housingTypeBreakdown?.hud_senior_housing?.toLocaleString() || '5,936'}</p>
+                      <p className="text-xs text-gray-600">HUD</p>
                     </div>
-                    <div className="text-center p-3 bg-green-50 rounded-lg">
-                      <p className="text-2xl font-bold text-green-600">{stats?.housingTypeBreakdown?.senior_mobile_park?.toLocaleString() || '8,771'}</p>
-                      <p className="text-sm text-gray-600">Mobile Parks</p>
+                    <div className="p-2 bg-green-50 rounded text-center">
+                      <p className="text-lg font-bold text-green-600">{stats?.housingTypeBreakdown?.senior_mobile_park?.toLocaleString() || '8,771'}</p>
+                      <p className="text-xs text-gray-600">Mobile</p>
                     </div>
-                    <div className="text-center p-3 bg-emerald-50 rounded-lg">
-                      <p className="text-2xl font-bold text-emerald-600">{stats?.housingTypeBreakdown?.active_adult_55plus?.toLocaleString() || '3,200'}</p>
-                      <p className="text-sm text-gray-600">Active Adult</p>
+                    <div className="p-2 bg-purple-50 rounded text-center">
+                      <p className="text-lg font-bold text-purple-600">{stats?.housingTypeBreakdown?.independent_living?.toLocaleString() || '8,320'}</p>
+                      <p className="text-xs text-gray-600">Independent</p>
                     </div>
-                    <div className="text-center p-3 bg-purple-50 rounded-lg">
-                      <p className="text-2xl font-bold text-purple-600">{stats?.housingTypeBreakdown?.independent_living?.toLocaleString() || '8,320'}</p>
-                      <p className="text-sm text-gray-600">Independent</p>
+                    <div className="p-2 bg-orange-50 rounded text-center">
+                      <p className="text-lg font-bold text-orange-600">{stats?.housingTypeBreakdown?.assisted_living?.toLocaleString() || '12,450'}</p>
+                      <p className="text-xs text-gray-600">Assisted</p>
                     </div>
-                    <div className="text-center p-3 bg-orange-50 rounded-lg">
-                      <p className="text-2xl font-bold text-orange-600">{stats?.housingTypeBreakdown?.assisted_living?.toLocaleString() || '12,450'}</p>
-                      <p className="text-sm text-gray-600">Assisted</p>
-                    </div>
-                    <div className="text-center p-3 bg-red-50 rounded-lg">
-                      <p className="text-2xl font-bold text-red-600">{stats?.housingTypeBreakdown?.memory_care?.toLocaleString() || '3,980'}</p>
-                      <p className="text-sm text-gray-600">Memory Care</p>
-                    </div>
-                    <div className="text-center p-3 bg-indigo-50 rounded-lg">
-                      <p className="text-2xl font-bold text-indigo-600">{stats?.housingTypeBreakdown?.skilled_nursing?.toLocaleString() || '576'}</p>
-                      <p className="text-sm text-gray-600">Skilled Nursing</p>
-                    </div>
-                    <div className="text-center p-3 bg-yellow-50 rounded-lg">
-                      <p className="text-2xl font-bold text-yellow-600">{stats?.housingTypeBreakdown?.board_and_care?.toLocaleString() || '420'}</p>
-                      <p className="text-sm text-gray-600">Board & Care</p>
-                    </div>
-                    <div className="text-center p-3 bg-slate-50 rounded-lg">
-                      <p className="text-2xl font-bold text-slate-600">{stats?.housingTypeBreakdown?.va_housing?.toLocaleString() || '180'}</p>
-                      <p className="text-sm text-gray-600">Veteran</p>
-                    </div>
-                    <div className="text-center p-3 bg-gray-50 rounded-lg">
-                      <p className="text-2xl font-bold text-gray-600">{stats?.housingTypeBreakdown?.unlicensed_senior_housing?.toLocaleString() || '310'}</p>
-                      <p className="text-sm text-gray-600">Unlicensed</p>
+                    <div className="p-2 bg-red-50 rounded text-center">
+                      <p className="text-lg font-bold text-red-600">{stats?.housingTypeBreakdown?.memory_care?.toLocaleString() || '3,980'}</p>
+                      <p className="text-xs text-gray-600">Memory</p>
                     </div>
                   </div>
-                  <div className="mt-4 pt-4 border-t">
-                    <p className="text-center text-sm text-gray-600">
-                      Estimated overlap-adjusted total: <span className="font-bold">40,000-44,000</span> unique U.S. listings
-                    </p>
-                  </div>
+                  <p className="text-center text-xs text-gray-500 mt-2">
+                    Total: <span className="font-semibold">40,000-44,000</span> unique listings
+                  </p>
                 </CardContent>
               </Card>
             )}
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {getFilteredSections().map((section) => (
                 <Card key={section.title} className="border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="flex items-center gap-3 text-lg">
-                      <div className="p-2 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg">
-                        <section.icon className="h-5 w-5 text-gray-700" />
-                      </div>
+                  <CardHeader className="py-3 pb-2">
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                      <section.icon className="h-4 w-4 text-gray-700" />
                       {section.title}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="space-y-2">
+                  <CardContent className="pt-0 pb-3">
+                    <div className="space-y-1">
                       {filterTools(section.links).slice(0, 3).map((link) => (
                         <Link key={link.href} href={link.href}>
-                          <div className={`group p-3 rounded-lg transition-all cursor-pointer ${
+                          <div className={`group p-2 rounded transition-all cursor-pointer ${
                             link.status === 'featured' 
-                              ? 'bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 hover:shadow-lg hover:scale-105' 
+                              ? 'bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 hover:shadow-md' 
                               : 'hover:bg-gray-50'
                           }`}>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <div className={`${link.status === 'featured' ? 'p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg' : ''}`}>
-                                  <link.icon className={`h-4 w-4 ${
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <link.icon className={`h-3.5 w-3.5 flex-shrink-0 ${
+                                  link.status === 'featured' 
+                                    ? 'text-blue-600' 
+                                    : 'text-gray-500 group-hover:text-blue-600'
+                                } transition-colors`} />
+                                <div className="flex-1 min-w-0">
+                                  <p className={`text-xs font-medium truncate transition-colors ${
                                     link.status === 'featured' 
-                                      ? 'text-white' 
-                                      : 'text-gray-500 group-hover:text-blue-600'
-                                  } transition-colors`} />
-                                </div>
-                                <div>
-                                  <p className={`font-medium text-sm transition-colors ${
-                                    link.status === 'featured' 
-                                      ? 'text-blue-700 font-bold' 
+                                      ? 'text-blue-700' 
                                       : 'group-hover:text-blue-600'
                                   }`}>
                                     {link.name}
                                   </p>
-                                  <p className={`text-xs ${link.status === 'featured' ? 'text-gray-700' : 'text-gray-500'}`}>
-                                    {link.description}
-                                  </p>
                                 </div>
                               </div>
-                              {link.status === "active" && (
-                                <CheckCircle className="h-4 w-4 text-green-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                              )}
                               {link.status === "featured" && (
-                                <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 shadow-lg">
-                                  ⭐ Featured
+                                <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs px-1.5 py-0.5">
+                                  ⭐
                                 </Badge>
                               )}
                             </div>
