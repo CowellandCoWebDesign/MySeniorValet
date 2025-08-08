@@ -90,10 +90,9 @@ Format your response as JSON with:
   "actionableAdvice": "Next steps for the user"
 }`;
 
-    // Using GPT-5 with enhanced reasoning (Released August 7, 2025)
-    // Note: GPT-5 only supports default temperature (1.0)
+    // Using GPT-4o for secondary analysis (Claude now primary)
     const response = await openai.chat.completions.create({
-      model: "gpt-5",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -104,8 +103,8 @@ Format your response as JSON with:
           content: prompt
         }
       ],
-      max_completion_tokens: 2000,
-      // temperature not supported with GPT-5, uses default value
+      max_tokens: 2000,
+      temperature: 0.7,
       response_format: { type: "json_object" }
     });
 

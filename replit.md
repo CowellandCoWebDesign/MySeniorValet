@@ -54,9 +54,9 @@ The platform is built with a modern web stack emphasizing transparency and user 
 - **Routing**: `wouter`
 - **UI Libraries**: `@radix-ui/*`, `tailwindcss`, `lucide-react`
 - **Mapping**: `react-leaflet`
-- **AI Integrations**: Priority-based multi-AI orchestration (Updated January 8, 2025):
-  1. **ChatGPT-5 (Primary)**: `openai` - Using GPT-5 model (Released August 7, 2025) - Advanced reasoning with max_completion_tokens parameter, 45% fewer hallucinations, 80% fewer factual errors
-  2. **Claude (Secondary)**: `@anthropic-ai/sdk` - Complex reasoning, care planning, contract analysis
+- **AI Integrations**: Priority-based multi-AI orchestration (Updated August 8, 2025):
+  1. **Claude (Primary)**: `@anthropic-ai/sdk` - Advanced reasoning, complex analysis, care planning, contract analysis
+  2. **ChatGPT-4o (Secondary)**: `openai` - Using GPT-4o model for secondary analysis and validation
   3. **Perplexity (3rd)**: Real-time web search, current pricing, market data
   Note: Gemini and Grok have been removed from the platform to streamline AI services and improve performance
 - **Email Service**: SendGrid
