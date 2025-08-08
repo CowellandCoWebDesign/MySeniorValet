@@ -1415,80 +1415,75 @@ export default function AISearchIntelligence() {
               </div>
 
               {/* Second Row - Type of Living on Separate Line */}
-              <div className="flex items-start gap-8 overflow-x-auto">
-                <div className="flex gap-6 items-start">
-                  {/* Type of Living */}
-                  <div className="flex-shrink-0 w-full">
-                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">Type of Living</label>
-                    <div className="flex gap-3 flex-wrap">
-                      <Button
-                        variant={simplifiedFilters.typeOfLiving.includes('independent-55plus') ? 'default' : 'outline'}
-                        onClick={() => {
-                          const newTypes = simplifiedFilters.typeOfLiving.includes('independent-55plus')
-                            ? simplifiedFilters.typeOfLiving.filter(t => t !== 'independent-55plus')
-                            : [...simplifiedFilters.typeOfLiving, 'independent-55plus'];
-                          setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
-                        }}
-                        className={`h-[75px] px-4 ${
-                          simplifiedFilters.typeOfLiving.includes('independent-55plus')
-                            ? 'bg-blue-600 text-white hover:bg-blue-700'
-                            : 'bg-white dark:bg-gray-900'
-                        }`}
-                      >
-                        <div className="text-center">
-                          <div className="text-xl mb-1">🏡</div>
-                          <div className="text-[11px] font-medium">Independent Living</div>
-                          <div className="text-[10px] opacity-80 mt-0.5">55+</div>
-                        </div>
-                      </Button>
-                      
-                      <Button
-                        variant={simplifiedFilters.typeOfLiving.includes('assisted-memory') ? 'default' : 'outline'}
-                        onClick={() => {
-                          const newTypes = simplifiedFilters.typeOfLiving.includes('assisted-memory')
-                            ? simplifiedFilters.typeOfLiving.filter(t => t !== 'assisted-memory')
-                            : [...simplifiedFilters.typeOfLiving, 'assisted-memory'];
-                          setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
-                        }}
-                        className={`h-[75px] px-4 ${
-                          simplifiedFilters.typeOfLiving.includes('assisted-memory')
-                            ? 'bg-blue-600 text-white hover:bg-blue-700'
-                            : 'bg-white dark:bg-gray-900'
-                        }`}
-                      >
-                        <div className="text-center">
-                          <div className="text-xl mb-1">🤝</div>
-                          <div className="text-[11px] font-medium">Assisted Living</div>
-                          <div className="text-[10px] opacity-80 mt-0.5">Memory Care</div>
-                        </div>
-                      </Button>
-                      
-                      <Button
-                        variant={simplifiedFilters.typeOfLiving.includes('nursing-home') ? 'default' : 'outline'}
-                        onClick={() => {
-                          const newTypes = simplifiedFilters.typeOfLiving.includes('nursing-home')
-                            ? simplifiedFilters.typeOfLiving.filter(t => t !== 'nursing-home')
-                            : [...simplifiedFilters.typeOfLiving, 'nursing-home'];
-                          setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
-                        }}
-                        className={`h-[50px] px-4 ${
-                          simplifiedFilters.typeOfLiving.includes('nursing-home')
-                            ? 'bg-blue-600 text-white hover:bg-blue-700'
-                            : 'bg-white dark:bg-gray-900'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className="text-lg">🏥</div>
-                          <div className="text-xs font-medium">Nursing Home</div>
-                        </div>
-                      </Button>
-                      
-                      <button className="px-4 py-3 text-gray-500 hover:text-gray-700 flex items-center gap-1">
-                        <MoreHorizontal className="w-4 h-4" />
-                        <span className="text-xs">More</span>
-                      </button>
+              <div className="w-full">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">Type of Living</label>
+                <div className="flex gap-3 items-center">
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('independent-55plus') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('independent-55plus')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'independent-55plus')
+                        : [...simplifiedFilters.typeOfLiving, 'independent-55plus'];
+                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                    }}
+                    className={`h-[75px] px-4 ${
+                      simplifiedFilters.typeOfLiving.includes('independent-55plus')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xl mb-1">🏡</div>
+                      <div className="text-[11px] font-medium">Independent Living</div>
+                      <div className="text-[10px] opacity-80 mt-0.5">55+</div>
                     </div>
-                  </div>
+                  </Button>
+                  
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('assisted-memory') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('assisted-memory')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'assisted-memory')
+                        : [...simplifiedFilters.typeOfLiving, 'assisted-memory'];
+                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                    }}
+                    className={`h-[75px] px-4 ${
+                      simplifiedFilters.typeOfLiving.includes('assisted-memory')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xl mb-1">🤝</div>
+                      <div className="text-[11px] font-medium">Assisted Living</div>
+                      <div className="text-[10px] opacity-80 mt-0.5">Memory Care</div>
+                    </div>
+                  </Button>
+                  
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('nursing-home') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('nursing-home')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'nursing-home')
+                        : [...simplifiedFilters.typeOfLiving, 'nursing-home'];
+                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                    }}
+                    className={`h-[75px] px-4 ${
+                      simplifiedFilters.typeOfLiving.includes('nursing-home')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xl mb-1">🏥</div>
+                      <div className="text-xs font-medium">Nursing Home</div>
+                    </div>
+                  </Button>
+                  
+                  <button className="h-[75px] px-4 py-3 text-gray-500 hover:text-gray-700 flex items-center gap-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900">
+                    <MoreHorizontal className="w-4 h-4" />
+                    <span className="text-xs">More</span>
+                  </button>
                 </div>
               </div>
             </div>
