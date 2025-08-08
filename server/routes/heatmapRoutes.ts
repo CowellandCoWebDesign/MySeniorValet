@@ -38,12 +38,12 @@ router.post("/region-data", async (req, res) => {
       });
     }
 
-    // Limit area size to prevent performance issues
+    // With our optimized backend, we can handle larger areas
     const latDiff = bounds.north - bounds.south;
-    const lngDiff = bounds.east - bounds.west;
-    if (latDiff > 10 || lngDiff > 10) {
+    const lngDiff = Math.abs(bounds.east - bounds.west);
+    if (latDiff > 180 || lngDiff > 360) {
       return res.status(400).json({ 
-        message: "Area too large: maximum 10 degrees in each direction" 
+        message: "Invalid bounds: exceeds global limits" 
       });
     }
 
@@ -98,12 +98,12 @@ router.get("/availability", async (req, res) => {
       });
     }
 
-    // Limit area size to prevent performance issues
+    // With our optimized backend, we can handle larger areas
     const latDiff = bounds.north - bounds.south;
-    const lngDiff = bounds.east - bounds.west;
-    if (latDiff > 10 || lngDiff > 10) {
+    const lngDiff = Math.abs(bounds.east - bounds.west);
+    if (latDiff > 180 || lngDiff > 360) {
       return res.status(400).json({ 
-        message: "Area too large: maximum 10 degrees in each direction" 
+        message: "Invalid bounds: exceeds global limits" 
       });
     }
 
