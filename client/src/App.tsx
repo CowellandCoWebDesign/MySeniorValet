@@ -284,6 +284,8 @@ function Router() {
       <Route path="/vendor-tier-test" component={VendorTierTest} />
       <Route path="/community-creator" component={CommunityCreatorPortal} />
       <Route path="/community-creator-portal" component={CommunityCreatorPortal} />
+      <Route path="/super-admin-dashboard" component={SuperAdminDashboard} />
+      <Route path="/super-admin-analytics" component={SuperAdminAnalytics} />
       <Route path="/admin/marketing-hub" component={SuperAdminAnalytics} />
       <Route path="/availability-heatmap" component={AvailabilityHeatmapPage} />
       <Route path="/admin/availability-heatmap" component={SuperAdminAnalytics} />
