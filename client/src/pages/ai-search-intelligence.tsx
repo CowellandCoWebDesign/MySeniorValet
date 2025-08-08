@@ -989,7 +989,7 @@ export default function AISearchIntelligence() {
                       <Building2 className="w-4 h-4 text-green-600" />
                       Type of Living
                     </Label>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-3 gap-2">
                       {[
                         { value: 'hud', label: 'HUD Housing', icon: '🏛️' },
                         { value: 'assisted-living', label: 'Assisted Living', icon: '🤝' },
@@ -1013,10 +1013,10 @@ export default function AISearchIntelligence() {
                               typeOfLiving: newTypes
                             });
                           }}
-                          className="flex items-center gap-2 h-12 w-full justify-start"
+                          className="flex items-center gap-1 h-10 w-full justify-start text-xs p-2"
                         >
-                          <span className="text-base">{type.icon}</span>
-                          <span className="text-xs">{type.label}</span>
+                          <span className="text-sm">{type.icon}</span>
+                          <span className="text-xs truncate">{type.label}</span>
                         </Button>
                       ))}
                     </div>
@@ -1028,7 +1028,7 @@ export default function AISearchIntelligence() {
                       <Heart className="w-4 h-4 text-red-600" />
                       Amenities & Care Services
                     </Label>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-3 gap-2">
                       {[
                         { value: 'transportation', label: 'Transportation', icon: '🚌' },
                         { value: 'dining', label: 'Dining Services', icon: '🍽️' },
@@ -1052,10 +1052,10 @@ export default function AISearchIntelligence() {
                               amenities: newAmenities
                             });
                           }}
-                          className="flex items-center gap-2 h-12 w-full justify-start"
+                          className="flex items-center gap-1 h-10 w-full justify-start text-xs p-2"
                         >
-                          <span className="text-base">{amenity.icon}</span>
-                          <span className="text-xs">{amenity.label}</span>
+                          <span className="text-sm">{amenity.icon}</span>
+                          <span className="text-xs truncate">{amenity.label}</span>
                         </Button>
                       ))}
                     </div>
