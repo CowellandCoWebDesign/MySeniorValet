@@ -38,7 +38,7 @@ import { NavigationHeader } from "@/components/NavigationHeader";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { format, subDays, startOfWeek, startOfMonth, differenceInDays } from "date-fns";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 // Lazy load the enhanced heatmap component for better performance
 const EnhancedHeatmap = lazy(() => import("@/components/AvailabilityHeatmap").then(module => ({
@@ -124,33 +124,9 @@ export default function SuperAdminAnalytics() {
   const [refreshing, setRefreshing] = useState(false);
   const [activeMetricTab, setActiveMetricTab] = useState("overview");
   const [selectedProvider, setSelectedProvider] = useState("all");
+  const { toast } = useToast();
   
-  // Check super admin access - only super_admin role allowed
-  const userRole = (user as any)?.role || '';
-  const isSuperAdmin = userRole === 'super_admin';
-  
-  // Block non-super admin users
-  if (!user || !isSuperAdmin) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-blue-900 dark:to-purple-900 flex items-center justify-center">
-        <Card className="max-w-2xl">
-          <CardHeader>
-            <CardTitle>Access Denied</CardTitle>
-            <CardDescription>
-              This analytics center is restricted to super administrators only.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => window.location.href = "/"}>
-              Return to Home
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Comprehensive metrics query
+  // Comprehensive metrics query - MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   const { data: metrics, isLoading, refetch } = useQuery<DashboardMetrics>({
     queryKey: ['/api/admin/comprehensive-metrics', timeRange],
     queryFn: async () => {
@@ -220,7 +196,12 @@ export default function SuperAdminAnalytics() {
     });
   };
 
-  if (!isSuperAdmin) {
+  // Check super admin access - only super_admin role allowed
+  const userRole = (user as any)?.role || '';
+  const isSuperAdmin = userRole === 'super_admin';
+  
+  // Block non-super admin users
+  if (!user || !isSuperAdmin) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <NavigationHeader />
@@ -258,34 +239,34 @@ export default function SuperAdminAnalytics() {
   // Chart colors
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16'];
 
-  // Prepare chart data
-  const aiProviderData = metrics ? Object.entries(metrics.ai.byProvider).map(([provider, count]) => ({
+  // Prepare chart data with null safety
+  const aiProviderData = metrics?.ai?.byProvider ? Object.entries(metrics.ai.byProvider).map(([provider, count]) => ({
     name: provider.charAt(0).toUpperCase() + provider.slice(1),
-    value: count,
-    cost: metrics.ai.costs[provider as keyof typeof metrics.ai.costs] || 0
+    value: count as number,
+    cost: metrics.ai.costs?.[provider as keyof typeof metrics.ai.costs] || 0
   })) : [];
 
-  const subscriptionData = metrics ? [
-    { name: 'Community Free', value: metrics.financial.subscriptions.community.free },
-    { name: 'Community Standard', value: metrics.financial.subscriptions.community.standard },
-    { name: 'Community Featured', value: metrics.financial.subscriptions.community.featured },
-    { name: 'Community Platinum', value: metrics.financial.subscriptions.community.platinum },
-    { name: 'Vendor Basic', value: metrics.financial.subscriptions.vendor.basic },
-    { name: 'Vendor Featured', value: metrics.financial.subscriptions.vendor.featured },
-    { name: 'Vendor National', value: metrics.financial.subscriptions.vendor.national },
+  const subscriptionData = metrics?.financial?.subscriptions ? [
+    { name: 'Community Free', value: metrics.financial.subscriptions.community?.free || 0 },
+    { name: 'Community Standard', value: metrics.financial.subscriptions.community?.standard || 0 },
+    { name: 'Community Featured', value: metrics.financial.subscriptions.community?.featured || 0 },
+    { name: 'Community Platinum', value: metrics.financial.subscriptions.community?.platinum || 0 },
+    { name: 'Vendor Basic', value: metrics.financial.subscriptions.vendor?.basic || 0 },
+    { name: 'Vendor Featured', value: metrics.financial.subscriptions.vendor?.featured || 0 },
+    { name: 'Vendor National', value: metrics.financial.subscriptions.vendor?.national || 0 },
   ] : [];
 
-  const performanceData = metrics ? [
-    { metric: 'Response Time', value: metrics.performance.responseTime, target: 50, unit: 'ms' },
-    { metric: 'Uptime', value: metrics.performance.uptime, target: 99.9, unit: '%' },
-    { metric: 'Cache Hit Rate', value: metrics.performance.cacheHitRate, target: 90, unit: '%' },
-    { metric: 'Error Rate', value: metrics.performance.errorRate, target: 0.1, unit: '%' },
+  const performanceData = metrics?.performance ? [
+    { metric: 'Response Time', value: metrics.performance.responseTime || 0, target: 50, unit: 'ms' },
+    { metric: 'Uptime', value: metrics.performance.uptime || 0, target: 99.9, unit: '%' },
+    { metric: 'Cache Hit Rate', value: metrics.performance.cacheHitRate || 0, target: 90, unit: '%' },
+    { metric: 'Error Rate', value: metrics.performance.errorRate || 0, target: 0.1, unit: '%' },
   ] : [];
 
-  const engagementTrend = metrics ? [
-    { name: 'DAU', value: metrics.engagement.dailyActiveUsers },
-    { name: 'WAU', value: metrics.engagement.weeklyActiveUsers },
-    { name: 'MAU', value: metrics.engagement.monthlyActiveUsers },
+  const engagementTrend = metrics?.engagement ? [
+    { name: 'DAU', value: metrics.engagement.dailyActiveUsers || 0 },
+    { name: 'WAU', value: metrics.engagement.weeklyActiveUsers || 0 },
+    { name: 'MAU', value: metrics.engagement.monthlyActiveUsers || 0 },
   ] : [];
 
   return (
@@ -912,7 +893,7 @@ export default function SuperAdminAnalytics() {
                         <div className="animate-spin w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full" />
                       </div>
                     }>
-                      <EnhancedHeatmap isAdminView={true} />
+                      <EnhancedHeatmap />
                     </Suspense>
                   </CardContent>
                 </Card>
