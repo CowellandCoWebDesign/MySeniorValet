@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Link } from 'wouter';
 import { NavigationHeader } from '@/components/NavigationHeader';
+import { useVoiceGuidance } from '@/hooks/useVoiceGuidance';
+import { AccessibleButton } from '@/components/AccessibleButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -172,6 +174,15 @@ const getCityCoordinates = (city: string, state: string): [number, number] | nul
 };
 
 export default function AISearchIntelligence() {
+  // Voice guidance hook
+  const { 
+    speak, 
+    announcePageChange, 
+    announceAction, 
+    provideGuidance, 
+    isEnabled: voiceEnabled 
+  } = useVoiceGuidance();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedCommunities, setSelectedCommunities] = useState<any[]>([]);
@@ -491,16 +502,26 @@ export default function AISearchIntelligence() {
     }
   }, [activeTab]);
 
-  // Handle simplified search execution
+  // Handle simplified search execution with voice guidance
   const handleSimplifiedSearch = useCallback(() => {
     console.log('🔍 Executing simplified search with filters:', simplifiedFilters);
+    
+    if (voiceEnabled) {
+      const locationText = simplifiedFilters.location || 'your selected area';
+      speak(`Searching for communities in ${locationText}...`, 'normal');
+    }
+    
     simplifiedSearchMutation.mutate(simplifiedFilters);
-  }, [simplifiedFilters, simplifiedSearchMutation]);
+  }, [simplifiedFilters, simplifiedSearchMutation, voiceEnabled, speak]);
 
-  // Handle AI-powered search
+  // Handle AI-powered search with voice guidance
   const handleAISearch = useCallback(async (query?: string) => {
     const searchText = query || searchQuery;
     if (!searchText.trim()) return;
+    
+    if (voiceEnabled) {
+      announceAction('search_started');
+    }
     
     setIsAnalyzing(true);
     try {
@@ -508,26 +529,34 @@ export default function AISearchIntelligence() {
     } finally {
       setIsAnalyzing(false);
     }
-  }, [searchQuery, searchType, aiSearchMutation]);
+  }, [searchQuery, searchType, aiSearchMutation, voiceEnabled, announceAction]);
 
-  // Handle Perfect Match analysis
+  // Handle Perfect Match analysis with voice guidance
   const handlePerfectMatch = useCallback(async () => {
+    if (voiceEnabled) {
+      speak("Analyzing your preferences to find perfect matches...", 'normal');
+    }
+    
     setIsAnalyzing(true);
     try {
       await aiRecommendationsMutation.mutateAsync();
     } finally {
       setIsAnalyzing(false);
     }
-  }, [matchProfile]);
+  }, [matchProfile, voiceEnabled, speak]);
 
-  // Handle community comparison
+  // Handle community comparison with voice guidance
   const handleCompareommunities = useCallback(async () => {
     if (selectedCommunities.length < 2) return;
+    
+    if (voiceEnabled) {
+      speak(`Comparing ${selectedCommunities.length} selected communities...`, 'normal');
+    }
     
     setShowComparison(true);
     const communityIds = selectedCommunities.map(c => c.id);
     await aiComparisonMutation.mutateAsync(communityIds);
-  }, [selectedCommunities]);
+  }, [selectedCommunities, voiceEnabled, speak]);
 
   // Use mutation data directly for search results
   const searchResults = {
@@ -535,6 +564,13 @@ export default function AISearchIntelligence() {
     isLoading: aiSearchMutation.isPending,
     error: aiSearchMutation.error
   };
+
+  // Announce page load
+  useEffect(() => {
+    if (voiceEnabled) {
+      announcePageChange('ai-search');
+    }
+  }, [voiceEnabled]);
 
   return (
     <div className="min-h-screen relative">
@@ -1063,10 +1099,13 @@ export default function AISearchIntelligence() {
                     </div>
                   </div>
                   
-                  <Button className="bg-blue-600 text-white hover:bg-blue-700">
+                  <AccessibleButton 
+                    className="bg-blue-600 text-white hover:bg-blue-700"
+                    voiceDescription="Create a personalized profile to save your preferences and search history"
+                  >
                     <Users className="w-4 h-4 mr-2" />
                     Create A Profile
-                  </Button>
+                  </AccessibleButton>
                 </div>
               </div>
             </div>
@@ -1088,8 +1127,13 @@ export default function AISearchIntelligence() {
                       handleSimplifiedSearch();
                     }
                   }}
+                  aria-label="Search location input field"
+                  aria-describedby="search-help-text"
                   className="w-full pl-10 pr-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:border-blue-500"
                 />
+                <span id="search-help-text" className="sr-only">
+                  Enter a city, zip code, or address to search for senior living communities
+                </span>
               </div>
             </div>
 
@@ -1318,14 +1362,15 @@ export default function AISearchIntelligence() {
                 <div className="flex-shrink-0">
                   <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 block">Immediate Availability</label>
                   <div className="flex gap-2">
-                    <Button
+                    <AccessibleButton
                       onClick={handleSimplifiedSearch}
+                      voiceDescription="Apply search filters to find communities matching your criteria"
                       className="bg-blue-600 text-white hover:bg-blue-700 h-[45px] px-4"
                     >
                       <CheckCircle className="w-4 h-4 mr-1.5" />
                       <span className="text-xs font-medium">Apply</span>
-                    </Button>
-                    <Button
+                    </AccessibleButton>
+                    <AccessibleButton
                       variant="outline"
                       onClick={() => {
                         setSimplifiedFilters({
@@ -1338,11 +1383,13 @@ export default function AISearchIntelligence() {
                           immediateAvailability: false
                         });
                       }}
+                      voiceDescription="Reset all search filters to default values"
+                      onVoiceClick={() => speak("All filters have been reset to default values", 'normal')}
                       className="h-[45px] px-4 text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950"
                     >
                       <XCircle className="w-4 h-4 mr-1.5" />
                       <span className="text-xs font-medium">Reset Filter</span>
-                    </Button>
+                    </AccessibleButton>
                     <button className="text-xs text-gray-500 hover:text-gray-700 self-center ml-2">
                       View all
                     </button>

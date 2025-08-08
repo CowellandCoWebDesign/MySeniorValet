@@ -9,6 +9,7 @@ import { MascotProvider } from "@/components/mascot";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { OnboardingProvider } from "@/contexts/OnboardingContext";
+import { VoiceGuidanceProvider } from "@/components/VoiceGuidanceProvider";
 import { DevModeIndicator } from "@/components/DevModeIndicator";
 
 // Import Leaflet CSS globally for map functionality
@@ -292,15 +293,17 @@ function App() {
       <ThemeProvider defaultTheme="light">
         <LanguageProvider>
           <OnboardingProvider>
-            <TooltipProvider>
-              <MascotProvider>
-                <Toaster />
-                <Router />
-                <CookieConsentBanner />
-                <DisclaimerBanner />
-                <DevModeIndicator />
-              </MascotProvider>
-            </TooltipProvider>
+            <VoiceGuidanceProvider>
+              <TooltipProvider>
+                <MascotProvider>
+                  <Toaster />
+                  <Router />
+                  <CookieConsentBanner />
+                  <DisclaimerBanner />
+                  <DevModeIndicator />
+                </MascotProvider>
+              </TooltipProvider>
+            </VoiceGuidanceProvider>
           </OnboardingProvider>
         </LanguageProvider>
       </ThemeProvider>
