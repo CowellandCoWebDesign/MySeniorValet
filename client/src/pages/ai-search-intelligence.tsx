@@ -905,38 +905,90 @@ export default function AISearchIntelligence() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {aiRecommendationsMutation.data.recommendations?.map((rec: any, index: number) => (
-                      <div key={rec.community.id} className="p-4 border rounded-lg">
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <h4 className="font-semibold text-lg">{rec.community.name}</h4>
-                            <p className="text-gray-600 dark:text-gray-400">
-                              {rec.community.city}, {rec.community.state}
+                  {aiRecommendationsMutation.data.recommendations && aiRecommendationsMutation.data.recommendations.length > 0 ? (
+                    <div className="space-y-4">
+                      {aiRecommendationsMutation.data.recommendations.map((rec: any, index: number) => (
+                        <div key={rec.community?.id || index} className="p-4 border rounded-lg hover:shadow-lg transition-shadow">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h4 className="font-semibold text-lg">{rec.community?.name}</h4>
+                              <p className="text-gray-600 dark:text-gray-400">
+                                {rec.community?.city}, {rec.community?.state}
+                              </p>
+                              {rec.community?.phone && (
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                  📞 {rec.community.phone}
+                                </p>
+                              )}
+                            </div>
+                            <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
+                              {rec.matchScore}% Match
+                            </Badge>
+                          </div>
+                          
+                          {rec.matchReasons && rec.matchReasons.length > 0 && (
+                            <div className="space-y-2">
+                              <p className="text-sm font-medium">Why it's a great match:</p>
+                              <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                                {rec.matchReasons.map((reason: string, idx: number) => (
+                                  <li key={idx}>{reason}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {/* Pricing Information */}
+                          {rec.community?.displayPricing && (
+                            <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded">
+                              <p className="text-sm">
+                                <span className="font-medium">Pricing:</span> {rec.community.displayPricing.displayPrice}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* AI Insights or Additional Info */}
+                          <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
+                            <p className="text-sm">
+                              <span className="font-medium">AI Insight:</span> {
+                                rec.aiInsights || 
+                                `This community offers ${rec.community?.amenities?.length || 0} amenities and is ${
+                                  rec.community?.communitySubtype === 'mobile_home_park' ? 'a mobile home park' :
+                                  rec.community?.communitySubtype === 'active_adult' ? 'an active adult community' :
+                                  'a senior living community'
+                                } with ${rec.community?.transparencyScore || 70}% transparency score.`
+                              }
                             </p>
                           </div>
-                          <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
-                            {rec.matchScore}% Match
-                          </Badge>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <p className="text-sm font-medium">Why it's a great match:</p>
-                          <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                            {rec.matchReasons?.map((reason: string, idx: number) => (
-                              <li key={idx}>{reason}</li>
-                            ))}
-                          </ul>
-                        </div>
 
-                        <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
+                          {/* View Details Button */}
+                          <div className="mt-4">
+                            <Link to={`/community/${rec.community?.id}`}>
+                              <Button variant="outline" size="sm" className="w-full">
+                                View Community Details →
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+                      <p className="text-gray-600 dark:text-gray-400 mb-2">
+                        No exact matches found for your criteria.
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-500">
+                        Try adjusting your location, budget, or care type preferences.
+                      </p>
+                      {aiRecommendationsMutation.data.insights && (
+                        <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded text-left">
                           <p className="text-sm">
-                            <span className="font-medium">AI Insight:</span> {rec.aiInsights}
+                            <span className="font-medium">Search Tip:</span> {aiRecommendationsMutation.data.insights.locationInsights}
                           </p>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
