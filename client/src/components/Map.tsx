@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, LayersControl } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, LayersControl, Circle } from 'react-leaflet';
 import { Icon, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-providers';
@@ -324,7 +324,91 @@ interface MapProps {
   vendors?: any[];
   healthcareServices?: any[];
   resources?: any[];
+  showHeatmapLayer?: boolean;
+  heatmapOpacity?: number;
 }
+
+// Heatmap Overlay Component - Displays availability heatmap
+const HeatmapOverlay: React.FC<{ opacity: number }> = ({ opacity }) => {
+  const map = useMap();
+  const [heatmapData, setHeatmapData] = useState<any[]>([]);
+  
+  // Fetch heatmap data based on current map bounds
+  useEffect(() => {
+    const fetchHeatmapData = async () => {
+      if (!map) return;
+      
+      try {
+        const bounds = map.getBounds();
+        const north = bounds.getNorth();
+        const south = bounds.getSouth();
+        const east = bounds.getEast();
+        const west = bounds.getWest();
+        const zoom = map.getZoom();
+        
+        const response = await fetch(`/api/heatmap/availability?north=${north}&south=${south}&east=${east}&west=${west}&zoom=${zoom}`);
+        const data = await response.json();
+        
+        if (data.success && data.region?.data) {
+          setHeatmapData(data.region.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch heatmap data:', error);
+      }
+    };
+    
+    // Fetch on mount and when map moves
+    fetchHeatmapData();
+    
+    const handleMoveEnd = () => {
+      fetchHeatmapData();
+    };
+    
+    map.on('moveend', handleMoveEnd);
+    map.on('zoomend', handleMoveEnd);
+    
+    return () => {
+      map.off('moveend', handleMoveEnd);
+      map.off('zoomend', handleMoveEnd);
+    };
+  }, [map]);
+  
+  // Create heat gradient colors based on availability
+  const getHeatColor = (availabilityPercentage: number) => {
+    // Fire gradient: Red (low availability) to Yellow/Orange (high availability)
+    if (availabilityPercentage >= 80) return '#fbbf24'; // Amber - High availability
+    if (availabilityPercentage >= 60) return '#fb923c'; // Orange
+    if (availabilityPercentage >= 40) return '#f97316'; // Deep Orange
+    if (availabilityPercentage >= 20) return '#ea580c'; // Dark Orange
+    return '#dc2626'; // Red - Low availability
+  };
+  
+  return (
+    <>
+      {heatmapData.map((location, index) => {
+        if (!location.lat || !location.lng) return null;
+        
+        const availPercent = location.availabilityPercentage || location.availability || 50;
+        const color = getHeatColor(availPercent);
+        const radius = Math.max(1000, Math.min(8000, (100 - availPercent) * 80));
+        
+        return (
+          <Circle
+            key={`heat-${index}-${location.lat}-${location.lng}`}
+            center={[location.lat, location.lng]}
+            radius={radius}
+            pathOptions={{
+              color: 'transparent',
+              fillColor: color,
+              fillOpacity: opacity * 0.4,
+              weight: 0,
+            }}
+          />
+        );
+      })}
+    </>
+  );
+};
 
 // Component to handle map bounds and zoom changes
 function MapBoundsHandler({ 
@@ -465,7 +549,9 @@ export default function Map({
   zoom: propZoom,
   vendors = [],
   healthcareServices = [],
-  resources = []
+  resources = [],
+  showHeatmapLayer = false,
+  heatmapOpacity = 0.6
 }: MapProps) {
   // Start with city-level zoom (no clusters), default to major city
   const [center, setCenter] = useState<[number, number]>(propCenter || [37.7749, -122.4194]); // Default: San Francisco
@@ -1052,6 +1138,11 @@ export default function Map({
             />
           </LayersControl.BaseLayer>
         </LayersControl>
+
+        {/* Heatmap Overlay - Shows availability heatmap when enabled */}
+        {showHeatmapLayer && (
+          <HeatmapOverlay opacity={heatmapOpacity} />
+        )}
 
         <MapBoundsHandler onBoundsChange={handleBoundsChange} onZoomChange={handleZoomChange} />
 

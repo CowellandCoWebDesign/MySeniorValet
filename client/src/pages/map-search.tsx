@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useLocation } from 'wouter';
-import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle } from 'lucide-react';
+import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Flame, Layers } from 'lucide-react';
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import Map from '@/components/Map';
 import MapTutorial from '@/components/MapTutorial';
 import MapErrorBoundary from '@/components/MapErrorBoundary';
@@ -136,6 +138,10 @@ export default function MapSearch() {
   const [panelHeight, setPanelHeight] = useState(70); // Percentage of screen height - increased for better visibility
   const [showTutorial, setShowTutorial] = useState(false);
   const [hasSeenTutorial, setHasSeenTutorial] = useState(false);
+  
+  // Heatmap layer state
+  const [showHeatmapLayer, setShowHeatmapLayer] = useState(false);
+  const [heatmapOpacity, setHeatmapOpacity] = useState(0.6);
   
   // Drag state for panel resizing
   const [isDragging, setIsDragging] = useState(false);
@@ -1260,6 +1266,24 @@ export default function MapSearch() {
                   )}
                 </Button>
               </div>
+              
+              {/* Heatmap Layer Toggle */}
+              {viewMode === 'map' && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg">
+                  <Label htmlFor="heatmap-toggle" className="flex items-center gap-1.5 cursor-pointer">
+                    <Flame className={`w-4 h-4 ${showHeatmapLayer ? 'text-orange-500 animate-fire-wiggle' : 'text-gray-500'}`} />
+                    <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                      Availability Heat
+                    </span>
+                  </Label>
+                  <Switch
+                    id="heatmap-toggle"
+                    checked={showHeatmapLayer}
+                    onCheckedChange={setShowHeatmapLayer}
+                    className={showHeatmapLayer ? 'data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-red-500 data-[state=checked]:to-orange-500' : ''}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -1560,6 +1584,8 @@ export default function MapSearch() {
               onCommunityClick={handleCommunityClick}
               onBoundsChange={handleMapBoundsChange}
               onClusterClick={handleClusterClick}
+              showHeatmapLayer={showHeatmapLayer}
+              heatmapOpacity={heatmapOpacity}
             />
           </MapErrorBoundary>
         </div>
