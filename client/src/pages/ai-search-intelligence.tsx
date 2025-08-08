@@ -1359,128 +1359,174 @@ export default function AISearchIntelligence() {
                     </div>
                   </div>
                 </div>
-
-                {/* Care Spectrum Visual Guide */}
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
-                  <div className="flex items-center justify-between overflow-x-auto gap-2">
-                    {[
-                      { emoji: '🏛️', name: 'HUD', price: '$0-500', count: '5,936', color: 'blue' },
-                      { emoji: '🏘️', name: 'Mobile', price: '$300-800', count: '3,421', color: 'green' },
-                      { emoji: '🏡', name: '55+', price: '$800-1.5k', count: '4,567', color: 'teal' },
-                      { emoji: '🏠', name: 'IL', price: '$1.5-3.5k', count: '8,745', color: 'purple' },
-                      { emoji: '🤝', name: 'AL', price: '$3-6k', count: '7,234', color: 'orange' },
-                      { emoji: '🧠', name: 'MC', price: '$4-7.5k', count: '3,897', color: 'red' },
-                      { emoji: '🏥', name: 'SN', price: '$6-12k', count: '2,300', color: 'indigo' }
-                    ].map((tier, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => {
-                          const typeMap: Record<string, string> = {
-                            'HUD': 'hud-sponsored',
-                            'Mobile': 'mobile-parks',
-                            '55+': 'active-adult',
-                            'IL': 'independent-living',
-                            'AL': 'assisted-living',
-                            'MC': 'memory-care',
-                            'SN': 'skilled-nursing'
-                          };
-                          const newTypes = simplifiedFilters.typeOfLiving.includes(typeMap[tier.name])
-                            ? simplifiedFilters.typeOfLiving.filter(t => t !== typeMap[tier.name])
-                            : [...simplifiedFilters.typeOfLiving, typeMap[tier.name]];
-                          setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
-                        }}
-                        className={`flex-shrink-0 px-3 py-2 rounded-lg border transition-all ${
-                          simplifiedFilters.typeOfLiving.includes(
-                            tier.name === 'HUD' ? 'hud-sponsored' :
-                            tier.name === 'Mobile' ? 'mobile-parks' :
-                            tier.name === '55+' ? 'active-adult' :
-                            tier.name === 'IL' ? 'independent-living' :
-                            tier.name === 'AL' ? 'assisted-living' :
-                            tier.name === 'MC' ? 'memory-care' : 'skilled-nursing'
-                          )
-                            ? `bg-${tier.color}-600 text-white border-${tier.color}-600`
-                            : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600'
-                        }`}
-                      >
-                        <div className="text-center">
-                          <div className="text-lg">{tier.emoji}</div>
-                          <div className="text-[9px] font-bold">{tier.name}</div>
-                          <div className="text-[8px] opacity-80">{tier.price}</div>
-                          <div className="text-[8px] opacity-60">{tier.count}</div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </div>
 
-              {/* Second Row - Type of Living on Separate Line */}
+              {/* Second Row - Complete Care Spectrum */}
               <div className="w-full">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">Type of Living</label>
-                <div className="flex gap-3 items-center">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">Type of Living - Complete Care Spectrum</label>
+                <div className="flex gap-3 items-center overflow-x-auto">
+                  {/* HUD */}
                   <Button
-                    variant={simplifiedFilters.typeOfLiving.includes('independent-55plus') ? 'default' : 'outline'}
+                    variant={simplifiedFilters.typeOfLiving.includes('hud-sponsored') ? 'default' : 'outline'}
                     onClick={() => {
-                      const newTypes = simplifiedFilters.typeOfLiving.includes('independent-55plus')
-                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'independent-55plus')
-                        : [...simplifiedFilters.typeOfLiving, 'independent-55plus'];
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('hud-sponsored')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'hud-sponsored')
+                        : [...simplifiedFilters.typeOfLiving, 'hud-sponsored'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[75px] px-4 ${
-                      simplifiedFilters.typeOfLiving.includes('independent-55plus')
+                    className={`h-[85px] px-4 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('hud-sponsored')
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xl mb-1">🏛️</div>
+                      <div className="text-[11px] font-bold">HUD</div>
+                      <div className="text-[10px] opacity-80">$0-500</div>
+                      <div className="text-[9px] opacity-60">5,936</div>
+                    </div>
+                  </Button>
+
+                  {/* Mobile */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('mobile-parks') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('mobile-parks')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'mobile-parks')
+                        : [...simplifiedFilters.typeOfLiving, 'mobile-parks'];
+                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                    }}
+                    className={`h-[85px] px-4 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('mobile-parks')
+                        ? 'bg-green-600 text-white hover:bg-green-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xl mb-1">🏘️</div>
+                      <div className="text-[11px] font-bold">Mobile</div>
+                      <div className="text-[10px] opacity-80">$300-800</div>
+                      <div className="text-[9px] opacity-60">3,421</div>
+                    </div>
+                  </Button>
+
+                  {/* 55+ */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('active-adult') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('active-adult')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'active-adult')
+                        : [...simplifiedFilters.typeOfLiving, 'active-adult'];
+                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                    }}
+                    className={`h-[85px] px-4 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('active-adult')
+                        ? 'bg-teal-600 text-white hover:bg-teal-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
                   >
                     <div className="text-center">
                       <div className="text-xl mb-1">🏡</div>
-                      <div className="text-[11px] font-medium">Independent Living</div>
-                      <div className="text-[10px] opacity-80 mt-0.5">55+</div>
+                      <div className="text-[11px] font-bold">55+</div>
+                      <div className="text-[10px] opacity-80">$800-1.5k</div>
+                      <div className="text-[9px] opacity-60">4,567</div>
                     </div>
                   </Button>
-                  
+
+                  {/* Independent Living */}
                   <Button
-                    variant={simplifiedFilters.typeOfLiving.includes('assisted-memory') ? 'default' : 'outline'}
+                    variant={simplifiedFilters.typeOfLiving.includes('independent-living') ? 'default' : 'outline'}
                     onClick={() => {
-                      const newTypes = simplifiedFilters.typeOfLiving.includes('assisted-memory')
-                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'assisted-memory')
-                        : [...simplifiedFilters.typeOfLiving, 'assisted-memory'];
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('independent-living')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'independent-living')
+                        : [...simplifiedFilters.typeOfLiving, 'independent-living'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[75px] px-4 ${
-                      simplifiedFilters.typeOfLiving.includes('assisted-memory')
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    className={`h-[85px] px-4 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('independent-living')
+                        ? 'bg-purple-600 text-white hover:bg-purple-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xl mb-1">🏠</div>
+                      <div className="text-[11px] font-bold">IL</div>
+                      <div className="text-[10px] opacity-80">$1.5-3.5k</div>
+                      <div className="text-[9px] opacity-60">8,745</div>
+                    </div>
+                  </Button>
+
+                  {/* Assisted Living */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('assisted-living') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('assisted-living')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'assisted-living')
+                        : [...simplifiedFilters.typeOfLiving, 'assisted-living'];
+                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                    }}
+                    className={`h-[85px] px-4 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('assisted-living')
+                        ? 'bg-orange-600 text-white hover:bg-orange-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
                   >
                     <div className="text-center">
                       <div className="text-xl mb-1">🤝</div>
-                      <div className="text-[11px] font-medium">Assisted Living</div>
-                      <div className="text-[10px] opacity-80 mt-0.5">Memory Care</div>
+                      <div className="text-[11px] font-bold">AL</div>
+                      <div className="text-[10px] opacity-80">$3-6k</div>
+                      <div className="text-[9px] opacity-60">7,234</div>
                     </div>
                   </Button>
-                  
+
+                  {/* Memory Care */}
                   <Button
-                    variant={simplifiedFilters.typeOfLiving.includes('nursing-home') ? 'default' : 'outline'}
+                    variant={simplifiedFilters.typeOfLiving.includes('memory-care') ? 'default' : 'outline'}
                     onClick={() => {
-                      const newTypes = simplifiedFilters.typeOfLiving.includes('nursing-home')
-                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'nursing-home')
-                        : [...simplifiedFilters.typeOfLiving, 'nursing-home'];
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('memory-care')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'memory-care')
+                        : [...simplifiedFilters.typeOfLiving, 'memory-care'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[75px] px-4 ${
-                      simplifiedFilters.typeOfLiving.includes('nursing-home')
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    className={`h-[85px] px-4 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('memory-care')
+                        ? 'bg-red-600 text-white hover:bg-red-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xl mb-1">🧠</div>
+                      <div className="text-[11px] font-bold">MC</div>
+                      <div className="text-[10px] opacity-80">$4-7.5k</div>
+                      <div className="text-[9px] opacity-60">3,897</div>
+                    </div>
+                  </Button>
+
+                  {/* Skilled Nursing */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('skilled-nursing') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('skilled-nursing')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'skilled-nursing')
+                        : [...simplifiedFilters.typeOfLiving, 'skilled-nursing'];
+                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                    }}
+                    className={`h-[85px] px-4 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('skilled-nursing')
+                        ? 'bg-indigo-600 text-white hover:bg-indigo-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
                   >
                     <div className="text-center">
                       <div className="text-xl mb-1">🏥</div>
-                      <div className="text-xs font-medium">Nursing Home</div>
+                      <div className="text-[11px] font-bold">SN</div>
+                      <div className="text-[10px] opacity-80">$6-12k</div>
+                      <div className="text-[9px] opacity-60">2,300</div>
                     </div>
                   </Button>
-                  
-                  <button className="h-[75px] px-4 py-3 text-gray-500 hover:text-gray-700 flex items-center gap-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900">
+
+                  <button className="h-[85px] px-4 py-3 text-gray-500 hover:text-gray-700 flex items-center gap-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 flex-shrink-0">
                     <MoreHorizontal className="w-4 h-4" />
                     <span className="text-xs">More</span>
                   </button>
