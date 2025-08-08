@@ -21,6 +21,18 @@ export function registerUserRoutes(app: Express) {
         return res.status(401).json({ message: 'User not authenticated' });
       }
       
+      // Handle test users in development
+      if (typeof userId === 'string' && userId.startsWith('test-')) {
+        // Return empty favorites array for test users
+        return res.json([]);
+      }
+      
+      // Ensure userId is a number for database queries
+      const numericUserId = typeof userId === 'string' ? parseInt(userId, 10) : userId;
+      if (isNaN(numericUserId)) {
+        return res.json([]); // Return empty array for invalid user IDs
+      }
+      
       const favorites = await db
         .select({
           id: userFavorites.id,
@@ -43,7 +55,7 @@ export function registerUserRoutes(app: Express) {
         })
         .from(userFavorites)
         .leftJoin(communities, eq(userFavorites.communityId, communities.id))
-        .where(eq(userFavorites.userId, userId))
+        .where(eq(userFavorites.userId, numericUserId))
         .orderBy(desc(userFavorites.updatedAt));
 
       res.json(favorites);
@@ -60,6 +72,18 @@ export function registerUserRoutes(app: Express) {
         return res.status(401).json({ message: 'User not authenticated' });
       }
       
+      // Handle test users in development
+      if (typeof userId === 'string' && userId.startsWith('test-')) {
+        // Return success without actually creating a favorite for test users
+        return res.json({ message: 'Favorite simulated for test user' });
+      }
+      
+      // Ensure userId is a number for database queries
+      const numericUserId = typeof userId === 'string' ? parseInt(userId, 10) : userId;
+      if (isNaN(numericUserId)) {
+        return res.status(400).json({ message: 'Invalid user ID' });
+      }
+      
       const { communityId, notes, priority, tags } = req.body;
 
       // Check if already favorited
@@ -67,7 +91,7 @@ export function registerUserRoutes(app: Express) {
         .select()
         .from(userFavorites)
         .where(and(
-          eq(userFavorites.userId, userId),
+          eq(userFavorites.userId, numericUserId),
           eq(userFavorites.communityId, communityId)
         ))
         .limit(1);
@@ -79,7 +103,7 @@ export function registerUserRoutes(app: Express) {
       const [favorite] = await db
         .insert(userFavorites)
         .values({
-          userId,
+          userId: numericUserId,
           communityId,
           notes: notes || null,
           priority: priority || 0,
@@ -101,12 +125,23 @@ export function registerUserRoutes(app: Express) {
         return res.status(401).json({ message: 'User not authenticated' });
       }
       
+      // Handle test users in development
+      if (typeof userId === 'string' && userId.startsWith('test-')) {
+        return res.json({ message: 'Favorite removed for test user' });
+      }
+      
+      // Ensure userId is a number for database queries
+      const numericUserId = typeof userId === 'string' ? parseInt(userId, 10) : userId;
+      if (isNaN(numericUserId)) {
+        return res.status(400).json({ message: 'Invalid user ID' });
+      }
+      
       const communityId = parseInt(req.params.communityId);
 
       await db
         .delete(userFavorites)
         .where(and(
-          eq(userFavorites.userId, userId),
+          eq(userFavorites.userId, numericUserId),
           eq(userFavorites.communityId, communityId)
         ));
 

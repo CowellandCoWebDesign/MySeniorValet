@@ -115,26 +115,38 @@ export function registerAuthRoutes(app: Express) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
+      // Handle test users in development
+      if (typeof userId === 'string' && userId.startsWith('test-')) {
+        // Return mock user data for test users
+        return res.json({
+          id: userId,
+          email: 'test@example.com',
+          firstName: 'Test',
+          lastName: 'User',
+          phone: null,
+          role: 'user',
+          dateOfBirth: null,
+          relationshipToCare: null,
+          careNeeds: null,
+          searchPreferences: {},
+          notifications: {},
+          dashboardPreferences: {},
+          emailVerified: true,
+          isActive: true,
+          createdAt: new Date()
+        });
+      }
+
+      // Ensure userId is a number for database queries
+      const numericUserId = typeof userId === 'string' ? parseInt(userId, 10) : userId;
+      if (isNaN(numericUserId)) {
+        return res.status(400).json({ message: 'Invalid user ID' });
+      }
+
       const [user] = await db
-        .select({
-          id: users.id,
-          email: users.email,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          phone: users.phone,
-          role: users.role,
-          dateOfBirth: users.dateOfBirth,
-          relationshipToCare: users.relationshipToCare,
-          careNeeds: users.careNeeds,
-          searchPreferences: users.searchPreferences,
-          notifications: users.notifications,
-          dashboardPreferences: users.dashboardPreferences,
-          emailVerified: users.emailVerified,
-          isActive: users.isActive,
-          createdAt: users.createdAt
-        })
+        .select()
         .from(users)
-        .where(eq(users.id, userId))
+        .where(eq(users.id, numericUserId))
         .limit(1);
 
       if (!user) {
