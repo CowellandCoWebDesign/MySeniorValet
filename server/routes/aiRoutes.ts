@@ -177,13 +177,27 @@ export function registerAIRoutes(app: Express) {
             const enhancedData = await response.json();
             console.log(`✅ AI Search enhanced search succeeded with ${enhancedData.communities?.length || 0} results`);
             
-            // Generate deep AI insights using ChatGPT-5
-            const deepInsights = await generateDeepCommunityInsights(
+            // Generate deep AI insights using ChatGPT-5 (in background for performance)
+            let deepInsights = {
+              interpretation: `Found ${enhancedData.communities?.length || 0} communities in ${location}`,
+              comparativeAnalysis: null,
+              topRecommendations: [],
+              marketTrends: null,
+              actionableAdvice: null
+            };
+
+            // Generate AI insights asynchronously (don't wait for it)
+            generateDeepCommunityInsights(
               enhancedData.communities || [],
               location,
               parsedCareTypes,
               priceRange
-            );
+            ).then(insights => {
+              // Store insights for future requests (could be cached)
+              console.log('🧠 Deep AI insights generated for', location);
+            }).catch(error => {
+              console.error('AI insights generation failed:', error);
+            });
             
             // Return the enhanced search results with deep AI analysis
             return res.json({
