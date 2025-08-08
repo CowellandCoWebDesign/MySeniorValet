@@ -207,6 +207,14 @@ export default function AISearchIntelligence() {
     }
   }, []);
 
+  // Debug map communities state
+  useEffect(() => {
+    console.log(`📊 Map communities state updated: ${mapCommunities.length} communities`);
+    if (mapCommunities.length > 0) {
+      console.log('📊 First community:', mapCommunities[0]);
+    }
+  }, [mapCommunities]);
+
   // AI Search Mutation
   const aiSearchMutation = useMutation({
     mutationFn: async ({ query, type }: { query: string; type: string }) => {
@@ -1266,29 +1274,47 @@ export default function AISearchIntelligence() {
               {/* Map Section - Left Side - Takes 60% */}
               <div className="w-[60%] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
                 <Map
-                  communities={simplifiedSearchMutation.data?.results || mapCommunities}
                   center={mapCenter}
                   zoom={mapZoom}
-                  onMarkerClick={(community) => {
+                  searchFilters={{
+                    careType: simplifiedFilters.typeOfLiving.join(','),
+                    budget: `${simplifiedFilters.priceRange[0]}-${simplifiedFilters.priceRange[1]}`,
+                    availability: simplifiedFilters.immediateAvailability ? 'immediate' : 'any'
+                  }}
+                  onBoundsChange={(bounds) => {
+                    // Load communities when map bounds change
+                    if (bounds && !simplifiedSearchMutation.data?.results) {
+                      const west = bounds.getWest ? bounds.getWest() : bounds.west;
+                      const east = bounds.getEast ? bounds.getEast() : bounds.east;
+                      const south = bounds.getSouth ? bounds.getSouth() : bounds.south;
+                      const north = bounds.getNorth ? bounds.getNorth() : bounds.north;
+                      
+                      console.log('📍 Fetching communities for bounds:', { west, east, south, north });
+                      fetch(`/api/communities/search/map?west=${west}&east=${east}&south=${south}&north=${north}&limit=50`)
+                        .then(res => res.json())
+                        .then(data => {
+                          console.log('📍 Map search results:', data);
+                          if (data.results && Array.isArray(data.results)) {
+                            console.log(`📍 Setting ${data.results.length} communities to list`);
+                            setMapCommunities(data.results);
+                          } else if (data.communities && Array.isArray(data.communities)) {
+                            console.log(`📍 Setting ${data.communities.length} communities to list`);
+                            setMapCommunities(data.communities);
+                          }
+                        })
+                        .catch(err => {
+                          console.error('Error fetching map communities:', err);
+                        });
+                    }
+                  }}
+                  onCommunityClick={(community: any) => {
                     // Scroll to community in list
                     const element = document.getElementById(`community-${community.id}`);
                     if (element) {
                       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                   }}
-                  onBoundsChange={(bounds) => {
-                    // Load communities when map bounds change
-                    if (bounds) {
-                      fetch(`/api/communities/search/map?west=${bounds.west}&east=${bounds.east}&south=${bounds.south}&north=${bounds.north}&limit=50`)
-                        .then(res => res.json())
-                        .then(data => {
-                          if (data.results) {
-                            setMapCommunities(data.results);
-                          }
-                        });
-                    }
-                  }}
-                  className="h-full w-full"
+                  height="700px"
                 />
               </div>
 
@@ -1298,9 +1324,9 @@ export default function AISearchIntelligence() {
                   <div className="flex items-center justify-center h-full">
                     <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
                   </div>
-                ) : (simplifiedSearchMutation.data?.results && simplifiedSearchMutation.data.results.length > 0) || mapCommunities.length > 0 ? (
+                ) : (simplifiedSearchMutation.data?.results?.length > 0 || mapCommunities.length > 0) ? (
                   <div className="space-y-2 p-3">
-                    {(simplifiedSearchMutation.data?.results || mapCommunities).map((community: any) => (
+                    {(simplifiedSearchMutation.data?.results?.length > 0 ? simplifiedSearchMutation.data.results : mapCommunities).map((community: any) => (
                       <div
                         key={community.id}
                         id={`community-${community.id}`}
