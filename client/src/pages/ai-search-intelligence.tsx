@@ -980,7 +980,6 @@ export default function AISearchIntelligence() {
                       })}
                       placeholder="City, State or ZIP Code"
                       hideSearchButton={true}
-                      inputClassName="w-full"
                     />
                   </div>
 
@@ -1014,7 +1013,7 @@ export default function AISearchIntelligence() {
                               typeOfLiving: newTypes
                             });
                           }}
-                          className="flex items-center gap-2 h-12"
+                          className="flex items-center gap-2 h-12 w-full justify-start"
                         >
                           <span className="text-base">{type.icon}</span>
                           <span className="text-xs">{type.label}</span>
@@ -1053,7 +1052,7 @@ export default function AISearchIntelligence() {
                               amenities: newAmenities
                             });
                           }}
-                          className="flex items-center gap-2 h-12"
+                          className="flex items-center gap-2 h-12 w-full justify-start"
                         >
                           <span className="text-base">{amenity.icon}</span>
                           <span className="text-xs">{amenity.label}</span>
