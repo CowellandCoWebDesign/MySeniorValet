@@ -1411,7 +1411,7 @@ export default function AISearchIntelligence() {
                     </div>
                   </Button>
 
-                  {/* Mobile Parks */}
+                  {/* Mobile Home Parks */}
                   <Button
                     variant={simplifiedFilters.typeOfLiving.includes('mobile-parks') ? 'default' : 'outline'}
                     onClick={() => {
@@ -1427,8 +1427,8 @@ export default function AISearchIntelligence() {
                     }`}
                   >
                     <div className="text-center h-full flex flex-col justify-center">
-                      <div className="text-2xl mb-1">🚐</div>
-                      <div className="text-sm font-bold">Mobile</div>
+                      <div className="text-2xl mb-1">🏘️</div>
+                      <div className="text-sm font-bold">Mobile Home</div>
                       <div className="text-xs opacity-80">$300-800</div>
                       <div className="text-xs opacity-60">3,421</div>
                     </div>
