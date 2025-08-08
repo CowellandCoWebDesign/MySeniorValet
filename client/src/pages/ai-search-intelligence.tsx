@@ -1421,22 +1421,148 @@ export default function AISearchIntelligence() {
               </div>
 
               {/* List Section - Right Side - Takes 46% */}
-              <div className="w-[46%] bg-gray-50 dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden flex flex-col">
+              <div className="w-[46%] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col">
+                {/* Header with result count */}
+                <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                      {simplifiedSearchMutation.data?.results?.length > 0 
+                        ? `${simplifiedSearchMutation.data.results.length} Communities Found`
+                        : mapCommunities.length > 0
+                        ? `${mapCommunities.length} Communities in View`
+                        : 'Search Results'}
+                    </h3>
+                    <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      Live Data
+                    </Badge>
+                  </div>
+                  
+                  {/* Regional Theme Legend */}
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 bg-green-500 rounded"></div>
+                      <span className="text-gray-600 dark:text-gray-400">HUD/Gov</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 bg-red-500 rounded"></div>
+                      <span className="text-gray-600 dark:text-gray-400">Canada</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded"></div>
+                      <span className="text-gray-600 dark:text-gray-400">Hawaii</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 bg-gradient-to-r from-orange-500 to-yellow-500 rounded"></div>
+                      <span className="text-gray-600 dark:text-gray-400">Florida</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 bg-gradient-to-r from-amber-500 to-orange-500 rounded"></div>
+                      <span className="text-gray-600 dark:text-gray-400">Texas</span>
+                    </div>
+                  </div>
+                </div>
+                
                 <div className="flex-1 overflow-y-auto">
                   {simplifiedSearchMutation.isPending ? (
                     <div className="flex items-center justify-center h-full">
                       <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
                     </div>
                   ) : (simplifiedSearchMutation.data?.results?.length > 0 || mapCommunities.length > 0) ? (
-                    <div className="space-y-0">
-                      {(simplifiedSearchMutation.data?.results?.length > 0 ? simplifiedSearchMutation.data.results : mapCommunities).map((community: any) => (
-                        <EnhancedCommunityCard 
-                          key={community.id}
-                          community={community}
-                          variant="list"
-                          onSelect={() => window.location.href = `/community/${community.id}`}
-                        />
-                      ))}
+                    <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                      {(simplifiedSearchMutation.data?.results?.length > 0 ? simplifiedSearchMutation.data.results : mapCommunities).map((community: any, index: number) => {
+                        // Determine special styling based on community type
+                        const isHUD = community.hudPropertyId || community.communitySubtype === 'hud_senior_housing';
+                        const isCanadian = community.state === 'AB' || community.state === 'BC' || community.state === 'ON' || community.state === 'QC';
+                        const isHawaiian = community.state === 'HI';
+                        const isMexican = community.country === 'MX';
+                        const isFlorida = community.state === 'FL';
+                        const isTexas = community.state === 'TX';
+                        const isNewYork = community.state === 'NY';
+                        const isArizona = community.state === 'AZ';
+                        const hasOccupancy = community.occupancyRate || community.occupancyRateHud;
+                        const isFeatured = community.priceTier === 'featured' || community.priceTier === 'platinum';
+                        const hasSpecialOffer = community.specialOffer || community.monthlyDiscount;
+                        
+                        return (
+                          <div 
+                            key={community.id}
+                            className={`
+                              ${isHUD ? 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:from-green-100 hover:to-emerald-100 dark:hover:from-green-900/30 dark:hover:to-emerald-900/30' : ''}
+                              ${isCanadian ? 'bg-gradient-to-r from-red-50 to-white dark:from-red-900/20 dark:to-gray-900 hover:from-red-100 hover:to-gray-50 dark:hover:from-red-900/30 dark:hover:to-gray-800' : ''}
+                              ${isHawaiian ? 'bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 hover:from-blue-100 hover:to-cyan-100 dark:hover:from-blue-900/30 dark:hover:to-cyan-900/30' : ''}
+                              ${isMexican ? 'bg-gradient-to-r from-green-50 via-white to-red-50 dark:from-green-900/20 dark:via-gray-900 dark:to-red-900/20 hover:from-green-100 hover:via-gray-50 hover:to-red-100' : ''}
+                              ${isFlorida ? 'bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 hover:from-orange-100 hover:to-yellow-100 dark:hover:from-orange-900/30 dark:hover:to-yellow-900/30' : ''}
+                              ${isTexas ? 'bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 hover:from-amber-100 hover:to-orange-100 dark:hover:from-amber-900/30 dark:hover:to-orange-900/30' : ''}
+                              ${isNewYork ? 'bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-900/20 dark:to-blue-900/20 hover:from-gray-100 hover:to-blue-100 dark:hover:from-gray-900/30 dark:hover:to-blue-900/30' : ''}
+                              ${isArizona ? 'bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 hover:from-red-100 hover:to-orange-100 dark:hover:from-red-900/30 dark:hover:to-orange-900/30' : ''}
+                              ${!isHUD && !isCanadian && !isHawaiian && !isMexican && !isFlorida && !isTexas && !isNewYork && !isArizona ? 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750' : ''}
+                              transition-all duration-200 relative
+                            `}
+                          >
+                            {/* Special theme indicator */}
+                            {isHUD && (
+                              <div className="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
+                            )}
+                            {isCanadian && (
+                              <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
+                            )}
+                            {isHawaiian && (
+                              <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-500 to-cyan-500"></div>
+                            )}
+                            {isFlorida && (
+                              <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-orange-500 to-yellow-500"></div>
+                            )}
+                            {isTexas && (
+                              <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-amber-500 to-orange-500"></div>
+                            )}
+                            {isNewYork && (
+                              <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-gray-500 to-blue-500"></div>
+                            )}
+                            {isArizona && (
+                              <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-red-500 to-orange-500"></div>
+                            )}
+                            {isMexican && (
+                              <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-green-500 via-white to-red-500"></div>
+                            )}
+                            
+                            {/* Featured/Special Offer Badges */}
+                            {isFeatured && (
+                              <div className="absolute top-2 right-2 z-10">
+                                <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-2 py-1 text-xs font-bold shadow-lg">
+                                  <Sparkles className="w-3 h-3 mr-1" />
+                                  FEATURED
+                                </Badge>
+                              </div>
+                            )}
+                            {hasSpecialOffer && (
+                              <div className="absolute top-8 right-2 z-10">
+                                <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-2 py-1 text-xs font-bold shadow-lg animate-pulse">
+                                  <Zap className="w-3 h-3 mr-1" />
+                                  SPECIAL OFFER
+                                </Badge>
+                              </div>
+                            )}
+                            
+                            {/* Enhanced card with occupancy display */}
+                            <div className={`${isHUD || isCanadian || isHawaiian ? 'pl-2' : ''}`}>
+                              <EnhancedCommunityCard 
+                                community={{
+                                  ...community,
+                                  // Add occupancy display if available
+                                  displayAvailability: hasOccupancy ? {
+                                    availabilityStatus: `${Math.round(community.occupancyRate || community.occupancyRateHud)}% Occupied`,
+                                    occupancyDisplay: `${Math.round(community.occupancyRate || community.occupancyRateHud)}%`,
+                                    availabilityColor: (community.occupancyRate || community.occupancyRateHud) > 90 ? 'red' : 'green',
+                                    unitsDisplay: community.totalUnits || community.totalUnitsHud ? `${community.totalUnits || community.totalUnitsHud} units` : undefined
+                                  } : community.displayAvailability
+                                }}
+                                variant="list"
+                                onSelect={() => window.location.href = `/community/${community.id}`}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full p-8 text-center">

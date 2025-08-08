@@ -180,7 +180,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     // Format price display properly (no slashes unless it's a range)
     const formatPriceDisplay = () => {
       if (isHudProperty && community.rentPerMonth) {
-        return `$${Math.round(community.rentPerMonth).toLocaleString()}`;
+        return `$${Math.round(Number(community.rentPerMonth)).toLocaleString()}`;
       }
       if (community.priceRange?.min && community.priceRange?.max) {
         if (community.priceRange.min === community.priceRange.max) {
@@ -259,16 +259,35 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
           <div className="flex items-center gap-4 mb-3 text-sm">
             <div className="flex items-center text-gray-600 dark:text-gray-400">
               <Building className="h-4 w-4 mr-1" />
-              <span>{community.totalUnits || community.totalUnitsHud || (Math.floor(Math.random() * 150) + 50)} units</span>
+              <span>{community.totalUnits || community.totalUnitsHud || 'N/A'} units</span>
             </div>
-            <div className="flex items-center text-gray-500">
-              <Star className="h-4 w-4 mr-1" />
-              <span>No rating</span>
-            </div>
-            <div className="flex items-center text-gray-600 dark:text-gray-400">
-              <CheckCircle className="h-4 w-4 mr-1 text-green-500" />
-              <span>Check avail.</span>
-            </div>
+            {community.rating && community.rating > 0 ? (
+              <div className="flex items-center text-yellow-600">
+                <Star className="h-4 w-4 mr-1 fill-yellow-500" />
+                <span>{community.rating.toFixed(1)}</span>
+              </div>
+            ) : (
+              <div className="flex items-center text-gray-500">
+                <Star className="h-4 w-4 mr-1" />
+                <span>No rating</span>
+              </div>
+            )}
+            {community.displayAvailability?.occupancyDisplay ? (
+              <div className={`flex items-center ${community.displayAvailability?.availabilityColor === 'red' ? 'text-red-600' : 'text-green-600'}`}>
+                <Activity className="h-4 w-4 mr-1" />
+                <span className="font-semibold">{community.displayAvailability.occupancyDisplay} Full</span>
+              </div>
+            ) : community.occupancyRate || community.occupancyRateHud ? (
+              <div className={`flex items-center ${Number(community.occupancyRate || community.occupancyRateHud) > 90 ? 'text-red-600' : 'text-green-600'}`}>
+                <Activity className="h-4 w-4 mr-1" />
+                <span className="font-semibold">{Math.round(Number(community.occupancyRate || community.occupancyRateHud))}% Full</span>
+              </div>
+            ) : (
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <CheckCircle className="h-4 w-4 mr-1 text-green-500" />
+                <span>Check avail.</span>
+              </div>
+            )}
           </div>
           
           {/* ID and Status Row */}
