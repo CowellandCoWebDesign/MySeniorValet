@@ -1750,7 +1750,7 @@ export default function AISearchIntelligence() {
         <div className="mt-8 text-center">
           <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2">
             <Shield className="w-4 h-4 mr-2" />
-            Powered by Multi-AI Transparency System (Claude + Gemini + ChatGPT)
+            Powered by Multi-AI Intelligence (ChatGPT-5 Primary → Claude Secondary → Perplexity 3rd)
           </Badge>
         </div>
       </div>
