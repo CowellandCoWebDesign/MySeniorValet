@@ -299,21 +299,12 @@ export default function AISearchIntelligence() {
     await aiComparisonMutation.mutateAsync(communityIds);
   }, [selectedCommunities]);
 
-  const searchResults = useQuery<{
-    communities?: any[];
-    results?: any[];
-    services?: any[];
-    vendors?: any[];
-    resources?: any[];
-    searchInterpretation?: string;
-    appliedFilters?: any;
-    aiInsights?: any;
-    noExactMatch?: boolean;
-    suggestions?: any;
-  }>({
-    queryKey: ['ai-search-results'],
-    enabled: false
-  });
+  // Use mutation data directly for search results
+  const searchResults = {
+    data: aiSearchMutation.data || null,
+    isLoading: aiSearchMutation.isPending,
+    error: aiSearchMutation.error
+  };
 
   return (
     <div className="min-h-screen relative">
