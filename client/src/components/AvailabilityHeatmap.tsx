@@ -46,6 +46,16 @@ function MapUpdater({ onBoundsChange }: { onBoundsChange: (bounds: any, zoom: nu
       }, zoom);
     }
   });
+  
+  // Force California bounds on initial mount
+  useEffect(() => {
+    const californiaBounds = L.latLngBounds(
+      [32.5, -124.5], // Southwest corner
+      [42, -114]      // Northeast corner
+    );
+    map.fitBounds(californiaBounds);
+  }, [map]);
+  
   return null;
 }
 
@@ -88,8 +98,19 @@ export function AvailabilityHeatmap({
   const [careTypeFilter, setCareTypeFilter] = useState('all');
   const [showHeatGradient, setShowHeatGradient] = useState(false);
   const [showTopRegions, setShowTopRegions] = useState(true);
+  const [mapInitialized, setMapInitialized] = useState(false);
   const mapRef = useRef<L.Map | null>(null);
   const boundsUpdateTimeout = useRef<NodeJS.Timeout | null>(null);
+  
+  // Ensure map is initialized and data loads on mount
+  useEffect(() => {
+    // Small delay to ensure map is fully initialized
+    const timer = setTimeout(() => {
+      setMapInitialized(true);
+      setRefreshKey(prev => prev + 1);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Handle map bounds change with debouncing
   const handleBoundsChange = useCallback((newBounds: any, newZoom: number) => {
