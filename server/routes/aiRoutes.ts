@@ -91,6 +91,7 @@ Format your response as JSON with:
 }`;
 
     // Using GPT-5 with enhanced reasoning (Released August 7, 2025)
+    // Note: GPT-5 only supports default temperature (1.0)
     const response = await openai.chat.completions.create({
       model: "gpt-5",
       messages: [
@@ -104,7 +105,7 @@ Format your response as JSON with:
         }
       ],
       max_completion_tokens: 2000,
-      temperature: 0.7,
+      // temperature not supported with GPT-5, uses default value
       response_format: { type: "json_object" }
     });
 
