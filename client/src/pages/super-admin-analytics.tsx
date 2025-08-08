@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy, Suspense } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, 
   AreaChart, Area, RadarChart, PolarGrid, PolarAngleAxis, 
@@ -26,13 +31,19 @@ import {
   Target, Award, Star, ArrowUp, ArrowDown, Minus,
   Lock, Unlock, UserCheck, UserX, Package, ShoppingCart, ShoppingBag,
   MessageSquare, Phone, Mail, Bell, AlertTriangle,
-  CheckCircle2, XCircle, Info, Sparkles, Hash
+  CheckCircle2, XCircle, Info, Sparkles, Hash,
+  UserPlus, Edit, Trash2, Save, X, Loader2
 } from "lucide-react";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { format, subDays, startOfWeek, startOfMonth, differenceInDays } from "date-fns";
 import { toast } from "@/hooks/use-toast";
+
+// Lazy load the enhanced heatmap component for better performance
+const EnhancedHeatmap = lazy(() => import("@/components/AvailabilityHeatmap").then(module => ({
+  default: module.AvailabilityHeatmap
+})));
 
 interface DashboardMetrics {
   platform: {
@@ -411,16 +422,26 @@ export default function SuperAdminAnalytics() {
               </Card>
             </div>
 
-            {/* Main Dashboard Tabs */}
+            {/* Main Dashboard Tabs - ALL ADMIN FUNCTIONALITY IN ONE PLACE */}
             <Tabs value={activeMetricTab} onValueChange={setActiveMetricTab} className="space-y-4">
-              <TabsList className="grid grid-cols-6 w-full">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="financial">Financial</TabsTrigger>
-                <TabsTrigger value="ai">AI Analytics</TabsTrigger>
-                <TabsTrigger value="performance">Performance</TabsTrigger>
-                <TabsTrigger value="engagement">Engagement</TabsTrigger>
-                <TabsTrigger value="geographic">Geographic</TabsTrigger>
-              </TabsList>
+              <ScrollArea className="w-full">
+                <TabsList className="flex w-max">
+                  <TabsTrigger value="overview">📊 Overview</TabsTrigger>
+                  <TabsTrigger value="heatmap" className="bg-green-50 dark:bg-green-950 text-green-600">🗺️ Enhanced Heatmap</TabsTrigger>
+                  <TabsTrigger value="financial">💰 Financial</TabsTrigger>
+                  <TabsTrigger value="users">👥 Users</TabsTrigger>
+                  <TabsTrigger value="communities">🏢 Communities</TabsTrigger>
+                  <TabsTrigger value="vendors">🛍️ Vendors</TabsTrigger>
+                  <TabsTrigger value="payments">💳 Payments</TabsTrigger>
+                  <TabsTrigger value="ai">🤖 AI Analytics</TabsTrigger>
+                  <TabsTrigger value="marketing">📈 Marketing</TabsTrigger>
+                  <TabsTrigger value="legal">📄 Legal Docs</TabsTrigger>
+                  <TabsTrigger value="system">⚙️ System</TabsTrigger>
+                  <TabsTrigger value="performance">⚡ Performance</TabsTrigger>
+                  <TabsTrigger value="engagement">📱 Engagement</TabsTrigger>
+                  <TabsTrigger value="geographic">🌍 Geographic</TabsTrigger>
+                </TabsList>
+              </ScrollArea>
 
               {/* Overview Tab */}
               <TabsContent value="overview" className="space-y-6">
@@ -871,6 +892,487 @@ export default function SuperAdminAnalytics() {
                     </CardContent>
                   </Card>
                 </div>
+              </TabsContent>
+
+              {/* Enhanced Heatmap Tab - EMBEDDED DIRECTLY */}
+              <TabsContent value="heatmap" className="space-y-6">
+                <Card className="border-2 border-green-600">
+                  <CardHeader className="bg-green-50 dark:bg-green-950">
+                    <CardTitle className="flex items-center gap-2">
+                      <MapPin className="h-6 w-6 text-green-600" />
+                      <span className="text-green-600">Enhanced Availability Heatmap</span>
+                    </CardTitle>
+                    <CardDescription>
+                      Advanced analytics overlay with revenue insights, competitor analysis, and occupancy trends
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <Suspense fallback={
+                      <div className="h-[600px] flex items-center justify-center">
+                        <div className="animate-spin w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full" />
+                      </div>
+                    }>
+                      <EnhancedHeatmap isAdminView={true} />
+                    </Suspense>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Users Management Tab */}
+              <TabsContent value="users" className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">User Management</h2>
+                  <div className="flex gap-2">
+                    <Input placeholder="Search users..." className="w-64" />
+                    <Button variant="default">
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Add User
+                    </Button>
+                  </div>
+                </div>
+                
+                <Card>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>User</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Role</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Joined</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-medium">William Cowell</TableCell>
+                          <TableCell>william.cowell01@gmail.com</TableCell>
+                          <TableCell><Badge variant="default">Super Admin</Badge></TableCell>
+                          <TableCell><Badge variant="outline" className="text-green-600">Active</Badge></TableCell>
+                          <TableCell>Jan 1, 2025</TableCell>
+                          <TableCell>
+                            <Button size="sm" variant="ghost">Edit</Button>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Admin User</TableCell>
+                          <TableCell>admin@myseniorvalet.com</TableCell>
+                          <TableCell><Badge variant="secondary">Admin</Badge></TableCell>
+                          <TableCell><Badge variant="outline" className="text-green-600">Active</Badge></TableCell>
+                          <TableCell>Jan 5, 2025</TableCell>
+                          <TableCell>
+                            <Button size="sm" variant="ghost">Edit</Button>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Communities Management Tab */}
+              <TabsContent value="communities" className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Community Management</h2>
+                  <div className="flex gap-2">
+                    <Select defaultValue="all">
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="verified">Verified</SelectItem>
+                        <SelectItem value="standard">Standard</SelectItem>
+                        <SelectItem value="featured">Featured</SelectItem>
+                        <SelectItem value="platinum">Platinum</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input placeholder="Search communities..." className="w-64" />
+                    <Button variant="default">
+                      <Building className="h-4 w-4 mr-2" />
+                      Add Community
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Total Communities</span>
+                        <span className="text-2xl font-bold">34,180</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Verified</span>
+                        <span className="text-2xl font-bold text-green-600">12,450</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Platinum Tier</span>
+                        <span className="text-2xl font-bold text-purple-600">248</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Community Name</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead>Tier</TableHead>
+                          <TableHead>Occupancy</TableHead>
+                          <TableHead>Revenue</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-medium">Sunrise Senior Living</TableCell>
+                          <TableCell>Miami, FL</TableCell>
+                          <TableCell><Badge variant="default" className="bg-purple-600">Platinum</Badge></TableCell>
+                          <TableCell>92%</TableCell>
+                          <TableCell>$349/mo</TableCell>
+                          <TableCell>
+                            <Button size="sm" variant="ghost">Manage</Button>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Vendors Management Tab */}
+              <TabsContent value="vendors" className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Vendor Management</h2>
+                  <div className="flex gap-2">
+                    <Select defaultValue="all">
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="basic">Basic</SelectItem>
+                        <SelectItem value="featured">Featured</SelectItem>
+                        <SelectItem value="national">National</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button variant="default">
+                      <ShoppingBag className="h-4 w-4 mr-2" />
+                      Add Vendor
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Total Vendors</span>
+                        <span className="text-2xl font-bold">{formatNumber(metrics?.platform.totalVendors || 0)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Basic Tier</span>
+                        <span className="text-2xl font-bold">{metrics?.financial.subscriptions.vendor.basic || 0}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Featured Tier</span>
+                        <span className="text-2xl font-bold text-blue-600">{metrics?.financial.subscriptions.vendor.featured || 0}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">National Partners</span>
+                        <span className="text-2xl font-bold text-purple-600">{metrics?.financial.subscriptions.vendor.national || 0}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              {/* Payments Tab */}
+              <TabsContent value="payments" className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Payment Monitoring</h2>
+                  <div className="flex gap-2">
+                    <Select defaultValue="7d">
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1d">Today</SelectItem>
+                        <SelectItem value="7d">7 Days</SelectItem>
+                        <SelectItem value="30d">30 Days</SelectItem>
+                        <SelectItem value="90d">90 Days</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button variant="outline">
+                      <Download className="h-4 w-4 mr-2" />
+                      Export
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card className="border-l-4 border-l-green-600">
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Today's Revenue</span>
+                        <span className="text-2xl font-bold text-green-600">{formatCurrency(metrics?.financial.revenue.today || 0)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Success Rate</span>
+                        <span className="text-2xl font-bold">{formatPercent(metrics?.financial.paymentSuccess || 95)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Active Subscriptions</span>
+                        <span className="text-2xl font-bold">{formatNumber(metrics?.platform.activeSubscriptions || 0)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">MRR</span>
+                        <span className="text-2xl font-bold">{formatCurrency(metrics?.platform.monthlyRevenue || 0)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Recent Transactions</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Transaction ID</TableHead>
+                          <TableHead>Customer</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Amount</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Date</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">sub_1OdR4K2...</TableCell>
+                          <TableCell>Sunrise Senior Living</TableCell>
+                          <TableCell><Badge>Platinum</Badge></TableCell>
+                          <TableCell className="font-semibold">$349.00</TableCell>
+                          <TableCell><Badge variant="outline" className="text-green-600">Success</Badge></TableCell>
+                          <TableCell>{format(new Date(), 'MMM d, h:mm a')}</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Marketing Hub Tab */}
+              <TabsContent value="marketing" className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Marketing Hub</h2>
+                  <Button variant="default">
+                    <TrendingUp className="h-4 w-4 mr-2" />
+                    Create Campaign
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Email Subscribers</span>
+                        <span className="text-2xl font-bold">12,847</span>
+                        <span className="text-xs text-green-600">+245 this week</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Conversion Rate</span>
+                        <span className="text-2xl font-bold">3.8%</span>
+                        <span className="text-xs text-green-600">+0.5% vs last month</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Active Campaigns</span>
+                        <span className="text-2xl font-bold">7</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              {/* Legal Documents Tab */}
+              <TabsContent value="legal" className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Legal Document Management</h2>
+                  <Button variant="default">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Upload Document
+                  </Button>
+                </div>
+
+                <Card>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Document</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Version</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Last Updated</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-medium">Terms of Service</TableCell>
+                          <TableCell>Legal</TableCell>
+                          <TableCell>v2.1</TableCell>
+                          <TableCell><Badge variant="outline" className="text-green-600">Active</Badge></TableCell>
+                          <TableCell>Jan 1, 2025</TableCell>
+                          <TableCell>
+                            <Button size="sm" variant="ghost">View</Button>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Privacy Policy</TableCell>
+                          <TableCell>Legal</TableCell>
+                          <TableCell>v1.8</TableCell>
+                          <TableCell><Badge variant="outline" className="text-green-600">Active</Badge></TableCell>
+                          <TableCell>Dec 28, 2024</TableCell>
+                          <TableCell>
+                            <Button size="sm" variant="ghost">View</Button>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* System Health Tab */}
+              <TabsContent value="system" className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">System Health & Monitoring</h2>
+                  <Button variant="outline" onClick={() => handleRefresh()}>
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Refresh
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card className={metrics?.performance.uptime >= 99 ? "border-l-4 border-l-green-600" : "border-l-4 border-l-yellow-600"}>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Uptime</span>
+                        <span className="text-2xl font-bold">{formatPercent(metrics?.performance.uptime || 0)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Response Time</span>
+                        <span className="text-2xl font-bold">{metrics?.performance.responseTime || 0}ms</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Error Rate</span>
+                        <span className="text-2xl font-bold">{formatPercent(metrics?.performance.errorRate || 0)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Cache Hit Rate</span>
+                        <span className="text-2xl font-bold">{formatPercent(metrics?.performance.cacheHitRate || 0)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Service Status</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <span>Database (PostgreSQL)</span>
+                        </div>
+                        <Badge variant="outline" className="text-green-600">Operational</Badge>
+                      </div>
+                      <div className="flex justify-between items-center p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <span>API Server</span>
+                        </div>
+                        <Badge variant="outline" className="text-green-600">Operational</Badge>
+                      </div>
+                      <div className="flex justify-between items-center p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <span>Stripe Payments</span>
+                        </div>
+                        <Badge variant="outline" className="text-green-600">Operational</Badge>
+                      </div>
+                      <div className="flex justify-between items-center p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <span>AI Services</span>
+                        </div>
+                        <Badge variant="outline" className="text-green-600">Operational</Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
             </Tabs>
           </div>

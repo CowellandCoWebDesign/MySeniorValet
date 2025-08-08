@@ -161,18 +161,19 @@ function Router() {
       <Route path="/community/:id/contribute" component={CommunityContribute} />
       <Route path="/claim/:communityId" component={Claim} />
       <Route path="/community-claim" component={Claim} />
-      <Route path="/admin" component={AdminCreative} />
-      <Route path="/admin-creative" component={AdminCreative} />
-      <Route path="/admin-unified" component={AdminUnified} />
-      <Route path="/admin-portal" component={AdminPortal} />
-      <Route path="/super-admin" component={SuperAdminDashboard} />
+      {/* ALL ADMIN ROUTES NOW REDIRECT TO UNIFIED SUPER ADMIN DASHBOARD */}
+      <Route path="/admin" component={SuperAdminAnalytics} />
+      <Route path="/admin-creative" component={SuperAdminAnalytics} />
+      <Route path="/admin-unified" component={SuperAdminAnalytics} />
+      <Route path="/admin-portal" component={SuperAdminAnalytics} />
+      <Route path="/super-admin" component={SuperAdminAnalytics} />
       <Route path="/super-admin-analytics" component={SuperAdminAnalytics} />
-      <Route path="/admin/service-listings" component={ServiceListingsAdmin} />
-      <Route path="/admin/services-management" component={ServicesManagementDashboard} />
-      <Route path="/admin/amazon-products" component={AmazonProductAdmin} />
-      <Route path="/admin/perplexity-test" component={PerplexityTest} />
-      <Route path="/admin/multi-ai-test" component={MultiAITest} />
-      <Route path="/admin/communities" component={AdminCommunities} />
+      <Route path="/admin/service-listings" component={SuperAdminAnalytics} />
+      <Route path="/admin/services-management" component={SuperAdminAnalytics} />
+      <Route path="/admin/amazon-products" component={SuperAdminAnalytics} />
+      <Route path="/admin/perplexity-test" component={SuperAdminAnalytics} />
+      <Route path="/admin/multi-ai-test" component={SuperAdminAnalytics} />
+      <Route path="/admin/communities" component={SuperAdminAnalytics} />
       <Route path="/ai-search-comparison" component={AISearchComparison} />
       <Route path="/ai-search-intelligence" component={AISearchIntelligence} />
       <Route path="/expansion-monitor" component={ExpansionMonitor} />
@@ -269,9 +270,9 @@ function Router() {
       <Route path="/vendor-tier-test" component={VendorTierTest} />
       <Route path="/community-creator" component={CommunityCreatorPortal} />
       <Route path="/community-creator-portal" component={CommunityCreatorPortal} />
-      <Route path="/admin/marketing-hub" component={MarketingHub} />
+      <Route path="/admin/marketing-hub" component={SuperAdminAnalytics} />
       <Route path="/availability-heatmap" component={AvailabilityHeatmapPage} />
-      <Route path="/admin/availability-heatmap" component={AdminAvailabilityHeatmap} />
+      <Route path="/admin/availability-heatmap" component={SuperAdminAnalytics} />
       <Route path="/payment-demo" component={PaymentDemo} />
       <Route component={NotFound} />
     </Switch>
