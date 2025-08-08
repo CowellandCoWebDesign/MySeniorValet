@@ -41,7 +41,8 @@ import {
   Calendar,
   Clock,
   TrendingDown,
-  Filter
+  Filter,
+  Eye
 } from 'lucide-react';
 
 interface AISearchResult {
@@ -948,296 +949,426 @@ export default function AISearchIntelligence() {
             )}
           </TabsContent>
 
-          {/* Simplified Search Tab */}
-          <TabsContent value="simplified" className="space-y-6">
-            <Card>
-              <CardHeader className="text-center bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
-                <CardTitle className="flex items-center justify-center gap-2 text-xl">
-                  <Filter className="w-6 h-6 text-blue-600" />
-                  Simplified Search Filters
-                </CardTitle>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                  Privacy & Transparency • Complete Care Spectrum & Live Market Intelligence
-                </p>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="space-y-6">
-                  {/* Location Search */}
-                  <div>
-                    <Label className="text-sm font-medium flex items-center gap-2 mb-3">
-                      <MapPin className="w-4 h-4 text-blue-600" />
-                      Location
-                    </Label>
-                    <AutocompleteSearch
-                      value={simplifiedFilters.location}
-                      onChange={(value) => setSimplifiedFilters({
-                        ...simplifiedFilters,
-                        location: value
-                      })}
-                      onSubmit={(value) => setSimplifiedFilters({
-                        ...simplifiedFilters,
-                        location: value
-                      })}
-                      placeholder="City, State or ZIP Code"
-                      hideSearchButton={true}
-                    />
-                  </div>
-
-                  {/* Type of Living */}
-                  <div>
-                    <Label className="text-sm font-medium flex items-center gap-2 mb-3">
-                      <Building2 className="w-4 h-4 text-green-600" />
-                      Type of Living
-                    </Label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { value: 'hud', label: 'HUD Housing', icon: '🏛️' },
-                        { value: 'assisted-living', label: 'Assisted Living', icon: '🤝' },
-                        { value: 'independent-living', label: 'Independent', icon: '🏡' },
-                        { value: 'memory-care', label: 'Memory Care', icon: '🧠' },
-                        { value: 'mobile-home', label: 'Mobile Home', icon: '🚐' },
-                        { value: 'active-adult', label: '55+ Active', icon: '🏘️' },
-                        { value: 'skilled-nursing', label: 'Skilled Nursing', icon: '🏥' },
-                        { value: 'ccrc', label: 'CCRC', icon: '🏛️' }
-                      ].map((type) => (
-                        <Button
-                          key={type.value}
-                          variant={simplifiedFilters.typeOfLiving.includes(type.value) ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => {
-                            const newTypes = simplifiedFilters.typeOfLiving.includes(type.value)
-                              ? simplifiedFilters.typeOfLiving.filter(t => t !== type.value)
-                              : [...simplifiedFilters.typeOfLiving, type.value];
-                            setSimplifiedFilters({
-                              ...simplifiedFilters,
-                              typeOfLiving: newTypes
-                            });
-                          }}
-                          className="flex items-center gap-1 h-10 w-full justify-start text-xs p-2"
-                        >
-                          <span className="text-sm">{type.icon}</span>
-                          <span className="text-xs truncate">{type.label}</span>
-                        </Button>
-                      ))}
+          {/* Simplified Search Tab - New Layout Matching Screenshot */}
+          <TabsContent value="simplified" className="space-y-4">
+            {/* Header Section with Badges */}
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4">
+              <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-2xl font-bold">Senior Living Research</h2>
+                  <span className="text-2xl font-bold text-blue-600">Simplified</span>
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex items-center gap-1">
+                    <Shield className="w-5 h-5 text-gray-600" />
+                    <div className="text-sm">
+                      <div className="font-semibold">Privacy</div>
+                      <div className="text-xs text-gray-500">We Don't Sell Your Personal Information To Facilities</div>
                     </div>
                   </div>
-
-                  {/* Amenities/Care Services */}
-                  <div>
-                    <Label className="text-sm font-medium flex items-center gap-2 mb-3">
-                      <Heart className="w-4 h-4 text-red-600" />
-                      Amenities & Care Services
-                    </Label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { value: 'transportation', label: 'Transportation', icon: '🚌' },
-                        { value: 'dining', label: 'Dining Services', icon: '🍽️' },
-                        { value: 'fitness', label: 'Fitness Center', icon: '💪' },
-                        { value: 'medical', label: 'Medical Care', icon: '⚕️' },
-                        { value: 'housekeeping', label: 'Housekeeping', icon: '🧹' },
-                        { value: 'social', label: 'Social Activities', icon: '🎭' },
-                        { value: 'pet-friendly', label: 'Pet Friendly', icon: '🐕' },
-                        { value: 'wifi', label: 'WiFi/Tech', icon: '📶' }
-                      ].map((amenity) => (
-                        <Button
-                          key={amenity.value}
-                          variant={simplifiedFilters.amenities.includes(amenity.value) ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => {
-                            const newAmenities = simplifiedFilters.amenities.includes(amenity.value)
-                              ? simplifiedFilters.amenities.filter(a => a !== amenity.value)
-                              : [...simplifiedFilters.amenities, amenity.value];
-                            setSimplifiedFilters({
-                              ...simplifiedFilters,
-                              amenities: newAmenities
-                            });
-                          }}
-                          className="flex items-center gap-1 h-10 w-full justify-start text-xs p-2"
-                        >
-                          <span className="text-sm">{amenity.icon}</span>
-                          <span className="text-xs truncate">{amenity.label}</span>
-                        </Button>
-                      ))}
+                  
+                  <div className="flex items-center gap-1">
+                    <Eye className="w-5 h-5 text-gray-600" />
+                    <div className="text-sm">
+                      <div className="font-semibold">Transparency</div>
+                      <div className="text-xs text-gray-500">Each Listing Has A Starting Price, Average Price, And Current Availability</div>
                     </div>
                   </div>
-
-                  {/* Unit/Room Type */}
-                  <div>
-                    <Label className="text-sm font-medium flex items-center gap-2 mb-3">
-                      <Home className="w-4 h-4 text-purple-600" />
-                      Unit/Room Type
-                    </Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {[
-                        { value: 'studio', label: 'Studio', icon: '🛏️' },
-                        { value: '1-bedroom', label: '1 Bedroom', icon: '🏠' },
-                        { value: '2-bedroom', label: '2 Bedroom', icon: '🏡' },
-                        { value: 'shared-room', label: 'Shared Room', icon: '👥' }
-                      ].map((unit) => (
-                        <Button
-                          key={unit.value}
-                          variant={simplifiedFilters.unitType.includes(unit.value) ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => {
-                            const newUnits = simplifiedFilters.unitType.includes(unit.value)
-                              ? simplifiedFilters.unitType.filter(u => u !== unit.value)
-                              : [...simplifiedFilters.unitType, unit.value];
-                            setSimplifiedFilters({
-                              ...simplifiedFilters,
-                              unitType: newUnits
-                            });
-                          }}
-                          className="flex items-center gap-2 h-12"
-                        >
-                          <span className="text-base">{unit.icon}</span>
-                          <span className="text-xs">{unit.label}</span>
-                        </Button>
-                      ))}
+                  
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="w-5 h-5 text-gray-600" />
+                    <div className="text-sm">
+                      <div className="font-semibold">Convenience</div>
+                      <div className="text-xs text-gray-500">Have Questions? Direct Message The Facility Right From Their Listing</div>
                     </div>
                   </div>
-
-                  {/* Distance & Price Range */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Distance */}
-                    <div>
-                      <Label className="text-sm font-medium flex items-center gap-2 mb-3">
-                        <MapPin className="w-4 h-4 text-orange-600" />
-                        Distance: {simplifiedFilters.distance} miles
-                      </Label>
-                      <Slider
-                        value={[simplifiedFilters.distance]}
-                        onValueChange={(value) => setSimplifiedFilters({
-                          ...simplifiedFilters,
-                          distance: value[0]
-                        })}
-                        min={5}
-                        max={100}
-                        step={5}
-                        className="w-full"
-                      />
-                      <div className="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>5 mi</span>
-                        <span>100 mi</span>
-                      </div>
-                    </div>
-
-                    {/* Price Range */}
-                    <div>
-                      <Label className="text-sm font-medium flex items-center gap-2 mb-3">
-                        <DollarSign className="w-4 h-4 text-green-600" />
-                        Monthly Cost: ${simplifiedFilters.priceRange[0]} - ${simplifiedFilters.priceRange[1]}
-                      </Label>
-                      <Slider
-                        value={simplifiedFilters.priceRange}
-                        onValueChange={(value) => setSimplifiedFilters({
-                          ...simplifiedFilters,
-                          priceRange: value as [number, number]
-                        })}
-                        min={0}
-                        max={15000}
-                        step={100}
-                        className="w-full"
-                      />
-                      <div className="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>$0</span>
-                        <span>$15,000+</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Immediate Availability */}
-                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-blue-600" />
-                      <span className="text-sm font-medium">Immediate Availability Only</span>
-                    </div>
-                    <Button
-                      variant={simplifiedFilters.immediateAvailability ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setSimplifiedFilters({
-                        ...simplifiedFilters,
-                        immediateAvailability: !simplifiedFilters.immediateAvailability
-                      })}
-                    >
-                      {simplifiedFilters.immediateAvailability ? 'ON' : 'OFF'}
-                    </Button>
-                  </div>
-
-                  {/* Search Button */}
-                  <Button
-                    onClick={() => simplifiedSearchMutation.mutate(simplifiedFilters)}
-                    disabled={simplifiedSearchMutation.isPending || !simplifiedFilters.location}
-                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold"
-                  >
-                    {simplifiedSearchMutation.isPending ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Searching...
-                      </>
-                    ) : (
-                      <>
-                        <Search className="w-4 h-4 mr-2" />
-                        Search Communities
-                      </>
-                    )}
+                  
+                  <Button className="bg-blue-600 text-white hover:bg-blue-700">
+                    <Users className="w-4 h-4 mr-2" />
+                    Create A Profile
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            {/* Display Simplified Search Results */}
-            {simplifiedSearchMutation.data && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Building2 className="w-6 h-6 text-blue-600" />
-                    Search Results ({simplifiedSearchMutation.data.results?.length || 0} communities found)
-                  </CardTitle>
-                  {/* Fallback Message */}
-                  {simplifiedSearchMutation.data.fallbackReason && (
-                    <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                      <div className="flex items-start gap-2">
-                        <Info className="w-4 h-4 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                            Search Expanded
-                          </p>
-                          <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                            {simplifiedSearchMutation.data.fallbackReason}
-                          </p>
+            {/* Search Bar */}
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search by Zip code, City, Location"
+                  value={simplifiedFilters.location}
+                  onChange={(e) => setSimplifiedFilters({
+                    ...simplifiedFilters,
+                    location: e.target.value
+                  })}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      simplifiedSearchMutation.mutate(simplifiedFilters);
+                    }
+                  }}
+                  className="w-full pl-10 pr-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Horizontal Filter Bar */}
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4">
+              <div className="flex flex-wrap items-center gap-4">
+                {/* Type of Living */}
+                <div className="flex flex-col">
+                  <label className="text-xs font-semibold mb-1">Type of Living</label>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant={simplifiedFilters.typeOfLiving.includes('independent-living') ? 'default' : 'outline'}
+                      onClick={() => {
+                        const newTypes = simplifiedFilters.typeOfLiving.includes('independent-living')
+                          ? simplifiedFilters.typeOfLiving.filter(t => t !== 'independent-living')
+                          : [...simplifiedFilters.typeOfLiving, 'independent-living'];
+                        setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      }}
+                      className="h-12 px-3"
+                    >
+                      <Home className="w-4 h-4 mr-1" />
+                      <div className="text-left">
+                        <div className="text-xs">Independent Living</div>
+                        <div className="text-[10px] opacity-75">55+</div>
+                      </div>
+                    </Button>
+                    
+                    <Button
+                      size="sm"
+                      variant={simplifiedFilters.typeOfLiving.includes('assisted-living') ? 'default' : 'outline'}
+                      onClick={() => {
+                        const newTypes = simplifiedFilters.typeOfLiving.includes('assisted-living')
+                          ? simplifiedFilters.typeOfLiving.filter(t => t !== 'assisted-living')
+                          : [...simplifiedFilters.typeOfLiving, 'assisted-living'];
+                        setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      }}
+                      className="h-12 px-3"
+                    >
+                      <Heart className="w-4 h-4 mr-1" />
+                      <div className="text-left">
+                        <div className="text-xs">Assisted Living</div>
+                        <div className="text-[10px] opacity-75">Memory Care</div>
+                      </div>
+                    </Button>
+                    
+                    <Button
+                      size="sm"
+                      variant={simplifiedFilters.typeOfLiving.includes('skilled-nursing') ? 'default' : 'outline'}
+                      onClick={() => {
+                        const newTypes = simplifiedFilters.typeOfLiving.includes('skilled-nursing')
+                          ? simplifiedFilters.typeOfLiving.filter(t => t !== 'skilled-nursing')
+                          : [...simplifiedFilters.typeOfLiving, 'skilled-nursing'];
+                        setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      }}
+                      className="h-12 px-3"
+                    >
+                      <Building2 className="w-4 h-4 mr-1" />
+                      <div className="text-left">
+                        <div className="text-xs">Nursing Home</div>
+                      </div>
+                    </Button>
+                    
+                    <Button size="sm" variant="outline" className="h-12 px-3">
+                      <ChevronRight className="w-4 h-4 mr-1" />
+                      More
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Amenities/Care Services */}
+                <div className="flex flex-col">
+                  <label className="text-xs font-semibold mb-1">Amenities/Care Services</label>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant={simplifiedFilters.amenities.includes('medical') ? 'default' : 'outline'}
+                      onClick={() => {
+                        const newAmenities = simplifiedFilters.amenities.includes('medical')
+                          ? simplifiedFilters.amenities.filter(a => a !== 'medical')
+                          : [...simplifiedFilters.amenities, 'medical'];
+                        setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
+                      }}
+                      className="h-12 px-3"
+                    >
+                      <Activity className="w-4 h-4 mr-1" />
+                      <div className="text-xs">Medication<br/>Management</div>
+                    </Button>
+                    
+                    <Button
+                      size="sm"
+                      variant={simplifiedFilters.amenities.includes('dining') ? 'default' : 'outline'}
+                      onClick={() => {
+                        const newAmenities = simplifiedFilters.amenities.includes('dining')
+                          ? simplifiedFilters.amenities.filter(a => a !== 'dining')
+                          : [...simplifiedFilters.amenities, 'dining'];
+                        setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
+                      }}
+                      className="h-12 px-3"
+                    >
+                      <Home className="w-4 h-4 mr-1" />
+                      <div className="text-xs">Daily Meal<br/>Preparation</div>
+                    </Button>
+                    
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-12 px-3"
+                    >
+                      <ChevronRight className="w-4 h-4 mr-1" />
+                      More
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Unit/Room Type */}
+                <div className="flex flex-col">
+                  <label className="text-xs font-semibold mb-1">Unit/Room Type</label>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant={simplifiedFilters.unitType.includes('studio') ? 'default' : 'outline'}
+                      onClick={() => {
+                        const newUnits = simplifiedFilters.unitType.includes('studio')
+                          ? simplifiedFilters.unitType.filter(u => u !== 'studio')
+                          : [...simplifiedFilters.unitType, 'studio'];
+                        setSimplifiedFilters({ ...simplifiedFilters, unitType: newUnits });
+                      }}
+                      className="h-12 px-3"
+                    >
+                      <Home className="w-4 h-4 mr-1" />
+                      Studio
+                    </Button>
+                    
+                    <Button
+                      size="sm"
+                      variant={simplifiedFilters.unitType.includes('1-bedroom') ? 'default' : 'outline'}
+                      onClick={() => {
+                        const newUnits = simplifiedFilters.unitType.includes('1-bedroom')
+                          ? simplifiedFilters.unitType.filter(u => u !== '1-bedroom')
+                          : [...simplifiedFilters.unitType, 'studio', '1-bedroom'];
+                        setSimplifiedFilters({ ...simplifiedFilters, unitType: newUnits });
+                      }}
+                      className="h-12 px-3"
+                    >
+                      <Building2 className="w-4 h-4 mr-1" />
+                      <div className="text-xs">1 Bed</div>
+                    </Button>
+                    
+                    <Button
+                      size="sm"
+                      variant={simplifiedFilters.unitType.includes('2-bedroom') ? 'default' : 'outline'}
+                      onClick={() => {
+                        const newUnits = simplifiedFilters.unitType.includes('2-bedroom')
+                          ? simplifiedFilters.unitType.filter(u => u !== '2-bedroom')
+                          : [...simplifiedFilters.unitType, '2-bedroom'];
+                        setSimplifiedFilters({ ...simplifiedFilters, unitType: newUnits });
+                      }}
+                      className="h-12 px-3 bg-blue-600 text-white hover:bg-blue-700"
+                    >
+                      <Home className="w-4 h-4 mr-1" />
+                      2 Bed
+                    </Button>
+                    
+                    <Button size="sm" variant="outline" className="h-12 px-3">
+                      <ChevronRight className="w-4 h-4 mr-1" />
+                      More
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Distance Slider */}
+                <div className="flex flex-col flex-1 min-w-[150px]">
+                  <label className="text-xs font-semibold mb-1">Distance</label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs">0</span>
+                    <Slider
+                      value={[simplifiedFilters.distance]}
+                      onValueChange={(value) => setSimplifiedFilters({
+                        ...simplifiedFilters,
+                        distance: value[0]
+                      })}
+                      min={0}
+                      max={50}
+                      step={5}
+                      className="flex-1"
+                    />
+                    <span className="text-xs">50 Miles</span>
+                  </div>
+                  <div className="text-xs text-center mt-1 text-gray-500">{simplifiedFilters.distance} mi</div>
+                </div>
+
+                {/* Price Slider */}
+                <div className="flex flex-col flex-1 min-w-[200px]">
+                  <label className="text-xs font-semibold mb-1">Price</label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs">$500</span>
+                    <Slider
+                      value={simplifiedFilters.priceRange}
+                      onValueChange={(value) => setSimplifiedFilters({
+                        ...simplifiedFilters,
+                        priceRange: value as [number, number]
+                      })}
+                      min={500}
+                      max={8000}
+                      step={100}
+                      className="flex-1"
+                    />
+                    <span className="text-xs">$8000</span>
+                  </div>
+                  <div className="text-xs text-center mt-1 text-gray-500">
+                    ${simplifiedFilters.priceRange[0]} - ${simplifiedFilters.priceRange[1]}
+                  </div>
+                </div>
+
+                {/* Immediate Availability */}
+                <div className="flex flex-col">
+                  <label className="text-xs font-semibold mb-1">Immediate Availability</label>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => {
+                        simplifiedSearchMutation.mutate(simplifiedFilters);
+                      }}
+                      className="bg-blue-600 text-white hover:bg-blue-700 h-12"
+                    >
+                      <CheckCircle className="w-4 h-4 mr-1" />
+                      Apply
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSimplifiedFilters({
+                          location: '',
+                          typeOfLiving: [],
+                          amenities: [],
+                          unitType: [],
+                          priceRange: [500, 8000],
+                          distance: 25,
+                          immediateAvailability: false
+                        });
+                      }}
+                      className="h-12 text-red-600 border-red-600 hover:bg-red-50"
+                    >
+                      <AlertCircle className="w-4 h-4 mr-1" />
+                      Reset Filter
+                    </Button>
+                  </div>
+                </div>
+
+                {/* View All Button */}
+                <Button variant="ghost" className="h-12">
+                  <ChevronRight className="w-4 h-4 mr-1" />
+                  View all
+                </Button>
+              </div>
+            </div>
+
+            {/* Map and List Layout */}
+            <div className="flex gap-4 h-[600px]">
+              {/* Map Section - Left Side */}
+              <div className="flex-1 bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
+                <Map
+                  communities={simplifiedSearchMutation.data?.results || []}
+                  center={mapCenter}
+                  zoom={mapZoom}
+                  onMarkerClick={(community) => {
+                    // Scroll to community in list
+                    const element = document.getElementById(`community-${community.id}`);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                  }}
+                  className="h-full w-full"
+                />
+              </div>
+
+              {/* List Section - Right Side */}
+              <div className="w-[400px] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-y-auto">
+                {simplifiedSearchMutation.isPending ? (
+                  <div className="flex items-center justify-center h-full">
+                    <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                  </div>
+                ) : simplifiedSearchMutation.data?.results && simplifiedSearchMutation.data.results.length > 0 ? (
+                  <div className="space-y-3 p-4">
+                    {simplifiedSearchMutation.data.results.map((community: any) => (
+                      <div
+                        key={community.id}
+                        id={`community-${community.id}`}
+                        className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                        onClick={() => window.location.href = `/community/${community.id}`}
+                      >
+                        <div className="flex gap-3">
+                          {/* Community Image */}
+                          <div className="w-24 h-24 flex-shrink-0 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                            {community.photos && community.photos.length > 0 ? (
+                              <img 
+                                src={community.photos[0]} 
+                                alt={community.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Building2 className="w-8 h-8 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Community Details */}
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-sm mb-1">{community.name}</h3>
+                            
+                            <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">Average Price:</span>
+                                <Badge variant="outline" className="text-xs">
+                                  {community.basePrice ? `$${community.basePrice.toLocaleString()}/Month` : 'Contact for pricing'}
+                                </Badge>
+                              </div>
+                              
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">Starting Price:</span>
+                                <span>{community.minPrice ? `$${community.minPrice.toLocaleString()}/Month` : 'Contact'}</span>
+                              </div>
+
+                              {/* Services */}
+                              <div className="flex gap-1 mt-2">
+                                {community.assistedLiving && <Badge className="text-[10px] px-1 py-0">Assisted Living</Badge>}
+                                {community.memoryCare && <Badge className="text-[10px] px-1 py-0">Memory Care</Badge>}
+                                {community.independentLiving && <Badge className="text-[10px] px-1 py-0">Independent</Badge>}
+                              </div>
+
+                              {/* Availability */}
+                              <div className="flex items-center gap-1 mt-2">
+                                <span className="font-medium">Availability:</span>
+                                <Badge 
+                                  variant={community.hasAvailability ? 'default' : 'secondary'}
+                                  className="text-[10px]"
+                                >
+                                  {community.hasAvailability ? 'Yes' : 'Contact'}
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  {simplifiedSearchMutation.data.results && simplifiedSearchMutation.data.results.length > 0 ? (
-                    <div className="space-y-4">
-                      {simplifiedSearchMutation.data.results.slice(0, 10).map((community: any) => (
-                        <SimplifiedCommunityCard 
-                          key={community.id} 
-                          community={community}
-                          showCompareButton={true}
-                          onCompare={(community) => {
-                            if (!selectedCommunities.find(c => c.id === community.id)) {
-                              setSelectedCommunities([...selectedCommunities, community]);
-                            }
-                          }}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600 dark:text-gray-400">No communities found matching your criteria.</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
-                        Try adjusting your filters or expanding your search area.
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+                    <MapPin className="w-12 h-12 text-gray-400 mb-4" />
+                    <h3 className="font-semibold text-lg mb-2">No Results Found</h3>
+                    <p className="text-sm text-gray-500">
+                      Try adjusting your filters or search in a different location
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
           </TabsContent>
 
           {/* Perfect Match Tab - Enhanced */}
