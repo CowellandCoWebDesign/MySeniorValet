@@ -65,9 +65,11 @@ async function upsertUser(
     if (!user) {
       // Check if this is William Cowell (guaranteed super admin)
       let userRole = 'user';
-      if (userEmail === 'William.cowell01@gmail.com') {
+      const superAdminEmails = ['William.cowell01@gmail.com', 'admin@myseniorvalet.com'];
+      
+      if (superAdminEmails.includes(userEmail)) {
         userRole = 'super_admin';
-        console.log('🔑 Super admin access granted to William.cowell01@gmail.com');
+        console.log(`🔑 Super admin access granted to ${userEmail}`);
       } else {
         // Check if this is the first user (no super_admin exists)
         const superAdminCount = await storage.getSuperAdminCount();

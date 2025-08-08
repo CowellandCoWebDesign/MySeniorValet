@@ -66,10 +66,10 @@ export default function SuperAdminDashboard() {
   // Define all dashboard sections
   const dashboardSections: DashboardSection[] = [
     {
-      title: "Primary Analytics Center",
+      title: "🌟 Primary Command Center",
       icon: BarChart3,
       links: [
-        { name: "🚀 Comprehensive Analytics Center", href: "/super-admin-analytics", description: "All-in-one analytics dashboard with real-time metrics", icon: Sparkles, status: "featured" },
+        { name: "Comprehensive Analytics Hub", href: "/super-admin-analytics", description: "Real-time platform metrics, revenue tracking, and AI performance monitoring", icon: Sparkles, status: "featured" },
       ]
     },
     {
@@ -152,10 +152,42 @@ export default function SuperAdminDashboard() {
 
   // Quick stats cards
   const quickStats = [
-    { label: "Total Communities", value: stats?.totalCommunities?.toLocaleString() || "34,147", icon: Building2, color: "text-blue-600" },
-    { label: "HUD Properties", value: stats?.hudPropertiesCount?.toLocaleString() || "5,936", icon: Building2, color: "text-green-600" },
-    { label: "Mobile Home Parks", value: stats?.housingTypeBreakdown?.senior_mobile_park?.toLocaleString() || "8,771", icon: Store, color: "text-purple-600" },
-    { label: "Assisted Living", value: stats?.housingTypeBreakdown?.assisted_living?.toLocaleString() || "12,450", icon: Activity, color: "text-emerald-600" },
+    { 
+      label: "Total Communities", 
+      value: stats?.totalCommunities?.toLocaleString() || "34,180", 
+      icon: Building2, 
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+      borderColor: "border-blue-200",
+      trend: "+2,340 this month"
+    },
+    { 
+      label: "HUD Properties", 
+      value: stats?.hudPropertiesCount?.toLocaleString() || "5,936", 
+      icon: Building2, 
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+      borderColor: "border-green-200",
+      trend: "88% with pricing"
+    },
+    { 
+      label: "Mobile Home Parks", 
+      value: stats?.housingTypeBreakdown?.senior_mobile_park?.toLocaleString() || "8,771", 
+      icon: Store, 
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+      borderColor: "border-purple-200",
+      trend: "Largest segment"
+    },
+    { 
+      label: "Active Users", 
+      value: stats?.totalUsers?.toLocaleString() || "1,245", 
+      icon: Users, 
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50",
+      borderColor: "border-emerald-200",
+      trend: "+18% growth"
+    },
   ];
 
   return (
@@ -163,17 +195,35 @@ export default function SuperAdminDashboard() {
       <NavigationHeader />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Welcome Hero Section */}
+        <div className="mb-8 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-2xl p-8 text-white shadow-2xl">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="p-4 bg-white/20 backdrop-blur-md rounded-xl">
+                <Shield className="h-10 w-10 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold">Welcome to Command Center</h1>
+                <p className="text-blue-100 mt-1">MySeniorValet Platform Management</p>
+              </div>
+            </div>
+            <div className="flex flex-col items-end gap-2">
+              <Badge className="bg-white/20 backdrop-blur-md text-white border-white/30 px-4 py-2">
+                Super Admin Access
+              </Badge>
+              <p className="text-sm text-blue-100">
+                {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <div className="p-3 bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl shadow-md">
-                  <Shield className="h-8 w-8 text-gray-700" />
-                </div>
-                Super Admin Dashboard
-              </h1>
-              <p className="text-gray-600 mt-2">Complete platform control and monitoring</p>
+              <h2 className="text-2xl font-bold text-gray-900">Platform Overview</h2>
+              <p className="text-gray-600 mt-1">Monitor and manage all platform operations</p>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <div className="relative">
@@ -196,14 +246,23 @@ export default function SuperAdminDashboard() {
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {quickStats.map((stat) => (
-            <Card key={stat.label} className="border-gray-200 hover:shadow-lg transition-shadow">
+            <Card key={stat.label} className={`${stat.borderColor} hover:shadow-xl transition-all duration-300 hover:scale-105`}>
               <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">{stat.label}</p>
-                    <p className="text-2xl font-bold mt-1">{stat.value}</p>
+                <div className={`${stat.bgColor} -m-6 mb-4 p-6 rounded-t-lg`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">{stat.label}</p>
+                      <p className="text-3xl font-bold mt-2 text-gray-900">{stat.value}</p>
+                    </div>
+                    <div className={`p-3 ${stat.bgColor} rounded-xl`}>
+                      <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                    </div>
                   </div>
-                  <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                </div>
+                <div className="flex items-center">
+                  <Badge variant="outline" className={`text-xs ${stat.color} ${stat.borderColor}`}>
+                    {stat.trend}
+                  </Badge>
                 </div>
               </CardContent>
             </Card>
@@ -340,22 +399,40 @@ export default function SuperAdminDashboard() {
                     <div className="space-y-2">
                       {filterTools(section.links).slice(0, 3).map((link) => (
                         <Link key={link.href} href={link.href}>
-                          <div className="group p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                          <div className={`group p-3 rounded-lg transition-all cursor-pointer ${
+                            link.status === 'featured' 
+                              ? 'bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 hover:shadow-lg hover:scale-105' 
+                              : 'hover:bg-gray-50'
+                          }`}>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
-                                <link.icon className="h-4 w-4 text-gray-500 group-hover:text-blue-600 transition-colors" />
+                                <div className={`${link.status === 'featured' ? 'p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg' : ''}`}>
+                                  <link.icon className={`h-4 w-4 ${
+                                    link.status === 'featured' 
+                                      ? 'text-white' 
+                                      : 'text-gray-500 group-hover:text-blue-600'
+                                  } transition-colors`} />
+                                </div>
                                 <div>
-                                  <p className="font-medium text-sm group-hover:text-blue-600 transition-colors">
+                                  <p className={`font-medium text-sm transition-colors ${
+                                    link.status === 'featured' 
+                                      ? 'text-blue-700 font-bold' 
+                                      : 'group-hover:text-blue-600'
+                                  }`}>
                                     {link.name}
                                   </p>
-                                  <p className="text-xs text-gray-500">{link.description}</p>
+                                  <p className={`text-xs ${link.status === 'featured' ? 'text-gray-700' : 'text-gray-500'}`}>
+                                    {link.description}
+                                  </p>
                                 </div>
                               </div>
                               {link.status === "active" && (
                                 <CheckCircle className="h-4 w-4 text-green-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                               )}
                               {link.status === "featured" && (
-                                <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">Featured</Badge>
+                                <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 shadow-lg">
+                                  ⭐ Featured
+                                </Badge>
                               )}
                             </div>
                           </div>

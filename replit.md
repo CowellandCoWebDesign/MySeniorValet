@@ -4,7 +4,7 @@
 MySeniorValet is a comprehensive senior living transparency platform designed to provide accurate, verified information about senior living communities across North America. It utilizes multi-AI intelligence orchestration (Claude, Gemini, ChatGPT, Grok) for data cross-validation, offering insights into over 34,000 communities in the U.S. and Canada, including traditional assisted living, 55+ active adult, mobile home parks, and manufactured home communities. A key capability is the display of verified HUD pricing. The platform's vision is to bring unparalleled transparency to the senior living market.
 
 ## User Preferences
-- **Authentication Priority**: William.cowell01@gmail.com requires super admin access. Platform configured for production Replit Auth integration.
+- **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
 - **Notification Email Configuration**:
   - Super Admin Primary: William.cowell01@gmail.com (private)
   - Super Admin Backup: CowellandCoWebDesign@gmail.com (private)
