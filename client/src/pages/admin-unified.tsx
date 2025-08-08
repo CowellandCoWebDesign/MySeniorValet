@@ -70,7 +70,9 @@ import {
   Zap,
   RefreshCw,
   DownloadCloud,
-  UploadCloud
+  UploadCloud,
+  MapPin,
+  CreditCard
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -599,6 +601,42 @@ const SuperAdminControls = () => {
             >
               <AlertTriangle className="h-5 w-5" />
               <span className="text-xs text-center">Maintenance Mode</span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-24 border-2 border-green-600 hover:bg-green-50 dark:hover:bg-green-950"
+              onClick={() => window.location.href = '/admin/availability-heatmap'}
+            >
+              <MapPin className="h-5 w-5 text-green-600" />
+              <span className="text-xs text-center text-green-600 font-semibold">Enhanced Heatmap</span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-24"
+              onClick={() => window.location.href = '/super-admin-analytics'}
+            >
+              <BarChart3 className="h-5 w-5" />
+              <span className="text-xs text-center">Analytics Center</span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-24"
+              onClick={() => window.location.href = '/payment-monitoring'}
+            >
+              <CreditCard className="h-5 w-5" />
+              <span className="text-xs text-center">Payment System</span>
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-24"
+              onClick={() => window.location.href = '/legal-document-history'}
+            >
+              <FileText className="h-5 w-5" />
+              <span className="text-xs text-center">Legal Docs</span>
             </Button>
           </div>
         </CardContent>
