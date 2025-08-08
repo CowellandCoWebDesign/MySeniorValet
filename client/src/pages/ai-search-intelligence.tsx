@@ -215,6 +215,8 @@ export default function AISearchIntelligence() {
     }
   }, [mapCommunities]);
 
+  // Load initial communities on mount (moved after mutations are defined)
+
   // AI Search Mutation
   const aiSearchMutation = useMutation({
     mutationFn: async ({ query, type }: { query: string; type: string }) => {
@@ -414,18 +416,72 @@ export default function AISearchIntelligence() {
       return data;
     },
     onSuccess: (data) => {
+      console.log('🎯 Simplified search success:', data);
       queryClient.setQueryData(['simplified-search-results'], data);
       
-      // Update map center based on first result
-      if (data.results && data.results.length > 0) {
-        const firstResult = data.results[0];
-        if (firstResult.latitude && firstResult.longitude) {
-          setMapCenter([parseFloat(firstResult.latitude), parseFloat(firstResult.longitude)]);
+      // Update the communities list
+      if (Array.isArray(data)) {
+        console.log(`🔍 Setting ${data.length} search results to list (raw array)`);
+        setMapCommunities(data);
+        if (data.length > 0 && data[0].latitude && data[0].longitude) {
+          setMapCenter([parseFloat(data[0].latitude), parseFloat(data[0].longitude)]);
           setMapZoom(10);
+        }
+      } else if (data.results && Array.isArray(data.results)) {
+        console.log(`🔍 Setting ${data.results.length} search results to list`);
+        setMapCommunities(data.results);
+        if (data.results.length > 0) {
+          const firstResult = data.results[0];
+          if (firstResult.latitude && firstResult.longitude) {
+            setMapCenter([parseFloat(firstResult.latitude), parseFloat(firstResult.longitude)]);
+            setMapZoom(10);
+          }
+        }
+      } else if (data.communities && Array.isArray(data.communities)) {
+        console.log(`🔍 Setting ${data.communities.length} search results to list`);
+        setMapCommunities(data.communities);
+        if (data.communities.length > 0) {
+          const firstResult = data.communities[0];
+          if (firstResult.latitude && firstResult.longitude) {
+            setMapCenter([parseFloat(firstResult.latitude), parseFloat(firstResult.longitude)]);
+            setMapZoom(10);
+          }
         }
       }
     }
   });
+
+  // Load initial communities on mount (after mutations are defined)
+  useEffect(() => {
+    if (activeTab === 'simplified' && mapCommunities.length === 0 && !simplifiedSearchMutation.data) {
+      console.log('📍 Loading initial communities...');
+      fetch('/api/communities/search/unified?limit=30')
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to fetch');
+          return res.json();
+        })
+        .then(data => {
+          console.log('📍 Initial data response:', data);
+          if (Array.isArray(data)) {
+            console.log(`📍 Loaded ${data.length} initial communities (raw array)`);
+            setMapCommunities(data);
+          } else if (data.results && Array.isArray(data.results)) {
+            console.log(`📍 Loaded ${data.results.length} initial communities`);
+            setMapCommunities(data.results);
+          } else if (data.communities && Array.isArray(data.communities)) {
+            console.log(`📍 Loaded ${data.communities.length} initial communities`);
+            setMapCommunities(data.communities);
+          }
+        })
+        .catch(err => console.error('Error loading initial communities:', err));
+    }
+  }, [activeTab]);
+
+  // Handle simplified search execution
+  const handleSimplifiedSearch = useCallback(() => {
+    console.log('🔍 Executing simplified search with filters:', simplifiedFilters);
+    simplifiedSearchMutation.mutate(simplifiedFilters);
+  }, [simplifiedFilters, simplifiedSearchMutation]);
 
   // Handle AI-powered search
   const handleAISearch = useCallback(async (query?: string) => {
@@ -1015,7 +1071,7 @@ export default function AISearchIntelligence() {
                   })}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
-                      simplifiedSearchMutation.mutate(simplifiedFilters);
+                      handleSimplifiedSearch();
                     }
                   }}
                   className="w-full pl-10 pr-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:border-blue-500"
@@ -1233,9 +1289,7 @@ export default function AISearchIntelligence() {
                   <label className="text-[11px] font-semibold text-gray-600 mb-1 block">Immediate Availability</label>
                   <div className="flex items-center gap-1">
                     <Button
-                      onClick={() => {
-                        simplifiedSearchMutation.mutate(simplifiedFilters);
-                      }}
+                      onClick={handleSimplifiedSearch}
                       className="bg-blue-600 text-white hover:bg-blue-700 h-10 px-3 text-[11px]"
                     >
                       <CheckCircle className="w-3 h-3 mr-1" />
@@ -1290,7 +1344,7 @@ export default function AISearchIntelligence() {
                       const north = bounds.getNorth ? bounds.getNorth() : bounds.north;
                       
                       console.log('📍 Fetching communities for bounds:', { west, east, south, north });
-                      fetch(`/api/communities/search/map?west=${west}&east=${east}&south=${south}&north=${north}&limit=50`)
+                      fetch(`/api/communities/search/unified?west=${west}&east=${east}&south=${south}&north=${north}&limit=50`)
                         .then(res => res.json())
                         .then(data => {
                           console.log('📍 Map search results:', data);
