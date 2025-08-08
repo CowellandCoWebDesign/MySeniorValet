@@ -516,83 +516,14 @@ export function registerPaymentRoutes(app: Express) {
       
       // Handle new communities
       if (communityId === 'new') {
-        // For new communities, we'll create a placeholder record
-        console.log('New community payment confirmed:', { tier, paymentIntentId });
+        // For new communities, return an error - we should not create test communities
+        console.log('New community payment attempted:', { tier, paymentIntentId });
         
-        // Validate tier is paid tier
-        if (!['standard', 'featured', 'platinum'].includes(tier)) {
-          return res.status(400).json({ 
-            error: `Invalid tier "${tier}". Only paid tiers are allowed for new communities.`
-          });
-        }
-        
-        // Create new community entry with minimal required fields
-        // Fix array initialization to prevent map errors
-        const [newCommunity] = await db
-          .insert(communities)
-          .values({
-            name: 'MySeniorValet Test Island 🏝️',
-            address: 'Pending',
-            city: 'Pending',
-            state: 'Pending',
-            zipCode: '00000',
-            subscriptionTier: tier as 'standard' | 'featured' | 'platinum',
-            billingStatus: 'active' as const,
-            stripeCustomerId: paymentIntent.customer as string || null,
-            // Set non-nullable fields with defaults
-            latitude: 0,
-            longitude: 0,
-            capacity: 0,
-            // Use default values for arrays - Drizzle will handle the defaults
-            careTypes: ['Pending Verification'],
-            amenities: [],
-            languagesSpoken: [],
-            specialPrograms: [],
-            insuranceAccepted: [],
-            securityFeatures: [],
-            roomTypes: [],
-            roomAmenities: [],
-            activitiesIncluded: [],
-            utilitiesIncluded: [],
-            // Set boolean defaults
-            virtualTours: false,
-            petFriendly: false,
-            transportationServices: false,
-            mealPlansIncluded: false,
-            veteranPrograms: false,
-            medicaidAccepted: false,
-            medicareAccepted: false,
-            privatePayAccepted: true,
-            allInclusive: false,
-            waitlistAvailable: false,
-            // String defaults
-            smokingPolicy: 'No Smoking',
-            alcoholPolicy: 'Not Allowed',
-            visitingHours: '24/7',
-            pricingModel: 'Contact for Pricing',
-            // Nullable fields
-            phone: null,
-            email: null,
-            website: null,
-            description: null,
-            yearEstablished: null,
-            minAge: null,
-            maxAge: null,
-            genderRestrictions: null,
-            religiousAffiliation: null,
-            emergencyResponseTime: null,
-            staffingRatio: null,
-            startingPrice: null,
-            averagePrice: null,
-            depositsRequired: null,
-            applicationFee: null,
-            availableUnits: 0,
-            admissionRequirements: null,
-            dischargePolicy: null
-          })
-          .returning({ id: communities.id });
-          
-        finalCommunityId = newCommunity.id.toString();
+        return res.status(400).json({ 
+          error: 'Community ID required',
+          message: 'A valid community ID must be provided for subscription upgrades. New community registrations should go through the proper onboarding flow.',
+          details: 'Please select an existing community to upgrade.'
+        });
       } else {
         // Validate and parse existing communityId
         const parsedCommunityId = parseInt(communityId);

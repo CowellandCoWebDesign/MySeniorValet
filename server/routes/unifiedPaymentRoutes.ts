@@ -534,55 +534,13 @@ router.post('/confirm-community-payment', async (req: Request, res: Response) =>
     let finalCommunityId = communityId;
     
     if (communityId === 'new') {
-      // Create new community with test data using raw SQL to bypass Drizzle issues
-      const testCommunityName = `MySeniorValet Test Island 🏝️ ${Date.now()}`;
+      // Do not create test communities - return proper error
+      console.log('New community payment attempted in unified routes:', { tier, paymentIntentId });
       
-      console.log('Step 1: Creating community with name:', testCommunityName);
-      
-      // Use native PostgreSQL pool directly, bypassing Drizzle completely
-      const rawQuery = `
-        INSERT INTO communities (
-          name, address, city, state, zip_code, 
-          latitude, longitude, care_types,
-          subscription_tier, billing_status,
-          phone, email, description
-        ) VALUES (
-          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
-        ) RETURNING id, name
-      `;
-      
-      console.log('Step 2: About to execute pool.query...');
-      
-      let result;
-      try {
-        result = await pool.query(rawQuery, [
-          testCommunityName,
-          '123 Test Street',
-          'Test City',
-          'FL',
-          '12345',
-          25.7617,
-          -80.1918,
-          ['Assisted Living'],  // PostgreSQL array
-          tier,
-          'active',
-          '555-0100',
-          'test@myseniorvalet.com',
-          'Test community created via payment flow'
-        ]);
-        console.log('Step 3: pool.query executed successfully');
-      } catch (poolError) {
-        console.error('Step 3 ERROR: pool.query failed:', poolError);
-        throw poolError;
-      }
-      
-      const newCommunity = result.rows[0] as { id: number; name: string };
-      
-      finalCommunityId = newCommunity.id.toString();
-      console.log('Step 4: Created new community:', {
-        id: finalCommunityId,
-        name: testCommunityName,
-        tier
+      return res.status(400).json({ 
+        error: 'Community ID required',
+        message: 'A valid community ID must be provided for subscription upgrades.',
+        details: 'New community registrations must go through the proper onboarding flow.'
       });
     } else {
       // Update existing community using raw SQL to bypass Drizzle issues

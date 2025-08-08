@@ -336,7 +336,7 @@ export class AISearchInsights {
           const response = await openai.chat.completions.create({
             model: 'gpt-5', // Upgraded to GPT-5 (Released August 7, 2025)
             messages: [{ role: 'user', content: prompt }],
-            max_tokens: 100,
+            max_completion_tokens: 100, // GPT-5 uses max_completion_tokens instead of max_tokens
             reasoning_effort: 'low' // New GPT-5 parameter for quick insights
           });
           

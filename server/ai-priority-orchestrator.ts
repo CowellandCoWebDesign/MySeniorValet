@@ -1,14 +1,13 @@
 /**
  * AI Priority Orchestrator for MySeniorValet
  * 
- * Priority Order (as of January 2025):
- * 1. Claude (Primary) - Best for complex reasoning, care planning
- * 2. ChatGPT (Secondary) - Financial analysis, contract review
+ * Priority Order (as of August 2025):
+ * 1. ChatGPT-5 (Primary) - Released Aug 7, 2025 - Best overall performance, fewer hallucinations
+ * 2. Claude (Secondary) - Complex reasoning, care planning
  * 3. Perplexity (3rd) - Real-time web search, current pricing
- * 4. Gemini (4th) - Visual analysis, market trends
- * 5. Grok (5th) - Truth verification (ready but awaiting API)
  * 
- * This orchestrator ensures paid services (Claude, ChatGPT, Perplexity) 
+ * Note: Gemini and Grok removed from orchestration per user request (Aug 8, 2025)
+ * This orchestrator ensures paid services (ChatGPT-5, Claude, Perplexity) 
  * are prioritized for better results and accuracy.
  */
 
@@ -76,11 +75,11 @@ export class AIPriorityOrchestrator {
     };
 
     console.log('🚀 AI Priority Orchestrator initialized:');
-    console.log('  1️⃣ Claude:', this.aiStatus.claude ? '✅ Active' : '❌ Missing API key');
-    console.log('  2️⃣ ChatGPT:', this.aiStatus.chatgpt ? '✅ Active' : '❌ Missing API key');
-    console.log('  3️⃣ Perplexity:', this.aiStatus.perplexity ? '✅ Active' : '❌ Missing API key');
-    console.log('  4️⃣ Gemini:', this.aiStatus.gemini ? '✅ Active' : '❌ Missing API key');
-    console.log('  5️⃣ Grok:', this.aiStatus.grok ? '🔜 Ready (awaiting activation)' : '⏳ Prepared for future');
+    console.log('  1️⃣ ChatGPT-5:', this.aiStatus.chatgpt ? '✅ Active (Primary)' : '❌ Missing API key');
+    console.log('  2️⃣ Claude:', this.aiStatus.claude ? '✅ Active (Secondary)' : '❌ Missing API key');
+    console.log('  3️⃣ Perplexity:', this.aiStatus.perplexity ? '✅ Active (3rd)' : '❌ Missing API key');
+    console.log('  ❌ Gemini: Removed from orchestration');
+    console.log('  ❌ Grok: Removed from orchestration');
   }
 
   /**
@@ -123,41 +122,31 @@ export class AIPriorityOrchestrator {
           servicesUsed.push('Claude');
         }
       }
-      // Default: Use priority order (Claude first)
+      // Default: Use priority order (ChatGPT-5 first)
       else {
-        // Try Claude first (Priority 1)
-        if (this.aiStatus.claude) {
-          console.log('🧠 Using Claude (Primary AI)...');
+        // Try ChatGPT-5 first (Priority 1)
+        if (this.aiStatus.chatgpt) {
+          console.log('🤖 Using ChatGPT-5 (Primary AI)...');
+          primaryResult = await this.callChatGPT(request);
+          servicesUsed.push('ChatGPT-5');
+        }
+        
+        // If ChatGPT fails or is unavailable, try Claude (Priority 2)
+        if (!primaryResult && this.aiStatus.claude) {
+          console.log('🧠 Falling back to Claude (Secondary AI)...');
           primaryResult = await this.callClaude(request);
           servicesUsed.push('Claude');
         }
         
-        // If Claude fails or is unavailable, try ChatGPT (Priority 2)
-        if (!primaryResult && this.aiStatus.chatgpt) {
-          console.log('🤖 Falling back to ChatGPT (Secondary AI)...');
-          primaryResult = await this.callChatGPT(request);
-          servicesUsed.push('ChatGPT');
-        }
-        
-        // Get supporting analysis from lower priority AIs
+        // Get supporting analysis from Perplexity (Priority 3)
         if (primaryResult) {
-          // Try Perplexity for additional context (Priority 3)
+          // Try Perplexity for additional context
           if (this.aiStatus.perplexity && request.type === 'search') {
             try {
               secondaryResult = await this.callPerplexity(request);
               servicesUsed.push('Perplexity');
             } catch (error) {
               console.log('⚠️ Perplexity supplemental search failed:', error);
-            }
-          }
-          
-          // Try Gemini for visual/trend analysis (Priority 4)
-          if (this.aiStatus.gemini && request.requireVisual) {
-            try {
-              tertiaryResult = await this.callGemini(request);
-              servicesUsed.push('Gemini');
-            } catch (error) {
-              console.log('⚠️ Gemini visual analysis failed:', error);
             }
           }
         }
@@ -212,7 +201,7 @@ export class AIPriorityOrchestrator {
   }
 
   /**
-   * Call ChatGPT API (Priority 2)
+   * Call ChatGPT-5 API (Priority 1)
    */
   private async callChatGPT(request: AIAnalysisRequest): Promise<any> {
     try {
@@ -226,7 +215,9 @@ export class AIPriorityOrchestrator {
           { role: 'user', content: userPrompt }
         ],
         response_format: { type: 'json_object' },
-        temperature: 0.7
+        max_completion_tokens: 2000, // GPT-5 uses max_completion_tokens instead of max_tokens
+        temperature: 0.7,
+        reasoning_effort: 'medium' // New GPT-5 parameter for balanced reasoning
       });
 
       const content = response.choices[0]?.message?.content;
