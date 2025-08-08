@@ -280,7 +280,7 @@ export function AutocompleteSearch({
   return (
     <div className="relative w-full">
       <div className="relative">
-        <Search className="absolute left-6 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 z-10" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
         <input
           ref={inputRef}
           type="text"
@@ -289,7 +289,7 @@ export function AutocompleteSearch({
           onKeyDown={handleKeyDown}
           onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
           placeholder={placeholder}
-          className={inputClassName || "w-full pl-14 pr-6 py-5 text-lg md:text-xl border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"}
+          className={inputClassName || "w-full pl-10 pr-6 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"}
           disabled={isLoading}
         />
         {!hideSearchButton && (
@@ -312,8 +312,8 @@ export function AutocompleteSearch({
       {showSuggestions && (suggestions.length > 0 || loadingSuggestions) && (
         <Card 
           ref={suggestionsRef}
-          className="absolute w-full mt-1 max-h-[500px] overflow-y-auto shadow-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
-          style={{ zIndex: 999999, position: 'absolute', top: '100%', left: 0, right: 0 }}
+          className="absolute w-full mt-2 max-h-[400px] overflow-y-auto shadow-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+          style={{ zIndex: 50, position: 'absolute', top: '100%', left: 0, right: 0 }}
         >
           {loadingSuggestions ? (
             <div className="p-4 text-center">
