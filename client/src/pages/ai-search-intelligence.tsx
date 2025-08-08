@@ -454,26 +454,34 @@ export default function AISearchIntelligence() {
   // Load initial communities on mount (after mutations are defined)
   useEffect(() => {
     if (activeTab === 'simplified' && mapCommunities.length === 0 && !simplifiedSearchMutation.data) {
-      console.log('📍 Loading initial communities...');
-      fetch('/api/communities/search/unified?limit=30')
+      console.log('📍 Loading initial communities for San Francisco...');
+      // Load default San Francisco communities
+      const defaultBounds = {
+        west: -122.5,
+        east: -122.3,
+        south: 37.7,
+        north: 37.85
+      };
+      
+      fetch(`/api/communities/clusters?zoom=12&west=${defaultBounds.west}&south=${defaultBounds.south}&east=${defaultBounds.east}&north=${defaultBounds.north}`)
         .then(res => {
-          if (!res.ok) throw new Error('Failed to fetch');
+          if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
           return res.json();
         })
         .then(data => {
-          console.log('📍 Initial data response:', data);
-          if (Array.isArray(data)) {
-            console.log(`📍 Loaded ${data.length} initial communities (raw array)`);
-            setMapCommunities(data);
-          } else if (data.results && Array.isArray(data.results)) {
-            console.log(`📍 Loaded ${data.results.length} initial communities`);
-            setMapCommunities(data.results);
-          } else if (data.communities && Array.isArray(data.communities)) {
-            console.log(`📍 Loaded ${data.communities.length} initial communities`);
-            setMapCommunities(data.communities);
+          console.log('📍 Initial clusters response:', data);
+          if (data.clusters && Array.isArray(data.clusters)) {
+            // Extract communities from cluster features
+            const communities = data.clusters
+              .filter((feature: any) => !feature.properties.cluster)
+              .map((feature: any) => feature.properties)
+              .filter((c: any) => c.id && c.name);
+            
+            console.log(`📍 Loaded ${communities.length} initial communities from clusters`);
+            setMapCommunities(communities);
           }
         })
-        .catch(err => console.error('Error loading initial communities:', err));
+        .catch(err => console.error('Error loading initial communities:', err.message || err));
     }
   }, [activeTab]);
 
@@ -1344,20 +1352,27 @@ export default function AISearchIntelligence() {
                       const north = bounds.getNorth ? bounds.getNorth() : bounds.north;
                       
                       console.log('📍 Fetching communities for bounds:', { west, east, south, north });
-                      fetch(`/api/communities/search/unified?west=${west}&east=${east}&south=${south}&north=${north}&limit=50`)
-                        .then(res => res.json())
+                      // Use the clusters endpoint which is working correctly
+                      fetch(`/api/communities/clusters?zoom=${mapZoom}&west=${west}&south=${south}&east=${east}&north=${north}`)
+                        .then(res => {
+                          if (!res.ok) throw new Error(`Failed: ${res.status}`);
+                          return res.json();
+                        })
                         .then(data => {
-                          console.log('📍 Map search results:', data);
-                          if (data.results && Array.isArray(data.results)) {
-                            console.log(`📍 Setting ${data.results.length} communities to list`);
-                            setMapCommunities(data.results);
-                          } else if (data.communities && Array.isArray(data.communities)) {
-                            console.log(`📍 Setting ${data.communities.length} communities to list`);
-                            setMapCommunities(data.communities);
+                          console.log('📍 Clusters response for list:', data);
+                          if (data.clusters && Array.isArray(data.clusters)) {
+                            // Extract non-cluster communities from the features
+                            const communities = data.clusters
+                              .filter((feature: any) => !feature.properties.cluster)
+                              .map((feature: any) => feature.properties)
+                              .filter((c: any) => c.id && c.name);
+                            
+                            console.log(`📍 Setting ${communities.length} communities to list from clusters`);
+                            setMapCommunities(communities);
                           }
                         })
                         .catch(err => {
-                          console.error('Error fetching map communities:', err);
+                          console.error('Error fetching map communities:', err.message || err);
                         });
                     }
                   }}
