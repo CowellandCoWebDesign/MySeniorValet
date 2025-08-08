@@ -1421,142 +1421,95 @@ export default function AISearchIntelligence() {
               </div>
 
               {/* List Section - Right Side - Takes 46% */}
-              <div className="w-[46%] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-y-auto">
-                {simplifiedSearchMutation.isPending ? (
-                  <div className="flex items-center justify-center h-full">
-                    <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                  </div>
-                ) : (simplifiedSearchMutation.data?.results?.length > 0 || mapCommunities.length > 0) ? (
-                  <div className="space-y-2 p-3">
-                    {(simplifiedSearchMutation.data?.results?.length > 0 ? simplifiedSearchMutation.data.results : mapCommunities).map((community: any) => (
-                      <Card 
-                        key={community.id}
-                        id={`community-${community.id}`}
-                        className="w-full border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200 bg-white dark:bg-gray-800 rounded-lg overflow-hidden mb-3 cursor-pointer"
-                        onClick={() => window.location.href = `/community/${community.id}`}
-                      >
-                        <div className="flex h-[140px]">
-                          {/* Left side - Image (matching home page style) */}
-                          <div className="w-[180px] h-full flex-shrink-0 relative bg-gray-200 dark:bg-gray-700">
-                            {/* Badge like home page */}
-                            {(community.mealPlans || community.featured) && (
-                              <div className="absolute top-2 left-2 z-10">
-                                <Badge className="bg-blue-600 hover:bg-blue-600 text-white text-xs px-2 py-0.5 rounded font-medium">
-                                  {community.featured ? 'Featured' : 'Meal Plans'}
-                                </Badge>
-                              </div>
-                            )}
-                            
-                            {community.photos && community.photos.length > 0 ? (
-                              <img 
-                                src={community.photos[0]} 
-                                alt={community.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
-                                <div className="text-center">
-                                  <Building2 className="w-8 h-8 text-gray-400 mx-auto mb-1" />
-                                  <span className="text-xs text-gray-500">Photos Coming Soon</span>
+              <div className="w-[46%] bg-gray-50 dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
+                <div className="h-full overflow-y-auto p-4">
+                  {simplifiedSearchMutation.isPending ? (
+                    <div className="flex items-center justify-center h-full">
+                      <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                    </div>
+                  ) : (simplifiedSearchMutation.data?.results?.length > 0 || mapCommunities.length > 0) ? (
+                    <div className="space-y-3">
+                      {(simplifiedSearchMutation.data?.results?.length > 0 ? simplifiedSearchMutation.data.results : mapCommunities).map((community: any) => (
+                        <Card 
+                          key={community.id}
+                          id={`community-${community.id}`}
+                          className="w-full border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 bg-white dark:bg-gray-800 rounded-lg overflow-hidden cursor-pointer"
+                          onClick={() => window.location.href = `/community/${community.id}`}
+                        >
+                          <div className="flex h-[160px]">
+                            {/* Left side - Image */}
+                            <div className="w-[200px] h-full flex-shrink-0 relative bg-gray-200 dark:bg-gray-700">
+                              {community.photos && community.photos.length > 0 ? (
+                                <img 
+                                  src={community.photos[0]} 
+                                  alt={community.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+                                  <div className="text-center">
+                                    <Building2 className="w-10 h-10 text-gray-400 mx-auto mb-2" />
+                                    <span className="text-sm text-gray-500">Photos Coming Soon</span>
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-                            
-                            {/* Price overlay on image */}
-                            {community.priceRange && typeof community.priceRange === 'object' && (
-                              <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white px-2 py-1">
-                                <div className="text-xs font-bold">
-                                  ${(community.priceRange.min || 0).toLocaleString()} - ${(community.priceRange.max || 0).toLocaleString()}/mo
-                                </div>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Right side - Content (matching home page layout) */}
-                          <div className="flex-1 p-3 flex flex-col">
-                            {/* Top section */}
-                            <div className="flex-1">
-                              {/* Community Name */}
-                              <h3 className="font-semibold text-sm text-gray-900 dark:text-white mb-1 leading-tight line-clamp-1">
-                                {community.name}
-                              </h3>
+                              )}
                               
-                              {/* Location with full address */}
-                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                                <div className="font-medium text-gray-700 dark:text-gray-300">
-                                  {community.careTypes?.join(', ') || 'Adult Home'}
+                              {/* Price overlay on image */}
+                              {community.priceRange && typeof community.priceRange === 'object' && (
+                                <div className="absolute bottom-0 left-0 right-0 bg-black/80 text-white px-3 py-2">
+                                  <div className="text-sm font-bold">
+                                    ${(community.priceRange.min || 0).toLocaleString()} - ${(community.priceRange.max || 0).toLocaleString()}/mo
+                                  </div>
                                 </div>
-                                <div className="line-clamp-1">
-                                  {community.address || community.city}, {community.state} {community.zipCode || ''}
-                                </div>
-                              </div>
-
-                              {/* Meta info */}
-                              <div className="flex items-center gap-3 text-[10px] text-gray-500 dark:text-gray-400 mb-2">
-                                <span className="flex items-center gap-1">
-                                  <span className="text-gray-400">⭘</span> N/A units
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <span className="text-gray-400">⭘</span> No rating
-                                </span>
-                                {community.id && (
-                                  <span className="text-gray-400">
-                                    ID: {community.id}
-                                  </span>
-                                )}
-                              </div>
-
-                              {/* Tier Badge */}
-                              <div className="mb-2">
-                                <Badge 
-                                  variant={community.featured ? 'default' : 'secondary'}
-                                  className={`text-[10px] px-2 py-0.5 ${
-                                    community.featured ? 'bg-yellow-500 text-white' : 
-                                    community.premium ? 'bg-purple-500 text-white' : 
-                                    'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-                                  }`}
-                                >
-                                  <span className="mr-1">
-                                    {community.featured ? '✨' : community.premium ? '💎' : '⭘'}
-                                  </span>
-                                  {community.featured ? 'Featured' : community.premium ? 'Premium' : 'Standard'}
-                                </Badge>
-                              </div>
+                              )}
                             </div>
 
-                            {/* Bottom section - Special Features */}
-                            <div className="border-t border-gray-200 dark:border-gray-700 pt-2">
-                              <div className="text-[10px] font-medium text-gray-600 dark:text-gray-400 mb-1">
-                                Special Features:
-                              </div>
-                              <div className="flex items-start gap-1 text-[10px] text-gray-700 dark:text-gray-300">
-                                <span className="text-green-600">✓</span>
-                                <span className="line-clamp-2">
-                                  {community.specialFeatures || 
-                                   community.services?.slice(0, 2).join(', ') ||
-                                   'Specialized senior living and care services, Full amenity list available'}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1 text-[10px] text-gray-700 dark:text-gray-300 mt-1">
-                                <span className="text-green-600">✓</span>
-                                <span>Full amenity list available</span>
-                              </div>
-                            </div>
+                            {/* Right side - Content */}
+                            <div className="flex-1 p-4 flex flex-col justify-between">
+                              {/* Top section */}
+                              <div>
+                                {/* Community Name */}
+                                <h3 className="font-bold text-base text-gray-900 dark:text-white mb-1">
+                                  {community.name}
+                                </h3>
+                                
+                                {/* Care Type */}
+                                <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                  {community.careTypes?.join(' / ') || 'Assisted Living'}
+                                </div>
+                                
+                                {/* Address */}
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                  {community.address || '350 UNIVERSITY STREET'}
+                                </div>
 
-                            {/* View Details Button */}
-                            <Button 
-                              className="w-full mt-2 h-8 text-xs bg-green-600 hover:bg-green-700 text-white"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                window.location.href = `/community/${community.id}`;
-                              }}
-                            >
-                              View Full Details →
-                            </Button>
+                                {/* Meta info */}
+                                <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-3">
+                                  <span className="flex items-center gap-1">
+                                    <span className="text-gray-400">○</span>
+                                    <span>N/A units</span>
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <span className="text-gray-400">○</span>
+                                    <span>No rating</span>
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Bottom section - View Details Button */}
+                              <Button 
+                                className="w-full h-9 text-sm bg-green-600 hover:bg-green-700 text-white font-medium"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.location.href = `/community/${community.id}`;
+                                }}
+                              >
+                                View Full Details →
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                      </Card>
-                    ))}
+                        </Card>
+                      ))}
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full p-8 text-center">
