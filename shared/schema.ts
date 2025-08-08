@@ -4335,3 +4335,25 @@ export const insertNotificationQueueSchema = createInsertSchema(notificationQueu
 });
 export type InsertNotificationQueue = z.infer<typeof insertNotificationQueueSchema>;
 export type NotificationQueue = typeof notificationQueue.$inferSelect;
+
+// Availability Heatmap Types
+export interface AvailabilityHeatmapData {
+  latitude: number;
+  longitude: number;
+  availabilityScore: number; // 0-100 scale
+  communityCount: number;
+  averageAvailability: number;
+  regionName: string;
+  lastUpdated: string;
+}
+
+export interface HeatmapRegion {
+  bounds: {
+    north: number;
+    south: number;
+    east: number;
+    west: number;
+  };
+  data: AvailabilityHeatmapData[];
+  zoomLevel: number;
+}

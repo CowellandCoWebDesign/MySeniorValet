@@ -74,6 +74,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register engagement routes
   const { registerEngagementRoutes } = await import('./routes/engagementRoutes');
   
+  // Register heatmap routes
+  const heatmapRoutes = await import('./routes/heatmapRoutes');
+  app.use('/api/heatmap', heatmapRoutes.default);
+  
   // Register Documenso document signing routes
   const { registerDocumensoRoutes } = await import('./routes/documensoRoutes');
   registerDocumensoRoutes(app);
