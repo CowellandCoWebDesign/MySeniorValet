@@ -449,19 +449,24 @@ export default function MySeniorValetHome() {
             </Link>
             
             {/* Secondary Actions - Responsive Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-xl">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full max-w-3xl">
               <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
                 <Button variant="outline" className="w-full border-2 border-white text-white hover:bg-white hover:text-gray-900 px-5 py-3 rounded-xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
                   Explore Communities
                 </Button>
               </Link>
+              <Link href="/ai-search-intelligence?mode=simplified">
+                <Button variant="outline" className="w-full border-2 border-green-300 text-green-200 hover:bg-green-300 hover:text-gray-900 px-5 py-3 rounded-xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-green-400/10 backdrop-blur-sm">
+                  <Filter className="mr-1.5 h-4 w-4" />
+                  Simplified Search
+                </Button>
+              </Link>
               <Link href="/ai-search-intelligence">
                 <Button variant="outline" className="w-full border-2 border-amber-300 text-amber-200 hover:bg-amber-300 hover:text-gray-900 px-5 py-3 rounded-xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-amber-400/10 backdrop-blur-sm">
                   <MapPin className="mr-1.5 h-4 w-4" />
-                  Intelligent Search
+                  AI Intelligence
                 </Button>
               </Link>
-
             </div>
             
             {/* NEW: Live Availability Heatmap Button - Premium Feature */}
