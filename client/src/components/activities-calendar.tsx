@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,87 +28,8 @@ interface ActivitiesCalendarProps {
 }
 
 // Mock data for demonstration - in production this would come from the API
-const mockActivities: CommunityActivity[] = [
-  {
-    id: 1,
-    activityName: "Morning Coffee & Conversation",
-    activityType: "social",
-    description: "Join us for coffee and friendly conversation",
-    date: "2025-01-12",
-    startTime: "9:00 AM",
-    endTime: "10:30 AM",
-    location: "Main Lounge",
-    capacity: 20,
-    currentAttendees: 12,
-    activityLevel: "medium",
-    leadStaff: "Sarah Johnson",
-    cost: 0,
-    requiresRegistration: false
-  },
-  {
-    id: 2,
-    activityName: "Lunch & Learn: Healthy Eating",
-    activityType: "meal",
-    description: "Educational lunch about nutrition for seniors",
-    date: "2025-01-12",
-    startTime: "12:00 PM",
-    endTime: "1:30 PM",
-    location: "Dining Room",
-    capacity: 25,
-    currentAttendees: 18,
-    activityLevel: "high",
-    leadStaff: "Chef Michael",
-    cost: 5,
-    requiresRegistration: true
-  },
-  {
-    id: 3,
-    activityName: "Bingo Night",
-    activityType: "games",
-    description: "Weekly bingo with prizes",
-    date: "2025-01-12",
-    startTime: "7:00 PM",
-    endTime: "8:30 PM",
-    location: "Activity Room",
-    capacity: 30,
-    currentAttendees: 22,
-    activityLevel: "high",
-    leadStaff: "Activities Team",
-    cost: 0,
-    requiresRegistration: false
-  },
-  {
-    id: 4,
-    activityName: "Quiet Reading Time",
-    activityType: "other",
-    description: "Peaceful reading in the library",
-    date: "2025-01-13",
-    startTime: "2:00 PM",
-    endTime: "4:00 PM",
-    location: "Library",
-    capacity: 15,
-    currentAttendees: 5,
-    activityLevel: "low",
-    cost: 0,
-    requiresRegistration: false
-  },
-  {
-    id: 5,
-    activityName: "Live Jazz Performance",
-    activityType: "entertainment",
-    description: "Local jazz trio performance",
-    date: "2025-01-13",
-    startTime: "3:00 PM",
-    endTime: "4:30 PM",
-    location: "Main Lounge",
-    capacity: 40,
-    currentAttendees: 35,
-    activityLevel: "high",
-    leadStaff: "Entertainment Committee",
-    cost: 0,
-    requiresRegistration: false
-  }
-];
+// GOLDEN DATA RULE: Fetch real activities from API
+// No mock data allowed - only authentic community activities
 
 const getActivityIcon = (type: string) => {
   switch (type) {
@@ -138,8 +60,14 @@ const getSuggestedTourExperience = (activity: CommunityActivity) => {
 export default function ActivitiesCalendar({ communityId, onTourTimeSelected }: ActivitiesCalendarProps) {
   const [selectedDate, setSelectedDate] = useState<string>("");
   
+  // GOLDEN DATA RULE: Fetch real activities from API
+  const { data: activities = [] } = useQuery<CommunityActivity[]>({
+    queryKey: [`/api/communities/${communityId}/activities`],
+    enabled: !!communityId,
+  });
+  
   // Group activities by date
-  const activitiesByDate = mockActivities.reduce((acc, activity) => {
+  const activitiesByDate = activities.reduce((acc: Record<string, CommunityActivity[]>, activity: CommunityActivity) => {
     const date = activity.date;
     if (!acc[date]) acc[date] = [];
     acc[date].push(activity);

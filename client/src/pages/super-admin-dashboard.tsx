@@ -176,42 +176,43 @@ export default function SuperAdminDashboard() {
   ];
 
   // Quick stats cards - GOLDEN DATA RULE: Only show real data, no fake fallbacks
+  // Dynamic trend calculations based on actual data from API
   const quickStats = [
     { 
       label: "Total Communities", 
-      value: stats?.totalCommunities?.toLocaleString() || "Loading...", 
+      value: (stats as any)?.totalCommunities?.toLocaleString() || "Loading...", 
       icon: Building2, 
       color: "text-blue-600",
       bgColor: "bg-blue-50",
       borderColor: "border-blue-200",
-      trend: stats?.totalCommunities ? "+2,340 this month" : ""
+      trend: "" // Will be populated when API provides trend data
     },
     { 
       label: "HUD Properties", 
-      value: stats?.hudPropertiesCount?.toLocaleString() || "Loading...", 
+      value: (stats as any)?.hudPropertiesCount?.toLocaleString() || "Loading...", 
       icon: Building2, 
       color: "text-green-600",
       bgColor: "bg-green-50",
       borderColor: "border-green-200",
-      trend: stats?.hudPropertiesCount ? "88% with pricing" : ""
+      trend: "" // Will be populated when API provides pricing percentage
     },
     { 
       label: "Mobile Home Parks", 
-      value: stats?.housingTypeBreakdown?.senior_mobile_park?.toLocaleString() || "Loading...", 
+      value: (stats as any)?.housingTypeBreakdown?.senior_mobile_park?.toLocaleString() || "Loading...", 
       icon: Store, 
       color: "text-purple-600",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-200",
-      trend: stats?.housingTypeBreakdown?.senior_mobile_park ? "Largest segment" : ""
+      trend: "" // Will be populated when API provides segment comparison
     },
     { 
       label: "Active Users", 
-      value: stats?.totalUsers?.toLocaleString() || "Loading...", 
+      value: (stats as any)?.totalUsers?.toLocaleString() || "Loading...", 
       icon: Users, 
       color: "text-emerald-600",
       bgColor: "bg-emerald-50",
       borderColor: "border-emerald-200",
-      trend: stats?.totalUsers ? "+18% growth" : ""
+      trend: "" // Will be populated when API provides growth percentage
     },
   ];
 
@@ -347,23 +348,23 @@ export default function SuperAdminDashboard() {
                 <CardContent className="pb-3">
                   <div className="grid grid-cols-3 lg:grid-cols-5 gap-2">
                     <div className="p-2 bg-blue-50 rounded text-center">
-                      <p className="text-lg font-bold text-blue-600">{stats?.housingTypeBreakdown?.hud_senior_housing?.toLocaleString() || '5,936'}</p>
+                      <p className="text-lg font-bold text-blue-600">{(stats as any)?.housingTypeBreakdown?.hud_senior_housing?.toLocaleString() || 'Loading...'}</p>
                       <p className="text-xs text-gray-600">HUD</p>
                     </div>
                     <div className="p-2 bg-green-50 rounded text-center">
-                      <p className="text-lg font-bold text-green-600">{stats?.housingTypeBreakdown?.senior_mobile_park?.toLocaleString() || '8,771'}</p>
+                      <p className="text-lg font-bold text-green-600">{(stats as any)?.housingTypeBreakdown?.senior_mobile_park?.toLocaleString() || 'Loading...'}</p>
                       <p className="text-xs text-gray-600">Mobile</p>
                     </div>
                     <div className="p-2 bg-purple-50 rounded text-center">
-                      <p className="text-lg font-bold text-purple-600">{stats?.housingTypeBreakdown?.independent_living?.toLocaleString() || '8,320'}</p>
+                      <p className="text-lg font-bold text-purple-600">{(stats as any)?.housingTypeBreakdown?.independent_living?.toLocaleString() || 'Loading...'}</p>
                       <p className="text-xs text-gray-600">Independent</p>
                     </div>
                     <div className="p-2 bg-orange-50 rounded text-center">
-                      <p className="text-lg font-bold text-orange-600">{stats?.housingTypeBreakdown?.assisted_living?.toLocaleString() || '12,450'}</p>
+                      <p className="text-lg font-bold text-orange-600">{(stats as any)?.housingTypeBreakdown?.assisted_living?.toLocaleString() || 'Loading...'}</p>
                       <p className="text-xs text-gray-600">Assisted</p>
                     </div>
                     <div className="p-2 bg-red-50 rounded text-center">
-                      <p className="text-lg font-bold text-red-600">{stats?.housingTypeBreakdown?.memory_care?.toLocaleString() || '3,980'}</p>
+                      <p className="text-lg font-bold text-red-600">{(stats as any)?.housingTypeBreakdown?.memory_care?.toLocaleString() || 'Loading...'}</p>
                       <p className="text-xs text-gray-600">Memory</p>
                     </div>
                   </div>
