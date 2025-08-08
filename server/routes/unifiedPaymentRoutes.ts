@@ -120,6 +120,13 @@ router.post('/create-payment-intent', async (req: Request, res: Response) => {
       }
     }
     
+    // For communities, handle promotional pricing if needed
+    if (type === 'community' && applyPromo) {
+      // Apply early adopter special for communities (e.g., 30% off first 3 months)
+      amount = Math.floor(tierInfo.price * 0.7); // 30% off
+      description = `MySeniorValet ${tierInfo.name} - Early Adopter Special (30% OFF)`;
+    }
+    
     // Log what we're about to charge
     console.log(`Creating payment intent: $${amount / 100} for ${tierInfo.name}`);
     console.log('Pricing details:', { 
@@ -163,7 +170,7 @@ router.post('/create-payment-intent', async (req: Request, res: Response) => {
 // Create Checkout Session (alternative to Payment Intent)
 router.post('/create-checkout-session', async (req: Request, res: Response) => {
   try {
-    const { tier, type, successUrl, cancelUrl, metadata = {} } = req.body;
+    const { tier, type, successUrl, cancelUrl, metadata = {}, billingCycle = 'monthly', applyPromo = false } = req.body;
 
     // Validate input
     if (!tier || !type) {
@@ -188,7 +195,50 @@ router.post('/create-checkout-session', async (req: Request, res: Response) => {
       });
     }
 
-    // Create checkout session
+    // Calculate amount based on billing cycle and promotional pricing
+    let amount = tierInfo.price;
+    let interval: 'month' | 'year' = tierInfo.interval;
+    let description = `MySeniorValet ${tierInfo.name} - Monthly`;
+    let subscriptionDescription = `Monthly subscription for MySeniorValet ${tierInfo.name}`;
+    
+    // For vendors, handle promotional and annual pricing
+    if (type === 'vendor') {
+      const vendorTier = tierInfo as typeof VENDOR_TIERS[keyof typeof VENDOR_TIERS];
+      
+      if (billingCycle === 'annual' && vendorTier.annualPrice) {
+        // Annual billing - charge for full year upfront with 20% discount
+        amount = vendorTier.annualPrice;
+        interval = 'year';
+        description = `MySeniorValet ${tierInfo.name} - Annual (Save 20%!)`;
+        subscriptionDescription = `Annual subscription for MySeniorValet ${tierInfo.name} - Save 20%!`;
+      } else if (applyPromo && vendorTier.promoPrice) {
+        // First month promotional pricing - 50% off
+        amount = vendorTier.promoPrice;
+        description = `MySeniorValet ${tierInfo.name} - First Month 50% OFF`;
+        subscriptionDescription = `Monthly subscription for MySeniorValet ${tierInfo.name} - First Month 50% OFF`;
+      }
+    }
+    
+    // For communities, handle promotional pricing if needed
+    if (type === 'community' && applyPromo) {
+      // Apply early adopter special for communities (e.g., 30% off first 3 months)
+      amount = Math.floor(tierInfo.price * 0.7); // 30% off
+      description = `MySeniorValet ${tierInfo.name} - Early Adopter Special (30% OFF)`;
+      subscriptionDescription = `Monthly subscription for MySeniorValet ${tierInfo.name} - Early Adopter Special`;
+    }
+
+    console.log(`Creating checkout session: $${amount / 100} for ${tierInfo.name}`);
+    console.log('Pricing details:', { 
+      tier, 
+      type, 
+      originalPrice: tierInfo.price, 
+      finalAmount: amount,
+      billingCycle,
+      applyPromo,
+      interval
+    });
+
+    // Create checkout session with proper pricing
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -197,11 +247,11 @@ router.post('/create-checkout-session', async (req: Request, res: Response) => {
             currency: 'usd',
             product_data: {
               name: `${tierInfo.name} - ${type === 'community' ? 'Community' : 'Vendor'} Subscription`,
-              description: `Monthly subscription for MySeniorValet ${tierInfo.name}`,
+              description: subscriptionDescription,
             },
-            unit_amount: tierInfo.price,
+            unit_amount: amount,
             recurring: {
-              interval: tierInfo.interval,
+              interval: interval,
             },
           },
           quantity: 1,
@@ -214,13 +264,27 @@ router.post('/create-checkout-session', async (req: Request, res: Response) => {
         tier,
         type,
         tierName: tierInfo.name,
+        billingCycle,
+        applyPromo: applyPromo.toString(),
         ...metadata,
       },
+      // Add discounts/coupons if needed for promotional pricing
+      ...(applyPromo && {
+        subscription_data: {
+          trial_period_days: 0, // No trial, just discounted first period
+          metadata: {
+            promotional: 'true',
+            originalPrice: tierInfo.price.toString(),
+          }
+        }
+      })
     });
 
     res.json({
       sessionId: session.id,
       url: session.url,
+      amount,
+      description,
     });
   } catch (error: any) {
     console.error('Error creating checkout session:', error);

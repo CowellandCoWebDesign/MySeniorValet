@@ -4,7 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, Loader2, X, Star, Shield, Trophy, Crown } from 'lucide-react';
+import { CheckCircle2, Loader2, X, Star, Shield, Trophy, Crown, Sparkles } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { NavigationHeader } from '@/components/NavigationHeader';
@@ -224,9 +224,14 @@ export default function CommunitySubscriptionCheckout() {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               Upgrade Your Community Listing
             </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
+            <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">
               {(community as any).name || 'Community'}
             </p>
+            {/* Early Adopter Special Banner */}
+            <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full px-6 py-3 shadow-lg inline-flex items-center gap-2">
+              <Sparkles className="w-5 h-5" />
+              <span className="font-semibold">Early Adopter Special: 30% OFF All Paid Plans!</span>
+            </div>
           </div>
 
           {/* Tier Selection */}
@@ -252,7 +257,14 @@ export default function CommunitySubscriptionCheckout() {
                       {tierOption.price === 0 ? (
                         <p className="text-2xl font-bold">Free</p>
                       ) : (
-                        <p className="text-2xl font-bold">${tierOption.price}<span className="text-sm font-normal">/mo</span></p>
+                        <div>
+                          <p className="text-lg text-gray-500 line-through">${tierOption.price}/mo</p>
+                          <p className="text-2xl font-bold text-green-600">
+                            ${Math.round(tierOption.price * 0.7)}
+                            <span className="text-sm font-normal">/mo</span>
+                          </p>
+                          <p className="text-xs text-green-600 font-semibold">30% OFF</p>
+                        </div>
                       )}
                     </div>
                   </CardHeader>
