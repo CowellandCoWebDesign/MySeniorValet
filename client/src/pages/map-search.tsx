@@ -1269,10 +1269,10 @@ export default function MapSearch() {
               
               {/* Heatmap Layer Toggle */}
               {viewMode === 'map' && (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
                   <Label htmlFor="heatmap-toggle" className="flex items-center gap-1.5 cursor-pointer">
-                    <Flame className={`w-4 h-4 ${showHeatmapLayer ? 'text-orange-500 animate-fire-wiggle' : 'text-gray-500'}`} />
-                    <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    <Flame className={`w-4 h-4 ${showHeatmapLayer ? 'text-orange-500 animate-fire-wiggle' : 'text-gray-600 dark:text-gray-400'}`} />
+                    <span className={`text-sm font-medium ${showHeatmapLayer ? 'text-orange-600 dark:text-orange-400' : 'text-gray-900 dark:text-white'}`}>
                       Availability Heat
                     </span>
                   </Label>
