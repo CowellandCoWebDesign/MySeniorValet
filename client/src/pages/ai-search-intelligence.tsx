@@ -1364,8 +1364,8 @@ export default function AISearchIntelligence() {
               {/* Second Row - Complete Care Spectrum */}
               <div className="w-full">
                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">Type of Living - Complete Care Spectrum</label>
-                <div className="flex gap-3 items-center overflow-x-auto">
-                  {/* HUD */}
+                <div className="flex gap-2 items-center overflow-x-auto">
+                  {/* HUD - Government Subsidized */}
                   <Button
                     variant={simplifiedFilters.typeOfLiving.includes('hud-sponsored') ? 'default' : 'outline'}
                     onClick={() => {
@@ -1374,7 +1374,7 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'hud-sponsored'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[85px] px-4 flex-shrink-0 ${
+                    className={`h-[85px] px-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('hud-sponsored')
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-white dark:bg-gray-900'
@@ -1388,7 +1388,30 @@ export default function AISearchIntelligence() {
                     </div>
                   </Button>
 
-                  {/* Mobile */}
+                  {/* VA Housing - Veterans */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('va-housing') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('va-housing')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'va-housing')
+                        : [...simplifiedFilters.typeOfLiving, 'va-housing'];
+                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                    }}
+                    className={`h-[85px] px-3 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('va-housing')
+                        ? 'bg-blue-800 text-white hover:bg-blue-900'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xl mb-1">🎖️</div>
+                      <div className="text-[11px] font-bold">VA</div>
+                      <div className="text-[10px] opacity-80">Veterans</div>
+                      <div className="text-[9px] opacity-60">432</div>
+                    </div>
+                  </Button>
+
+                  {/* Mobile Parks */}
                   <Button
                     variant={simplifiedFilters.typeOfLiving.includes('mobile-parks') ? 'default' : 'outline'}
                     onClick={() => {
@@ -1397,21 +1420,21 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'mobile-parks'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[85px] px-4 flex-shrink-0 ${
+                    className={`h-[85px] px-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('mobile-parks')
                         ? 'bg-green-600 text-white hover:bg-green-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
                   >
                     <div className="text-center">
-                      <div className="text-xl mb-1">🏘️</div>
+                      <div className="text-xl mb-1">🚐</div>
                       <div className="text-[11px] font-bold">Mobile</div>
                       <div className="text-[10px] opacity-80">$300-800</div>
                       <div className="text-[9px] opacity-60">3,421</div>
                     </div>
                   </Button>
 
-                  {/* 55+ */}
+                  {/* 55+ Active Adult */}
                   <Button
                     variant={simplifiedFilters.typeOfLiving.includes('active-adult') ? 'default' : 'outline'}
                     onClick={() => {
@@ -1420,7 +1443,7 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'active-adult'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[85px] px-4 flex-shrink-0 ${
+                    className={`h-[85px] px-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('active-adult')
                         ? 'bg-teal-600 text-white hover:bg-teal-700'
                         : 'bg-white dark:bg-gray-900'
@@ -1443,7 +1466,7 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'independent-living'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[85px] px-4 flex-shrink-0 ${
+                    className={`h-[85px] px-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('independent-living')
                         ? 'bg-purple-600 text-white hover:bg-purple-700'
                         : 'bg-white dark:bg-gray-900'
@@ -1457,6 +1480,29 @@ export default function AISearchIntelligence() {
                     </div>
                   </Button>
 
+                  {/* Board & Care - Small Homes */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('board-care') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('board-care')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'board-care')
+                        : [...simplifiedFilters.typeOfLiving, 'board-care'];
+                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                    }}
+                    className={`h-[85px] px-3 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('board-care')
+                        ? 'bg-cyan-600 text-white hover:bg-cyan-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xl mb-1">🏘️</div>
+                      <div className="text-[11px] font-bold">B&C</div>
+                      <div className="text-[10px] opacity-80">$2-4k</div>
+                      <div className="text-[9px] opacity-60">856</div>
+                    </div>
+                  </Button>
+
                   {/* Assisted Living */}
                   <Button
                     variant={simplifiedFilters.typeOfLiving.includes('assisted-living') ? 'default' : 'outline'}
@@ -1466,7 +1512,7 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'assisted-living'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[85px] px-4 flex-shrink-0 ${
+                    className={`h-[85px] px-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('assisted-living')
                         ? 'bg-orange-600 text-white hover:bg-orange-700'
                         : 'bg-white dark:bg-gray-900'
@@ -1489,7 +1535,7 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'memory-care'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[85px] px-4 flex-shrink-0 ${
+                    className={`h-[85px] px-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('memory-care')
                         ? 'bg-red-600 text-white hover:bg-red-700'
                         : 'bg-white dark:bg-gray-900'
@@ -1503,6 +1549,29 @@ export default function AISearchIntelligence() {
                     </div>
                   </Button>
 
+                  {/* CCRC - Continuing Care */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('ccrc') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('ccrc')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'ccrc')
+                        : [...simplifiedFilters.typeOfLiving, 'ccrc'];
+                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                    }}
+                    className={`h-[85px] px-3 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('ccrc')
+                        ? 'bg-amber-600 text-white hover:bg-amber-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xl mb-1">♾️</div>
+                      <div className="text-[11px] font-bold">CCRC</div>
+                      <div className="text-[10px] opacity-80">Varies</div>
+                      <div className="text-[9px] opacity-60">1,245</div>
+                    </div>
+                  </Button>
+
                   {/* Skilled Nursing */}
                   <Button
                     variant={simplifiedFilters.typeOfLiving.includes('skilled-nursing') ? 'default' : 'outline'}
@@ -1512,7 +1581,7 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'skilled-nursing'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[85px] px-4 flex-shrink-0 ${
+                    className={`h-[85px] px-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('skilled-nursing')
                         ? 'bg-indigo-600 text-white hover:bg-indigo-700'
                         : 'bg-white dark:bg-gray-900'
@@ -1526,53 +1595,7 @@ export default function AISearchIntelligence() {
                     </div>
                   </Button>
 
-                  {/* CCRC */}
-                  <Button
-                    variant={simplifiedFilters.typeOfLiving.includes('ccrc') ? 'default' : 'outline'}
-                    onClick={() => {
-                      const newTypes = simplifiedFilters.typeOfLiving.includes('ccrc')
-                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'ccrc')
-                        : [...simplifiedFilters.typeOfLiving, 'ccrc'];
-                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
-                    }}
-                    className={`h-[85px] px-4 flex-shrink-0 ${
-                      simplifiedFilters.typeOfLiving.includes('ccrc')
-                        ? 'bg-amber-600 text-white hover:bg-amber-700'
-                        : 'bg-white dark:bg-gray-900'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="text-xl mb-1">🏘️</div>
-                      <div className="text-[11px] font-bold">CCRC</div>
-                      <div className="text-[10px] opacity-80">Varies</div>
-                      <div className="text-[9px] opacity-60">1,245</div>
-                    </div>
-                  </Button>
-
-                  {/* Board & Care */}
-                  <Button
-                    variant={simplifiedFilters.typeOfLiving.includes('board-care') ? 'default' : 'outline'}
-                    onClick={() => {
-                      const newTypes = simplifiedFilters.typeOfLiving.includes('board-care')
-                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'board-care')
-                        : [...simplifiedFilters.typeOfLiving, 'board-care'];
-                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
-                    }}
-                    className={`h-[85px] px-4 flex-shrink-0 ${
-                      simplifiedFilters.typeOfLiving.includes('board-care')
-                        ? 'bg-cyan-600 text-white hover:bg-cyan-700'
-                        : 'bg-white dark:bg-gray-900'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="text-xl mb-1">🏠</div>
-                      <div className="text-[11px] font-bold">B&C</div>
-                      <div className="text-[10px] opacity-80">$2-4k</div>
-                      <div className="text-[9px] opacity-60">856</div>
-                    </div>
-                  </Button>
-
-                  <button className="h-[85px] px-4 py-3 text-gray-500 hover:text-gray-700 flex items-center gap-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 flex-shrink-0">
+                  <button className="h-[85px] px-3 py-3 text-gray-500 hover:text-gray-700 flex items-center gap-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 flex-shrink-0">
                     <MoreHorizontal className="w-4 h-4" />
                     <span className="text-xs">More</span>
                   </button>
