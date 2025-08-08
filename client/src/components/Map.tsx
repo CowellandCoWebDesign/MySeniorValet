@@ -77,8 +77,7 @@ const createHospitalIcon = (bgColor: string, isEmergency: boolean = false) => {
         <rect x="-3" y="-10" width="6" height="20" fill="white"/>
         <rect x="-10" y="-3" width="20" height="6" fill="white"/>
         ${isEmergency ? `
-          <circle cx="0" cy="0" r="12" fill="none" stroke="white" stroke-width="2" opacity="0.8"/>
-          <text x="0" y="-15" text-anchor="middle" fill="white" font-size="8" font-weight="bold">ER</text>
+          <text x="0" y="18" text-anchor="middle" fill="white" font-size="7" font-weight="bold">ER</text>
         ` : ''}
       </g>
     </svg>
@@ -1101,74 +1100,6 @@ export default function Map({
 
       {/* Map Container */}
       <div className="flex-1 relative" style={{ minHeight: '400px' }}>
-        {/* Care Level Legend */}
-        <div className="absolute top-20 left-4 z-[1000] bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-lg shadow-lg p-3 max-w-[220px]">
-          <h4 className="font-semibold text-sm mb-2 text-gray-900 dark:text-white">Care Level Icons</h4>
-          <div className="space-y-1 text-xs">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🏛️</span>
-              <span className="text-gray-700 dark:text-gray-300">HUD/Government</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🧠</span>
-              <span className="text-gray-700 dark:text-gray-300">Memory Care</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🏥</span>
-              <span className="text-gray-700 dark:text-gray-300">Skilled Nursing</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🕊️</span>
-              <span className="text-gray-700 dark:text-gray-300">Hospice Care</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🤝</span>
-              <span className="text-gray-700 dark:text-gray-300">Assisted Living</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🏡</span>
-              <span className="text-gray-700 dark:text-gray-300">Independent/55+</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🏘️</span>
-              <span className="text-gray-700 dark:text-gray-300">CCRC</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🚐</span>
-              <span className="text-gray-700 dark:text-gray-300">Mobile Homes</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🏠</span>
-              <span className="text-gray-700 dark:text-gray-300">General Senior</span>
-            </div>
-          </div>
-          <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
-            <h5 className="font-semibold text-xs mb-1 text-gray-900 dark:text-white">Healthcare Facilities</h5>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-600"></div>
-                <span className="text-gray-700 dark:text-gray-300">Hospitals (Emergency)</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                <span className="text-gray-700 dark:text-gray-300">Urgent Care</span>
-              </div>
-            </div>
-          </div>
-          <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
-            <h5 className="font-semibold text-xs mb-1 text-gray-900 dark:text-white">Border Colors</h5>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-green-500 border border-green-600"></div>
-                <span className="text-gray-700 dark:text-gray-300">Live Pricing</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500 border border-red-600"></div>
-                <span className="text-gray-700 dark:text-gray-300">Contact for Price</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Compact Location Button - Moved to bottom-left */}
         <div className="absolute bottom-4 left-4 z-[1000]">
@@ -1831,7 +1762,7 @@ export default function Map({
       {/* Minimal Map Stats Overlay - Moved to bottom-left corner to avoid blocking controls */}
       <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg p-2 z-10 shadow-sm">
         <p className="text-xs text-gray-600 font-medium">
-          {clusterData?.features?.length || 0} locations
+          {clusterData?.clusters?.filter((f: any) => !f.properties?.cluster).length || 0} communities
         </p>
       </div>
     </div>

@@ -125,6 +125,7 @@ export default function MapSearch() {
   const [resultType, setResultType] = useState<'all' | 'communities' | 'vendors' | 'healthcare' | 'resources'>('all');
   const [filters, setFilters] = useState<SearchFilters>({
     careType: careTypesParam || 'All Types',
+    selectedCareTypes: [], // New field for multiple care type selection
     minRating: 0,
     amenities: [],
     budget: getBudgetFilter(budgetParam),
@@ -295,7 +296,7 @@ export default function MapSearch() {
   // Remove local state management that was causing ordering issues
 
   const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities, error: communitiesError } = useQuery<Community[]>({
-    queryKey: ['communities-map-bounds', boundsKey, showBottomPanel, filters.careType, filters.minRating],
+    queryKey: ['communities-map-bounds', boundsKey, showBottomPanel, filters.selectedCareTypes, filters.minRating],
     queryFn: async () => {
       // If we're showing the bottom panel but no bounds yet, fetch default San Francisco area
       if (!mapBounds && showBottomPanel) {
@@ -373,9 +374,15 @@ export default function MapSearch() {
             neLat: (ne.lat + latBuffer).toString(),
             neLng: (ne.lng + lngBuffer).toString(),
             limit: '500',
-            ...(filters.careType !== 'All Types' && { careType: filters.careType }),
             ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
           });
+          
+          // Add selected care types as multiple parameters
+          if (filters.selectedCareTypes.length > 0) {
+            filters.selectedCareTypes.forEach(type => {
+              params.append('careTypes', type);
+            });
+          }
           console.log('📍 BOUNDS SEARCH MODE:', {
             sw: { lat: sw.lat, lng: sw.lng },
             ne: { lat: ne.lat, lng: ne.lng },
@@ -1158,6 +1165,7 @@ export default function MapSearch() {
   const clearFilters = () => {
     setFilters({
       careType: 'All Types',
+      selectedCareTypes: [],
       minRating: 0,
       amenities: [],
       budget: 'Any Budget',
@@ -1395,22 +1403,174 @@ export default function MapSearch() {
                 <DrawerTitle>Filter Communities</DrawerTitle>
               </DrawerHeader>
               <div className="p-4 space-y-4">
-                {/* Care Type Filter */}
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Care Type</label>
-                  <Select value={filters.careType} onValueChange={(value) => setFilters({...filters, careType: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="All Types">All Types</SelectItem>
-                      <SelectItem value="Independent Living">Independent Living</SelectItem>
-                      <SelectItem value="Assisted Living">Assisted Living</SelectItem>
-                      <SelectItem value="Memory Care">Memory Care</SelectItem>
-                      <SelectItem value="Skilled Nursing">Skilled Nursing</SelectItem>
-                      <SelectItem value="Continuing Care">Continuing Care</SelectItem>
-                    </SelectContent>
-                  </Select>
+                {/* Care Type Filter - Multi-select */}
+                <div className="col-span-2">
+                  <label className="text-sm font-medium mb-2 block">Care Types</label>
+                  <div className="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-3 bg-white dark:bg-gray-800">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="care-all"
+                        checked={filters.selectedCareTypes.length === 0}
+                        onChange={() => setFilters({...filters, selectedCareTypes: []})}
+                        className="rounded border-gray-300"
+                      />
+                      <label htmlFor="care-all" className="text-sm cursor-pointer">All Types</label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="care-hud"
+                        checked={filters.selectedCareTypes.includes('HUD/Government')}
+                        onChange={(e) => {
+                          const types = e.target.checked 
+                            ? [...filters.selectedCareTypes, 'HUD/Government']
+                            : filters.selectedCareTypes.filter(t => t !== 'HUD/Government');
+                          setFilters({...filters, selectedCareTypes: types});
+                        }}
+                        className="rounded border-gray-300"
+                      />
+                      <label htmlFor="care-hud" className="text-sm cursor-pointer flex items-center gap-1">
+                        <span>🏛️</span> HUD/Government
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="care-memory"
+                        checked={filters.selectedCareTypes.includes('Memory Care')}
+                        onChange={(e) => {
+                          const types = e.target.checked 
+                            ? [...filters.selectedCareTypes, 'Memory Care']
+                            : filters.selectedCareTypes.filter(t => t !== 'Memory Care');
+                          setFilters({...filters, selectedCareTypes: types});
+                        }}
+                        className="rounded border-gray-300"
+                      />
+                      <label htmlFor="care-memory" className="text-sm cursor-pointer flex items-center gap-1">
+                        <span>🧠</span> Memory Care
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="care-skilled"
+                        checked={filters.selectedCareTypes.includes('Skilled Nursing')}
+                        onChange={(e) => {
+                          const types = e.target.checked 
+                            ? [...filters.selectedCareTypes, 'Skilled Nursing']
+                            : filters.selectedCareTypes.filter(t => t !== 'Skilled Nursing');
+                          setFilters({...filters, selectedCareTypes: types});
+                        }}
+                        className="rounded border-gray-300"
+                      />
+                      <label htmlFor="care-skilled" className="text-sm cursor-pointer flex items-center gap-1">
+                        <span>🏥</span> Skilled Nursing
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="care-hospice"
+                        checked={filters.selectedCareTypes.includes('Hospice')}
+                        onChange={(e) => {
+                          const types = e.target.checked 
+                            ? [...filters.selectedCareTypes, 'Hospice']
+                            : filters.selectedCareTypes.filter(t => t !== 'Hospice');
+                          setFilters({...filters, selectedCareTypes: types});
+                        }}
+                        className="rounded border-gray-300"
+                      />
+                      <label htmlFor="care-hospice" className="text-sm cursor-pointer flex items-center gap-1">
+                        <span>🕊️</span> Hospice Care
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="care-assisted"
+                        checked={filters.selectedCareTypes.includes('Assisted Living')}
+                        onChange={(e) => {
+                          const types = e.target.checked 
+                            ? [...filters.selectedCareTypes, 'Assisted Living']
+                            : filters.selectedCareTypes.filter(t => t !== 'Assisted Living');
+                          setFilters({...filters, selectedCareTypes: types});
+                        }}
+                        className="rounded border-gray-300"
+                      />
+                      <label htmlFor="care-assisted" className="text-sm cursor-pointer flex items-center gap-1">
+                        <span>🤝</span> Assisted Living
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="care-independent"
+                        checked={filters.selectedCareTypes.includes('Independent Living')}
+                        onChange={(e) => {
+                          const types = e.target.checked 
+                            ? [...filters.selectedCareTypes, 'Independent Living']
+                            : filters.selectedCareTypes.filter(t => t !== 'Independent Living');
+                          setFilters({...filters, selectedCareTypes: types});
+                        }}
+                        className="rounded border-gray-300"
+                      />
+                      <label htmlFor="care-independent" className="text-sm cursor-pointer flex items-center gap-1">
+                        <span>🏡</span> Independent/55+
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="care-ccrc"
+                        checked={filters.selectedCareTypes.includes('CCRC')}
+                        onChange={(e) => {
+                          const types = e.target.checked 
+                            ? [...filters.selectedCareTypes, 'CCRC']
+                            : filters.selectedCareTypes.filter(t => t !== 'CCRC');
+                          setFilters({...filters, selectedCareTypes: types});
+                        }}
+                        className="rounded border-gray-300"
+                      />
+                      <label htmlFor="care-ccrc" className="text-sm cursor-pointer flex items-center gap-1">
+                        <span>🏘️</span> CCRC
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="care-mobile"
+                        checked={filters.selectedCareTypes.includes('Mobile Homes')}
+                        onChange={(e) => {
+                          const types = e.target.checked 
+                            ? [...filters.selectedCareTypes, 'Mobile Homes']
+                            : filters.selectedCareTypes.filter(t => t !== 'Mobile Homes');
+                          setFilters({...filters, selectedCareTypes: types});
+                        }}
+                        className="rounded border-gray-300"
+                      />
+                      <label htmlFor="care-mobile" className="text-sm cursor-pointer flex items-center gap-1">
+                        <span>🚐</span> Mobile Homes
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="care-general"
+                        checked={filters.selectedCareTypes.includes('General Senior')}
+                        onChange={(e) => {
+                          const types = e.target.checked 
+                            ? [...filters.selectedCareTypes, 'General Senior']
+                            : filters.selectedCareTypes.filter(t => t !== 'General Senior');
+                          setFilters({...filters, selectedCareTypes: types});
+                        }}
+                        className="rounded border-gray-300"
+                      />
+                      <label htmlFor="care-general" className="text-sm cursor-pointer flex items-center gap-1">
+                        <span>🏠</span> General Senior
+                      </label>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Budget Filter */}
@@ -1498,40 +1658,94 @@ export default function MapSearch() {
                 <DrawerHeader>
                   <DrawerTitle>Map Legend</DrawerTitle>
                 </DrawerHeader>
-                <div className="p-4 space-y-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                        #
+                <div className="p-4 space-y-4 max-h-[70vh] overflow-y-auto">
+                  {/* Care Level Icons */}
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-sm text-gray-900 dark:text-white">Care Levels</h3>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">🏛️</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">HUD/Government Housing</span>
                       </div>
-                      <span className="text-sm">Cluster (Multiple Communities)</span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="w-4 h-4 bg-blue-600 rounded-full"></div>
-                      <span className="text-sm">General Community</span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="w-4 h-4 bg-green-600 rounded-full"></div>
-                      <span className="text-sm">Assisted Living</span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="w-4 h-4 bg-red-600 rounded-full"></div>
-                      <span className="text-sm">Memory Care</span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="w-4 h-4 bg-purple-600 rounded-full"></div>
-                      <span className="text-sm">Independent Living</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">🧠</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Memory Care</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">🏥</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Skilled Nursing</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">🕊️</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Hospice Care</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">🤝</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Assisted Living</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">🏡</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Independent/55+</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">🏘️</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">CCRC</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">🚐</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Mobile Homes</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">🏠</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">General Senior</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Click on markers to view community details. Click on clusters to zoom in and see individual communities.
-                    </p>
+                  {/* Healthcare Facilities */}
+                  <div className="space-y-2 pt-3 border-t border-gray-200 dark:border-gray-600">
+                    <h3 className="font-semibold text-sm text-gray-900 dark:text-white">Healthcare Facilities</h3>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-red-600 rounded-full"></div>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Emergency Room</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-orange-500 rounded-full"></div>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Urgent Care</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Price Status */}
+                  <div className="space-y-2 pt-3 border-t border-gray-200 dark:border-gray-600">
+                    <h3 className="font-semibold text-sm text-gray-900 dark:text-white">Price Status</h3>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-green-500 rounded-sm"></div>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Live pricing data</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-red-500 rounded-sm"></div>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Contact for pricing</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Map Controls Info */}
+                  <div className="space-y-2 pt-3 border-t border-gray-200 dark:border-gray-600">
+                    <h3 className="font-semibold text-sm text-gray-900 dark:text-white">Map Controls</h3>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                          #
+                        </div>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Cluster (Multiple Communities)</span>
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 pl-8">
+                        Click clusters to zoom in and see individual communities
+                      </p>
+                    </div>
                   </div>
                 </div>
               </DrawerContent>
@@ -1539,12 +1753,19 @@ export default function MapSearch() {
           )}
 
           {/* Active Filters */}
-          {filters.careType !== 'All Types' && (
-            <Badge variant="secondary" className={"gap-1 " + (isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:text-gray-200 hover:bg-gray-300')}>
-              {filters.careType}
-              <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({...filters, careType: 'All Types'})} />
+          {filters.selectedCareTypes.map((careType) => (
+            <Badge 
+              key={careType}
+              variant="secondary" 
+              className={"gap-1 " + (isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:text-gray-200 hover:bg-gray-300')}
+            >
+              {careType}
+              <X 
+                className="w-3 h-3 cursor-pointer" 
+                onClick={() => setFilters({...filters, selectedCareTypes: filters.selectedCareTypes.filter(t => t !== careType)})} 
+              />
             </Badge>
-          )}
+          ))}
           {filters.budget !== 'Any Budget' && (
             <Badge variant="secondary" className={"gap-1 " + (isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:text-gray-200 hover:bg-gray-300')}>
               {filters.budget}
