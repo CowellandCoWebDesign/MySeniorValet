@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { Link } from 'wouter';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import Map from '@/components/Map';
 import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
+import { SimplifiedCommunityCard } from '@/components/SimplifiedCommunityCard';
 import { AutocompleteSearch } from '@/components/AutocompleteSearch';
 import { 
   Brain, 
@@ -1086,9 +1088,9 @@ export default function AISearchIntelligence() {
                 </CardHeader>
                 <CardContent>
                   {simplifiedSearchMutation.data.results && simplifiedSearchMutation.data.results.length > 0 ? (
-                    <div className="grid gap-4">
+                    <div className="space-y-4">
                       {simplifiedSearchMutation.data.results.slice(0, 10).map((community: any) => (
-                        <EnhancedCommunityCard 
+                        <SimplifiedCommunityCard 
                           key={community.id} 
                           community={community}
                           showCompareButton={true}
