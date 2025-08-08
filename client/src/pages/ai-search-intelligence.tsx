@@ -18,14 +18,14 @@ import {
   Bed, Hospital, TreePine, X, SlidersHorizontal, CheckCircle2,
   XCircle, Loader2, HelpCircle, Navigation, ChevronUp
 } from 'lucide-react';
-import EnhancedCommunityCard from '@/components/EnhancedCommunityCard';
+import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 // import AISummary from '@/components/AISummary';
-import AutocompleteSearch from '@/components/AutocompleteSearch';
-import { DualRangeSlider } from '@/components/ui/dual-range-slider';
-import DynamicMap from '@/components/DynamicMap';
+import { AutocompleteSearch } from '@/components/AutocompleteSearch';
+// import { DualRangeSlider } from '@/components/ui/dual-range-slider';
+// import DynamicMap from '@/components/DynamicMap';
 import { useLocation } from 'wouter';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { HospitalCard } from '@/components/HospitalCard';
+// import { HospitalCard } from '@/components/HospitalCard';
 import { 
   Tooltip,
   TooltipContent,
@@ -35,7 +35,25 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import type { Community } from '@/types/community';
+// import type { Community } from '@/types/community';
+
+interface Community {
+  id: number;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  phone?: string;
+  website?: string;
+  priceRange?: string;
+  availability?: string;
+  rating?: number;
+  reviewCount?: number;
+  careTypes?: string[];
+  photos?: string[];
+  description?: string;
+}
 
 // Import types from existing file
 interface SimplifiedFilters {
@@ -438,7 +456,7 @@ export default function AISearchIntelligenceRestructured() {
                         </span>
                         <span>$8000</span>
                       </div>
-                      <DualRangeSlider
+                      <Slider
                         value={simplifiedFilters.priceRange}
                         onValueChange={(value) => setSimplifiedFilters({
                           ...simplifiedFilters,
@@ -543,7 +561,9 @@ export default function AISearchIntelligenceRestructured() {
 
           {/* Map Search Tab */}
           <TabsContent value="map-search" className="h-[600px]">
-            <DynamicMap />
+            <div className="w-full h-full bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+              <p className="text-gray-500">Map view will be displayed here</p>
+            </div>
           </TabsContent>
 
           {/* Healthcare Tab */}
