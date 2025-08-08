@@ -76,7 +76,7 @@ const CARE_TYPES = [
 
 export function AvailabilityHeatmap({
   bounds: initialBounds = { north: 42.0, south: 32.5, east: -114.0, west: -124.5 }, // Default to California
-  zoom: initialZoom = 6,
+  zoom: initialZoom = 4, // Zoom level 4 to show entire California state
   onDataPointClick,
   showTrends = true,
   className = ""
@@ -90,6 +90,16 @@ export function AvailabilityHeatmap({
   const [showTopRegions, setShowTopRegions] = useState(true);
   const mapRef = useRef<L.Map | null>(null);
   const boundsUpdateTimeout = useRef<NodeJS.Timeout | null>(null);
+  const isInitialMount = useRef(true);
+
+  // Force initial data load on mount
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      // Initial bounds are already set, just need to trigger the query
+      setRefreshKey(prev => prev + 1);
+    }
+  }, []);
 
   // Handle map bounds change with debouncing
   const handleBoundsChange = useCallback((newBounds: any, newZoom: number) => {
@@ -383,7 +393,7 @@ export function AvailabilityHeatmap({
             )}
             
             <MapContainer
-              center={[36.778, -119.418]} // Center of California
+              center={[37.3, -119.5]} // Center point for viewing all of California
               zoom={mapZoom}
               className="h-full w-full"
               ref={(map) => { if (map) mapRef.current = map; }}
