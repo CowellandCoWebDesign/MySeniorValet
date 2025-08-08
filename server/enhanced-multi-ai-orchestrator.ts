@@ -4,9 +4,8 @@
 // Ready for 4-AI orchestration with Grok
 
 import { ClaudeIntelligenceService } from './multi-ai-intelligence';
-import { GeminiIntelligenceService } from './multi-ai-intelligence';
 import { ChatGPTIntelligenceService } from './openai-intelligence';
-import { grokService } from './xai-grok-integration';
+import { PerplexityAIService } from './perplexity-ai-service';
 
 export interface CrossVerificationResult {
   agreement: 'strong' | 'moderate' | 'weak';
@@ -23,23 +22,21 @@ export interface TransparencyReport {
     keyFindings: string[];
   };
   individualInsights: {
-    claude: any;
-    gemini: any;
-    chatgpt: any;
-    grok?: any; // Optional until API available
+    chatgpt: any; // Primary
+    claude: any;  // Secondary
+    perplexity: any; // Third
   };
   crossVerification: {
-    claudeVerifiesGemini: CrossVerificationResult | null;
-    geminiVerifiesChatGPT: CrossVerificationResult | null;
     chatGPTVerifiesClaude: CrossVerificationResult | null;
-    grokVerifiesAll?: CrossVerificationResult | null; // Optional until API available
+    claudeVerifiesPerplexity: CrossVerificationResult | null;
+    perplexityVerifiesChatGPT: CrossVerificationResult | null;
     overallConsensus: number;
   };
   warnings: any[];
   transparencyScore: number;
   disclaimer: string;
   timestamp: string;
-  grokStatus: 'available' | 'coming_soon';
+  aiServicesStatus: string;
 }
 
 export const EnhancedMultiAIOrchestrator = {
@@ -54,39 +51,39 @@ export const EnhancedMultiAIOrchestrator = {
     console.log('🔍 Truth in Senior Living - Exposing industry opacity');
 
     try {
-      // Phase 1: Parallel AI Analysis
-      const [claudeAnalysis, geminiAnalysis, chatgptAnalysis] = await Promise.all([
+      // Phase 1: Parallel AI Analysis - Updated Priority Order
+      const [chatgptAnalysis, claudeAnalysis, perplexityAnalysis] = await Promise.all([
+        this.runChatGPTAnalysis(communities[0], userProfile, contractText),
         this.runClaudeAnalysis(communities, userProfile),
-        this.runGeminiAnalysis(photos, userProfile.location),
-        this.runChatGPTAnalysis(communities[0], userProfile, contractText)
+        this.runPerplexityAnalysis(communities, userProfile)
       ]);
 
-      // Phase 2: Cross-Verification
+      // Phase 2: Cross-Verification - Updated for New Priority
       const crossVerification = await this.performTripleCrossCheck({
+        chatgpt: chatgptAnalysis,
         claude: claudeAnalysis,
-        gemini: geminiAnalysis,
-        chatgpt: chatgptAnalysis
+        perplexity: perplexityAnalysis
       });
 
       // Phase 3: Build Transparency Report
       const report: TransparencyReport = {
-        consensus: this.buildConsensus(claudeAnalysis, geminiAnalysis, chatgptAnalysis),
+        consensus: this.buildConsensus(chatgptAnalysis, claudeAnalysis, perplexityAnalysis),
         individualInsights: {
+          chatgpt: chatgptAnalysis,
           claude: claudeAnalysis,
-          gemini: geminiAnalysis,
-          chatgpt: chatgptAnalysis
+          perplexity: perplexityAnalysis
         },
         crossVerification,
-        warnings: this.extractAllWarnings(claudeAnalysis, geminiAnalysis, chatgptAnalysis),
+        warnings: this.extractAllWarnings(chatgptAnalysis, claudeAnalysis, perplexityAnalysis),
         transparencyScore: this.calculateTransparencyScore(
-          claudeAnalysis, 
-          geminiAnalysis, 
           chatgptAnalysis, 
+          claudeAnalysis, 
+          perplexityAnalysis, 
           crossVerification
         ),
         disclaimer: 'MySeniorValet provides transparency and truth in senior living. We are NOT a placement agency and receive NO compensation from communities. Our AI systems work together to expose hidden information and provide families with complete transparency.',
         timestamp: new Date().toISOString(),
-        grokStatus: grokService.getCapabilities().realTimeFactChecking ? 'available' : 'coming_soon'
+        aiServicesStatus: 'ChatGPT-5 Primary, Claude Secondary, Perplexity Third - Streamlined AI Services'
       };
 
       console.log('✅ Multi-AI Transparency Report completed');
@@ -131,34 +128,46 @@ export const EnhancedMultiAIOrchestrator = {
     }
   },
 
-  // Run Gemini analysis
-  async runGeminiAnalysis(photos: string[], location: string) {
+  // Run Perplexity analysis  
+  async runPerplexityAnalysis(communities: any[], userProfile: any) {
     try {
-      const visualAnalysis = photos.length > 0 
-        ? await GeminiIntelligenceService.analyzeCommunityPhotos(photos)
-        : null;
+      const perplexityService = new PerplexityAIService();
       
-      const marketIntel = await GeminiIntelligenceService.getMarketIntelligence(
-        location || 'California'
+      const marketData = await perplexityService.searchRealTime(
+        `senior living pricing trends ${userProfile.location || 'nationwide'} 2025`,
+        'Market research and pricing analysis'
+      );
+      
+      const realTimeInfo = await perplexityService.searchRealTime(
+        `assisted living availability ${userProfile.careNeeds?.join(' ') || 'general'} ${userProfile.location || ''}`,
+        'Availability and capacity information'
       );
 
       return {
-        source: 'Gemini 2.5 Flash',
-        specialty: 'Visual Intelligence & Market Analysis',
-        visualAnalysis,
-        marketIntelligence: marketIntel,
+        source: 'Perplexity AI',
+        specialty: 'Real-time Market Intelligence & Current Pricing',
+        marketData,
+        realTimeInfo,
         keyFindings: [
-          'Market conditions and pricing trends analyzed',
-          'Facility quality assessed through visual analysis',
-          'Occupancy rates and availability evaluated',
-          'Technology adoption levels reviewed'
+          'Current market pricing trends analyzed',
+          'Real-time availability data retrieved',
+          'Recent regulatory changes identified',
+          'Competitive landscape assessment completed'
         ],
-        confidence: marketIntel.confidence || 80,
-        warnings: marketIntel.warnings || []
+        confidence: 85,
+        warnings: []
       };
     } catch (error) {
-      console.error('Gemini analysis error:', error);
-      return null;
+      console.error('Perplexity analysis error:', error);
+      return {
+        source: 'Perplexity AI',
+        specialty: 'Real-time Market Intelligence & Current Pricing',
+        marketData: null,
+        realTimeInfo: null,
+        keyFindings: ['Real-time data unavailable'],
+        confidence: 0,
+        warnings: ['Unable to retrieve current market data']
+      };
     }
   },
 

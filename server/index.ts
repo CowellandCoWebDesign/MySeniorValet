@@ -262,11 +262,10 @@ app.use((req, res, next) => {
     console.log('  ✅ Integration Manager - 10 external service connections');
     console.log('');
     console.log('🤖 AI PRIORITY ORCHESTRATOR ACTIVATED (January 8, 2025):');
-    console.log('  1️⃣ Claude (Primary) - ' + (process.env.ANTHROPIC_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  2️⃣ ChatGPT (Secondary) - ' + (process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'));
+    console.log('  1️⃣ ChatGPT-5 (Primary) - ' + (process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'));
+    console.log('  2️⃣ Claude (Secondary) - ' + (process.env.ANTHROPIC_API_KEY ? '✅ Configured' : '❌ Not configured'));
     console.log('  3️⃣ Perplexity (3rd) - ' + (process.env.PERPLEXITY_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  4️⃣ Gemini (4th) - ' + (process.env.GEMINI_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  5️⃣ Grok (5th) - ' + (process.env.XAI_API_KEY ? '✅ Configured' : '⏳ Awaiting API availability'));
+    console.log('  Note: Gemini and Grok removed from platform to streamline AI services per replit.md');
     console.log('');
     console.log('📄 DOCUMENSO DOCUMENT SIGNING:');
     console.log('  ' + (process.env.DOCUMENSO_API_KEY ? '✅ Self-hosted document signing ready' : '⚠️ Document signing not configured'));
