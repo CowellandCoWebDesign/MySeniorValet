@@ -1374,17 +1374,17 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'hud-sponsored'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[100px] min-w-[90px] px-4 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('hud-sponsored')
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
                   >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">🏛️</div>
-                      <div className="text-xs font-bold">HUD</div>
-                      <div className="text-[11px] opacity-80">$0-500</div>
-                      <div className="text-[10px] opacity-60">5,936</div>
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🏛️</div>
+                      <div className="text-sm font-bold">HUD</div>
+                      <div className="text-xs opacity-80">$0-500</div>
+                      <div className="text-xs opacity-60">5,936</div>
                     </div>
                   </Button>
 
@@ -1397,17 +1397,17 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'va-housing'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[100px] min-w-[90px] px-4 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('va-housing')
                         ? 'bg-blue-800 text-white hover:bg-blue-900'
                         : 'bg-white dark:bg-gray-900'
                     }`}
                   >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">🎖️</div>
-                      <div className="text-xs font-bold">VA</div>
-                      <div className="text-[11px] opacity-80">Veterans</div>
-                      <div className="text-[10px] opacity-60">432</div>
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🎖️</div>
+                      <div className="text-sm font-bold">VA</div>
+                      <div className="text-xs opacity-80">Veterans</div>
+                      <div className="text-xs opacity-60">432</div>
                     </div>
                   </Button>
 
@@ -1420,17 +1420,17 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'mobile-parks'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[100px] min-w-[90px] px-4 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('mobile-parks')
                         ? 'bg-green-600 text-white hover:bg-green-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
                   >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">🚐</div>
-                      <div className="text-xs font-bold">Mobile</div>
-                      <div className="text-[11px] opacity-80">$300-800</div>
-                      <div className="text-[10px] opacity-60">3,421</div>
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🚐</div>
+                      <div className="text-sm font-bold">Mobile</div>
+                      <div className="text-xs opacity-80">$300-800</div>
+                      <div className="text-xs opacity-60">3,421</div>
                     </div>
                   </Button>
 
@@ -1443,17 +1443,17 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'active-adult'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[100px] min-w-[90px] px-4 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('active-adult')
                         ? 'bg-teal-600 text-white hover:bg-teal-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
                   >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">🏡</div>
-                      <div className="text-xs font-bold">55+</div>
-                      <div className="text-[11px] opacity-80">$800-1.5k</div>
-                      <div className="text-[10px] opacity-60">4,567</div>
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🏡</div>
+                      <div className="text-sm font-bold">55+</div>
+                      <div className="text-xs opacity-80">$800-1.5k</div>
+                      <div className="text-xs opacity-60">4,567</div>
                     </div>
                   </Button>
 
@@ -1466,17 +1466,17 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'independent-living'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[100px] min-w-[90px] px-4 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('independent-living')
                         ? 'bg-purple-600 text-white hover:bg-purple-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
                   >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">🏠</div>
-                      <div className="text-xs font-bold">IL</div>
-                      <div className="text-[11px] opacity-80">$1.5-3.5k</div>
-                      <div className="text-[10px] opacity-60">8,745</div>
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🏠</div>
+                      <div className="text-sm font-bold">IL</div>
+                      <div className="text-xs opacity-80">$1.5-3.5k</div>
+                      <div className="text-xs opacity-60">8,745</div>
                     </div>
                   </Button>
 
@@ -1489,17 +1489,17 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'board-care'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[100px] min-w-[90px] px-4 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('board-care')
                         ? 'bg-cyan-600 text-white hover:bg-cyan-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
                   >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">🏘️</div>
-                      <div className="text-xs font-bold">B&C</div>
-                      <div className="text-[11px] opacity-80">$2-4k</div>
-                      <div className="text-[10px] opacity-60">856</div>
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🏘️</div>
+                      <div className="text-sm font-bold">B&C</div>
+                      <div className="text-xs opacity-80">$2-4k</div>
+                      <div className="text-xs opacity-60">856</div>
                     </div>
                   </Button>
 
@@ -1512,17 +1512,17 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'assisted-living'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[100px] min-w-[90px] px-4 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('assisted-living')
                         ? 'bg-orange-600 text-white hover:bg-orange-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
                   >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">🤝</div>
-                      <div className="text-xs font-bold">AL</div>
-                      <div className="text-[11px] opacity-80">$3-6k</div>
-                      <div className="text-[10px] opacity-60">7,234</div>
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🤝</div>
+                      <div className="text-sm font-bold">AL</div>
+                      <div className="text-xs opacity-80">$3-6k</div>
+                      <div className="text-xs opacity-60">7,234</div>
                     </div>
                   </Button>
 
@@ -1535,17 +1535,17 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'memory-care'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[100px] min-w-[90px] px-4 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('memory-care')
                         ? 'bg-red-600 text-white hover:bg-red-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
                   >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">🧠</div>
-                      <div className="text-xs font-bold">MC</div>
-                      <div className="text-[11px] opacity-80">$4-7.5k</div>
-                      <div className="text-[10px] opacity-60">3,897</div>
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🧠</div>
+                      <div className="text-sm font-bold">MC</div>
+                      <div className="text-xs opacity-80">$4-7.5k</div>
+                      <div className="text-xs opacity-60">3,897</div>
                     </div>
                   </Button>
 
@@ -1558,17 +1558,17 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'ccrc'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[100px] min-w-[90px] px-4 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('ccrc')
                         ? 'bg-amber-600 text-white hover:bg-amber-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
                   >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">♾️</div>
-                      <div className="text-xs font-bold">CCRC</div>
-                      <div className="text-[11px] opacity-80">Varies</div>
-                      <div className="text-[10px] opacity-60">1,245</div>
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">♾️</div>
+                      <div className="text-sm font-bold">CCRC</div>
+                      <div className="text-xs opacity-80">Varies</div>
+                      <div className="text-xs opacity-60">1,245</div>
                     </div>
                   </Button>
 
@@ -1581,17 +1581,17 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'skilled-nursing'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[100px] min-w-[90px] px-4 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('skilled-nursing')
                         ? 'bg-indigo-600 text-white hover:bg-indigo-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
                   >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">🏥</div>
-                      <div className="text-xs font-bold">SN</div>
-                      <div className="text-[11px] opacity-80">$6-12k</div>
-                      <div className="text-[10px] opacity-60">2,300</div>
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🏥</div>
+                      <div className="text-sm font-bold">SN</div>
+                      <div className="text-xs opacity-80">$6-12k</div>
+                      <div className="text-xs opacity-60">2,300</div>
                     </div>
                   </Button>
                 </div>
