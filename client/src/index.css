@@ -1464,3 +1464,44 @@ body {
   background-color: #374151 !important;
   color: #ffffff !important;
 }
+
+/* Heatmap button animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 
+      0 0 20px rgba(251, 146, 60, 0.6),
+      0 0 40px rgba(239, 68, 68, 0.4),
+      0 0 60px rgba(251, 191, 36, 0.3);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 
+      0 0 30px rgba(251, 146, 60, 0.8),
+      0 0 50px rgba(239, 68, 68, 0.6),
+      0 0 70px rgba(251, 191, 36, 0.5);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes fire-wiggle {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-2px) rotate(-5deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-2px) rotate(5deg);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-fire-wiggle {
+  animation: fire-wiggle 1.5s ease-in-out infinite;
+}
