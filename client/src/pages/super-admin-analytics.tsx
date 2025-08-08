@@ -251,16 +251,16 @@ export default function SuperAdminAnalytics() {
     { name: 'Community Standard', value: metrics.financial.subscriptions.community?.standard || 0 },
     { name: 'Community Featured', value: metrics.financial.subscriptions.community?.featured || 0 },
     { name: 'Community Platinum', value: metrics.financial.subscriptions.community?.platinum || 0 },
-    { name: 'Vendor Basic', value: metrics.financial.subscriptions.vendor?.basic || 0 },
-    { name: 'Vendor Featured', value: metrics.financial.subscriptions.vendor?.featured || 0 },
-    { name: 'Vendor National', value: metrics.financial.subscriptions.vendor?.national || 0 },
+    { name: 'Vendor Basic', value: metrics.financial.subscriptions?.vendor?.basic || 0 },
+    { name: 'Vendor Featured', value: metrics.financial.subscriptions?.vendor?.featured || 0 },
+    { name: 'Vendor National', value: metrics.financial.subscriptions?.vendor?.national || 0 },
   ] : [];
 
   const performanceData = metrics?.performance ? [
-    { metric: 'Response Time', value: metrics.performance.responseTime || 0, target: 50, unit: 'ms' },
-    { metric: 'Uptime', value: metrics.performance.uptime || 0, target: 99.9, unit: '%' },
-    { metric: 'Cache Hit Rate', value: metrics.performance.cacheHitRate || 0, target: 90, unit: '%' },
-    { metric: 'Error Rate', value: metrics.performance.errorRate || 0, target: 0.1, unit: '%' },
+    { metric: 'Response Time', value: metrics.performance?.responseTime || 0, target: 50, unit: 'ms' },
+    { metric: 'Uptime', value: metrics.performance?.uptime || 0, target: 99.9, unit: '%' },
+    { metric: 'Cache Hit Rate', value: metrics.performance?.cacheHitRate || 0, target: 90, unit: '%' },
+    { metric: 'Error Rate', value: metrics.performance?.errorRate || 0, target: 0.1, unit: '%' },
   ] : [];
 
   const engagementTrend = metrics?.engagement ? [
@@ -742,23 +742,23 @@ export default function SuperAdminAnalytics() {
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">API Calls (24h)</span>
-                          <span className="font-semibold">{formatNumber(metrics?.performance.apiCalls || 0)}</span>
+                          <span className="font-semibold">{formatNumber(metrics?.performance?.apiCalls || 0)}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Database Queries</span>
-                          <span className="font-semibold">{formatNumber(metrics?.performance.dbQueries || 0)}</span>
+                          <span className="font-semibold">{formatNumber(metrics?.performance?.dbQueries || 0)}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Cache Hit Rate</span>
                           <div className="flex items-center gap-2">
-                            <Progress value={metrics?.performance.cacheHitRate || 0} className="w-24" />
-                            <span className="font-semibold">{formatPercent(metrics?.performance.cacheHitRate || 0)}</span>
+                            <Progress value={metrics?.performance?.cacheHitRate || 0} className="w-24" />
+                            <span className="font-semibold">{formatPercent(metrics?.performance?.cacheHitRate || 0)}</span>
                           </div>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Error Rate</span>
-                          <Badge variant={metrics?.performance.errorRate && metrics.performance.errorRate < 0.1 ? "default" : "destructive"}>
-                            {formatPercent(metrics?.performance.errorRate || 0)}
+                          <Badge variant={metrics?.performance?.errorRate && metrics?.performance?.errorRate < 0.1 ? "default" : "destructive"}>
+                            {formatPercent(metrics?.performance?.errorRate || 0)}
                           </Badge>
                         </div>
                       </div>
@@ -1070,7 +1070,7 @@ export default function SuperAdminAnalytics() {
                     <CardContent className="p-4">
                       <div className="flex flex-col">
                         <span className="text-sm text-gray-600">Basic Tier</span>
-                        <span className="text-2xl font-bold">{metrics?.financial.subscriptions.vendor.basic || 0}</span>
+                        <span className="text-2xl font-bold">{metrics?.financial?.subscriptions?.vendor?.basic || 0}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -1078,7 +1078,7 @@ export default function SuperAdminAnalytics() {
                     <CardContent className="p-4">
                       <div className="flex flex-col">
                         <span className="text-sm text-gray-600">Featured Tier</span>
-                        <span className="text-2xl font-bold text-blue-600">{metrics?.financial.subscriptions.vendor.featured || 0}</span>
+                        <span className="text-2xl font-bold text-blue-600">{metrics?.financial?.subscriptions?.vendor?.featured || 0}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -1086,7 +1086,7 @@ export default function SuperAdminAnalytics() {
                     <CardContent className="p-4">
                       <div className="flex flex-col">
                         <span className="text-sm text-gray-600">National Partners</span>
-                        <span className="text-2xl font-bold text-purple-600">{metrics?.financial.subscriptions.vendor.national || 0}</span>
+                        <span className="text-2xl font-bold text-purple-600">{metrics?.financial?.subscriptions?.vendor?.national || 0}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -1283,11 +1283,11 @@ export default function SuperAdminAnalytics() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <Card className={metrics?.performance.uptime >= 99 ? "border-l-4 border-l-green-600" : "border-l-4 border-l-yellow-600"}>
+                  <Card className={metrics?.performance?.uptime >= 99 ? "border-l-4 border-l-green-600" : "border-l-4 border-l-yellow-600"}>
                     <CardContent className="p-4">
                       <div className="flex flex-col">
                         <span className="text-sm text-gray-600">Uptime</span>
-                        <span className="text-2xl font-bold">{formatPercent(metrics?.performance.uptime || 0)}</span>
+                        <span className="text-2xl font-bold">{formatPercent(metrics?.performance?.uptime || 0)}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -1295,7 +1295,7 @@ export default function SuperAdminAnalytics() {
                     <CardContent className="p-4">
                       <div className="flex flex-col">
                         <span className="text-sm text-gray-600">Response Time</span>
-                        <span className="text-2xl font-bold">{metrics?.performance.responseTime || 0}ms</span>
+                        <span className="text-2xl font-bold">{metrics?.performance?.responseTime || 0}ms</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -1303,7 +1303,7 @@ export default function SuperAdminAnalytics() {
                     <CardContent className="p-4">
                       <div className="flex flex-col">
                         <span className="text-sm text-gray-600">Error Rate</span>
-                        <span className="text-2xl font-bold">{formatPercent(metrics?.performance.errorRate || 0)}</span>
+                        <span className="text-2xl font-bold">{formatPercent(metrics?.performance?.errorRate || 0)}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -1311,7 +1311,7 @@ export default function SuperAdminAnalytics() {
                     <CardContent className="p-4">
                       <div className="flex flex-col">
                         <span className="text-sm text-gray-600">Cache Hit Rate</span>
-                        <span className="text-2xl font-bold">{formatPercent(metrics?.performance.cacheHitRate || 0)}</span>
+                        <span className="text-2xl font-bold">{formatPercent(metrics?.performance?.cacheHitRate || 0)}</span>
                       </div>
                     </CardContent>
                   </Card>
