@@ -1421,101 +1421,21 @@ export default function AISearchIntelligence() {
               </div>
 
               {/* List Section - Right Side - Takes 46% */}
-              <div className="w-[46%] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden flex flex-col">
+              <div className="w-[46%] bg-gray-50 dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden flex flex-col">
                 <div className="flex-1 overflow-y-auto">
                   {simplifiedSearchMutation.isPending ? (
                     <div className="flex items-center justify-center h-full">
                       <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
                     </div>
                   ) : (simplifiedSearchMutation.data?.results?.length > 0 || mapCommunities.length > 0) ? (
-                    <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                    <div className="space-y-0">
                       {(simplifiedSearchMutation.data?.results?.length > 0 ? simplifiedSearchMutation.data.results : mapCommunities).map((community: any) => (
-                        <div 
+                        <EnhancedCommunityCard 
                           key={community.id}
-                          id={`community-${community.id}`}
-                          className="w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
-                          onClick={() => window.location.href = `/community/${community.id}`}
-                        >
-                          <div className="flex h-[200px]">
-                            {/* Left side - Image */}
-                            <div className="w-[240px] h-full flex-shrink-0 relative bg-gray-200 dark:bg-gray-700">
-                              {community.photos && community.photos.length > 0 ? (
-                                <img 
-                                  src={community.photos[0]} 
-                                  alt={community.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
-                                  <div className="text-center">
-                                    <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                                    <span className="text-sm text-gray-500 font-medium">Photos Coming Soon</span>
-                                  </div>
-                                </div>
-                              )}
-                              
-                              {/* Price overlay on image */}
-                              {community.priceRange && typeof community.priceRange === 'object' && (
-                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-black/50 text-white px-3 py-3">
-                                  <div className="text-base font-bold">
-                                    ${(community.priceRange.min || 0).toLocaleString()} - ${(community.priceRange.max || 0).toLocaleString()}/mo
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Right side - Content */}
-                            <div className="flex-1 p-5 flex flex-col">
-                              {/* Community Name */}
-                              <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-2 line-clamp-1">
-                                {community.name}
-                              </h3>
-                              
-                              {/* Care Type */}
-                              <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                {community.careTypes?.join(' / ') || 'Assisted Living'}
-                              </div>
-                              
-                              {/* Full Address */}
-                              <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                                {community.address || '350 UNIVERSITY STREET'}
-                                <br />
-                                {community.city}, {community.state} {community.zipCode}
-                              </div>
-
-                              {/* Meta info */}
-                              <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-4">
-                                <span className="flex items-center gap-1">
-                                  <span className="text-gray-400">○</span>
-                                  <span>N/A units</span>
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <span className="text-gray-400">○</span>
-                                  <span>No rating</span>
-                                </span>
-                                {community.id && (
-                                  <span className="text-gray-400">
-                                    ID: {community.id}
-                                  </span>
-                                )}
-                              </div>
-
-                              {/* Spacer to push button to bottom */}
-                              <div className="flex-1"></div>
-
-                              {/* View Details Button */}
-                              <Button 
-                                className="w-full h-10 text-sm bg-green-600 hover:bg-green-700 text-white font-medium rounded-md"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  window.location.href = `/community/${community.id}`;
-                                }}
-                              >
-                                View Full Details →
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
+                          community={community}
+                          variant="list"
+                          onSelect={() => window.location.href = `/community/${community.id}`}
+                        />
                       ))}
                   </div>
                 ) : (
