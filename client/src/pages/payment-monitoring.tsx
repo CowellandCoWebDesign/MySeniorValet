@@ -21,8 +21,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { NavigationHeader } from '@/components/NavigationHeader';
-import { useQuery } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
 
 interface PaymentTest {
   id: string;
@@ -38,58 +36,21 @@ interface PaymentTest {
 
 export default function PaymentMonitoring() {
   const { user } = useAuth();
-  // GOLDEN DATA RULE: Fetch real tier data from API
-  const { data: tierData } = useQuery({
-    queryKey: ['/api/payment/tiers'],
-    queryFn: async () => {
-      const response = await apiRequest('GET', '/api/payment/tiers');
-      return response;
-    }
-  });
-
-  const [tests, setTests] = useState<PaymentTest[]>([]);
+  const [tests, setTests] = useState<PaymentTest[]>([
+    // Community Tiers
+    { id: '1', type: 'community', tier: 'Verified (Free)', price: 0, status: 'success' },
+    { id: '2', type: 'community', tier: 'Standard', price: 149, status: 'pending' },
+    { id: '3', type: 'community', tier: 'Featured', price: 249, status: 'pending' },
+    { id: '4', type: 'community', tier: 'Platinum', price: 349, status: 'pending' },
+    // Vendor Tiers
+    { id: '5', type: 'vendor', tier: 'Basic Listing', price: 99, status: 'pending' },
+    { id: '6', type: 'vendor', tier: 'Featured Vendor', price: 249, status: 'pending' },
+    { id: '7', type: 'vendor', tier: 'National Partner', price: 499, status: 'pending' }
+  ]);
   
   const [isTestRunning, setIsTestRunning] = useState(false);
   const [completedTests, setCompletedTests] = useState(1);
   const [notifications, setNotifications] = useState<string[]>([]);
-
-  // Populate tests from real tier data when available
-  useEffect(() => {
-    if (tierData) {
-      const newTests: PaymentTest[] = [];
-      
-      // Add community tiers if available
-      if (tierData.communityTiers) {
-        tierData.communityTiers.forEach((tier: any, index: number) => {
-          newTests.push({
-            id: `c${index + 1}`,
-            type: 'community',
-            tier: tier.name,
-            price: tier.price,
-            status: 'pending'
-          });
-        });
-      }
-      
-      // Add vendor tiers if available
-      if (tierData.vendorTiers) {
-        tierData.vendorTiers.forEach((tier: any, index: number) => {
-          newTests.push({
-            id: `v${index + 1}`,
-            type: 'vendor',
-            tier: tier.name,
-            price: tier.price,
-            status: 'pending'
-          });
-        });
-      }
-      
-      // Only update if we have real data
-      if (newTests.length > 0) {
-        setTests(newTests);
-      }
-    }
-  }, [tierData]);
 
   // Super admin check
   const isSuperAdmin = (user as any)?.email === 'william.cowell01@gmail.com';

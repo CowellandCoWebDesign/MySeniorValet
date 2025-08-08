@@ -130,31 +130,14 @@ export default function PaymentDiagnostics() {
     // Test 5: SessionStorage
     updateTest(4, { status: 'testing' });
     try {
-      // GOLDEN DATA RULE: Use real community data from database
-      // Fetch a real community for testing
-      const response = await fetch('/api/communities?limit=1');
-      if (response.ok) {
-        const communities = await response.json();
-        const firstCommunity = communities[0] || null;
-        
-        if (firstCommunity) {
-          const testCommunityData = {
-            productId: 'standard',
-            planName: 'Standard',
-            communityId: firstCommunity.id,
-            communityName: firstCommunity.name
-          };
-          sessionStorage.setItem('communityUpgradeData', JSON.stringify(testCommunityData));
-        } else {
-          // No communities available for testing
-          sessionStorage.setItem('communityUpgradeData', JSON.stringify({
-            productId: 'standard',
-            planName: 'Standard',
-            communityId: null,
-            communityName: 'No community available'
-          }));
-        }
-      }
+      // Test community data
+      const testCommunityData = {
+        productId: 'standard',
+        planName: 'Standard',
+        communityId: '1',
+        communityName: 'Test Community'
+      };
+      sessionStorage.setItem('communityUpgradeData', JSON.stringify(testCommunityData));
       
       const retrievedData = sessionStorage.getItem('communityUpgradeData');
       if (retrievedData) {

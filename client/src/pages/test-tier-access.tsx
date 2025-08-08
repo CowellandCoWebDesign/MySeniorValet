@@ -62,8 +62,12 @@ interface AnalyticsAccess {
 }
 
 // Test communities with different subscription tiers
-// GOLDEN DATA RULE: Fetch real community data from API
-const [testCommunities, setTestCommunities] = useState<any[]>([]);
+const testCommunities = [
+  { id: 1, name: "Sunset Gardens (Free Tier)", tier: "free" },
+  { id: 264, name: "Heritage Hills (Featured)", tier: "featured" },
+  { id: 278, name: "Peninsula Del Rey (Premium)", tier: "premium" },
+  { id: 358, name: "Atria Senior Living (Platinum)", tier: "platinum" }
+];
 
 export default function TestTierAccess() {
   const [selectedCommunityId, setSelectedCommunityId] = useState(1);
