@@ -1526,6 +1526,52 @@ export default function AISearchIntelligence() {
                     </div>
                   </Button>
 
+                  {/* CCRC */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('ccrc') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('ccrc')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'ccrc')
+                        : [...simplifiedFilters.typeOfLiving, 'ccrc'];
+                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                    }}
+                    className={`h-[85px] px-4 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('ccrc')
+                        ? 'bg-amber-600 text-white hover:bg-amber-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xl mb-1">🏘️</div>
+                      <div className="text-[11px] font-bold">CCRC</div>
+                      <div className="text-[10px] opacity-80">Varies</div>
+                      <div className="text-[9px] opacity-60">1,245</div>
+                    </div>
+                  </Button>
+
+                  {/* Board & Care */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('board-care') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('board-care')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'board-care')
+                        : [...simplifiedFilters.typeOfLiving, 'board-care'];
+                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                    }}
+                    className={`h-[85px] px-4 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('board-care')
+                        ? 'bg-cyan-600 text-white hover:bg-cyan-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-xl mb-1">🏠</div>
+                      <div className="text-[11px] font-bold">B&C</div>
+                      <div className="text-[10px] opacity-80">$2-4k</div>
+                      <div className="text-[9px] opacity-60">856</div>
+                    </div>
+                  </Button>
+
                   <button className="h-[85px] px-4 py-3 text-gray-500 hover:text-gray-700 flex items-center gap-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 flex-shrink-0">
                     <MoreHorizontal className="w-4 h-4" />
                     <span className="text-xs">More</span>
