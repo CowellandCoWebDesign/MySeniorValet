@@ -376,10 +376,10 @@ export function AutocompleteSearch({
                         </div>
                         
                         {/* Rating */}
-                        {suggestion.rating && (
+                        {suggestion.rating && !isNaN(Number(suggestion.rating)) && (
                           <div className="flex items-center">
                             <Star className="h-3 w-3 text-yellow-400 fill-yellow-400 mr-1" />
-                            <span className="font-medium">{suggestion.rating.toFixed(1)}</span>
+                            <span className="font-medium">{Number(suggestion.rating).toFixed(1)}</span>
                             {suggestion.reviewCount && (
                               <span className="text-gray-500 dark:text-gray-400 ml-1">
                                 ({suggestion.reviewCount})
