@@ -1938,23 +1938,118 @@ export default function MapSearch() {
                     </>
                   )}
                   
-                  {/* Resources section */}
+                  {/* Resources section - Organized by type */}
                   {resources.length > 0 && (
                     <>
                       <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2 mt-4">
-                        📚 Resources & Information ({resources.length})
+                        📚 Resources & Support ({resources.length})
                       </h4>
-                      {resources.slice(0, 3).map((resource: Resource) => (
-                        <ResourceCard
-                          key={`all-resource-${resource.id}`}
-                          resource={resource}
-                          onClick={() => {
-                            if (resource.url) {
-                              window.open(resource.url, '_blank');
-                            }
-                          }}
-                        />
-                      ))}
+                      
+                      {/* Group resources by type */}
+                      {(() => {
+                        // Categorize resources
+                        const governmentResources = resources.filter((r: Resource) => 
+                          (r.type || r.category || '').toLowerCase().includes('government') ||
+                          (r.type || r.category || '').toLowerCase().includes('social security')
+                        );
+                        const supportGroups = resources.filter((r: Resource) => 
+                          (r.type || r.category || '').toLowerCase().includes('support') ||
+                          (r.type || r.category || '').toLowerCase().includes('group')
+                        );
+                        const healthResources = resources.filter((r: Resource) => 
+                          (r.type || r.category || '').toLowerCase().includes('health') ||
+                          (r.type || r.category || '').toLowerCase().includes('medical')
+                        );
+                        const otherResources = resources.filter((r: Resource) => 
+                          !governmentResources.includes(r) && 
+                          !supportGroups.includes(r) && 
+                          !healthResources.includes(r)
+                        );
+                        
+                        return (
+                          <>
+                            {/* Government Resources */}
+                            {governmentResources.length > 0 && (
+                              <div className="mb-3">
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1 pl-2">
+                                  🏛️ Government Resources
+                                </p>
+                                {governmentResources.slice(0, 2).map((resource: Resource) => (
+                                  <ResourceCard
+                                    key={`gov-resource-${resource.id}`}
+                                    resource={resource}
+                                    onClick={() => {
+                                      if (resource.url) {
+                                        window.open(resource.url, '_blank');
+                                      }
+                                    }}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                            
+                            {/* Support Groups */}
+                            {supportGroups.length > 0 && (
+                              <div className="mb-3">
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1 pl-2">
+                                  🤝 Support Groups & Communities
+                                </p>
+                                {supportGroups.slice(0, 2).map((resource: Resource) => (
+                                  <ResourceCard
+                                    key={`support-resource-${resource.id}`}
+                                    resource={resource}
+                                    onClick={() => {
+                                      if (resource.url) {
+                                        window.open(resource.url, '_blank');
+                                      }
+                                    }}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                            
+                            {/* Health Resources */}
+                            {healthResources.length > 0 && (
+                              <div className="mb-3">
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1 pl-2">
+                                  🏥 Health & Medical Resources
+                                </p>
+                                {healthResources.slice(0, 2).map((resource: Resource) => (
+                                  <ResourceCard
+                                    key={`health-resource-${resource.id}`}
+                                    resource={resource}
+                                    onClick={() => {
+                                      if (resource.url) {
+                                        window.open(resource.url, '_blank');
+                                      }
+                                    }}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                            
+                            {/* Other Resources */}
+                            {otherResources.length > 0 && (
+                              <div className="mb-3">
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1 pl-2">
+                                  📋 Additional Resources
+                                </p>
+                                {otherResources.slice(0, 2).map((resource: Resource) => (
+                                  <ResourceCard
+                                    key={`other-resource-${resource.id}`}
+                                    resource={resource}
+                                    onClick={() => {
+                                      if (resource.url) {
+                                        window.open(resource.url, '_blank');
+                                      }
+                                    }}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
                     </>
                   )}
                 </>
