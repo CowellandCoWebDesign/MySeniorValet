@@ -42,7 +42,13 @@ import {
   Clock,
   TrendingDown,
   Filter,
-  Eye
+  Eye,
+  MoreHorizontal,
+  XCircle,
+  Bed,
+  Pill,
+  Utensils,
+  HeartHandshake
 } from 'lucide-react';
 
 interface AISearchResult {
@@ -1087,15 +1093,14 @@ export default function AISearchIntelligence() {
               </div>
             </div>
 
-            {/* Horizontal Filter Bar */}
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-3">
+            {/* Horizontal Filter Bar - Matching Screenshot */}
+            <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
               <div className="flex items-center gap-6 overflow-x-auto">
                 {/* Type of Living */}
                 <div className="flex-shrink-0">
-                  <label className="text-[11px] font-semibold text-gray-600 mb-1 block">Type of Living</label>
-                  <div className="flex items-center gap-1">
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 block">Type of Living</label>
+                  <div className="flex items-center gap-2">
                     <Button
-                      size="sm"
                       variant={simplifiedFilters.typeOfLiving.includes('independent-living') ? 'default' : 'outline'}
                       onClick={() => {
                         const newTypes = simplifiedFilters.typeOfLiving.includes('independent-living')
@@ -1103,17 +1108,20 @@ export default function AISearchIntelligence() {
                           : [...simplifiedFilters.typeOfLiving, 'independent-living'];
                         setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                       }}
-                      className="h-10 px-2 flex flex-col items-center justify-center"
+                      className={`h-[45px] px-3 ${
+                        simplifiedFilters.typeOfLiving.includes('independent-living')
+                          ? 'bg-blue-600 text-white hover:bg-blue-700 border-blue-600'
+                          : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      }`}
                     >
-                      <Home className="w-3 h-3 mb-0.5" />
-                      <div className="text-[10px] leading-tight">
-                        <div>Independent Living</div>
-                        <div className="text-[9px] opacity-75">55+</div>
+                      <Home className="w-4 h-4 mr-1.5" />
+                      <div className="text-left">
+                        <div className="text-[10px] opacity-80">Independent Living/</div>
+                        <div className="text-[10px] font-semibold">55+</div>
                       </div>
                     </Button>
                     
                     <Button
-                      size="sm"
                       variant={simplifiedFilters.typeOfLiving.includes('assisted-living') ? 'default' : 'outline'}
                       onClick={() => {
                         const newTypes = simplifiedFilters.typeOfLiving.includes('assisted-living')
@@ -1121,60 +1129,52 @@ export default function AISearchIntelligence() {
                           : [...simplifiedFilters.typeOfLiving, 'assisted-living'];
                         setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                       }}
-                      className="h-10 px-2 flex flex-col items-center justify-center"
+                      className={`h-[45px] px-3 ${
+                        simplifiedFilters.typeOfLiving.includes('assisted-living')
+                          ? 'bg-blue-600 text-white hover:bg-blue-700 border-blue-600'
+                          : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      }`}
                     >
-                      <Heart className="w-3 h-3 mb-0.5" />
-                      <div className="text-[10px] leading-tight">
-                        <div>Assisted Living</div>
-                        <div className="text-[9px] opacity-75">Memory Care</div>
+                      <Users className="w-4 h-4 mr-1.5" />
+                      <div className="text-left">
+                        <div className="text-[10px] opacity-80">Assisted Living/</div>
+                        <div className="text-[10px] font-semibold">Memory Care</div>
                       </div>
                     </Button>
                     
-                    <Button
-                      size="sm"
-                      variant={simplifiedFilters.typeOfLiving.includes('skilled-nursing') ? 'default' : 'outline'}
-                      onClick={() => {
-                        const newTypes = simplifiedFilters.typeOfLiving.includes('skilled-nursing')
-                          ? simplifiedFilters.typeOfLiving.filter(t => t !== 'skilled-nursing')
-                          : [...simplifiedFilters.typeOfLiving, 'skilled-nursing'];
-                        setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
-                      }}
-                      className="h-10 px-2 flex flex-col items-center justify-center"
-                    >
-                      <Building2 className="w-3 h-3 mb-0.5" />
-                      <div className="text-[10px]">Nursing Home</div>
-                    </Button>
-                    
-                    <Button size="sm" variant="ghost" className="h-10 px-2 text-[10px]">
-                      ••• More
-                    </Button>
+                    <button className="p-2 text-gray-400 hover:text-gray-600">
+                      <MoreHorizontal className="w-4 h-4" />
+                    </button>
+                    <div className="text-[10px] text-gray-500 self-center">More</div>
                   </div>
                 </div>
 
                 {/* Amenities/Care Services */}
                 <div className="flex-shrink-0">
-                  <label className="text-[11px] font-semibold text-gray-600 mb-1 block">Amenities/Care Services</label>
-                  <div className="flex items-center gap-1">
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 block">Amenities/Care Services</label>
+                  <div className="flex items-center gap-2">
                     <Button
-                      size="sm"
-                      variant={simplifiedFilters.amenities.includes('medical') ? 'default' : 'outline'}
+                      variant={simplifiedFilters.amenities.includes('medication') ? 'default' : 'outline'}
                       onClick={() => {
-                        const newAmenities = simplifiedFilters.amenities.includes('medical')
-                          ? simplifiedFilters.amenities.filter(a => a !== 'medical')
-                          : [...simplifiedFilters.amenities, 'medical'];
+                        const newAmenities = simplifiedFilters.amenities.includes('medication')
+                          ? simplifiedFilters.amenities.filter(a => a !== 'medication')
+                          : [...simplifiedFilters.amenities, 'medication'];
                         setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
                       }}
-                      className="h-10 px-2 flex flex-col items-center justify-center"
+                      className={`h-[45px] px-3 ${
+                        simplifiedFilters.amenities.includes('medication')
+                          ? 'bg-blue-600 text-white hover:bg-blue-700'
+                          : 'bg-white dark:bg-gray-900'
+                      }`}
                     >
-                      <Activity className="w-3 h-3 mb-0.5" />
-                      <div className="text-[10px] leading-tight text-center">
+                      <Pill className="w-4 h-4 mr-1" />
+                      <div className="text-[10px]">
                         <div>Medication</div>
                         <div>Management</div>
                       </div>
                     </Button>
                     
                     <Button
-                      size="sm"
                       variant={simplifiedFilters.amenities.includes('dining') ? 'default' : 'outline'}
                       onClick={() => {
                         const newAmenities = simplifiedFilters.amenities.includes('dining')
@@ -1182,27 +1182,48 @@ export default function AISearchIntelligence() {
                           : [...simplifiedFilters.amenities, 'dining'];
                         setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
                       }}
-                      className="h-10 px-2 flex flex-col items-center justify-center"
+                      className={`h-[45px] px-3 ${
+                        simplifiedFilters.amenities.includes('dining')
+                          ? 'bg-blue-600 text-white hover:bg-blue-700'
+                          : 'bg-white dark:bg-gray-900'
+                      }`}
                     >
-                      <Home className="w-3 h-3 mb-0.5" />
-                      <div className="text-[10px] leading-tight text-center">
+                      <Utensils className="w-4 h-4 mr-1" />
+                      <div className="text-[10px]">
                         <div>Daily Meal</div>
                         <div>Preparation</div>
                       </div>
                     </Button>
                     
-                    <Button size="sm" variant="ghost" className="h-10 px-2 text-[10px]">
-                      ••• More
+                    <Button
+                      variant={simplifiedFilters.amenities.includes('fitness') ? 'default' : 'outline'}
+                      onClick={() => {
+                        const newAmenities = simplifiedFilters.amenities.includes('fitness')
+                          ? simplifiedFilters.amenities.filter(a => a !== 'fitness')
+                          : [...simplifiedFilters.amenities, 'fitness'];
+                        setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
+                      }}
+                      className={`h-[45px] px-3 ${
+                        simplifiedFilters.amenities.includes('fitness')
+                          ? 'bg-blue-600 text-white hover:bg-blue-700'
+                          : 'bg-white dark:bg-gray-900'
+                      }`}
+                    >
+                      <Activity className="w-4 h-4" />
                     </Button>
+                    
+                    <button className="p-2 text-gray-400 hover:text-gray-600">
+                      <MoreHorizontal className="w-4 h-4" />
+                    </button>
+                    <div className="text-[10px] text-gray-500 self-center">More</div>
                   </div>
                 </div>
 
                 {/* Unit/Room Type */}
                 <div className="flex-shrink-0">
-                  <label className="text-[11px] font-semibold text-gray-600 mb-1 block">Unit/Room Type</label>
-                  <div className="flex items-center gap-1">
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 block">Unit/Room Type</label>
+                  <div className="flex items-center gap-2">
                     <Button
-                      size="sm"
                       variant={simplifiedFilters.unitType.includes('studio') ? 'default' : 'outline'}
                       onClick={() => {
                         const newUnits = simplifiedFilters.unitType.includes('studio')
@@ -1210,14 +1231,17 @@ export default function AISearchIntelligence() {
                           : [...simplifiedFilters.unitType, 'studio'];
                         setSimplifiedFilters({ ...simplifiedFilters, unitType: newUnits });
                       }}
-                      className="h-10 px-3 flex items-center"
+                      className={`h-[45px] px-4 ${
+                        simplifiedFilters.unitType.includes('studio')
+                          ? 'bg-blue-600 text-white hover:bg-blue-700'
+                          : 'bg-white dark:bg-gray-900'
+                      }`}
                     >
-                      <Home className="w-3 h-3 mr-1" />
-                      <span className="text-[11px]">Studio</span>
+                      <Bed className="w-4 h-4 mr-1" />
+                      <span className="text-xs">Studio</span>
                     </Button>
                     
                     <Button
-                      size="sm"
                       variant={simplifiedFilters.unitType.includes('1-bedroom') ? 'default' : 'outline'}
                       onClick={() => {
                         const newUnits = simplifiedFilters.unitType.includes('1-bedroom')
@@ -1225,83 +1249,81 @@ export default function AISearchIntelligence() {
                           : [...simplifiedFilters.unitType, '1-bedroom'];
                         setSimplifiedFilters({ ...simplifiedFilters, unitType: newUnits });
                       }}
-                      className="h-10 px-3 flex items-center"
+                      className={`h-[45px] px-4 ${
+                        simplifiedFilters.unitType.includes('1-bedroom')
+                          ? 'bg-blue-600 text-white hover:bg-blue-700'
+                          : 'bg-white dark:bg-gray-900'
+                      }`}
                     >
-                      <Building2 className="w-3 h-3 mr-1" />
-                      <span className="text-[11px]">1 Bed</span>
+                      <Home className="w-4 h-4 mr-1" />
+                      <span className="text-xs">1 Bed</span>
                     </Button>
                     
-                    <Button
-                      size="sm"
-                      variant={simplifiedFilters.unitType.includes('2-bedroom') ? 'default' : 'outline'}
-                      onClick={() => {
-                        const newUnits = simplifiedFilters.unitType.includes('2-bedroom')
-                          ? simplifiedFilters.unitType.filter(u => u !== '2-bedroom')
-                          : [...simplifiedFilters.unitType, '2-bedroom'];
-                        setSimplifiedFilters({ ...simplifiedFilters, unitType: newUnits });
-                      }}
-                      className="h-10 px-3 bg-blue-600 text-white hover:bg-blue-700 flex items-center"
-                    >
-                      <Home className="w-3 h-3 mr-1" />
-                      <span className="text-[11px]">2 Bed</span>
-                    </Button>
-                    
-                    <Button size="sm" variant="ghost" className="h-10 px-2 text-[10px]">
-                      ••• More
-                    </Button>
+                    <button className="p-2 text-gray-400 hover:text-gray-600">
+                      <MoreHorizontal className="w-4 h-4" />
+                    </button>
+                    <div className="text-[10px] text-gray-500 self-center">More</div>
                   </div>
                 </div>
 
-                {/* Distance Slider */}
-                <div className="flex-shrink-0 min-w-[120px]">
-                  <label className="text-[11px] font-semibold text-gray-600 mb-1 block">Distance</label>
-                  <div className="flex items-center gap-1">
-                    <span className="text-[10px] text-gray-500">0</span>
-                    <Slider
-                      value={[simplifiedFilters.distance]}
-                      onValueChange={(value) => setSimplifiedFilters({
-                        ...simplifiedFilters,
-                        distance: value[0]
-                      })}
-                      min={0}
-                      max={50}
-                      step={5}
-                      className="w-20"
-                    />
-                    <span className="text-[10px] text-gray-500">50 Miles</span>
+                {/* Distance */}
+                <div className="flex-shrink-0">
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 block">Distance</label>
+                  <div className="bg-white dark:bg-gray-900 rounded-lg px-3 py-2 border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-gray-500">0</span>
+                      <Slider
+                        value={[simplifiedFilters.distance]}
+                        onValueChange={(value) => setSimplifiedFilters({
+                          ...simplifiedFilters,
+                          distance: value[0]
+                        })}
+                        min={0}
+                        max={50}
+                        step={5}
+                        className="w-28"
+                      />
+                      <span className="text-[10px] text-gray-500">50 Miles</span>
+                    </div>
+                    <div className="text-[10px] text-center text-gray-600 mt-1">{simplifiedFilters.distance} mi</div>
                   </div>
                 </div>
 
-                {/* Price Slider */}
-                <div className="flex-shrink-0 min-w-[160px]">
-                  <label className="text-[11px] font-semibold text-gray-600 mb-1 block">Price</label>
-                  <div className="flex items-center gap-1">
-                    <span className="text-[10px] text-gray-500">$500</span>
-                    <Slider
-                      value={simplifiedFilters.priceRange}
-                      onValueChange={(value) => setSimplifiedFilters({
-                        ...simplifiedFilters,
-                        priceRange: value as [number, number]
-                      })}
-                      min={500}
-                      max={8000}
-                      step={100}
-                      className="w-24"
-                    />
-                    <span className="text-[10px] text-gray-500">$8000</span>
+                {/* Price */}
+                <div className="flex-shrink-0">
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 block">Price</label>
+                  <div className="bg-white dark:bg-gray-900 rounded-lg px-3 py-2 border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-gray-500">$500</span>
+                      <Slider
+                        value={simplifiedFilters.priceRange}
+                        onValueChange={(value) => setSimplifiedFilters({
+                          ...simplifiedFilters,
+                          priceRange: value as [number, number]
+                        })}
+                        min={500}
+                        max={8000}
+                        step={100}
+                        className="w-28"
+                      />
+                      <span className="text-[10px] text-gray-500">$8000</span>
+                    </div>
+                    <div className="text-[10px] text-center text-gray-600 mt-1">
+                      ${simplifiedFilters.priceRange[0]} - ${simplifiedFilters.priceRange[1]}
+                    </div>
                   </div>
                 </div>
 
                 {/* Immediate Availability */}
                 <div className="flex-shrink-0">
-                  <label className="text-[11px] font-semibold text-gray-600 mb-1 block">Immediate Availability</label>
-                  <div className="flex items-center gap-1">
+                  <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 block">Immediate Availability</label>
+                  <div className="flex gap-2">
                     <Button
                       onClick={handleSimplifiedSearch}
-                      className="bg-blue-600 text-white hover:bg-blue-700 h-10 px-3 text-[11px]"
+                      className="bg-blue-600 text-white hover:bg-blue-700 h-[45px] px-4"
                     >
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      Apply
+                      <CheckCircle className="w-4 h-4 mr-1.5" />
+                      <span className="text-xs font-medium">Apply</span>
                     </Button>
                     <Button
                       variant="outline"
@@ -1316,25 +1338,23 @@ export default function AISearchIntelligence() {
                           immediateAvailability: false
                         });
                       }}
-                      className="h-10 px-3 text-red-600 border-red-200 hover:bg-red-50 text-[11px]"
+                      className="h-[45px] px-4 text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950"
                     >
-                      <AlertCircle className="w-3 h-3 mr-1" />
-                      Reset Filter
+                      <XCircle className="w-4 h-4 mr-1.5" />
+                      <span className="text-xs font-medium">Reset Filter</span>
                     </Button>
+                    <button className="text-xs text-gray-500 hover:text-gray-700 self-center ml-2">
+                      View all
+                    </button>
                   </div>
                 </div>
-
-                {/* View All Button */}
-                <Button variant="ghost" className="h-10 px-2 text-[11px] flex-shrink-0">
-                  View all
-                </Button>
               </div>
             </div>
 
             {/* Map and List Layout */}
             <div className="flex gap-3 h-[700px]">
-              {/* Map Section - Left Side - Takes 60% */}
-              <div className="w-[60%] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
+              {/* Map Section - Left Side - Takes 54% */}
+              <div className="w-[54%] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
                 <Map
                   center={mapCenter}
                   zoom={mapZoom}
@@ -1387,8 +1407,8 @@ export default function AISearchIntelligence() {
                 />
               </div>
 
-              {/* List Section - Right Side - Takes 40% */}
-              <div className="w-[40%] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-y-auto">
+              {/* List Section - Right Side - Takes 46% */}
+              <div className="w-[46%] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-y-auto">
                 {simplifiedSearchMutation.isPending ? (
                   <div className="flex items-center justify-center h-full">
                     <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
