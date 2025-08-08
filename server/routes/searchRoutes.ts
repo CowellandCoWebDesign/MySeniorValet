@@ -810,10 +810,15 @@ export function registerSearchRoutes(app: Express) {
       if (careTypes && careTypes !== 'All Types') {
         const careTypeList = (careTypes as string).split(',').map(ct => ct.trim());
         if (careTypeList.length > 0) {
-          const careTypeConditions = careTypeList.map(ct => 
-            sql`${ct} = ANY(${communities.careTypes})`
-          );
-          whereConditions.push(sql`(${sql.join(careTypeConditions, sql` OR `)})`);
+          // Filter out "Hospitals" as it's handled separately
+          const communityCareTypes = careTypeList.filter(ct => ct !== 'Hospitals');
+          
+          if (communityCareTypes.length > 0) {
+            const careTypeConditions = communityCareTypes.map(ct => 
+              sql`${ct} = ANY(${communities.careTypes})`
+            );
+            whereConditions.push(sql`(${sql.join(careTypeConditions, sql` OR `)})`);
+          }
         }
       }
 
@@ -854,28 +859,154 @@ export function registerSearchRoutes(app: Express) {
         )`);
       }
 
-      const query = db.select()
-        .from(communities)
-        .where(and(...whereConditions))
-        .limit(parseInt(limit as string));
+      let finalResults: any[] = [];
       
-      console.log('Executing Drizzle ORM spatial query...');
+      // Check if we need to query communities 
+      const careTypeList = careTypes ? (careTypes as string).split(',').map(ct => ct.trim()) : [];
+      const hasNonHospitalCareTypes = careTypeList.some(ct => ct !== 'Hospitals') || !careTypes || careTypes === 'All Types';
       
-      const result = await Promise.race([
-        query,
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Query timeout after 2 seconds')), 2000)
-        )
-      ]) as any;
+      // Query communities (if any care types other than Hospitals are selected, or if no care types specified)
+      if (hasNonHospitalCareTypes) {
+        // Ensure we have at least spatial conditions
+        if (whereConditions.length === 0) {
+          // This shouldn't happen, but add basic spatial conditions as fallback
+          if (swLat && swLng && neLat && neLng) {
+            const swLatFloat = parseFloat(swLat as string);
+            const swLngFloat = parseFloat(swLng as string);
+            const neLatFloat = parseFloat(neLat as string);
+            const neLngFloat = parseFloat(neLng as string);
+            
+            whereConditions = [
+              sql`${communities.latitude}::float >= ${swLatFloat}`,
+              sql`${communities.latitude}::float <= ${neLatFloat}`,
+              sql`${communities.longitude}::float >= ${swLngFloat}`,
+              sql`${communities.longitude}::float <= ${neLngFloat}`,
+              isNotNull(communities.latitude),
+              isNotNull(communities.longitude)
+            ];
+          }
+        }
+        const query = db.select()
+          .from(communities)
+          .where(and(...whereConditions))
+          .limit(parseInt(limit as string));
+        
+        console.log('Executing Drizzle ORM spatial query for communities...');
+        
+        const result = await Promise.race([
+          query,
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Query timeout after 2 seconds')), 2000)
+          )
+        ]) as any;
+        
+        const communitiesData = Array.isArray(result) ? result : result.rows || [];
+        
+        // Apply intelligent pricing system
+        const communitiesWithPricing = communitiesData.map((community: any) => eliminateCallForPricing(community));
+        finalResults = [...communitiesWithPricing];
+      }
       
-      const communitiesData = Array.isArray(result) ? result : result.rows || [];
+      // Query hospitals if "Hospitals" is selected as a care type
+      if (careTypes && (careTypes as string).includes('Hospitals')) {
+        console.log('Including hospitals in spatial search...');
+        
+        let hospitalWhereConditions: any[] = [];
+        
+        // Apply spatial filters to hospitals
+        if (radius && centerLat && centerLng) {
+          // RADIUS MODE
+          const radiusMiles = parseFloat(radius as string);
+          const center = {
+            lat: parseFloat(centerLat as string),
+            lng: parseFloat(centerLng as string)
+          };
+          const milesToDegrees = radiusMiles / 69.0;
+          
+          hospitalWhereConditions = [
+            sql`${hospitals.latitude}::float >= ${center.lat - milesToDegrees}`,
+            sql`${hospitals.latitude}::float <= ${center.lat + milesToDegrees}`,
+            sql`${hospitals.longitude}::float >= ${center.lng - milesToDegrees}`,
+            sql`${hospitals.longitude}::float <= ${center.lng + milesToDegrees}`
+          ];
+        } else if (swLat && swLng && neLat && neLng) {
+          // BOUNDS MODE
+          const swLatFloat = parseFloat(swLat as string);
+          const swLngFloat = parseFloat(swLng as string);
+          const neLatFloat = parseFloat(neLat as string);
+          const neLngFloat = parseFloat(neLng as string);
+          
+          hospitalWhereConditions = [
+            sql`${hospitals.latitude}::float >= ${swLatFloat}`,
+            sql`${hospitals.latitude}::float <= ${neLatFloat}`,
+            sql`${hospitals.longitude}::float >= ${swLngFloat}`,
+            sql`${hospitals.longitude}::float <= ${neLngFloat}`
+          ];
+        }
+        
+        const hospitalQuery = db.select({
+          id: hospitals.id,
+          name: hospitals.name,
+          address: hospitals.address,
+          city: hospitals.city,
+          state: hospitals.state,
+          zipCode: hospitals.zipCode,
+          latitude: hospitals.latitude,
+          longitude: hospitals.longitude,
+          phone: hospitals.phone,
+          website: hospitals.website,
+          emergencyServices: hospitals.emergencyServices,
+          hospitalType: hospitals.hospitalType,
+          bedCount: hospitals.bedCount,
+          ownership: hospitals.ownership,
+          cmsRating: hospitals.cmsRating,
+          // Map hospital fields to community-like format for frontend compatibility
+          careTypes: sql`ARRAY['Hospitals']`,
+          type: sql`'hospital'`
+        })
+        .from(hospitals)
+        .where(and(
+          ...hospitalWhereConditions,
+          isNotNull(hospitals.latitude),
+          isNotNull(hospitals.longitude)
+        ))
+        .limit(Math.max(50, Math.floor(parseInt(limit as string) / 4))); // Reserve some space for hospitals
+        
+        const hospitalResult = await hospitalQuery;
+        
+        // Transform hospital data to match community format for frontend
+        const hospitalData = hospitalResult.map(hospital => ({
+          id: `hospital-${hospital.id}`,
+          name: hospital.name,
+          address: hospital.address,
+          city: hospital.city,
+          state: hospital.state,
+          zipCode: hospital.zipCode,
+          latitude: hospital.latitude,
+          longitude: hospital.longitude,
+          phone: hospital.phone,
+          website: hospital.website,
+          careTypes: ['Hospitals'],
+          type: 'hospital',
+          hospitalType: hospital.hospitalType,
+          bedCount: hospital.bedCount,
+          emergencyServices: hospital.emergencyServices,
+          ownership: hospital.ownership,
+          cmsRating: hospital.cmsRating,
+          rating: hospital.cmsRating || 4.0,
+          priceRange: 'Contact for pricing',
+          description: `${hospital.hospitalType || 'Healthcare facility'} in ${hospital.city}, ${hospital.state}`,
+          amenities: hospital.emergencyServices ? ['Emergency Services'] : []
+        }));
+        
+        finalResults = [...finalResults, ...hospitalData];
+        
+        console.log(`✅ Added ${hospitalData.length} hospitals to search results`);
+      }
       
-      // Apply intelligent pricing system
-      const communitiesWithPricing = communitiesData.map((community: any) => eliminateCallForPricing(community));
+      console.log(`✅ PostGIS spatial search returned ${finalResults.length} total results in ${Date.now() - startTime}ms`);
       
-      console.log(`✅ PostGIS spatial search returned ${communitiesWithPricing.length} communities in ${Date.now() - startTime}ms`);
-      
-      res.json(communitiesWithPricing);
+      res.json(finalResults);
     } catch (error) {
       console.error('PostGIS spatial search error:', error);
       res.status(500).json({ 

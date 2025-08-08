@@ -1562,6 +1562,23 @@ export default function MapSearch() {
                     <div className="flex items-center gap-2">
                       <input
                         type="checkbox"
+                        id="care-hospitals"
+                        checked={filters.selectedCareTypes.includes('Hospitals')}
+                        onChange={(e) => {
+                          const types = e.target.checked 
+                            ? [...filters.selectedCareTypes, 'Hospitals']
+                            : filters.selectedCareTypes.filter(t => t !== 'Hospitals');
+                          setFilters({...filters, selectedCareTypes: types});
+                        }}
+                        className="rounded border-gray-300"
+                      />
+                      <label htmlFor="care-hospitals" className="text-sm cursor-pointer flex items-center gap-1">
+                        <span>🏥</span> Hospitals
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
                         id="care-general"
                         checked={filters.selectedCareTypes.includes('General Senior')}
                         onChange={(e) => {
