@@ -1269,9 +1269,9 @@ export default function AISearchIntelligence() {
             </div>
 
             {/* Map and List Layout */}
-            <div className="flex gap-4 h-[600px]">
-              {/* Map Section - Left Side */}
-              <div className="flex-1 bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
+            <div className="flex gap-3 h-[700px]">
+              {/* Map Section - Left Side - Takes 70% */}
+              <div className="w-[70%] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
                 <Map
                   communities={simplifiedSearchMutation.data?.results || []}
                   center={mapCenter}
@@ -1287,24 +1287,24 @@ export default function AISearchIntelligence() {
                 />
               </div>
 
-              {/* List Section - Right Side */}
-              <div className="w-[400px] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-y-auto">
+              {/* List Section - Right Side - Takes 30% */}
+              <div className="w-[30%] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-y-auto">
                 {simplifiedSearchMutation.isPending ? (
                   <div className="flex items-center justify-center h-full">
                     <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
                   </div>
                 ) : simplifiedSearchMutation.data?.results && simplifiedSearchMutation.data.results.length > 0 ? (
-                  <div className="space-y-3 p-4">
+                  <div className="space-y-2 p-3">
                     {simplifiedSearchMutation.data.results.map((community: any) => (
                       <div
                         key={community.id}
                         id={`community-${community.id}`}
-                        className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                        className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 hover:shadow-lg transition-shadow cursor-pointer"
                         onClick={() => window.location.href = `/community/${community.id}`}
                       >
-                        <div className="flex gap-3">
+                        <div className="flex gap-2">
                           {/* Community Image */}
-                          <div className="w-24 h-24 flex-shrink-0 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                          <div className="w-20 h-20 flex-shrink-0 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
                             {community.photos && community.photos.length > 0 ? (
                               <img 
                                 src={community.photos[0]} 
@@ -1313,43 +1313,43 @@ export default function AISearchIntelligence() {
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
-                                <Building2 className="w-8 h-8 text-gray-400" />
+                                <Building2 className="w-6 h-6 text-gray-400" />
                               </div>
                             )}
                           </div>
 
                           {/* Community Details */}
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-sm mb-1">{community.name}</h3>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-sm mb-1 truncate">{community.name}</h3>
                             
-                            <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                              <div className="flex items-center gap-2">
+                            <div className="text-xs text-gray-600 dark:text-gray-400 space-y-0.5">
+                              <div className="flex flex-col">
                                 <span className="font-medium">Average Price:</span>
-                                <Badge variant="outline" className="text-xs">
-                                  {community.basePrice ? `$${community.basePrice.toLocaleString()}/Month` : 'Contact for pricing'}
-                                </Badge>
+                                <span className="text-blue-600 font-semibold">
+                                  {community.basePrice ? `$${community.basePrice.toLocaleString()}/mo` : 'Contact'}
+                                </span>
                               </div>
                               
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">Starting Price:</span>
-                                <span>{community.minPrice ? `$${community.minPrice.toLocaleString()}/Month` : 'Contact'}</span>
+                              <div className="text-[11px]">
+                                <span className="font-medium">Starting:</span>
+                                <span className="ml-1">{community.minPrice ? `$${community.minPrice.toLocaleString()}/mo` : 'Contact'}</span>
                               </div>
 
                               {/* Services */}
-                              <div className="flex gap-1 mt-2">
-                                {community.assistedLiving && <Badge className="text-[10px] px-1 py-0">Assisted Living</Badge>}
-                                {community.memoryCare && <Badge className="text-[10px] px-1 py-0">Memory Care</Badge>}
-                                {community.independentLiving && <Badge className="text-[10px] px-1 py-0">Independent</Badge>}
+                              <div className="flex flex-wrap gap-0.5 mt-1">
+                                {community.assistedLiving && <Badge className="text-[9px] px-1 py-0 h-4">AL</Badge>}
+                                {community.memoryCare && <Badge className="text-[9px] px-1 py-0 h-4">MC</Badge>}
+                                {community.independentLiving && <Badge className="text-[9px] px-1 py-0 h-4">IL</Badge>}
                               </div>
 
                               {/* Availability */}
-                              <div className="flex items-center gap-1 mt-2">
-                                <span className="font-medium">Availability:</span>
+                              <div className="flex items-center gap-1">
+                                <span className="text-[11px] font-medium">Availability:</span>
                                 <Badge 
                                   variant={community.hasAvailability ? 'default' : 'secondary'}
-                                  className="text-[10px]"
+                                  className="text-[9px] px-1 py-0 h-4"
                                 >
-                                  {community.hasAvailability ? 'Yes' : 'Contact'}
+                                  {community.hasAvailability ? 'Yes' : 'Call'}
                                 </Badge>
                               </div>
                             </div>
