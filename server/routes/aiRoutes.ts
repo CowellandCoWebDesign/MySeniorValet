@@ -10,8 +10,126 @@ import { aiSearchService } from "../ai-search-service";
 import { perplexityService } from "../perplexity-ai-service";
 import { isAuthenticated as requireAuth } from "../replitAuth";
 import { aiPriorityOrchestrator } from "../ai-priority-orchestrator";
+import OpenAI from "openai";
 
 const multiAIOrchestrator = new MultiAIOrchestrator();
+
+// Initialize OpenAI with GPT-5 
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// Generate comprehensive AI insights using ChatGPT-5
+async function generateDeepCommunityInsights(communities: any[], location: string, careTypes?: string[], priceRange?: any): Promise<any> {
+  try {
+    if (!communities || communities.length === 0) {
+      return {
+        interpretation: "No communities found matching your criteria.",
+        comparativeAnalysis: null,
+        marketInsights: null
+      };
+    }
+
+    // Prepare community data for analysis
+    const communityData = communities.slice(0, 10).map(c => ({
+      name: c.name,
+      city: c.city,
+      state: c.state,
+      price: c.rentPerMonth || c.priceRange || "Contact for pricing",
+      rating: c.rating || "No rating",
+      careTypes: c.careTypes || [],
+      amenities: c.amenities || [],
+      isHUD: c.hudPropertyId ? true : false,
+      communityType: c.communitySubtype || "Traditional Senior Living"
+    }));
+
+    const prompt = `You are an expert senior living advisor analyzing real communities in ${location}. Provide deep, comparative insights about these communities:
+
+Communities Found:
+${JSON.stringify(communityData, null, 2)}
+
+Search Criteria:
+- Location: ${location}
+- Care Types: ${careTypes?.join(', ') || 'All types'}
+- Budget: ${priceRange ? `$${priceRange.min || 0} - $${priceRange.max || 'unlimited'}` : 'Flexible'}
+
+Please provide a comprehensive analysis including:
+1. Key differences between the communities
+2. Price comparison and value assessment
+3. Best matches for different care needs
+4. Location advantages of each area
+5. Hidden gems or standout features
+6. Recommendations based on the search criteria
+
+Format your response as JSON with:
+{
+  "interpretation": "User-friendly summary of what was found",
+  "comparativeAnalysis": {
+    "priceComparison": "Analysis of pricing across communities",
+    "valueLeaders": ["Top value communities and why"],
+    "premiumOptions": ["Premium communities and their benefits"],
+    "hudAffordable": ["HUD properties if available"]
+  },
+  "locationInsights": {
+    "bestNeighborhoods": ["Top areas and why"],
+    "accessibility": "Transportation and medical facility access",
+    "communityDensity": "Number of options in each area"
+  },
+  "careTypeMatch": {
+    "bestForIndependent": "Community name and reason",
+    "bestForAssisted": "Community name and reason",
+    "bestForMemoryCare": "Community name and reason"
+  },
+  "topRecommendations": [
+    {
+      "name": "Community name",
+      "strengths": ["Key advantages"],
+      "considerations": ["Things to consider"],
+      "idealFor": "Type of resident this suits best"
+    }
+  ],
+  "marketTrends": "Current market conditions and availability in the area",
+  "actionableAdvice": "Next steps for the user"
+}`;
+
+    // Using GPT-5 with enhanced reasoning (Released August 7, 2025)
+    const response = await openai.chat.completions.create({
+      model: "gpt-5",
+      messages: [
+        {
+          role: "system",
+          content: "You are MySeniorValet's AI advisor, providing deep insights about real senior living communities. Use GPT-5's advanced reasoning to compare and analyze communities comprehensively."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      max_completion_tokens: 2000,
+      temperature: 0.7,
+      response_format: { type: "json_object" }
+    });
+
+    const insights = JSON.parse(response.choices[0].message.content || "{}");
+    return insights;
+
+  } catch (error) {
+    console.error("Error generating deep AI insights:", error);
+    // Fallback to basic insights
+    return {
+      interpretation: `Found ${communities.length} communities in ${location} matching your search criteria.`,
+      comparativeAnalysis: {
+        priceComparison: "Various pricing options available",
+        valueLeaders: communities.slice(0, 3).map(c => c.name),
+        premiumOptions: [],
+        hudAffordable: communities.filter(c => c.hudPropertyId).map(c => c.name)
+      },
+      topRecommendations: communities.slice(0, 3).map(c => ({
+        name: c.name,
+        strengths: ["Matches search criteria"],
+        idealFor: "Seniors seeking quality care"
+      }))
+    };
+  }
+}
 
 export function registerAIRoutes(app: Express) {
   // AI-powered search - NOW TRAINED ON YOUR 34,176 COMMUNITIES DATABASE
@@ -58,35 +176,30 @@ export function registerAIRoutes(app: Express) {
             const enhancedData = await response.json();
             console.log(`✅ AI Search enhanced search succeeded with ${enhancedData.communities?.length || 0} results`);
             
-            // Return the enhanced search results with AI interpretation
+            // Generate deep AI insights using ChatGPT-5
+            const deepInsights = await generateDeepCommunityInsights(
+              enhancedData.communities || [],
+              location,
+              parsedCareTypes,
+              priceRange
+            );
+            
+            // Return the enhanced search results with deep AI analysis
             return res.json({
               communities: enhancedData.communities || [],
-              searchInterpretation,
+              searchInterpretation: deepInsights.interpretation || searchInterpretation,
               appliedFilters: {
                 location,
                 careTypes: parsedCareTypes,
                 priceRange
               },
               searchMetadata: enhancedData.searchMetadata,
-              aiInsights: {
-                topRecommendations: (enhancedData.communities || []).slice(0, 3).map((c: any) => ({
-                  name: c.name,
-                  city: c.city,
-                  state: c.state,
-                  reason: c.hudPropertyId ? 'HUD-verified affordable housing' : 
-                         c.rating >= 4 ? 'Highly rated community' : 
-                         'Matches your criteria'
-                })),
-                priceAnalysis: enhancedData.searchMetadata?.averagePrice 
-                  ? `Average price in area: $${enhancedData.searchMetadata.averagePrice}/month`
-                  : 'Contact communities for pricing',
-                locationInsights: enhancedData.searchMetadata?.totalInArea 
-                  ? `${enhancedData.searchMetadata.totalInArea} communities found in ${location}`
-                  : `Showing communities in ${location}`,
-                careTypeMatch: parsedCareTypes?.length > 0 
-                  ? `Filtered for ${parsedCareTypes.join(', ')} care`
-                  : 'Showing all care types'
-              }
+              aiInsights: deepInsights,
+              // Keep legacy format for backwards compatibility
+              aiUnderstanding: deepInsights.interpretation,
+              comparativeAnalysis: deepInsights.comparativeAnalysis,
+              locationInsights: deepInsights.locationInsights,
+              topRecommendations: deepInsights.topRecommendations
             });
           }
         } catch (error) {
@@ -288,35 +401,28 @@ export function registerAIRoutes(app: Express) {
           return 0;
         }).slice(0, 20);
 
-        // Generate AI insights from YOUR actual data
-        const aiResponse = await generateAIResponseFromRealData(sortedResults, parsedIntent);
+        // Generate deep AI insights using ChatGPT-5
+        const deepInsights = await generateDeepCommunityInsights(
+          sortedResults,
+          location || 'your search area',
+          careTypes,
+          priceRange
+        );
 
         res.json({
           communities: sortedResults,
-          searchInterpretation: searchInterpretation,
+          searchInterpretation: deepInsights.interpretation || searchInterpretation,
           appliedFilters: {
             location,
             careTypes,
             priceRange
           },
-          aiInsights: {
-            topRecommendations: sortedResults.slice(0, 3).map(c => ({
-              name: c.name,
-              location: `${c.city}, ${c.state}`,
-              price: c.hudPropertyId && c.rentPerMonth 
-                ? `HUD Verified: $${c.rentPerMonth}/month`
-                : c.priceRange 
-                  ? `$${c.priceRange.min || 'Call'} - $${c.priceRange.max || 'Call'}/month`
-                  : 'Contact for pricing',
-              verified: !!c.hudPropertyId
-            })),
-            priceAnalysis: generatePriceAnalysis(sortedResults),
-            locationInsights: `Found ${sortedResults.length} communities in ${location || 'your search area'}`,
-            careTypeMatch: careTypes.length > 0 
-              ? `Specialized in: ${careTypes.join(', ')}`
-              : 'Showing all care types',
-            realDataInsight: aiResponse
-          }
+          aiInsights: deepInsights,
+          // Keep legacy format for backwards compatibility
+          aiUnderstanding: deepInsights.interpretation,
+          comparativeAnalysis: deepInsights.comparativeAnalysis,
+          locationInsights: deepInsights.locationInsights,
+          topRecommendations: deepInsights.topRecommendations
         });
       } else if (searchType === 'services') {
         // Search care services from communities table

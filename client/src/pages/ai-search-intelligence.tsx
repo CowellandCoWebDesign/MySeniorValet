@@ -356,7 +356,7 @@ export default function AISearchIntelligence() {
           <TabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto">
             <TabsTrigger value="search" className="flex items-center gap-2">
               <Search className="w-4 h-4" />
-              Smart Search
+              Intelligent Search
             </TabsTrigger>
             <TabsTrigger value="match" className="flex items-center gap-2">
               <Target className="w-4 h-4" />
@@ -368,7 +368,7 @@ export default function AISearchIntelligence() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Smart Search Tab */}
+          {/* Intelligent Search Tab */}
           <TabsContent value="search" className="space-y-6">
             {/* Search Type Filter */}
             <div className="flex flex-wrap gap-2 justify-center">
@@ -440,24 +440,155 @@ export default function AISearchIntelligence() {
                   />
                 </div>
 
-                {/* AI Search Interpretation */}
+                {/* Enhanced AI Search Interpretation */}
                 {searchResults.data?.searchInterpretation && (
                   <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                     <div className="flex items-start gap-3">
                       <Bot className="w-5 h-5 text-purple-600 mt-0.5" />
-                      <div>
+                      <div className="w-full">
                         <p className="font-medium text-purple-900 dark:text-purple-100">
                           AI Understanding:
                         </p>
                         <p className="text-purple-700 dark:text-purple-300 mt-1">
                           {searchResults.data.searchInterpretation}
                         </p>
+                        
+                        {/* Comparative Analysis */}
+                        {searchResults.data.comparativeAnalysis && (
+                          <div className="mt-4 pt-4 border-t border-purple-200 dark:border-purple-800">
+                            <p className="font-medium text-purple-900 dark:text-purple-100 mb-2">
+                              Comparative Analysis:
+                            </p>
+                            {searchResults.data.comparativeAnalysis.priceComparison && (
+                              <div className="mb-3">
+                                <span className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                                  Price Comparison:
+                                </span>
+                                <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">
+                                  {searchResults.data.comparativeAnalysis.priceComparison}
+                                </p>
+                              </div>
+                            )}
+                            {searchResults.data.comparativeAnalysis.valueLeaders?.length > 0 && (
+                              <div className="mb-3">
+                                <span className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                                  Best Value Communities:
+                                </span>
+                                <ul className="text-sm text-purple-700 dark:text-purple-300 mt-1 list-disc list-inside">
+                                  {searchResults.data.comparativeAnalysis.valueLeaders.map((leader: string, idx: number) => (
+                                    <li key={idx}>{leader}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            {searchResults.data.comparativeAnalysis.hudAffordable?.length > 0 && (
+                              <div className="mb-3">
+                                <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                                  HUD-Verified Affordable Housing:
+                                </span>
+                                <ul className="text-sm text-green-700 dark:text-green-300 mt-1 list-disc list-inside">
+                                  {searchResults.data.comparativeAnalysis.hudAffordable.map((hud: string, idx: number) => (
+                                    <li key={idx}>{hud}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Location Insights */}
+                        {searchResults.data.locationInsights && typeof searchResults.data.locationInsights === 'object' && (
+                          <div className="mt-4 pt-4 border-t border-purple-200 dark:border-purple-800">
+                            <p className="font-medium text-purple-900 dark:text-purple-100 mb-2">
+                              Location Insights:
+                            </p>
+                            {searchResults.data.locationInsights.bestNeighborhoods?.length > 0 && (
+                              <div className="mb-2">
+                                <span className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                                  Best Neighborhoods:
+                                </span>
+                                <ul className="text-sm text-purple-700 dark:text-purple-300 mt-1 list-disc list-inside">
+                                  {searchResults.data.locationInsights.bestNeighborhoods.map((neighborhood: string, idx: number) => (
+                                    <li key={idx}>{neighborhood}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            {searchResults.data.locationInsights.accessibility && (
+                              <div className="mb-2">
+                                <span className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                                  Accessibility:
+                                </span>
+                                <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">
+                                  {searchResults.data.locationInsights.accessibility}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
                 )}
               </CardContent>
             </Card>
+
+            {/* Top AI Recommendations */}
+            {searchResults.data?.topRecommendations && searchResults.data.topRecommendations.length > 0 && (
+              <Card className="border-2 border-purple-200 dark:border-purple-800">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="w-5 h-5 text-purple-600" />
+                    AI Top Recommendations
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {searchResults.data.topRecommendations.map((rec: any, idx: number) => (
+                      <div key={idx} className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                        <h4 className="font-semibold text-purple-900 dark:text-purple-100 mb-2">
+                          {rec.name}
+                        </h4>
+                        {rec.strengths && rec.strengths.length > 0 && (
+                          <div className="mb-2">
+                            <span className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                              Strengths:
+                            </span>
+                            <ul className="text-sm text-purple-700 dark:text-purple-300 mt-1 list-disc list-inside">
+                              {rec.strengths.map((strength: string, sIdx: number) => (
+                                <li key={sIdx}>{strength}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {rec.idealFor && (
+                          <div className="mb-2">
+                            <span className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                              Ideal For:
+                            </span>
+                            <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">
+                              {rec.idealFor}
+                            </p>
+                          </div>
+                        )}
+                        {rec.considerations && rec.considerations.length > 0 && (
+                          <div>
+                            <span className="text-sm font-medium text-orange-800 dark:text-orange-200">
+                              Considerations:
+                            </span>
+                            <ul className="text-sm text-orange-700 dark:text-orange-300 mt-1 list-disc list-inside">
+                              {rec.considerations.map((consideration: string, cIdx: number) => (
+                                <li key={cIdx}>{consideration}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Dynamic Results Display */}
             {(searchResults.data?.communities || searchResults.data?.results || searchResults.data?.services || searchResults.data?.vendors || searchResults.data?.resources || searchResults.data?.searchInterpretation) && (
