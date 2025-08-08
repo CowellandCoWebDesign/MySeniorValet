@@ -21,7 +21,7 @@ import {
   Tooltip, Legend, ResponsiveContainer, Treemap
 } from "recharts";
 import { 
-  TrendingUp, TrendingDown, Users, Building, DollarSign, 
+  TrendingUp, TrendingDown, Users, Building, Building2, DollarSign, 
   Activity, Brain, Database, Shield, AlertCircle, 
   CheckCircle, Clock, Globe, MapPin, CreditCard,
   FileText, Settings, RefreshCw, Download, Eye,
@@ -32,7 +32,8 @@ import {
   Lock, Unlock, UserCheck, UserX, Package, ShoppingCart, ShoppingBag,
   MessageSquare, Phone, Mail, Bell, AlertTriangle,
   CheckCircle2, XCircle, Info, Sparkles, Hash,
-  UserPlus, Edit, Trash2, Save, X, Loader2
+  UserPlus, Edit, Trash2, Save, X, Loader2, Store, Map,
+  ExternalLink
 } from "lucide-react";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -388,12 +389,12 @@ export default function SuperAdminAnalytics() {
                     <div>
                       <p className="text-sm text-gray-600 dark:text-gray-400">System Health</p>
                       <p className="text-2xl font-bold mt-1">
-                        {formatPercent(metrics?.performance.uptime || 0)}
+                        {formatPercent(metrics?.performance?.uptime || 0)}
                       </p>
                       <div className="flex items-center mt-2">
                         <Activity className="h-4 w-4 text-green-600 mr-1" />
                         <span className="text-sm text-gray-600">
-                          {metrics?.performance.responseTime || 0}ms avg
+                          {metrics?.performance?.responseTime || 0}ms avg
                         </span>
                       </div>
                     </div>
@@ -403,29 +404,214 @@ export default function SuperAdminAnalytics() {
               </Card>
             </div>
 
+            {/* Quick Access Grid - Jump to any section instantly */}
+            <Card className="mb-6 border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-yellow-500" />
+                  Quick Access Dashboard
+                </CardTitle>
+                <CardDescription>Jump directly to any admin function</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-2">
+                  <Button 
+                    variant={activeMetricTab === "overview" ? "default" : "outline"} 
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("overview")}
+                  >
+                    <BarChart3 className="h-6 w-6 mb-1" />
+                    Overview
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "heatmap" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs bg-green-50 hover:bg-green-100 dark:bg-green-950 dark:hover:bg-green-900 border-green-300"
+                    onClick={() => setActiveMetricTab("heatmap")}
+                  >
+                    <Map className="h-6 w-6 mb-1 text-green-600" />
+                    Heatmap
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "financial" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("financial")}
+                  >
+                    <DollarSign className="h-6 w-6 mb-1" />
+                    Financial
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "users" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("users")}
+                  >
+                    <Users className="h-6 w-6 mb-1" />
+                    Users
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "communities" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("communities")}
+                  >
+                    <Building2 className="h-6 w-6 mb-1" />
+                    Communities
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "vendors" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("vendors")}
+                  >
+                    <Store className="h-6 w-6 mb-1" />
+                    Vendors
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "payments" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("payments")}
+                  >
+                    <CreditCard className="h-6 w-6 mb-1" />
+                    Payments
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "ai" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("ai")}
+                  >
+                    <Brain className="h-6 w-6 mb-1" />
+                    AI Analytics
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "marketing" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("marketing")}
+                  >
+                    <TrendingUp className="h-6 w-6 mb-1" />
+                    Marketing
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "legal" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("legal")}
+                  >
+                    <FileText className="h-6 w-6 mb-1" />
+                    Legal Docs
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "system" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("system")}
+                  >
+                    <Settings className="h-6 w-6 mb-1" />
+                    System
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "performance" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("performance")}
+                  >
+                    <Zap className="h-6 w-6 mb-1" />
+                    Performance
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "engagement" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("engagement")}
+                  >
+                    <MessageSquare className="h-6 w-6 mb-1" />
+                    Engagement
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "geographic" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("geographic")}
+                  >
+                    <Globe className="h-6 w-6 mb-1" />
+                    Geographic
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Main Dashboard Tabs - ALL ADMIN FUNCTIONALITY IN ONE PLACE */}
             <Tabs value={activeMetricTab} onValueChange={setActiveMetricTab} className="space-y-4">
-              <ScrollArea className="w-full">
-                <TabsList className="flex w-max">
-                  <TabsTrigger value="overview">📊 Overview</TabsTrigger>
-                  <TabsTrigger value="heatmap" className="bg-green-50 dark:bg-green-950 text-green-600">🗺️ Enhanced Heatmap</TabsTrigger>
-                  <TabsTrigger value="financial">💰 Financial</TabsTrigger>
-                  <TabsTrigger value="users">👥 Users</TabsTrigger>
-                  <TabsTrigger value="communities">🏢 Communities</TabsTrigger>
-                  <TabsTrigger value="vendors">🛍️ Vendors</TabsTrigger>
-                  <TabsTrigger value="payments">💳 Payments</TabsTrigger>
-                  <TabsTrigger value="ai">🤖 AI Analytics</TabsTrigger>
-                  <TabsTrigger value="marketing">📈 Marketing</TabsTrigger>
-                  <TabsTrigger value="legal">📄 Legal Docs</TabsTrigger>
-                  <TabsTrigger value="system">⚙️ System</TabsTrigger>
-                  <TabsTrigger value="performance">⚡ Performance</TabsTrigger>
-                  <TabsTrigger value="engagement">📱 Engagement</TabsTrigger>
-                  <TabsTrigger value="geographic">🌍 Geographic</TabsTrigger>
+              <div className="overflow-x-auto pb-2">
+                <TabsList className="inline-flex h-12 items-center justify-start rounded-lg bg-gray-100 dark:bg-gray-800 p-1 text-gray-700 dark:text-gray-200 w-max">
+                  <TabsTrigger value="overview" className="px-4">📊 Overview</TabsTrigger>
+                  <TabsTrigger value="heatmap" className="px-4 data-[state=active]:bg-green-200 data-[state=active]:text-green-900 dark:data-[state=active]:bg-green-800 dark:data-[state=active]:text-green-100">🗺️ Enhanced Heatmap</TabsTrigger>
+                  <TabsTrigger value="financial" className="px-4">💰 Financial</TabsTrigger>
+                  <TabsTrigger value="users" className="px-4">👥 Users</TabsTrigger>
+                  <TabsTrigger value="communities" className="px-4">🏢 Communities</TabsTrigger>
+                  <TabsTrigger value="vendors" className="px-4">🛍️ Vendors</TabsTrigger>
+                  <TabsTrigger value="payments" className="px-4">💳 Payments</TabsTrigger>
+                  <TabsTrigger value="ai" className="px-4">🤖 AI Analytics</TabsTrigger>
+                  <TabsTrigger value="marketing" className="px-4">📈 Marketing</TabsTrigger>
+                  <TabsTrigger value="legal" className="px-4">📄 Legal Docs</TabsTrigger>
+                  <TabsTrigger value="system" className="px-4">⚙️ System</TabsTrigger>
+                  <TabsTrigger value="performance" className="px-4">⚡ Performance</TabsTrigger>
+                  <TabsTrigger value="engagement" className="px-4">📱 Engagement</TabsTrigger>
+                  <TabsTrigger value="geographic" className="px-4">🌍 Geographic</TabsTrigger>
                 </TabsList>
-              </ScrollArea>
+              </div>
 
               {/* Overview Tab */}
               <TabsContent value="overview" className="space-y-6">
+                {/* Executive Summary Section */}
+                <Card className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 border-2 border-blue-200 dark:border-blue-800">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-2xl">
+                      <Sparkles className="h-6 w-6 text-yellow-500" />
+                      Executive Summary - MySeniorValet Platform Health
+                    </CardTitle>
+                    <CardDescription>Real-time platform intelligence and critical metrics</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Platform Status</span>
+                          <Badge variant="default" className="bg-green-500">Operational</Badge>
+                        </div>
+                        <div className="text-2xl font-bold">{metrics?.performance?.uptime || 0}%</div>
+                        <div className="text-xs text-gray-500">System Uptime</div>
+                        <div className="mt-2 flex items-center gap-1">
+                          <Activity className="h-3 w-3 text-green-500" />
+                          <span className="text-xs">{metrics?.performance?.responseTime || 0}ms response</span>
+                        </div>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Live Activity</span>
+                          <Users className="h-4 w-4 text-blue-500" />
+                        </div>
+                        <div className="text-2xl font-bold">{formatNumber(metrics?.engagement?.dailyActiveUsers || 0)}</div>
+                        <div className="text-xs text-gray-500">Active Users Now</div>
+                        <div className="mt-2 text-xs text-green-600">
+                          +{metrics?.engagement?.growthRate || 0}% from yesterday
+                        </div>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">Revenue Today</span>
+                          <DollarSign className="h-4 w-4 text-green-500" />
+                        </div>
+                        <div className="text-2xl font-bold">{formatCurrency(metrics?.financial?.revenue?.day || 0)}</div>
+                        <div className="text-xs text-gray-500">Target: $5,000</div>
+                        <Progress value={(metrics?.financial?.revenue?.day || 0) / 50} className="mt-2 h-1" />
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">AI Intelligence</span>
+                          <Brain className="h-4 w-4 text-purple-500" />
+                        </div>
+                        <div className="text-2xl font-bold">{formatNumber(metrics?.ai?.totalRequests || 0)}</div>
+                        <div className="text-xs text-gray-500">AI Requests Today</div>
+                        <div className="mt-2 text-xs">
+                          Cost: {formatCurrency(metrics?.ai?.costs?.total || 0)}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Revenue Trend */}
                   <Card>
@@ -490,48 +676,209 @@ export default function SuperAdminAnalytics() {
                   </Card>
                 </div>
 
-                {/* Quick Actions Grid */}
+                {/* Admin Quick Actions - Enhanced */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Quick Actions</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                      <Zap className="h-5 w-5 text-yellow-500" />
+                      Administrative Control Center
+                    </CardTitle>
+                    <CardDescription>Complete administrative functionality in one place</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Primary Actions */}
+                    <div>
+                      <h3 className="text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">Core Management</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <Button 
+                          variant="outline" 
+                          className="flex flex-col items-center justify-center h-20 hover:bg-blue-50 dark:hover:bg-blue-950"
+                          onClick={() => window.location.href = '/admin/communities'}
+                        >
+                          <Building2 className="h-5 w-5 mb-1 text-blue-600" />
+                          <span className="text-xs">Communities</span>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="flex flex-col items-center justify-center h-20 hover:bg-green-50 dark:hover:bg-green-950"
+                          onClick={() => window.location.href = '/admin/users'}
+                        >
+                          <Users className="h-5 w-5 mb-1 text-green-600" />
+                          <span className="text-xs">Users</span>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="flex flex-col items-center justify-center h-20 hover:bg-purple-50 dark:hover:bg-purple-950"
+                          onClick={() => window.location.href = '/admin/vendor-dashboard'}
+                        >
+                          <Store className="h-5 w-5 mb-1 text-purple-600" />
+                          <span className="text-xs">Vendors</span>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="flex flex-col items-center justify-center h-20 hover:bg-yellow-50 dark:hover:bg-yellow-950"
+                          onClick={() => window.location.href = '/payment-monitoring'}
+                        >
+                          <CreditCard className="h-5 w-5 mb-1 text-yellow-600" />
+                          <span className="text-xs">Payments</span>
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Advanced Features */}
+                    <div>
+                      <h3 className="text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">Advanced Features</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                        <Button 
+                          variant="outline" 
+                          className="flex flex-col items-center justify-center h-20 border-2 border-green-500 bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900"
+                          onClick={() => window.location.href = '/admin/availability-heatmap'}
+                        >
+                          <Map className="h-5 w-5 mb-1 text-green-600" />
+                          <span className="text-xs font-semibold text-green-700 dark:text-green-300">Admin Heatmap</span>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="flex flex-col items-center justify-center h-20 hover:bg-indigo-50 dark:hover:bg-indigo-950"
+                          onClick={() => window.location.href = '/admin/marketing-hub'}
+                        >
+                          <Target className="h-5 w-5 mb-1 text-indigo-600" />
+                          <span className="text-xs">Marketing</span>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="flex flex-col items-center justify-center h-20 hover:bg-red-50 dark:hover:bg-red-950"
+                          onClick={() => window.location.href = '/legal-document-history'}
+                        >
+                          <FileText className="h-5 w-5 mb-1 text-red-600" />
+                          <span className="text-xs">Legal Docs</span>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="flex flex-col items-center justify-center h-20 hover:bg-orange-50 dark:hover:bg-orange-950"
+                          onClick={() => window.location.href = '/admin/audit-logs'}
+                        >
+                          <Shield className="h-5 w-5 mb-1 text-orange-600" />
+                          <span className="text-xs">Audit Logs</span>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="flex flex-col items-center justify-center h-20 hover:bg-teal-50 dark:hover:bg-teal-950"
+                          onClick={() => window.location.href = '/admin/data-quality'}
+                        >
+                          <Database className="h-5 w-5 mb-1 text-teal-600" />
+                          <span className="text-xs">Data Quality</span>
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* System Operations */}
+                    <div>
+                      <h3 className="text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">System Operations</h3>
+                      <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                        <Button 
+                          variant="outline" 
+                          className="flex flex-col items-center justify-center h-16"
+                          onClick={() => window.location.href = '/admin/email-broadcast'}
+                        >
+                          <Mail className="h-4 w-4 mb-1" />
+                          <span className="text-xs">Email</span>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="flex flex-col items-center justify-center h-16"
+                          onClick={() => window.location.href = '/admin/notifications'}
+                        >
+                          <Bell className="h-4 w-4 mb-1" />
+                          <span className="text-xs">Alerts</span>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="flex flex-col items-center justify-center h-16"
+                          onClick={() => window.location.href = '/admin/security'}
+                        >
+                          <Lock className="h-4 w-4 mb-1" />
+                          <span className="text-xs">Security</span>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="flex flex-col items-center justify-center h-16"
+                          onClick={() => window.location.href = '/admin/api-keys'}
+                        >
+                          <Hash className="h-4 w-4 mb-1" />
+                          <span className="text-xs">API Keys</span>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="flex flex-col items-center justify-center h-16"
+                          onClick={() => window.location.href = '/admin/reports'}
+                        >
+                          <BarChart3 className="h-4 w-4 mb-1" />
+                          <span className="text-xs">Reports</span>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="flex flex-col items-center justify-center h-16"
+                          onClick={() => window.location.href = '/admin/settings'}
+                        >
+                          <Settings className="h-4 w-4 mb-1" />
+                          <span className="text-xs">Settings</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* External Tools Quick Access */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <ExternalLink className="h-5 w-5" />
+                      External Services & Tools
+                    </CardTitle>
+                    <CardDescription>Quick access to third-party platforms and services</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <Button variant="outline" className="flex items-center gap-2" onClick={() => window.location.href = '/admin/communities'}>
-                        <Building className="h-4 w-4" />
-                        Manage Communities
-                      </Button>
-                      <Button variant="outline" className="flex items-center gap-2" onClick={() => window.location.href = '/admin/users'}>
-                        <Users className="h-4 w-4" />
-                        Manage Users
-                      </Button>
-                      <Button variant="outline" className="flex items-center gap-2" onClick={() => window.location.href = '/payment-monitoring'}>
-                        <CreditCard className="h-4 w-4" />
-                        Payment System
-                      </Button>
-                      <Button variant="outline" className="flex items-center gap-2" onClick={() => window.location.href = '/admin/audit-logs'}>
-                        <Shield className="h-4 w-4" />
-                        Audit Logs
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                      <Button 
+                        variant="outline" 
+                        className="flex items-center gap-2 hover:bg-purple-50 dark:hover:bg-purple-950"
+                        onClick={() => window.open('https://dashboard.stripe.com', '_blank')}
+                      >
+                        <CreditCard className="h-4 w-4 text-purple-600" />
+                        <span className="text-sm">Stripe</span>
                       </Button>
                       <Button 
                         variant="outline" 
-                        className="flex items-center gap-2 border-2 border-green-600 hover:bg-green-50 dark:hover:bg-green-950" 
-                        onClick={() => window.location.href = '/admin/availability-heatmap'}
+                        className="flex items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-950"
+                        onClick={() => window.open('https://analytics.google.com', '_blank')}
                       >
-                        <MapPin className="h-4 w-4 text-green-600" />
-                        <span className="text-green-600 font-semibold">Enhanced Heatmap</span>
+                        <BarChart3 className="h-4 w-4 text-blue-600" />
+                        <span className="text-sm">Analytics</span>
                       </Button>
-                      <Button variant="outline" className="flex items-center gap-2" onClick={() => window.location.href = '/admin/marketing-hub'}>
-                        <TrendingUp className="h-4 w-4" />
-                        Marketing Hub
+                      <Button 
+                        variant="outline" 
+                        className="flex items-center gap-2 hover:bg-green-50 dark:hover:bg-green-950"
+                        onClick={() => window.open('https://app.sendgrid.com', '_blank')}
+                      >
+                        <Mail className="h-4 w-4 text-green-600" />
+                        <span className="text-sm">SendGrid</span>
                       </Button>
-                      <Button variant="outline" className="flex items-center gap-2" onClick={() => window.location.href = '/legal-document-history'}>
-                        <FileText className="h-4 w-4" />
-                        Legal Docs
+                      <Button 
+                        variant="outline" 
+                        className="flex items-center gap-2 hover:bg-yellow-50 dark:hover:bg-yellow-950"
+                        onClick={() => window.open('https://console.cloud.google.com', '_blank')}
+                      >
+                        <Server className="h-4 w-4 text-yellow-600" />
+                        <span className="text-sm">GCP</span>
                       </Button>
-                      <Button variant="outline" className="flex items-center gap-2" onClick={() => window.location.href = '/admin/vendor-dashboard'}>
-                        <ShoppingBag className="h-4 w-4" />
-                        Vendor Portal
+                      <Button 
+                        variant="outline" 
+                        className="flex items-center gap-2 hover:bg-indigo-50 dark:hover:bg-indigo-950"
+                        onClick={() => window.open('https://console.anthropic.com', '_blank')}
+                      >
+                        <Brain className="h-4 w-4 text-indigo-600" />
+                        <span className="text-sm">Claude</span>
                       </Button>
                     </div>
                   </CardContent>
