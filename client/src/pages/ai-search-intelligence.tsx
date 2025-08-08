@@ -990,7 +990,7 @@ export default function AISearchIntelligence() {
                       <Building2 className="w-4 h-4 text-green-600" />
                       Type of Living
                     </Label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                       {[
                         { value: 'hud', label: 'HUD Housing', icon: '🏛️' },
                         { value: 'assisted-living', label: 'Assisted Living', icon: '🤝' },
@@ -1029,7 +1029,7 @@ export default function AISearchIntelligence() {
                       <Heart className="w-4 h-4 text-red-600" />
                       Amenities & Care Services
                     </Label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                       {[
                         { value: 'transportation', label: 'Transportation', icon: '🚌' },
                         { value: 'dining', label: 'Dining Services', icon: '🍽️' },
