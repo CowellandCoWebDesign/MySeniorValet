@@ -219,9 +219,39 @@ export async function setupAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
+  // Check for demo mode in development
+  const sessionId = (req as any).cookies?.sessionId;
+  
+  if (!sessionId && process.env.NODE_ENV === 'development') {
+    // Demo super admin user for testing
+    (req as any).user = {
+      id: 'test-user-123',
+      email: 'William.cowell01@gmail.com',
+      username: 'William Cowell',
+      role: 'super_admin',
+      isDemo: true,
+      expires_at: Math.floor(Date.now() / 1000) + 3600
+    };
+    (req as any).isAuthenticated = () => true;
+    return next();
+  }
+  
+  // Check for active session
+  if (sessionId && global.activeSessions?.[sessionId]) {
+    const session = global.activeSessions[sessionId];
+    (req as any).user = {
+      id: session.userId,
+      email: session.email,
+      role: session.role,
+      expires_at: Math.floor(Date.now() / 1000) + 3600
+    };
+    (req as any).isAuthenticated = () => true;
+    return next();
+  }
+  
   const user = req.user as any;
 
-  if (!req.isAuthenticated() || !user.expires_at) {
+  if (!req.isAuthenticated() || !user?.expires_at) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
@@ -249,16 +279,48 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
 
 // Admin-only middleware
 export const isAdmin: RequestHandler = async (req, res, next) => {
+  // Check for demo mode in development
+  const sessionId = (req as any).cookies?.sessionId;
+  
+  if (!sessionId && process.env.NODE_ENV === 'development') {
+    // Demo super admin user for testing
+    (req as any).dbUser = {
+      id: 'test-user-123',
+      email: 'William.cowell01@gmail.com',
+      username: 'William Cowell',
+      role: 'super_admin',
+      isDemo: true
+    };
+    return next();
+  }
+  
+  // Check for active session
+  if (sessionId && global.activeSessions?.[sessionId]) {
+    const session = global.activeSessions[sessionId];
+    
+    // Check if user has admin or super_admin role
+    if (session.role !== 'admin' && session.role !== 'super_admin') {
+      return res.status(403).json({ message: "Admin access required" });
+    }
+    
+    (req as any).dbUser = {
+      id: session.userId,
+      email: session.email,
+      role: session.role
+    };
+    return next();
+  }
+  
   const user = req.user as any;
 
   // First check if authenticated
-  if (!req.isAuthenticated() || !user.expires_at) {
+  if (!req.isAuthenticated() || !user?.expires_at) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
   try {
     // Get user from database to check role
-    const userEmail = user.claims?.email;
+    const userEmail = user.claims?.email || user.email;
     if (!userEmail) {
       return res.status(401).json({ message: "No user email found" });
     }
@@ -268,8 +330,8 @@ export const isAdmin: RequestHandler = async (req, res, next) => {
       return res.status(401).json({ message: "User not found" });
     }
 
-    // Check if user is admin
-    if (dbUser.role !== 'admin') {
+    // Check if user is admin or super_admin
+    if (dbUser.role !== 'admin' && dbUser.role !== 'super_admin') {
       return res.status(403).json({ message: "Admin access required" });
     }
 
