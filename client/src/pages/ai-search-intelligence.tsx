@@ -1594,11 +1594,6 @@ export default function AISearchIntelligence() {
                       <div className="text-[9px] opacity-60">2,300</div>
                     </div>
                   </Button>
-
-                  <button className="h-[85px] px-3 py-3 text-gray-500 hover:text-gray-700 flex items-center gap-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 flex-shrink-0">
-                    <MoreHorizontal className="w-4 h-4" />
-                    <span className="text-xs">More</span>
-                  </button>
                 </div>
               </div>
             </div>
