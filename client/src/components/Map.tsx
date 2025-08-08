@@ -59,9 +59,42 @@ const assistedLivingIcon = createSimpleIcon('#3b82f6'); // Blue
 const memoryCareIcon = createSimpleIcon('#8b5cf6'); // Purple
 const independentIcon = createSimpleIcon('#10b981'); // Green
 
-// Hospital icons
-const hospitalIcon = createSimpleIcon('#dc2626'); // Red for hospitals with emergency services
-const urgentCareIcon = createSimpleIcon('#f97316'); // Orange for urgent care facilities
+// Hospital icons with distinct medical cross symbol - larger for better visibility
+const createHospitalIcon = (bgColor: string, isEmergency: boolean = false) => {
+  const size = 45; // Increased from 35 for better visibility
+  const svgString = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size + 15}" viewBox="0 0 ${size} ${size + 15}">
+      <defs>
+        <filter id="hospitalShadow${isEmergency ? 'Emergency' : 'Urgent'}" x="-50%" y="-50%" width="200%" height="200%">
+          <feDropShadow dx="2" dy="3" stdDeviation="3" flood-color="rgba(0,0,0,0.5)"/>
+        </filter>
+      </defs>
+      <!-- Pin shape with thick white border -->
+      <path fill="${bgColor}" stroke="#ffffff" stroke-width="3" filter="url(#hospitalShadow${isEmergency ? 'Emergency' : 'Urgent'})"
+            d="M${size/2} 3C${size*0.25} 3 3 ${size*0.25} 3 ${size/2}c0 ${size*0.45} ${size/2-3} ${size+12-3} ${size/2-3} ${size+12-3}s${size/2-3} ${size*0.67-3} ${size/2-3} ${size+12-3}C${size-3} ${size*0.25} ${size*0.75} 3 ${size/2} 3z"/>
+      <!-- Larger medical cross -->
+      <g transform="translate(${size/2}, ${size/2})">
+        <rect x="-3" y="-10" width="6" height="20" fill="white"/>
+        <rect x="-10" y="-3" width="20" height="6" fill="white"/>
+        ${isEmergency ? `
+          <circle cx="0" cy="0" r="12" fill="none" stroke="white" stroke-width="2" opacity="0.8"/>
+          <text x="0" y="-15" text-anchor="middle" fill="white" font-size="8" font-weight="bold">ER</text>
+        ` : ''}
+      </g>
+    </svg>
+  `;
+  
+  return new Icon({
+    iconUrl: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svgString)}`,
+    iconSize: [size, size + 15],
+    iconAnchor: [size/2, size + 15],
+    popupAnchor: [0, -(size + 15)],
+    className: 'hospital-marker'
+  });
+};
+
+const hospitalIcon = createHospitalIcon('#dc2626', true); // Red for hospitals with emergency services  
+const urgentCareIcon = createHospitalIcon('#f97316', false); // Orange for urgent care facilities
 
 // Map View Controller - Updates map view when center/zoom props change
 const MapViewController: React.FC<{ center: [number, number]; zoom: number }> = ({ center, zoom }) => {
@@ -933,7 +966,7 @@ export default function Map({
       console.log(`🏥 Found ${data.hospitals?.length || 0} hospitals in current view`);
       return data;
     },
-    enabled: !!mapBounds && currentZoom >= 10, // Only show hospitals at closer zoom levels
+    enabled: !!mapBounds && currentZoom >= 8, // Show hospitals at city-level zoom and closer
     staleTime: 10000,
     refetchOnWindowFocus: false,
     gcTime: 60000,
@@ -1107,6 +1140,19 @@ export default function Map({
             <div className="flex items-center gap-2">
               <span className="text-lg">🏠</span>
               <span className="text-gray-700 dark:text-gray-300">General Senior</span>
+            </div>
+          </div>
+          <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+            <h5 className="font-semibold text-xs mb-1 text-gray-900 dark:text-white">Healthcare Facilities</h5>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-600"></div>
+                <span className="text-gray-700 dark:text-gray-300">Hospitals (Emergency)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                <span className="text-gray-700 dark:text-gray-300">Urgent Care</span>
+              </div>
             </div>
           </div>
           <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
@@ -1645,16 +1691,26 @@ export default function Map({
         }) || []}
 
         {/* Hospital markers - show alongside communities */}
-        {!isLoading && hospitalsData?.hospitals && currentZoom >= 10 && hospitalsData.hospitals.map((hospital: any, index: number) => {
+        {!isLoading && hospitalsData?.hospitals && currentZoom >= 8 && hospitalsData.hospitals.map((hospital: any, index: number) => {
           const isHovered = hoveredCommunity === `hospital-${hospital.id}`;
           
           // Use red icon for emergency services, orange for urgent care
           const hospitalMarkerIcon = hospital.emergencyServices ? hospitalIcon : urgentCareIcon;
           
+          // Parse coordinates - they're stored as strings
+          const lat = parseFloat(hospital.latitude);
+          const lng = parseFloat(hospital.longitude);
+          
+          // Skip invalid coordinates
+          if (isNaN(lat) || isNaN(lng)) {
+            console.warn(`Invalid coordinates for hospital ${hospital.name}:`, hospital.latitude, hospital.longitude);
+            return null;
+          }
+          
           return (
             <Marker
               key={`hospital-${hospital.id}`}
-              position={[parseFloat(hospital.latitude), parseFloat(hospital.longitude)]}
+              position={[lat, lng]}
               icon={hospitalMarkerIcon}
               eventHandlers={{
                 mouseover: () => setHoveredCommunity(`hospital-${hospital.id}`),
