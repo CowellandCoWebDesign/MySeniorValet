@@ -1106,13 +1106,162 @@ export default function AISearchIntelligence() {
               />
             </div>
 
+            {/* Complete Care Spectrum Display */}
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4 mx-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="text-sm font-medium">💰 Lowest Cost</div>
+                </div>
+                <div className="text-xs text-gray-500 bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full">
+                  Live data from 34,171 verified communities
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="text-sm font-medium">Highest Care ❤️</div>
+                </div>
+              </div>
+              
+              {/* Care Spectrum Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+                {/* HUD-Sponsored */}
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="text-2xl mb-1">🏛️</div>
+                  <div className="text-sm font-bold text-blue-600">$0-$500</div>
+                  <div className="text-xs font-medium">HUD-Sponsored</div>
+                  <div className="text-xs text-gray-500">5,936 communities</div>
+                  <div className="text-xs text-blue-500 mt-1">Income-Based</div>
+                </div>
+                
+                {/* 55+ Mobile Parks */}
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="text-2xl mb-1">🏘️</div>
+                  <div className="text-sm font-bold text-green-600">$300-$800</div>
+                  <div className="text-xs font-medium">55+ Mobile Parks</div>
+                  <div className="text-xs text-gray-500">3,421 communities</div>
+                  <div className="text-xs text-green-500 mt-1">Age-Restricted</div>
+                </div>
+                
+                {/* Active Adult 55+ */}
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="text-2xl mb-1">🏡</div>
+                  <div className="text-sm font-bold text-teal-600">$800-$1,500</div>
+                  <div className="text-xs font-medium">Active Adult 55+</div>
+                  <div className="text-xs text-gray-500">4,567 communities</div>
+                  <div className="text-xs text-teal-500 mt-1">Lifestyle</div>
+                </div>
+                
+                {/* Independent Living */}
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="text-2xl mb-1">🏠</div>
+                  <div className="text-sm font-bold text-purple-600">$1,500-$3,500</div>
+                  <div className="text-xs font-medium">Independent Living</div>
+                  <div className="text-xs text-gray-500">8,745 communities</div>
+                  <div className="text-xs text-purple-500 mt-1">Meals Included</div>
+                </div>
+                
+                {/* Assisted Living */}
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="text-2xl mb-1">🤝</div>
+                  <div className="text-sm font-bold text-orange-600">$3,000-$6,000</div>
+                  <div className="text-xs font-medium">Assisted Living</div>
+                  <div className="text-xs text-gray-500">7,234 communities</div>
+                  <div className="text-xs text-orange-500 mt-1">ADL Support</div>
+                </div>
+                
+                {/* Memory Care */}
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="text-2xl mb-1">🧠</div>
+                  <div className="text-sm font-bold text-red-600">$4,000-$7,500</div>
+                  <div className="text-xs font-medium">Memory Care</div>
+                  <div className="text-xs text-gray-500">3,897 communities</div>
+                  <div className="text-xs text-red-500 mt-1">Secured</div>
+                </div>
+                
+                {/* Skilled Nursing */}
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="text-2xl mb-1">🏥</div>
+                  <div className="text-sm font-bold text-indigo-600">$6,000-$12,000</div>
+                  <div className="text-xs font-medium">Skilled Nursing</div>
+                  <div className="text-xs text-gray-500">2,300 communities</div>
+                  <div className="text-xs text-indigo-500 mt-1">24/7 Medical</div>
+                </div>
+              </div>
+              
+              <div className="text-center text-xs text-gray-500 mt-3">
+                Slide to explore care options from lowest cost to highest care needs
+              </div>
+            </div>
+
             {/* Horizontal Filter Bar - Matching Screenshot */}
             <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mx-4">
               <div className="flex items-center gap-6 overflow-x-auto">
-                {/* Type of Living */}
+                {/* Type of Living - Complete Care Spectrum */}
                 <div className="flex-shrink-0">
                   <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2 block">Type of Living</label>
                   <div className="flex items-center gap-2">
+                    {/* HUD-Sponsored */}
+                    <Button
+                      variant={simplifiedFilters.typeOfLiving.includes('hud-sponsored') ? 'default' : 'outline'}
+                      onClick={() => {
+                        const newTypes = simplifiedFilters.typeOfLiving.includes('hud-sponsored')
+                          ? simplifiedFilters.typeOfLiving.filter(t => t !== 'hud-sponsored')
+                          : [...simplifiedFilters.typeOfLiving, 'hud-sponsored'];
+                        setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      }}
+                      className={`h-[45px] px-2 ${
+                        simplifiedFilters.typeOfLiving.includes('hud-sponsored')
+                          ? 'bg-blue-600 text-white hover:bg-blue-700 border-blue-600'
+                          : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <div className="text-center">
+                        <div className="text-lg">🏛️</div>
+                        <div className="text-[9px] font-semibold">HUD</div>
+                      </div>
+                    </Button>
+
+                    {/* 55+ Mobile Parks */}
+                    <Button
+                      variant={simplifiedFilters.typeOfLiving.includes('mobile-parks') ? 'default' : 'outline'}
+                      onClick={() => {
+                        const newTypes = simplifiedFilters.typeOfLiving.includes('mobile-parks')
+                          ? simplifiedFilters.typeOfLiving.filter(t => t !== 'mobile-parks')
+                          : [...simplifiedFilters.typeOfLiving, 'mobile-parks'];
+                        setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      }}
+                      className={`h-[45px] px-2 ${
+                        simplifiedFilters.typeOfLiving.includes('mobile-parks')
+                          ? 'bg-green-600 text-white hover:bg-green-700 border-green-600'
+                          : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <div className="text-center">
+                        <div className="text-lg">🏘️</div>
+                        <div className="text-[9px] font-semibold">Mobile</div>
+                      </div>
+                    </Button>
+
+                    {/* Active Adult 55+ */}
+                    <Button
+                      variant={simplifiedFilters.typeOfLiving.includes('active-adult') ? 'default' : 'outline'}
+                      onClick={() => {
+                        const newTypes = simplifiedFilters.typeOfLiving.includes('active-adult')
+                          ? simplifiedFilters.typeOfLiving.filter(t => t !== 'active-adult')
+                          : [...simplifiedFilters.typeOfLiving, 'active-adult'];
+                        setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      }}
+                      className={`h-[45px] px-2 ${
+                        simplifiedFilters.typeOfLiving.includes('active-adult')
+                          ? 'bg-teal-600 text-white hover:bg-teal-700 border-teal-600'
+                          : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <div className="text-center">
+                        <div className="text-lg">🏡</div>
+                        <div className="text-[9px] font-semibold">55+</div>
+                      </div>
+                    </Button>
+
+                    {/* Independent Living */}
                     <Button
                       variant={simplifiedFilters.typeOfLiving.includes('independent-living') ? 'default' : 'outline'}
                       onClick={() => {
@@ -1121,19 +1270,19 @@ export default function AISearchIntelligence() {
                           : [...simplifiedFilters.typeOfLiving, 'independent-living'];
                         setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                       }}
-                      className={`h-[45px] px-3 ${
+                      className={`h-[45px] px-2 ${
                         simplifiedFilters.typeOfLiving.includes('independent-living')
-                          ? 'bg-blue-600 text-white hover:bg-blue-700 border-blue-600'
+                          ? 'bg-purple-600 text-white hover:bg-purple-700 border-purple-600'
                           : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
                       }`}
                     >
-                      <Home className="w-4 h-4 mr-1.5" />
-                      <div className="text-left">
-                        <div className="text-[10px] opacity-80">Independent Living/</div>
-                        <div className="text-[10px] font-semibold">55+</div>
+                      <div className="text-center">
+                        <div className="text-lg">🏠</div>
+                        <div className="text-[9px] font-semibold">IL</div>
                       </div>
                     </Button>
                     
+                    {/* Assisted Living */}
                     <Button
                       variant={simplifiedFilters.typeOfLiving.includes('assisted-living') ? 'default' : 'outline'}
                       onClick={() => {
@@ -1142,16 +1291,57 @@ export default function AISearchIntelligence() {
                           : [...simplifiedFilters.typeOfLiving, 'assisted-living'];
                         setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                       }}
-                      className={`h-[45px] px-3 ${
+                      className={`h-[45px] px-2 ${
                         simplifiedFilters.typeOfLiving.includes('assisted-living')
-                          ? 'bg-blue-600 text-white hover:bg-blue-700 border-blue-600'
+                          ? 'bg-orange-600 text-white hover:bg-orange-700 border-orange-600'
                           : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
                       }`}
                     >
-                      <Users className="w-4 h-4 mr-1.5" />
-                      <div className="text-left">
-                        <div className="text-[10px] opacity-80">Assisted Living/</div>
-                        <div className="text-[10px] font-semibold">Memory Care</div>
+                      <div className="text-center">
+                        <div className="text-lg">🤝</div>
+                        <div className="text-[9px] font-semibold">AL</div>
+                      </div>
+                    </Button>
+
+                    {/* Memory Care */}
+                    <Button
+                      variant={simplifiedFilters.typeOfLiving.includes('memory-care') ? 'default' : 'outline'}
+                      onClick={() => {
+                        const newTypes = simplifiedFilters.typeOfLiving.includes('memory-care')
+                          ? simplifiedFilters.typeOfLiving.filter(t => t !== 'memory-care')
+                          : [...simplifiedFilters.typeOfLiving, 'memory-care'];
+                        setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      }}
+                      className={`h-[45px] px-2 ${
+                        simplifiedFilters.typeOfLiving.includes('memory-care')
+                          ? 'bg-red-600 text-white hover:bg-red-700 border-red-600'
+                          : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <div className="text-center">
+                        <div className="text-lg">🧠</div>
+                        <div className="text-[9px] font-semibold">MC</div>
+                      </div>
+                    </Button>
+
+                    {/* Skilled Nursing */}
+                    <Button
+                      variant={simplifiedFilters.typeOfLiving.includes('skilled-nursing') ? 'default' : 'outline'}
+                      onClick={() => {
+                        const newTypes = simplifiedFilters.typeOfLiving.includes('skilled-nursing')
+                          ? simplifiedFilters.typeOfLiving.filter(t => t !== 'skilled-nursing')
+                          : [...simplifiedFilters.typeOfLiving, 'skilled-nursing'];
+                        setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      }}
+                      className={`h-[45px] px-2 ${
+                        simplifiedFilters.typeOfLiving.includes('skilled-nursing')
+                          ? 'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-600'
+                          : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      <div className="text-center">
+                        <div className="text-lg">🏥</div>
+                        <div className="text-[9px] font-semibold">SN</div>
                       </div>
                     </Button>
                     

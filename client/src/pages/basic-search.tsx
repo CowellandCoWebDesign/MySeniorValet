@@ -18,42 +18,68 @@ import Map from "@/components/Map";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Header } from "@/components/header";
 
-// Care type icons and colors mapping
+// Complete Care Spectrum - 7 Tier Configuration
 const careTypeConfig = {
-  'Independent Living': { 
-    color: '#10b981', // Green
+  'HUD-Sponsored': { 
+    color: '#2563eb', // Blue
+    icon: 'shield',
+    emoji: '🏛️',
+    description: 'Income-based housing ($0-$500/mo)'
+  },
+  '55+ Mobile Parks': { 
+    color: '#16a34a', // Green
     icon: 'home',
-    description: 'Independent senior apartments'
+    emoji: '🏘️',
+    description: 'Age-restricted mobile homes ($300-$800/mo)'
+  },
+  'Active Adult 55+': { 
+    color: '#14b8a6', // Teal
+    icon: 'home',
+    emoji: '🏡',
+    description: 'Lifestyle communities ($800-$1,500/mo)'
+  },
+  'Independent Living': { 
+    color: '#9333ea', // Purple
+    icon: 'home',
+    emoji: '🏠',
+    description: 'Meals included ($1,500-$3,500/mo)'
   },
   'Assisted Living': { 
-    color: '#3b82f6', // Blue
+    color: '#ea580c', // Orange
     icon: 'users',
-    description: 'Assistance with daily activities'
+    emoji: '🤝',
+    description: 'ADL support ($3,000-$6,000/mo)'
   },
   'Memory Care': { 
-    color: '#8b5cf6', // Purple
+    color: '#dc2626', // Red
     icon: 'brain',
-    description: 'Specialized dementia care'
+    emoji: '🧠',
+    description: 'Secured care ($4,000-$7,500/mo)'
   },
   'Skilled Nursing': { 
-    color: '#ef4444', // Red
+    color: '#6366f1', // Indigo
     icon: 'stethoscope',
-    description: '24/7 medical care'
+    emoji: '🏥',
+    description: '24/7 medical care ($6,000-$12,000/mo)'
   },
-  'Continuing Care': { 
-    color: '#f59e0b', // Orange
-    icon: 'activity',
-    description: 'Multiple care levels'
-  },
+  // Legacy/alternative names
   'HUD': { 
-    color: '#059669', // Dark green
+    color: '#2563eb', // Same as HUD-Sponsored
     icon: 'shield',
-    description: 'HUD-VASH veterans housing'
+    emoji: '🏛️',
+    description: 'Income-based housing'
   },
   'Affordable Housing': { 
-    color: '#0891b2', // Cyan
-    icon: 'dollar-sign',
+    color: '#2563eb', // Same as HUD-Sponsored
+    icon: 'shield',
+    emoji: '🏛️',
     description: 'Income-based housing'
+  },
+  'Continuing Care': { 
+    color: '#f59e0b', // Amber
+    icon: 'activity',
+    emoji: '🏢',
+    description: 'Multiple care levels (CCRC)'
   }
 };
 
@@ -277,16 +303,15 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   // Extract communities array from search response (now returns direct array, not paginated)
   const communities = Array.isArray(communitiesResponse) ? communitiesResponse : [];
   
-  // Filter options
+  // Complete Care Spectrum - 7 Tier Filter Options
   const careTypeOptions = [
+    'HUD-Sponsored',
+    '55+ Mobile Parks',
+    'Active Adult 55+',
     'Independent Living',
     'Assisted Living', 
     'Memory Care',
-    'Skilled Nursing',
-    'Continuing Care',
-    'Veterans Housing',
-    'HUD/VASH',
-    'Affordable Housing'
+    'Skilled Nursing'
   ];
   
   const amenityOptions = [
