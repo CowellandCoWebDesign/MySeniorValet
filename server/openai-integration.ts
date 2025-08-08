@@ -49,10 +49,11 @@ Example response format:
 }`;
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-5", // Upgraded to GPT-5 (Released August 7, 2025)
         messages: [{ role: "user", content: prompt }],
         max_tokens: 500,
         temperature: 0.3,
+        reasoning_effort: "medium", // New GPT-5 parameter for reasoning control
       });
 
       const response = completion.choices[0]?.message?.content;

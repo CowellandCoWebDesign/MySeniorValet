@@ -46,7 +46,7 @@ const aiCapabilities: AICapability[] = [
     name: 'Financial Transparency Analysis',
     ai: 'ChatGPT',
     icon: Calculator,
-    description: 'ChatGPT-4o exposes hidden costs and financial manipulation in senior living',
+    description: 'ChatGPT-5 exposes hidden costs and financial manipulation in senior living',
     capabilities: [
       'Hidden fee detection and exposure',
       'Annual escalation clause analysis',
@@ -186,7 +186,7 @@ export default function AIIntelligenceShowcase() {
               Gemini 2.5 • Visual Intelligence
             </Badge>
             <Badge className="bg-green-500 text-white px-4 py-2 text-sm">
-              ChatGPT-4o • Financial Transparency
+              ChatGPT-5 • Financial Transparency
             </Badge>
             <Badge className="bg-red-500 text-white px-4 py-2 text-sm relative">
               Grok/XAI • Real-Time Facts

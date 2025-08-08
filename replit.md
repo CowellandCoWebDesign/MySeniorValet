@@ -51,9 +51,9 @@ The platform is built with a modern web stack emphasizing transparency and user 
 - **Routing**: `wouter`
 - **UI Libraries**: `@radix-ui/*`, `tailwindcss`, `lucide-react`
 - **Mapping**: `react-leaflet`
-- **AI Integrations**: Priority-based multi-AI orchestration (January 8, 2025):
+- **AI Integrations**: Priority-based multi-AI orchestration (Updated August 8, 2025):
   1. **Claude (Primary)**: `@anthropic-ai/sdk` - Complex reasoning, care planning, contract analysis
-  2. **ChatGPT (Secondary)**: `openai` - Financial analysis, contract review, recommendations
+  2. **ChatGPT-5 (Secondary)**: `openai` - Using GPT-5 model (Released August 7, 2025) - Financial analysis with 45% fewer hallucinations, 80% fewer factual errors
   3. **Perplexity (3rd)**: Real-time web search, current pricing, market data
   4. **Gemini (4th)**: `@google/genai` - Visual analysis, market trends
   5. **Grok (5th)**: `XAI integration` - Truth verification (infrastructure ready, awaiting API activation)
