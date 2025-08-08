@@ -38,7 +38,8 @@ import {
   Target,
   Calendar,
   Clock,
-  TrendingDown
+  TrendingDown,
+  Filter
 } from 'lucide-react';
 
 interface AISearchResult {
@@ -180,12 +181,25 @@ export default function AISearchIntelligence() {
     urgency: 'planning'
   });
 
-  // Check URL parameters to auto-switch to perfect match tab
+  // Simplified Search Filters State
+  const [simplifiedFilters, setSimplifiedFilters] = useState({
+    location: '',
+    typeOfLiving: [] as string[],
+    amenities: [] as string[],
+    unitType: [] as string[],
+    distance: 50,
+    priceRange: [500, 8000] as [number, number],
+    immediateAvailability: false
+  });
+
+  // Check URL parameters to auto-switch to perfect match tab or simplified search
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode');
     if (mode === 'perfect-match') {
       setActiveTab('match');
+    } else if (mode === 'simplified') {
+      setActiveTab('simplified');
     }
   }, []);
 
@@ -267,6 +281,36 @@ export default function AISearchIntelligence() {
     }
   });
 
+  // Simplified Search Mutation
+  const simplifiedSearchMutation = useMutation({
+    mutationFn: async (filters: typeof simplifiedFilters) => {
+      const searchParams = new URLSearchParams({
+        location: filters.location,
+        careType: filters.typeOfLiving.join(',') || 'All Types',
+        priceMin: filters.priceRange[0].toString(),
+        priceMax: filters.priceRange[1].toString(),
+        limit: '50',
+        offset: '0'
+      });
+
+      const response = await fetch(`/api/communities/search/unified?${searchParams}`);
+      if (!response.ok) throw new Error('Simplified search failed');
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(['simplified-search-results'], data);
+      
+      // Update map center based on first result
+      if (data.results && data.results.length > 0) {
+        const firstResult = data.results[0];
+        if (firstResult.latitude && firstResult.longitude) {
+          setMapCenter([parseFloat(firstResult.latitude), parseFloat(firstResult.longitude)]);
+          setMapZoom(10);
+        }
+      }
+    }
+  });
+
   // Handle AI-powered search
   const handleAISearch = useCallback(async (query?: string) => {
     const searchText = query || searchQuery;
@@ -344,10 +388,14 @@ export default function AISearchIntelligence() {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto">
+          <TabsList className="grid w-full grid-cols-4 max-w-3xl mx-auto">
             <TabsTrigger value="search" className="flex items-center gap-2">
               <Search className="w-4 h-4" />
-              Intelligent Search
+              AI Search
+            </TabsTrigger>
+            <TabsTrigger value="simplified" className="flex items-center gap-2">
+              <Filter className="w-4 h-4" />
+              Simplified
             </TabsTrigger>
             <TabsTrigger value="match" className="flex items-center gap-2">
               <Target className="w-4 h-4" />
@@ -791,6 +839,278 @@ export default function AISearchIntelligence() {
                   ))}
                 </div>
               </div>
+            )}
+          </TabsContent>
+
+          {/* Simplified Search Tab */}
+          <TabsContent value="simplified" className="space-y-6">
+            <Card>
+              <CardHeader className="text-center bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+                <CardTitle className="flex items-center justify-center gap-2 text-xl">
+                  <Filter className="w-6 h-6 text-blue-600" />
+                  Simplified Search Filters
+                </CardTitle>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                  Privacy & Transparency • Complete Care Spectrum & Live Market Intelligence
+                </p>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-6">
+                  {/* Location Search */}
+                  <div>
+                    <Label className="text-sm font-medium flex items-center gap-2 mb-3">
+                      <MapPin className="w-4 h-4 text-blue-600" />
+                      Location
+                    </Label>
+                    <Input
+                      placeholder="City, State or ZIP Code"
+                      value={simplifiedFilters.location}
+                      onChange={(e) => setSimplifiedFilters({
+                        ...simplifiedFilters,
+                        location: e.target.value
+                      })}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Type of Living */}
+                  <div>
+                    <Label className="text-sm font-medium flex items-center gap-2 mb-3">
+                      <Building2 className="w-4 h-4 text-green-600" />
+                      Type of Living
+                    </Label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      {[
+                        { value: 'hud', label: 'HUD Housing', icon: '🏛️' },
+                        { value: 'assisted-living', label: 'Assisted Living', icon: '🤝' },
+                        { value: 'independent-living', label: 'Independent', icon: '🏡' },
+                        { value: 'memory-care', label: 'Memory Care', icon: '🧠' },
+                        { value: 'mobile-home', label: 'Mobile Home', icon: '🚐' },
+                        { value: 'active-adult', label: '55+ Active', icon: '🏘️' },
+                        { value: 'skilled-nursing', label: 'Skilled Nursing', icon: '🏥' },
+                        { value: 'ccrc', label: 'CCRC', icon: '🏛️' }
+                      ].map((type) => (
+                        <Button
+                          key={type.value}
+                          variant={simplifiedFilters.typeOfLiving.includes(type.value) ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => {
+                            const newTypes = simplifiedFilters.typeOfLiving.includes(type.value)
+                              ? simplifiedFilters.typeOfLiving.filter(t => t !== type.value)
+                              : [...simplifiedFilters.typeOfLiving, type.value];
+                            setSimplifiedFilters({
+                              ...simplifiedFilters,
+                              typeOfLiving: newTypes
+                            });
+                          }}
+                          className="flex items-center gap-2 h-12"
+                        >
+                          <span className="text-base">{type.icon}</span>
+                          <span className="text-xs">{type.label}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Amenities/Care Services */}
+                  <div>
+                    <Label className="text-sm font-medium flex items-center gap-2 mb-3">
+                      <Heart className="w-4 h-4 text-red-600" />
+                      Amenities & Care Services
+                    </Label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      {[
+                        { value: 'transportation', label: 'Transportation', icon: '🚌' },
+                        { value: 'dining', label: 'Dining Services', icon: '🍽️' },
+                        { value: 'fitness', label: 'Fitness Center', icon: '💪' },
+                        { value: 'medical', label: 'Medical Care', icon: '⚕️' },
+                        { value: 'housekeeping', label: 'Housekeeping', icon: '🧹' },
+                        { value: 'social', label: 'Social Activities', icon: '🎭' },
+                        { value: 'pet-friendly', label: 'Pet Friendly', icon: '🐕' },
+                        { value: 'wifi', label: 'WiFi/Tech', icon: '📶' }
+                      ].map((amenity) => (
+                        <Button
+                          key={amenity.value}
+                          variant={simplifiedFilters.amenities.includes(amenity.value) ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => {
+                            const newAmenities = simplifiedFilters.amenities.includes(amenity.value)
+                              ? simplifiedFilters.amenities.filter(a => a !== amenity.value)
+                              : [...simplifiedFilters.amenities, amenity.value];
+                            setSimplifiedFilters({
+                              ...simplifiedFilters,
+                              amenities: newAmenities
+                            });
+                          }}
+                          className="flex items-center gap-2 h-12"
+                        >
+                          <span className="text-base">{amenity.icon}</span>
+                          <span className="text-xs">{amenity.label}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Unit/Room Type */}
+                  <div>
+                    <Label className="text-sm font-medium flex items-center gap-2 mb-3">
+                      <Home className="w-4 h-4 text-purple-600" />
+                      Unit/Room Type
+                    </Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {[
+                        { value: 'studio', label: 'Studio', icon: '🛏️' },
+                        { value: '1-bedroom', label: '1 Bedroom', icon: '🏠' },
+                        { value: '2-bedroom', label: '2 Bedroom', icon: '🏡' },
+                        { value: 'shared-room', label: 'Shared Room', icon: '👥' }
+                      ].map((unit) => (
+                        <Button
+                          key={unit.value}
+                          variant={simplifiedFilters.unitType.includes(unit.value) ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => {
+                            const newUnits = simplifiedFilters.unitType.includes(unit.value)
+                              ? simplifiedFilters.unitType.filter(u => u !== unit.value)
+                              : [...simplifiedFilters.unitType, unit.value];
+                            setSimplifiedFilters({
+                              ...simplifiedFilters,
+                              unitType: newUnits
+                            });
+                          }}
+                          className="flex items-center gap-2 h-12"
+                        >
+                          <span className="text-base">{unit.icon}</span>
+                          <span className="text-xs">{unit.label}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Distance & Price Range */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Distance */}
+                    <div>
+                      <Label className="text-sm font-medium flex items-center gap-2 mb-3">
+                        <MapPin className="w-4 h-4 text-orange-600" />
+                        Distance: {simplifiedFilters.distance} miles
+                      </Label>
+                      <Slider
+                        value={[simplifiedFilters.distance]}
+                        onValueChange={(value) => setSimplifiedFilters({
+                          ...simplifiedFilters,
+                          distance: value[0]
+                        })}
+                        min={5}
+                        max={100}
+                        step={5}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>5 mi</span>
+                        <span>100 mi</span>
+                      </div>
+                    </div>
+
+                    {/* Price Range */}
+                    <div>
+                      <Label className="text-sm font-medium flex items-center gap-2 mb-3">
+                        <DollarSign className="w-4 h-4 text-green-600" />
+                        Monthly Cost: ${simplifiedFilters.priceRange[0]} - ${simplifiedFilters.priceRange[1]}
+                      </Label>
+                      <Slider
+                        value={simplifiedFilters.priceRange}
+                        onValueChange={(value) => setSimplifiedFilters({
+                          ...simplifiedFilters,
+                          priceRange: value as [number, number]
+                        })}
+                        min={0}
+                        max={15000}
+                        step={100}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>$0</span>
+                        <span>$15,000+</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Immediate Availability */}
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-blue-600" />
+                      <span className="text-sm font-medium">Immediate Availability Only</span>
+                    </div>
+                    <Button
+                      variant={simplifiedFilters.immediateAvailability ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setSimplifiedFilters({
+                        ...simplifiedFilters,
+                        immediateAvailability: !simplifiedFilters.immediateAvailability
+                      })}
+                    >
+                      {simplifiedFilters.immediateAvailability ? 'ON' : 'OFF'}
+                    </Button>
+                  </div>
+
+                  {/* Search Button */}
+                  <Button
+                    onClick={() => simplifiedSearchMutation.mutate(simplifiedFilters)}
+                    disabled={simplifiedSearchMutation.isPending || !simplifiedFilters.location}
+                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold"
+                  >
+                    {simplifiedSearchMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Searching...
+                      </>
+                    ) : (
+                      <>
+                        <Search className="w-4 h-4 mr-2" />
+                        Search Communities
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Display Simplified Search Results */}
+            {simplifiedSearchMutation.data && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Building2 className="w-6 h-6 text-blue-600" />
+                    Search Results ({simplifiedSearchMutation.data.results?.length || 0} communities found)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {simplifiedSearchMutation.data.results && simplifiedSearchMutation.data.results.length > 0 ? (
+                    <div className="grid gap-4">
+                      {simplifiedSearchMutation.data.results.slice(0, 10).map((community: any) => (
+                        <EnhancedCommunityCard 
+                          key={community.id} 
+                          community={community}
+                          showCompareButton={true}
+                          onCompare={(community) => {
+                            if (!selectedCommunities.find(c => c.id === community.id)) {
+                              setSelectedCommunities([...selectedCommunities, community]);
+                            }
+                          }}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-600 dark:text-gray-400">No communities found matching your criteria.</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+                        Try adjusting your filters or expanding your search area.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             )}
           </TabsContent>
 
