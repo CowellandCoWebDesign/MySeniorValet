@@ -304,9 +304,13 @@ export default function AISearchIntelligence() {
   // Simplified Search Mutation with Fallback Logic
   const simplifiedSearchMutation = useMutation({
     mutationFn: async (filters: typeof simplifiedFilters) => {
+      // Trim the location to handle spaces added by keyboards
+      const trimmedLocation = filters.location.trim();
+      console.log('🔍 Searching for:', trimmedLocation);
+      
       // Primary search with all filters
       const primarySearchParams = new URLSearchParams({
-        location: filters.location,
+        location: trimmedLocation,
         careType: filters.typeOfLiving.join(',') || 'All Types',
         priceMin: filters.priceRange[0].toString(),
         priceMax: filters.priceRange[1].toString(),
@@ -325,7 +329,7 @@ export default function AISearchIntelligence() {
         // Fallback 1: Remove price restrictions
         if (filters.priceRange[0] > 500 || filters.priceRange[1] < 8000) {
           const fallbackParams1 = new URLSearchParams({
-            location: filters.location,
+            location: trimmedLocation,
             careType: filters.typeOfLiving.join(',') || 'All Types',
             priceMin: '0',
             priceMax: '15000',
@@ -349,7 +353,7 @@ export default function AISearchIntelligence() {
         // Fallback 2: Expand care types if specific types were selected
         if (filters.typeOfLiving.length > 0 && filters.typeOfLiving.length < 4) {
           const fallbackParams2 = new URLSearchParams({
-            location: filters.location,
+            location: trimmedLocation,
             careType: 'All Types',
             priceMin: filters.priceRange[0].toString(),
             priceMax: filters.priceRange[1].toString(),
@@ -371,9 +375,9 @@ export default function AISearchIntelligence() {
         }
 
         // Fallback 3: Location only (remove all other filters)
-        if (filters.location) {
+        if (trimmedLocation) {
           const fallbackParams3 = new URLSearchParams({
-            location: filters.location,
+            location: trimmedLocation,
             careType: 'All Types',
             priceMin: '0',
             priceMax: '15000',
@@ -493,8 +497,13 @@ export default function AISearchIntelligence() {
 
   // Handle simplified search execution
   const handleSimplifiedSearch = useCallback(() => {
-    console.log('🔍 Executing simplified search with filters:', simplifiedFilters);
-    simplifiedSearchMutation.mutate(simplifiedFilters);
+    // Trim the location to handle spaces added by keyboards
+    const trimmedFilters = {
+      ...simplifiedFilters,
+      location: simplifiedFilters.location.trim()
+    };
+    console.log('🔍 Executing simplified search with trimmed location:', trimmedFilters.location);
+    simplifiedSearchMutation.mutate(trimmedFilters);
   }, [simplifiedFilters, simplifiedSearchMutation]);
 
   // Handle AI-powered search
@@ -1080,11 +1089,18 @@ export default function AISearchIntelligence() {
                   location: value
                 })}
                 onSubmit={(value) => {
-                  setSimplifiedFilters({
-                    ...simplifiedFilters,
-                    location: value
-                  });
-                  handleSimplifiedSearch();
+                  const trimmedValue = value.trim();
+                  setSimplifiedFilters(prev => ({
+                    ...prev,
+                    location: trimmedValue
+                  }));
+                  // Execute search immediately with trimmed value
+                  setTimeout(() => {
+                    simplifiedSearchMutation.mutate({
+                      ...simplifiedFilters,
+                      location: trimmedValue
+                    });
+                  }, 50);
                 }}
                 placeholder="Search by city, state, or zip code..."
               />

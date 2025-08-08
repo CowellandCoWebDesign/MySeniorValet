@@ -148,7 +148,7 @@ export function AutocompleteSearch({
       if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
         handleSelectSuggestion(suggestions[selectedIndex]);
       } else {
-        onSubmit(value);
+        onSubmit(value.trim()); // Trim spaces when submitting
         setShowSuggestions(false);
       }
     } else if (e.key === 'Escape') {
@@ -165,11 +165,12 @@ export function AutocompleteSearch({
     } else {
       // For other types (city, state, care_type, etc.), perform the search
       justSelectedRef.current = true; // Prevent double-triggering autocomplete
-      onChange(suggestion.value);
+      const trimmedValue = suggestion.value.trim(); // Trim spaces
+      onChange(trimmedValue);
       setShowSuggestions(false);
       setSuggestions([]); // Clear suggestions immediately
       setSelectedIndex(-1);
-      onSubmit(suggestion.value);
+      onSubmit(trimmedValue);
     }
   };
   
