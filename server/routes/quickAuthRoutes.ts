@@ -194,15 +194,15 @@ export function registerQuickAuthRoutes(app: Express) {
   app.get("/api/auth/quick-user", async (req, res) => {
     const sessionId = req.cookies.sessionId;
     
-    // Demo mode for testing (when no session)
+    // Demo mode for testing (when no session) - Grant super admin access
     if (!sessionId && process.env.NODE_ENV === 'development') {
       return res.json({
         success: true,
         user: {
           id: 'test-user-123',
-          email: 'demo@example.com',
-          username: 'Demo User',
-          role: 'user',
+          email: 'William.cowell01@gmail.com',
+          username: 'William Cowell',
+          role: 'super_admin',
           isDemo: true
         }
       });
