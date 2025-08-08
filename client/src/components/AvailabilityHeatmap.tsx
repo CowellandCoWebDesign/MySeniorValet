@@ -70,11 +70,20 @@ export function AvailabilityHeatmap({
   const [mapBounds, setMapBounds] = useState(initialBounds);
   const [mapZoom, setMapZoom] = useState(initialZoom);
   const mapRef = useRef<L.Map | null>(null);
+  const boundsUpdateTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Handle map bounds change
+  // Handle map bounds change with debouncing
   const handleBoundsChange = useCallback((newBounds: any, newZoom: number) => {
-    setMapBounds(newBounds);
-    setMapZoom(newZoom);
+    // Clear existing timeout
+    if (boundsUpdateTimeout.current) {
+      clearTimeout(boundsUpdateTimeout.current);
+    }
+    
+    // Set new timeout to update bounds after user stops panning
+    boundsUpdateTimeout.current = setTimeout(() => {
+      setMapBounds(newBounds);
+      setMapZoom(newZoom);
+    }, 500); // Wait 500ms after user stops panning
   }, []);
 
   // Fetch heatmap data

@@ -56,32 +56,91 @@ export class AvailabilityHeatmapService {
     bounds: { north: number; south: number; east: number; west: number },
     gridSize: number
   ): Promise<AvailabilityHeatmapData[]> {
-    const heatmapData: AvailabilityHeatmapData[] = [];
+    try {
+      // Fetch ALL communities within bounds in a SINGLE query
+      const allCommunities = await db
+        .select({
+          id: communities.id,
+          latitude: communities.latitude,
+          longitude: communities.longitude,
+          availabilityStatus: communities.availabilityStatus,
+          availableUnits: communities.availableUnits,
+          totalUnits: communities.totalUnits,
+          subscriptionTier: communities.subscriptionTier,
+          isVerified: communities.isVerified,
+          city: communities.city,
+          state: communities.state
+        })
+        .from(communities)
+        .where(
+          and(
+            isNotNull(communities.latitude),
+            isNotNull(communities.longitude),
+            sql`${communities.latitude}::numeric >= ${bounds.south}`,
+            sql`${communities.latitude}::numeric <= ${bounds.north}`,
+            sql`${communities.longitude}::numeric >= ${bounds.west}`,
+            sql`${communities.longitude}::numeric <= ${bounds.east}`
+          )
+        )
+        .limit(1000); // Limit for performance
 
-    // Create grid cells
-    for (let lat = bounds.south; lat < bounds.north; lat += gridSize) {
-      for (let lng = bounds.west; lng < bounds.east; lng += gridSize) {
-        const cellBounds = {
-          north: lat + gridSize,
-          south: lat,
-          east: lng + gridSize,
-          west: lng
-        };
-
-        const cellData = await this.calculateCellAvailability(cellBounds);
-        if (cellData.communityCount > 0) {
-          heatmapData.push({
-            latitude: lat + gridSize / 2,
-            longitude: lng + gridSize / 2,
-            ...cellData,
-            regionName: `Grid_${lat.toFixed(3)}_${lng.toFixed(3)}`,
-            lastUpdated: new Date().toISOString()
-          });
+      // Group communities into grid cells
+      const gridMap = new Map<string, any[]>();
+      
+      for (const community of allCommunities) {
+        if (!community.latitude || !community.longitude) continue;
+        
+        // Calculate which grid cell this community belongs to
+        const lat = Number(community.latitude);
+        const lng = Number(community.longitude);
+        const gridLat = Math.floor(lat / gridSize) * gridSize;
+        const gridLng = Math.floor(lng / gridSize) * gridSize;
+        const gridKey = `${gridLat}_${gridLng}`;
+        
+        if (!gridMap.has(gridKey)) {
+          gridMap.set(gridKey, []);
         }
+        gridMap.get(gridKey)!.push(community);
       }
+      
+      // Process each grid cell
+      const heatmapData: AvailabilityHeatmapData[] = [];
+      
+      for (const [gridKey, cellCommunities] of gridMap.entries()) {
+        const [latStr, lngStr] = gridKey.split('_');
+        const lat = parseFloat(latStr);
+        const lng = parseFloat(lngStr);
+        
+        // Calculate availability scores for this cell
+        const availabilityScores = cellCommunities.map(community => 
+          this.calculateCommunityAvailabilityScore(community)
+        );
+        
+        const averageAvailability = availabilityScores.reduce((sum, score) => sum + score, 0) / availabilityScores.length;
+        const densityMultiplier = Math.min(cellCommunities.length / 10, 1);
+        const availabilityScore = Math.round(averageAvailability * densityMultiplier);
+        
+        // Get region name from first community in cell
+        const regionName = cellCommunities[0].city && cellCommunities[0].state 
+          ? `${cellCommunities[0].city}, ${cellCommunities[0].state}`
+          : `Grid_${lat.toFixed(3)}_${lng.toFixed(3)}`;
+        
+        heatmapData.push({
+          latitude: lat + gridSize / 2,
+          longitude: lng + gridSize / 2,
+          availabilityScore,
+          communityCount: cellCommunities.length,
+          averageAvailability: Math.round(averageAvailability),
+          regionName,
+          lastUpdated: new Date().toISOString()
+        });
+      }
+      
+      return heatmapData;
+    } catch (error) {
+      console.error('Error aggregating availability data:', error);
+      return [];
     }
-
-    return heatmapData;
   }
 
   /**
@@ -227,17 +286,19 @@ export class AvailabilityHeatmapService {
         result.totalCommunities += count;
 
         switch (trend.availabilityStatus) {
-          case 'Available Now':
+          case 'Available':
             result.availableNow = count;
             break;
-          case 'Limited Availability':
+          case 'Limited':
             result.limitedAvailability = count;
             break;
-          case 'Waitlist Available':
+          case 'Waitlist':
             result.waitlistOnly = count;
             break;
-          case 'No Availability':
-            result.noAvailability = count;
+          case 'Full':
+          case 'Unknown':
+          case null:
+            result.noAvailability += count;
             break;
         }
       }
