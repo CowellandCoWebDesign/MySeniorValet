@@ -283,10 +283,11 @@ export default function AISearchIntelligence() {
     }
   });
 
-  // Simplified Search Mutation
+  // Simplified Search Mutation with Fallback Logic
   const simplifiedSearchMutation = useMutation({
     mutationFn: async (filters: typeof simplifiedFilters) => {
-      const searchParams = new URLSearchParams({
+      // Primary search with all filters
+      const primarySearchParams = new URLSearchParams({
         location: filters.location,
         careType: filters.typeOfLiving.join(',') || 'All Types',
         priceMin: filters.priceRange[0].toString(),
@@ -295,9 +296,112 @@ export default function AISearchIntelligence() {
         offset: '0'
       });
 
-      const response = await fetch(`/api/communities/search/unified?${searchParams}`);
+      let response = await fetch(`/api/communities/search/unified?${primarySearchParams}`);
       if (!response.ok) throw new Error('Simplified search failed');
-      return response.json();
+      let data = await response.json();
+
+      // If no results and filters are restrictive, try fallback searches
+      if (!data.results || data.results.length === 0) {
+        console.log('🔍 No results with full filters, trying fallback searches...');
+        
+        // Fallback 1: Remove price restrictions
+        if (filters.priceRange[0] > 500 || filters.priceRange[1] < 8000) {
+          const fallbackParams1 = new URLSearchParams({
+            location: filters.location,
+            careType: filters.typeOfLiving.join(',') || 'All Types',
+            priceMin: '0',
+            priceMax: '15000',
+            limit: '25',
+            offset: '0'
+          });
+          
+          response = await fetch(`/api/communities/search/unified?${fallbackParams1}`);
+          if (response.ok) {
+            const fallbackData = await response.json();
+            if (fallbackData.results && fallbackData.results.length > 0) {
+              return {
+                ...fallbackData,
+                fallbackReason: 'Expanded price range to show more options',
+                originalFilters: filters
+              };
+            }
+          }
+        }
+
+        // Fallback 2: Expand care types if specific types were selected
+        if (filters.typeOfLiving.length > 0 && filters.typeOfLiving.length < 4) {
+          const fallbackParams2 = new URLSearchParams({
+            location: filters.location,
+            careType: 'All Types',
+            priceMin: filters.priceRange[0].toString(),
+            priceMax: filters.priceRange[1].toString(),
+            limit: '25',
+            offset: '0'
+          });
+          
+          response = await fetch(`/api/communities/search/unified?${fallbackParams2}`);
+          if (response.ok) {
+            const fallbackData = await response.json();
+            if (fallbackData.results && fallbackData.results.length > 0) {
+              return {
+                ...fallbackData,
+                fallbackReason: 'Expanded care types to include all senior living options',
+                originalFilters: filters
+              };
+            }
+          }
+        }
+
+        // Fallback 3: Location only (remove all other filters)
+        if (filters.location) {
+          const fallbackParams3 = new URLSearchParams({
+            location: filters.location,
+            careType: 'All Types',
+            priceMin: '0',
+            priceMax: '15000',
+            limit: '25',
+            offset: '0'
+          });
+          
+          response = await fetch(`/api/communities/search/unified?${fallbackParams3}`);
+          if (response.ok) {
+            const fallbackData = await response.json();
+            if (fallbackData.results && fallbackData.results.length > 0) {
+              return {
+                ...fallbackData,
+                fallbackReason: 'Showing all communities in your area - adjust filters to narrow results',
+                originalFilters: filters
+              };
+            }
+          }
+        }
+
+        // Fallback 4: National search with care type only
+        if (filters.typeOfLiving.length > 0) {
+          const fallbackParams4 = new URLSearchParams({
+            location: '',
+            careType: filters.typeOfLiving.join(','),
+            priceMin: '0',
+            priceMax: '15000',
+            limit: '20',
+            offset: '0'
+          });
+          
+          response = await fetch(`/api/communities/search/unified?${fallbackParams4}`);
+          if (response.ok) {
+            const fallbackData = await response.json();
+            if (fallbackData.results && fallbackData.results.length > 0) {
+              return {
+                ...fallbackData,
+                fallbackReason: 'Showing national results for your selected care types',
+                originalFilters: filters
+              };
+            }
+          }
+        }
+      }
+
+      return data;
     },
     onSuccess: (data) => {
       queryClient.setQueryData(['simplified-search-results'], data);
@@ -864,14 +968,19 @@ export default function AISearchIntelligence() {
                       <MapPin className="w-4 h-4 text-blue-600" />
                       Location
                     </Label>
-                    <Input
-                      placeholder="City, State or ZIP Code"
+                    <AutocompleteSearch
                       value={simplifiedFilters.location}
-                      onChange={(e) => setSimplifiedFilters({
+                      onChange={(value) => setSimplifiedFilters({
                         ...simplifiedFilters,
-                        location: e.target.value
+                        location: value
                       })}
-                      className="w-full"
+                      onSubmit={(value) => setSimplifiedFilters({
+                        ...simplifiedFilters,
+                        location: value
+                      })}
+                      placeholder="City, State or ZIP Code"
+                      hideSearchButton={true}
+                      inputClassName="w-full"
                     />
                   </div>
 
@@ -1085,6 +1194,22 @@ export default function AISearchIntelligence() {
                     <Building2 className="w-6 h-6 text-blue-600" />
                     Search Results ({simplifiedSearchMutation.data.results?.length || 0} communities found)
                   </CardTitle>
+                  {/* Fallback Message */}
+                  {simplifiedSearchMutation.data.fallbackReason && (
+                    <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                      <div className="flex items-start gap-2">
+                        <Info className="w-4 h-4 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                            Search Expanded
+                          </p>
+                          <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                            {simplifiedSearchMutation.data.fallbackReason}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </CardHeader>
                 <CardContent>
                   {simplifiedSearchMutation.data.results && simplifiedSearchMutation.data.results.length > 0 ? (
