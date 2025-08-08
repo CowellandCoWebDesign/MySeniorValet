@@ -1,11 +1,49 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, RefreshCw, Info, TrendingUp, AlertCircle } from "lucide-react";
+import { Loader2, RefreshCw, Info, TrendingUp, AlertCircle, MapPin } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { AvailabilityHeatmapData, HeatmapRegion } from "@shared/schema";
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix for default markers in react-leaflet
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
+
+// Map event handler component
+function MapUpdater({ onBoundsChange }: { onBoundsChange: (bounds: any, zoom: number) => void }) {
+  const map = useMapEvents({
+    moveend: () => {
+      const bounds = map.getBounds();
+      const zoom = map.getZoom();
+      onBoundsChange({
+        north: bounds.getNorth(),
+        south: bounds.getSouth(),
+        east: bounds.getEast(),
+        west: bounds.getWest()
+      }, zoom);
+    },
+    zoomend: () => {
+      const bounds = map.getBounds();
+      const zoom = map.getZoom();
+      onBoundsChange({
+        north: bounds.getNorth(),
+        south: bounds.getSouth(),
+        east: bounds.getEast(),
+        west: bounds.getWest()
+      }, zoom);
+    }
+  });
+  return null;
+}
 
 interface AvailabilityHeatmapProps {
   bounds?: {
@@ -21,25 +59,34 @@ interface AvailabilityHeatmapProps {
 }
 
 export function AvailabilityHeatmap({
-  bounds = { north: 40.7589, south: 40.7489, east: -73.9841, west: -73.9941 }, // Default to NYC area
-  zoom = 10,
+  bounds: initialBounds = { north: 49.0, south: 25.0, east: -66.0, west: -125.0 }, // Default to USA
+  zoom: initialZoom = 5,
   onDataPointClick,
   showTrends = true,
   className = ""
 }: AvailabilityHeatmapProps) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedDataPoint, setSelectedDataPoint] = useState<AvailabilityHeatmapData | null>(null);
+  const [mapBounds, setMapBounds] = useState(initialBounds);
+  const [mapZoom, setMapZoom] = useState(initialZoom);
+  const mapRef = useRef<L.Map | null>(null);
+
+  // Handle map bounds change
+  const handleBoundsChange = useCallback((newBounds: any, newZoom: number) => {
+    setMapBounds(newBounds);
+    setMapZoom(newZoom);
+  }, []);
 
   // Fetch heatmap data
   const { data: heatmapData, isLoading: heatmapLoading, error: heatmapError, refetch: refetchHeatmap } = useQuery({
-    queryKey: ['heatmap', 'availability', bounds, zoom, refreshKey],
+    queryKey: ['heatmap', 'availability', mapBounds, mapZoom, refreshKey],
     queryFn: async () => {
       const params = new URLSearchParams({
-        north: bounds.north.toString(),
-        south: bounds.south.toString(),
-        east: bounds.east.toString(),
-        west: bounds.west.toString(),
-        zoom: zoom.toString()
+        north: mapBounds.north.toString(),
+        south: mapBounds.south.toString(),
+        east: mapBounds.east.toString(),
+        west: mapBounds.west.toString(),
+        zoom: mapZoom.toString()
       });
       
       const response = await fetch(`/api/heatmap/availability?${params}`);
@@ -52,7 +99,7 @@ export function AvailabilityHeatmap({
       }>;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
-    enabled: !!(bounds.north && bounds.south && bounds.east && bounds.west)
+    enabled: !!(mapBounds.north && mapBounds.south && mapBounds.east && mapBounds.west)
   });
 
   // Fetch availability trends
@@ -178,17 +225,18 @@ export function AvailabilityHeatmap({
         </Card>
       )}
 
-      {/* Heatmap Visualization */}
+      {/* Interactive Map with Heatmap */}
       <Card>
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-semibold">
-              Availability Heatmap
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-blue-600" />
+              Live Availability Heatmap
             </CardTitle>
             <div className="flex items-center gap-2">
               {heatmapData?.success && (
                 <Badge variant="outline">
-                  {heatmapData.dataPoints} points
+                  {heatmapData.dataPoints} regions
                 </Badge>
               )}
               <TooltipProvider>
@@ -197,57 +245,94 @@ export function AvailabilityHeatmap({
                     <Info className="h-4 w-4 text-gray-500" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Color intensity shows availability density in each region</p>
+                    <p>Pan and zoom to explore availability by region</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          {heatmapLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-              <span className="ml-2 text-gray-600 dark:text-gray-400">Loading heatmap data...</span>
-            </div>
-          ) : heatmapData?.success && heatmapData.region.data.length > 0 ? (
-            <div className="space-y-4">
-              {/* Heatmap Grid */}
-              <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 max-h-96 overflow-y-auto">
-                {heatmapData.region.data.map((dataPoint, index) => (
-                  <TooltipProvider key={index}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div
-                          className={`
-                            aspect-square rounded cursor-pointer transition-all duration-200 
-                            hover:scale-110 hover:shadow-lg border-2 border-transparent
-                            ${getAvailabilityColor(dataPoint.availabilityScore)}
-                            ${selectedDataPoint === dataPoint ? 'border-blue-500 scale-110' : ''}
-                          `}
-                          style={{
-                            opacity: Math.max(0.3, dataPoint.availabilityScore / 100)
-                          }}
-                          onClick={() => handleDataPointClick(dataPoint)}
-                        />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <div className="space-y-1">
-                          <div className="font-semibold">{dataPoint.regionName}</div>
-                          <div>Score: {dataPoint.availabilityScore}/100</div>
-                          <div>Communities: {dataPoint.communityCount}</div>
-                          <div>Avg Availability: {dataPoint.averageAvailability}%</div>
-                          <div className="text-xs text-gray-500">
-                            {dataPoint.latitude.toFixed(3)}, {dataPoint.longitude.toFixed(3)}
+        <CardContent className="p-0">
+          <div className="relative h-[600px] w-full rounded-b-lg overflow-hidden">
+            {heatmapLoading && (
+              <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 z-[1000] flex items-center justify-center">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                  <span className="text-gray-600 dark:text-gray-400">Loading map data...</span>
+                </div>
+              </div>
+            )}
+            
+            <MapContainer
+              center={[39.8283, -98.5795]} // Center of USA
+              zoom={mapZoom}
+              className="h-full w-full"
+              ref={(map) => { if (map) mapRef.current = map; }}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              
+              <MapUpdater onBoundsChange={handleBoundsChange} />
+              
+              {/* Render heatmap data points */}
+              {heatmapData?.success && heatmapData.region.data.map((dataPoint, index) => {
+                const color = dataPoint.availabilityScore >= 80 ? '#10b981' : // green
+                             dataPoint.availabilityScore >= 60 ? '#eab308' : // yellow
+                             dataPoint.availabilityScore >= 40 ? '#f97316' : // orange
+                             dataPoint.availabilityScore >= 20 ? '#ef4444' : // red
+                             '#6b7280'; // gray
+                
+                const radius = Math.max(5, Math.min(30, dataPoint.communityCount * 2));
+                
+                return (
+                  <CircleMarker
+                    key={index}
+                    center={[dataPoint.latitude, dataPoint.longitude]}
+                    radius={radius}
+                    pathOptions={{
+                      fillColor: color,
+                      color: color,
+                      weight: 2,
+                      opacity: 0.7,
+                      fillOpacity: 0.4 + (dataPoint.availabilityScore / 200)
+                    }}
+                    eventHandlers={{
+                      click: () => handleDataPointClick(dataPoint),
+                    }}
+                  >
+                    <Popup>
+                      <div className="p-2 min-w-[200px]">
+                        <h3 className="font-semibold text-sm mb-2">{dataPoint.regionName}</h3>
+                        <div className="space-y-1 text-xs">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Availability Score:</span>
+                            <span className="font-medium">{dataPoint.availabilityScore}/100</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Communities:</span>
+                            <span className="font-medium">{dataPoint.communityCount}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Avg Availability:</span>
+                            <span className="font-medium">{dataPoint.averageAvailability}%</span>
+                          </div>
+                          <div className="pt-1 mt-1 border-t text-gray-500">
+                            Coordinates: {dataPoint.latitude.toFixed(3)}, {dataPoint.longitude.toFixed(3)}
                           </div>
                         </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                ))}
-              </div>
-
-              {/* Legend */}
+                      </div>
+                    </Popup>
+                  </CircleMarker>
+                );
+              })}
+            </MapContainer>
+          </div>
+          
+          {/* Legend */}
+          {heatmapData?.success && heatmapData.region.data.length > 0 && (
+            <div className="p-4 space-y-4">
               <div className="flex items-center justify-center gap-4 text-sm">
                 <div className="flex items-center gap-1">
                   <div className="w-4 h-4 bg-green-500 rounded" />
@@ -305,11 +390,6 @@ export function AvailabilityHeatmap({
               <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
                 Last updated: {new Date(heatmapData.lastUpdated).toLocaleTimeString()}
               </div>
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-              <div className="text-lg mb-2">No availability data found</div>
-              <div className="text-sm">Try adjusting the geographic bounds or zoom level</div>
             </div>
           )}
         </CardContent>
