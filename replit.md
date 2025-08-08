@@ -56,8 +56,8 @@ The platform is built with a modern web stack emphasizing transparency and user 
 - **Mapping**: `react-leaflet`
 - **AI Integrations**: Priority-based multi-AI orchestration (Updated August 8, 2025):
   1. **Claude (Primary)**: `@anthropic-ai/sdk` - Advanced reasoning, complex analysis, care planning, contract analysis
-  2. **ChatGPT-4o (Secondary)**: `openai` - Using GPT-4o model for secondary analysis and validation
-  3. **Perplexity (3rd)**: Real-time web search, current pricing, market data
+  2. **Perplexity (Secondary)**: Real-time web search, current pricing, market data, web search relevance
+  3. **ChatGPT-4o (3rd)**: `openai` - Using GPT-4o model for tertiary analysis and validation
   Note: Gemini and Grok have been removed from the platform to streamline AI services and improve performance
 - **Email Service**: SendGrid
 - **Payment Processing**: Stripe

@@ -263,8 +263,8 @@ app.use((req, res, next) => {
     console.log('');
     console.log('🤖 AI PRIORITY ORCHESTRATOR ACTIVATED (August 8, 2025):');
     console.log('  1️⃣ Claude (Primary) - ' + (process.env.ANTHROPIC_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  2️⃣ ChatGPT-4o (Secondary) - ' + (process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  3️⃣ Perplexity (3rd) - ' + (process.env.PERPLEXITY_API_KEY ? '✅ Configured' : '❌ Not configured'));
+    console.log('  2️⃣ Perplexity (Secondary) - ' + (process.env.PERPLEXITY_API_KEY ? '✅ Configured' : '❌ Not configured'));
+    console.log('  3️⃣ ChatGPT-4o (3rd) - ' + (process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'));
     console.log('  Note: Gemini and Grok removed from platform to streamline AI services per replit.md');
     console.log('');
     console.log('📄 DOCUMENSO DOCUMENT SIGNING:');
