@@ -136,7 +136,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
 
   const displayPrice = getStartingPrice();
 
-  // Enhanced list variant for search results - Red Tag quality display
+  // Enhanced list variant for search results - Full Red Tag & Hawaii quality display
   if (variant === 'list') {
     // Get care level badge info - check both communitySubtype and careTypes
     let subtypeBadge = community.communitySubtype ? getSubtypeBadge(community.communitySubtype) : null;
@@ -177,79 +177,327 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
       if (community.rating && community.rating >= 4.5) return { label: '⭐ Top Rated', color: 'bg-yellow-500 text-white' };
       if (community.priceTier === 'platinum') return { label: '💎 Premium', color: 'bg-purple-600 text-white' };
       if (community.priceTier === 'featured') return { label: '🏆 Featured', color: 'bg-blue-600 text-white' };
-      return null;
+      return { label: '✓ Standard', color: 'bg-gray-600 text-white' };
     };
     
     const tierBadge = getTierBadge();
     
+    // Calculate discount percentage if applicable
+    const discountPercent = community.priceRange?.max && community.priceRange?.min ? 
+      Math.round((1 - (community.priceRange.min / community.priceRange.max)) * 100) : 0;
+    
+    // Get verification percentage (mock for now, should come from data)
+    const verificationPercent = community.transparencyScore || 
+      (isHudProperty ? 100 : (community.rating ? 55 : 35));
+    
     return (
       <Card 
-        className="group cursor-pointer hover:shadow-2xl transition-all duration-300 overflow-hidden border-0"
+        className="group cursor-pointer hover:shadow-2xl transition-all duration-300 overflow-hidden border-0 bg-white dark:bg-gray-800"
         onClick={onSelect}
       >
-        {/* Header with gradient background like Red Tag */}
-        <div className="relative h-32 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-          {/* Photo placeholder or actual photo */}
+        {/* Header with gradient background and RED TAG style badges */}
+        <div className="relative h-48 bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400">
+          {/* Photo or placeholder */}
           {community.photos && community.photos[0] ? (
             <img 
               src={community.photos[0]} 
               alt={community.name}
-              className="w-full h-full object-cover opacity-80"
+              className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-white/50">
-              <Home className="w-12 h-12" />
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+              <Home className="w-16 h-16 text-gray-400 dark:text-gray-500 mb-2" />
+              <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Photos Coming Soon</span>
             </div>
           )}
           
-          {/* Overlaid badges */}
-          <div className="absolute top-2 left-2 flex gap-2">
-            {tierBadge && (
-              <Badge className={`${tierBadge.color} px-3 py-1 text-sm font-bold shadow-lg`}>
-                {tierBadge.label}
-              </Badge>
-            )}
-            {community.availabilityStatus === 'Available' && (
-              <Badge className="bg-green-500 text-white px-3 py-1 text-sm font-bold shadow-lg">
+          {/* RED TAG style corner badge */}
+          {discountPercent > 0 && (
+            <div className="absolute top-0 left-0">
+              <div className="bg-red-600 text-white px-4 py-2 rounded-br-lg shadow-lg">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold">RED TAG</span>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Discount percentage badge */}
+          {discountPercent > 0 && (
+            <div className="absolute top-0 right-0">
+              <div className="bg-red-600 text-white px-3 py-2 rounded-bl-lg shadow-lg">
+                <span className="text-lg font-bold">{discountPercent}% OFF</span>
+              </div>
+            </div>
+          )}
+          
+          {/* Available Now badge */}
+          {community.availabilityStatus === 'Available' && (
+            <div className="absolute bottom-2 right-2">
+              <Badge className="bg-green-500 text-white px-4 py-2 text-sm font-bold shadow-lg">
                 Available Now
               </Badge>
-            )}
-          </div>
-          
-          {/* Price display overlay - prominent like Red Tag */}
-          <div className="absolute bottom-2 right-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg">
-            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-              {displayPrice === 'Contact for Pricing' ? (
-                <span className="text-lg">Contact for Price</span>
-              ) : (
-                displayPrice
-              )}
             </div>
-            {community.priceRange && community.priceRange.max && (
-              <div className="text-xs text-gray-500 dark:text-gray-400 line-through">
-                ${community.priceRange.max.toLocaleString()}/mo
-              </div>
-            )}
-          </div>
+          )}
+          
+          {/* Location badge - Hawaii style */}
+          {community.state === 'HI' && (
+            <div className="absolute top-2 left-2">
+              <Badge className="bg-green-600 text-white px-3 py-1 text-sm font-bold shadow-lg">
+                🌺 Hawaii
+              </Badge>
+            </div>
+          )}
         </div>
         
         <CardContent className="p-5">
-          {/* Care Level Badge */}
-          {subtypeBadge && (
-            <Badge className={`inline-flex items-center px-2 py-1 text-xs font-semibold ${subtypeBadge.color} border-0 mb-3`}>
-              <span className="mr-1">{subtypeBadge.emoji}</span>
-              {subtypeBadge.label}
-            </Badge>
+          {/* Name and pricing row */}
+          <div className="flex justify-between items-start mb-3">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white flex-1">
+              {community.name}
+            </h3>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                {displayPrice === 'Contact for Pricing' ? (
+                  <span className="text-base">Contact</span>
+                ) : (
+                  displayPrice.replace('Contact for Pricing', 'Contact')
+                )}
+              </div>
+              {community.priceRange?.max && displayPrice !== 'Contact for Pricing' && (
+                <div className="text-sm text-gray-500 dark:text-gray-400 line-through">
+                  ${community.priceRange.max.toLocaleString()}/mo
+                </div>
+              )}
+              {displayPrice !== 'Contact for Pricing' && (
+                <div className="text-xs text-gray-600 dark:text-gray-400">Est. Range</div>
+              )}
+            </div>
+          </div>
+          
+          {/* Location and contact row */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+              <MapPin className="h-3.5 w-3.5 mr-1 text-blue-500" />
+              <span>{community.city}, {community.state} {community.zipCode || ''}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {community.phone && (
+                <a 
+                  href={`tel:${community.phone}`} 
+                  className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Phone className="h-3.5 w-3.5 mr-1" />
+                  Call
+                </a>
+              )}
+              {community.website && (
+                <a 
+                  href={community.website} 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ExternalLink className="h-3.5 w-3.5 mr-1" />
+                  Web
+                </a>
+              )}
+              <span className="text-gray-400 text-sm">⏱ 24d</span>
+            </div>
+          </div>
+          
+          {/* Rating display if available */}
+          {community.rating && (
+            <div className="flex items-center gap-2 mb-3">
+              <div className="flex">
+                {[...Array(5)].map((_, i) => (
+                  <Star 
+                    key={i} 
+                    className={`h-4 w-4 ${
+                      i < Math.floor(community.rating || 0) 
+                        ? 'text-yellow-400 fill-yellow-400' 
+                        : 'text-gray-300'
+                    }`} 
+                  />
+                ))}
+              </div>
+              <span className="text-sm font-medium">({community.rating.toFixed(1)})</span>
+            </div>
           )}
           
-          {/* Name and Location */}
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-            {community.name}
-          </h3>
-          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-3">
-            <MapPin className="h-3.5 w-3.5 mr-1 text-blue-500" />
-            <span>{community.city}, {community.state}</span>
+          {/* Two-column layout for Amenities and Specials - Red Tag style */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            {/* Amenities Column */}
+            <div>
+              <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Amenities</h4>
+              <div className="space-y-1.5">
+                {community.amenities?.slice(0, 3).map((amenity: string, idx: number) => (
+                  <div key={idx} className="flex items-start text-xs text-gray-600 dark:text-gray-400">
+                    <span className="mr-1">✓</span>
+                    <span>{amenity}</span>
+                  </div>
+                )) || (
+                  <>
+                    <div className="flex items-start text-xs text-gray-600 dark:text-gray-400">
+                      <span className="mr-1">⚡</span>
+                      <span>Fitness Center</span>
+                    </div>
+                    <div className="flex items-start text-xs text-gray-600 dark:text-gray-400">
+                      <span className="mr-1">🍽️</span>
+                      <span>Restaurant Dining</span>
+                    </div>
+                    <div className="flex items-start text-xs text-gray-600 dark:text-gray-400">
+                      <span className="mr-1">🚐</span>
+                      <span>Transportation</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+            
+            {/* Specials Column */}
+            <div>
+              <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Specials</h4>
+              <div className="space-y-1.5">
+                {isHudProperty ? (
+                  <>
+                    <div className="flex items-start text-xs text-red-600 dark:text-red-400">
+                      <span className="mr-1">◈</span>
+                      <span>Income-based rent</span>
+                    </div>
+                    <div className="flex items-start text-xs text-red-600 dark:text-red-400">
+                      <span className="mr-1">◈</span>
+                      <span>Section 8 accepted</span>
+                    </div>
+                    <div className="flex items-start text-xs text-red-600 dark:text-red-400">
+                      <span className="mr-1">◈</span>
+                      <span>Government subsidized</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-start text-xs text-red-600 dark:text-red-400">
+                      <span className="mr-1">◈</span>
+                      <span>Waived community fee</span>
+                    </div>
+                    <div className="flex items-start text-xs text-red-600 dark:text-red-400">
+                      <span className="mr-1">◈</span>
+                      <span>1/2 rent for 3 months</span>
+                    </div>
+                    <div className="flex items-start text-xs text-red-600 dark:text-red-400">
+                      <span className="mr-1">◈</span>
+                      <span>Free cable package</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
+          
+          {/* Special offer badges - Yellow pills like Red Tag */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {isHudProperty ? (
+              <Badge className="bg-yellow-400 text-yellow-900 text-xs px-3 py-1 font-bold">
+                Government verified
+              </Badge>
+            ) : (
+              <>
+                <Badge className="bg-yellow-400 text-yellow-900 text-xs px-3 py-1 font-bold">
+                  No community fee
+                </Badge>
+                <Badge className="bg-yellow-400 text-yellow-900 text-xs px-3 py-1 font-bold">
+                  First month 50% off
+                </Badge>
+                <Badge className="bg-yellow-400 text-yellow-900 text-xs px-3 py-1 font-bold">
+                  Free moving assistance
+                </Badge>
+              </>
+            )}
+          </div>
+          
+          {/* Key Information Row - Hawaii card style */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mb-4">
+            <div className="grid grid-cols-3 gap-3 text-xs">
+              {/* Units/ID */}
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <Building className="h-3 w-3 mr-1" />
+                {(community.totalUnits || community.totalUnitsHud) ? (
+                  <span>{community.totalUnits || community.totalUnitsHud} units</span>
+                ) : (
+                  <span>N/A units</span>
+                )}
+              </div>
+              
+              {/* ID Number */}
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <Shield className="h-3 w-3 mr-1" />
+                <span>ID: {community.id}</span>
+              </div>
+              
+              {/* Verification */}
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <CheckCircle className="h-3 w-3 mr-1 text-green-500" />
+                <span>{verificationPercent}% verified</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Tier Badge and Care Type - Hawaii card style */}
+          <div className="flex items-center justify-between mb-4">
+            <Badge className={`${tierBadge.color} px-3 py-1 text-xs font-bold`}>
+              {tierBadge.label}
+            </Badge>
+            {subtypeBadge && (
+              <Badge className={`${subtypeBadge.color} px-2 py-1 text-xs font-semibold border-0`}>
+                {subtypeBadge.label}
+              </Badge>
+            )}
+          </div>
+          
+          {/* Special Features section - Hawaii card style */}
+          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3 mb-4">
+            <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Special Features:</h4>
+            <div className="space-y-1">
+              {community.features?.slice(0, 3).map((feature: string, idx: number) => (
+                <div key={idx} className="flex items-start text-xs text-gray-600 dark:text-gray-400">
+                  <span className="mr-1">❈</span>
+                  <span>{feature}</span>
+                </div>
+              )) || (
+                <>
+                  <div className="flex items-start text-xs text-gray-600 dark:text-gray-400">
+                    <span className="mr-1">❈</span>
+                    <span>Specialized senior care</span>
+                  </div>
+                  <div className="flex items-start text-xs text-gray-600 dark:text-gray-400">
+                    <span className="mr-1">🏠</span>
+                    <span>Full amenity list available</span>
+                  </div>
+                  {community.state === 'HI' && (
+                    <div className="flex items-start text-xs text-gray-600 dark:text-gray-400">
+                      <span className="mr-1">❈</span>
+                      <span>Island senior living lifestyle</span>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+          
+          {/* Phone number display */}
+          {community.phone && (
+            <div className="text-center mb-4">
+              <a 
+                href={`tel:${community.phone}`}
+                className="text-lg font-bold text-gray-900 dark:text-white hover:text-blue-600"
+                onClick={(e) => e.stopPropagation()}
+              >
+                📞 {community.phone}
+              </a>
+            </div>
+          )}
           
           {/* Contact and Reviews Row */}
           <div className="flex items-center justify-between mb-4">
