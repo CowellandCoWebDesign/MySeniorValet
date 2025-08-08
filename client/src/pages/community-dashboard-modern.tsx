@@ -197,6 +197,19 @@ export default function CommunityDashboardModern() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  {(user?.role === 'admin' || user?.role === 'super_admin') && (
+                    <>
+                      <DropdownMenuItem onClick={() => setLocation("/admin/communities")}>
+                        <Shield className="w-4 h-4 mr-2" />
+                        Manage All Communities
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setLocation("/admin-unified")}>
+                        <Settings className="w-4 h-4 mr-2" />
+                        Admin Dashboard
+                      </DropdownMenuItem>
+                      <div className="border-t my-1" />
+                    </>
+                  )}
                   <DropdownMenuItem onClick={() => setLocation("/community-portal")}>
                     <Home className="w-4 h-4 mr-2" />
                     Portal Home

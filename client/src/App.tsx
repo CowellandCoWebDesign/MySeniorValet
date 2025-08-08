@@ -19,6 +19,7 @@ import Admin from "@/pages/admin";
 import AdminCleanFull from "@/pages/admin-clean-full";
 import AdminCreative from "@/pages/admin-creative";
 import AdminUnified from "@/pages/admin-unified";
+import AdminCommunities from "@/pages/admin-communities";
 import ExpansionMonitor from "@/pages/expansion-monitor";
 import ApiCostDashboard from "@/pages/api-cost-dashboard";
 import ServiceListingsAdmin from "@/pages/admin/service-listings";
@@ -167,6 +168,7 @@ function Router() {
       <Route path="/admin/amazon-products" component={AmazonProductAdmin} />
       <Route path="/admin/perplexity-test" component={PerplexityTest} />
       <Route path="/admin/multi-ai-test" component={MultiAITest} />
+      <Route path="/admin/communities" component={AdminCommunities} />
       <Route path="/ai-search-comparison" component={AISearchComparison} />
       <Route path="/ai-search-intelligence" component={AISearchIntelligence} />
       <Route path="/expansion-monitor" component={ExpansionMonitor} />

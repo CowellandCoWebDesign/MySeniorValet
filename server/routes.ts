@@ -98,6 +98,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register community Stripe payment routes
   const { registerCommunityStripeRoutes } = await import('./routes/community-stripe');
   registerCommunityStripeRoutes(app);
+  
+  // Register admin community management routes
+  const adminCommunityRoutes = await import('./routes/adminCommunityRoutes');
+  app.use('/api', adminCommunityRoutes.default);
 
   // Vendor dashboard API routes
   app.get("/api/vendors/:vendorId/dashboard", isAuthenticated, async (req, res) => {
