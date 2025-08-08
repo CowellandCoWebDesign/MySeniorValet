@@ -9,7 +9,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { useAddFavorite, useRemoveFavorite, useFavorites } from '@/hooks/useFavorites';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 
 interface AutocompleteSuggestion {
   label: string;
@@ -62,6 +62,7 @@ export function AutocompleteSearch({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
+  const [location, setLocation] = useLocation();
   
   const debouncedValue = useDebounce(value, 300);
   
@@ -144,10 +145,18 @@ export function AutocompleteSearch({
   };
 
   const handleSelectSuggestion = (suggestion: AutocompleteSuggestion) => {
-    onChange(suggestion.value);
-    setShowSuggestions(false);
-    setSelectedIndex(-1);
-    onSubmit(suggestion.value);
+    // If it's a community suggestion with an ID, navigate to the community detail page
+    if (suggestion.type === 'community' && suggestion.id) {
+      setShowSuggestions(false);
+      setSelectedIndex(-1);
+      setLocation(`/community/${suggestion.id}`);
+    } else {
+      // For other types (city, state, care_type, etc.), perform the search
+      onChange(suggestion.value);
+      setShowSuggestions(false);
+      setSelectedIndex(-1);
+      onSubmit(suggestion.value);
+    }
   };
   
   const handleFavorite = async (e: React.MouseEvent, suggestion: AutocompleteSuggestion) => {
