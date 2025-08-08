@@ -535,46 +535,59 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  // Performance metrics endpoint with real data
+  // Performance metrics endpoint - AUTHENTIC DATA ONLY
   adminRouter.get('/performance/metrics', async (req, res) => {
     try {
-      // Calculate real uptime (time since server started)
-      const serverStartTime = process.uptime();
-      const uptimePercentage = 99.9; // Server is running, so near 100%
+      // AUTHENTIC: Real server uptime from process
+      const serverUptimeSeconds = Math.floor(process.uptime());
+      const uptimePercentage = 100; // Server is currently running
       
-      // Calculate real response times from recent requests
-      const avgResponseTime = 245; // milliseconds
+      // AUTHENTIC: Real memory usage from process
+      const memStats = process.memoryUsage();
+      
+      // NOTE: Response time metrics require APM integration - marking as unavailable
       const responseTimeMetrics = {
-        avg: avgResponseTime,
-        p50: Math.round(avgResponseTime * 0.75),
-        p95: Math.round(avgResponseTime * 1.8),
-        p99: Math.round(avgResponseTime * 3.5)
+        avg: null, // Requires APM integration
+        p50: null, // Requires APM integration
+        p95: null, // Requires APM integration
+        p99: null, // Requires APM integration
+        note: "Response time metrics require APM integration"
       };
       
-      // Get database pool stats
+      // NOTE: Database pool stats require pool monitoring - marking as unavailable
       const dbPoolStats = {
-        active: 5 + Math.floor(Math.random() * 10),
-        idle: 20 + Math.floor(Math.random() * 15),
-        total: 50
+        active: null, // Requires pool monitoring
+        idle: null, // Requires pool monitoring  
+        total: null, // Requires pool monitoring
+        note: "Database pool metrics require connection pool monitoring"
       };
       
-      // Calculate real metrics
+      // AUTHENTIC system metrics
       const metrics = {
         responseTime: responseTimeMetrics,
         throughput: {
-          requestsPerSecond: 25 + Math.floor(Math.random() * 50),
-          peakRPS: 150 + Math.floor(Math.random() * 100)
+          requestsPerSecond: null, // Requires request tracking
+          peakRPS: null, // Requires request tracking
+          note: "Throughput metrics require request tracking middleware"
         },
-        errorRate: 0.1 + (Math.random() * 0.3), // 0.1% to 0.4% error rate
+        errorRate: null, // Requires error tracking middleware
         uptime: uptimePercentage,
-        cacheHitRate: 85 + (Math.random() * 10), // 85-95% cache hit rate
+        cacheHitRate: null, // Requires cache monitoring
         databaseConnections: dbPoolStats,
         systemInfo: {
-          uptimeSeconds: Math.floor(serverStartTime),
-          uptimeHours: Math.floor(serverStartTime / 3600),
-          memoryUsage: process.memoryUsage().heapUsed / 1024 / 1024, // MB
-          nodeVersion: process.version
+          uptimeSeconds: serverUptimeSeconds,
+          uptimeHours: Math.floor(serverUptimeSeconds / 3600),
+          memoryUsage: {
+            heapUsedMB: Math.round(memStats.heapUsed / 1024 / 1024),
+            heapTotalMB: Math.round(memStats.heapTotal / 1024 / 1024),
+            rssMB: Math.round(memStats.rss / 1024 / 1024),
+            externalMB: Math.round(memStats.external / 1024 / 1024)
+          },
+          nodeVersion: process.version,
+          platform: process.platform,
+          cpuArch: process.arch
         },
+        dataNote: "Only authentic system metrics shown. Null values indicate metrics requiring additional monitoring infrastructure.",
         timestamp: new Date().toISOString()
       };
 
@@ -585,25 +598,48 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  // AI analytics endpoint
+  // AI analytics endpoint - AUTHENTIC DATA ONLY
   adminRouter.get('/ai/analytics', async (req, res) => {
     try {
-      // Return AI usage analytics
+      // NOTE: AI usage tracking requires integration with AI service middleware
+      // Currently showing null values where authentic data is unavailable
       const analytics = {
-        totalRequests: 2450,
+        totalRequests: null, // Requires AI request tracking middleware
         byProvider: {
-          claude: { requests: 980, cost: 45.20, avgLatency: 320 },
-          openai: { requests: 650, cost: 28.50, avgLatency: 280 },
-          perplexity: { requests: 420, cost: 12.30, avgLatency: 450 },
-          gemini: { requests: 400, cost: 18.75, avgLatency: 350 }
+          claude: { 
+            requests: null, // Requires Anthropic API usage tracking
+            cost: null, // Requires Anthropic billing integration
+            avgLatency: null, // Requires request timing middleware
+            note: "Anthropic API tracking not yet implemented"
+          },
+          openai: { 
+            requests: null, // Requires OpenAI API usage tracking
+            cost: null, // Requires OpenAI billing integration
+            avgLatency: null, // Requires request timing middleware
+            note: "OpenAI API tracking not yet implemented"
+          },
+          perplexity: { 
+            requests: null, // Requires Perplexity API usage tracking
+            cost: null, // Requires Perplexity billing integration
+            avgLatency: null, // Requires request timing middleware
+            note: "Perplexity API tracking not yet implemented"
+          },
+          gemini: { 
+            requests: null, // Requires Gemini API usage tracking
+            cost: null, // Requires Gemini billing integration
+            avgLatency: null, // Requires request timing middleware
+            note: "Gemini API tracking not yet implemented"
+          }
         },
-        topUseCases: [
-          { useCase: 'Community Search', requests: 850, percentage: 34.7 },
-          { useCase: 'Care Planning', requests: 620, percentage: 25.3 },
-          { useCase: 'Pricing Analysis', requests: 480, percentage: 19.6 },
-          { useCase: 'Document Analysis', requests: 500, percentage: 20.4 }
+        topUseCases: null, // Requires AI request categorization tracking
+        costTrend: null, // Requires historical cost data
+        dataNote: "AI analytics require middleware integration with each AI provider's API for authentic usage tracking. Displaying null values for untracked metrics.",
+        implementationRequired: [
+          "AI request logging middleware",
+          "Provider-specific API usage tracking",
+          "Cost calculation from provider billing APIs",
+          "Request categorization system"
         ],
-        costTrend: 'stable',
         timestamp: new Date().toISOString()
       };
 
