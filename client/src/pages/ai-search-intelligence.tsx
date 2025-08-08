@@ -406,7 +406,7 @@ export default function AISearchIntelligence() {
                 className="flex items-center gap-2"
               >
                 <Activity className="w-4 h-4" />
-                VA Resources
+                Resources
               </Button>
             </div>
 
@@ -417,7 +417,7 @@ export default function AISearchIntelligence() {
                   {searchType === 'housing' && 'AI-Powered Housing Search'}
                   {searchType === 'services' && 'Find Care Services Near You'}
                   {searchType === 'marketplace' && 'Discover Marketplace Solutions'}
-                  {searchType === 'resources' && 'Explore VA Resources'}
+                  {searchType === 'resources' && 'Explore Healthcare Resources'}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -434,7 +434,7 @@ export default function AISearchIntelligence() {
                       searchType === 'housing' ? "Search cities, communities, or care types..." :
                       searchType === 'services' ? "Search for care services..." :
                       searchType === 'marketplace' ? "Search for vendors..." :
-                      "Search for VA resources..."
+                      "Search for healthcare resources, VA facilities, hospitals..."
                     }
                     isLoading={isAnalyzing}
                   />
@@ -493,9 +493,9 @@ export default function AISearchIntelligence() {
                     <h3 className="text-lg font-semibold flex items-center gap-2">
                       <Shield className="w-5 h-5 text-green-600" />
                       {searchType === 'housing' && `${searchResults.data?.communities?.length || searchResults.data?.results?.length || 0} AI-Verified Communities`}
-                      {searchType === 'services' && `${searchResults.data.services?.length || 0} Care Services Found`}
-                      {searchType === 'marketplace' && `${searchResults.data.vendors?.length || 0} Marketplace Vendors`}
-                      {searchType === 'resources' && `VA Resources Available`}
+                      {searchType === 'services' && `${searchResults.data?.services?.length || 0} Care Services Found`}
+                      {searchType === 'marketplace' && `${searchResults.data?.vendors?.length || 0} Marketplace Vendors`}
+                      {searchType === 'resources' && `${searchResults.data?.resources?.length || 0} Healthcare Resources Available`}
                     </h3>
                   </div>
                   
@@ -575,20 +575,89 @@ export default function AISearchIntelligence() {
 
                   {/* Marketplace Vendors Results */}
                   {searchType === 'marketplace' && searchResults.data.vendors?.map((vendor: any) => (
-                    <Card key={vendor.id} className="p-4">
-                      <h4 className="font-semibold text-lg">{vendor.name}</h4>
-                      <p className="text-gray-600 dark:text-gray-400">{vendor.category}</p>
+                    <Card key={vendor.id} className="p-4 hover:shadow-lg transition-shadow">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="font-semibold text-lg">{vendor.name}</h4>
+                          {vendor.featured && (
+                            <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+                              Featured
+                            </Badge>
+                          )}
+                        </div>
+                        {vendor.rating && (
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                            <span className="text-sm">{vendor.rating} ({vendor.reviewCount || 0} reviews)</span>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-gray-600 dark:text-gray-400 text-sm">
+                        {vendor.category} • {vendor.yearsInBusiness ? `${vendor.yearsInBusiness} years in business` : 'New vendor'}
+                      </p>
                       <p className="text-sm mt-2">{vendor.description}</p>
-                      {vendor.price && <p className="font-semibold mt-2">${vendor.price}</p>}
+                      {vendor.city && vendor.state && (
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                          📍 {vendor.city}, {vendor.state}
+                        </p>
+                      )}
+                      {vendor.website && (
+                        <a href={vendor.website} target="_blank" rel="noopener noreferrer" 
+                           className="text-blue-600 dark:text-blue-400 text-sm mt-2 inline-block hover:underline">
+                          Visit Website →
+                        </a>
+                      )}
+                      <div className="mt-3">
+                        <Badge variant="outline" className="text-xs">
+                          {vendor.subscriptionTier === 'national' ? 'National Partner' :
+                           vendor.subscriptionTier === 'featured' ? 'Featured Vendor' : 'Basic Listing'}
+                        </Badge>
+                      </div>
                     </Card>
                   ))}
 
-                  {/* VA Resources Results */}
-                  {searchType === 'resources' && searchResults.data.resources?.map((resource: any, idx: number) => (
+                  {/* Healthcare Resources Results */}
+                  {searchType === 'resources' && searchResults.data.resources?.map((resourceGroup: any, idx: number) => (
                     <Card key={idx} className="p-4">
-                      <h4 className="font-semibold text-lg">{resource.name}</h4>
-                      <p className="text-gray-600 dark:text-gray-400">Type: {resource.type}</p>
-                      <p className="text-sm mt-2">{resource.count} locations available</p>
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h4 className="font-semibold text-lg flex items-center gap-2">
+                            {resourceGroup.type === 'VA Medical Center' && <Activity className="w-5 h-5 text-blue-600" />}
+                            {resourceGroup.type === 'Hospital' && <Building2 className="w-5 h-5 text-red-600" />}
+                            {resourceGroup.type === 'Health Clinic' && <Heart className="w-5 h-5 text-green-600" />}
+                            {resourceGroup.type === 'HUD Resource' && <Home className="w-5 h-5 text-purple-600" />}
+                            {resourceGroup.name}
+                          </h4>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            {resourceGroup.count} {resourceGroup.count === 1 ? 'location' : 'locations'} available
+                          </p>
+                        </div>
+                        <Badge variant="outline">
+                          {resourceGroup.type}
+                        </Badge>
+                      </div>
+                      
+                      {/* Show first few items from this resource group */}
+                      {resourceGroup.items && resourceGroup.items.slice(0, 3).map((item: any, itemIdx: number) => (
+                        <div key={itemIdx} className="border-t pt-2 mt-2">
+                          <p className="font-medium text-sm">{item.name}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {item.city}, {item.state}
+                            {item.phone && ` • ${item.phone}`}
+                          </p>
+                          {item.isVeteranFriendly && (
+                            <Badge className="mt-1 text-xs" variant="secondary">
+                              Veteran Friendly
+                            </Badge>
+                          )}
+                        </div>
+                      ))}
+                      
+                      {resourceGroup.items && resourceGroup.items.length > 3 && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                          +{resourceGroup.items.length - 3} more locations
+                        </p>
+                      )}
                     </Card>
                   ))}
                 </div>

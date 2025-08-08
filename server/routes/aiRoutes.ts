@@ -1,6 +1,6 @@
 import { type Express } from "express";
 import { db } from "../db";
-import { communities, services } from "@shared/schema";
+import { communities, services, vendors } from "@shared/schema";
 import { eq, sql, and, or, like, inArray } from "drizzle-orm";
 import { aiRecommendationEngine, RecommendationRequest } from "../ai-recommendations";
 import { MultiAIOrchestrator } from "../multi-ai-intelligence";
@@ -382,32 +382,191 @@ export function registerAIRoutes(app: Express) {
           }
         });
       } else if (searchType === 'marketplace') {
-        // Search marketplace vendors
-        let marketQuery = db.select().from(services);
+        // Vendors table already imported at the top
         
-        const marketResults = await marketQuery.limit(20);
+        // Search marketplace vendors
+        let whereConditions = [];
+        
+        // Search by vendor name, business name, or service description
+        if (query) {
+          whereConditions.push(
+            or(
+              sql`LOWER(${vendors.businessName}) LIKE LOWER(${'%' + query + '%'})`,
+              sql`LOWER(${vendors.description}) LIKE LOWER(${'%' + query + '%'})`,
+              sql`LOWER(${vendors.shortDescription}) LIKE LOWER(${'%' + query + '%'})`
+            )
+          );
+        }
+        
+        // Filter by location if provided
+        if (location) {
+          const locationParts = location.split(',').map(part => part.trim());
+          const city = locationParts[0];
+          const state = locationParts[1];
+          
+          if (state) {
+            whereConditions.push(
+              or(
+                sql`LOWER(${vendors.businessCity}) LIKE LOWER(${'%' + city + '%'})`,
+                sql`${vendors.businessState} = ${state}`,
+                sql`${vendors.coverageStates} @> ARRAY[${state}]::text[]`
+              )
+            );
+          } else {
+            whereConditions.push(
+              or(
+                sql`LOWER(${vendors.businessCity}) LIKE LOWER(${'%' + location + '%'})`,
+                sql`${vendors.coverageStates} @> ARRAY[${location}]::text[]`,
+                sql`${vendors.serviceAreas} @> ARRAY[${location}]::text[]`
+              )
+            );
+          }
+        }
+        
+        // Only show active vendors
+        whereConditions.push(eq(vendors.status, 'active'));
+        
+        const vendorQuery = db
+          .select({
+            id: vendors.id,
+            name: vendors.businessName,
+            category: vendors.businessType,
+            description: vendors.shortDescription,
+            fullDescription: vendors.description,
+            city: vendors.businessCity,
+            state: vendors.businessState,
+            coverageStates: vendors.coverageStates,
+            website: vendors.website,
+            featured: vendors.featured,
+            rating: vendors.averageRating,
+            reviewCount: vendors.totalReviews,
+            yearsInBusiness: vendors.yearsInBusiness,
+            subscriptionTier: vendors.subscriptionTier
+          })
+          .from(vendors)
+          .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
+          .orderBy(
+            sql`${vendors.featured} DESC`,
+            sql`${vendors.subscriptionTier} = 'national' DESC`,
+            sql`${vendors.subscriptionTier} = 'featured' DESC`,
+            sql`${vendors.averageRating} DESC NULLS LAST`
+          )
+          .limit(30);
+        
+        const vendorResults = await vendorQuery;
         
         res.json({
-          vendors: marketResults,
-          searchInterpretation: query,
-          appliedFilters: {},
+          vendors: vendorResults,
+          searchInterpretation: searchInterpretation || `Searching for "${query}" vendors`,
+          appliedFilters: { location },
           aiInsights: {
-            topRecommendations: marketResults.slice(0, 3),
-            vendorAnalysis: `${marketResults.length} marketplace vendors found`
+            topRecommendations: vendorResults.slice(0, 3).map(v => ({
+              name: v.name,
+              location: v.city && v.state ? `${v.city}, ${v.state}` : 'Multiple locations',
+              rating: v.rating ? `${v.rating} stars` : 'New vendor',
+              tier: v.subscriptionTier
+            })),
+            vendorAnalysis: `${vendorResults.length} marketplace vendors found${location ? ` in ${location}` : ''}`,
+            featuredCount: vendorResults.filter(v => v.featured).length
           }
         });
       } else if (searchType === 'resources') {
-        // Return VA resources (static data for now)
+        // Search for healthcare resources in communities table
+        let resourceConditions = [];
+        
+        // Look for VA facilities, hospitals, and healthcare resources
+        resourceConditions.push(
+          or(
+            sql`LOWER(${communities.name}) LIKE '%va %'`,
+            sql`LOWER(${communities.name}) LIKE '%veteran%'`,
+            sql`LOWER(${communities.name}) LIKE '%hospital%'`,
+            sql`LOWER(${communities.name}) LIKE '%medical center%'`,
+            sql`LOWER(${communities.name}) LIKE '%clinic%'`,
+            sql`LOWER(${communities.name}) LIKE '%health%'`,
+            sql`${communities.isVeteranFriendly} = true`,
+            sql`${communities.acceptsHudVouchers} = true`
+          )
+        );
+        
+        if (location) {
+          const locationParts = location.split(',').map(part => part.trim());
+          const city = locationParts[0];
+          const state = locationParts[1];
+          
+          if (state) {
+            resourceConditions.push(
+              and(
+                sql`LOWER(${communities.city}) LIKE LOWER(${'%' + city + '%'})`,
+                sql`LOWER(${communities.state}) LIKE LOWER(${'%' + state + '%'})`
+              )
+            );
+          } else {
+            resourceConditions.push(
+              or(
+                sql`LOWER(${communities.city}) LIKE LOWER(${'%' + location + '%'})`,
+                sql`LOWER(${communities.state}) LIKE LOWER(${'%' + location + '%'})`
+              )
+            );
+          }
+        }
+        
+        const resourceQuery = db
+          .select({
+            id: communities.id,
+            name: communities.name,
+            type: sql<string>`
+              CASE 
+                WHEN LOWER(${communities.name}) LIKE '%va medical%' THEN 'VA Medical Center'
+                WHEN LOWER(${communities.name}) LIKE '%va %' THEN 'VA Facility'
+                WHEN LOWER(${communities.name}) LIKE '%veteran%' THEN 'Veterans Resource'
+                WHEN LOWER(${communities.name}) LIKE '%hospital%' THEN 'Hospital'
+                WHEN LOWER(${communities.name}) LIKE '%medical center%' THEN 'Medical Center'
+                WHEN LOWER(${communities.name}) LIKE '%clinic%' THEN 'Health Clinic'
+                WHEN ${communities.acceptsHudVouchers} = true THEN 'HUD Resource'
+                ELSE 'Healthcare Resource'
+              END
+            `.as('type'),
+            address: communities.address,
+            city: communities.city,
+            state: communities.state,
+            phone: communities.phone,
+            website: communities.website,
+            isVeteranFriendly: communities.isVeteranFriendly,
+            acceptsHudVouchers: communities.acceptsHudVouchers
+          })
+          .from(communities)
+          .where(and(...resourceConditions))
+          .limit(50);
+        
+        const resourceResults = await resourceQuery;
+        
+        // Group resources by type for better display
+        const groupedResources = resourceResults.reduce((acc: any, resource) => {
+          const type = resource.type;
+          if (!acc[type]) {
+            acc[type] = {
+              name: type,
+              type: type,
+              count: 0,
+              items: []
+            };
+          }
+          acc[type].count++;
+          acc[type].items.push(resource);
+          return acc;
+        }, {});
+        
+        const resourceGroups = Object.values(groupedResources);
+        
         res.json({
-          resources: [
-            { name: 'VA Medical Centers', count: 10, type: 'medical' },
-            { name: 'VA Clinics', count: 23, type: 'clinic' },
-            { name: 'Vet Centers', count: 15, type: 'support' }
-          ],
-          searchInterpretation: query,
+          resources: resourceGroups,
+          searchInterpretation: searchInterpretation || `Searching for healthcare resources${query ? ` related to "${query}"` : ''}`,
           appliedFilters: { location },
           aiInsights: {
-            resourceAnalysis: 'VA resources available in your area'
+            resourceAnalysis: `${resourceResults.length} healthcare resources found${location ? ` in ${location}` : ''}`,
+            resourceBreakdown: resourceGroups.map((g: any) => `${g.count} ${g.name}`).join(', '),
+            veteranResources: resourceResults.filter((r: any) => r.isVeteranFriendly).length,
+            hudResources: resourceResults.filter((r: any) => r.acceptsHudVouchers).length
           }
         });
       }
