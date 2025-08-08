@@ -16,11 +16,11 @@ import reservationRoutes from "./routes/reservations";
 import { quizRouter } from "./routes/quiz";
 import subscriptionRoutes from "./routes/subscriptionRoutes";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, or, like, desc } from "drizzle-orm";
 import cookieParser from "cookie-parser";
 import { isAuthenticated } from "./replitAuth";
 import { storage } from "./storage";
-import { vendors } from "../shared/schema";
+import { vendors, users } from "../shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Note: Webhook raw body handling is done in server/index.ts before JSON parsing
@@ -257,6 +257,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register community enrichment routes
   const communityEnrichmentRoutes = await import('./routes/community-enrichment-routes');
   app.use('/api/community-enrichment', communityEnrichmentRoutes.default);
+
+  // Admin: Get all users
+  app.get('/api/admin/users', async (req, res) => {
+    try {
+      const { page = '1', search = '', role = 'all' } = req.query;
+      const pageNum = parseInt(page as string);
+      const limit = 20;
+      const offset = (pageNum - 1) * limit;
+      
+      // Build query - only selecting columns that exist in our schema
+      let query = db.select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        role: users.role,
+        isActive: users.isActive,
+        createdAt: users.createdAt
+      }).from(users);
+
+      // Apply filters
+      if (search) {
+        query = query.where(
+          or(
+            like(users.email, `%${search}%`),
+            like(users.firstName, `%${search}%`),
+            like(users.lastName, `%${search}%`)
+          )
+        );
+      }
+
+      if (role !== 'all') {
+        query = query.where(eq(users.role, role as string));
+      }
+
+      const allUsers = await query.orderBy(desc(users.createdAt));
+      
+      res.json(allUsers);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
+  });
 
   // AI Status checking endpoint
   app.get('/api/ai/status', async (req, res) => {

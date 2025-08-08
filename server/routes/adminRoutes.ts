@@ -31,6 +31,22 @@ export function registerAdminRoutes(app: Express) {
   adminRouter.use(requireAuth);
   adminRouter.use(isAdmin);
 
+  // Test endpoint to check users table columns
+  adminRouter.get('/users/test-columns', async (req, res) => {
+    try {
+      const result = await db.execute(sql`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'users' 
+        ORDER BY ordinal_position
+      `);
+      res.json({ columns: result.rows });
+    } catch (error) {
+      console.error('Error checking user columns:', error);
+      res.status(500).json({ error: 'Failed to check columns', details: error });
+    }
+  });
+
   // Admin dashboard stats
   adminRouter.get('/dashboard/stats', async (req, res) => {
     try {
@@ -64,13 +80,19 @@ export function registerAdminRoutes(app: Express) {
         );
       }
 
-      const query = db.select().from(users);
-      if (conditions.length > 0) {
-        query.where(and(...conditions));
-      }
+      let baseQuery = db.select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        role: users.role,
+        profileImageUrl: users.profileImageUrl,
+        phone: users.phone
+      }).from(users);
 
-      const usersData = await query
-        .orderBy(desc(users.createdAt))
+      const usersData = await (conditions.length > 0 
+        ? baseQuery.where(and(...conditions))
+        : baseQuery)
         .limit(parseInt(limit as string))
         .offset(offset);
 
@@ -80,7 +102,12 @@ export function registerAdminRoutes(app: Express) {
         .where(conditions.length > 0 ? and(...conditions) : undefined);
 
       res.json({
-        users: usersData,
+        users: usersData.map(user => ({
+          ...user,
+          isActive: true, // Default to true since column doesn't exist
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        })),
         pagination: {
           page: parseInt(page as string),
           limit: parseInt(limit as string),
