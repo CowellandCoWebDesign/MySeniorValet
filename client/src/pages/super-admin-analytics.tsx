@@ -146,14 +146,19 @@ export default function SuperAdminAnalytics() {
         apiRequest('GET', `/api/financial/comprehensive?period=${timeRange}`),
         apiRequest('GET', '/api/admin/geographic/stats'),
         apiRequest('GET', `/api/admin/engagement/metrics?period=${timeRange}`)
-      ]).catch(() => [
-        { totalCommunities: 34180, totalUsers: 1245, totalVendors: 856, activeSubscriptions: 127, monthlyRevenue: 45678, yearlyRevenue: 548136, growthRate: 15.4 },
-        { responseTime: 45, uptime: 99.99, errorRate: 0.01, apiCalls: 125000, cacheHitRate: 94.5, dbQueries: 45000 },
-        { totalRequests: 15234, byProvider: { claude: 6543, chatgpt: 4321, perplexity: 2345, gemini: 1567, grok: 458 }, costs: { total: 1234, claude: 456, chatgpt: 345, perplexity: 234, gemini: 199 }, successRate: 98.5, avgResponseTime: 1.2 },
-        { revenue: { today: 1567, week: 10234, month: 45678, year: 548136 }, subscriptions: { community: { free: 30000, standard: 3000, featured: 800, platinum: 380 }, vendor: { basic: 500, featured: 250, national: 106 } }, paymentSuccess: 99.2, churnRate: 2.1, ltv: 2340, arpu: 149 },
-        { byState: { CA: 4567, TX: 3456, FL: 2345, NY: 2234 }, byCountry: { usa: 30456, canada: 3724 }, topCities: [{ city: "Los Angeles", count: 1234 }, { city: "Houston", count: 987 }, { city: "Miami", count: 876 }], expansionProgress: 87.5 },
-        { dailyActiveUsers: 523, weeklyActiveUsers: 2341, monthlyActiveUsers: 8765, avgSessionDuration: 420, bounceRate: 32.5, pageViews: 125000, searches: 12345, communityViews: 45678, favorites: 3456, messages: 1234 }
-      ]);
+      ]).catch(() => {
+        // GOLDEN DATA RULE COMPLIANCE: Return null values when API fails
+        // No fake data - only authentic metrics or clear indicators of unavailability
+        console.error('Failed to fetch dashboard metrics - returning null values per Golden Data Rule');
+        return [
+          { totalCommunities: null, totalUsers: null, totalVendors: null, activeSubscriptions: null, monthlyRevenue: null, yearlyRevenue: null, growthRate: null, error: 'Unable to fetch platform stats' },
+          { responseTime: null, uptime: null, errorRate: null, apiCalls: null, cacheHitRate: null, dbQueries: null, error: 'Unable to fetch performance metrics' },
+          { totalRequests: null, byProvider: null, costs: null, successRate: null, avgResponseTime: null, error: 'Unable to fetch AI analytics' },
+          { revenue: { today: null, week: null, month: null, year: null }, subscriptions: null, paymentSuccess: null, churnRate: null, ltv: null, arpu: null, error: 'Unable to fetch financial data' },
+          { byState: null, byCountry: null, topCities: null, expansionProgress: null, error: 'Unable to fetch geographic stats' },
+          { dailyActiveUsers: null, weeklyActiveUsers: null, monthlyActiveUsers: null, avgSessionDuration: null, bounceRate: null, pageViews: null, searches: null, communityViews: null, favorites: null, messages: null, error: 'Unable to fetch engagement metrics' }
+        ];
+      });
 
       return {
         platform: platformStats as any,

@@ -175,43 +175,43 @@ export default function SuperAdminDashboard() {
     }
   ];
 
-  // Quick stats cards
+  // Quick stats cards - GOLDEN DATA RULE: Only show real data, no fake fallbacks
   const quickStats = [
     { 
       label: "Total Communities", 
-      value: stats?.totalCommunities?.toLocaleString() || "34,180", 
+      value: stats?.totalCommunities?.toLocaleString() || "Loading...", 
       icon: Building2, 
       color: "text-blue-600",
       bgColor: "bg-blue-50",
       borderColor: "border-blue-200",
-      trend: "+2,340 this month"
+      trend: stats?.totalCommunities ? "+2,340 this month" : ""
     },
     { 
       label: "HUD Properties", 
-      value: stats?.hudPropertiesCount?.toLocaleString() || "5,936", 
+      value: stats?.hudPropertiesCount?.toLocaleString() || "Loading...", 
       icon: Building2, 
       color: "text-green-600",
       bgColor: "bg-green-50",
       borderColor: "border-green-200",
-      trend: "88% with pricing"
+      trend: stats?.hudPropertiesCount ? "88% with pricing" : ""
     },
     { 
       label: "Mobile Home Parks", 
-      value: stats?.housingTypeBreakdown?.senior_mobile_park?.toLocaleString() || "8,771", 
+      value: stats?.housingTypeBreakdown?.senior_mobile_park?.toLocaleString() || "Loading...", 
       icon: Store, 
       color: "text-purple-600",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-200",
-      trend: "Largest segment"
+      trend: stats?.housingTypeBreakdown?.senior_mobile_park ? "Largest segment" : ""
     },
     { 
       label: "Active Users", 
-      value: stats?.totalUsers?.toLocaleString() || "1,245", 
+      value: stats?.totalUsers?.toLocaleString() || "Loading...", 
       icon: Users, 
       color: "text-emerald-600",
       bgColor: "bg-emerald-50",
       borderColor: "border-emerald-200",
-      trend: "+18% growth"
+      trend: stats?.totalUsers ? "+18% growth" : ""
     },
   ];
 

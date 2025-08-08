@@ -63,30 +63,33 @@ export default function AdminReports() {
     );
   }
 
-  // Sample data for charts
-  const revenueData = [
-    { month: 'Jan', revenue: 45000, target: 50000 },
-    { month: 'Feb', revenue: 52000, target: 50000 },
-    { month: 'Mar', revenue: 48000, target: 55000 },
-    { month: 'Apr', revenue: 61000, target: 55000 },
-    { month: 'May', revenue: 58000, target: 60000 },
-    { month: 'Jun', revenue: 67000, target: 60000 },
-  ];
+  // GOLDEN DATA RULE: Fetch real data from API endpoints
+  // No sample/fake data allowed - only authentic metrics
+  const { data: financialData } = useQuery<any>({
+    queryKey: ['/api/financial/comprehensive', timeRange],
+    enabled: isAdmin,
+  });
 
-  const userGrowthData = [
-    { month: 'Jan', users: 850, communities: 28500 },
-    { month: 'Feb', users: 920, communities: 29200 },
-    { month: 'Mar', users: 1050, communities: 30100 },
-    { month: 'Apr', users: 1180, communities: 31500 },
-    { month: 'May', users: 1320, communities: 33000 },
-    { month: 'Jun', users: 1450, communities: 34180 },
-  ];
+  const { data: platformStats } = useQuery<any>({
+    queryKey: ['/api/platform/stats'],
+    enabled: isAdmin,
+  });
 
-  const subscriptionData = [
-    { name: 'Verified', value: 2800 },
-    { name: 'Standard', value: 450 },
-    { name: 'Featured', value: 280 },
-    { name: 'Platinum', value: 85 },
+  const { data: subscriptionStats } = useQuery<any>({
+    queryKey: ['/api/admin/subscription/stats'],
+    enabled: isAdmin,
+  });
+
+  // Use real data from API or show loading/null state
+  const revenueData = financialData?.monthlyTrend || [];
+
+  const userGrowthData = platformStats?.growthTrend || [];
+
+  const subscriptionData = subscriptionStats?.breakdown || [
+    { name: 'Verified', value: 0 },
+    { name: 'Standard', value: 0 },
+    { name: 'Featured', value: 0 },
+    { name: 'Platinum', value: 0 },
   ];
 
   const handleExport = (format: string) => {
