@@ -328,7 +328,7 @@ export default function SuperAdminAnalytics() {
                     <div>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Total Revenue</p>
                       <p className="text-2xl font-bold mt-1">
-                        {formatCurrency(metrics?.financial.revenue.month || 0)}
+                        {formatCurrency(metrics?.financial?.revenue?.month || 0)}
                       </p>
                       <div className="flex items-center mt-2">
                         <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
@@ -368,12 +368,12 @@ export default function SuperAdminAnalytics() {
                     <div>
                       <p className="text-sm text-gray-600 dark:text-gray-400">AI Requests</p>
                       <p className="text-2xl font-bold mt-1">
-                        {formatNumber(metrics?.ai.totalRequests || 0)}
+                        {formatNumber(metrics?.ai?.totalRequests || 0)}
                       </p>
                       <div className="flex items-center mt-2">
                         <CheckCircle className="h-4 w-4 text-green-600 mr-1" />
                         <span className="text-sm text-gray-600">
-                          {formatPercent(metrics?.ai.successRate || 0)} success
+                          {formatPercent(metrics?.ai?.successRate || 0)} success
                         </span>
                       </div>
                     </div>
@@ -440,19 +440,19 @@ export default function SuperAdminAnalytics() {
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <p className="text-sm text-gray-600">Today</p>
-                            <p className="text-xl font-bold">{formatCurrency(metrics?.financial.revenue.today || 0)}</p>
+                            <p className="text-xl font-bold">{formatCurrency(metrics?.financial?.revenue?.today || 0)}</p>
                           </div>
                           <div>
                             <p className="text-sm text-gray-600">This Week</p>
-                            <p className="text-xl font-bold">{formatCurrency(metrics?.financial.revenue.week || 0)}</p>
+                            <p className="text-xl font-bold">{formatCurrency(metrics?.financial?.revenue?.week || 0)}</p>
                           </div>
                           <div>
                             <p className="text-sm text-gray-600">This Month</p>
-                            <p className="text-xl font-bold">{formatCurrency(metrics?.financial.revenue.month || 0)}</p>
+                            <p className="text-xl font-bold">{formatCurrency(metrics?.financial?.revenue?.month || 0)}</p>
                           </div>
                           <div>
                             <p className="text-sm text-gray-600">This Year</p>
-                            <p className="text-xl font-bold">{formatCurrency(metrics?.financial.revenue.year || 0)}</p>
+                            <p className="text-xl font-bold">{formatCurrency(metrics?.financial?.revenue?.year || 0)}</p>
                           </div>
                         </div>
                       </div>
@@ -638,22 +638,22 @@ export default function SuperAdminAnalytics() {
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Total AI Requests</span>
-                          <span className="font-semibold">{formatNumber(metrics?.ai.totalRequests || 0)}</span>
+                          <span className="font-semibold">{formatNumber(metrics?.ai?.totalRequests || 0)}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Success Rate</span>
                           <div className="flex items-center gap-2">
-                            <Progress value={metrics?.ai.successRate || 0} className="w-24" />
-                            <span className="font-semibold">{formatPercent(metrics?.ai.successRate || 0)}</span>
+                            <Progress value={metrics?.ai?.successRate || 0} className="w-24" />
+                            <span className="font-semibold">{formatPercent(metrics?.ai?.successRate || 0)}</span>
                           </div>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Avg Response Time</span>
-                          <span className="font-semibold">{metrics?.ai.avgResponseTime || 0}s</span>
+                          <span className="font-semibold">{metrics?.ai?.avgResponseTime || 0}s</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Total AI Costs</span>
-                          <span className="font-semibold">{formatCurrency(metrics?.ai.costs.total || 0)}</span>
+                          <span className="font-semibold">{formatCurrency(metrics?.ai?.costs?.total || 0)}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -833,20 +833,20 @@ export default function SuperAdminAnalytics() {
                           <div className="flex items-center gap-2">
                             <span className="text-sm">🇺🇸 United States</span>
                           </div>
-                          <span className="font-semibold">{formatNumber(metrics?.geographic.byCountry.usa || 0)}</span>
+                          <span className="font-semibold">{formatNumber(metrics?.geographic?.byCountry?.usa || 0)}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <div className="flex items-center gap-2">
                             <span className="text-sm">🇨🇦 Canada</span>
                           </div>
-                          <span className="font-semibold">{formatNumber(metrics?.geographic.byCountry.canada || 0)}</span>
+                          <span className="font-semibold">{formatNumber(metrics?.geographic?.byCountry?.canada || 0)}</span>
                         </div>
                         <Separator className="my-2" />
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Expansion Progress</span>
                           <div className="flex items-center gap-2">
-                            <Progress value={metrics?.geographic.expansionProgress || 0} className="w-24" />
-                            <span className="font-semibold">{formatPercent(metrics?.geographic.expansionProgress || 0)}</span>
+                            <Progress value={metrics?.geographic?.expansionProgress || 0} className="w-24" />
+                            <span className="font-semibold">{formatPercent(metrics?.geographic?.expansionProgress || 0)}</span>
                           </div>
                         </div>
                       </div>
@@ -860,7 +860,7 @@ export default function SuperAdminAnalytics() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        {metrics?.geographic.topCities.map((city, index) => (
+                        {metrics?.geographic?.topCities?.map((city, index) => (
                           <div key={index} className="flex justify-between items-center">
                             <div className="flex items-center gap-2">
                               <Badge variant="outline">{index + 1}</Badge>
@@ -1121,7 +1121,7 @@ export default function SuperAdminAnalytics() {
                     <CardContent className="p-4">
                       <div className="flex flex-col">
                         <span className="text-sm text-gray-600">Today's Revenue</span>
-                        <span className="text-2xl font-bold text-green-600">{formatCurrency(metrics?.financial.revenue.today || 0)}</span>
+                        <span className="text-2xl font-bold text-green-600">{formatCurrency(metrics?.financial?.revenue?.today || 0)}</span>
                       </div>
                     </CardContent>
                   </Card>
