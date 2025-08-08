@@ -1029,9 +1029,9 @@ export default function AISearchIntelligence() {
           </TabsContent>
 
           {/* Simplified Search Tab - New Layout Matching Screenshot */}
-          <TabsContent value="simplified" className="space-y-4">
+          <TabsContent value="simplified" className="space-y-4 -mx-4">
             {/* Header Section with Badges */}
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4">
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4 mx-4">
               <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
                 <div className="flex items-center gap-2">
                   <h2 className="text-2xl font-bold">Senior Living Research</h2>
@@ -1072,7 +1072,7 @@ export default function AISearchIntelligence() {
             </div>
 
             {/* Search Bar */}
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4">
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4 mx-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
@@ -1094,7 +1094,7 @@ export default function AISearchIntelligence() {
             </div>
 
             {/* Horizontal Filter Bar - Matching Screenshot */}
-            <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+            <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mx-4">
               <div className="flex items-center gap-6 overflow-x-auto">
                 {/* Type of Living */}
                 <div className="flex-shrink-0">
@@ -1351,8 +1351,8 @@ export default function AISearchIntelligence() {
               </div>
             </div>
 
-            {/* Map and List Layout */}
-            <div className="flex gap-3 h-[700px]">
+            {/* Map and List Layout - Full Width */}
+            <div className="flex gap-2 h-[700px] px-2">
               {/* Map Section - Left Side - Takes 54% */}
               <div className="w-[54%] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
                 <Map
