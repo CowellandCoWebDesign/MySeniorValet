@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useLocation } from 'wouter';
-import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Flame, Layers } from 'lucide-react';
+import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Flame, Layers, DollarSign, Sparkles } from 'lucide-react';
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -90,6 +91,7 @@ type SearchResult = {
 
 interface SearchFilters {
   careType: string;
+  selectedCareTypes: string[];
   minRating: number;
   amenities: string[];
   budget: string;
@@ -236,8 +238,8 @@ export default function MapSearch() {
     const windowHeight = window.innerHeight;
     const deltaPercent = (deltaY / windowHeight) * 100;
     
-    // Calculate max height to reach just below navbar (64px navbar + 10px gap = 74px from top)
-    const navbarHeight = 74; // pixels
+    // Calculate max height to reach just below navbar (60px is the navbar height)
+    const navbarHeight = 60; // pixels - matches the maxHeight in the style
     const maxHeightPercent = ((windowHeight - navbarHeight) / windowHeight) * 100;
     
     const newHeight = Math.min(Math.max(20, dragStartHeight + deltaPercent), maxHeightPercent); // Min 20%, Max to navbar
@@ -1376,33 +1378,37 @@ export default function MapSearch() {
         </form>
       </div>
 
-      {/* Filters Bar */}
+      {/* Filters Bar - Spread across top */}
       <div className={"border-b p-2 " + (isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700')}>
-        <div className="flex items-center gap-2 overflow-x-auto">
-          <Drawer>
-            <DrawerTrigger asChild>
+        <div className="flex items-center gap-2 justify-between">
+          {/* Care Types Dropdown */}
+          <Popover>
+            <PopoverTrigger asChild>
               <Button 
                 variant="outline" 
                 size="sm" 
-                className={isDarkMode 
+                className={`flex-1 max-w-[200px] justify-between ${isDarkMode 
                   ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600' 
-                  : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:bg-gray-800'
-                }
+                  : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50'
+                }`}
               >
-                <SlidersHorizontal className="w-4 h-4 mr-2" />
-                Filters
-                {activeFiltersCount > 0 && (
-                  <Badge variant="destructive" className="ml-2 text-xs">
-                    {activeFiltersCount}
+                <span className="flex items-center gap-1 truncate">
+                  <Home className="w-4 h-4" />
+                  <span className="text-xs">
+                    {filters.selectedCareTypes.length === 0 
+                      ? 'All Care Types' 
+                      : `${filters.selectedCareTypes.length} Selected`}
+                  </span>
+                </span>
+                {filters.selectedCareTypes.length > 0 && (
+                  <Badge variant="destructive" className="ml-1 text-xs px-1 py-0">
+                    {filters.selectedCareTypes.length}
                   </Badge>
                 )}
               </Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader>
-                <DrawerTitle>Filter Communities</DrawerTitle>
-              </DrawerHeader>
-              <div className="p-4 space-y-4">
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-4" align="start">
+              <div className="space-y-4">
                 {/* Care Type Filter - Multi-select */}
                 <div className="col-span-2">
                   <label className="text-sm font-medium mb-2 block">Care Types</label>
@@ -1632,29 +1638,179 @@ export default function MapSearch() {
                   <Button onClick={clearFilters} variant="outline" className="flex-1">
                     Clear All
                   </Button>
-                  <Button className="flex-1">Apply Filters</Button>
                 </div>
               </div>
-            </DrawerContent>
-          </Drawer>
+            </PopoverContent>
+          </Popover>
 
-          {/* Map Legend Info Button - Only in Map View */}
-          {viewMode === 'map' && (
-            <Drawer>
-              <DrawerTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className={isDarkMode 
-                    ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600' 
-                    : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:bg-gray-800'
-                  }
-                >
-                  <Info className="w-4 h-4 mr-2" />
-                  Legend
-                </Button>
-              </DrawerTrigger>
-              <DrawerContent>
+          {/* Budget Dropdown */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={`flex-1 max-w-[200px] justify-between ${isDarkMode 
+                  ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600' 
+                  : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50'
+                }`}
+              >
+                <span className="flex items-center gap-1 truncate">
+                  <DollarSign className="w-4 h-4" />
+                  <span className="text-xs">{filters.budget}</span>
+                </span>
+                {filters.budget !== 'Any Budget' && (
+                  <Badge variant="destructive" className="ml-1 text-xs px-1 py-0">1</Badge>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-4" align="start">
+              <div className="space-y-4">
+                <label className="text-sm font-medium mb-2 block">Budget Range</label>
+                <Select value={filters.budget} onValueChange={(value) => setFilters({...filters, budget: value})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Any Budget">Any Budget</SelectItem>
+                    <SelectItem value="Under $3,000">Under $3,000</SelectItem>
+                    <SelectItem value="$3,000 - $5,000">$3,000 - $5,000</SelectItem>
+                    <SelectItem value="$5,000 - $7,000">$5,000 - $7,000</SelectItem>
+                    <SelectItem value="$7,000+">$7,000+</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Rating Dropdown */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={`flex-1 max-w-[200px] justify-between ${isDarkMode 
+                  ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600' 
+                  : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50'
+                }`}
+              >
+                <span className="flex items-center gap-1 truncate">
+                  <Star className="w-4 h-4" />
+                  <span className="text-xs">
+                    {filters.minRating === 0 ? 'Any Rating' : `${filters.minRating}+ Stars`}
+                  </span>
+                </span>
+                {filters.minRating > 0 && (
+                  <Badge variant="destructive" className="ml-1 text-xs px-1 py-0">1</Badge>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-4" align="start">
+              <div className="space-y-4">
+                <label className="text-sm font-medium mb-2 block">Minimum Rating</label>
+                <Select value={filters.minRating.toString()} onValueChange={(value) => setFilters({...filters, minRating: parseInt(value)})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">Any Rating</SelectItem>
+                    <SelectItem value="3">3+ Stars</SelectItem>
+                    <SelectItem value="4">4+ Stars</SelectItem>
+                    <SelectItem value="5">5 Stars</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Amenities Dropdown */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={`flex-1 max-w-[200px] justify-between ${isDarkMode 
+                  ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600' 
+                  : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50'
+                }`}
+              >
+                <span className="flex items-center gap-1 truncate">
+                  <Sparkles className="w-4 h-4" />
+                  <span className="text-xs">
+                    {filters.amenities.length === 0 ? 'Amenities' : `${filters.amenities.length} Selected`}
+                  </span>
+                </span>
+                {filters.amenities.length > 0 && (
+                  <Badge variant="destructive" className="ml-1 text-xs px-1 py-0">
+                    {filters.amenities.length}
+                  </Badge>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-4" align="start">
+              <div className="space-y-4">
+                <label className="text-sm font-medium mb-2 block">Select Amenities</label>
+                <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+                  {availableAmenities.map((amenity) => (
+                    <Button
+                      key={amenity}
+                      variant={filters.amenities.includes(amenity) ? 'default' : 'outline'}
+                      size="sm"
+                      className="text-xs"
+                      onClick={() => {
+                        const newAmenities = filters.amenities.includes(amenity)
+                          ? filters.amenities.filter(a => a !== amenity)
+                          : [...filters.amenities, amenity];
+                        setFilters({...filters, amenities: newAmenities});
+                      }}
+                    >
+                      {amenity}
+                    </Button>
+                  ))}
+                </div>
+                {filters.amenities.length > 0 && (
+                  <Button 
+                    onClick={() => setFilters({...filters, amenities: []})} 
+                    variant="outline" 
+                    className="w-full text-xs"
+                  >
+                    Clear Amenities
+                  </Button>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {activeFiltersCount > 0 && (
+            <Button 
+              onClick={clearFilters} 
+              variant="ghost" 
+              size="sm"
+              className="text-xs text-red-600 dark:text-red-400 hover:text-red-700"
+            >
+              Clear All ({activeFiltersCount})
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Map Legend Info Button - Only in Map View - In Top Right Corner */}
+      {viewMode === 'map' && (
+        <div className="absolute top-24 right-4 z-10">
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={isDarkMode 
+                  ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600' 
+                  : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:bg-gray-800'
+                }
+              >
+                <Info className="w-4 h-4 mr-2" />
+                Legend
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent>
                 <DrawerHeader>
                   <DrawerTitle>Map Legend</DrawerTitle>
                 </DrawerHeader>
@@ -1750,45 +1906,8 @@ export default function MapSearch() {
                 </div>
               </DrawerContent>
             </Drawer>
-          )}
-
-          {/* Active Filters */}
-          {filters.selectedCareTypes.map((careType) => (
-            <Badge 
-              key={careType}
-              variant="secondary" 
-              className={"gap-1 " + (isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:text-gray-200 hover:bg-gray-300')}
-            >
-              {careType}
-              <X 
-                className="w-3 h-3 cursor-pointer" 
-                onClick={() => setFilters({...filters, selectedCareTypes: filters.selectedCareTypes.filter(t => t !== careType)})} 
-              />
-            </Badge>
-          ))}
-          {filters.budget !== 'Any Budget' && (
-            <Badge variant="secondary" className={"gap-1 " + (isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:text-gray-200 hover:bg-gray-300')}>
-              {filters.budget}
-              <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({...filters, budget: 'Any Budget'})} />
-            </Badge>
-          )}
-          {filters.minRating > 0 && (
-            <Badge variant="secondary" className={"gap-1 " + (isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:text-gray-200 hover:bg-gray-300')}>
-              {filters.minRating}+ Stars
-              <X className="w-3 h-3 cursor-pointer" onClick={() => setFilters({...filters, minRating: 0})} />
-            </Badge>
-          )}
-          {filters.amenities.map((amenity) => (
-            <Badge key={amenity} variant="secondary" className={"gap-1 " + (isDarkMode ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' : 'bg-gray-200 text-gray-800 dark:text-gray-200 hover:bg-gray-300')}>
-              {amenity}
-              <X 
-                className="w-3 h-3 cursor-pointer" 
-                onClick={() => setFilters({...filters, amenities: filters.amenities.filter(a => a !== amenity)})} 
-              />
-            </Badge>
-          ))}
         </div>
-      </div>
+      )}
 
       {/* Map Container - Always show map */}
       <div className="flex-1">
@@ -1822,7 +1941,7 @@ export default function MapSearch() {
         style={{ 
           height: showBottomPanel ? panelHeight + 'vh' : '0vh',
           minHeight: showBottomPanel ? '300px' : '0px',
-          maxHeight: 'calc(100vh - 74px)' // Full height minus navbar height
+          maxHeight: 'calc(100vh - 60px)' // Full height minus navbar height (60px is approximate navbar height)
         }}
       >
         {/* Drag Handle - Combined and enhanced */}
