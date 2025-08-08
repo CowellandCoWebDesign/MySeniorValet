@@ -164,23 +164,23 @@ function Router() {
       <Route path="/admin/perplexity-test" component={SuperAdminAnalytics} />
       <Route path="/admin/multi-ai-test" component={SuperAdminAnalytics} />
       <Route path="/admin/communities" component={SuperAdminAnalytics} />
-      {/* Admin section routes - map to appropriate pages */}
-      <Route path="/admin/reports" component={AdminReports} />
-      <Route path="/admin/settings" component={AdminUnified} />
-      <Route path="/admin/email-broadcast" component={MarketingHub} />
-      <Route path="/admin/security" component={AdminUnified} />
-      <Route path="/admin/api-keys" component={AdminUnified} />
-      <Route path="/admin/users" component={AdminUnified} />
+      {/* Admin section routes - ALL consolidated to SuperAdminAnalytics */}
+      <Route path="/admin/reports" component={SuperAdminAnalytics} />
+      <Route path="/admin/settings" component={SuperAdminAnalytics} />
+      <Route path="/admin/email-broadcast" component={SuperAdminAnalytics} />
+      <Route path="/admin/security" component={SuperAdminAnalytics} />
+      <Route path="/admin/api-keys" component={SuperAdminAnalytics} />
+      <Route path="/admin/users" component={SuperAdminAnalytics} />
       <Route path="/admin/data-quality" component={DataQualityDashboard} />
       <Route path="/admin/audit-logs" component={LegalDocumentHistory} />
-      <Route path="/admin/notifications" component={AdminUnified} />
+      <Route path="/admin/notifications" component={SuperAdminAnalytics} />
       <Route path="/admin/vendor-dashboard" component={VendorDashboard} />
-      <Route path="/admin/marketing-hub" component={MarketingHub} />
-      <Route path="/admin/availability-heatmap" component={AdminAvailabilityHeatmap} />
+      <Route path="/admin/marketing-hub" component={SuperAdminAnalytics} />
+      <Route path="/admin/availability-heatmap" component={SuperAdminAnalytics} />
       <Route path="/ai-search-comparison" component={AISearchComparison} />
       <Route path="/ai-search-intelligence" component={AISearchIntelligence} />
-      <Route path="/expansion-monitor" component={ExpansionMonitor} />
-      <Route path="/api-costs" component={ApiCostDashboard} />
+      <Route path="/expansion-monitor" component={SuperAdminAnalytics} />
+      <Route path="/api-costs" component={SuperAdminAnalytics} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/personalized-dashboard" component={PersonalizedDashboard} />
       <Route path="/tour-tracker" component={TourTracker} />
@@ -258,9 +258,9 @@ function Router() {
       <Route path="/vendor-mobile-payment/:productId" component={VendorMobilePayment} />
       <Route path="/community-mobile-payment/:tier" component={CommunityMobilePayment} />
       <Route path="/test-tier-access" component={TestTierAccess} />
-      <Route path="/financial-dashboard" component={FinancialDashboard} />
-      <Route path="/enhanced-financial-dashboard" component={EnhancedFinancialDashboard} />
-      <Route path="/payment-monitoring" component={PaymentMonitoring} />
+      <Route path="/financial-dashboard" component={SuperAdminAnalytics} />
+      <Route path="/enhanced-financial-dashboard" component={SuperAdminAnalytics} />
+      <Route path="/payment-monitoring" component={SuperAdminAnalytics} />
       <Route path="/payment/success" component={PaymentSuccess} />
       <Route path="/payment/cancel" component={PaymentCancel} />
       <Route path="/payment-test-dashboard" component={PaymentTestDashboard} />

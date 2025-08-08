@@ -590,7 +590,7 @@ export default function SuperAdminAnalytics() {
                         <div className="text-2xl font-bold">{formatNumber(metrics?.engagement?.dailyActiveUsers || 0)}</div>
                         <div className="text-xs text-gray-500">Active Users Now</div>
                         <div className="mt-2 text-xs text-green-600">
-                          +{metrics?.engagement?.growthRate || 0}% from yesterday
+                          +{metrics?.platform?.growthRate || 0}% from yesterday
                         </div>
                       </div>
                       <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md">
@@ -598,9 +598,9 @@ export default function SuperAdminAnalytics() {
                           <span className="text-sm font-medium">Revenue Today</span>
                           <DollarSign className="h-4 w-4 text-green-500" />
                         </div>
-                        <div className="text-2xl font-bold">{formatCurrency(metrics?.financial?.revenue?.day || 0)}</div>
+                        <div className="text-2xl font-bold">{formatCurrency(metrics?.financial?.revenue?.today || 0)}</div>
                         <div className="text-xs text-gray-500">Target: $5,000</div>
-                        <Progress value={(metrics?.financial?.revenue?.day || 0) / 50} className="mt-2 h-1" />
+                        <Progress value={(metrics?.financial?.revenue?.today || 0) / 50} className="mt-2 h-1" />
                       </div>
                       <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md">
                         <div className="flex items-center justify-between mb-2">
@@ -1635,7 +1635,7 @@ export default function SuperAdminAnalytics() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <Card className={metrics?.performance?.uptime >= 99 ? "border-l-4 border-l-green-600" : "border-l-4 border-l-yellow-600"}>
+                  <Card className={(metrics?.performance?.uptime || 0) >= 99 ? "border-l-4 border-l-green-600" : "border-l-4 border-l-yellow-600"}>
                     <CardContent className="p-4">
                       <div className="flex flex-col">
                         <span className="text-sm text-gray-600">Uptime</span>
