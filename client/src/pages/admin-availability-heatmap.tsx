@@ -515,8 +515,10 @@ export default function AdminAvailabilityHeatmap() {
               </Badge>
             </div>
           </CardHeader>
-          <CardContent className="p-0 h-[700px] relative">
-            <AvailabilityHeatmap isAdminView={true} />
+          <CardContent className="p-0">
+            <div className="h-[500px] w-full relative">
+              <AvailabilityHeatmap isAdminView={true} />
+            </div>
           </CardContent>
         </Card>
       </div>
