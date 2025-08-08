@@ -1432,60 +1432,139 @@ export default function AISearchIntelligence() {
                       <div
                         key={community.id}
                         id={`community-${community.id}`}
-                        className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 hover:shadow-lg transition-shadow cursor-pointer"
+                        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden hover:shadow-xl transition-all cursor-pointer"
                         onClick={() => window.location.href = `/community/${community.id}`}
                       >
-                        <div className="flex gap-2">
-                          {/* Community Image */}
-                          <div className="w-20 h-20 flex-shrink-0 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
-                            {community.photos && community.photos.length > 0 ? (
-                              <img 
-                                src={community.photos[0]} 
-                                alt={community.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Building2 className="w-6 h-6 text-gray-400" />
+                        {/* Community Image */}
+                        <div className="relative h-48 bg-gray-200 dark:bg-gray-700">
+                          {community.photos && community.photos.length > 0 ? (
+                            <img 
+                              src={community.photos[0]} 
+                              alt={community.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+                              <Building2 className="w-12 h-12 text-gray-400" />
+                            </div>
+                          )}
+                          
+                          {/* Meal Plans Badge */}
+                          {community.mealPlans && (
+                            <div className="absolute top-2 left-2">
+                              <Badge className="bg-blue-600 text-white text-xs px-2 py-1">
+                                Meal Plans
+                              </Badge>
+                            </div>
+                          )}
+                          
+                          {/* Price Badge on Image */}
+                          {community.basePrice && (
+                            <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded">
+                              <span className="text-sm font-bold">${(community.basePrice || 0).toLocaleString()}</span>
+                              <span className="text-xs">/Month</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Community Details */}
+                        <div className="p-4 space-y-3">
+                          <div>
+                            <h3 className="font-bold text-base mb-1">{community.name}</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
+                              {community.description || `${community.careTypes?.join(', ') || 'Senior Living'} community in ${community.city}, ${community.state}`}
+                            </p>
+                          </div>
+
+                          {/* Pricing Section */}
+                          <div className="space-y-2 py-2 border-t border-gray-100 dark:border-gray-700">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-gray-600 dark:text-gray-400">Average Price:</span>
+                              <span className="text-lg font-bold text-gray-900 dark:text-white">
+                                {community.basePrice ? 
+                                  `$${(community.basePrice || 0).toLocaleString()}/Month` : 
+                                  <span className="text-blue-600">Contact</span>
+                                }
+                              </span>
+                            </div>
+                            
+                            {community.minPrice && community.minPrice !== community.basePrice && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm text-gray-600 dark:text-gray-400">Starting Price:</span>
+                                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                  ${(community.minPrice || 0).toLocaleString()}/Month
+                                </span>
                               </div>
                             )}
                           </div>
 
-                          {/* Community Details */}
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-sm mb-1 truncate">{community.name}</h3>
-                            
-                            <div className="text-xs text-gray-600 dark:text-gray-400 space-y-0.5">
-                              <div className="flex flex-col">
-                                <span className="font-medium">Average Price:</span>
-                                <span className="text-blue-600 font-semibold">
-                                  {community.basePrice ? `$${community.basePrice.toLocaleString()}/mo` : 'Contact'}
-                                </span>
-                              </div>
-                              
-                              <div className="text-[11px]">
-                                <span className="font-medium">Starting:</span>
-                                <span className="ml-1">{community.minPrice ? `$${community.minPrice.toLocaleString()}/mo` : 'Contact'}</span>
-                              </div>
+                          {/* Availability */}
+                          <div className="flex justify-between items-center py-2 border-t border-gray-100 dark:border-gray-700">
+                            <span className="text-sm text-gray-600 dark:text-gray-400">Availability:</span>
+                            <span className={`text-sm font-semibold ${
+                              community.hasAvailability ? 'text-green-600' : 'text-yellow-600'
+                            }`}>
+                              {community.hasAvailability ? 'Yes' : 'Call'}
+                            </span>
+                          </div>
 
-                              {/* Services */}
-                              <div className="flex flex-wrap gap-0.5 mt-1">
-                                {community.assistedLiving && <Badge className="text-[9px] px-1 py-0 h-4">AL</Badge>}
-                                {community.memoryCare && <Badge className="text-[9px] px-1 py-0 h-4">MC</Badge>}
-                                {community.independentLiving && <Badge className="text-[9px] px-1 py-0 h-4">IL</Badge>}
-                              </div>
-
-                              {/* Availability */}
-                              <div className="flex items-center gap-1">
-                                <span className="text-[11px] font-medium">Availability:</span>
-                                <Badge 
-                                  variant={community.hasAvailability ? 'default' : 'secondary'}
-                                  className="text-[9px] px-1 py-0 h-4"
-                                >
-                                  {community.hasAvailability ? 'Yes' : 'Call'}
-                                </Badge>
+                          {/* Services Section */}
+                          {(community.services || community.careTypes || 
+                            community.assistedLiving || community.memoryCare || community.independentLiving) && (
+                            <div className="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                              <div className="grid grid-cols-1 gap-1">
+                                {/* Display services if available */}
+                                {community.services && community.services.length > 0 ? (
+                                  community.services.slice(0, 4).map((service: string, idx: number) => (
+                                    <div key={idx} className="flex items-center gap-2 text-xs">
+                                      <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                      <span className="text-gray-700 dark:text-gray-300">{service}</span>
+                                    </div>
+                                  ))
+                                ) : (
+                                  <>
+                                    {/* Fallback to care type services */}
+                                    {community.assistedLiving && (
+                                      <div className="flex items-center gap-2 text-xs">
+                                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                        <span className="text-gray-700 dark:text-gray-300">24/7 Nursing Staff</span>
+                                      </div>
+                                    )}
+                                    {community.memoryCare && (
+                                      <div className="flex items-center gap-2 text-xs">
+                                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                        <span className="text-gray-700 dark:text-gray-300">Memory Care Services</span>
+                                      </div>
+                                    )}
+                                    {(community.assistedLiving || community.memoryCare) && (
+                                      <div className="flex items-center gap-2 text-xs">
+                                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                        <span className="text-gray-700 dark:text-gray-300">Medication Management</span>
+                                      </div>
+                                    )}
+                                    {community.independentLiving && (
+                                      <div className="flex items-center gap-2 text-xs">
+                                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                        <span className="text-gray-700 dark:text-gray-300">Social Activities</span>
+                                      </div>
+                                    )}
+                                  </>
+                                )}
                               </div>
                             </div>
+                          )}
+
+                          {/* Care Type Badges */}
+                          <div className="flex flex-wrap gap-1 pt-2">
+                            {community.careTypes?.map((type: string, idx: number) => (
+                              <Badge 
+                                key={idx} 
+                                variant="secondary" 
+                                className="text-[10px] px-2 py-0.5"
+                              >
+                                {type}
+                              </Badge>
+                            ))}
                           </div>
                         </div>
                       </div>
