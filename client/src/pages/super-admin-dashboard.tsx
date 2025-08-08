@@ -38,6 +38,31 @@ export default function SuperAdminDashboard() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Check super admin access - only super_admin role allowed
+  const userRole = (user as any)?.role || '';
+  const isSuperAdmin = userRole === 'super_admin';
+  
+  // Block non-super admin users
+  if (!user || !isSuperAdmin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <Card className="max-w-2xl">
+          <CardHeader>
+            <CardTitle>Access Denied</CardTitle>
+            <CardDescription>
+              This dashboard is restricted to super administrators only.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => window.location.href = "/"}>
+              Return to Home
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Platform stats
   const { data: stats } = useQuery({

@@ -114,8 +114,30 @@ export default function SuperAdminAnalytics() {
   const [activeMetricTab, setActiveMetricTab] = useState("overview");
   const [selectedProvider, setSelectedProvider] = useState("all");
   
-  // Check super admin access
-  const isSuperAdmin = (user as any)?.email === 'william.cowell01@gmail.com';
+  // Check super admin access - only super_admin role allowed
+  const userRole = (user as any)?.role || '';
+  const isSuperAdmin = userRole === 'super_admin';
+  
+  // Block non-super admin users
+  if (!user || !isSuperAdmin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-blue-900 dark:to-purple-900 flex items-center justify-center">
+        <Card className="max-w-2xl">
+          <CardHeader>
+            <CardTitle>Access Denied</CardTitle>
+            <CardDescription>
+              This analytics center is restricted to super administrators only.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => window.location.href = "/"}>
+              Return to Home
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Comprehensive metrics query
   const { data: metrics, isLoading, refetch } = useQuery<DashboardMetrics>({

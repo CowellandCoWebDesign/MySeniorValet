@@ -933,14 +933,18 @@ export default function UnifiedAdminDashboard() {
     );
   }
   
-  if (!userRole) {
+  // Check for proper admin access
+  const allowedRoles = ['super_admin', 'admin', 'financial_admin', 'support_agent', 'analytics_viewer'];
+  const hasAdminAccess = userRole && allowedRoles.includes(userRole.role);
+  
+  if (!userRole || !hasAdminAccess) {
     return (
       <div className="container mx-auto py-12 px-4">
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle>Access Denied</CardTitle>
             <CardDescription>
-              You don't have permission to access this dashboard.
+              You don't have permission to access the admin dashboard. This area is restricted to administrators only.
             </CardDescription>
           </CardHeader>
           <CardContent>

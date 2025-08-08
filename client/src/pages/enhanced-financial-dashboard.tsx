@@ -34,11 +34,39 @@ import { apiRequest } from "@/lib/queryClient";
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function EnhancedFinancialDashboard() {
+  const { user } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState("12m");
   const [activeTab, setActiveTab] = useState("overview");
   const [refreshing, setRefreshing] = useState(false);
+  
+  // Check for financial admin access
+  const userRole = (user as any)?.role || '';
+  const allowedRoles = ['super_admin', 'admin', 'financial_admin'];
+  const hasFinancialAccess = allowedRoles.includes(userRole);
+  
+  // Block unauthorized users
+  if (!user || !hasFinancialAccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-blue-900 dark:to-purple-900 flex items-center justify-center">
+        <Card className="max-w-2xl">
+          <CardHeader>
+            <CardTitle>Access Denied</CardTitle>
+            <CardDescription>
+              Financial dashboard access is restricted to authorized administrators only.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => window.location.href = "/"}>
+              Return to Home
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Financial API queries
   const { data: revenueMetrics, isLoading: isLoadingRevenue, refetch: refetchRevenue } = useQuery({
