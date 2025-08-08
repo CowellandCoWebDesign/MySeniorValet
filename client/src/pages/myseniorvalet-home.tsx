@@ -189,9 +189,9 @@ export default function MySeniorValetHome() {
     enabled: sectionsLoaded.newYork,
   });
 
-  // California communities - load on demand
+  // Mexican communities - load on demand
   const { data: californiaCommunities, isLoading: californiaLoading } = useQuery({
-    queryKey: ["/api/communities/by-location/California"],
+    queryKey: ["/api/communities/by-location/Mexico"],
     retry: false,
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
@@ -503,6 +503,38 @@ export default function MySeniorValetHome() {
           </div>
           
 
+        </div>
+      </section>
+
+      {/* Community Exploration Section Title - Beautiful and Prominent */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-pink-900/20">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 dark:from-purple-400/10 dark:to-pink-400/10"></div>
+        <div className="relative px-4 py-16">
+          <div className="max-w-6xl mx-auto text-center">
+            <div className="relative inline-block">
+              <div className="absolute -inset-4 bg-gradient-to-r from-purple-600 to-pink-600 blur-3xl opacity-20 animate-pulse"></div>
+              <h2 className="relative text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 dark:from-purple-400 dark:via-pink-400 dark:to-indigo-400 mb-4">
+                Community Exploration Section
+              </h2>
+            </div>
+            <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto mb-8">
+              Discover senior living communities across North America with transparent pricing, real availability, and authentic reviews
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
+                <MapPin className="w-4 h-4 mr-2" />
+                34,180+ Communities
+              </Badge>
+              <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
+                <Building2 className="w-4 h-4 mr-2" />
+                HUD Verified Pricing
+              </Badge>
+              <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
+                <Shield className="w-4 h-4 mr-2" />
+                100% Authentic Data
+              </Badge>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1097,26 +1129,34 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* California Communities Section */}
+      {/* Featured Mexican Communities Section */}
       <section ref={californiaSectionRef} className="px-4 py-8 relative overflow-hidden">
-        {/* Background with California Golden State styling */}
+        {/* Background with Mexican flag colors styling */}
         <div className="absolute inset-0 z-0">
-          <div className="w-full h-full bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-amber-100/30 via-orange-100/20 to-yellow-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
+          <div className="w-full h-full bg-gradient-to-br from-green-50 via-white to-red-50 dark:from-green-900/20 dark:via-gray-900 dark:to-red-900/20"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-green-100/30 via-white/20 to-red-100/30 dark:from-green-700/30 dark:via-gray-800/20 dark:to-red-700/30"></div>
+          {/* Mexican flag pattern overlay */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-10 left-20 text-green-600 text-8xl">🦅</div>
+            <div className="absolute top-40 right-40 text-red-600 text-6xl rotate-45">🌮</div>
+            <div className="absolute bottom-20 left-1/3 text-green-600 text-7xl -rotate-12">🌵</div>
+            <div className="absolute bottom-10 right-20 text-red-600 text-5xl rotate-180">🌺</div>
+          </div>
         </div>
         
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-              Explore California Communities
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+              <span className="text-2xl">🇲🇽</span>
+              Featured Mexican Communities
             </h2>
             <div className="text-right">
-              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">$2,800 - $7,500</div>
-              <div className="text-xs text-amber-600 dark:text-amber-400">Golden State living</div>
+              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">$1,500 - $3,500 USD</div>
+              <div className="text-xs text-red-600 dark:text-red-400">Premium care at affordable prices</div>
             </div>
           </div>
           
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{(californiaCommunities as any[] || []).length || 0} communities • Silicon Valley, LA Metro, San Diego with immediate openings</p>
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{(californiaCommunities as any[] || []).length || 0} communities • Mexico City, Guadalajara, Puerto Vallarta with exceptional value</p>
         
           <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
             {californiaLoading ? (
