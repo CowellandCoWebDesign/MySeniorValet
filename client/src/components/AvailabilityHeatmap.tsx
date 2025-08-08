@@ -90,16 +90,6 @@ export function AvailabilityHeatmap({
   const [showTopRegions, setShowTopRegions] = useState(true);
   const mapRef = useRef<L.Map | null>(null);
   const boundsUpdateTimeout = useRef<NodeJS.Timeout | null>(null);
-  const isInitialMount = useRef(true);
-
-  // Force initial data load on mount
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      // Initial bounds are already set, just need to trigger the query
-      setRefreshKey(prev => prev + 1);
-    }
-  }, []);
 
   // Handle map bounds change with debouncing
   const handleBoundsChange = useCallback((newBounds: any, newZoom: number) => {
@@ -142,7 +132,8 @@ export function AvailabilityHeatmap({
       }>;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
-    enabled: !!(mapBounds.north && mapBounds.south && mapBounds.east && mapBounds.west)
+    enabled: true, // Always enabled to ensure immediate load
+    refetchOnMount: true // Force refetch on mount
   });
 
   // Fetch availability trends
