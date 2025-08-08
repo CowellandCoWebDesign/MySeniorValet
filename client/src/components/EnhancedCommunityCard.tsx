@@ -211,8 +211,8 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
             </div>
           )}
           
-          {/* RED TAG style corner badge */}
-          {discountPercent > 0 && (
+          {/* Only show RED TAG for actual special offers */}
+          {community.hasSpecialOffer && discountPercent > 15 && (
             <div className="absolute top-0 left-0">
               <div className="bg-red-600 text-white px-4 py-2 rounded-br-lg shadow-lg">
                 <div className="flex items-center gap-2">
@@ -222,8 +222,8 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
             </div>
           )}
           
-          {/* Discount percentage badge */}
-          {discountPercent > 0 && (
+          {/* Discount percentage badge - only for documented discounts */}
+          {community.hasSpecialOffer && discountPercent > 0 && (
             <div className="absolute top-0 right-0">
               <div className="bg-red-600 text-white px-3 py-2 rounded-bl-lg shadow-lg">
                 <span className="text-lg font-bold">{discountPercent}% OFF</span>
@@ -327,95 +327,79 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
             </div>
           )}
           
-          {/* Two-column layout for Amenities and Specials - Red Tag style */}
+          {/* Two-column layout for Amenities and Details */}
           <div className="grid grid-cols-2 gap-4 mb-4">
             {/* Amenities Column */}
             <div>
               <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Amenities</h4>
               <div className="space-y-1.5">
-                {community.amenities?.slice(0, 3).map((amenity: string, idx: number) => (
-                  <div key={idx} className="flex items-start text-xs text-gray-600 dark:text-gray-400">
-                    <span className="mr-1">✓</span>
-                    <span>{amenity}</span>
+                {community.amenities && community.amenities.length > 0 ? (
+                  community.amenities.slice(0, 3).map((amenity: string, idx: number) => (
+                    <div key={idx} className="flex items-start text-xs text-gray-600 dark:text-gray-400">
+                      <span className="mr-1 text-green-500">✓</span>
+                      <span>{amenity}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-xs text-gray-500 dark:text-gray-400 italic">
+                    Contact for amenities
                   </div>
-                )) || (
-                  <>
-                    <div className="flex items-start text-xs text-gray-600 dark:text-gray-400">
-                      <span className="mr-1">⚡</span>
-                      <span>Fitness Center</span>
-                    </div>
-                    <div className="flex items-start text-xs text-gray-600 dark:text-gray-400">
-                      <span className="mr-1">🍽️</span>
-                      <span>Restaurant Dining</span>
-                    </div>
-                    <div className="flex items-start text-xs text-gray-600 dark:text-gray-400">
-                      <span className="mr-1">🚐</span>
-                      <span>Transportation</span>
-                    </div>
-                  </>
                 )}
               </div>
             </div>
             
-            {/* Specials Column */}
+            {/* Details Column */}
             <div>
-              <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Specials</h4>
+              <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Details</h4>
               <div className="space-y-1.5">
                 {isHudProperty ? (
                   <>
-                    <div className="flex items-start text-xs text-red-600 dark:text-red-400">
+                    <div className="flex items-start text-xs text-green-600 dark:text-green-400">
                       <span className="mr-1">◈</span>
                       <span>Income-based rent</span>
                     </div>
-                    <div className="flex items-start text-xs text-red-600 dark:text-red-400">
+                    <div className="flex items-start text-xs text-green-600 dark:text-green-400">
                       <span className="mr-1">◈</span>
                       <span>Section 8 accepted</span>
                     </div>
-                    <div className="flex items-start text-xs text-red-600 dark:text-red-400">
+                    <div className="flex items-start text-xs text-green-600 dark:text-green-400">
                       <span className="mr-1">◈</span>
                       <span>Government subsidized</span>
                     </div>
                   </>
                 ) : (
                   <>
-                    <div className="flex items-start text-xs text-red-600 dark:text-red-400">
-                      <span className="mr-1">◈</span>
-                      <span>Waived community fee</span>
-                    </div>
-                    <div className="flex items-start text-xs text-red-600 dark:text-red-400">
-                      <span className="mr-1">◈</span>
-                      <span>1/2 rent for 3 months</span>
-                    </div>
-                    <div className="flex items-start text-xs text-red-600 dark:text-red-400">
-                      <span className="mr-1">◈</span>
-                      <span>Free cable package</span>
-                    </div>
+                    {community.careTypes?.slice(0, 3).map((care: string, idx: number) => (
+                      <div key={idx} className="flex items-start text-xs text-gray-600 dark:text-gray-400">
+                        <span className="mr-1">•</span>
+                        <span>{care}</span>
+                      </div>
+                    ))}
                   </>
                 )}
               </div>
             </div>
           </div>
           
-          {/* Special offer badges - Yellow pills like Red Tag */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {isHudProperty ? (
-              <Badge className="bg-yellow-400 text-yellow-900 text-xs px-3 py-1 font-bold">
-                Government verified
+          {/* Special offer badges - Only show if community has actual special offers */}
+          {community.specialOffers && community.specialOffers.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {community.specialOffers.map((offer: string, idx: number) => (
+                <Badge key={idx} className="bg-yellow-400 text-yellow-900 text-xs px-3 py-1 font-bold">
+                  {offer}
+                </Badge>
+              ))}
+            </div>
+          )}
+          
+          {/* HUD verification badge if applicable */}
+          {isHudProperty && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 text-xs px-3 py-1 font-semibold">
+                🏛️ HUD Verified Property
               </Badge>
-            ) : (
-              <>
-                <Badge className="bg-yellow-400 text-yellow-900 text-xs px-3 py-1 font-bold">
-                  No community fee
-                </Badge>
-                <Badge className="bg-yellow-400 text-yellow-900 text-xs px-3 py-1 font-bold">
-                  First month 50% off
-                </Badge>
-                <Badge className="bg-yellow-400 text-yellow-900 text-xs px-3 py-1 font-bold">
-                  Free moving assistance
-                </Badge>
-              </>
-            )}
-          </div>
+            </div>
+          )}
           
           {/* Key Information Row - Hawaii card style */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mb-4">
@@ -486,151 +470,29 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
             </div>
           </div>
           
-          {/* Phone number display */}
+          {/* Phone number display - professional style */}
           {community.phone && (
-            <div className="text-center mb-4">
+            <div className="text-center mb-3">
               <a 
                 href={`tel:${community.phone}`}
-                className="text-lg font-bold text-gray-900 dark:text-white hover:text-blue-600"
+                className="text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-blue-600"
                 onClick={(e) => e.stopPropagation()}
               >
-                📞 {community.phone}
+                <Phone className="h-4 w-4 inline mr-1" />
+                {community.phone}
               </a>
             </div>
           )}
           
-          {/* Contact and Reviews Row */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              {community.phone && (
-                <a 
-                  href={`tel:${community.phone}`} 
-                  className="flex items-center text-blue-600 hover:text-blue-700 font-medium text-sm"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Phone className="h-3.5 w-3.5 mr-1" />
-                  Call
-                </a>
-              )}
-              {community.website && (
-                <a 
-                  href={community.website} 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center text-blue-600 hover:text-blue-700 font-medium text-sm"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <ExternalLink className="h-3.5 w-3.5 mr-1" />
-                  Web
-                </a>
-              )}
-            </div>
-            {community.rating && (
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star 
-                    key={i} 
-                    className={`h-3.5 w-3.5 ${
-                      i < Math.floor(community.rating || 0) 
-                        ? 'text-yellow-400 fill-yellow-400' 
-                        : 'text-gray-300'
-                    }`} 
-                  />
-                ))}
-                <span className="text-sm ml-1">({community.rating.toFixed(1)})</span>
-              </div>
-            )}
-          </div>
-          
-          {/* Two-column layout for amenities and key info */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            {/* Amenities Column */}
-            <div>
-              <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Amenities</h4>
-              <div className="space-y-1">
-                {community.amenities?.slice(0, 3).map((amenity: string, idx: number) => (
-                  <div key={idx} className="flex items-center text-xs text-gray-600 dark:text-gray-400">
-                    <CheckCircle className="h-3 w-3 mr-1 text-green-500" />
-                    <span>{amenity}</span>
-                  </div>
-                )) || (
-                  <>
-                    <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
-                      <CheckCircle className="h-3 w-3 mr-1 text-green-500" />
-                      <span>24/7 Care Staff</span>
-                    </div>
-                    <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
-                      <CheckCircle className="h-3 w-3 mr-1 text-green-500" />
-                      <span>Activities Program</span>
-                    </div>
-                    <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
-                      <CheckCircle className="h-3 w-3 mr-1 text-green-500" />
-                      <span>Transportation</span>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-            
-            {/* Key Info Column */}
-            <div>
-              <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Details</h4>
-              <div className="space-y-1">
-                {(community.totalUnits || community.totalUnitsHud) && (
-                  <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
-                    <Building className="h-3 w-3 mr-1 text-blue-500" />
-                    <span>{community.totalUnits || community.totalUnitsHud} units</span>
-                  </div>
-                )}
-                {(community.occupancyRate || community.occupancyRateHud) && (
-                  <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
-                    <Users className="h-3 w-3 mr-1 text-green-500" />
-                    <span>{Math.round(Number(community.occupancyRate || community.occupancyRateHud || 0))}% occupied</span>
-                  </div>
-                )}
-                {community.seniorPercentage && (
-                  <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
-                    <Award className="h-3 w-3 mr-1 text-purple-500" />
-                    <span>{Math.round(community.seniorPercentage)}% seniors</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          
-          {/* Special Offers Section - Like Red Tag */}
-          {(isHudProperty || community.priceRange?.min) && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-3 mb-4">
-              <div className="flex flex-wrap gap-2">
-                {isHudProperty && (
-                  <Badge className="bg-yellow-400 text-yellow-900 text-xs px-2 py-1">
-                    Income-based pricing
-                  </Badge>
-                )}
-                {community.availabilityStatus === 'Available' && (
-                  <Badge className="bg-yellow-400 text-yellow-900 text-xs px-2 py-1">
-                    Move-in ready
-                  </Badge>
-                )}
-                {community.priceRange?.min && community.priceRange.min < 2000 && (
-                  <Badge className="bg-yellow-400 text-yellow-900 text-xs px-2 py-1">
-                    Budget-friendly
-                  </Badge>
-                )}
-              </div>
-            </div>
-          )}
-          
-          {/* Action Button - Prominent like Red Tag */}
+          {/* Action Button - professional CTA */}
           <Button 
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg shadow-lg transform transition-transform hover:scale-105"
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 rounded-lg shadow-md transform transition-all hover:shadow-lg"
             onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
               onSelect?.();
             }}
           >
-            <Shield className="h-4 w-4 mr-2" />
-            View Full Details
+            View Full Details →
           </Button>
         </CardContent>
       </Card>
