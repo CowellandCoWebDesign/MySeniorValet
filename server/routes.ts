@@ -73,6 +73,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register engagement routes
   const { registerEngagementRoutes } = await import('./routes/engagementRoutes');
+  
+  // Register Documenso document signing routes
+  const { registerDocumensoRoutes } = await import('./routes/documensoRoutes');
+  registerDocumensoRoutes(app);
   registerEngagementRoutes(app);
   
   // Register marketplace routes

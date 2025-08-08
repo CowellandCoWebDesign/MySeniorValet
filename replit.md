@@ -48,6 +48,12 @@ The platform is built with a modern web stack emphasizing transparency and user 
 - **Routing**: `wouter`
 - **UI Libraries**: `@radix-ui/*`, `tailwindcss`, `lucide-react`
 - **Mapping**: `react-leaflet`
-- **AI Integrations**: `@anthropic-ai/sdk` (Claude), `@google/genai` (Gemini), `openai` (ChatGPT), `Perplexity API`, `XAI integration` (Grok infrastructure ready).
+- **AI Integrations**: Priority-based multi-AI orchestration (January 8, 2025):
+  1. **Claude (Primary)**: `@anthropic-ai/sdk` - Complex reasoning, care planning, contract analysis
+  2. **ChatGPT (Secondary)**: `openai` - Financial analysis, contract review, recommendations
+  3. **Perplexity (3rd)**: Real-time web search, current pricing, market data
+  4. **Gemini (4th)**: `@google/genai` - Visual analysis, market trends
+  5. **Grok (5th)**: `XAI integration` - Truth verification (infrastructure ready, awaiting API activation)
 - **Email Service**: SendGrid
 - **Payment Processing**: Stripe
+- **Document Signing**: Documenso (open-source, self-hosted) - Replaces DocuSign for lease agreements and healthcare directives (January 8, 2025)

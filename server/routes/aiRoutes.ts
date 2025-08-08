@@ -9,6 +9,7 @@ import { aiSearchService } from "../ai-search-service";
 // Google Reviews AI removed to prevent API charges
 import { perplexityService } from "../perplexity-ai-service";
 import { isAuthenticated as requireAuth } from "../replitAuth";
+import { aiPriorityOrchestrator } from "../ai-priority-orchestrator";
 
 const multiAIOrchestrator = new MultiAIOrchestrator();
 
