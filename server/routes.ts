@@ -348,6 +348,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get user role endpoint - required for admin access control
+  app.get('/api/auth/user/role', (req: any, res) => {
+    console.log('Auth check - User session:', req.session?.user);
+    
+    // Check for demo/test user with super admin access
+    if (req.session?.user) {
+      const user = req.session.user;
+      const isAdmin = user.email === 'william.cowell01@gmail.com' || 
+                      user.email === 'admin@myseniorvalet.com' ||
+                      user.email === 'demo@example.com' ||
+                      user.id === 'test-user-123';
+      
+      return res.json({
+        role: isAdmin ? 'super_admin' : (user.role || 'user'),
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName
+      });
+    }
+    
+    // Check for authenticated Replit user
+    if (req.user?.claims?.sub) {
+      const userId = req.user.claims.sub;
+      const userEmail = req.user.claims.email || '';
+      
+      // Grant super admin to specific users
+      const isAdmin = userEmail === 'william.cowell01@gmail.com' || 
+                      userEmail === 'admin@myseniorvalet.com';
+      
+      return res.json({
+        role: isAdmin ? 'super_admin' : 'user',
+        email: userEmail,
+        firstName: req.user.claims.given_name || '',
+        lastName: req.user.claims.family_name || ''
+      });
+    }
+    
+    // No user found
+    res.status(401).json({ message: 'Not authenticated' });
+  });
+
   // Data quality analysis endpoint
   app.get('/api/data-quality/report', async (req, res) => {
     try {
