@@ -100,10 +100,17 @@ export class EnhancedPlatformStatsService {
         .from(communities)
         .execute();
 
+      // Comprehensive pricing count - includes all pricing sources
       const [pricingCount] = await db
         .select({ count: sql<number>`count(*)::int` })
         .from(communities)
-        .where(sql`${communities.averageCost} IS NOT NULL OR ${communities.hudBaseCost} IS NOT NULL`)
+        .where(sql`
+          ${communities.live_pricing} IS NOT NULL 
+          OR ${communities.price_range} IS NOT NULL 
+          OR ${communities.rent_per_month} IS NOT NULL 
+          OR ${communities.monthly_rent_range_start} IS NOT NULL 
+          OR ${communities.monthly_rent_range_end} IS NOT NULL
+        `)
         .execute();
 
       const [photoCount] = await db
@@ -178,8 +185,8 @@ export class EnhancedPlatformStatsService {
           averageAvailableUnitsPerCommunity: 71
         },
         dataQualityMetrics: {
-          pricingCoverage: 100,
-          photoCoverage: 80,
+          pricingCoverage: Math.round((withPricing / totalCommunities) * 100),
+          photoCoverage: Math.round((withPhotos / totalCommunities) * 100),
           contactCoverage: 85,
           websiteCoverage: 75
         }

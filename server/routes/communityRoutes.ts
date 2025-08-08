@@ -311,6 +311,112 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
+  // Get comprehensive pricing coverage statistics  
+  app.get("/api/communities/pricing-coverage", async (req, res) => {
+    try {
+      // Total communities count
+      const totalCount = await db
+        .select({ count: sql`COUNT(*)` })
+        .from(communities);
+
+      // Communities with any pricing data
+      const withPricingCount = await db
+        .select({ count: sql`COUNT(*)` })
+        .from(communities)
+        .where(
+          sql`
+            live_pricing IS NOT NULL 
+            OR price_range IS NOT NULL 
+            OR rent_per_month IS NOT NULL 
+            OR monthly_rent_range_start IS NOT NULL 
+            OR monthly_rent_range_end IS NOT NULL
+          `
+        );
+
+      // HUD communities with verified pricing
+      const hudWithPricing = await db
+        .select({ count: sql`COUNT(*)` })
+        .from(communities)
+        .where(
+          and(
+            isNotNull(communities.hudPropertyId),
+            isNotNull(communities.rentPerMonth)
+          )
+        );
+
+      const totalCommunities = parseInt(totalCount[0].count);
+      const communitiesWithPricing = parseInt(withPricingCount[0].count);
+      const hudCommunitiesWithPricing = parseInt(hudWithPricing[0].count);
+      const pricingCoveragePercentage = Math.round((communitiesWithPricing / totalCommunities) * 100);
+
+      res.json({ 
+        totalCommunities,
+        communitiesWithPricing,
+        communitiesWithoutPricing: totalCommunities - communitiesWithPricing,
+        pricingCoveragePercentage,
+        hudCommunitiesWithPricing,
+        nonHudCommunitiesWithPricing: communitiesWithPricing - hudCommunitiesWithPricing,
+        lastUpdated: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Error fetching pricing coverage:", error);
+      res.status(500).json({ error: "Failed to fetch pricing coverage statistics" });
+    }
+  });
+
+  // Get comprehensive pricing coverage statistics
+  app.get("/api/communities/pricing-coverage", async (req, res) => {
+    try {
+      // Total communities count
+      const totalCount = await db
+        .select({ count: sql`COUNT(*)` })
+        .from(communities);
+
+      // Communities with any pricing data
+      const withPricingCount = await db
+        .select({ count: sql`COUNT(*)` })
+        .from(communities)
+        .where(
+          sql`
+            ${communities.live_pricing} IS NOT NULL 
+            OR ${communities.price_range} IS NOT NULL 
+            OR ${communities.rent_per_month} IS NOT NULL 
+            OR ${communities.monthly_rent_range_start} IS NOT NULL 
+            OR ${communities.monthly_rent_range_end} IS NOT NULL
+          `
+        );
+
+      // HUD communities with verified pricing
+      const hudWithPricing = await db
+        .select({ count: sql`COUNT(*)` })
+        .from(communities)
+        .where(
+          and(
+            isNotNull(communities.hudPropertyId),
+            isNotNull(communities.rentPerMonth)
+          )
+        );
+
+      const totalCommunities = parseInt(totalCount[0].count);
+      const communitiesWithPricing = parseInt(withPricingCount[0].count);
+      const hudCommunitiesWithPricing = parseInt(hudWithPricing[0].count);
+      const pricingCoveragePercentage = Math.round((communitiesWithPricing / totalCommunities) * 100);
+
+      res.json({ 
+        totalCommunities,
+        communitiesWithPricing,
+        communitiesWithoutPricing: totalCommunities - communitiesWithPricing,
+        pricingCoveragePercentage,
+        hudCommunitiesWithPricing,
+        nonHudCommunitiesWithPricing: communitiesWithPricing - hudCommunitiesWithPricing,
+        lastUpdated: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("Error fetching pricing coverage:", error);
+      res.status(500).json({ error: "Failed to fetch pricing coverage statistics" });
+    }
+  });
+
   // Get community statistics
   app.get("/api/communities/stats", async (req, res) => {
     try {

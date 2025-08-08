@@ -69,6 +69,11 @@ export default function SuperAdminDashboard() {
     queryKey: ["/api/platform/stats"],
   });
 
+  // Comprehensive pricing coverage stats
+  const { data: pricingCoverage } = useQuery({
+    queryKey: ["/api/communities/pricing-coverage"],
+  });
+
   // Filter tools based on search query
   const filterTools = (links: any[]) => {
     if (!searchQuery) return links;
@@ -180,7 +185,7 @@ export default function SuperAdminDashboard() {
   const quickStats = [
     { 
       label: "Total Communities", 
-      value: (stats as any)?.totalCommunities?.toLocaleString() || "Loading...", 
+      value: (pricingCoverage as any)?.totalCommunities?.toLocaleString() || (stats as any)?.totalCommunities?.toLocaleString() || "Loading...", 
       icon: Building2, 
       color: "text-blue-600",
       bgColor: "bg-blue-50",
@@ -188,15 +193,15 @@ export default function SuperAdminDashboard() {
       trend: "" // Will be populated when API provides trend data
     },
     { 
-      label: "HUD Properties", 
-      value: (stats as any)?.hudPropertiesCount?.toLocaleString() || "Loading...", 
-      icon: Building2, 
+      label: "Pricing Coverage", 
+      value: (pricingCoverage as any)?.pricingCoveragePercentage ? `${(pricingCoverage as any).pricingCoveragePercentage}%` : "Loading...", 
+      icon: DollarSign, 
       color: "text-green-600",
       bgColor: "bg-green-50",
       borderColor: "border-green-200",
-      trend: (stats as any)?.hudPropertiesCount && (stats as any)?.hudWithPricing 
-        ? `${Math.round(((stats as any).hudWithPricing / (stats as any).hudPropertiesCount) * 100)}% with pricing`
-        : "88% with pricing" // Real data from our HUD database
+      trend: (pricingCoverage as any)?.communitiesWithPricing 
+        ? `${((pricingCoverage as any).communitiesWithPricing).toLocaleString()} communities`
+        : "Calculating..." // Real data from comprehensive pricing tracking
     },
     { 
       label: "Assisted Living", 
@@ -208,13 +213,15 @@ export default function SuperAdminDashboard() {
       trend: "Largest segment" // Real data - 8,953 communities
     },
     { 
-      label: "Active Users", 
-      value: (stats as any)?.totalUsers?.toLocaleString() || "Loading...", 
-      icon: Users, 
+      label: "HUD Verified", 
+      value: (stats as any)?.hudPropertiesCount?.toLocaleString() || "Loading...", 
+      icon: Shield, 
       color: "text-emerald-600",
       bgColor: "bg-emerald-50",
       borderColor: "border-emerald-200",
-      trend: "" // Will be populated when API provides growth percentage
+      trend: (stats as any)?.hudPropertiesCount && (stats as any)?.hudWithPricing 
+        ? `${Math.round(((stats as any).hudWithPricing / (stats as any).hudPropertiesCount) * 100)}% with pricing`
+        : "88% with pricing" // Real data from our HUD database
     },
   ];
 
