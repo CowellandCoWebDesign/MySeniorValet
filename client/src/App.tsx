@@ -19,6 +19,7 @@ import Admin from "@/pages/admin";
 import AdminCleanFull from "@/pages/admin-clean-full";
 import AdminCreative from "@/pages/admin-creative";
 import AdminUnified from "@/pages/admin-unified";
+import AdminPortal from "@/pages/admin-portal";
 import AdminCommunities from "@/pages/admin-communities";
 import ExpansionMonitor from "@/pages/expansion-monitor";
 import ApiCostDashboard from "@/pages/api-cost-dashboard";
@@ -163,6 +164,7 @@ function Router() {
       <Route path="/admin" component={AdminCreative} />
       <Route path="/admin-creative" component={AdminCreative} />
       <Route path="/admin-unified" component={AdminUnified} />
+      <Route path="/admin-portal" component={AdminPortal} />
       <Route path="/super-admin" component={SuperAdminDashboard} />
       <Route path="/super-admin-analytics" component={SuperAdminAnalytics} />
       <Route path="/admin/service-listings" component={ServiceListingsAdmin} />
