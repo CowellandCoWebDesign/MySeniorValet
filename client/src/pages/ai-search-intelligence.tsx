@@ -187,6 +187,7 @@ export default function AISearchIntelligence() {
   const [mapCommunities, setMapCommunities] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('search');
   const [searchType, setSearchType] = useState<'housing' | 'services' | 'marketplace' | 'resources'>('housing');
+  const [useSemanticSearch, setUseSemanticSearch] = useState(true); // Enable semantic search by default
   
   // Perfect Match Profile State
   const [matchProfile, setMatchProfile] = useState<PerfectMatchProfile>({
@@ -229,19 +230,36 @@ export default function AISearchIntelligence() {
 
   // Load initial communities on mount (moved after mutations are defined)
 
-  // AI Search Mutation
+  // AI Search Mutation  
   const aiSearchMutation = useMutation({
     mutationFn: async ({ query, type }: { query: string; type: string }) => {
-      const response = await fetch('/api/ai/search', {
+      // Use semantic search if enabled and searching for housing
+      const endpoint = useSemanticSearch && type === 'housing' 
+        ? '/api/semantic/search' 
+        : '/api/ai/search';
+      
+      const requestBody = useSemanticSearch && type === 'housing'
+        ? {
+            query,
+            searchType: 'hybrid', // Use hybrid search for best results
+            limit: 30,
+            includeRAG: true, // Include AI recommendations
+            filters: {
+              location: matchProfile.location ? { query: matchProfile.location } : undefined
+            }
+          }
+        : {
+            query,
+            searchType: type,
+            context: { userLocation: matchProfile.location }
+          };
+      
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          query, 
-          searchType: type,
-          context: { userLocation: matchProfile.location } 
-        })
+        body: JSON.stringify(requestBody)
       });
-      if (!response.ok) throw new Error('AI search failed');
+      if (!response.ok) throw new Error('Search failed');
       return response.json();
     },
     onSuccess: (data) => {
@@ -652,12 +670,34 @@ export default function AISearchIntelligence() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="w-6 h-6 text-purple-600" />
-                  {searchType === 'housing' && 'AI-Powered Housing Search'}
-                  {searchType === 'services' && 'Find Care Services Near You'}
-                  {searchType === 'marketplace' && 'Discover Marketplace Solutions'}
-                  {searchType === 'resources' && 'Explore Healthcare Resources'}
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Brain className="w-6 h-6 text-purple-600" />
+                    {searchType === 'housing' && 'AI-Powered Housing Search'}
+                    {searchType === 'services' && 'Find Care Services Near You'}
+                    {searchType === 'marketplace' && 'Discover Marketplace Solutions'}
+                    {searchType === 'resources' && 'Explore Healthcare Resources'}
+                  </div>
+                  {searchType === 'housing' && (
+                    <div className="flex items-center gap-2 text-sm font-normal">
+                      <label htmlFor="semantic-toggle" className="text-gray-600 dark:text-gray-400">
+                        Semantic Search
+                      </label>
+                      <button
+                        id="semantic-toggle"
+                        onClick={() => setUseSemanticSearch(!useSemanticSearch)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          useSemanticSearch ? 'bg-purple-600' : 'bg-gray-300'
+                        }`}
+                        aria-label="Toggle semantic search"
+                      >
+                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          useSemanticSearch ? 'translate-x-6' : 'translate-x-1'
+                        }`} />
+                      </button>
+                      <Sparkles className={`w-4 h-4 ${useSemanticSearch ? 'text-purple-600' : 'text-gray-400'}`} />
+                    </div>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -897,6 +937,24 @@ export default function AISearchIntelligence() {
                   {/* Housing Results - Enhanced Display */}
                   {searchType === 'housing' && (searchResults.data?.communities || searchResults.data?.results || []).map((community: any, idx: number) => (
                     <div key={community.id} className="relative group">
+                      {/* Semantic Match Indicator */}
+                      {useSemanticSearch && community.semanticScore && (
+                        <div className="absolute -top-2 -right-2 z-20">
+                          <div className="bg-purple-600 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                            <Sparkles className="w-3 h-3" />
+                            {Math.round(community.semanticScore * 100)}% match
+                          </div>
+                        </div>
+                      )}
+                      {/* Match Explanation */}
+                      {community.matchExplanation && (
+                        <div className="mb-2 p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                          <p className="text-xs text-purple-700 dark:text-purple-300 flex items-start gap-1">
+                            <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                            {community.matchExplanation}
+                          </p>
+                        </div>
+                      )}
                       <EnhancedCommunityCard
                         community={community}
                         variant="list"

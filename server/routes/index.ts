@@ -10,6 +10,7 @@ import { registerUserRoutes } from "./userRoutes";
 import { registerAIRoutes } from "./aiRoutes";
 import { registerPerplexityRoutes } from "./perplexityRoutes";
 import { registerAIInsightsRoutes } from "./aiInsightsRoutes";
+import { registerSemanticSearchRoutes } from "./semanticSearchRoutes";
 import autocompleteRoutes from "./autocompleteRoutes";
 
 import { registerAdminRoutes } from "./adminRoutes";
@@ -96,6 +97,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerAIRoutes(app);
   registerPerplexityRoutes(app);
   registerAIInsightsRoutes(app);
+  registerSemanticSearchRoutes(app); // Register semantic search for natural language understanding
   app.use('/api', autocompleteRoutes); // Register autocomplete routes
 
   registerAdminRoutes(app);
