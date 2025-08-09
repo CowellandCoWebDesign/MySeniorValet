@@ -1,5 +1,6 @@
 import React from 'react';
 import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
+import { PrioritizedCommunityCard } from '@/components/PrioritizedCommunityCard';
 
 // Sample community data for testing
 const sampleCommunity = {
@@ -54,10 +55,80 @@ export default function TestCommunityCards() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-          Community Card Test - Direct Message Button & Pricing Position
+          Community Card Test - Prioritized Information Architecture
         </h1>
         
         <div className="space-y-12">
+          {/* NEW PRIORITIZED DESIGN - User-Focused Information Hierarchy */}
+          <section className="bg-white dark:bg-gray-800 p-6 rounded-xl">
+            <h2 className="text-2xl font-bold text-green-600 dark:text-green-400 mb-2">
+              🎯 NEW: Prioritized Cards - Critical Info First
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Immediate access to: Pricing • Availability • Wait List Status • Direct Contact • Compare Options
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {/* Available Now Community */}
+              <PrioritizedCommunityCard 
+                community={{
+                  ...sampleCommunity,
+                  occupancyRate: 75,
+                  phone: "(555) 123-4567",
+                  verified: true
+                }} 
+                variant="grid"
+                onSelect={() => console.log('Selected prioritized card')}
+                onCompare={() => console.log('Added to compare')}
+              />
+              
+              {/* Limited Availability */}
+              <PrioritizedCommunityCard 
+                community={{
+                  ...hudCommunity,
+                  occupancyRate: 92,
+                  phone: "(555) 234-5678",
+                  verified: true
+                }} 
+                variant="grid"
+                onSelect={() => console.log('Selected HUD prioritized card')}
+                onCompare={() => console.log('Added to compare')}
+              />
+              
+              {/* Wait List Community */}
+              <PrioritizedCommunityCard 
+                community={{
+                  ...contactPricingCommunity,
+                  occupancyRate: 100,
+                  waitListLength: 12,
+                  phone: "(555) 345-6789",
+                  verified: false
+                }} 
+                variant="grid"
+                onSelect={() => console.log('Selected wait list card')}
+                onCompare={() => console.log('Added to compare')}
+              />
+            </div>
+            
+            {/* List View Example */}
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
+              List View - Horizontal Layout for Scrolling
+            </h3>
+            <div className="space-y-4">
+              <PrioritizedCommunityCard 
+                community={{
+                  ...sampleCommunity,
+                  occupancyRate: 88,
+                  phone: "(555) 456-7890",
+                  verified: true
+                }} 
+                variant="list"
+                onSelect={() => console.log('Selected list card')}
+                onCompare={() => console.log('Added to compare')}
+              />
+            </div>
+          </section>
+
           {/* Enhanced Variant */}
           <section>
             <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
