@@ -445,36 +445,36 @@ export default function MySeniorValetHome() {
             <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xl animate-fade-in-up animation-delay-700">
               {/* Traditional Search - Google-Style Clean Design */}
               <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="flex-1">
-                <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-5 py-3.5 rounded-full font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
-                  <div className="flex flex-col items-center space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <Search className="h-4 w-4" />
-                      <span className="text-sm font-bold">Traditional Search</span>
+                <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-5 py-2 rounded-full font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
+                  <div className="flex items-center justify-center space-x-2">
+                    <Search className="h-4 w-4" />
+                    <div className="flex flex-col items-start">
+                      <span className="text-sm font-bold leading-tight">Traditional Search</span>
+                      <span className="text-[10px] text-gray-500 dark:text-gray-400 font-normal leading-tight">
+                        Browse • Filter • Compare
+                      </span>
                     </div>
-                    <span className="text-[11px] text-gray-600 dark:text-gray-400 font-normal">
-                      Browse • Filter • Compare
-                    </span>
                   </div>
                 </Button>
               </Link>
 
               {/* AI Intelligence - Premium Gradient Design */}
               <Link href="/ai-search-intelligence" className="flex-1">
-                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-5 py-3.5 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden">
+                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-5 py-2 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="relative flex flex-col items-center space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <Sparkles className="h-4 w-4" />
-                      <span className="text-sm font-bold">AI Intelligence</span>
-                      <span className="absolute -top-1 -right-1">
-                        <span className="relative flex h-2.5 w-2.5">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
-                        </span>
+                  <div className="relative flex items-center justify-center space-x-2">
+                    <Sparkles className="h-4 w-4" />
+                    <div className="flex flex-col items-start">
+                      <span className="text-sm font-bold leading-tight">AI Intelligence</span>
+                      <span className="text-[10px] text-white/80 font-normal leading-tight">
+                        Ask Anything • Get Insights
                       </span>
                     </div>
-                    <span className="text-[11px] text-white/90 font-normal">
-                      Ask Anything • Get Insights
+                    <span className="absolute -top-0.5 -right-0.5">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                      </span>
                     </span>
                   </div>
                 </Button>
