@@ -1372,7 +1372,15 @@ export default function AISearchIntelligence() {
                       const newTypes = simplifiedFilters.typeOfLiving.includes('hud-sponsored')
                         ? simplifiedFilters.typeOfLiving.filter(t => t !== 'hud-sponsored')
                         : [...simplifiedFilters.typeOfLiving, 'hud-sponsored'];
-                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
                     }}
                     className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('hud-sponsored')
@@ -1397,7 +1405,15 @@ export default function AISearchIntelligence() {
                       const newTypes = simplifiedFilters.typeOfLiving.includes('va-housing')
                         ? simplifiedFilters.typeOfLiving.filter(t => t !== 'va-housing')
                         : [...simplifiedFilters.typeOfLiving, 'va-housing'];
-                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
                     }}
                     className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('va-housing')
@@ -1422,7 +1438,15 @@ export default function AISearchIntelligence() {
                       const newTypes = simplifiedFilters.typeOfLiving.includes('mobile-parks')
                         ? simplifiedFilters.typeOfLiving.filter(t => t !== 'mobile-parks')
                         : [...simplifiedFilters.typeOfLiving, 'mobile-parks'];
-                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
                     }}
                     className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('mobile-parks')
@@ -1447,7 +1471,15 @@ export default function AISearchIntelligence() {
                       const newTypes = simplifiedFilters.typeOfLiving.includes('active-adult')
                         ? simplifiedFilters.typeOfLiving.filter(t => t !== 'active-adult')
                         : [...simplifiedFilters.typeOfLiving, 'active-adult'];
-                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
                     }}
                     className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('active-adult')
@@ -1472,7 +1504,15 @@ export default function AISearchIntelligence() {
                       const newTypes = simplifiedFilters.typeOfLiving.includes('independent-living')
                         ? simplifiedFilters.typeOfLiving.filter(t => t !== 'independent-living')
                         : [...simplifiedFilters.typeOfLiving, 'independent-living'];
-                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
                     }}
                     className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('independent-living')
@@ -1497,7 +1537,15 @@ export default function AISearchIntelligence() {
                       const newTypes = simplifiedFilters.typeOfLiving.includes('board-care')
                         ? simplifiedFilters.typeOfLiving.filter(t => t !== 'board-care')
                         : [...simplifiedFilters.typeOfLiving, 'board-care'];
-                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
                     }}
                     className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('board-care')
@@ -1522,7 +1570,15 @@ export default function AISearchIntelligence() {
                       const newTypes = simplifiedFilters.typeOfLiving.includes('assisted-living')
                         ? simplifiedFilters.typeOfLiving.filter(t => t !== 'assisted-living')
                         : [...simplifiedFilters.typeOfLiving, 'assisted-living'];
-                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
                     }}
                     className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('assisted-living')
@@ -1547,7 +1603,15 @@ export default function AISearchIntelligence() {
                       const newTypes = simplifiedFilters.typeOfLiving.includes('memory-care')
                         ? simplifiedFilters.typeOfLiving.filter(t => t !== 'memory-care')
                         : [...simplifiedFilters.typeOfLiving, 'memory-care'];
-                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
                     }}
                     className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('memory-care')
@@ -1572,7 +1636,15 @@ export default function AISearchIntelligence() {
                       const newTypes = simplifiedFilters.typeOfLiving.includes('ccrc')
                         ? simplifiedFilters.typeOfLiving.filter(t => t !== 'ccrc')
                         : [...simplifiedFilters.typeOfLiving, 'ccrc'];
-                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
                     }}
                     className={`h-[120px] min-w-[160px] px-2 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('ccrc')
@@ -1597,7 +1669,15 @@ export default function AISearchIntelligence() {
                       const newTypes = simplifiedFilters.typeOfLiving.includes('skilled-nursing')
                         ? simplifiedFilters.typeOfLiving.filter(t => t !== 'skilled-nursing')
                         : [...simplifiedFilters.typeOfLiving, 'skilled-nursing'];
-                      setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
                     }}
                     className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('skilled-nursing')
