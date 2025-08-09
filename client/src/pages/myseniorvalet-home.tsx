@@ -389,7 +389,7 @@ export default function MySeniorValetHome() {
           <div className="text-center mb-4 md:mb-6 max-w-6xl">
             <div className="space-y-4 mb-4">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl tracking-tight">
-                <span className="block mb-2 hero-text-main animate-space-entry animate-cosmic-glow">Empowering Families to Find Transparent, Affordable Senior Living and Care</span>
+                <span className="block mb-2 hero-text-main">Empowering Families to Find Transparent, Affordable Senior Living and Care</span>
               </h1>
               <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-space-warp max-w-4xl mx-auto font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
                 Explore trusted senior living communities and connect with services that make life easier. Transparent pricing, real-time availability, and seamless service integration, all in one place.
@@ -440,16 +440,16 @@ export default function MySeniorValetHome() {
           </div>
 
           {/* Premium Search Experience - Professional Google-Style Design */}
-          <div className="flex flex-col items-center space-y-3 mb-5 animate-fade-in-up animation-delay-700 w-full px-4">
-            {/* Search Method Selector - Modern Professional Design */}
-            <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xl">
+          <div className="flex flex-col items-center space-y-3 mb-5 w-full px-4">
+            {/* Search Method Selector - Modern Professional Design with Animation */}
+            <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xl animate-fade-in-up animation-delay-700">
               {/* Traditional Search - Google-Style Clean Design */}
               <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="flex-1">
                 <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-5 py-3.5 rounded-full font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
                   <div className="flex flex-col items-center space-y-1">
                     <div className="flex items-center space-x-2">
                       <Search className="h-4 w-4" />
-                      <span className="text-sm font-medium">Traditional Search</span>
+                      <span className="text-sm font-bold">Traditional Search</span>
                     </div>
                     <span className="text-[11px] text-gray-600 dark:text-gray-400 font-normal">
                       Browse • Filter • Compare
@@ -465,7 +465,7 @@ export default function MySeniorValetHome() {
                   <div className="relative flex flex-col items-center space-y-1">
                     <div className="flex items-center space-x-2">
                       <Sparkles className="h-4 w-4" />
-                      <span className="text-sm font-medium">AI Intelligence</span>
+                      <span className="text-sm font-bold">AI Intelligence</span>
                       <span className="absolute -top-1 -right-1">
                         <span className="relative flex h-2.5 w-2.5">
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
