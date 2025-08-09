@@ -124,6 +124,7 @@ import CommunityCreatorPortal from "@/pages/community-creator-portal";
 import MarketingHub from "@/pages/marketing-hub";
 import AvailabilityHeatmapPage from "@/pages/availability-heatmap";
 import TestCommunityCards from "@/pages/test-community-cards";
+import EnhancedCardTest from "@/pages/enhanced-card-test";
 import AdminAvailabilityHeatmap from "@/pages/admin-availability-heatmap";
 import AdminReports from "@/pages/admin-reports";
 
@@ -281,6 +282,7 @@ function Router() {
       <Route path="/admin/availability-heatmap" component={SuperAdminAnalytics} />
       <Route path="/payment-demo" component={PaymentDemo} />
       <Route path="/test-community-cards" component={TestCommunityCards} />
+      <Route path="/enhanced-card-test" component={EnhancedCardTest} />
       <Route component={NotFound} />
     </Switch>
   );

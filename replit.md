@@ -3,6 +3,12 @@
 ## Overview
 MySeniorValet is a comprehensive senior living transparency platform providing accurate, verified information about over 34,000 senior living communities in the U.S. and Canada, including traditional assisted living, 55+ active adult, mobile home parks, and manufactured home communities. Its core purpose is to bring unparalleled transparency to the senior living market by utilizing multi-AI intelligence orchestration for data cross-validation, especially for displaying verified HUD pricing. The project aims to empower families to make informed decisions with verified data and transparent pricing.
 
+### Recent Updates (August 9, 2025)
+- **Enhanced Community Cards**: Implemented dynamic occupancy display showing actual unit availability (e.g., "3 of 85 units") with color-coded status indicators
+- **Care-Type Placeholders**: Added specific icons for Memory Care (🧠), Skilled Nursing (🏥), Independent Living (🏡), HUD Housing (🏛️), 55+ Active (🎾), Mobile Park (🚐)
+- **Critical Information Display**: Added pet policy, special promotions, medical restrictions, license status, and violations display to community cards
+- **Test Page**: Created `/enhanced-card-test` to showcase all new card features with comprehensive sample data
+
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
 - **Notification Email Configuration**:

@@ -37,6 +37,27 @@ interface CommunityCardProps {
     email?: string;
     careLevel?: string;
     
+    // Additional critical fields
+    availableUnits?: number;
+    waitListLength?: number;
+    petFriendly?: boolean;
+    verified?: boolean;
+    licenseStatus?: string;
+    violations?: number;
+    lastInspection?: string;
+    medicalRestrictions?: string[];
+    specialPromotions?: Array<{
+      title: string;
+      description: string;
+      monthsWaived?: number;
+      percentageOff?: number;
+    }>;
+    moveInCosts?: {
+      securityDeposit?: number;
+      communityFee?: number;
+      totalEstimatedMoveIn?: number;
+    };
+    
     // Pricing properties
     livePricing?: {
       independentLiving?: { min: number; max: number };
@@ -49,6 +70,7 @@ interface CommunityCardProps {
   onSelect?: () => void;
   onToggleFavorite?: () => void;
   isFavorite?: boolean;
+  onCompare?: () => void;
 }
 
 function CommunityCard({ 
@@ -84,23 +106,67 @@ function CommunityCard({
   };
 
   const priceDisplay = getPriceDisplay();
+  
+  // Calculate availability status with details
+  const getAvailabilityInfo = () => {
+    const occupancy = community.occupancyRate || 0;
+    const totalUnits = community.totalUnits || 100;
+    const availableUnits = community.availableUnits || Math.floor(totalUnits * (1 - occupancy/100));
+    
+    if (occupancy >= 100) {
+      return {
+        status: 'Wait List',
+        detail: community.waitListLength ? `${community.waitListLength} waiting` : 'Full',
+        bgColor: 'bg-red-700',
+        lightColor: 'text-red-200',
+        dotColor: 'bg-red-400'
+      };
+    }
+    if (occupancy >= 95) {
+      return {
+        status: 'Limited',
+        detail: `${availableUnits} of ${totalUnits} units`,
+        bgColor: 'bg-orange-700',
+        lightColor: 'text-orange-200',
+        dotColor: 'bg-orange-400'
+      };
+    }
+    if (occupancy >= 85) {
+      return {
+        status: 'Available Soon',
+        detail: `${availableUnits} of ${totalUnits} units`,
+        bgColor: 'bg-yellow-700',
+        lightColor: 'text-yellow-200',
+        dotColor: 'bg-yellow-400'
+      };
+    }
+    return {
+      status: 'Available Now',
+      detail: `${availableUnits} of ${totalUnits} units`,
+      bgColor: 'bg-green-700',
+      lightColor: 'text-green-200',
+      dotColor: 'bg-green-400'
+    };
+  };
+
+  const availability = getAvailabilityInfo();
 
   return (
     <Card className="w-full bg-gray-900 border-gray-700 hover:border-gray-600 transition-all duration-200 overflow-hidden">
-      {/* Pricing Header - Green */}
-      <div className="bg-green-700 text-white px-4 py-2 flex items-center justify-between">
+      {/* Pricing Header - Dynamic Color Based on Availability */}
+      <div className={`${availability.bgColor} text-white px-4 py-2 flex items-center justify-between`}>
         <div className="flex items-center">
-          <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
+          <div className={`w-2 h-2 ${availability.dotColor} rounded-full mr-2`}></div>
           <span className="text-sm font-medium">
             {priceDisplay}
           </span>
-          <div className="ml-4 text-xs text-green-200">
-            Community Verified
+          <div className={`ml-4 text-xs ${availability.lightColor}`}>
+            {community.verified ? 'Community Verified' : isHudProperty ? 'HUD Verified' : 'Market Intelligence'}
           </div>
         </div>
         <div className="text-right">
-          <div className="text-sm font-bold text-green-100">Available Now</div>
-          <div className="text-xs text-green-200">Move in today</div>
+          <div className="text-sm font-bold text-white">{availability.status}</div>
+          <div className={`text-xs ${availability.lightColor}`}>{availability.detail}</div>
         </div>
       </div>
 
@@ -131,20 +197,31 @@ function CommunityCard({
           </Button>
         </div>
 
-        {/* Community Image or "Photos Coming Soon" */}
+        {/* Community Image or Quality Placeholder */}
         <div className="flex flex-col items-center justify-center">
           {community.photos && community.photos.length > 0 ? (
             <img 
               src={community.photos[0]} 
               alt={community.name}
-              className="w-20 h-20 rounded-lg object-cover"
+              className="w-full h-[140px] object-cover"
             />
           ) : (
             <div className="flex flex-col items-center">
               <Building className="h-12 w-12 text-white/60 mb-2" />
               <div className="text-xs text-white/80 text-center leading-tight">
-                Photos<br />Coming Soon
+                {community.communitySubtype === 'memory_care' ? '🧠 Memory Care' :
+                 community.communitySubtype === 'skilled_nursing' ? '🏥 Skilled Nursing' :
+                 community.communitySubtype === 'independent_living' ? '🏡 Independent' :
+                 community.communitySubtype === 'hud_senior_housing' ? '🏛️ HUD Housing' :
+                 community.communitySubtype === 'active_adult_55plus' ? '🎾 55+ Active' :
+                 community.communitySubtype === 'mobile_home_park' ? '🚐 Mobile Park' :
+                 'Photos Coming Soon'}
               </div>
+              {community.occupancyRate && (
+                <div className="text-2xl font-bold text-white/90 mt-2">
+                  {Math.round(community.occupancyRate)}% Full
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -171,16 +248,74 @@ function CommunityCard({
         </div>
 
         {/* Stats Row - Clean and Minimal */}
-        <div className="flex items-center justify-between mb-4 p-3 bg-gray-800 rounded-lg">
+        <div className="flex items-center justify-between mb-3 p-3 bg-gray-800 rounded-lg">
           <div className="flex items-center text-gray-300">
             <Building className="h-4 w-4 mr-1" />
-            <span className="text-sm">{community.totalUnits || community.totalUnitsHud || '100'}</span>
+            <span className="text-sm">{community.totalUnits || community.totalUnitsHud || '100'} units</span>
           </div>
           <div className="flex items-center text-yellow-400">
             <Star className="h-4 w-4 mr-1 fill-yellow-400" />
             <span className="text-sm font-medium">{community.rating?.toFixed(1) || '4.5'}</span>
           </div>
-          <span className="text-xs text-gray-400">Medium</span>
+          <span className="text-xs text-gray-400">{community.sizeCategory || 'Medium'}</span>
+        </div>
+
+        {/* Critical Information Row */}
+        <div className="mb-3 space-y-2">
+          {/* Pet Policy */}
+          {community.petFriendly !== undefined && (
+            <div className="flex items-center text-sm">
+              <span className={`text-xs px-2 py-1 rounded-full ${
+                community.petFriendly ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'
+              }`}>
+                {community.petFriendly ? '🐕 Pet Friendly' : '🚫 No Pets'}
+              </span>
+            </div>
+          )}
+          
+          {/* Special Promotions */}
+          {community.specialPromotions && community.specialPromotions.length > 0 && (
+            <div className="bg-yellow-900/30 border border-yellow-700/50 rounded-lg p-2">
+              <div className="text-xs text-yellow-400 font-semibold">
+                ⭐ {community.specialPromotions[0].title}
+              </div>
+              {community.specialPromotions[0].monthsWaived && (
+                <div className="text-xs text-yellow-300">
+                  {community.specialPromotions[0].monthsWaived} months free!
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* Medical Restrictions Alert */}
+          {community.medicalRestrictions && community.medicalRestrictions.length > 0 && (
+            <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-2">
+              <div className="text-xs text-red-400 font-semibold">⚠️ Medical Restrictions</div>
+              <div className="text-xs text-red-300">
+                {community.medicalRestrictions.slice(0, 2).join(', ')}
+              </div>
+            </div>
+          )}
+          
+          {/* License & Violations Status */}
+          {(community.licenseStatus || community.violations) && (
+            <div className="flex items-center justify-between text-xs">
+              {community.licenseStatus && (
+                <span className={`px-2 py-1 rounded-full ${
+                  community.licenseStatus === 'Licensed' ? 
+                    'bg-green-900/50 text-green-400' : 
+                    'bg-yellow-900/50 text-yellow-400'
+                }`}>
+                  {community.licenseStatus}
+                </span>
+              )}
+              {community.violations !== undefined && community.violations > 0 && (
+                <span className="px-2 py-1 rounded-full bg-orange-900/50 text-orange-400">
+                  {community.violations} violation{community.violations > 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Action Buttons */}
@@ -231,3 +366,4 @@ function CommunityCard({
 
 // Export with React.memo for performance optimization
 export const PrioritizedCommunityCard = React.memo(CommunityCard);
+export default PrioritizedCommunityCard;
