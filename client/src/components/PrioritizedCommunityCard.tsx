@@ -280,24 +280,45 @@ function CommunityCard({
           </div>
         </div>
 
-        {/* Pricing Verification Badge */}
+        {/* Pricing Information with Source Citation */}
         <div className="mb-3">
-          {isHudProperty ? (
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-900/50 border border-blue-600 rounded-full">
-              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-              <span className="text-xs font-semibold text-blue-300">🏛️ HUD VERIFIED PRICING</span>
-            </div>
-          ) : community.verified ? (
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-900/50 border border-green-600 rounded-full">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-xs font-semibold text-green-300">✓ COMMUNITY VERIFIED</span>
-            </div>
-          ) : (
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-900/50 border border-yellow-600 rounded-full">
-              <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-              <span className="text-xs font-semibold text-yellow-300">📊 MARKET INTELLIGENCE</span>
-            </div>
-          )}
+          {/* Pricing Display */}
+          <div className="text-2xl font-bold text-white mb-1">
+            {priceDisplay}
+          </div>
+          
+          {/* Pricing Source Citation */}
+          <div className="text-xs text-gray-400 italic">
+            {isHudProperty ? (
+              <span>Source: HUD Verified Data</span>
+            ) : community.verified ? (
+              <span>Source: Community Verified</span>
+            ) : priceDisplay === 'Contact for pricing' ? (
+              <span>Contact community for current pricing</span>
+            ) : (
+              <span>Source: MySeniorValet Market Intelligence</span>
+            )}
+          </div>
+          
+          {/* Pricing Verification Badge */}
+          <div className="mt-2">
+            {isHudProperty ? (
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-900/50 border border-blue-600 rounded-full">
+                <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                <span className="text-xs font-semibold text-blue-300">🏛️ HUD VERIFIED PRICING</span>
+              </div>
+            ) : community.verified ? (
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-900/50 border border-green-600 rounded-full">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-xs font-semibold text-green-300">✓ COMMUNITY VERIFIED</span>
+              </div>
+            ) : (
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-900/50 border border-yellow-600 rounded-full">
+                <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                <span className="text-xs font-semibold text-yellow-300">📊 MARKET INTELLIGENCE</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Occupancy Information - Consolidated on one line */}
