@@ -53,7 +53,8 @@ import {
   Crown,
   Car,
   Shirt,
-  Moon
+  Moon,
+  Droplets
 } from 'lucide-react';
 
 interface AISearchResult {
@@ -1575,30 +1576,162 @@ export default function AISearchIntelligence() {
                 </div>
               </div>
 
-              {/* Third Row - Amenities/Care Services - Full Width */}
+              {/* Third Row - Amenities - Full Width with Horizontal Scroll */}
               <div className="w-full mb-4">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">Amenities/Care Services</label>
-                <div className="flex flex-wrap gap-2 sm:gap-3 pb-2">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">Amenities</label>
+                <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+                  <Button
+                    variant={simplifiedFilters.amenities.includes('meals') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newAmenities = simplifiedFilters.amenities.includes('meals')
+                        ? simplifiedFilters.amenities.filter(a => a !== 'meals')
+                        : [...simplifiedFilters.amenities, 'meals'];
+                      setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 flex-shrink-0 ${
+                      simplifiedFilters.amenities.includes('meals')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Utensils className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-[11px] font-medium">Meals</div>
+                    </div>
+                  </Button>
+
+                  <Button
+                    variant={simplifiedFilters.amenities.includes('fitness') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newAmenities = simplifiedFilters.amenities.includes('fitness')
+                        ? simplifiedFilters.amenities.filter(a => a !== 'fitness')
+                        : [...simplifiedFilters.amenities, 'fitness'];
+                      setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 flex-shrink-0 ${
+                      simplifiedFilters.amenities.includes('fitness')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Activity className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-[11px] font-medium">Fitness</div>
+                    </div>
+                  </Button>
+
+                  <Button
+                    variant={simplifiedFilters.amenities.includes('transport') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newAmenities = simplifiedFilters.amenities.includes('transport')
+                        ? simplifiedFilters.amenities.filter(a => a !== 'transport')
+                        : [...simplifiedFilters.amenities, 'transport'];
+                      setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 flex-shrink-0 ${
+                      simplifiedFilters.amenities.includes('transport')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Car className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-[11px] font-medium">Transport</div>
+                    </div>
+                  </Button>
+
+                  <Button
+                    variant={simplifiedFilters.amenities.includes('pets') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newAmenities = simplifiedFilters.amenities.includes('pets')
+                        ? simplifiedFilters.amenities.filter(a => a !== 'pets')
+                        : [...simplifiedFilters.amenities, 'pets'];
+                      setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 flex-shrink-0 ${
+                      simplifiedFilters.amenities.includes('pets')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Heart className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-[11px] font-medium">Pets OK</div>
+                    </div>
+                  </Button>
+
+                  <Button
+                    variant={simplifiedFilters.amenities.includes('laundry') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newAmenities = simplifiedFilters.amenities.includes('laundry')
+                        ? simplifiedFilters.amenities.filter(a => a !== 'laundry')
+                        : [...simplifiedFilters.amenities, 'laundry'];
+                      setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 flex-shrink-0 ${
+                      simplifiedFilters.amenities.includes('laundry')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Shirt className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-[11px] font-medium">Laundry</div>
+                    </div>
+                  </Button>
+
+                  <Button
+                    variant={simplifiedFilters.amenities.includes('security') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newAmenities = simplifiedFilters.amenities.includes('security')
+                        ? simplifiedFilters.amenities.filter(a => a !== 'security')
+                        : [...simplifiedFilters.amenities, 'security'];
+                      setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 flex-shrink-0 ${
+                      simplifiedFilters.amenities.includes('security')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Shield className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-[11px] font-medium">Security</div>
+                    </div>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Fourth Row - Care Services - Full Width with Horizontal Scroll */}
+              <div className="w-full mb-4">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">Care Services</label>
+                <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
                   {/* All Inclusive Button */}
                   <Button
-                    variant={simplifiedFilters.amenities.length >= 11 ? 'default' : 'outline'}
+                    variant={simplifiedFilters.amenities.length >= 9 ? 'default' : 'outline'}
                     onClick={() => {
-                      const allAmenities = ['shower', 'dressing', 'wakebedtime', 'checkins', 'medication', 'incontinence', 'laundry', 'pets', '24hour', 'therapy', 'hospice'];
-                      if (simplifiedFilters.amenities.length >= 11) {
-                        setSimplifiedFilters({ ...simplifiedFilters, amenities: [] });
+                      const allCareServices = ['shower', 'dressing', 'wakebedtime', 'checkins', 'medication', 'incontinence', '24hour', 'therapy', 'hospice'];
+                      if (simplifiedFilters.amenities.filter(a => allCareServices.includes(a)).length >= 9) {
+                        setSimplifiedFilters({ 
+                          ...simplifiedFilters, 
+                          amenities: simplifiedFilters.amenities.filter(a => !allCareServices.includes(a))
+                        });
                       } else {
-                        setSimplifiedFilters({ ...simplifiedFilters, amenities: allAmenities });
+                        setSimplifiedFilters({ 
+                          ...simplifiedFilters, 
+                          amenities: [...new Set([...simplifiedFilters.amenities, ...allCareServices])]
+                        });
                       }
                     }}
-                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
-                      simplifiedFilters.amenities.length >= 11
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 flex-shrink-0 ${
+                      simplifiedFilters.amenities.filter(a => ['shower', 'dressing', 'wakebedtime', 'checkins', 'medication', 'incontinence', '24hour', 'therapy', 'hospice'].includes(a)).length >= 9
                         ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 border-0'
                         : 'bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 hover:from-gray-100 hover:to-gray-200 dark:hover:from-gray-700 dark:hover:to-gray-800'
                     }`}
                   >
                     <div className="text-center">
                       <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
-                      <div className="text-[10px] sm:text-[11px] font-semibold">All Inclusive</div>
+                      <div className="text-[10px] sm:text-[11px] font-semibold">All Care</div>
                     </div>
                   </Button>
 
@@ -1610,14 +1743,14 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.amenities, 'shower'];
                       setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
                     }}
-                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 flex-shrink-0 ${
                       simplifiedFilters.amenities.includes('shower')
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
                   >
                     <div className="text-center">
-                      <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <Droplets className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
                       <div className="text-[10px] sm:text-[11px] font-medium">Shower</div>
                     </div>
                   </Button>
@@ -1630,7 +1763,7 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.amenities, 'dressing'];
                       setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
                     }}
-                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 flex-shrink-0 ${
                       simplifiedFilters.amenities.includes('dressing')
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
@@ -1650,7 +1783,7 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.amenities, 'wakebedtime'];
                       setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
                     }}
-                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 flex-shrink-0 ${
                       simplifiedFilters.amenities.includes('wakebedtime')
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
@@ -1670,7 +1803,7 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.amenities, 'checkins'];
                       setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
                     }}
-                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 flex-shrink-0 ${
                       simplifiedFilters.amenities.includes('checkins')
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
@@ -1690,7 +1823,7 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.amenities, 'medication'];
                       setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
                     }}
-                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 flex-shrink-0 ${
                       simplifiedFilters.amenities.includes('medication')
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
@@ -1710,55 +1843,15 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.amenities, 'incontinence'];
                       setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
                     }}
-                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 flex-shrink-0 ${
                       simplifiedFilters.amenities.includes('incontinence')
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
                   >
                     <div className="text-center">
-                      <HeartHandshake className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
-                      <div className="text-[10px] sm:text-[11px] font-medium">Incontinence</div>
-                    </div>
-                  </Button>
-
-                  <Button
-                    variant={simplifiedFilters.amenities.includes('laundry') ? 'default' : 'outline'}
-                    onClick={() => {
-                      const newAmenities = simplifiedFilters.amenities.includes('laundry')
-                        ? simplifiedFilters.amenities.filter(a => a !== 'laundry')
-                        : [...simplifiedFilters.amenities, 'laundry'];
-                      setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
-                    }}
-                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
-                      simplifiedFilters.amenities.includes('laundry')
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <Shirt className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
-                      <div className="text-[10px] sm:text-[11px] font-medium">Laundry</div>
-                    </div>
-                  </Button>
-
-                  <Button
-                    variant={simplifiedFilters.amenities.includes('pets') ? 'default' : 'outline'}
-                    onClick={() => {
-                      const newAmenities = simplifiedFilters.amenities.includes('pets')
-                        ? simplifiedFilters.amenities.filter(a => a !== 'pets')
-                        : [...simplifiedFilters.amenities, 'pets'];
-                      setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
-                    }}
-                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
-                      simplifiedFilters.amenities.includes('pets')
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
-                    }`}
-                  >
-                    <div className="text-center">
                       <Heart className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
-                      <div className="text-[10px] sm:text-[11px] font-medium">Pet Care</div>
+                      <div className="text-[10px] sm:text-[11px] font-medium">Incontinence</div>
                     </div>
                   </Button>
 
@@ -1770,7 +1863,7 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.amenities, '24hour'];
                       setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
                     }}
-                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 flex-shrink-0 ${
                       simplifiedFilters.amenities.includes('24hour')
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
@@ -1790,7 +1883,7 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.amenities, 'therapy'];
                       setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
                     }}
-                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 flex-shrink-0 ${
                       simplifiedFilters.amenities.includes('therapy')
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
@@ -1810,7 +1903,7 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.amenities, 'hospice'];
                       setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
                     }}
-                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 flex-shrink-0 ${
                       simplifiedFilters.amenities.includes('hospice')
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
@@ -1826,7 +1919,7 @@ export default function AISearchIntelligence() {
 
 
 
-              {/* Fourth Row - Sliders and Controls - Mobile Responsive with Stacked Layout */}
+              {/* Fifth Row - Sliders and Controls - Mobile Responsive with Stacked Layout */}
               <div className="w-full py-4 border-t border-b border-gray-200 dark:border-gray-700">
                 {/* Sliders Container - Stack on Mobile */}
                 <div className="flex flex-col gap-3">
