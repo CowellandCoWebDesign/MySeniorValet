@@ -35,6 +35,25 @@ interface CommunityCardProps {
     amenities?: string[]; // Add amenities
     phone?: string; // Add phone
     website?: string; // Add website
+    
+    // Pricing properties
+    livePricing?: {
+      independentLiving?: { min: number; max: number };
+      assistedLiving?: { min: number; max: number };
+      memoryCare?: { min: number; max: number };
+    };
+    pricingType?: 'live' | 'market' | 'contact';
+    pricingDetails?: {
+      basePrice?: number;
+      monthlyFees?: {
+        baseRent: number;
+        careLevel?: number;
+      };
+      specialOffers?: Array<{ title: string; description?: string }>;
+      moveinSpecials?: string[];
+    };
+    lotRent?: number;
+    specialOffers?: Array<{ title: string; description?: string }>;
 
     // Enhanced HUD data from extractor
     displayPricing?: {
@@ -564,9 +583,9 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
           {/* Special offer badges - Only show if community has actual special offers */}
           {community.specialOffers && community.specialOffers.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
-              {community.specialOffers.map((offer: string, idx: number) => (
+              {community.specialOffers.map((offer, idx) => (
                 <Badge key={idx} className="bg-yellow-400 text-yellow-900 text-xs px-3 py-1 font-bold">
-                  {offer}
+                  {offer.title}
                 </Badge>
               ))}
             </div>
@@ -612,9 +631,9 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
           {/* Care Level Badge - PROMINENT AT TOP */}
           {subtypeBadge && (
             <div className="mb-3">
-              <Badge className={`inline-flex items-center px-3 py-1.5 text-sm font-semibold ${subtypeBadge.color} border-0 shadow-sm`}>
-                <span className="mr-1.5 text-lg">{subtypeBadge.emoji}</span>
-                {subtypeBadge.label}
+              <Badge className={`inline-flex items-center px-3 py-1.5 text-sm font-semibold ${subtypeBadge?.color || ''} border-0 shadow-sm`}>
+                <span className="mr-1.5 text-lg">{subtypeBadge?.emoji || ''}</span>
+                {subtypeBadge?.label || ''}
               </Badge>
             </div>
           )}
@@ -681,7 +700,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                   <div className="flex items-center gap-1">
                     <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
                     <span className="font-medium text-gray-900 dark:text-white">
-                      {community.rating.toFixed(1)}
+                      {community.rating?.toFixed(1) || '0.0'}
                     </span>
                     {community.reviewCount && (
                       <span className="text-gray-500 dark:text-gray-400">
@@ -701,7 +720,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                 {/* Senior Population if available */}
                 {community.seniorPercentage && (
                   <span className="text-gray-600 dark:text-gray-400">
-                    • {Math.round(community.seniorPercentage)}% senior residents
+                    • {Math.round(community.seniorPercentage ?? 0)}% senior residents
                   </span>
                 )}
               </div>
@@ -712,14 +731,14 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                 {community.amenities && community.amenities.length > 5 && (
                   <Badge className="text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-700">
                     <Sparkles className="h-3 w-3 mr-1" />
-                    {community.amenities.length} Amenities
+                    {community.amenities?.length || 0} Amenities
                   </Badge>
                 )}
                 
                 {/* Care Types if no subtype */}
                 {!community.communitySubtype && community.careTypes && community.careTypes.length > 0 && (
                   <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 border-0">
-                    {community.careTypes[0]}
+                    {community.careTypes?.[0] || ''}
                   </Badge>
                 )}
               </div>

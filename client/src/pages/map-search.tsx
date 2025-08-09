@@ -1311,14 +1311,16 @@ export default function MapSearch() {
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className={"border-b p-4 " + (isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700')}>
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          handleLocationSearch(searchQuery);
-          setShowSuggestions(false);
-        }} className="flex gap-2">
-          <div className="relative flex-1" ref={searchRef}>
+      {/* Sticky Search and Filter Container */}
+      <div className="sticky top-0 z-40">
+        {/* Search Bar */}
+        <div className={"border-b p-4 " + (isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700')}>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            handleLocationSearch(searchQuery);
+            setShowSuggestions(false);
+          }} className="flex gap-2">
+            <div className="relative flex-1" ref={searchRef}>
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               type="text"
@@ -1748,6 +1750,7 @@ export default function MapSearch() {
           )}
         </div>
       </div>
+      </div> {/* End of Sticky Search and Filter Container */}
 
       {/* Map Legend Info Button - Only in Map View - In Top Right Corner */}
       {viewMode === 'map' && (
