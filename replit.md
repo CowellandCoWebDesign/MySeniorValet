@@ -7,6 +7,8 @@ MySeniorValet is a comprehensive senior living transparency platform providing a
 - **Enhanced Community Cards**: Implemented dynamic occupancy display showing actual unit availability (e.g., "3 of 85 units") with color-coded status indicators
 - **Care-Type Placeholders**: Added specific icons for Memory Care (🧠), Skilled Nursing (🏥), Independent Living (🏡), HUD Housing (🏛️), 55+ Active (🎾), Mobile Park (🚐)
 - **Critical Information Display**: Added pet policy, special promotions, medical restrictions, license status, and violations display to community cards
+- **Dual Color-Coding System**: Left side pricing color-coded by verification source (Blue=HUD, Green=Community, Yellow=Market), right side availability color-coded by status
+- **Consolidated Occupancy Display**: Unit counts and occupancy percentage now display on single line for cleaner layout (e.g., "3 of 85 units • 96% Occupied")
 - **Test Page**: Created `/enhanced-card-test` to showcase all new card features with comprehensive sample data
 
 ## User Preferences

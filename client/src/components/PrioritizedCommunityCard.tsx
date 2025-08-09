@@ -187,10 +187,12 @@ function CommunityCard({
         </div>
         
         {/* Availability Section - Color Coded by Availability Status */}
-        <div className={`${availability.bgColor} text-white px-4 py-2 flex items-center gap-3`}>
+        <div className={`${availability.bgColor} text-white px-4 py-2 flex items-center justify-end`}>
           <div className="text-right">
             <div className="text-sm font-bold text-white">{availability.status}</div>
-            <div className={`text-xs ${availability.lightColor}`}>{availability.detail}</div>
+            <div className={`text-xs ${availability.lightColor}`}>
+              {availability.detail} • {Math.round(community.occupancyRate || 0)}% Occupied
+            </div>
           </div>
         </div>
       </div>
@@ -298,26 +300,19 @@ function CommunityCard({
           )}
         </div>
 
-        {/* Occupancy Information - Now inside card body */}
+        {/* Occupancy Information - Consolidated on one line */}
         <div className="mb-3 p-3 bg-gray-800 rounded-lg">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between">
             <span className="text-sm text-gray-400">Availability</span>
             <span className={`text-sm font-bold ${availability.lightColor}`}>
               {availability.status}
             </span>
           </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 ${availability.dotColor} rounded-full animate-pulse`}></div>
-              <span className="text-white font-semibold">
-                {availability.detail}
-              </span>
-            </div>
-            {community.occupancyRate !== undefined && (
-              <span className="text-xs text-gray-400">
-                {Math.round(community.occupancyRate)}% Occupied
-              </span>
-            )}
+          <div className="flex items-center gap-2 mt-1">
+            <div className={`w-2 h-2 ${availability.dotColor} rounded-full animate-pulse`}></div>
+            <span className="text-white text-sm">
+              {availability.detail} • {Math.round(community.occupancyRate || 0)}% Occupied
+            </span>
           </div>
         </div>
 
