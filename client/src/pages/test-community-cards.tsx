@@ -18,9 +18,10 @@ const sampleCommunity = {
   occupancyRate: 85,
   photos: [],
   displayPricing: {
-    hudPricing: null,
-    marketPricing: "$3,500",
-    priceLabel: "Market Estimate"
+    displayPrice: "$3,500/mo",
+    priceLabel: "Market Intelligence",
+    qualityBadge: "2025 Market Data",
+    showContactButton: false
   },
   transparencyScore: 85,
   communitySubtype: "Assisted Living",
@@ -33,9 +34,10 @@ const hudCommunity = {
   name: "HUD Affordable Housing",
   hudPropertyId: "800001234",
   displayPricing: {
-    hudPricing: "$425",
-    marketPricing: null,
-    priceLabel: "HUD Verified"
+    displayPrice: "$425/mo",
+    priceLabel: "HUD Verified",
+    qualityBadge: "Government",
+    showContactButton: false
   }
 };
 
@@ -44,9 +46,10 @@ const contactPricingCommunity = {
   id: 3,
   name: "Premium Senior Resort",
   displayPricing: {
-    hudPricing: null,
-    marketPricing: null,
-    priceLabel: "Contact for Pricing"
+    displayPrice: "$5,500/mo",
+    priceLabel: "Market Intelligence",
+    qualityBadge: "2025 Regional Average",
+    showContactButton: false
   }
 };
 
@@ -137,17 +140,17 @@ export default function TestCommunityCards() {
             <div className="space-y-6">
               <EnhancedCommunityCard 
                 community={sampleCommunity} 
-                variant="enhanced"
+                variant="default"
                 onSelect={() => console.log('Selected enhanced card')}
               />
               <EnhancedCommunityCard 
                 community={hudCommunity} 
-                variant="enhanced"
+                variant="hud"
                 onSelect={() => console.log('Selected HUD enhanced card')}
               />
               <EnhancedCommunityCard 
                 community={contactPricingCommunity} 
-                variant="enhanced"
+                variant="default"
                 onSelect={() => console.log('Selected contact pricing enhanced card')}
               />
             </div>
