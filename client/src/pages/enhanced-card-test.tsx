@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 const testCommunities = [
   {
     id: 1,
-    name: "Sunrise Memory Care Center",
+    name: "Sunrise Memory Care Center (Community Verified)",
     city: "Austin",
     state: "TX",
     careLevel: "Memory Care",
@@ -19,7 +19,7 @@ const testCommunities = [
     rating: 4.8,
     reviewCount: 127,
     petFriendly: true,
-    verified: true,
+    verified: true,  // This shows COMMUNITY VERIFIED badge
     licenseStatus: "Licensed",
     violations: 0,
     specialPromotions: [
@@ -34,12 +34,12 @@ const testCommunities = [
   },
   {
     id: 2,
-    name: "Golden Years HUD Housing",
+    name: "Golden Years HUD Housing (HUD Verified)",
     city: "Phoenix",
     state: "AZ",
     careLevel: "HUD Senior Housing",
     communitySubtype: "hud_senior_housing",
-    hudPropertyId: "HUD-12345",
+    hudPropertyId: "HUD-12345",  // This shows HUD VERIFIED badge
     totalUnits: 120,
     availableUnits: 18,
     occupancyRate: 85,
@@ -47,14 +47,14 @@ const testCommunities = [
     rating: 4.2,
     reviewCount: 89,
     petFriendly: false,
-    verified: true,
+    verified: false,  // Ignored when hudPropertyId exists
     licenseStatus: "Licensed",
     violations: 1,
     sizeCategory: "Large"
   },
   {
     id: 3,
-    name: "Active Living 55+ Resort",
+    name: "Active Living 55+ Resort (Market Intelligence)",
     city: "Scottsdale",
     state: "AZ",
     careLevel: "55+ Active Adult",

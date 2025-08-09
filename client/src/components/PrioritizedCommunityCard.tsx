@@ -160,9 +160,6 @@ function CommunityCard({
           <span className="text-sm font-medium">
             {priceDisplay}
           </span>
-          <div className={`ml-4 text-xs ${availability.lightColor}`}>
-            {community.verified ? 'Community Verified' : isHudProperty ? 'HUD Verified' : 'Market Intelligence'}
-          </div>
         </div>
         <div className="text-right">
           <div className="text-sm font-bold text-white">{availability.status}</div>
@@ -251,6 +248,26 @@ function CommunityCard({
             <MapPin className="h-4 w-4 mr-1" />
             <span>{community.city}, {community.state}</span>
           </div>
+        </div>
+
+        {/* Pricing Verification Badge */}
+        <div className="mb-3">
+          {isHudProperty ? (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-900/50 border border-blue-600 rounded-full">
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+              <span className="text-xs font-semibold text-blue-300">🏛️ HUD VERIFIED PRICING</span>
+            </div>
+          ) : community.verified ? (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-900/50 border border-green-600 rounded-full">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-xs font-semibold text-green-300">✓ COMMUNITY VERIFIED</span>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-900/50 border border-yellow-600 rounded-full">
+              <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+              <span className="text-xs font-semibold text-yellow-300">📊 MARKET INTELLIGENCE</span>
+            </div>
+          )}
         </div>
 
         {/* Occupancy Information - Now inside card body */}
