@@ -386,8 +386,8 @@ export default function MySeniorValetHome() {
         
         <div className="relative flex flex-col items-center justify-center hero-content min-h-screen px-6 py-12 md:py-16 mobile-keyboard-safe">
           {/* Centered Headlines - Optimized for Desktop with Better Spacing */}
-          <div className="text-center mb-4 md:mb-6 max-w-6xl">
-            <div className="space-y-4 mb-4">
+          <div className="text-center mb-6 md:mb-8 max-w-6xl">
+            <div className="space-y-4">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl tracking-tight">
                 <span className="block mb-2 hero-text-main">Empowering Families to Find Transparent, Affordable Senior Living and Care</span>
               </h1>
@@ -396,11 +396,9 @@ export default function MySeniorValetHome() {
               </h2>
             </div>
           </div>
-          
-
 
           {/* Search Bar - Enhanced with AutocompleteSearch Component */}
-          <div className="w-full max-w-4xl mb-1 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
+          <div className="w-full max-w-4xl mb-4 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
             <form onSubmit={(e) => {
               e.preventDefault();
               if (searchQuery) {
