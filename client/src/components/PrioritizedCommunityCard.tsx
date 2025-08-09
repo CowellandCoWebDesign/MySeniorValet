@@ -262,26 +262,18 @@ function CommunityCard({
 
       {/* Bottom Section - Dark Theme */}
       <CardContent className="p-4 bg-gray-900 text-white">
-        {/* Community Name and Location - Now at Top */}
-        <div className="mb-3">
-          <h3 className="text-xl font-bold text-white mb-1">
-            {community.name}
-          </h3>
-          <div className="flex items-center text-sm text-gray-400">
-            <MapPin className="h-4 w-4 mr-1" />
-            <span>{community.city}, {community.state}</span>
+        {/* Top Row: Care Type Badge on Left, Pricing Stack on Right - Aligned Horizontally */}
+        <div className="flex items-start justify-between mb-2">
+          {/* Care Type Badge - Top Left */}
+          <div>
+            <Badge className="bg-blue-600 text-white text-sm px-3 py-1">
+              {community.careLevel || 'Assisted Living'}
+            </Badge>
           </div>
-        </div>
-
-        {/* Second Row: Care Type Badge on Left, Pricing Stack on Right */}
-        <div className="flex items-start justify-between mb-3">
-          <Badge className="bg-blue-600 text-white text-sm px-3 py-1">
-            {community.careLevel || 'Assisted Living'}
-          </Badge>
           
-          {/* Pricing Stack on Right - Smaller Sizing */}
+          {/* Pricing Stack on Right */}
           <div className="text-right">
-            {/* Pricing Display - Smaller */}
+            {/* Pricing Display */}
             <div className="text-sm font-bold text-white">
               {priceDisplay}
             </div>
@@ -289,7 +281,7 @@ function CommunityCard({
             {/* Pricing Source Citation */}
             <div className="text-xs text-gray-400 italic mt-0.5">
               {isHudProperty ? (
-                <span>HUD Verified</span>
+                <span>HUD Verified Data</span>
               ) : community.verified ? (
                 <span>Community Verified</span>
               ) : priceDisplay === 'Contact for pricing' ? (
@@ -299,28 +291,39 @@ function CommunityCard({
               )}
             </div>
             
-            {/* Pricing Verification Badge - Smaller */}
+            {/* Pricing Verification Badge - Full Names */}
             <div className="mt-0.5">
               {isHudProperty ? (
                 <Badge className="bg-blue-600 text-white text-xs px-2 py-0.5">
-                  <span className="mr-0.5 text-xs">🏛️</span> HUD
+                  <span className="mr-0.5 text-xs">🏛️</span> HUD VERIFIED
                 </Badge>
               ) : community.verified ? (
                 <Badge className="bg-green-600 text-white text-xs px-2 py-0.5">
-                  <span className="mr-0.5 text-xs">✓</span> VERIFIED
+                  <span className="mr-0.5 text-xs">✓</span> COMMUNITY VERIFIED
                 </Badge>
               ) : priceDisplay !== 'Contact for pricing' ? (
                 <Badge className="bg-yellow-600 text-white text-xs px-2 py-0.5">
-                  <span className="mr-0.5 text-xs">📊</span> MARKET
+                  <span className="mr-0.5 text-xs">📊</span> MARKET INTELLIGENCE
                 </Badge>
               ) : null}
             </div>
             
-            {/* Units Info - Smaller */}
+            {/* Units Info */}
             <div className="flex items-center justify-end text-gray-300 mt-1">
               <Building className="h-3 w-3 mr-0.5" />
               <span className="text-xs">{community.totalUnits || community.totalUnitsHud || '100'} units</span>
             </div>
+          </div>
+        </div>
+
+        {/* Community Name and Location - Below Badge Row */}
+        <div className="mb-3">
+          <h3 className="text-xl font-bold text-white mb-1">
+            {community.name}
+          </h3>
+          <div className="flex items-center text-sm text-gray-400">
+            <MapPin className="h-4 w-4 mr-1" />
+            <span>{community.city}, {community.state}</span>
           </div>
         </div>
 
