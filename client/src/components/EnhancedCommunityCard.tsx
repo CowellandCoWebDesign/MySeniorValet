@@ -948,6 +948,14 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
 
   // Enhanced horizontal layout for map list
   if (variant === 'horizontal') {
+    // Calculate display price for horizontal variant
+    const displayPrice = community.displayPricing?.displayPrice || 
+      (community.hudPropertyId && community.rentPerMonth ? 
+        `$${typeof community.rentPerMonth === 'number' ? community.rentPerMonth.toFixed(0) : community.rentPerMonth}` : 
+        community.priceRange ? 
+          `$${community.priceRange.min} - $${community.priceRange.max}` : 
+          'Contact for Pricing');
+    
     return (
       <Card 
         className="group cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 bg-gradient-to-br from-white via-blue-50/20 to-purple-50/20 dark:from-gray-800 dark:via-gray-800 dark:to-gray-700 border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-600 overflow-hidden relative"
@@ -955,10 +963,10 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
       >
         {/* Pricing in top right corner */}
         <div className="absolute top-3 right-3 z-10">
-          {priceDisplay ? (
+          {displayPrice !== 'Contact for Pricing' ? (
             <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-gray-200 dark:border-gray-700">
               <div className="text-lg font-bold text-gray-900 dark:text-white">
-                {priceDisplay}
+                {displayPrice}
               </div>
               {isHudProperty && (
                 <div className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center">
