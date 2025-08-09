@@ -326,72 +326,95 @@ function CommunityCard({
 
 
 
-        {/* Reviews Section - Horizontal Grid */}
+        {/* Reviews & Inspections Section */}
         <div className="mb-3 p-3 bg-gray-800 rounded-lg">
-          <div className="text-sm text-gray-400 mb-2">Reviews & Ratings</div>
-          
-          {/* Grid of 3 Review Sources */}
-          <div className="grid grid-cols-3 gap-3">
-            {/* Tour Tracker Score */}
-            <div className="text-center">
-              <div className="flex flex-col items-center">
-                <div className="w-10 h-10 bg-yellow-600 rounded-full flex items-center justify-center mb-1">
-                  <span className="text-xs font-bold text-white">TT</span>
+          <div className="flex gap-4">
+            {/* Reviews Section - Left Side */}
+            <div className="flex-1">
+              <div className="text-sm text-gray-400 mb-2">Reviews & Ratings</div>
+              
+              {/* Grid of 3 Review Sources - Tighter */}
+              <div className="grid grid-cols-3 gap-1">
+                {/* Tour Tracker Score */}
+                <div className="text-center">
+                  <div className="flex flex-col items-center">
+                    <div className="w-9 h-9 bg-yellow-600 rounded-full flex items-center justify-center mb-1">
+                      <span className="text-xs font-bold text-white">TT</span>
+                    </div>
+                    <div className="text-xs text-gray-400">Tour</div>
+                    <div className="flex items-center justify-center">
+                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-0.5" />
+                      <span className="text-xs font-bold text-yellow-400">
+                        {community.tourTrackerScore || '4.8'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-xs text-gray-400 mb-1">Tour Tracker</div>
-                <div className="flex items-center justify-center">
-                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-0.5" />
-                  <span className="text-sm font-bold text-yellow-400">
-                    {community.tourTrackerScore || '4.8'}
-                  </span>
+                
+                {/* Yelp Score */}
+                <div className="text-center">
+                  <div className="flex flex-col items-center">
+                    <div className="w-9 h-9 bg-red-600 rounded-full flex items-center justify-center mb-1">
+                      <span className="text-xs font-bold text-white">Y</span>
+                    </div>
+                    <a 
+                      href={community.yelpUrl || `https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-400 hover:text-blue-300 underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Yelp
+                    </a>
+                    <div className="flex items-center justify-center">
+                      <Star className="h-3 w-3 fill-red-400 text-red-400 mr-0.5" />
+                      <span className="text-xs font-bold text-red-400">
+                        {community.yelpScore || '4.2'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Google Score */}
+                <div className="text-center">
+                  <div className="flex flex-col items-center">
+                    <div className="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center mb-1">
+                      <span className="text-xs font-bold text-white">G</span>
+                    </div>
+                    <a 
+                      href={community.googleUrl || `https://www.google.com/search?q=${encodeURIComponent(community.name + ' ' + community.city + ' ' + community.state)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-400 hover:text-blue-300 underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Google
+                    </a>
+                    <div className="flex items-center justify-center">
+                      <Star className="h-3 w-3 fill-blue-400 text-blue-400 mr-0.5" />
+                      <span className="text-xs font-bold text-blue-400">
+                        {community.googleScore || '4.5'}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
             
-            {/* Yelp Score */}
-            <div className="text-center">
-              <div className="flex flex-col items-center">
-                <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center mb-1">
-                  <span className="text-xs font-bold text-white">Y</span>
+            {/* Inspections Section - Right Side */}
+            <div className="border-l border-gray-700 pl-4">
+              <div className="text-sm text-gray-400 mb-2">Inspections</div>
+              <div className="space-y-1">
+                <div className="text-xs text-gray-300">
+                  <span className="text-green-400">✓</span> State Licensed
                 </div>
-                <a 
-                  href={community.yelpUrl || `https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-blue-400 hover:text-blue-300 underline mb-1"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  Yelp
-                </a>
-                <div className="flex items-center justify-center">
-                  <Star className="h-3 w-3 fill-red-400 text-red-400 mr-0.5" />
-                  <span className="text-sm font-bold text-red-400">
-                    {community.yelpScore || '4.2'}
-                  </span>
+                <div className="text-xs text-gray-300">
+                  <span className="text-green-400">✓</span> Last: {community.lastInspection || '2024'}
                 </div>
-              </div>
-            </div>
-            
-            {/* Google Score */}
-            <div className="text-center">
-              <div className="flex flex-col items-center">
-                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center mb-1">
-                  <span className="text-xs font-bold text-white">G</span>
-                </div>
-                <a 
-                  href={community.googleUrl || `https://www.google.com/search?q=${encodeURIComponent(community.name + ' ' + community.city + ' ' + community.state)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-blue-400 hover:text-blue-300 underline mb-1"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  Google
-                </a>
-                <div className="flex items-center justify-center">
-                  <Star className="h-3 w-3 fill-blue-400 text-blue-400 mr-0.5" />
-                  <span className="text-sm font-bold text-blue-400">
-                    {community.googleScore || '4.5'}
-                  </span>
+                <div className="text-xs text-gray-300">
+                  <span className={community.violations === 0 ? 'text-green-400' : 'text-yellow-400'}>
+                    {community.violations === 0 ? '✓' : '⚠'}
+                  </span> {community.violations || 0} Violations
                 </div>
               </div>
             </div>
