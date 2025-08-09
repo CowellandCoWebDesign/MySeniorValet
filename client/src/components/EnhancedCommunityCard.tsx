@@ -443,140 +443,37 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
           )}
         </div>
         
-        {/* Bottom Info Section */}
-        <CardContent className="p-4 bg-gray-800 text-white">
-          {/* Community Name and Full Address */}
-          <div className="mb-4">
-            <h3 className="text-xl font-bold text-white mb-2">
+        {/* Bottom Section - Dark Theme */}
+        <CardContent className="p-4 bg-gray-900 text-white">
+          {/* Care Type Badge */}
+          <div className="flex items-center justify-between mb-3">
+            <Badge className="bg-blue-600 text-white text-sm px-3 py-1">
+              Assisted Living
+            </Badge>
+          </div>
+
+          {/* Community Name and Location */}
+          <div className="mb-3">
+            <h3 className="text-xl font-bold text-white mb-1">
               {community.name}
             </h3>
-            <div className="space-y-1 text-sm text-gray-400">
-              {community.address && (
-                <div className="flex items-start">
-                  <MapPin className="h-3 w-3 mr-2 mt-0.5 text-gray-500" />
-                  <span>{community.address}</span>
-                </div>
-              )}
-              <div className="flex items-center">
-                <MapPin className="h-3 w-3 mr-2 text-gray-500" />
-                <span>{community.city}, {community.state} {community.zipCode || ''}</span>
-              </div>
+            <div className="flex items-center text-sm text-gray-400">
+              <MapPin className="h-4 w-4 mr-1" />
+              <span>{community.city}, {community.state}</span>
             </div>
           </div>
 
-          {/* Contact Information Box */}
-          {(community.phone || community.email || community.website) && (
-            <div className="mb-4 p-3 bg-gray-700 rounded-lg border border-gray-600">
-              <h4 className="text-xs font-semibold text-gray-300 mb-2 uppercase tracking-wide">
-                Contact Information
-              </h4>
-              <div className="space-y-2 text-sm">
-                {community.phone && (
-                  <div className="flex items-center text-gray-300">
-                    <Phone className="h-3 w-3 mr-2 text-blue-400" />
-                    <a 
-                      href={`tel:${community.phone}`} 
-                      className="hover:text-blue-400 transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {community.phone}
-                    </a>
-                  </div>
-                )}
-                {community.email && (
-                  <div className="flex items-center text-gray-300">
-                    <Mail className="h-3 w-3 mr-2 text-green-400" />
-                    <a 
-                      href={`mailto:${community.email}`} 
-                      className="hover:text-green-400 transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {community.email}
-                    </a>
-                  </div>
-                )}
-                {community.website && (
-                  <div className="flex items-center text-gray-300">
-                    <ExternalLink className="h-3 w-3 mr-2 text-purple-400" />
-                    <a 
-                      href={community.website} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="hover:text-purple-400 transition-colors text-xs"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      Visit Website
-                    </a>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Stats Row */}
-          <div className="flex items-center gap-4 mb-4 text-sm text-gray-300">
-            <div className="flex items-center">
+          {/* Stats Row - Clean and Minimal */}
+          <div className="flex items-center justify-between mb-4 p-3 bg-gray-800 rounded-lg">
+            <div className="flex items-center text-gray-300">
               <Building className="h-4 w-4 mr-1" />
-              <span>{community.totalUnits || community.totalUnitsHud || '100'} units</span>
+              <span className="text-sm">{community.totalUnits || community.totalUnitsHud || '100'}</span>
             </div>
-            <div className="flex items-center">
-              <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
-              <span>{community.rating?.toFixed(1) || '4.5'}</span>
+            <div className="flex items-center text-yellow-400">
+              <Star className="h-4 w-4 mr-1 fill-yellow-400" />
+              <span className="text-sm font-medium">{community.rating?.toFixed(1) || '4.5'}</span>
             </div>
-            {hasOccupancyData && (
-              <div className="flex items-center">
-                <div className={`w-2 h-2 rounded-full mr-1 ${
-                  occupancyRate >= 95 ? 'bg-red-500' : 
-                  occupancyRate >= 85 ? 'bg-orange-500' : 
-                  'bg-green-500'
-                }`}></div>
-                <span className="text-xs">
-                  {occupancyRate}% occupied
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Comprehensive Badge System */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {/* Primary Care Type Badge */}
-            <Badge className="bg-blue-600 text-white text-xs px-2 py-1">
-              {community.careLevel || 'Assisted Living'}
-            </Badge>
-            
-            {/* HUD/Government Badge */}
-            {isHudProperty && (
-              <Badge className="bg-green-600 text-white text-xs px-2 py-1">
-                🏛️ HUD Verified
-              </Badge>
-            )}
-            
-            {/* Occupancy/Availability Status Badge */}
-            {hasOccupancyData && (
-              <Badge className={`text-white text-xs px-2 py-1 ${
-                occupancyRate >= 95 ? 'bg-red-600' : 
-                occupancyRate >= 85 ? 'bg-orange-600' : 
-                'bg-green-600'
-              }`}>
-                {occupancyRate >= 95 ? '🔴 Wait List' : 
-                 occupancyRate >= 85 ? '🟡 Limited' : 
-                 '🟢 Available Now'}
-              </Badge>
-            )}
-            
-            {/* Pricing Type Badge */}
-            <Badge className={`text-white text-xs px-2 py-1 ${
-              community.pricingType === 'live' ? 'bg-purple-600' : 'bg-gray-600'
-            }`}>
-              {community.pricingType === 'live' ? '⚡ Live Pricing' : '📊 Market Estimate'}
-            </Badge>
-
-            {/* Tier Badge */}
-            {tierInfo && (
-              <Badge className={`${tierInfo.color} text-xs px-2 py-1`}>
-                {tierInfo.label}
-              </Badge>
-            )}
+            <span className="text-xs text-gray-400">Medium</span>
           </div>
 
           {/* Action Buttons */}

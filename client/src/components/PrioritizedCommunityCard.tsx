@@ -1,377 +1,233 @@
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { 
-  Phone, 
-  MessageCircle, 
-  MapPin, 
-  Calendar,
-  Users,
-  DollarSign,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-  ChevronRight,
-  Heart,
-  Share2,
-  Building,
-  Sparkles,
-  Shield,
-  Star,
-  Home,
-  Zap
-} from 'lucide-react';
-import { Link } from 'wouter';
+import React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2 } from "lucide-react";
 
-interface PrioritizedCommunityCardProps {
-  community: any;
-  variant?: 'grid' | 'list' | 'compare';
+interface CommunityCardProps {
+  community: {
+    id: number;
+    name: string;
+    city: string;
+    state: string;
+    address?: string;
+    careTypes?: string[];
+    priceRange?: { min: number; max: number };
+    rating?: number;
+    reviewCount?: number;
+    photos?: string[];
+    description?: string;
+    totalUnits?: number;
+    availabilityStatus?: string;
+    monthlyRentRangeStart?: number;
+    monthlyRentRangeEnd?: number;
+    hudPropertyId?: string;
+    priceTier?: string;
+    sizeCategory?: string;
+    occupancyRate?: number;
+    zipCode?: string;
+    seniorPercentage?: number;
+    rentPerMonth?: number | string;
+    occupancyRateHud?: string | number;
+    totalUnitsHud?: string | number;
+    communitySubtype?: string;
+    amenities?: string[];
+    phone?: string;
+    website?: string;
+    email?: string;
+    careLevel?: string;
+    
+    // Pricing properties
+    livePricing?: {
+      independentLiving?: { min: number; max: number };
+      assistedLiving?: { min: number; max: number };
+      memoryCare?: { min: number; max: number };
+    };
+    pricingType?: 'live' | 'market' | 'contact';
+  };
+  variant?: 'grid' | 'list';
   onSelect?: () => void;
-  onCompare?: () => void;
-  isSelected?: boolean;
-  index?: number;
+  onToggleFavorite?: () => void;
+  isFavorite?: boolean;
 }
 
 function CommunityCard({ 
   community, 
-  variant = 'grid',
+  variant = 'list',
   onSelect,
-  onCompare,
-  isSelected = false,
-  index = 0 
-}: PrioritizedCommunityCardProps) {
-
-  // Determine pricing display with market intelligence
-  const getPricingDisplay = () => {
-    if (community.displayPricing?.displayPrice) {
-      return {
-        price: community.displayPricing.displayPrice,
-        type: 'verified',
-        source: 'Community Verified',
-        color: 'text-green-600 dark:text-green-400',
-        bgColor: 'bg-green-50 dark:bg-green-900/20',
-        icon: Shield
-      };
-    }
-    if (community.hudPropertyId && community.rentPerMonth) {
-      return {
-        price: `$${typeof community.rentPerMonth === 'number' ? community.rentPerMonth.toFixed(0) : community.rentPerMonth}/mo`,
-        type: 'HUD',
-        source: 'HUD.gov Database',
-        color: 'text-green-600 dark:text-green-400',
-        bgColor: 'bg-green-50 dark:bg-green-900/20',
-        icon: Shield
-      };
-    }
-    if (community.priceRange) {
-      return {
-        price: `$${community.priceRange.min}-${community.priceRange.max}/mo`,
-        type: 'range',
-        source: 'Community Reported',
-        color: 'text-blue-600 dark:text-blue-400',
-        bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-        icon: CheckCircle
-      };
-    }
-    // Always show market intelligence, never "contact for pricing"
-    const marketEstimate = community.marketIntelligence?.estimate || 
-                          (community.careTypes?.includes('Memory Care') ? '$5,500' : '$4,200');
-    return {
-      price: `${marketEstimate}/mo`,
-      type: 'market',
-      source: 'Market Intelligence (2025)',
-      color: 'text-purple-600 dark:text-purple-400',
-      bgColor: 'bg-purple-50 dark:bg-purple-900/20',
-      icon: Sparkles
-    };
-  };
-
-  // Determine availability status
-  const getAvailabilityStatus = () => {
-    const occupancy = community.occupancyRate ? Number(community.occupancyRate) : 0;
-    
-    if (occupancy < 85) {
-      return {
-        status: 'Available Now',
-        color: 'bg-green-500',
-        textColor: 'text-green-600 dark:text-green-400',
-        icon: CheckCircle,
-        urgency: 'Move in today'
-      };
-    } else if (occupancy < 95) {
-      return {
-        status: 'Limited Availability',
-        color: 'bg-yellow-500',
-        textColor: 'text-yellow-600 dark:text-yellow-400',
-        icon: AlertCircle,
-        urgency: 'Only a few units left'
-      };
-    } else if (occupancy < 100) {
-      return {
-        status: 'Almost Full',
-        color: 'bg-orange-500',
-        textColor: 'text-orange-600 dark:text-orange-400',
-        icon: Clock,
-        urgency: 'Last unit available'
-      };
-    } else {
-      return {
-        status: 'Wait List',
-        color: 'bg-red-500',
-        textColor: 'text-red-600 dark:text-red-400',
-        icon: Users,
-        urgency: community.waitListLength ? `${community.waitListLength} on wait list` : 'Join wait list'
-      };
-    }
-  };
-
-  const pricing = getPricingDisplay();
-  const availability = getAvailabilityStatus();
-  const AvailabilityIcon = availability.icon;
-
-  const PricingIcon = pricing.icon;
+  onToggleFavorite,
+  isFavorite = false 
+}: CommunityCardProps) {
   
-  // Grid variant - Optimized for scanning and comparison
-  if (variant === 'grid') {
-    return (
-      <Card className={`relative overflow-hidden hover:shadow-xl transition-all duration-200 ${isSelected ? 'ring-2 ring-blue-500' : ''}`}>
-        {/* Compact Top Bar - Pricing & Availability */}
-        <div className="flex items-center justify-between p-2 border-b dark:border-gray-700">
-          {/* Pricing with Source */}
-          <div className={`flex-1 px-2 py-1 rounded-lg ${pricing.bgColor}`}>
-            <div className="flex items-center gap-1">
-              <PricingIcon className={`w-3 h-3 ${pricing.color}`} />
-              <span className={`text-lg font-bold ${pricing.color}`}>
-                {pricing.price}
-              </span>
-            </div>
-            <div className="text-[10px] text-gray-600 dark:text-gray-400">
-              {pricing.source}
-            </div>
-          </div>
-          
-          {/* Availability Status */}
-          <div className="flex items-center gap-1 px-2">
-            <div className={`w-2 h-2 rounded-full ${availability.color} animate-pulse`} />
-            <div>
-              <div className={`text-xs font-semibold ${availability.textColor}`}>
-                {availability.status}
-              </div>
-              <div className="text-[10px] text-gray-600 dark:text-gray-400">
-                {availability.urgency}
-              </div>
-            </div>
+  // Helper functions
+  const isHudProperty = Boolean(community.hudPropertyId);
+  
+  // Price display logic
+  const getPriceDisplay = () => {
+    if (isHudProperty && community.rentPerMonth) {
+      const rent = typeof community.rentPerMonth === 'string' 
+        ? parseInt(community.rentPerMonth.replace(/[^0-9]/g, '')) 
+        : community.rentPerMonth;
+      return rent > 0 ? `$${rent.toLocaleString()}/mo` : null;
+    }
+    
+    if (community.livePricing?.assistedLiving) {
+      const { min, max } = community.livePricing.assistedLiving;
+      return `$${min.toLocaleString()} - $${max.toLocaleString()}/mo`;
+    }
+    
+    if (community.monthlyRentRangeStart && community.monthlyRentRangeEnd) {
+      return `$${community.monthlyRentRangeStart.toLocaleString()} - $${community.monthlyRentRangeEnd.toLocaleString()}/mo`;
+    }
+    
+    return '$3,500/mo'; // Default for demo
+  };
+
+  const priceDisplay = getPriceDisplay();
+
+  return (
+    <Card className="w-full bg-gray-900 border-gray-700 hover:border-gray-600 transition-all duration-200 overflow-hidden">
+      {/* Pricing Header - Green */}
+      <div className="bg-green-700 text-white px-4 py-2 flex items-center justify-between">
+        <div className="flex items-center">
+          <div className="w-2 h-2 bg-white rounded-full mr-2"></div>
+          <span className="text-sm font-medium">
+            {priceDisplay}
+          </span>
+          <div className="ml-4 text-xs text-green-200">
+            Community Verified
           </div>
         </div>
+        <div className="text-right">
+          <div className="text-sm font-bold text-green-100">Available Now</div>
+          <div className="text-xs text-green-200">Move in today</div>
+        </div>
+      </div>
 
-        {/* Compact Photo Section */}
-        <div className="relative h-32">
+      {/* Main Card Content - Purple Gradient */}
+      <div className="relative bg-gradient-to-br from-purple-600 to-purple-800 text-white min-h-[140px] flex items-center justify-center">
+        {/* Share and Favorite buttons */}
+        <div className="absolute top-3 right-3 flex gap-2 z-20">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="bg-black/60 hover:bg-black/80 text-white p-2 h-8 w-8"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFavorite?.();
+            }}
+          >
+            <Heart className={`h-4 w-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="bg-black/60 hover:bg-black/80 text-white p-2 h-8 w-8"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            <Share2 className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Community Image or "Photos Coming Soon" */}
+        <div className="flex flex-col items-center justify-center">
           {community.photos && community.photos.length > 0 ? (
             <img 
               src={community.photos[0]} 
               alt={community.name}
-              className="w-full h-full object-cover"
+              className="w-20 h-20 rounded-lg object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900 dark:to-purple-900 flex items-center justify-center">
-              <Building className="w-8 h-8 text-gray-400 dark:text-gray-600" />
+            <div className="flex flex-col items-center">
+              <Building className="h-12 w-12 text-white/60 mb-2" />
+              <div className="text-xs text-white/80 text-center leading-tight">
+                Photos<br />Coming Soon
+              </div>
             </div>
           )}
-          
-          {/* Action Buttons Overlay */}
-          <div className="absolute top-1 right-1 flex gap-1">
-            <button 
-              onClick={() => onCompare && onCompare()}
-              className="w-7 h-7 bg-white/90 dark:bg-gray-900/90 rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-900"
-              title="Compare"
-            >
-              <Share2 className="w-3 h-3" />
-            </button>
-            <button className="w-7 h-7 bg-white/90 dark:bg-gray-900/90 rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-900">
-              <Heart className="w-3 h-3" />
-            </button>
-          </div>
+        </div>
+      </div>
 
-          {/* Care Type Badge */}
-          {community.careTypes && community.careTypes[0] && (
-            <Badge className="absolute bottom-1 left-1 text-[10px] px-1.5 py-0.5 bg-white/95 dark:bg-gray-900/95">
-              {community.careTypes[0]}
-            </Badge>
-          )}
+      {/* Bottom Section - Dark Theme */}
+      <CardContent className="p-4 bg-gray-900 text-white">
+        {/* Care Type Badge */}
+        <div className="flex items-center justify-between mb-3">
+          <Badge className="bg-blue-600 text-white text-sm px-3 py-1">
+            {community.careLevel || 'Assisted Living'}
+          </Badge>
         </div>
 
-        <CardContent className="p-3 space-y-2">
-          {/* Name & Location */}
-          <div>
-            <h3 className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-1">
-              {community.name}
-            </h3>
-            <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
-              <MapPin className="w-3 h-3 mr-0.5" />
-              {community.city}, {community.state}
-            </div>
-          </div>
-
-          {/* Compact Key Metrics Row */}
-          <div className="flex items-center justify-between text-xs bg-gray-50 dark:bg-gray-800 rounded p-1.5">
-            <div className="flex items-center gap-3">
-              <span className="text-gray-600 dark:text-gray-400">
-                <Building className="w-3 h-3 inline mr-0.5" />
-                {community.totalUnits || community.totalUnitsHud || 'N/A'}
-              </span>
-              <span className="flex items-center">
-                <Star className="w-3 h-3 text-yellow-400 mr-0.5" />
-                {community.rating ? parseFloat(community.rating).toFixed(1) : 'New'}
-              </span>
-              <span className="text-gray-600 dark:text-gray-400">
-                {community.sizeCategory || 'Standard'}
-              </span>
-            </div>
-          </div>
-
-          {/* Quick Actions Row */}
-          <div className="grid grid-cols-2 gap-1.5">
-            <button 
-              className="flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5 px-2 rounded transition-colors"
-              onClick={() => window.location.href = `tel:${community.phone || '1-800-SENIOR'}`}
-            >
-              <Phone className="w-3 h-3" />
-              <span>Call</span>
-            </button>
-            <button 
-              className="flex items-center justify-center gap-1 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs py-1.5 px-2 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!community.verified}
-              title={!community.verified ? "Verification required" : "Message"}
-            >
-              <MessageCircle className="w-3 h-3" />
-              <span>Message</span>
-            </button>
-          </div>
-
-          {/* View Details Link */}
-          <Link href={`/community/${community.id}`}>
-            <button className="w-full text-center text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 py-1 hover:underline">
-              View Full Details →
-            </button>
-          </Link>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // List variant - Horizontal layout for scrolling
-  if (variant === 'list') {
-    return (
-      <Card className={`relative overflow-hidden ${isSelected ? 'ring-2 ring-blue-500' : ''}`}>
-        <div className="flex h-28">
-          {/* Compact Image Section */}
-          <div className="relative w-28 h-28 flex-shrink-0">
-            {community.photos && community.photos.length > 0 ? (
-              <img 
-                src={community.photos[0]} 
-                alt={community.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900 dark:to-purple-900 flex items-center justify-center">
-                <Building className="w-8 h-8 text-gray-400 dark:text-gray-600" />
-              </div>
-            )}
-            
-            {/* Availability Badge */}
-            <div className={`absolute top-1 left-1 px-1.5 py-0.5 rounded text-[10px] font-semibold ${availability.color} text-white`}>
-              {availability.status}
-            </div>
-          </div>
-
-          {/* Content Section */}
-          <div className="flex-1 p-2 flex flex-col">
-            {/* Top Row - Name, Location, Pricing */}
-            <div className="flex justify-between items-start mb-1">
-              <div className="flex-1">
-                <h3 className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-1">
-                  {community.name}
-                </h3>
-                <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
-                  <MapPin className="w-3 h-3 mr-0.5" />
-                  {community.city}, {community.state}
-                </div>
-              </div>
-              
-              {/* Pricing with Source */}
-              <div className={`px-2 py-1 rounded-lg ${pricing.bgColor}`}>
-                <div className="flex items-center gap-1">
-                  <PricingIcon className={`w-3 h-3 ${pricing.color}`} />
-                  <span className={`text-lg font-bold ${pricing.color}`}>
-                    {pricing.price}
-                  </span>
-                </div>
-                <div className="text-[10px] text-gray-600 dark:text-gray-400">
-                  {pricing.source}
-                </div>
-              </div>
-            </div>
-
-            {/* Middle Row - Quick Stats */}
-            <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400 mb-1">
-              <span>
-                <Building className="w-3 h-3 inline mr-0.5" />
-                {community.totalUnits || 'N/A'} units
-              </span>
-              <span className="flex items-center">
-                <Star className="w-3 h-3 text-yellow-400 mr-0.5" />
-                {community.rating ? parseFloat(community.rating).toFixed(1) : 'New'}
-              </span>
-              <span className="flex items-center">
-                <AvailabilityIcon className="w-3 h-3 mr-0.5" />
-                {availability.urgency}
-              </span>
-              {community.careTypes && community.careTypes[0] && (
-                <Badge className="text-[10px] px-1.5 py-0">
-                  {community.careTypes[0]}
-                </Badge>
-              )}
-            </div>
-
-            {/* Bottom Row - Action Buttons */}
-            <div className="flex gap-1 mt-auto">
-              <button 
-                className="flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-1 px-2 rounded transition-colors"
-                onClick={() => window.location.href = `tel:${community.phone || '1-800-SENIOR'}`}
-              >
-                <Phone className="w-3 h-3" />
-                Call
-              </button>
-              <button 
-                className="flex items-center justify-center gap-1 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs py-1 px-2 rounded transition-colors disabled:opacity-50"
-                disabled={!community.verified}
-              >
-                <MessageCircle className="w-3 h-3" />
-                Message
-              </button>
-              <Link href={`/community/${community.id}`}>
-                <button className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 py-1 px-2">
-                  Details
-                  <ChevronRight className="w-3 h-3" />
-                </button>
-              </Link>
-              <button
-                className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 py-1 px-2"
-                onClick={() => onCompare && onCompare()}
-              >
-                <Share2 className="w-3 h-3" />
-                Compare
-              </button>
-            </div>
+        {/* Community Name and Location */}
+        <div className="mb-3">
+          <h3 className="text-xl font-bold text-white mb-1">
+            {community.name}
+          </h3>
+          <div className="flex items-center text-sm text-gray-400">
+            <MapPin className="h-4 w-4 mr-1" />
+            <span>{community.city}, {community.state}</span>
           </div>
         </div>
-      </Card>
-    );
-  }
 
-  // Default to grid if variant not recognized
-  return null;
+        {/* Stats Row - Clean and Minimal */}
+        <div className="flex items-center justify-between mb-4 p-3 bg-gray-800 rounded-lg">
+          <div className="flex items-center text-gray-300">
+            <Building className="h-4 w-4 mr-1" />
+            <span className="text-sm">{community.totalUnits || community.totalUnitsHud || '100'}</span>
+          </div>
+          <div className="flex items-center text-yellow-400">
+            <Star className="h-4 w-4 mr-1 fill-yellow-400" />
+            <span className="text-sm font-medium">{community.rating?.toFixed(1) || '4.5'}</span>
+          </div>
+          <span className="text-xs text-gray-400">Medium</span>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Call Button */}
+          <Button 
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg flex items-center justify-center gap-2"
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation();
+              if (community.phone) {
+                window.open(`tel:${community.phone}`, '_self');
+              }
+            }}
+          >
+            <Phone className="h-4 w-4" />
+            Call
+          </Button>
+
+          {/* Message Button */}
+          <Button 
+            variant="outline"
+            className="border-gray-600 text-gray-300 hover:bg-gray-700 font-semibold py-2 rounded-lg flex items-center justify-center gap-2"
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation();
+            }}
+          >
+            <MessageCircle className="h-4 w-4" />
+            Message
+          </Button>
+        </div>
+
+        {/* View Full Details */}
+        <div className="mt-3 text-center">
+          <button 
+            className="text-blue-400 hover:text-blue-300 text-sm transition-colors"
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation();
+              onSelect?.();
+            }}
+          >
+            View Full Details →
+          </button>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
+// Export with React.memo for performance optimization
 export const PrioritizedCommunityCard = React.memo(CommunityCard);
