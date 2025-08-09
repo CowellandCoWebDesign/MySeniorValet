@@ -262,13 +262,30 @@ function CommunityCard({
 
       {/* Bottom Section - Dark Theme */}
       <CardContent className="p-4 bg-gray-900 text-white">
-        {/* Top Row: Care Type Badge and Community Name on Left, Pricing Stack on Right */}
+        {/* Top Row: Care Type Badge and First Month Free */}
         <div className="flex items-start justify-between mb-3">
           {/* Left Side: Badge and Name */}
           <div className="flex-1 mr-4">
-            <Badge className="bg-blue-600 text-white text-sm px-3 py-1 mb-2 inline-block">
-              {community.careLevel || 'Assisted Living'}
-            </Badge>
+            {/* Badge Row with Care Type on Left, First Month Free on Right */}
+            <div className="flex items-center justify-between mb-2">
+              <Badge className="bg-blue-600 text-white text-sm px-3 py-1 inline-block">
+                {community.careLevel || 'Assisted Living'}
+              </Badge>
+              
+              {/* First Month Free Promotion */}
+              {community.specialPromotions && community.specialPromotions.length > 0 && (
+                <div className="bg-yellow-900/30 border border-yellow-700/50 rounded-lg px-2 py-1">
+                  <div className="text-xs text-yellow-400 font-semibold">
+                    ⭐ {community.specialPromotions[0].title}
+                  </div>
+                  {community.specialPromotions[0].monthsWaived && (
+                    <div className="text-xs text-yellow-300">
+                      {community.specialPromotions[0].monthsWaived} months free!
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
             
             <h3 className="text-xl font-bold text-white mb-1">
               {community.name}
@@ -434,20 +451,7 @@ function CommunityCard({
             </div>
           )}
           
-          {/* Special Promotions */}
-          {community.specialPromotions && community.specialPromotions.length > 0 && (
-            <div className="bg-yellow-900/30 border border-yellow-700/50 rounded-lg p-2">
-              <div className="text-xs text-yellow-400 font-semibold">
-                ⭐ {community.specialPromotions[0].title}
-              </div>
-              {community.specialPromotions[0].monthsWaived && (
-                <div className="text-xs text-yellow-300">
-                  {community.specialPromotions[0].monthsWaived} months free!
-                </div>
-              )}
-            </div>
-          )}
-          
+
           {/* Medical Restrictions Alert */}
           {community.medicalRestrictions && community.medicalRestrictions.length > 0 && (
             <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-2">
