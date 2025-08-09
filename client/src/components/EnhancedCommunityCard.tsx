@@ -79,23 +79,23 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     !!(community as any).pricingDetails?.basePrice;
   const hasOccupancyData = false; // No occupancy data in current schema
 
-  // Community subtype badge mapping
+  // Community subtype badge mapping with comprehensive descriptions
   const getSubtypeBadge = (subtype?: string) => {
-    const subtypeMap: Record<string, { emoji: string; label: string; color: string }> = {
-      'hud_senior_housing': { emoji: '🏛️', label: 'HUD Senior Housing', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' },
-      'mobile_home_park': { emoji: '🏡', label: 'Mobile Home Park', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' },
-      'active_adult_55_plus': { emoji: '🏌️', label: '55+ Active Adult', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' },
-      'independent_living': { emoji: '🏢', label: 'Independent Living', color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200' },
-      'assisted_living': { emoji: '🏥', label: 'Assisted Living', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' },
-      'memory_care': { emoji: '🧠', label: 'Memory Care', color: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200' },
-      'board_and_care_home': { emoji: '🏠', label: 'Board & Care', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' },
-      'skilled_nursing': { emoji: '⚕️', label: 'Skilled Nursing', color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },
-      'ccrc_life_plan': { emoji: '🌟', label: 'Life Plan CCRC', color: 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200' },
-      'va_housing': { emoji: '🇺🇸', label: 'Veterans Housing', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' },
-      'unlicensed_housing': { emoji: '🏘️', label: 'Residential Care', color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200' },
-      'manufactured_home_community': { emoji: '🏘️', label: 'Manufactured Homes', color: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200' },
-      'rv_retirement_park': { emoji: '🚐', label: 'RV Retirement', color: 'bg-lime-100 text-lime-800 dark:bg-lime-900 dark:text-lime-200' },
-      'senior_cooperative': { emoji: '🤝', label: 'Senior Co-op', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200' }
+    const subtypeMap: Record<string, { emoji: string; label: string; color: string; description?: string }> = {
+      'hud_senior_housing': { emoji: '🏛️', label: 'HUD Senior Housing', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200', description: 'Government-subsidized affordable housing' },
+      'mobile_home_park': { emoji: '🚐', label: 'Mobile & RV Community', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', description: 'Mobile homes, RV parks, manufactured homes' },
+      'active_adult_55_plus': { emoji: '🏌️', label: '55+ Active Adult', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200', description: 'Age-restricted independent community' },
+      'independent_living': { emoji: '🏢', label: 'Independent Living', color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200', description: 'Maintenance-free senior apartments' },
+      'assisted_living': { emoji: '🤝', label: 'Assisted Living', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200', description: 'Personal care and daily assistance' },
+      'memory_care': { emoji: '🧠', label: 'Memory Care', color: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200', description: 'Specialized dementia and Alzheimer\'s care' },
+      'board_and_care_home': { emoji: '🏘️', label: 'Board & Care', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200', description: 'Small residential care homes' },
+      'skilled_nursing': { emoji: '🏥', label: 'Skilled Nursing', color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200', description: '24/7 medical care and rehabilitation' },
+      'ccrc_life_plan': { emoji: '♾️', label: 'CCRC Life Plan', color: 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200', description: 'All care levels on one campus' },
+      'va_housing': { emoji: '🎖️', label: 'Veterans Housing', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200', description: 'Housing for military veterans' },
+      'unlicensed_housing': { emoji: '🏘️', label: 'Residential Care', color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200', description: 'Unlicensed senior housing' },
+      'manufactured_home_community': { emoji: '🏘️', label: 'Manufactured Homes', color: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200', description: 'Permanent manufactured home community' },
+      'rv_retirement_park': { emoji: '🚐', label: 'RV Lifestyle', color: 'bg-lime-100 text-lime-800 dark:bg-lime-900 dark:text-lime-200', description: '55+ RV resort and retirement parks' },
+      'senior_cooperative': { emoji: '🤝', label: 'Senior Co-op', color: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200', description: 'Resident-owned cooperative housing' }
     };
     
     if (!subtype) return null;
@@ -388,7 +388,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
             </div>
           </div>
           
-          {/* Tier badges */}
+          {/* Tier badges with full descriptions */}
           <div className="flex flex-wrap gap-2 mb-3">
             {tierInfo && (
               <Badge className={`${tierInfo.color} text-xs px-2 py-1 font-semibold`}>
@@ -396,20 +396,44 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
               </Badge>
             )}
             {subtypeBadge && (
-              <Badge className={`${subtypeBadge.color} text-xs px-2 py-1`}>
-                {subtypeBadge.emoji} {subtypeBadge.label}
-              </Badge>
+              <div className="w-full">
+                <Badge className={`${subtypeBadge.color} text-xs px-2 py-1 inline-flex items-center`}>
+                  {subtypeBadge.emoji} {subtypeBadge.label}
+                </Badge>
+                {subtypeBadge.description && (
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 ml-2">
+                    {subtypeBadge.description}
+                  </p>
+                )}
+              </div>
             )}
           </div>
           
-          {/* Special Features section */}
+          {/* Special Features section with comprehensive care type info */}
           <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3 mb-3">
             <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Special Features:</h4>
             <div className="space-y-1">
               {(community.careTypes && community.careTypes.length > 0) && (
-                <div className="flex items-start text-xs text-gray-600 dark:text-gray-400">
-                  <span className="mr-1">❈</span>
-                  <span>{community.careTypes.length} care levels available</span>
+                <div className="flex flex-col text-xs text-gray-600 dark:text-gray-400">
+                  <div className="flex items-start">
+                    <span className="mr-1">❈</span>
+                    <span className="font-semibold">{community.careTypes.length} care levels available:</span>
+                  </div>
+                  {community.careTypes.includes('Senior Mobile Park') && (
+                    <div className="ml-4 text-xs mt-1">
+                      <span className="text-blue-600 dark:text-blue-400">• Mobile homes, RV parks, manufactured homes, 55+ mobile communities</span>
+                    </div>
+                  )}
+                  {community.careTypes.includes('Memory Care') && (
+                    <div className="ml-4 text-xs mt-1">
+                      <span className="text-purple-600 dark:text-purple-400">• Specialized dementia & Alzheimer's care</span>
+                    </div>
+                  )}
+                  {community.careTypes.includes('Assisted Living') && (
+                    <div className="ml-4 text-xs mt-1">
+                      <span className="text-orange-600 dark:text-orange-400">• Personal care & daily assistance</span>
+                    </div>
+                  )}
                 </div>
               )}
               <div className="flex items-start text-xs text-gray-600 dark:text-gray-400">
@@ -419,7 +443,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
               {isHudProperty && (
                 <div className="flex items-start text-xs text-gray-600 dark:text-gray-400">
                   <span className="mr-1">✓</span>
-                  <span>Government subsidized</span>
+                  <span>Government subsidized with income-based rent</span>
                 </div>
               )}
             </div>
@@ -502,12 +526,35 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                   </>
                 ) : (
                   <>
-                    {community.careTypes?.slice(0, 3).map((care: string, idx: number) => (
-                      <div key={idx} className="flex items-start text-xs text-gray-600 dark:text-gray-400">
-                        <span className="mr-1">•</span>
-                        <span>{care}</span>
-                      </div>
-                    ))}
+                    {community.careTypes?.slice(0, 3).map((care: string, idx: number) => {
+                      // Enhanced care type descriptions
+                      const getCareTypeDescription = (careType: string) => {
+                        const descriptions: Record<string, string> = {
+                          'Senior Mobile Park': 'Mobile & RV Communities',
+                          'Mobile Home Park': 'Mobile & RV Communities',
+                          'RV Park': 'RV Lifestyle & Retirement',
+                          'Manufactured Homes': 'Manufactured Home Communities',
+                          'Skilled Nursing': '24/7 Medical Care',
+                          'Memory Care': 'Dementia & Alzheimer\'s',
+                          'Assisted Living': 'Personal Care Support',
+                          'Independent Living': 'Maintenance-Free Living',
+                          '55+ Housing': '55+ Active Adult',
+                          '55+ Active Adult': 'Age-Restricted Community',
+                          'Continuing Care': 'CCRC - All Care Levels',
+                          'Board and Care': 'Small Residential Care',
+                          'Veterans Housing': 'VA Senior Housing',
+                          'HUD Housing': 'Subsidized Senior Housing'
+                        };
+                        return descriptions[careType] || careType;
+                      };
+                      
+                      return (
+                        <div key={idx} className="flex items-start text-xs text-gray-600 dark:text-gray-400">
+                          <span className="mr-1">•</span>
+                          <span className="font-medium">{getCareTypeDescription(care)}</span>
+                        </div>
+                      );
+                    })}
                   </>
                 )}
               </div>
