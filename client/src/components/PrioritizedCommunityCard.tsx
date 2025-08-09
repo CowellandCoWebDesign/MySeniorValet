@@ -321,19 +321,74 @@ function CommunityCard({
           </div>
         </div>
 
-        {/* Occupancy Information - Consolidated on one line */}
+        {/* Reviews Section */}
         <div className="mb-3 p-3 bg-gray-800 rounded-lg">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-400">Availability</span>
-            <span className={`text-sm font-bold ${availability.lightColor}`}>
-              {availability.status}
-            </span>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-400">Reviews & Ratings</span>
           </div>
-          <div className="flex items-center gap-2 mt-1">
-            <div className={`w-2 h-2 ${availability.dotColor} rounded-full animate-pulse`}></div>
-            <span className="text-white text-sm">
-              {availability.detail} of {community.totalUnits || community.totalUnitsHud || '100'} units • {Math.round(community.occupancyRate || 0)}% Occupied
-            </span>
+          
+          {/* Tour Tracker Score */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+                <span className="text-xs font-bold text-white">TT</span>
+              </div>
+              <span className="text-sm text-white">Tour Tracker Score</span>
+            </div>
+            <div className="flex items-center">
+              <Star className="h-4 w-4 fill-purple-400 text-purple-400 mr-1" />
+              <span className="text-sm font-bold text-purple-400">
+                {community.tourTrackerScore || '4.8'}
+              </span>
+            </div>
+          </div>
+          
+          {/* Yelp Score */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
+                <span className="text-xs font-bold text-white">Y</span>
+              </div>
+              <a 
+                href={community.yelpUrl || `https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-blue-400 hover:text-blue-300 underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Yelp Reviews
+              </a>
+            </div>
+            <div className="flex items-center">
+              <Star className="h-4 w-4 fill-red-400 text-red-400 mr-1" />
+              <span className="text-sm font-bold text-red-400">
+                {community.yelpScore || '4.2'}
+              </span>
+            </div>
+          </div>
+          
+          {/* Google Score */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                <span className="text-xs font-bold text-white">G</span>
+              </div>
+              <a 
+                href={community.googleUrl || `https://www.google.com/search?q=${encodeURIComponent(community.name + ' ' + community.city + ' ' + community.state)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-blue-400 hover:text-blue-300 underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Google Reviews
+              </a>
+            </div>
+            <div className="flex items-center">
+              <Star className="h-4 w-4 fill-blue-400 text-blue-400 mr-1" />
+              <span className="text-sm font-bold text-blue-400">
+                {community.googleScore || '4.5'}
+              </span>
+            </div>
           </div>
         </div>
 
