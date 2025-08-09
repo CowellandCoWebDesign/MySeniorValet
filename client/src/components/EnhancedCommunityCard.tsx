@@ -558,10 +558,14 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                 )}
               </div>
               
-              {/* Availability Status */}
+              {/* Availability Status Text */}
               <div className="mt-3">
                 <div className="flex items-center justify-end text-gray-400">
-                  <div className="w-2 h-2 bg-gray-500 rounded-full mr-2"></div>
+                  <div className={`w-2 h-2 rounded-full mr-2 ${
+                    occupancyRate >= 95 ? 'bg-gray-500' : 
+                    occupancyRate >= 85 ? 'bg-gray-500' : 
+                    'bg-gray-500'
+                  }`}></div>
                   <span className="text-sm">Contact for Availability</span>
                 </div>
               </div>
@@ -583,14 +587,66 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
             </p>
           </div>
           
-          {/* Real-time availability pending verification box */}
+          {/* Real-time availability section with occupancy */}
           <div className="bg-gray-700 rounded-lg p-4 mb-4">
-            <h4 className="text-gray-300 text-sm font-semibold mb-2">
-              Real-time availability pending verification
-            </h4>
-            <p className="text-gray-400 text-xs">
-              Contact community directly for current availability
-            </p>
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h4 className="text-gray-300 text-sm font-semibold mb-2">
+                  Real-time availability pending verification
+                </h4>
+                <p className="text-gray-400 text-xs">
+                  Contact community directly for current availability
+                </p>
+              </div>
+              
+              {/* Circular Occupancy Display */}
+              <div className="flex flex-col items-center ml-4">
+                <div className="relative w-20 h-20">
+                  {/* Background circle */}
+                  <svg className="w-20 h-20 transform -rotate-90">
+                    <circle
+                      cx="40"
+                      cy="40"
+                      r="32"
+                      stroke="#374151"
+                      strokeWidth="6"
+                      fill="none"
+                    />
+                    {/* Progress circle */}
+                    <circle
+                      cx="40"
+                      cy="40"
+                      r="32"
+                      stroke={occupancyRate >= 95 ? '#ef4444' : occupancyRate >= 85 ? '#fb923c' : '#10b981'}
+                      strokeWidth="6"
+                      fill="none"
+                      strokeDasharray={`${2 * Math.PI * 32}`}
+                      strokeDashoffset={`${2 * Math.PI * 32 * (1 - occupancyRate / 100)}`}
+                      className="transition-all duration-500"
+                    />
+                  </svg>
+                  {/* Center text */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-xl font-bold text-white">{occupancyRate}%</span>
+                    <span className="text-[10px] text-gray-400">Occupied</span>
+                  </div>
+                </div>
+                
+                {/* Status indicator */}
+                <div className="mt-2 flex items-center">
+                  <div className={`w-2 h-2 rounded-full mr-1 ${
+                    occupancyRate >= 95 ? 'bg-red-500' : 
+                    occupancyRate >= 85 ? 'bg-orange-500' : 
+                    'bg-green-500'
+                  }`}></div>
+                  <span className="text-[10px] text-gray-400">
+                    {occupancyRate >= 95 ? 'Wait List' : 
+                     occupancyRate >= 85 ? 'Limited' : 
+                     'Available'}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
           
           {/* AMENITIES SECTION with Disclaimer */}
