@@ -971,7 +971,46 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
       >
         <CardContent className="p-0">
           <div className="flex">
-            {/* Left Side - Community Info */}
+            {/* Left Side - Photo */}
+            <div className="relative w-64 h-48 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex-shrink-0">
+              {community.photos && community.photos.length > 0 && community.photos[0] ? (
+                <img 
+                  src={community.photos[0]} 
+                  alt={community.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center">
+                  <div className="mb-2 text-blue-600 dark:text-blue-400">
+                    <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                    </svg>
+                  </div>
+                  <h3 className="text-xs font-semibold text-gray-800 dark:text-gray-200">
+                    Photos Coming Soon
+                  </h3>
+                </div>
+              )}
+              
+              {/* HUD Badge on photo */}
+              {isHudProperty && (
+                <div className="absolute top-2 left-2">
+                  <Badge className="bg-green-600 text-white text-xs shadow-lg">
+                    <Shield className="h-3 w-3 mr-1" />
+                    HUD
+                  </Badge>
+                </div>
+              )}
+              
+              {/* Heart/Favorite on photo */}
+              <div className="absolute top-2 right-2">
+                <div className="w-8 h-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-800 transition-colors cursor-pointer">
+                  <Heart className="h-4 w-4 text-gray-600 dark:text-gray-400 hover:text-red-500 transition-colors" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Middle - Community Info */}
             <div className="flex-1 p-6">
               <div className="flex justify-between items-start mb-3">
                 <div className="flex-1">
