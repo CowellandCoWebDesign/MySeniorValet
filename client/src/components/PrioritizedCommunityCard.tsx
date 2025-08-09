@@ -2,7 +2,7 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2 } from "lucide-react";
+import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2, Home } from "lucide-react";
 
 interface CommunityCardProps {
   community: {
@@ -339,7 +339,7 @@ function CommunityCard({
                 <div className="text-center">
                   <div className="flex flex-col items-center">
                     <div className="w-9 h-9 bg-yellow-500 rounded-full flex items-center justify-center mb-1">
-                      <span className="text-xs font-bold text-white">TT</span>
+                      <Home className="h-5 w-5 text-white" />
                     </div>
                     <div className="text-xs text-gray-400">Tour Tracker</div>
                     <div className="flex items-center justify-center">
