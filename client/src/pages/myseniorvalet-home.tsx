@@ -442,36 +442,27 @@ export default function MySeniorValetHome() {
           {/* Premium Search Experience - Two Powerful Options */}
           <div className="flex flex-col items-center space-y-4 mb-5 animate-fade-in-up animation-delay-700 w-full px-4">
             {/* Search Method Selector - Modern Design */}
-            <div className="flex flex-col sm:flex-row gap-3 w-full max-w-2xl">
+            <div className="flex flex-col sm:flex-row gap-2 w-full max-w-3xl">
               {/* Traditional Search - Familiar & Fast */}
               <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="flex-1">
-                <Button className="w-full h-auto bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 text-white px-6 py-4 rounded-2xl font-bold shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 group relative overflow-hidden">
+                <Button className="w-full bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 text-white px-5 py-3 rounded-xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 group relative overflow-hidden">
                   <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
-                  <div className="relative flex flex-col items-center space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <Filter className="h-6 w-6" />
-                      <span className="text-lg md:text-xl">Traditional Search</span>
-                    </div>
-                    <span className="text-xs md:text-sm opacity-90 font-medium">
-                      Filters • Map • Instant Results
-                    </span>
+                  <div className="relative flex items-center justify-center space-x-2">
+                    <Filter className="h-4 w-4" />
+                    <span>Traditional Search</span>
                   </div>
                 </Button>
               </Link>
 
               {/* AI Intelligence - Premium Power */}
               <Link href="/ai-search-intelligence" className="flex-1">
-                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 hover:from-purple-700 hover:via-pink-700 hover:to-red-700 text-white px-6 py-4 rounded-2xl font-bold shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 group relative overflow-hidden animate-gradient-x">
+                <Button className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 hover:from-purple-700 hover:via-pink-700 hover:to-red-700 text-white px-5 py-3 rounded-xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 group relative overflow-hidden animate-gradient-x">
                   <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/30 via-orange-400/30 to-red-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer"></div>
-                  <div className="relative flex flex-col items-center space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-2xl animate-pulse">✨</span>
-                      <span className="text-lg md:text-xl">AI Intelligence</span>
-                      <span className="text-2xl animate-pulse">🚀</span>
-                    </div>
-                    <span className="text-xs md:text-sm opacity-90 font-medium">
-                      Natural Language • Deep Analysis • Smart Recommendations
-                    </span>
+                  <div className="relative flex items-center justify-center space-x-2">
+                    <span className="text-lg animate-pulse">✨</span>
+                    <MapPin className="h-4 w-4" />
+                    <span>AI Intelligence</span>
+                    <span className="text-lg animate-pulse">🚀</span>
                   </div>
                   <div className="absolute -top-1 -right-1">
                     <span className="relative flex h-3 w-3">
