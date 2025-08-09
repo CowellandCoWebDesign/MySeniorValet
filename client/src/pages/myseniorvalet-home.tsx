@@ -400,7 +400,7 @@ export default function MySeniorValetHome() {
 
 
           {/* Search Bar - Enhanced with AutocompleteSearch Component */}
-          <div className="w-full max-w-4xl mb-2 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
+          <div className="w-full max-w-4xl mb-1 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
             <form onSubmit={(e) => {
               e.preventDefault();
               if (searchQuery) {
