@@ -11,7 +11,9 @@ MySeniorValet is a comprehensive senior living transparency platform providing a
 - **Consolidated Occupancy Display**: Unit counts and occupancy percentage now display on single line for cleaner layout (e.g., "3 of 85 units • 96% Occupied")
 - **Header Layout Optimization**: Header displays pricing on left side, availability status and details on right side with occupancy percentage shown first
 - **Pricing Attribution**: Added source citation below pricing amount indicating data source (HUD Verified Data, Community Verified, or MySeniorValet Market Intelligence)
-- **Reviews Section**: Replaced availability section with comprehensive reviews displaying Tour Tracker Score, Yelp rating with link, and Google rating with link
+- **Reviews Section**: Replaced availability section with comprehensive reviews displaying Tour Tracker Score (gold-themed), Yelp rating with link, and Google rating with link
+- **Units Display**: Moved units count to top right of card body next to care type badge for cleaner layout
+- **Community Name**: Removed verified source parenthetical from community names, relying on pricing citation below
 - **Test Page**: Created `/enhanced-card-test` to showcase all new card features with comprehensive sample data
 
 ## User Preferences

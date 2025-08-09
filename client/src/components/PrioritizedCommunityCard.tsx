@@ -262,11 +262,15 @@ function CommunityCard({
 
       {/* Bottom Section - Dark Theme */}
       <CardContent className="p-4 bg-gray-900 text-white">
-        {/* Care Type Badge */}
+        {/* Care Type Badge and Units Info */}
         <div className="flex items-center justify-between mb-3">
           <Badge className="bg-blue-600 text-white text-sm px-3 py-1">
             {community.careLevel || 'Assisted Living'}
           </Badge>
+          <div className="flex items-center text-gray-300">
+            <Building className="h-4 w-4 mr-1" />
+            <span className="text-sm">{community.totalUnits || community.totalUnitsHud || '100'} units</span>
+          </div>
         </div>
 
         {/* Community Name and Location */}
@@ -330,14 +334,14 @@ function CommunityCard({
           {/* Tour Tracker Score */}
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-yellow-600 rounded-full flex items-center justify-center">
                 <span className="text-xs font-bold text-white">TT</span>
               </div>
               <span className="text-sm text-white">Tour Tracker Score</span>
             </div>
             <div className="flex items-center">
-              <Star className="h-4 w-4 fill-purple-400 text-purple-400 mr-1" />
-              <span className="text-sm font-bold text-purple-400">
+              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
+              <span className="text-sm font-bold text-yellow-400">
                 {community.tourTrackerScore || '4.8'}
               </span>
             </div>
@@ -390,19 +394,6 @@ function CommunityCard({
               </span>
             </div>
           </div>
-        </div>
-
-        {/* Stats Row - Clean and Minimal */}
-        <div className="flex items-center justify-between mb-3 p-3 bg-gray-800 rounded-lg">
-          <div className="flex items-center text-gray-300">
-            <Building className="h-4 w-4 mr-1" />
-            <span className="text-sm">{community.totalUnits || community.totalUnitsHud || '100'} units</span>
-          </div>
-          <div className="flex items-center text-yellow-400">
-            <Star className="h-4 w-4 mr-1 fill-yellow-400" />
-            <span className="text-sm font-medium">{community.rating?.toFixed(1) || '4.5'}</span>
-          </div>
-          <span className="text-xs text-gray-400">{community.sizeCategory || 'Medium'}</span>
         </div>
 
         {/* Critical Information Row */}
