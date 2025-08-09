@@ -294,6 +294,76 @@ body {
   animation: slow-pulse 3s ease-in-out infinite;
 }
 
+/* Premium Button Animations */
+@keyframes gradient-x {
+  0%, 100% {
+    background-size: 200% 200%;
+    background-position: left center;
+  }
+  50% {
+    background-size: 200% 200%;
+    background-position: right center;
+  }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 3s ease infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.5),
+                0 0 40px rgba(251, 146, 60, 0.3),
+                0 0 60px rgba(250, 204, 21, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.7),
+                0 0 50px rgba(251, 146, 60, 0.5),
+                0 0 70px rgba(250, 204, 21, 0.3);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes fire-wiggle {
+  0%, 100% {
+    transform: rotate(-3deg) scale(1);
+  }
+  25% {
+    transform: rotate(3deg) scale(1.1);
+  }
+  50% {
+    transform: rotate(-2deg) scale(1.05);
+  }
+  75% {
+    transform: rotate(2deg) scale(1.1);
+  }
+}
+
+.animate-fire-wiggle {
+  animation: fire-wiggle 0.5s ease-in-out infinite;
+}
+
+/* Enhanced shadow utilities */
+.shadow-3xl {
+  box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
+}
+
 :root {
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(222, 47%, 11%);
