@@ -1565,7 +1565,7 @@ export default function AISearchIntelligence() {
                     </div>
                   </Button>
 
-                  {/* CCRC - Continuing Care */}
+                  {/* CCRC - Continuing Care Retirement Community */}
                   <Button
                     variant={simplifiedFilters.typeOfLiving.includes('ccrc') ? 'default' : 'outline'}
                     onClick={() => {
@@ -1574,18 +1574,18 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'ccrc'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[160px] px-2 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('ccrc')
                         ? 'bg-amber-600 text-white hover:bg-amber-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
-                    title="All care levels on one campus, from independent to skilled nursing, lifetime care guarantee"
+                    title="Continuing Care Retirement Community - All care levels on one campus (Independent, Assisted, Memory, Skilled Nursing), lifetime care guarantee with predictable costs"
                   >
                     <div className="text-center h-full flex flex-col justify-center">
                       <div className="text-2xl mb-1">♾️</div>
-                      <div className="text-xs font-bold leading-tight">Continuing Care</div>
-                      <div className="text-[10px] opacity-90 leading-tight mt-1">Retirement</div>
-                      <div className="text-[10px] opacity-80">Varies</div>
+                      <div className="text-[11px] font-bold leading-tight">Continuing Care</div>
+                      <div className="text-[10px] opacity-90 leading-tight">Retirement Community</div>
+                      <div className="text-[10px] opacity-80 mt-1">Varies</div>
                       <div className="text-[10px] opacity-60">1,245</div>
                     </div>
                   </Button>
