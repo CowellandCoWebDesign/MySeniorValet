@@ -1018,23 +1018,23 @@ export default function Map({
                         community.hudPropertyId || 
                         community.dataSource === 'HUD';
 
-    const borderColor = hasLiveData ? '#16a34a' : '#dc2626'; // Green for live data, red for no data
+    const borderColor = hasLiveData ? '#10b981' : '#ef4444'; // Brighter green for live data, brighter red for no data
     const bgColor = isHovered ? '#fef3c7' : '#ffffff'; // Yellow background on hover
-    const size = isHovered ? 40 : 35;
+    const size = isHovered ? 32 : 28; // Reduced sizes for more compact pins
 
-    // Create HTML divIcon with emoji using encodeURIComponent for Unicode support
+    // Create more compact pin with thicker border
     const svgString = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size + 10}" viewBox="0 0 ${size} ${size + 10}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size + 8}" viewBox="0 0 ${size} ${size + 8}">
         <defs>
-          <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.25)"/>
+          <filter id="shadow${Date.now()}" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0.5" dy="1" stdDeviation="1.5" flood-color="rgba(0,0,0,0.3)"/>
           </filter>
         </defs>
-        <!-- Pin shape -->
-        <path fill="${bgColor}" stroke="${borderColor}" stroke-width="2.5" filter="url(#shadow)"
-              d="M${size/2} 2C${size*0.2} 2 2 ${size*0.2} 2 ${size/2}c0 ${size*0.4} ${size/2-2} ${size-2} ${size/2-2} ${size-2}s${size/2-2} ${size*0.6-2} ${size/2-2} ${size-2}C${size-2} ${size*0.2} ${size*0.8} 2 ${size/2} 2z"/>
-        <!-- Emoji text -->
-        <text x="${size/2}" y="${size/2 + 3}" text-anchor="middle" font-size="${size * 0.5}" font-family="Arial, sans-serif">
+        <!-- Compact pin shape with thicker border -->
+        <path fill="${bgColor}" stroke="${borderColor}" stroke-width="4" filter="url(#shadow${Date.now()})"
+              d="M${size/2} 3C${size*0.25} 3 3 ${size*0.25} 3 ${size/2}c0 ${size*0.35} ${size/2-3} ${size+2} ${size/2-3} ${size+2}s${size/2-3} ${size*0.65-2} ${size/2-3} ${size+2}C${size-3} ${size*0.25} ${size*0.75} 3 ${size/2} 3z"/>
+        <!-- Emoji with adjusted positioning for compact design -->
+        <text x="${size/2}" y="${size/2 + 2}" text-anchor="middle" font-size="${size * 0.55}" font-family="Arial, sans-serif">
           ${emoji}
         </text>
       </svg>
@@ -1042,9 +1042,9 @@ export default function Map({
 
     return new Icon({
       iconUrl: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svgString)}`,
-      iconSize: [size, size + 10],
-      iconAnchor: [size/2, size + 10],
-      popupAnchor: [0, -(size + 10)],
+      iconSize: [size, size + 8],
+      iconAnchor: [size/2, size + 8],
+      popupAnchor: [0, -(size + 8)],
       className: `care-level-marker ${isHovered ? 'marker-hover' : ''}`
     });
   };
@@ -1281,12 +1281,12 @@ export default function Map({
               iconUrl: `data:image/svg+xml;base64,${btoa(`
                 <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
                   <defs>
-                    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.3)"/>
+                    <filter id="shadow${Date.now()}" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="1" dy="1.5" stdDeviation="2" flood-color="rgba(0,0,0,0.35)"/>
                     </filter>
                   </defs>
-                  <circle cx="${size/2}" cy="${size/2}" r="${size/2 - 3}" fill="${clusterColor}" stroke="${strokeColor}" stroke-width="3" filter="url(#shadow)"/>
-                  <text x="${size/2}" y="${size/2 + 6}" text-anchor="middle" fill="#fff" font-size="${Math.min(16, size/3)}" font-weight="bold" font-family="Arial, sans-serif">
+                  <circle cx="${size/2}" cy="${size/2}" r="${size/2 - 4}" fill="${clusterColor}" stroke="${strokeColor}" stroke-width="5" filter="url(#shadow${Date.now()})"/>
+                  <text x="${size/2}" y="${size/2 + 5}" text-anchor="middle" fill="#fff" font-size="${Math.min(18, size/2.8)}" font-weight="bold" font-family="Arial, sans-serif">
                     ${properties.point_count_abbreviated}
                   </text>
                 </svg>
