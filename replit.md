@@ -9,7 +9,7 @@ MySeniorValet is a comprehensive senior living transparency platform providing a
 - **Critical Information Display**: Added pet policy, special promotions, medical restrictions, license status, and violations display to community cards
 - **Dual Color-Coding System**: Left side pricing color-coded by verification source (Blue=HUD, Green=Community, Yellow=Market), right side availability color-coded by status
 - **Consolidated Occupancy Display**: Unit counts and occupancy percentage now display on single line for cleaner layout (e.g., "3 of 85 units • 96% Occupied")
-- **Header Layout Optimization**: Header displays occupancy percentage on left side with pricing, available units count on right side for improved visual balance
+- **Header Layout Optimization**: Header displays pricing on left side, availability status and details on right side with occupancy percentage shown first
 - **Test Page**: Created `/enhanced-card-test` to showcase all new card features with comprehensive sample data
 
 ## User Preferences

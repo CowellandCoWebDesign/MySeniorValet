@@ -176,26 +176,23 @@ function CommunityCard({
 
   return (
     <Card className="w-full bg-gray-900 border-gray-700 hover:border-gray-600 transition-all duration-200 overflow-hidden">
-      {/* Split Header - Pricing & Occupancy on Left, Available Units on Right */}
+      {/* Split Header - Pricing on Left (color by verification), Availability on Right (color by status) */}
       <div className="flex">
-        {/* Pricing & Occupancy Section - Color Coded by Verification Source */}
-        <div className={`${pricingColors.bgColor} text-white px-4 py-2 flex-1 flex items-center justify-between`}>
-          <div className="flex items-center">
-            <div className={`w-2 h-2 ${pricingColors.dotColor} rounded-full mr-2`}></div>
-            <span className="text-sm font-medium">
-              {priceDisplay}
-            </span>
-          </div>
+        {/* Pricing Section - Color Coded by Verification Source */}
+        <div className={`${pricingColors.bgColor} text-white px-4 py-2 flex-1 flex items-center`}>
+          <div className={`w-2 h-2 ${pricingColors.dotColor} rounded-full mr-2`}></div>
           <span className="text-sm font-medium">
-            {Math.round(community.occupancyRate || 0)}% Occupied
+            {priceDisplay}
           </span>
         </div>
         
         {/* Availability Section - Color Coded by Availability Status */}
-        <div className={`${availability.bgColor} text-white px-4 py-2 flex items-center justify-end min-w-[140px]`}>
+        <div className={`${availability.bgColor} text-white px-4 py-2 flex items-center justify-end`}>
           <div className="text-right">
-            <div className="text-sm font-bold text-white">{availability.detail}</div>
-            <div className={`text-xs ${availability.lightColor}`}>{availability.status}</div>
+            <div className="text-sm font-bold text-white">{availability.status}</div>
+            <div className={`text-xs ${availability.lightColor}`}>
+              {Math.round(community.occupancyRate || 0)}% Occupied • {availability.detail}
+            </div>
           </div>
         </div>
       </div>
