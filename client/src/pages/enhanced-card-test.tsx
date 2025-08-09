@@ -6,8 +6,10 @@ const testCommunities = [
   {
     id: 1,
     name: "Sunrise Memory Care Center",
+    address: "1234 Memory Lane",
     city: "Austin",
     state: "TX",
+    zipCode: "78701",
     careLevel: "Memory Care",
     communitySubtype: "memory_care",
     totalUnits: 85,
@@ -35,8 +37,10 @@ const testCommunities = [
   {
     id: 2,
     name: "Golden Years HUD Housing",
+    address: "5678 Senior Circle",
     city: "Phoenix",
     state: "AZ",
+    zipCode: "85001",
     careLevel: "HUD Senior Housing",
     communitySubtype: "hud_senior_housing",
     hudPropertyId: "HUD-12345",  // This shows HUD VERIFIED badge
@@ -55,8 +59,10 @@ const testCommunities = [
   {
     id: 3,
     name: "Active Living 55+ Resort",
+    address: "9012 Resort Way",
     city: "Scottsdale",
     state: "AZ",
+    zipCode: "85251",
     careLevel: "55+ Active Adult",
     communitySubtype: "active_adult_55plus",
     totalUnits: 200,
@@ -83,8 +89,10 @@ const testCommunities = [
   {
     id: 4,
     name: "Skilled Nursing & Rehab Center",
+    address: "3456 Healthcare Blvd",
     city: "Dallas",
     state: "TX",
+    zipCode: "75201",
     careLevel: "Skilled Nursing",
     communitySubtype: "skilled_nursing",
     totalUnits: 150,
@@ -105,8 +113,10 @@ const testCommunities = [
   {
     id: 5,
     name: "Shady Oaks Mobile Home Park",
+    address: "7890 Oak Tree Road",
     city: "Tucson",
     state: "AZ",
+    zipCode: "85701",
     careLevel: "Mobile Home Park",
     communitySubtype: "mobile_home_park",
     totalUnits: 75,
@@ -125,8 +135,10 @@ const testCommunities = [
   {
     id: 6,
     name: "Garden View Independent Living",
+    address: "2468 Garden Vista Drive",
     city: "San Diego",
     state: "CA",
+    zipCode: "92101",
     careLevel: "Independent Living",
     communitySubtype: "independent_living",
     totalUnits: 95,
