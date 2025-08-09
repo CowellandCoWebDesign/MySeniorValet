@@ -275,7 +275,7 @@ function CommunityCard({
             </h3>
             <div className="flex items-center text-sm text-gray-400">
               <MapPin className="h-4 w-4 mr-1" />
-              <span>{community.city}, {community.state}</span>
+              <span>{community.address}, {community.city}, {community.state} {community.zipCode}</span>
             </div>
           </div>
           
