@@ -338,13 +338,13 @@ function CommunityCard({
                 {/* Tour Tracker Score */}
                 <div className="text-center">
                   <div className="flex flex-col items-center">
-                    <div className="w-9 h-9 bg-yellow-600 rounded-full flex items-center justify-center mb-1">
+                    <div className="w-9 h-9 bg-yellow-500 rounded-full flex items-center justify-center mb-1">
                       <span className="text-xs font-bold text-white">TT</span>
                     </div>
-                    <div className="text-xs text-gray-400">Tour</div>
+                    <div className="text-xs text-gray-400">Tour Tracker</div>
                     <div className="flex items-center justify-center">
-                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-0.5" />
-                      <span className="text-xs font-bold text-yellow-400">
+                      <Star className="h-3 w-3 fill-yellow-500 text-yellow-500 mr-0.5" />
+                      <span className="text-xs font-bold text-yellow-500">
                         {community.tourTrackerScore || '4.8'}
                       </span>
                     </div>
