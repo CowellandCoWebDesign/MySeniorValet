@@ -48,7 +48,11 @@ import {
   Bed,
   Pill,
   Utensils,
-  HeartHandshake
+  HeartHandshake,
+  Key,
+  Crown,
+  Car,
+  Shirt
 } from 'lucide-react';
 
 interface AISearchResult {
@@ -1508,10 +1512,65 @@ export default function AISearchIntelligence() {
                     </div>
                   </Button>
                   
-                  <button className="px-3 py-2 text-gray-500 hover:text-gray-700 flex items-center gap-1">
-                    <MoreHorizontal className="w-4 h-4" />
-                    <span className="text-xs hidden sm:inline">More</span>
-                  </button>
+                  <Button
+                    variant={simplifiedFilters.unitType.includes('shared') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newUnits = simplifiedFilters.unitType.includes('shared')
+                        ? simplifiedFilters.unitType.filter(u => u !== 'shared')
+                        : [...simplifiedFilters.unitType, 'shared'];
+                      setSimplifiedFilters({ ...simplifiedFilters, unitType: newUnits });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-5 ${
+                      simplifiedFilters.unitType.includes('shared')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Users className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-xs font-medium">Shared</div>
+                    </div>
+                  </Button>
+                  
+                  <Button
+                    variant={simplifiedFilters.unitType.includes('private') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newUnits = simplifiedFilters.unitType.includes('private')
+                        ? simplifiedFilters.unitType.filter(u => u !== 'private')
+                        : [...simplifiedFilters.unitType, 'private'];
+                      setSimplifiedFilters({ ...simplifiedFilters, unitType: newUnits });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-5 ${
+                      simplifiedFilters.unitType.includes('private')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Key className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-xs font-medium">Private</div>
+                    </div>
+                  </Button>
+                  
+                  <Button
+                    variant={simplifiedFilters.unitType.includes('suite') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newUnits = simplifiedFilters.unitType.includes('suite')
+                        ? simplifiedFilters.unitType.filter(u => u !== 'suite')
+                        : [...simplifiedFilters.unitType, 'suite'];
+                      setSimplifiedFilters({ ...simplifiedFilters, unitType: newUnits });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-5 ${
+                      simplifiedFilters.unitType.includes('suite')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Crown className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-xs font-medium">Suite</div>
+                    </div>
+                  </Button>
                 </div>
               </div>
 
@@ -1579,10 +1638,85 @@ export default function AISearchIntelligence() {
                     </div>
                   </Button>
                   
-                  <button className="px-3 py-2 text-gray-500 hover:text-gray-700 flex items-center gap-1">
-                    <MoreHorizontal className="w-4 h-4" />
-                    <span className="text-xs hidden sm:inline">More</span>
-                  </button>
+                  <Button
+                    variant={simplifiedFilters.amenities.includes('transport') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newAmenities = simplifiedFilters.amenities.includes('transport')
+                        ? simplifiedFilters.amenities.filter(a => a !== 'transport')
+                        : [...simplifiedFilters.amenities, 'transport'];
+                      setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
+                      simplifiedFilters.amenities.includes('transport')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Car className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-[11px] font-medium">Transport</div>
+                    </div>
+                  </Button>
+                  
+                  <Button
+                    variant={simplifiedFilters.amenities.includes('pets') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newAmenities = simplifiedFilters.amenities.includes('pets')
+                        ? simplifiedFilters.amenities.filter(a => a !== 'pets')
+                        : [...simplifiedFilters.amenities, 'pets'];
+                      setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
+                      simplifiedFilters.amenities.includes('pets')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Heart className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-[11px] font-medium">Pets OK</div>
+                    </div>
+                  </Button>
+                  
+                  <Button
+                    variant={simplifiedFilters.amenities.includes('laundry') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newAmenities = simplifiedFilters.amenities.includes('laundry')
+                        ? simplifiedFilters.amenities.filter(a => a !== 'laundry')
+                        : [...simplifiedFilters.amenities, 'laundry'];
+                      setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
+                      simplifiedFilters.amenities.includes('laundry')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Shirt className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-[11px] font-medium">Laundry</div>
+                    </div>
+                  </Button>
+                  
+                  <Button
+                    variant={simplifiedFilters.amenities.includes('security') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newAmenities = simplifiedFilters.amenities.includes('security')
+                        ? simplifiedFilters.amenities.filter(a => a !== 'security')
+                        : [...simplifiedFilters.amenities, 'security'];
+                      setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
+                      simplifiedFilters.amenities.includes('security')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Shield className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-[11px] font-medium">Security</div>
+                    </div>
+                  </Button>
                 </div>
               </div>
 
