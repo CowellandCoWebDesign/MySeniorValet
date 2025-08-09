@@ -78,7 +78,6 @@ import QuizPage from "@/pages/quiz";
 import TestDebug from "@/pages/test-debug";
 import TestMapViews from "@/pages/test-map-views";
 import AuthDebug from "@/pages/auth-debug";
-import AISearch from "@/pages/ai-search";
 import PaymentDemo from "@/pages/payment-demo";
 import WeaviateTest from "@/pages/weaviate-test";
 import DataQualityDashboard from "@/pages/data-quality-dashboard";
@@ -143,8 +142,6 @@ function Router() {
       <Route path="/search" component={MapSearch} />
       <Route path="/map" component={MapSearch} />
       <Route path="/map-search" component={MapSearch} />
-      <Route path="/ai-search" component={AISearch} />
-      <Route path="/semantic-search" component={AISearch} />
       <Route path="/ai-intelligence" component={AISearchIntelligence} />
       <Route path="/simplified-search" component={SimplifiedSearch} />
       <Route path="/community/:id" component={CommunityDetail} />
