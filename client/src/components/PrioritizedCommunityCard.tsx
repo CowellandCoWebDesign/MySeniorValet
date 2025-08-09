@@ -149,21 +149,49 @@ function CommunityCard({
     };
   };
 
+  // Determine pricing verification colors
+  const getPricingColors = () => {
+    if (isHudProperty) {
+      return {
+        bgColor: 'bg-blue-600',
+        lightColor: 'text-blue-200',
+        dotColor: 'bg-blue-400'
+      };
+    } else if (community.verified) {
+      return {
+        bgColor: 'bg-green-600',
+        lightColor: 'text-green-200',
+        dotColor: 'bg-green-400'
+      };
+    }
+    return {
+      bgColor: 'bg-yellow-600',
+      lightColor: 'text-yellow-200',
+      dotColor: 'bg-yellow-400'
+    };
+  };
+
   const availability = getAvailabilityInfo();
+  const pricingColors = getPricingColors();
 
   return (
     <Card className="w-full bg-gray-900 border-gray-700 hover:border-gray-600 transition-all duration-200 overflow-hidden">
-      {/* Pricing Header - Dynamic Color Based on Availability */}
-      <div className={`${availability.bgColor} text-white px-4 py-2 flex items-center justify-between`}>
-        <div className="flex items-center">
-          <div className={`w-2 h-2 ${availability.dotColor} rounded-full mr-2`}></div>
+      {/* Split Header - Pricing on Left (color by verification), Availability on Right (color by status) */}
+      <div className="flex">
+        {/* Pricing Section - Color Coded by Verification Source */}
+        <div className={`${pricingColors.bgColor} text-white px-4 py-2 flex-1 flex items-center`}>
+          <div className={`w-2 h-2 ${pricingColors.dotColor} rounded-full mr-2`}></div>
           <span className="text-sm font-medium">
             {priceDisplay}
           </span>
         </div>
-        <div className="text-right">
-          <div className="text-sm font-bold text-white">{availability.status}</div>
-          <div className={`text-xs ${availability.lightColor}`}>{availability.detail}</div>
+        
+        {/* Availability Section - Color Coded by Availability Status */}
+        <div className={`${availability.bgColor} text-white px-4 py-2 flex items-center gap-3`}>
+          <div className="text-right">
+            <div className="text-sm font-bold text-white">{availability.status}</div>
+            <div className={`text-xs ${availability.lightColor}`}>{availability.detail}</div>
+          </div>
         </div>
       </div>
 
