@@ -1374,17 +1374,19 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'hud-sponsored'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('hud-sponsored')
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
+                    title="Government subsidized housing, income-based rent (30% of income), Section 202, Section 8"
                   >
                     <div className="text-center h-full flex flex-col justify-center">
                       <div className="text-2xl mb-1">🏛️</div>
-                      <div className="text-sm font-bold">HUD</div>
-                      <div className="text-xs opacity-80">$0-500</div>
-                      <div className="text-xs opacity-60">5,936</div>
+                      <div className="text-xs font-bold leading-tight">HUD Housing</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Gov Subsidized</div>
+                      <div className="text-[10px] opacity-80">$0-500</div>
+                      <div className="text-[10px] opacity-60">5,936</div>
                     </div>
                   </Button>
 
@@ -1397,17 +1399,19 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'va-housing'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('va-housing')
                         ? 'bg-blue-800 text-white hover:bg-blue-900'
                         : 'bg-white dark:bg-gray-900'
                     }`}
+                    title="Veterans Administration housing, state veterans homes, domiciliary care for eligible veterans"
                   >
                     <div className="text-center h-full flex flex-col justify-center">
                       <div className="text-2xl mb-1">🎖️</div>
-                      <div className="text-sm font-bold">VA</div>
-                      <div className="text-xs opacity-80">Veterans</div>
-                      <div className="text-xs opacity-60">432</div>
+                      <div className="text-xs font-bold leading-tight">VA Housing</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Veterans Only</div>
+                      <div className="text-[10px] opacity-80">Varies</div>
+                      <div className="text-[10px] opacity-60">432</div>
                     </div>
                   </Button>
 
@@ -1420,17 +1424,19 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'mobile-parks'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('mobile-parks')
                         ? 'bg-green-600 text-white hover:bg-green-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
+                    title="Mobile home parks, RV retirement communities, manufactured home communities, 55+ mobile parks"
                   >
                     <div className="text-center h-full flex flex-col justify-center">
                       <div className="text-2xl mb-1">🚐</div>
-                      <div className="text-sm font-bold">Mobile & RV</div>
-                      <div className="text-xs opacity-80">$300-800</div>
-                      <div className="text-xs opacity-60">3,421</div>
+                      <div className="text-xs font-bold leading-tight">Mobile & RV</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Parks & Communities</div>
+                      <div className="text-[10px] opacity-80">$300-800</div>
+                      <div className="text-[10px] opacity-60">3,421</div>
                     </div>
                   </Button>
 
@@ -1443,17 +1449,19 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'active-adult'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('active-adult')
                         ? 'bg-teal-600 text-white hover:bg-teal-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
+                    title="Age-restricted communities (55+), resort-style amenities, golf courses, clubhouses, no care services"
                   >
                     <div className="text-center h-full flex flex-col justify-center">
                       <div className="text-2xl mb-1">🏡</div>
-                      <div className="text-sm font-bold">55+</div>
-                      <div className="text-xs opacity-80">$800-1.5k</div>
-                      <div className="text-xs opacity-60">4,567</div>
+                      <div className="text-xs font-bold leading-tight">55+ Active</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Adult Living</div>
+                      <div className="text-[10px] opacity-80">$800-1.5k</div>
+                      <div className="text-[10px] opacity-60">4,567</div>
                     </div>
                   </Button>
 
@@ -1466,17 +1474,19 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'independent-living'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('independent-living')
                         ? 'bg-purple-600 text-white hover:bg-purple-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
+                    title="Maintenance-free senior apartments with meals, activities, and social programs"
                   >
                     <div className="text-center h-full flex flex-col justify-center">
                       <div className="text-2xl mb-1">🏠</div>
-                      <div className="text-sm font-bold">IL</div>
-                      <div className="text-xs opacity-80">$1.5-3.5k</div>
-                      <div className="text-xs opacity-60">8,745</div>
+                      <div className="text-xs font-bold leading-tight">Independent</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Living</div>
+                      <div className="text-[10px] opacity-80">$1.5-3.5k</div>
+                      <div className="text-[10px] opacity-60">8,745</div>
                     </div>
                   </Button>
 
@@ -1489,17 +1499,19 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'board-care'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('board-care')
                         ? 'bg-cyan-600 text-white hover:bg-cyan-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
+                    title="Small residential care homes with 6-10 residents, personalized care in homelike setting"
                   >
                     <div className="text-center h-full flex flex-col justify-center">
                       <div className="text-2xl mb-1">🏘️</div>
-                      <div className="text-sm font-bold">B&C</div>
-                      <div className="text-xs opacity-80">$2-4k</div>
-                      <div className="text-xs opacity-60">856</div>
+                      <div className="text-xs font-bold leading-tight">Board & Care</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Small Homes</div>
+                      <div className="text-[10px] opacity-80">$2-4k</div>
+                      <div className="text-[10px] opacity-60">856</div>
                     </div>
                   </Button>
 
@@ -1512,17 +1524,19 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'assisted-living'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('assisted-living')
                         ? 'bg-orange-600 text-white hover:bg-orange-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
+                    title="Help with daily activities like bathing, dressing, medication management, meals included"
                   >
                     <div className="text-center h-full flex flex-col justify-center">
                       <div className="text-2xl mb-1">🤝</div>
-                      <div className="text-sm font-bold">AL</div>
-                      <div className="text-xs opacity-80">$3-6k</div>
-                      <div className="text-xs opacity-60">7,234</div>
+                      <div className="text-xs font-bold leading-tight">Assisted</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Living</div>
+                      <div className="text-[10px] opacity-80">$3-6k</div>
+                      <div className="text-[10px] opacity-60">7,234</div>
                     </div>
                   </Button>
 
@@ -1535,17 +1549,19 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'memory-care'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('memory-care')
                         ? 'bg-red-600 text-white hover:bg-red-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
+                    title="Specialized care for dementia and Alzheimer's, secure environment, cognitive activities"
                   >
                     <div className="text-center h-full flex flex-col justify-center">
                       <div className="text-2xl mb-1">🧠</div>
-                      <div className="text-sm font-bold">MC</div>
-                      <div className="text-xs opacity-80">$4-7.5k</div>
-                      <div className="text-xs opacity-60">3,897</div>
+                      <div className="text-xs font-bold leading-tight">Memory</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Care</div>
+                      <div className="text-[10px] opacity-80">$4-7.5k</div>
+                      <div className="text-[10px] opacity-60">3,897</div>
                     </div>
                   </Button>
 
@@ -1558,17 +1574,19 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'ccrc'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('ccrc')
                         ? 'bg-amber-600 text-white hover:bg-amber-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
+                    title="All care levels on one campus, from independent to skilled nursing, lifetime care guarantee"
                   >
                     <div className="text-center h-full flex flex-col justify-center">
                       <div className="text-2xl mb-1">♾️</div>
-                      <div className="text-sm font-bold">CCRC</div>
-                      <div className="text-xs opacity-80">Varies</div>
-                      <div className="text-xs opacity-60">1,245</div>
+                      <div className="text-xs font-bold leading-tight">Continuing Care</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Retirement</div>
+                      <div className="text-[10px] opacity-80">Varies</div>
+                      <div className="text-[10px] opacity-60">1,245</div>
                     </div>
                   </Button>
 
@@ -1581,17 +1599,19 @@ export default function AISearchIntelligence() {
                         : [...simplifiedFilters.typeOfLiving, 'skilled-nursing'];
                       setSimplifiedFilters({ ...simplifiedFilters, typeOfLiving: newTypes });
                     }}
-                    className={`h-[120px] min-w-[95px] px-4 py-3 flex-shrink-0 ${
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
                       simplifiedFilters.typeOfLiving.includes('skilled-nursing')
                         ? 'bg-indigo-600 text-white hover:bg-indigo-700'
                         : 'bg-white dark:bg-gray-900'
                     }`}
+                    title="24/7 medical care, rehabilitation services, wound care, IV therapy, physical therapy"
                   >
                     <div className="text-center h-full flex flex-col justify-center">
                       <div className="text-2xl mb-1">🏥</div>
-                      <div className="text-sm font-bold">SN</div>
-                      <div className="text-xs opacity-80">$6-12k</div>
-                      <div className="text-xs opacity-60">2,300</div>
+                      <div className="text-xs font-bold leading-tight">Skilled</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Nursing</div>
+                      <div className="text-[10px] opacity-80">$6-12k</div>
+                      <div className="text-[10px] opacity-60">2,300</div>
                     </div>
                   </Button>
                 </div>
