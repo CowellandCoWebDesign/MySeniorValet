@@ -572,6 +572,43 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
             </div>
           </div>
           
+          {/* Community Stats and Care Info Section */}
+          <div className="bg-gray-700 rounded-lg p-4 mb-4">
+            {/* Stats Row */}
+            <div className="flex items-center gap-4 mb-3">
+              <div className="flex items-center text-gray-300">
+                <Building className="h-4 w-4 mr-1" />
+                <span className="text-sm font-medium">{community.totalUnits || community.totalUnitsHud || '100'} units</span>
+              </div>
+              {community.rating && community.rating > 0 ? (
+                <div className="flex items-center text-yellow-400">
+                  <Star className="h-4 w-4 mr-1 fill-yellow-400" />
+                  <span className="text-sm font-medium">{community.rating.toFixed(1)}</span>
+                </div>
+              ) : (
+                <div className="flex items-center text-gray-400">
+                  <Star className="h-4 w-4 mr-1" />
+                  <span className="text-sm">4.5</span>
+                </div>
+              )}
+              <Badge className="bg-orange-600 text-white text-xs px-2 py-1">
+                🏠 Assisted Living
+              </Badge>
+            </div>
+            
+            {/* Care Types */}
+            <div className="text-sm text-gray-300">
+              <span className="font-medium">Care Types:</span>
+              <span className="text-gray-400 ml-1">
+                {community.careTypes && community.careTypes.length > 0 ? (
+                  community.careTypes.slice(0, 2).join(', ')
+                ) : (
+                  'Assisted Living, Memory Care'
+                )}
+              </span>
+            </div>
+          </div>
+
           {/* Messaging Locked Section */}
           <div className="mt-4 mb-4">
             <Button 
@@ -646,43 +683,6 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                   </span>
                 </div>
               </div>
-            </div>
-          </div>
-          
-          {/* Community Stats and Care Info Section */}
-          <div className="bg-gray-700 rounded-lg p-4 mb-4">
-            {/* Stats Row */}
-            <div className="flex items-center gap-4 mb-3">
-              <div className="flex items-center text-gray-300">
-                <Building className="h-4 w-4 mr-1" />
-                <span className="text-sm font-medium">{community.totalUnits || community.totalUnitsHud || '100'} units</span>
-              </div>
-              {community.rating && community.rating > 0 ? (
-                <div className="flex items-center text-yellow-400">
-                  <Star className="h-4 w-4 mr-1 fill-yellow-400" />
-                  <span className="text-sm font-medium">{community.rating.toFixed(1)}</span>
-                </div>
-              ) : (
-                <div className="flex items-center text-gray-400">
-                  <Star className="h-4 w-4 mr-1" />
-                  <span className="text-sm">4.5</span>
-                </div>
-              )}
-              <Badge className="bg-orange-600 text-white text-xs px-2 py-1">
-                🏠 Assisted Living
-              </Badge>
-            </div>
-            
-            {/* Care Types */}
-            <div className="text-sm text-gray-300">
-              <span className="font-medium">Care Types:</span>
-              <span className="text-gray-400 ml-1">
-                {community.careTypes && community.careTypes.length > 0 ? (
-                  community.careTypes.slice(0, 2).join(', ')
-                ) : (
-                  'Assisted Living, Memory Care'
-                )}
-              </span>
             </div>
           </div>
           
