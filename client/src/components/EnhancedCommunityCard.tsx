@@ -98,6 +98,109 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     !!(community as any).pricingDetails?.basePrice;
   const hasOccupancyData = false; // No occupancy data in current schema
 
+  // Get regional theme based on location
+  const getRegionalTheme = () => {
+    const state = community.state?.toUpperCase();
+    const city = community.city?.toLowerCase();
+    
+    // Mexican communities
+    if (state === 'MX' || city?.includes('mexico') || city?.includes('guadalajara') || city?.includes('puerto vallarta')) {
+      return {
+        name: 'mexican',
+        gradient: 'from-green-50 via-white to-red-50 dark:from-green-900/20 dark:via-gray-800 dark:to-red-900/20',
+        borderColor: 'border-green-500 hover:border-red-500',
+        badge: '🇲🇽',
+        accentColor: 'text-green-600 dark:text-green-400',
+        headerGradient: 'from-green-500 to-red-500'
+      };
+    }
+    
+    // Canadian communities
+    if (['AB', 'BC', 'ON', 'QC', 'NS', 'NB', 'MB', 'SK', 'PE', 'NL', 'NT', 'YT', 'NU'].includes(state || '')) {
+      return {
+        name: 'canadian',
+        gradient: 'from-red-50 via-white to-red-50 dark:from-red-900/20 dark:via-gray-800 dark:to-red-900/20',
+        borderColor: 'border-red-500 hover:border-red-600',
+        badge: '🍁',
+        accentColor: 'text-red-600 dark:text-red-400',
+        headerGradient: 'from-red-500 to-red-600',
+        provinceBadge: state
+      };
+    }
+    
+    // New York communities
+    if (state === 'NY') {
+      return {
+        name: 'newyork',
+        gradient: 'from-purple-50 via-indigo-50 to-purple-50 dark:from-purple-900/20 dark:via-gray-800 dark:to-indigo-900/20',
+        borderColor: 'border-purple-500 hover:border-indigo-500',
+        badge: '🗽',
+        accentColor: 'text-purple-600 dark:text-purple-400',
+        headerGradient: 'from-purple-500 to-indigo-500'
+      };
+    }
+    
+    // Florida communities
+    if (state === 'FL') {
+      return {
+        name: 'florida',
+        gradient: 'from-orange-50 via-yellow-50 to-orange-50 dark:from-orange-900/20 dark:via-gray-800 dark:to-yellow-900/20',
+        borderColor: 'border-orange-500 hover:border-yellow-500',
+        badge: '🌴',
+        accentColor: 'text-orange-600 dark:text-orange-400',
+        headerGradient: 'from-orange-400 to-yellow-400'
+      };
+    }
+    
+    // Texas communities
+    if (state === 'TX') {
+      return {
+        name: 'texas',
+        gradient: 'from-amber-50 via-red-50 to-blue-50 dark:from-amber-900/20 dark:via-gray-800 dark:to-blue-900/20',
+        borderColor: 'border-amber-500 hover:border-blue-500',
+        badge: '⭐',
+        accentColor: 'text-amber-600 dark:text-amber-400',
+        headerGradient: 'from-amber-500 to-blue-500'
+      };
+    }
+    
+    // Hawaii communities
+    if (state === 'HI') {
+      return {
+        name: 'hawaii',
+        gradient: 'from-cyan-50 via-blue-50 to-teal-50 dark:from-cyan-900/20 dark:via-gray-800 dark:to-teal-900/20',
+        borderColor: 'border-cyan-500 hover:border-teal-500',
+        badge: '🌺',
+        accentColor: 'text-cyan-600 dark:text-cyan-400',
+        headerGradient: 'from-cyan-400 to-teal-400'
+      };
+    }
+    
+    // Arizona communities
+    if (state === 'AZ') {
+      return {
+        name: 'arizona',
+        gradient: 'from-red-50 via-orange-50 to-yellow-50 dark:from-red-900/20 dark:via-gray-800 dark:to-yellow-900/20',
+        borderColor: 'border-red-500 hover:border-orange-500',
+        badge: '🌵',
+        accentColor: 'text-red-600 dark:text-red-400',
+        headerGradient: 'from-red-400 to-orange-400'
+      };
+    }
+    
+    // Default theme
+    return {
+      name: 'default',
+      gradient: 'from-white to-blue-50/20 dark:from-gray-800 dark:to-gray-700/30',
+      borderColor: 'border-gray-200 hover:border-blue-300 dark:border-gray-700 dark:hover:border-blue-600',
+      badge: '',
+      accentColor: 'text-blue-600 dark:text-blue-400',
+      headerGradient: 'from-blue-400 to-purple-400'
+    };
+  };
+
+  const regionalTheme = getRegionalTheme();
+
   // Community subtype badge mapping with comprehensive descriptions
   const getSubtypeBadge = (subtype?: string) => {
     const subtypeMap: Record<string, { emoji: string; label: string; color: string; description?: string }> = {
@@ -254,23 +357,30 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     
     return (
       <Card 
-        className="group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+        className={`group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden border-2 ${regionalTheme.borderColor} bg-gradient-to-br ${regionalTheme.gradient}`}
         onClick={onSelect}
       >
         {/* Photo header with badges - Matching screenshot style */}
-        <div className="relative h-56 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-gray-700 dark:to-gray-800">
-          {/* Badge overlays */}
-          {community.state === 'AB' && (
+        <div className={`relative h-56 bg-gradient-to-br ${regionalTheme.headerGradient} overflow-hidden`}>
+          {/* Regional badge overlays */}
+          {regionalTheme.name === 'canadian' && regionalTheme.provinceBadge && (
             <div className="absolute top-3 left-3 z-10">
               <Badge className="bg-red-600 text-white px-3 py-1.5 text-xs font-bold shadow-md">
-                🍁 AB
+                🍁 {regionalTheme.provinceBadge}
               </Badge>
             </div>
           )}
-          {community.state === 'BC' && (
+          {regionalTheme.name === 'mexican' && (
             <div className="absolute top-3 left-3 z-10">
-              <Badge className="bg-orange-600 text-white px-3 py-1.5 text-xs font-bold shadow-md">
-                🍁 BC
+              <Badge className="bg-gradient-to-r from-green-600 via-white to-red-600 text-green-900 px-3 py-1.5 text-xs font-bold shadow-md">
+                🇲🇽 Mexico
+              </Badge>
+            </div>
+          )}
+          {regionalTheme.name === 'newyork' && (
+            <div className="absolute top-3 left-3 z-10">
+              <Badge className="bg-purple-600 text-white px-3 py-1.5 text-xs font-bold shadow-md">
+                🗽 New York
               </Badge>
             </div>
           )}
@@ -283,8 +393,8 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center">
-              <div className="text-orange-400 mb-3">
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+              <div className={`mb-3 ${regionalTheme.accentColor}`}>
                 <svg className="w-20 h-20" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
                 </svg>
@@ -365,10 +475,15 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
           </div>
           
           {/* Pricing display - Beautiful like the screenshots with Live Market Intelligence */}
-          <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3 mb-3">
+          <div className={`rounded-lg p-3 mb-3 ${
+            regionalTheme.name === 'mexican' ? 'bg-green-50 dark:bg-green-900/20' :
+            regionalTheme.name === 'canadian' ? 'bg-red-50 dark:bg-red-900/20' :
+            regionalTheme.name === 'newyork' ? 'bg-purple-50 dark:bg-purple-900/20' :
+            'bg-orange-50 dark:bg-orange-900/20'
+          }`}>
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                <div className={`text-2xl font-bold ${regionalTheme.accentColor}`}>
                   {priceDisplay || 'Contact for pricing'}
                 </div>
                 {priceDisplay && (
@@ -797,19 +912,25 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
         <CardContent className="p-0">
           <div className="flex flex-col lg:flex-row">
             {/* Image Section */}
-            <div className="relative lg:w-80 h-48 lg:h-auto bg-gradient-to-br from-blue-100 to-purple-100 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center overflow-hidden">
-              {community.photos && community.photos.length > 0 ? (
+            <div className={`relative lg:w-80 h-48 lg:h-auto bg-gradient-to-br ${regionalTheme.headerGradient} flex items-center justify-center overflow-hidden`}>
+              {community.photos && community.photos.length > 0 && community.photos[0] ? (
                 <img 
                   src={community.photos[0]} 
                   alt={community.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               ) : (
-                <div className="text-center p-6">
-                  <Home className="h-16 w-16 text-gray-400 dark:text-gray-500 mx-auto mb-3" />
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Photo Not Available</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500 max-w-48 mx-auto leading-relaxed">
-                    This community hasn't been claimed yet. Once claimed, owners can upload authentic photos to showcase their facility.
+                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+                  <div className={`mb-3 ${regionalTheme.accentColor}`}>
+                    <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                    </svg>
+                  </div>
+                  <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                    Photos Coming Soon
+                  </h3>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    Verifying authentic images
                   </p>
                 </div>
               )}
@@ -1317,28 +1438,38 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
 
   // Standard fallback for other variants
   return (
-    <Card className={cardClass}>
+    <Card className={`${cardClass} bg-gradient-to-br ${regionalTheme.gradient} border-2 ${regionalTheme.borderColor}`}>
       <CardContent className="p-4">
         <div className="flex items-start space-x-4">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-gray-700 dark:to-gray-600 rounded-lg flex items-center justify-center">
-            {community.photos && community.photos.length > 0 ? (
+          <div className={`w-20 h-20 bg-gradient-to-br ${regionalTheme.headerGradient} rounded-lg flex items-center justify-center overflow-hidden`}>
+            {community.photos && community.photos.length > 0 && community.photos[0] ? (
               <img 
                 src={community.photos[0]} 
                 alt={community.name}
                 className="w-full h-full object-cover rounded-lg"
               />
             ) : (
-              <Home className="h-8 w-8 text-gray-400" />
+              <div className="flex flex-col items-center justify-center">
+                <div className={`${regionalTheme.accentColor}`}>
+                  <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+                  </svg>
+                </div>
+                <div className="text-[10px] font-medium text-gray-700 dark:text-gray-300 mt-1">
+                  Photos Soon
+                </div>
+              </div>
             )}
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
               {community.name}
+              {regionalTheme.badge && <span className="ml-1">{regionalTheme.badge}</span>}
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
               {community.city}, {community.state}
             </p>
-            <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+            <div className={`text-lg font-bold ${regionalTheme.accentColor}`}>
               {displayPrice}
             </div>
           </div>
