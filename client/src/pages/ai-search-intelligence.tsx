@@ -532,7 +532,7 @@ export default function AISearchIntelligence() {
     } finally {
       setIsAnalyzing(false);
     }
-  }, [matchProfile]);
+  }, [aiRecommendationsMutation]);
 
   // Handle community comparison
   const handleCompareommunities = useCallback(async () => {
@@ -864,8 +864,8 @@ export default function AISearchIntelligence() {
                         center={mapCenter}
                         zoom={mapZoom}
                         searchFilters={{
-                          careType: matchProfile.careNeeds[0],
-                          budget: `${matchProfile.budget.min}-${matchProfile.budget.max}`
+                          careType: simplifiedFilters.careTypes[0],
+                          budget: `${simplifiedFilters.priceRange[0]}-${simplifiedFilters.priceRange[1]}`
                         }}
                         onBoundsChange={(bounds: any) => {
                           console.log('Map bounds changed:', bounds);
