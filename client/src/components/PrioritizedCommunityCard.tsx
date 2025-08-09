@@ -262,16 +262,24 @@ function CommunityCard({
 
       {/* Bottom Section - Dark Theme */}
       <CardContent className="p-4 bg-gray-900 text-white">
-        {/* Top Row: Care Type Badge on Left, Pricing Stack on Right - Aligned Horizontally */}
-        <div className="flex items-start justify-between mb-2">
-          {/* Care Type Badge - Top Left */}
-          <div>
-            <Badge className="bg-blue-600 text-white text-sm px-3 py-1">
+        {/* Top Row: Care Type Badge and Community Name on Left, Pricing Stack on Right */}
+        <div className="flex items-start justify-between mb-3">
+          {/* Left Side: Badge and Name */}
+          <div className="flex-1 mr-4">
+            <Badge className="bg-blue-600 text-white text-sm px-3 py-1 mb-2 inline-block">
               {community.careLevel || 'Assisted Living'}
             </Badge>
+            
+            <h3 className="text-xl font-bold text-white mb-1">
+              {community.name}
+            </h3>
+            <div className="flex items-center text-sm text-gray-400">
+              <MapPin className="h-4 w-4 mr-1" />
+              <span>{community.city}, {community.state}</span>
+            </div>
           </div>
           
-          {/* Pricing Stack on Right */}
+          {/* Right Side: Pricing Stack */}
           <div className="text-right">
             {/* Pricing Display */}
             <div className="text-sm font-bold text-white">
@@ -313,17 +321,6 @@ function CommunityCard({
               <Building className="h-3 w-3 mr-0.5" />
               <span className="text-xs">{community.totalUnits || community.totalUnitsHud || '100'} units</span>
             </div>
-          </div>
-        </div>
-
-        {/* Community Name and Location - Below Badge Row */}
-        <div className="mb-3">
-          <h3 className="text-xl font-bold text-white mb-1">
-            {community.name}
-          </h3>
-          <div className="flex items-center text-sm text-gray-400">
-            <MapPin className="h-4 w-4 mr-1" />
-            <span>{community.city}, {community.state}</span>
           </div>
         </div>
 
