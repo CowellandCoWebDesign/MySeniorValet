@@ -400,7 +400,7 @@ export default function MySeniorValetHome() {
 
 
           {/* Search Bar - Enhanced with AutocompleteSearch Component */}
-          <div className="w-full max-w-4xl mb-3 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
+          <div className="w-full max-w-4xl mb-2 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
             <form onSubmit={(e) => {
               e.preventDefault();
               if (searchQuery) {
@@ -439,43 +439,42 @@ export default function MySeniorValetHome() {
             </form>
           </div>
 
-          {/* Premium Search Experience - Two Powerful Options */}
+          {/* Premium Search Experience - Professional Google-Style Design */}
           <div className="flex flex-col items-center space-y-3 mb-5 animate-fade-in-up animation-delay-700 w-full px-4">
-            {/* Search Method Selector - Balanced Design */}
-            <div className="flex flex-col sm:flex-row gap-2 w-full max-w-2xl">
-              {/* Traditional Search - Clean with Info */}
+            {/* Search Method Selector - Modern Professional Design */}
+            <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xl">
+              {/* Traditional Search - Google-Style Clean Design */}
               <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="flex-1">
-                <Button className="w-full h-auto bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 group relative overflow-hidden">
-                  <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                  <div className="relative flex flex-col items-center space-y-0.5">
+                <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-5 py-3.5 rounded-full font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
+                  <div className="flex flex-col items-center space-y-1">
                     <div className="flex items-center space-x-2">
-                      <Filter className="h-4 w-4" />
-                      <span className="text-sm font-semibold">Traditional Search</span>
+                      <Search className="h-4 w-4" />
+                      <span className="text-sm font-medium">Traditional Search</span>
                     </div>
-                    <span className="text-[10px] opacity-85 font-normal">
-                      Filters • Map • Results
+                    <span className="text-[11px] text-gray-600 dark:text-gray-400 font-normal">
+                      Browse • Filter • Compare
                     </span>
                   </div>
                 </Button>
               </Link>
 
-              {/* AI Intelligence - Elegant with Details */}
+              {/* AI Intelligence - Premium Gradient Design */}
               <Link href="/ai-search-intelligence" className="flex-1">
-                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 group relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="relative flex flex-col items-center space-y-0.5">
-                    <div className="flex items-center space-x-1.5">
-                      <span className="text-base">✨</span>
-                      <span className="text-sm font-semibold">AI Intelligence</span>
-                    </div>
-                    <span className="text-[10px] opacity-85 font-normal">
-                      Natural Language • Smart Analysis
-                    </span>
-                    <span className="absolute -top-0.5 -right-0.5">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
+                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-5 py-3.5 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative flex flex-col items-center space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <Sparkles className="h-4 w-4" />
+                      <span className="text-sm font-medium">AI Intelligence</span>
+                      <span className="absolute -top-1 -right-1">
+                        <span className="relative flex h-2.5 w-2.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+                        </span>
                       </span>
+                    </div>
+                    <span className="text-[11px] text-white/90 font-normal">
+                      Ask Anything • Get Insights
                     </span>
                   </div>
                 </Button>
