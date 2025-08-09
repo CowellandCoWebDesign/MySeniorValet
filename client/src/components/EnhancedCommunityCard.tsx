@@ -1315,6 +1315,14 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     };
 
     const locationBadge = getLocationBadge();
+    
+    // Calculate display price for featured/coastal/hud variants
+    const priceDisplay = community.displayPricing?.displayPrice || 
+      (community.hudPropertyId && community.rentPerMonth ? 
+        `$${typeof community.rentPerMonth === 'number' ? community.rentPerMonth.toFixed(0) : community.rentPerMonth}` : 
+        community.priceRange ? 
+          `$${community.priceRange.min} - $${community.priceRange.max}` : 
+          null);
 
     return (
       <Link href={`/community/${community.id}`}>
@@ -1553,6 +1561,14 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
   }
 
   // Standard fallback for other variants
+  // Calculate display price for standard fallback variant
+  const standardDisplayPrice = community.displayPricing?.displayPrice || 
+    (community.hudPropertyId && community.rentPerMonth ? 
+      `$${typeof community.rentPerMonth === 'number' ? community.rentPerMonth.toFixed(0) : community.rentPerMonth}` : 
+      community.priceRange ? 
+        `$${community.priceRange.min} - $${community.priceRange.max}` : 
+        'Contact for Pricing');
+  
   return (
     <Card className={`${cardClass} bg-gradient-to-br ${regionalTheme.gradient} border-2 ${regionalTheme.borderColor}`}>
       <CardContent className="p-4">
@@ -1586,7 +1602,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
               {community.city}, {community.state}
             </p>
             <div className={`text-lg font-bold ${regionalTheme.accentColor}`}>
-              {displayPrice}
+              {standardDisplayPrice}
             </div>
           </div>
           {isHudProperty && (
