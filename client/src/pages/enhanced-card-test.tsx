@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 const testCommunities = [
   {
     id: 1,
-    name: "Sunrise Memory Care Center (Community Verified)",
+    name: "Sunrise Memory Care Center",
     city: "Austin",
     state: "TX",
     careLevel: "Memory Care",
@@ -34,7 +34,7 @@ const testCommunities = [
   },
   {
     id: 2,
-    name: "Golden Years HUD Housing (HUD Verified)",
+    name: "Golden Years HUD Housing",
     city: "Phoenix",
     state: "AZ",
     careLevel: "HUD Senior Housing",
@@ -54,7 +54,7 @@ const testCommunities = [
   },
   {
     id: 3,
-    name: "Active Living 55+ Resort (Market Intelligence)",
+    name: "Active Living 55+ Resort",
     city: "Scottsdale",
     state: "AZ",
     careLevel: "55+ Active Adult",
