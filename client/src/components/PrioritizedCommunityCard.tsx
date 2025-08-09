@@ -125,7 +125,7 @@ function CommunityCard({
     if (occupancy >= 95) {
       return {
         status: 'Limited',
-        detail: `${availableUnits} of ${totalUnits} units`,
+        detail: `${availableUnits} Available`,
         bgColor: 'bg-orange-700',
         lightColor: 'text-orange-200',
         dotColor: 'bg-orange-400'
@@ -134,7 +134,7 @@ function CommunityCard({
     if (occupancy >= 85) {
       return {
         status: 'Available Soon',
-        detail: `${availableUnits} of ${totalUnits} units`,
+        detail: `${availableUnits} Available`,
         bgColor: 'bg-yellow-700',
         lightColor: 'text-yellow-200',
         dotColor: 'bg-yellow-400'
@@ -142,7 +142,7 @@ function CommunityCard({
     }
     return {
       status: 'Available Now',
-      detail: `${availableUnits} of ${totalUnits} units`,
+      detail: `${availableUnits} Available`,
       bgColor: 'bg-green-700',
       lightColor: 'text-green-200',
       dotColor: 'bg-green-400'
@@ -311,7 +311,7 @@ function CommunityCard({
           <div className="flex items-center gap-2 mt-1">
             <div className={`w-2 h-2 ${availability.dotColor} rounded-full animate-pulse`}></div>
             <span className="text-white text-sm">
-              {availability.detail} • {Math.round(community.occupancyRate || 0)}% Occupied
+              {availability.detail} of {community.totalUnits || community.totalUnitsHud || '100'} units • {Math.round(community.occupancyRate || 0)}% Occupied
             </span>
           </div>
         </div>
