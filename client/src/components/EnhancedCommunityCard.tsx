@@ -364,17 +364,39 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     
     return (
       <Card 
-        className="group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden bg-gray-800 dark:bg-gray-900 border-0"
+        className="group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-gray-600 rounded-xl"
         onClick={onSelect}
       >
-        {/* Photo Carousel Section with Red X Overlay */}
-        <div className="relative h-52 bg-gray-700 dark:bg-gray-800">
+        {/* Pricing Header with Availability */}
+        <div className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-bold">
+                {priceDisplay || '$3,500/mo'}
+              </span>
+              <Badge variant="outline" className="border-white/30 text-white text-xs">
+                Community Verified
+              </Badge>
+            </div>
+            <div className="text-right">
+              <div className="text-sm font-medium">
+                {occupancyRate >= 95 ? 'Wait List' : occupancyRate >= 85 ? 'Limited Availability' : 'Available Now'}
+              </div>
+              <div className="text-xs opacity-90">
+                {occupancyRate >= 95 ? '12 on wait list' : occupancyRate >= 85 ? 'Only a few units left' : 'Move in today'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Card Content */}
+        <div className="relative bg-gradient-to-br from-purple-600 to-purple-800 text-white min-h-[140px] flex items-center justify-center">
           {/* Share and Favorite buttons */}
           <div className="absolute top-3 right-3 flex gap-2 z-20">
             <Button
               size="sm"
               variant="ghost"
-              className="bg-black/60 hover:bg-black/80 text-white p-2"
+              className="bg-black/60 hover:bg-black/80 text-white p-2 h-8 w-8"
               onClick={(e) => {
                 e.stopPropagation();
               }}
@@ -384,408 +406,101 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
             <Button
               size="sm"
               variant="ghost"
-              className="bg-black/60 hover:bg-black/80 text-white px-3 py-2"
+              className="bg-black/60 hover:bg-black/80 text-white p-2 h-8 w-8"
               onClick={(e) => {
                 e.stopPropagation();
               }}
             >
-              <Share2 className="h-4 w-4 mr-1" />
-              Share with Family
+              <Share2 className="h-4 w-4" />
             </Button>
           </div>
-          
-          {/* Photo placeholder with red X */}
-          <div className="relative h-full">
-            <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700">
-              {community.photos && community.photos.length > 0 ? (
-                <img 
-                  src={community.photos[0]} 
-                  alt={community.name}
-                  className="w-full h-full object-cover opacity-40"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Building className="h-20 w-20 text-gray-500 opacity-30" />
-                </div>
-              )}
-            </div>
-            
-            {/* Red X overlay */}
-            <svg className="absolute inset-0 w-full h-full z-10" viewBox="0 0 100 100">
-              <line x1="15" y1="15" x2="85" y2="85" stroke="red" strokeWidth="6" strokeLinecap="round" />
-              <line x1="85" y1="15" x2="15" y2="85" stroke="red" strokeWidth="6" strokeLinecap="round" />
-            </svg>
-            
-            {/* Swipe to browse indicator */}
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800/80 text-gray-300 px-4 py-2 rounded-full text-sm z-20">
-              Swipe to browse photos
-            </div>
-            
-            {/* Photo dots indicator */}
-            <div className="absolute bottom-4 right-4 flex gap-1 z-20">
-              {[...Array(8)].map((_, i) => (
-                <div 
-                  key={i} 
-                  className={`h-1.5 w-6 rounded-full ${
-                    i === 0 ? 'bg-yellow-400' : 'bg-gray-500'
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-          
-          {/* Authentic Community Photos badge */}
-          <div className="absolute bottom-4 left-4 z-20">
-            <Badge className="bg-green-600 text-white text-xs px-3 py-1.5 font-semibold">
-              ✓ Authentic Community Photos
-            </Badge>
+
+          {/* Community Image Placeholder */}
+          <div className="flex items-center justify-center">
+            <Building className="h-16 w-16 text-white/40" />
           </div>
         </div>
         
-        <CardContent className="p-5 bg-gray-800 dark:bg-gray-900">
-          {/* Header with Community Name and Verified Badge */}
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-2xl font-bold text-white">
-                  {community.name}
-                </h3>
-                {/* Verified Listing badge */}
-                <Badge variant="outline" className="text-xs border-gray-600 text-gray-300 px-3 py-1">
-                  <Shield className="h-3 w-3 mr-1" />
-                  Verified Listing
-                </Badge>
-              </div>
-              
-              {/* Address */}
-              <div className="flex items-center text-sm text-gray-400 mb-1">
-                <MapPin className="h-4 w-4 mr-1" />
-                <span>{community.address}, {community.city}, {community.state} {community.zipCode}</span>
-              </div>
-              
-              {/* Phone */}
-              {community.phone && (
-                <div className="flex items-center text-sm text-gray-400 mb-2">
-                  <Phone className="h-4 w-4 mr-1" />
-                  <a 
-                    href={`tel:${community.phone}`}
-                    className="hover:text-blue-400"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {community.phone}
-                  </a>
-                </div>
-              )}
-              
-              {/* Rating and Care Type */}
-              <div className="flex items-center gap-3">
-                {community.rating && community.rating > 0 && (
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                    <span className="text-sm text-white ml-1">
-                      {community.rating.toFixed(2)} ({community.reviewCount || 0} reviews)
-                    </span>
-                  </div>
-                )}
-                <Badge className="bg-blue-600 text-white text-xs">
-                  {primaryCareType}
-                </Badge>
-              </div>
-              
-              {/* Award Badges */}
-              <div className="flex gap-2 mt-3">
-                {hasTransparencyChampion && (
-                  <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white text-xs px-3 py-1">
-                    ☀️ Transparency Champion
-                  </Badge>
-                )}
-                {hasExcellenceAward && (
-                  <Badge className="bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs px-3 py-1">
-                    🏆 Excellence Award
-                  </Badge>
-                )}
-              </div>
-            </div>
-            
-            {/* PRICING TOP RIGHT with Market Intelligence */}
-            <div className="text-right min-w-[180px]">
-              {/* Pricing Badge */}
-              <Badge className={`mb-2 text-xs ${
-                isHudProperty ? 'bg-green-600 text-white' :
-                community.pricingType === 'live' ? 'bg-red-600 text-white' :
-                'bg-orange-600 text-white'
-              }`}>
-                {isHudProperty ? '● HUD Verified' :
-                 community.pricingType === 'live' ? '● Live Pricing' :
-                 '● Estimate - Not Live'}
-              </Badge>
-              
-              {/* Price Display */}
-              <div className="mt-2">
-                {priceDisplay ? (
-                  <>
-                    <div className="text-2xl font-bold text-white">
-                      {priceDisplay.includes(' - ') ? (
-                        <>
-                          {priceDisplay.split(' - ')[0]} -<br />
-                          {priceDisplay.split(' - ')[1]}
-                        </>
-                      ) : (
-                        priceDisplay
-                      )}
-                    </div>
-                    <div className="text-xs text-gray-400 mt-1">
-                      per month starting rate
-                    </div>
-                    {!isHudProperty && community.pricingType !== 'live' && (
-                      <a 
-                        href="#" 
-                        className="text-xs text-blue-400 hover:text-blue-300 underline mt-1 inline-block"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                        }}
-                      >
-                        <Info className="h-3 w-3 inline mr-1" />
-                        How we calculate this estimate
-                      </a>
-                    )}
-                  </>
-                ) : (
-                  <div className="text-xl font-semibold text-gray-300">
-                    Contact for pricing
-                  </div>
-                )}
-              </div>
-              
-              {/* Availability Status Text */}
-              <div className="mt-3">
-                <div className="flex items-center justify-end text-gray-400">
-                  <div className={`w-2 h-2 rounded-full mr-2 ${
-                    occupancyRate >= 95 ? 'bg-gray-500' : 
-                    occupancyRate >= 85 ? 'bg-gray-500' : 
-                    'bg-gray-500'
-                  }`}></div>
-                  <span className="text-sm">Contact for Availability</span>
-                </div>
-              </div>
-            </div>
+        {/* Bottom Info Section */}
+        <CardContent className="p-4 bg-gray-800 text-white">
+          {/* Care Type Badge */}
+          <div className="flex items-center justify-between mb-3">
+            <Badge className="bg-blue-600 text-white text-sm px-3 py-1">
+              Assisted Living
+            </Badge>
           </div>
-          
-          {/* Community Stats and Care Info Section */}
-          <div className="bg-gray-700 rounded-lg p-4 mb-4">
-            {/* Stats Row */}
-            <div className="flex items-center gap-4 mb-3">
-              <div className="flex items-center text-gray-300">
-                <Building className="h-4 w-4 mr-1" />
-                <span className="text-sm font-medium">{community.totalUnits || community.totalUnitsHud || '100'} units</span>
-              </div>
-              {community.rating && community.rating > 0 ? (
-                <div className="flex items-center text-yellow-400">
-                  <Star className="h-4 w-4 mr-1 fill-yellow-400" />
-                  <span className="text-sm font-medium">{community.rating.toFixed(1)}</span>
-                </div>
-              ) : (
-                <div className="flex items-center text-gray-400">
-                  <Star className="h-4 w-4 mr-1" />
-                  <span className="text-sm">4.5</span>
-                </div>
-              )}
-              <Badge className="bg-orange-600 text-white text-xs px-2 py-1">
-                🏠 Assisted Living
-              </Badge>
-            </div>
-            
-            {/* Care Types */}
-            <div className="text-sm text-gray-300">
-              <span className="font-medium">Care Types:</span>
-              <span className="text-gray-400 ml-1">
-                {community.careTypes && community.careTypes.length > 0 ? (
-                  community.careTypes.slice(0, 2).join(', ')
-                ) : (
-                  'Assisted Living, Memory Care'
-                )}
-              </span>
+
+          {/* Community Name and Location */}
+          <div className="mb-3">
+            <h3 className="text-xl font-bold text-white mb-1">
+              {community.name}
+            </h3>
+            <div className="flex items-center text-sm text-gray-400">
+              <MapPin className="h-4 w-4 mr-1" />
+              <span>{community.city}, {community.state}</span>
             </div>
           </div>
 
-          {/* Messaging Locked Section */}
-          <div className="mt-4 mb-4">
-            <Button 
-              variant="secondary" 
-              className="w-full bg-gray-700 hover:bg-gray-700 text-gray-400 cursor-not-allowed"
-              disabled
-            >
-              <MessageCircle className="h-4 w-4 mr-2" />
-              Messaging Locked 🔒
-            </Button>
-            <p className="text-xs text-gray-400 mt-2">
-              Community needs to upgrade to Standard+ tier to enable messaging
-            </p>
-          </div>
-          
-          {/* Real-time availability section with occupancy */}
-          <div className="bg-gray-700 rounded-lg p-4 mb-4">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <h4 className="text-gray-300 text-sm font-semibold mb-2">
-                  Real-time availability pending verification
-                </h4>
-                <p className="text-gray-400 text-xs">
-                  Contact community directly for current availability
-                </p>
-              </div>
-              
-              {/* Circular Occupancy Display */}
-              <div className="flex flex-col items-center ml-4">
-                <div className="relative w-20 h-20">
-                  {/* Background circle */}
-                  <svg className="w-20 h-20 transform -rotate-90">
-                    <circle
-                      cx="40"
-                      cy="40"
-                      r="32"
-                      stroke="#374151"
-                      strokeWidth="6"
-                      fill="none"
-                    />
-                    {/* Progress circle */}
-                    <circle
-                      cx="40"
-                      cy="40"
-                      r="32"
-                      stroke={occupancyRate >= 95 ? '#ef4444' : occupancyRate >= 85 ? '#fb923c' : '#10b981'}
-                      strokeWidth="6"
-                      fill="none"
-                      strokeDasharray={`${2 * Math.PI * 32}`}
-                      strokeDashoffset={`${2 * Math.PI * 32 * (1 - occupancyRate / 100)}`}
-                      className="transition-all duration-500"
-                    />
-                  </svg>
-                  {/* Center text */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-xl font-bold text-white">{occupancyRate}%</span>
-                    <span className="text-[10px] text-gray-400">Occupied</span>
-                  </div>
-                </div>
-                
-                {/* Status indicator */}
-                <div className="mt-2 flex items-center">
-                  <div className={`w-2 h-2 rounded-full mr-1 ${
-                    occupancyRate >= 95 ? 'bg-red-500' : 
-                    occupancyRate >= 85 ? 'bg-orange-500' : 
-                    'bg-green-500'
-                  }`}></div>
-                  <span className="text-[10px] text-gray-400">
-                    {occupancyRate >= 95 ? 'Wait List' : 
-                     occupancyRate >= 85 ? 'Limited' : 
-                     'Available'}
-                  </span>
-                </div>
-              </div>
+          {/* Stats Row */}
+          <div className="flex items-center gap-4 mb-4 text-sm text-gray-300">
+            <div className="flex items-center">
+              <Building className="h-4 w-4 mr-1" />
+              <span>{community.totalUnits || community.totalUnitsHud || '100'} units</span>
             </div>
-          </div>
-          
-          {/* Special Features section */}
-          <div className="mb-4">
-            <h4 className="text-sm font-semibold text-gray-300 mb-2">Special Features:</h4>
-            <div className="space-y-1.5">
-              <div className="flex items-start text-sm text-gray-400">
-                <span className="mr-1">❈</span>
-                <span>2 care levels available:</span>
-              </div>
-              <div className="ml-5 space-y-1">
-                <div className="flex items-start text-sm text-gray-400">
-                  <span className="mr-1">•</span>
-                  <span>Specialized dementia & Alzheimer's care</span>
-                </div>
-                <div className="flex items-start text-sm text-gray-400">
-                  <span className="mr-1">•</span>
-                  <span>Personal care & daily assistance</span>
-                </div>
-              </div>
-              <div className="flex items-start text-sm text-gray-400">
-                <span className="mr-1">🏠</span>
-                <span>Full amenity list available</span>
-              </div>
-              {isHudProperty && (
-                <div className="flex items-start text-sm text-gray-400">
-                  <span className="mr-1">✓</span>
-                  <span>Government subsidized with income-based rent</span>
-                </div>
-              )}
+            <div className="flex items-center">
+              <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
+              <span>{community.rating?.toFixed(1) || '4.5'}</span>
             </div>
-          </div>
-          
-          {/* Tier badges with full descriptions */}
-          <div className="flex flex-wrap gap-2 mb-3">
-            {tierInfo && (
-              <Badge className={`${tierInfo.color} text-xs px-2 py-1 font-semibold`}>
-                {tierInfo.label}
-              </Badge>
-            )}
-            {subtypeBadge && (
-              <div className="w-full">
-                <Badge className={`${subtypeBadge.color} text-xs px-2 py-1 inline-flex items-center`}>
-                  {subtypeBadge.emoji} {subtypeBadge.label}
-                </Badge>
-                {subtypeBadge.description && (
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 ml-2">
-                    {subtypeBadge.description}
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-          
-          {/* Rating display if available */}
-          {community.rating && (
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star 
-                    key={i} 
-                    className={`h-4 w-4 ${
-                      i < Math.floor(community.rating || 0) 
-                        ? 'text-yellow-400 fill-yellow-400' 
-                        : 'text-gray-300'
-                    }`} 
-                  />
-                ))}
-              </div>
-              <span className="text-sm font-medium">({community.rating.toFixed(1)})</span>
+            <div className="flex items-center">
+              <span className="text-xs">
+                {occupancyRate >= 95 ? '⚪ Only a few units left' : occupancyRate >= 85 ? '⚪ Only a few units left' : '⚪ Only a few units left'}
+              </span>
             </div>
-          )}
-          
+            <Badge className="bg-blue-600 text-white text-xs px-2 py-1">
+              Assisted Living
+            </Badge>
+          </div>
+
           {/* Action Buttons */}
-          <div className="space-y-2">
-            {/* Direct Message Button - Disabled until verified */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Call Button */}
             <Button 
-              className="w-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-semibold py-2.5 rounded-lg cursor-not-allowed opacity-75 flex items-center justify-center gap-2"
-              disabled={true}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg flex items-center justify-center gap-2"
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                if (community.phone) {
+                  window.open(`tel:${community.phone}`, '_self');
+                }
+              }}
+            >
+              <Phone className="h-4 w-4" />
+              Call
+            </Button>
+
+            {/* Message Button */}
+            <Button 
+              variant="outline"
+              className="border-gray-600 text-gray-300 hover:bg-gray-700 font-semibold py-2 rounded-lg flex items-center justify-center gap-2"
               onClick={(e: React.MouseEvent) => {
                 e.stopPropagation();
               }}
-              title="Direct messaging available after community verification"
             >
               <MessageCircle className="h-4 w-4" />
-              <span>Direct Message</span>
-              <Badge className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-0.5">
-                Verification Required
-              </Badge>
-            </Button>
-            
-            {/* View Full Details Button */}
-            <Button 
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 rounded-lg shadow-md transform transition-all hover:shadow-lg"
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                onSelect?.();
-              }}
-            >
-              View Full Details →
+              Message
             </Button>
           </div>
+
+          {/* View Full Details */}
+          <Button 
+            variant="ghost"
+            className="w-full mt-3 text-gray-400 hover:text-white hover:bg-gray-700 text-sm"
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation();
+              onSelect?.();
+            }}
+          >
+            View Full Details →
+          </Button>
         </CardContent>
       </Card>
     );
