@@ -1444,152 +1444,149 @@ export default function AISearchIntelligence() {
                 </div>
               </div>
 
-              {/* Second Row - Amenities and Unit Type */}
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 mb-4 overflow-x-auto pt-4">
-                {/* Amenities/Care Services */}
-                <div className="flex-shrink-0">
-                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">Amenities/Care Services</label>
-                  <div className="flex gap-2 sm:gap-3">
-                    <Button
-                      variant={simplifiedFilters.amenities.includes('medication') ? 'default' : 'outline'}
-                      onClick={() => {
-                        const newAmenities = simplifiedFilters.amenities.includes('medication')
-                          ? simplifiedFilters.amenities.filter(a => a !== 'medication')
-                          : [...simplifiedFilters.amenities, 'medication'];
-                        setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
-                      }}
-                      className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
-                        simplifiedFilters.amenities.includes('medication')
-                          ? 'bg-blue-600 text-white hover:bg-blue-700'
-                          : 'bg-white dark:bg-gray-900'
-                      }`}
-                    >
-                      <div className="text-center">
-                        <Pill className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
-                        <div className="text-[10px] sm:text-[11px] font-medium">Medication</div>
-                      </div>
-                    </Button>
-                    
-                    <Button
-                      variant={simplifiedFilters.amenities.includes('dining') ? 'default' : 'outline'}
-                      onClick={() => {
-                        const newAmenities = simplifiedFilters.amenities.includes('dining')
-                          ? simplifiedFilters.amenities.filter(a => a !== 'dining')
-                          : [...simplifiedFilters.amenities, 'dining'];
-                        setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
-                      }}
-                      className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
-                        simplifiedFilters.amenities.includes('dining')
-                          ? 'bg-blue-600 text-white hover:bg-blue-700'
-                          : 'bg-white dark:bg-gray-900'
-                      }`}
-                    >
-                      <div className="text-center">
-                        <Utensils className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
-                        <div className="text-[10px] sm:text-[11px] font-medium">Meals</div>
-                      </div>
-                    </Button>
-                    
-                    <Button
-                      variant={simplifiedFilters.amenities.includes('fitness') ? 'default' : 'outline'}
-                      onClick={() => {
-                        const newAmenities = simplifiedFilters.amenities.includes('fitness')
-                          ? simplifiedFilters.amenities.filter(a => a !== 'fitness')
-                          : [...simplifiedFilters.amenities, 'fitness'];
-                        setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
-                      }}
-                      className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
-                        simplifiedFilters.amenities.includes('fitness')
-                          ? 'bg-blue-600 text-white hover:bg-blue-700'
-                          : 'bg-white dark:bg-gray-900'
-                      }`}
-                    >
-                      <div className="text-center">
-                        <Activity className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
-                        <div className="text-[10px] sm:text-[11px] font-medium">Fitness</div>
-                      </div>
-                    </Button>
-                    
-                    <button className="px-3 py-2 text-gray-500 hover:text-gray-700 flex items-center gap-1">
-                      <MoreHorizontal className="w-4 h-4" />
-                      <span className="text-xs hidden sm:inline">More</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Unit/Room Type */}
-                <div className="flex-shrink-0">
-                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">Unit/Room Type</label>
-                  <div className="flex gap-2 sm:gap-3">
-                    <Button
-                      variant={simplifiedFilters.unitType.includes('studio') ? 'default' : 'outline'}
-                      onClick={() => {
-                        const newUnits = simplifiedFilters.unitType.includes('studio')
-                          ? simplifiedFilters.unitType.filter(u => u !== 'studio')
-                          : [...simplifiedFilters.unitType, 'studio'];
-                        setSimplifiedFilters({ ...simplifiedFilters, unitType: newUnits });
-                      }}
-                      className={`h-[50px] sm:h-[60px] px-3 sm:px-5 ${
-                        simplifiedFilters.unitType.includes('studio')
-                          ? 'bg-blue-600 text-white hover:bg-blue-700'
-                          : 'bg-white dark:bg-gray-900'
-                      }`}
-                    >
-                      <div className="text-center">
-                        <Bed className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
-                        <div className="text-[10px] sm:text-xs font-medium">Studio</div>
-                      </div>
-                    </Button>
-                    
-                    <Button
-                      variant={simplifiedFilters.unitType.includes('1-bedroom') ? 'default' : 'outline'}
-                      onClick={() => {
-                        const newUnits = simplifiedFilters.unitType.includes('1-bedroom')
-                          ? simplifiedFilters.unitType.filter(u => u !== '1-bedroom')
-                          : [...simplifiedFilters.unitType, '1-bedroom'];
-                        setSimplifiedFilters({ ...simplifiedFilters, unitType: newUnits });
-                      }}
-                      className={`h-[50px] sm:h-[60px] px-3 sm:px-5 ${
-                        simplifiedFilters.unitType.includes('1-bedroom')
-                          ? 'bg-blue-600 text-white hover:bg-blue-700'
-                          : 'bg-white dark:bg-gray-900'
-                      }`}
-                    >
-                      <div className="text-center">
-                        <Home className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
-                        <div className="text-[10px] sm:text-xs font-medium">1 Bed</div>
-                      </div>
-                    </Button>
-                    
-                    <Button
-                      variant={simplifiedFilters.unitType.includes('2-bedroom') ? 'default' : 'outline'}
-                      onClick={() => {
-                        const newUnits = simplifiedFilters.unitType.includes('2-bedroom')
-                          ? simplifiedFilters.unitType.filter(u => u !== '2-bedroom')
-                          : [...simplifiedFilters.unitType, '2-bedroom'];
-                        setSimplifiedFilters({ ...simplifiedFilters, unitType: newUnits });
-                      }}
-                      className={`h-[50px] sm:h-[60px] px-3 sm:px-5 ${
-                        simplifiedFilters.unitType.includes('2-bedroom')
-                          ? 'bg-blue-600 text-white hover:bg-blue-700'
-                          : 'bg-white dark:bg-gray-900'
-                      }`}
-                    >
-                      <div className="text-center">
-                        <Building2 className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
-                        <div className="text-[10px] sm:text-xs font-medium">2 Bed</div>
-                      </div>
-                    </Button>
-                    
-                    <button className="px-3 py-2 text-gray-500 hover:text-gray-700 flex items-center gap-1">
-                      <MoreHorizontal className="w-4 h-4" />
-                      <span className="text-xs hidden sm:inline">More</span>
-                    </button>
-                  </div>
+              {/* Second Row - Unit/Room Type - Full Width */}
+              <div className="w-full mb-4 pt-4">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">Unit/Room Type</label>
+                <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
+                  <Button
+                    variant={simplifiedFilters.unitType.includes('studio') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newUnits = simplifiedFilters.unitType.includes('studio')
+                        ? simplifiedFilters.unitType.filter(u => u !== 'studio')
+                        : [...simplifiedFilters.unitType, 'studio'];
+                      setSimplifiedFilters({ ...simplifiedFilters, unitType: newUnits });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-5 ${
+                      simplifiedFilters.unitType.includes('studio')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Bed className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-xs font-medium">Studio</div>
+                    </div>
+                  </Button>
+                  
+                  <Button
+                    variant={simplifiedFilters.unitType.includes('1-bedroom') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newUnits = simplifiedFilters.unitType.includes('1-bedroom')
+                        ? simplifiedFilters.unitType.filter(u => u !== '1-bedroom')
+                        : [...simplifiedFilters.unitType, '1-bedroom'];
+                      setSimplifiedFilters({ ...simplifiedFilters, unitType: newUnits });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-5 ${
+                      simplifiedFilters.unitType.includes('1-bedroom')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Home className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-xs font-medium">1 Bed</div>
+                    </div>
+                  </Button>
+                  
+                  <Button
+                    variant={simplifiedFilters.unitType.includes('2-bedroom') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newUnits = simplifiedFilters.unitType.includes('2-bedroom')
+                        ? simplifiedFilters.unitType.filter(u => u !== '2-bedroom')
+                        : [...simplifiedFilters.unitType, '2-bedroom'];
+                      setSimplifiedFilters({ ...simplifiedFilters, unitType: newUnits });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-5 ${
+                      simplifiedFilters.unitType.includes('2-bedroom')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Building2 className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-xs font-medium">2 Bed</div>
+                    </div>
+                  </Button>
+                  
+                  <button className="px-3 py-2 text-gray-500 hover:text-gray-700 flex items-center gap-1">
+                    <MoreHorizontal className="w-4 h-4" />
+                    <span className="text-xs hidden sm:inline">More</span>
+                  </button>
                 </div>
               </div>
 
-              {/* Second Row - Sliders and Controls - Mobile Responsive with Stacked Layout */}
+              {/* Third Row - Amenities/Care Services - Full Width */}
+              <div className="w-full mb-4">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">Amenities/Care Services</label>
+                <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
+                  <Button
+                    variant={simplifiedFilters.amenities.includes('medication') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newAmenities = simplifiedFilters.amenities.includes('medication')
+                        ? simplifiedFilters.amenities.filter(a => a !== 'medication')
+                        : [...simplifiedFilters.amenities, 'medication'];
+                      setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
+                      simplifiedFilters.amenities.includes('medication')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Pill className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-[11px] font-medium">Medication</div>
+                    </div>
+                  </Button>
+                  
+                  <Button
+                    variant={simplifiedFilters.amenities.includes('dining') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newAmenities = simplifiedFilters.amenities.includes('dining')
+                        ? simplifiedFilters.amenities.filter(a => a !== 'dining')
+                        : [...simplifiedFilters.amenities, 'dining'];
+                      setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
+                      simplifiedFilters.amenities.includes('dining')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Utensils className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-[11px] font-medium">Meals</div>
+                    </div>
+                  </Button>
+                  
+                  <Button
+                    variant={simplifiedFilters.amenities.includes('fitness') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newAmenities = simplifiedFilters.amenities.includes('fitness')
+                        ? simplifiedFilters.amenities.filter(a => a !== 'fitness')
+                        : [...simplifiedFilters.amenities, 'fitness'];
+                      setSimplifiedFilters({ ...simplifiedFilters, amenities: newAmenities });
+                    }}
+                    className={`h-[50px] sm:h-[60px] px-3 sm:px-4 ${
+                      simplifiedFilters.amenities.includes('fitness')
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Activity className="w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1" />
+                      <div className="text-[10px] sm:text-[11px] font-medium">Fitness</div>
+                    </div>
+                  </Button>
+                  
+                  <button className="px-3 py-2 text-gray-500 hover:text-gray-700 flex items-center gap-1">
+                    <MoreHorizontal className="w-4 h-4" />
+                    <span className="text-xs hidden sm:inline">More</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Fourth Row - Sliders and Controls - Mobile Responsive with Stacked Layout */}
               <div className="w-full py-4 border-t border-b border-gray-200 dark:border-gray-700">
                 {/* Sliders Container - Stack on Mobile */}
                 <div className="flex flex-col gap-3">
