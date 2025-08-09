@@ -70,14 +70,6 @@ interface AISearchResult {
   transparencyReport?: any;
 }
 
-interface PerfectMatchProfile {
-  careNeeds: string[];
-  budget: { min: number; max: number };
-  location: string;
-  preferences: string[];
-  urgency: 'immediate' | 'soon' | 'planning';
-}
-
 // Helper function to get city coordinates
 const getCityCoordinates = (city: string, state: string): [number, number] | null => {
   const cityKey = city.toLowerCase().trim();
@@ -188,15 +180,6 @@ export default function AISearchIntelligence() {
   const [activeTab, setActiveTab] = useState('search');
   const [searchType, setSearchType] = useState<'housing' | 'services' | 'marketplace' | 'resources'>('housing');
   const [useSemanticSearch, setUseSemanticSearch] = useState(true); // Enable semantic search by default
-  
-  // Perfect Match Profile State
-  const [matchProfile, setMatchProfile] = useState<PerfectMatchProfile>({
-    careNeeds: [],
-    budget: { min: 0, max: 10000 },
-    location: '',
-    preferences: [],
-    urgency: 'planning'
-  });
 
   // Simplified Search Filters State
   const [simplifiedFilters, setSimplifiedFilters] = useState({
@@ -209,13 +192,11 @@ export default function AISearchIntelligence() {
     immediateAvailability: false
   });
 
-  // Check URL parameters to auto-switch to perfect match tab or simplified search
+  // Check URL parameters to auto-switch to simplified search
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode');
-    if (mode === 'perfect-match') {
-      setActiveTab('match');
-    } else if (mode === 'simplified') {
+    if (mode === 'simplified') {
       setActiveTab('simplified');
     }
   }, []);
@@ -245,13 +226,13 @@ export default function AISearchIntelligence() {
             limit: 30,
             includeRAG: true, // Include AI recommendations
             filters: {
-              location: matchProfile.location ? { query: matchProfile.location } : undefined
+              location: simplifiedFilters.location ? { query: simplifiedFilters.location } : undefined
             }
           }
         : {
             query,
             searchType: type,
-            context: { userLocation: matchProfile.location }
+            context: { userLocation: simplifiedFilters.location }
           };
       
       const response = await fetch(endpoint, {
@@ -300,11 +281,11 @@ export default function AISearchIntelligence() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          preferences: matchProfile.preferences,
-          budget: matchProfile.budget,
-          location: matchProfile.location,
-          careNeeds: matchProfile.careNeeds,
-          urgency: matchProfile.urgency
+          preferences: [],
+          budget: { min: simplifiedFilters.priceRange[0], max: simplifiedFilters.priceRange[1] },
+          location: simplifiedFilters.location,
+          careNeeds: simplifiedFilters.careTypes,
+          urgency: simplifiedFilters.immediateAvailability ? 'urgent' : 'planning'
         })
       });
       if (!response.ok) throw new Error('AI recommendations failed');
@@ -615,10 +596,6 @@ export default function AISearchIntelligence() {
             <TabsTrigger value="simplified" className="flex items-center gap-2">
               <Filter className="w-4 h-4" />
               Simplified
-            </TabsTrigger>
-            <TabsTrigger value="match" className="flex items-center gap-2">
-              <Target className="w-4 h-4" />
-              Perfect Match
             </TabsTrigger>
             <TabsTrigger value="compare" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
@@ -2287,403 +2264,7 @@ export default function AISearchIntelligence() {
             </div>
           </TabsContent>
 
-          {/* Perfect Match Tab - Enhanced */}
-          <TabsContent value="match" className="space-y-6">
-            <Card className="border-2 border-green-200 dark:border-green-800">
-              <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20">
-                <CardTitle className="flex items-center gap-2 text-xl">
-                  <Target className="w-6 h-6 text-green-600" />
-                  Build Your Perfect Match Profile
-                </CardTitle>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                  Let our AI analyze your needs and find the ideal communities that match your unique requirements
-                </p>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="grid gap-6">
-                  {/* Care Needs - Enhanced with descriptions */}
-                  <div>
-                    <label className="text-sm font-medium mb-3 block flex items-center gap-2">
-                      <Heart className="w-4 h-4 text-red-500" />
-                      What Level of Care Do You Need?
-                    </label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {[
-                        {
-                          name: 'Stay at Home',
-                          description: '🏠 Home care services & support ($500-$4,000/mo)',
-                          icon: <Heart className="w-4 h-4 text-pink-600" />,
-                          popular: true
-                        },
-                        {
-                          name: 'HUD Housing',
-                          description: 'Government-subsidized senior housing ($0-$500/mo)',
-                          icon: <Building2 className="w-4 h-4 text-indigo-600" />
-                        },
-                        {
-                          name: '55+ Mobile Home',
-                          description: 'Affordable mobile home communities ($500-$1,500/mo)',
-                          icon: <Home className="w-4 h-4 text-cyan-600" />
-                        },
-                        {
-                          name: 'Active Adult 55+',
-                          description: 'Age-restricted communities with amenities ($1,500-$3,000/mo)',
-                          icon: <Users className="w-4 h-4 text-teal-600" />
-                        },
-                        {
-                          name: 'Independent Living',
-                          description: 'Active lifestyle with minimal assistance ($2,000-$5,000/mo)',
-                          icon: <Home className="w-4 h-4 text-green-600" />
-                        },
-                        {
-                          name: 'Assisted Living',
-                          description: 'Help with daily activities ($3,000-$7,000/mo)',
-                          icon: <Heart className="w-4 h-4 text-blue-600" />
-                        },
-                        {
-                          name: 'Memory Care',
-                          description: 'Specialized dementia care ($4,000-$10,000/mo)',
-                          icon: <Brain className="w-4 h-4 text-purple-600" />
-                        },
-                        {
-                          name: 'Skilled Nursing',
-                          description: '24/7 medical care ($6,000-$12,000+/mo)',
-                          icon: <Activity className="w-4 h-4 text-red-600" />
-                        }
-                      ].map((need) => (
-                        <div 
-                          key={need.name} 
-                          className={`border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md relative ${
-                            matchProfile.careNeeds.includes(need.name) 
-                              ? 'border-green-500 bg-green-50 dark:bg-green-900/20' 
-                              : 'border-gray-200 dark:border-gray-700'
-                          }`}
-                          onClick={() => {
-                            const newNeeds = matchProfile.careNeeds.includes(need.name)
-                              ? matchProfile.careNeeds.filter(n => n !== need.name)
-                              : [...matchProfile.careNeeds, need.name];
-                            setMatchProfile({ ...matchProfile, careNeeds: newNeeds });
-                          }}
-                        >
-                          {need.popular && (
-                            <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-400 text-xs font-bold text-white px-2 py-1 rounded-full shadow-lg">
-                              Most Popular! 🌟
-                            </div>
-                          )}
-                          <div className="flex items-start gap-3">
-                            <input
-                              type="checkbox"
-                              checked={matchProfile.careNeeds.includes(need.name)}
-                              onChange={(e) => {
-                                const newCareNeeds = e.target.checked
-                                  ? [...matchProfile.careNeeds, need.name]
-                                  : matchProfile.careNeeds.filter(n => n !== need.name);
-                                setMatchProfile({ ...matchProfile, careNeeds: newCareNeeds });
-                              }}
-                              className="mt-1 rounded text-green-600"
-                            />
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 font-medium">
-                                {need.icon}
-                                {need.name}
-                              </div>
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                {need.description}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
 
-                  {/* Budget Range - Enhanced with slider and care level indicators */}
-                  <div>
-                    <label className="text-sm font-medium mb-3 block flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-green-600" />
-                      Monthly Budget Range
-                    </label>
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                      <div className="mb-4">
-                        <Slider
-                          value={[matchProfile.budget.min, matchProfile.budget.max]}
-                          onValueChange={(values) => setMatchProfile({
-                            ...matchProfile,
-                            budget: { min: values[0], max: values[1] }
-                          })}
-                          max={15000}
-                          min={0}
-                          step={100}
-                          className="mb-6"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                          <label className="text-xs text-gray-500 dark:text-gray-400">Minimum</label>
-                          <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <Input
-                              type="number"
-                              placeholder="0"
-                              value={matchProfile.budget.min}
-                              onChange={(e) => setMatchProfile({
-                                ...matchProfile,
-                                budget: { ...matchProfile.budget, min: parseInt(e.target.value) || 0 }
-                              })}
-                              className="pl-8"
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="text-xs text-gray-500 dark:text-gray-400">Maximum</label>
-                          <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <Input
-                              type="number"
-                              placeholder="12000"
-                              value={matchProfile.budget.max}
-                              onChange={(e) => setMatchProfile({
-                                ...matchProfile,
-                                budget: { ...matchProfile.budget, max: parseInt(e.target.value) || 12000 }
-                              })}
-                              className="pl-8"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-                        Budget: <span className="font-bold text-green-600">
-                          ${matchProfile.budget.min.toLocaleString()} - ${matchProfile.budget.max.toLocaleString()}
-                        </span> per month
-                      </div>
-                      {/* Budget guide for care levels */}
-                      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                          {matchProfile.budget.max <= 500 && '💰 HUD Housing range'}
-                          {matchProfile.budget.max > 500 && matchProfile.budget.max <= 1500 && '🏡 Mobile Home range'}
-                          {matchProfile.budget.max > 1500 && matchProfile.budget.max <= 3000 && '🏘️ Active Adult range'}
-                          {matchProfile.budget.max > 3000 && matchProfile.budget.max <= 5000 && '🏠 Independent Living range'}
-                          {matchProfile.budget.max > 5000 && matchProfile.budget.max <= 7000 && '💙 Assisted Living range'}
-                          {matchProfile.budget.max > 7000 && matchProfile.budget.max <= 10000 && '🧠 Memory Care range'}
-                          {matchProfile.budget.max > 10000 && '🏥 Skilled Nursing range'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Location - Enhanced with Autocomplete */}
-                  <div>
-                    <label className="text-sm font-medium mb-3 block flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-blue-600" />
-                      Preferred Location
-                    </label>
-                    <AutocompleteSearch
-                      value={matchProfile.location}
-                      onChange={(value) => setMatchProfile({ ...matchProfile, location: value })}
-                      onSubmit={(value) => {
-                        setMatchProfile({ ...matchProfile, location: value });
-                        // Optionally trigger map update when location is selected
-                        const coords = getCityCoordinates(value.split(',')[0].trim(), value.split(',')[1]?.trim() || '');
-                        if (coords) {
-                          setMapCenter(coords);
-                          setMapZoom(11);
-                        }
-                      }}
-                      placeholder="Start typing a city, state, or community name..."
-                      isLoading={false}
-                    />
-                  </div>
-
-                  {/* Preferences - Enhanced */}
-                  <div>
-                    <label className="text-sm font-medium mb-3 block flex items-center gap-2">
-                      <Star className="w-4 h-4 text-yellow-500" />
-                      Important Features & Amenities
-                    </label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {[
-                        'Pet Friendly 🐕', 'Pool/Spa 🏊', 'Fitness Center 💪', 
-                        'Transportation 🚌', 'Religious Services 🙏', 'Gardens 🌷',
-                        'Private Rooms 🏠', 'Couples Housing 💑', 'Veterans Programs 🎖️'
-                      ].map((pref) => {
-                        const prefName = pref.split(' ')[0] + ' ' + (pref.split(' ')[1] || '').replace(/[^a-zA-Z]/g, '');
-                        return (
-                          <label key={pref} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded-lg transition-colors">
-                            <input
-                              type="checkbox"
-                              checked={matchProfile.preferences.includes(prefName.trim())}
-                              onChange={(e) => {
-                                const newPrefs = e.target.checked
-                                  ? [...matchProfile.preferences, prefName.trim()]
-                                  : matchProfile.preferences.filter(p => p !== prefName.trim());
-                                setMatchProfile({ ...matchProfile, preferences: newPrefs });
-                              }}
-                              className="rounded text-green-600"
-                            />
-                            <span className="text-sm">{pref}</span>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Urgency - Enhanced */}
-                  <div>
-                    <label className="text-sm font-medium mb-3 block flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-orange-500" />
-                      When Do You Need Care?
-                    </label>
-                    <div className="grid grid-cols-3 gap-3">
-                      {[
-                        { value: 'immediate', label: 'ASAP', sublabel: 'Urgent need', icon: AlertCircle, color: 'red' },
-                        { value: 'soon', label: '1-3 Months', sublabel: 'Coming soon', icon: Info, color: 'yellow' },
-                        { value: 'planning', label: 'Planning Ahead', sublabel: 'No rush', icon: CheckCircle, color: 'green' }
-                      ].map((option) => (
-                        <button
-                          key={option.value}
-                          onClick={() => setMatchProfile({ ...matchProfile, urgency: option.value as any })}
-                          className={`p-4 rounded-lg border-2 transition-all hover:shadow-md ${
-                            matchProfile.urgency === option.value
-                              ? `border-${option.color}-500 bg-${option.color}-50 dark:bg-${option.color}-900/20`
-                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                          }`}
-                        >
-                          <option.icon className={`w-6 h-6 mx-auto mb-2 text-${option.color}-600`} />
-                          <p className="text-sm font-medium">{option.label}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{option.sublabel}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Find Match Button - Enhanced */}
-                  <div className="pt-4 border-t">
-                    <Button 
-                      onClick={handlePerfectMatch}
-                      disabled={isAnalyzing || matchProfile.careNeeds.length === 0 || !matchProfile.location}
-                      className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02]"
-                      size="lg"
-                    >
-                      {isAnalyzing ? (
-                        <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          AI Analyzing Your Perfect Match...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-5 h-5 mr-2" />
-                          Find My Perfect Match
-                        </>
-                      )}
-                    </Button>
-                    {(matchProfile.careNeeds.length === 0 || !matchProfile.location) && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
-                        Please select at least one care type and enter a location
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Perfect Match Results */}
-            {aiRecommendationsMutation.data && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Heart className="w-6 h-6 text-red-500" />
-                    Your Perfect Matches
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {aiRecommendationsMutation.data.recommendations && aiRecommendationsMutation.data.recommendations.length > 0 ? (
-                    <div className="space-y-4">
-                      {aiRecommendationsMutation.data.recommendations.map((rec: any, index: number) => (
-                        <div key={rec.community?.id || index} className="p-4 border rounded-lg hover:shadow-lg transition-shadow">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <h4 className="font-semibold text-lg">{rec.community?.name}</h4>
-                              <p className="text-gray-600 dark:text-gray-400">
-                                {rec.community?.city}, {rec.community?.state}
-                              </p>
-                              {rec.community?.phone && (
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                  📞 {rec.community.phone}
-                                </p>
-                              )}
-                            </div>
-                            <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
-                              {rec.matchScore}% Match
-                            </Badge>
-                          </div>
-                          
-                          {rec.matchReasons && rec.matchReasons.length > 0 && (
-                            <div className="space-y-2">
-                              <p className="text-sm font-medium">Why it's a great match:</p>
-                              <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                                {rec.matchReasons.map((reason: string, idx: number) => (
-                                  <li key={idx}>{reason}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                          {/* Pricing Information */}
-                          {rec.community?.displayPricing && (
-                            <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded">
-                              <p className="text-sm">
-                                <span className="font-medium">Pricing:</span> {rec.community.displayPricing.displayPrice}
-                              </p>
-                            </div>
-                          )}
-
-                          {/* AI Insights or Additional Info */}
-                          <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
-                            <p className="text-sm">
-                              <span className="font-medium">AI Insight:</span> {
-                                rec.aiInsights || 
-                                `This community offers ${rec.community?.amenities?.length || 0} amenities and is ${
-                                  rec.community?.communitySubtype === 'mobile_home_park' ? 'a mobile home park' :
-                                  rec.community?.communitySubtype === 'active_adult' ? 'an active adult community' :
-                                  'a senior living community'
-                                } with ${rec.community?.transparencyScore || 70}% transparency score.`
-                              }
-                            </p>
-                          </div>
-
-                          {/* View Details Button */}
-                          <div className="mt-4">
-                            <Link to={`/community/${rec.community?.id}`}>
-                              <Button variant="outline" size="sm" className="w-full">
-                                View Community Details →
-                              </Button>
-                            </Link>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <AlertCircle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-                      <p className="text-gray-600 dark:text-gray-400 mb-2">
-                        No exact matches found for your criteria.
-                      </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-500">
-                        Try adjusting your location, budget, or care type preferences.
-                      </p>
-                      {aiRecommendationsMutation.data.insights && (
-                        <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded text-left">
-                          <p className="text-sm">
-                            <span className="font-medium">Search Tip:</span> {aiRecommendationsMutation.data.insights.locationInsights}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
 
           {/* AI Compare Tab */}
           <TabsContent value="compare" className="space-y-6">

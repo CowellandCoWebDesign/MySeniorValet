@@ -441,21 +441,14 @@ export default function MySeniorValetHome() {
 
           {/* Streamlined Primary Actions - Clean Flow */}
           <div className="flex flex-col items-center space-y-3 mb-5 animate-fade-in-up animation-delay-700 w-full px-4">
-            {/* Top Priority: Perfect Match */}
-            <Link href="/ai-search-intelligence?mode=perfect-match">
-              <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 text-sm md:text-lg px-6 md:px-8 py-3 md:py-4 rounded-xl transform hover:scale-105">
-                ✨ Find My Perfect Match
-              </Button>
-            </Link>
-            
-            {/* Secondary Actions - Responsive Grid */}
+            {/* Primary Actions - Responsive Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full max-w-3xl">
               <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`}>
                 <Button variant="outline" className="w-full border-2 border-white text-white hover:bg-white hover:text-gray-900 px-5 py-3 rounded-xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-white/10 backdrop-blur-sm">
                   Explore Communities
                 </Button>
               </Link>
-              <Link href="/ai-search-intelligence?mode=simplified">
+              <Link href="/search">
                 <Button variant="outline" className="w-full border-2 border-green-300 text-green-200 hover:bg-green-300 hover:text-gray-900 px-5 py-3 rounded-xl font-semibold text-sm md:text-base shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 bg-green-400/10 backdrop-blur-sm">
                   <Filter className="mr-1.5 h-4 w-4" />
                   Simplified Search

@@ -151,13 +151,14 @@ export function registerSemanticSearchRoutes(app: Express) {
   app.get('/api/semantic/suggestions', async (req, res) => {
     try {
       const { q = '' } = req.query;
+      const queryString = String(q);
       
-      if (q.length < 3) {
+      if (queryString.length < 3) {
         return res.json({ suggestions: [] });
       }
 
       // Generate intelligent suggestions based on common queries
-      const suggestions = generateSmartSuggestions(q as string);
+      const suggestions = generateSmartSuggestions(queryString);
       
       return res.json({ suggestions });
     } catch (error) {
@@ -171,8 +172,8 @@ export function registerSemanticSearchRoutes(app: Express) {
    */
   app.get('/api/semantic/test', async (req, res) => {
     try {
-      const isInitialized = await weaviateService.testConnection();
-      const status = await weaviateService.getStatus();
+      const isInitialized = await enhancedWeaviateService.testConnection();
+      const status = await enhancedWeaviateService.getStatus();
       
       return res.json({
         available: isInitialized,
