@@ -2,7 +2,7 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink, Languages, Activity, MessageCircle } from "lucide-react";
+import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink, Languages, Activity, MessageCircle, Share2, Mail, Info } from "lucide-react";
 import { Link } from "wouter";
 
 interface CommunityCardProps {
@@ -271,6 +271,10 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     // Get care level badge
     let subtypeBadge = community.communitySubtype ? getSubtypeBadge(community.communitySubtype) : null;
     
+    // Check for award badges
+    const hasTransparencyChampion = community.pricingType === 'live' || isHudProperty;
+    const hasExcellenceAward = community.rating && community.rating >= 4.5;
+    
     if (!subtypeBadge && community.careTypes && community.careTypes.length > 0) {
       const careTypeMapping: Record<string, string> = {
         'Assisted Living': 'assisted_living',
@@ -360,75 +364,233 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     
     return (
       <Card 
-        className={`group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden border-2 ${regionalTheme.borderColor} bg-gradient-to-br ${regionalTheme.gradient}`}
+        className="group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden bg-gray-800 dark:bg-gray-900 border-0"
         onClick={onSelect}
       >
-        <CardContent className="p-5">
-          {/* Header with Name/Location and PRICING TOP RIGHT */}
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex-1 pr-4">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
-                {community.name}
-              </h3>
-              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mt-1">
-                <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                <span>{community.city}, {community.state} {community.zipCode || ''}</span>
+        {/* Photo Carousel Section with Red X Overlay */}
+        <div className="relative h-52 bg-gray-700 dark:bg-gray-800">
+          {/* Share and Favorite buttons */}
+          <div className="absolute top-3 right-3 flex gap-2 z-20">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="bg-black/60 hover:bg-black/80 text-white p-2"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <Heart className="h-4 w-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="bg-black/60 hover:bg-black/80 text-white px-3 py-2"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <Share2 className="h-4 w-4 mr-1" />
+              Share with Family
+            </Button>
+          </div>
+          
+          {/* Photo placeholder with red X */}
+          <div className="relative h-full">
+            <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700">
+              {community.photos && community.photos.length > 0 ? (
+                <img 
+                  src={community.photos[0]} 
+                  alt={community.name}
+                  className="w-full h-full object-cover opacity-40"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Building className="h-20 w-20 text-gray-500 opacity-30" />
+                </div>
+              )}
+            </div>
+            
+            {/* Red X overlay */}
+            <svg className="absolute inset-0 w-full h-full z-10" viewBox="0 0 100 100">
+              <line x1="15" y1="15" x2="85" y2="85" stroke="red" strokeWidth="6" strokeLinecap="round" />
+              <line x1="85" y1="15" x2="15" y2="85" stroke="red" strokeWidth="6" strokeLinecap="round" />
+            </svg>
+            
+            {/* Swipe to browse indicator */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800/80 text-gray-300 px-4 py-2 rounded-full text-sm z-20">
+              Swipe to browse photos
+            </div>
+            
+            {/* Photo dots indicator */}
+            <div className="absolute bottom-4 right-4 flex gap-1 z-20">
+              {[...Array(8)].map((_, i) => (
+                <div 
+                  key={i} 
+                  className={`h-1.5 w-6 rounded-full ${
+                    i === 0 ? 'bg-yellow-400' : 'bg-gray-500'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+          
+          {/* Authentic Community Photos badge */}
+          <div className="absolute bottom-4 left-4 z-20">
+            <Badge className="bg-green-600 text-white text-xs px-3 py-1.5 font-semibold">
+              ✓ Authentic Community Photos
+            </Badge>
+          </div>
+        </div>
+        
+        <CardContent className="p-5 bg-gray-800 dark:bg-gray-900">
+          {/* Header with Community Name and Verified Badge */}
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="text-2xl font-bold text-white">
+                  {community.name}
+                </h3>
+                {/* Verified Listing badge */}
+                <Badge variant="outline" className="text-xs border-gray-600 text-gray-300 px-3 py-1">
+                  <Shield className="h-3 w-3 mr-1" />
+                  Verified Listing
+                </Badge>
+              </div>
+              
+              {/* Address */}
+              <div className="flex items-center text-sm text-gray-400 mb-1">
+                <MapPin className="h-4 w-4 mr-1" />
+                <span>{community.address}, {community.city}, {community.state} {community.zipCode}</span>
+              </div>
+              
+              {/* Phone */}
+              {community.phone && (
+                <div className="flex items-center text-sm text-gray-400 mb-2">
+                  <Phone className="h-4 w-4 mr-1" />
+                  <a 
+                    href={`tel:${community.phone}`}
+                    className="hover:text-blue-400"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {community.phone}
+                  </a>
+                </div>
+              )}
+              
+              {/* Rating and Care Type */}
+              <div className="flex items-center gap-3">
+                {community.rating && community.rating > 0 && (
+                  <div className="flex items-center">
+                    <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                    <span className="text-sm text-white ml-1">
+                      {community.rating.toFixed(2)} ({community.reviewCount || 0} reviews)
+                    </span>
+                  </div>
+                )}
+                <Badge className="bg-blue-600 text-white text-xs">
+                  {primaryCareType}
+                </Badge>
+              </div>
+              
+              {/* Award Badges */}
+              <div className="flex gap-2 mt-3">
+                {hasTransparencyChampion && (
+                  <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white text-xs px-3 py-1">
+                    ☀️ Transparency Champion
+                  </Badge>
+                )}
+                {hasExcellenceAward && (
+                  <Badge className="bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs px-3 py-1">
+                    🏆 Excellence Award
+                  </Badge>
+                )}
               </div>
             </div>
             
             {/* PRICING TOP RIGHT with Market Intelligence */}
-            <div className="text-right min-w-[140px]">
-              <div className="text-xl font-bold text-gray-900 dark:text-white">
-                {priceDisplay || displayPrice || 'Contact for Pricing'}
-              </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
-                {isHudProperty ? 'HUD Verified' : 
-                 community.pricingType === 'live' ? 'Live Pricing' : 
-                 'Market Intelligence'}
-              </div>
-              {/* Market Intelligence Badge */}
-              <Badge className={`mt-1 text-xs ${
-                isHudProperty ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
-                community.pricingType === 'live' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
-                'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'
+            <div className="text-right min-w-[180px]">
+              {/* Pricing Badge */}
+              <Badge className={`mb-2 text-xs ${
+                isHudProperty ? 'bg-green-600 text-white' :
+                community.pricingType === 'live' ? 'bg-red-600 text-white' :
+                'bg-orange-600 text-white'
               }`}>
-                {isHudProperty ? '✓ HUD' :
-                 community.pricingType === 'live' ? '🔴 LIVE' :
-                 '📊 Market Data'}
+                {isHudProperty ? '● HUD Verified' :
+                 community.pricingType === 'live' ? '● Live Pricing' :
+                 '● Estimate - Not Live'}
               </Badge>
+              
+              {/* Price Display */}
+              <div className="mt-2">
+                {priceDisplay ? (
+                  <>
+                    <div className="text-2xl font-bold text-white">
+                      {priceDisplay.includes(' - ') ? (
+                        <>
+                          {priceDisplay.split(' - ')[0]} -<br />
+                          {priceDisplay.split(' - ')[1]}
+                        </>
+                      ) : (
+                        priceDisplay
+                      )}
+                    </div>
+                    <div className="text-xs text-gray-400 mt-1">
+                      per month starting rate
+                    </div>
+                    {!isHudProperty && community.pricingType !== 'live' && (
+                      <a 
+                        href="#" 
+                        className="text-xs text-blue-400 hover:text-blue-300 underline mt-1 inline-block"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                      >
+                        <Info className="h-3 w-3 inline mr-1" />
+                        How we calculate this estimate
+                      </a>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-xl font-semibold text-gray-300">
+                    Contact for pricing
+                  </div>
+                )}
+              </div>
+              
+              {/* Availability Status */}
+              <div className="mt-3">
+                <div className="flex items-center justify-end text-gray-400">
+                  <div className="w-2 h-2 bg-gray-500 rounded-full mr-2"></div>
+                  <span className="text-sm">Contact for Availability</span>
+                </div>
+              </div>
             </div>
           </div>
           
-          {/* IMMEDIATE CONTACT INFORMATION - Priority #1 */}
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-lg p-3 mb-4">
-            <div className="flex items-center justify-between">
-              {community.phone ? (
-                <a
-                  href={`tel:${community.phone}`}
-                  className="flex items-center text-green-600 hover:text-green-700 dark:text-green-400 font-bold text-sm"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Phone className="h-4 w-4 mr-2" />
-                  {community.phone}
-                </a>
-              ) : (
-                <span className="flex items-center text-gray-600 dark:text-gray-400 text-sm">
-                  <Phone className="h-4 w-4 mr-2" />
-                  Contact for Info
-                </span>
-              )}
-              
-              {/* Availability Status */}
-              <Badge className={`text-xs font-bold ${
-                occupancyRate < 85 ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
-                occupancyRate < 95 ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300' :
-                'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-              }`}>
-                {occupancyRate < 85 ? '✓ Available' :
-                 occupancyRate < 95 ? '⏳ Limited' :
-                 '⏰ Wait List'}
-              </Badge>
-            </div>
+          {/* Messaging Locked Section */}
+          <div className="mt-4 mb-4">
+            <Button 
+              variant="secondary" 
+              className="w-full bg-gray-700 hover:bg-gray-700 text-gray-400 cursor-not-allowed"
+              disabled
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Messaging Locked 🔒
+            </Button>
+            <p className="text-xs text-gray-400 mt-2">
+              Community needs to upgrade to Standard+ tier to enable messaging
+            </p>
+          </div>
+          
+          {/* Real-time availability pending verification box */}
+          <div className="bg-gray-700 rounded-lg p-4 mb-4">
+            <h4 className="text-gray-300 text-sm font-semibold mb-2">
+              Real-time availability pending verification
+            </h4>
+            <p className="text-gray-400 text-xs">
+              Contact community directly for current availability
+            </p>
           </div>
           
           {/* AMENITIES SECTION with Disclaimer */}
