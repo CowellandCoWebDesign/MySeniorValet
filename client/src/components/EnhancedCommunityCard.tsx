@@ -2,7 +2,7 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink, Languages, Activity } from "lucide-react";
+import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink, Languages, Activity, MessageCircle } from "lucide-react";
 import { Link } from "wouter";
 
 interface CommunityCardProps {
@@ -385,6 +385,29 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
             </div>
           )}
           
+          {/* Pricing in top right corner */}
+          <div className="absolute top-3 right-3 z-10">
+            {priceDisplay ? (
+              <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div className="text-lg font-bold text-gray-900 dark:text-white">
+                  {priceDisplay}
+                </div>
+                {isHudProperty && (
+                  <div className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center">
+                    <Shield className="h-3 w-3 mr-1" />
+                    HUD Verified
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+                  Contact for pricing
+                </div>
+              </div>
+            )}
+          </div>
+          
           {/* Photo or placeholder - exactly matching screenshot */}
           {community.photos && community.photos.length > 0 && community.photos[0] ? (
             <img 
@@ -717,6 +740,27 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
           
 
           
+          {/* Direct Message Button - Disabled until verified */}
+          <div className="mb-3">
+            <Button 
+              className="w-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-semibold py-2.5 rounded-lg cursor-not-allowed opacity-75 flex items-center justify-center gap-2"
+              disabled={true}
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+              }}
+              title="Direct messaging available after community verification"
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span>Direct Message</span>
+              <Badge className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-0.5">
+                Verification Required
+              </Badge>
+            </Button>
+            <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-1">
+              Available after community claims & verifies contact info
+            </p>
+          </div>
+          
           {/* Action Button - professional CTA */}
           <Button 
             className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 rounded-lg shadow-md transform transition-all hover:shadow-lg"
@@ -906,9 +950,32 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
   if (variant === 'horizontal') {
     return (
       <Card 
-        className="group cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 bg-gradient-to-br from-white via-blue-50/20 to-purple-50/20 dark:from-gray-800 dark:via-gray-800 dark:to-gray-700 border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-600 overflow-hidden"
+        className="group cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 bg-gradient-to-br from-white via-blue-50/20 to-purple-50/20 dark:from-gray-800 dark:via-gray-800 dark:to-gray-700 border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-600 overflow-hidden relative"
         onClick={onSelect}
       >
+        {/* Pricing in top right corner */}
+        <div className="absolute top-3 right-3 z-10">
+          {priceDisplay ? (
+            <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-gray-200 dark:border-gray-700">
+              <div className="text-lg font-bold text-gray-900 dark:text-white">
+                {priceDisplay}
+              </div>
+              {isHudProperty && (
+                <div className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center">
+                  <Shield className="h-3 w-3 mr-1" />
+                  HUD Verified
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-gray-200 dark:border-gray-700">
+              <div className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+                Contact for pricing
+              </div>
+            </div>
+          )}
+        </div>
+        
         <CardContent className="p-0">
           <div className="flex flex-col lg:flex-row">
             {/* Image Section */}
@@ -1155,6 +1222,22 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                       View Details
                     </button>
                   </Link>
+                  
+                  {/* Direct Message Button - Disabled until verified */}
+                  <div className="flex-1 min-w-32">
+                    <button 
+                      className="w-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-4 py-2 rounded-lg cursor-not-allowed opacity-75 flex items-center justify-center gap-2"
+                      disabled={true}
+                      title="Direct messaging available after community verification"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      <span>Direct Message</span>
+                    </button>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-1">
+                      Available after verification
+                    </p>
+                  </div>
+                  
                   <button className="flex-1 min-w-32 border-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 hover:text-white dark:hover:bg-blue-400 dark:hover:text-white transition-all duration-200">
                     Schedule Tour
                   </button>
@@ -1261,12 +1344,27 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
               </div>
             </div>
             
-            {/* Price Badge - Bottom Left */}
-            {displayPrice !== 'Contact for Pricing' && (
-              <Badge className="absolute bottom-3 left-3 bg-gray-900 text-white text-sm px-3 py-1.5 font-semibold">
-                {displayPrice}
-              </Badge>
-            )}
+            {/* Pricing Badge - Top Right Corner */}
+            <div className="absolute top-2 right-2 z-10">
+              {priceDisplay ? (
+                <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-2.5 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
+                  <div className="text-sm font-bold text-gray-900 dark:text-white">
+                    {priceDisplay}
+                  </div>
+                  {isHudProperty && (
+                    <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                      HUD
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-2.5 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
+                  <div className="text-xs font-semibold text-gray-600 dark:text-gray-400">
+                    Contact for pricing
+                  </div>
+                </div>
+              )}
+            </div>
             
             {/* HUD Badge - Bottom Right ONLY for actual HUD properties */}
             {community.hudPropertyId && (
@@ -1424,6 +1522,16 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                     : community.phone || 'Contact available'}
                 </span>
               </div>
+              
+              {/* Direct Message Button - Disabled until verified */}
+              <button 
+                className="w-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 py-2 px-3 rounded-lg cursor-not-allowed opacity-75 flex items-center justify-center gap-1 text-xs"
+                disabled={true}
+                title="Direct messaging available after community verification"
+              >
+                <MessageCircle className="h-3 w-3" />
+                <span>Direct Message - Verification Required</span>
+              </button>
               
               {/* View Details Button */}
               <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 px-3 rounded-lg font-semibold text-xs transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
