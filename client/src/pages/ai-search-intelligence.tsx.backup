@@ -1684,6 +1684,300 @@ export default function AISearchIntelligence() {
                 </div>
               </div>
             </div>
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'va-housing')
+                        : [...simplifiedFilters.typeOfLiving, 'va-housing'];
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
+                    }}
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('va-housing')
+                        ? 'bg-blue-800 text-white hover:bg-blue-900'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                    title="Veterans Administration housing, state veterans homes, domiciliary care for eligible veterans"
+                  >
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🎖️</div>
+                      <div className="text-xs font-bold leading-tight">VA Housing</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Veterans Only</div>
+                      <div className="text-[10px] opacity-80">Varies</div>
+                      <div className="text-[10px] opacity-60">432</div>
+                    </div>
+                  </Button>
+
+                  {/* Mobile & RV Communities */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('mobile-parks') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('mobile-parks')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'mobile-parks')
+                        : [...simplifiedFilters.typeOfLiving, 'mobile-parks'];
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
+                    }}
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('mobile-parks')
+                        ? 'bg-green-600 text-white hover:bg-green-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                    title="Mobile home parks, RV retirement communities, manufactured home communities, 55+ mobile parks"
+                  >
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🚐</div>
+                      <div className="text-xs font-bold leading-tight">Mobile & RV</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Parks & Communities</div>
+                      <div className="text-[10px] opacity-80">$300-800</div>
+                      <div className="text-[10px] opacity-60">3,421</div>
+                    </div>
+                  </Button>
+
+                  {/* 55+ Active Adult */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('active-adult') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('active-adult')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'active-adult')
+                        : [...simplifiedFilters.typeOfLiving, 'active-adult'];
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
+                    }}
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('active-adult')
+                        ? 'bg-teal-600 text-white hover:bg-teal-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                    title="Age-restricted communities (55+), resort-style amenities, golf courses, clubhouses, no care services"
+                  >
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🏡</div>
+                      <div className="text-xs font-bold leading-tight">55+ Active</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Adult Living</div>
+                      <div className="text-[10px] opacity-80">$800-1.5k</div>
+                      <div className="text-[10px] opacity-60">4,567</div>
+                    </div>
+                  </Button>
+
+                  {/* Independent Living */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('independent-living') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('independent-living')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'independent-living')
+                        : [...simplifiedFilters.typeOfLiving, 'independent-living'];
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
+                    }}
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('independent-living')
+                        ? 'bg-purple-600 text-white hover:bg-purple-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                    title="Maintenance-free senior apartments with meals, activities, and social programs"
+                  >
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🏠</div>
+                      <div className="text-xs font-bold leading-tight">Independent</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Living</div>
+                      <div className="text-[10px] opacity-80">$1.5-3.5k</div>
+                      <div className="text-[10px] opacity-60">8,745</div>
+                    </div>
+                  </Button>
+
+                  {/* Board & Care - Small Homes */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('board-care') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('board-care')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'board-care')
+                        : [...simplifiedFilters.typeOfLiving, 'board-care'];
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
+                    }}
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('board-care')
+                        ? 'bg-cyan-600 text-white hover:bg-cyan-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                    title="Small residential care homes with 6-10 residents, personalized care in homelike setting"
+                  >
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🏘️</div>
+                      <div className="text-xs font-bold leading-tight">Board & Care</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Small Homes</div>
+                      <div className="text-[10px] opacity-80">$2-4k</div>
+                      <div className="text-[10px] opacity-60">856</div>
+                    </div>
+                  </Button>
+
+                  {/* Assisted Living */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('assisted-living') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('assisted-living')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'assisted-living')
+                        : [...simplifiedFilters.typeOfLiving, 'assisted-living'];
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
+                    }}
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('assisted-living')
+                        ? 'bg-orange-600 text-white hover:bg-orange-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                    title="Help with daily activities like bathing, dressing, medication management, meals included"
+                  >
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🤝</div>
+                      <div className="text-xs font-bold leading-tight">Assisted</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Living</div>
+                      <div className="text-[10px] opacity-80">$3-6k</div>
+                      <div className="text-[10px] opacity-60">7,234</div>
+                    </div>
+                  </Button>
+
+                  {/* Memory Care */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('memory-care') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('memory-care')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'memory-care')
+                        : [...simplifiedFilters.typeOfLiving, 'memory-care'];
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
+                    }}
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('memory-care')
+                        ? 'bg-red-600 text-white hover:bg-red-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                    title="Specialized care for dementia and Alzheimer's, secure environment, cognitive activities"
+                  >
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🧠</div>
+                      <div className="text-xs font-bold leading-tight">Memory</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Care</div>
+                      <div className="text-[10px] opacity-80">$4-7.5k</div>
+                      <div className="text-[10px] opacity-60">3,897</div>
+                    </div>
+                  </Button>
+
+                  {/* CCRC - Continuing Care Retirement Community */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('ccrc') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('ccrc')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'ccrc')
+                        : [...simplifiedFilters.typeOfLiving, 'ccrc'];
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
+                    }}
+                    className={`h-[120px] min-w-[160px] px-2 py-3 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('ccrc')
+                        ? 'bg-amber-600 text-white hover:bg-amber-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                    title="Continuing Care Retirement Community - All care levels on one campus (Independent, Assisted, Memory, Skilled Nursing), lifetime care guarantee with predictable costs"
+                  >
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">♾️</div>
+                      <div className="text-[11px] font-bold leading-tight">Continuing Care</div>
+                      <div className="text-[10px] opacity-90 leading-tight">Retirement Community</div>
+                      <div className="text-[10px] opacity-80 mt-1">Varies</div>
+                      <div className="text-[10px] opacity-60">1,245</div>
+                    </div>
+                  </Button>
+
+                  {/* Skilled Nursing */}
+                  <Button
+                    variant={simplifiedFilters.typeOfLiving.includes('skilled-nursing') ? 'default' : 'outline'}
+                    onClick={() => {
+                      const newTypes = simplifiedFilters.typeOfLiving.includes('skilled-nursing')
+                        ? simplifiedFilters.typeOfLiving.filter(t => t !== 'skilled-nursing')
+                        : [...simplifiedFilters.typeOfLiving, 'skilled-nursing'];
+                      const newFilters = { ...simplifiedFilters, typeOfLiving: newTypes };
+                      setSimplifiedFilters(newFilters);
+                      // Auto-trigger search when filter changes
+                      setTimeout(() => {
+                        simplifiedSearchMutation.mutate({
+                          ...newFilters,
+                          location: newFilters.location.trim()
+                        });
+                      }, 100);
+                    }}
+                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                      simplifiedFilters.typeOfLiving.includes('skilled-nursing')
+                        ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                        : 'bg-white dark:bg-gray-900'
+                    }`}
+                    title="24/7 medical care, rehabilitation services, wound care, IV therapy, physical therapy"
+                  >
+                    <div className="text-center h-full flex flex-col justify-center">
+                      <div className="text-2xl mb-1">🏥</div>
+                      <div className="text-xs font-bold leading-tight">Skilled</div>
+                      <div className="text-[10px] opacity-90 leading-tight mt-1">Nursing</div>
+                      <div className="text-[10px] opacity-80">$6-12k</div>
+                      <div className="text-[10px] opacity-60">2,300</div>
+                    </div>
+                  </Button>
+                </div>
+              </div>
+            </div>
 
             {/* Map and List Layout - Full Width */}
             <div className="flex gap-2 h-[700px] px-2">
