@@ -207,21 +207,27 @@ function CommunityCard({
             />
           ) : (
             <div className="flex flex-col items-center">
-              <Building className="h-12 w-12 text-white/60 mb-2" />
-              <div className="text-xs text-white/80 text-center leading-tight">
-                {community.communitySubtype === 'memory_care' ? '🧠 Memory Care' :
-                 community.communitySubtype === 'skilled_nursing' ? '🏥 Skilled Nursing' :
-                 community.communitySubtype === 'independent_living' ? '🏡 Independent' :
-                 community.communitySubtype === 'hud_senior_housing' ? '🏛️ HUD Housing' :
-                 community.communitySubtype === 'active_adult_55plus' ? '🎾 55+ Active' :
-                 community.communitySubtype === 'mobile_home_park' ? '🚐 Mobile Park' :
-                 'Photos Coming Soon'}
+              <div className="text-5xl mb-2">
+                {community.communitySubtype === 'memory_care' ? '🧠' :
+                 community.communitySubtype === 'skilled_nursing' ? '🏥' :
+                 community.communitySubtype === 'independent_living' ? '🏡' :
+                 community.communitySubtype === 'hud_senior_housing' ? '🏛️' :
+                 community.communitySubtype === 'active_adult_55plus' ? '🎾' :
+                 community.communitySubtype === 'mobile_home_park' ? '🚐' :
+                 '🏢'}
               </div>
-              {community.occupancyRate && (
-                <div className="text-2xl font-bold text-white/90 mt-2">
-                  {Math.round(community.occupancyRate)}% Full
-                </div>
-              )}
+              <div className="text-sm text-white/80 text-center font-medium">
+                {community.communitySubtype === 'memory_care' ? 'Memory Care' :
+                 community.communitySubtype === 'skilled_nursing' ? 'Skilled Nursing' :
+                 community.communitySubtype === 'independent_living' ? 'Independent Living' :
+                 community.communitySubtype === 'hud_senior_housing' ? 'HUD Housing' :
+                 community.communitySubtype === 'active_adult_55plus' ? '55+ Active' :
+                 community.communitySubtype === 'mobile_home_park' ? 'Mobile Park' :
+                 'Senior Living'}
+              </div>
+              <div className="text-xs text-white/50 mt-1">
+                Beautiful photos coming soon
+              </div>
             </div>
           )}
         </div>
@@ -244,6 +250,29 @@ function CommunityCard({
           <div className="flex items-center text-sm text-gray-400">
             <MapPin className="h-4 w-4 mr-1" />
             <span>{community.city}, {community.state}</span>
+          </div>
+        </div>
+
+        {/* Occupancy Information - Now inside card body */}
+        <div className="mb-3 p-3 bg-gray-800 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-gray-400">Availability</span>
+            <span className={`text-sm font-bold ${availability.lightColor}`}>
+              {availability.status}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className={`w-2 h-2 ${availability.dotColor} rounded-full animate-pulse`}></div>
+              <span className="text-white font-semibold">
+                {availability.detail}
+              </span>
+            </div>
+            {community.occupancyRate !== undefined && (
+              <span className="text-xs text-gray-400">
+                {Math.round(community.occupancyRate)}% Occupied
+              </span>
+            )}
           </div>
         </div>
 
