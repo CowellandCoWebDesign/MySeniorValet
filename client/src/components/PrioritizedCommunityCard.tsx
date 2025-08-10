@@ -274,12 +274,12 @@ function CommunityCard({
               
               {/* First Month Free Promotion */}
               {community.specialPromotions && community.specialPromotions.length > 0 && (
-                <div className="bg-red-600 border-2 border-red-400 rounded-lg px-3 py-1 animate-pulse shadow-lg shadow-red-500/50">
-                  <div className="text-sm text-white font-bold flex items-center">
+                <div className="bg-red-600 border-2 border-red-400 rounded-lg px-2 py-1 animate-pulse shadow-lg shadow-red-500/50">
+                  <div className="text-xs text-white font-bold flex items-center justify-center">
                     <span className="mr-1">🔥</span> {community.specialPromotions[0].title}
                   </div>
                   {community.specialPromotions[0].monthsWaived && (
-                    <div className="text-xs text-red-100 font-semibold">
+                    <div className="text-xs text-red-100 font-semibold text-center">
                       {community.specialPromotions[0].monthsWaived} months free!
                     </div>
                   )}
