@@ -124,7 +124,7 @@ function CommunityCard({
     }
     if (occupancy >= 95) {
       return {
-        status: 'Limited',
+        status: 'Limited Availability',
         detail: `${availableUnits} Available`,
         bgColor: 'bg-orange-700',
         lightColor: 'text-orange-200',
