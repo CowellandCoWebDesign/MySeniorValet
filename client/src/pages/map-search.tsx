@@ -1182,9 +1182,9 @@ export default function MapSearch() {
   ).length;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
+    <div className="h-screen overflow-hidden flex flex-col bg-gray-50 dark:bg-gray-800">
       {/* Header */}
-      <div className={"shadow-sm border-b " + (isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700')}>
+      <div className={"shadow-sm border-b flex-shrink-0 " + (isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700')}>
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -1284,8 +1284,8 @@ export default function MapSearch() {
 
 
 
-      {/* Sticky Search and Filter Container */}
-      <div className="sticky top-0 z-40">
+      {/* Fixed Search and Filter Container */}
+      <div className="flex-shrink-0">
         {/* Search Bar */}
         <div className={"border-b p-4 " + (isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700')}>
           <form onSubmit={(e) => {
@@ -1858,27 +1858,25 @@ export default function MapSearch() {
         </div>
       )}
 
-      {/* Map Container - Always show map */}
-      <div className="flex-1">
-        <div className="h-full" style={{ minHeight: '600px' }}>
-          <MapErrorBoundary>
-            <Map
-              center={mapCenter}
-              zoom={mapZoom}
-              height="100%"
-              searchFilters={filters}
-              vendors={vendors}
-              healthcareServices={healthcareServices}
-              resources={resources}
-              onCommunityClick={handleCommunityClick}
-              onBoundsChange={handleMapBoundsChange}
-              onClusterClick={handleClusterClick}
-              showHeatmapLayer={showHeatmapLayer}
-              heatmapOpacity={heatmapOpacity}
-              showLegend={showLegend}
-            />
-          </MapErrorBoundary>
-        </div>
+      {/* Map Container - Fills remaining viewport */}
+      <div className="flex-1 overflow-hidden relative">
+        <MapErrorBoundary>
+          <Map
+            center={mapCenter}
+            zoom={mapZoom}
+            height="100%"
+            searchFilters={filters}
+            vendors={vendors}
+            healthcareServices={healthcareServices}
+            resources={resources}
+            onCommunityClick={handleCommunityClick}
+            onBoundsChange={handleMapBoundsChange}
+            onClusterClick={handleClusterClick}
+            showHeatmapLayer={showHeatmapLayer}
+            heatmapOpacity={heatmapOpacity}
+            showLegend={showLegend}
+          />
+        </MapErrorBoundary>
       </div>
 
       {/* Enhanced Bottom Slide Panel - Fixed visibility */}
