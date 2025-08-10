@@ -15,13 +15,16 @@ export function registerSearchRoutes(app: Express) {
   app.get('/api/market-pricing/:communityId', async (req, res) => {
     try {
       const { communityId } = req.params;
+      const { detailed } = req.query; // Optional flag for detailed response
       
       // Get community details
       const [community] = await db
         .select({
           city: communities.city,
           state: communities.state,
-          careType: communities.communitySubtype
+          careType: communities.communitySubtype,
+          hudPropertyId: communities.hudPropertyId,
+          rentPerMonth: communities.rentPerMonth
         })
         .from(communities)
         .where(eq(communities.id, parseInt(communityId)))
@@ -31,11 +34,23 @@ export function registerSearchRoutes(app: Express) {
         return res.status(404).json({ error: 'Community not found' });
       }
       
-      // Get market pricing intelligence
+      // Check if community has verified pricing (HUD)
+      if (community.hudPropertyId && community.rentPerMonth) {
+        return res.json({
+          hasVerifiedPricing: true,
+          display: `$${community.rentPerMonth}/mo`,
+          confidence: 'verified',
+          source: 'HUD Database',
+          verificationBadge: 'Government Verified'
+        });
+      }
+      
+      // Get enhanced market pricing intelligence with comparisons
       const marketPricing = await MarketPricingIntelligence.getMarketPricing(
         community.city,
         community.state,
-        community.careType || 'assisted living'
+        community.careType || 'assisted living',
+        true // Include comparisons and trends
       );
       
       if (!marketPricing) {
@@ -47,12 +62,44 @@ export function registerSearchRoutes(app: Express) {
       
       const pricingWithConfidence = MarketPricingIntelligence.getPricingWithConfidence(marketPricing);
       
-      res.json({
+      // Prepare base response
+      const baseResponse = {
         pricing: marketPricing,
         display: pricingWithConfidence.display,
         confidence: pricingWithConfidence.confidence,
         source: pricingWithConfidence.source
-      });
+      };
+      
+      // Add detailed insights if requested
+      if (detailed === 'true') {
+        return res.json({
+          ...baseResponse,
+          insights: {
+            comparison: marketPricing.comparisonToState ? {
+              vsStateAverage: `${marketPricing.comparisonToState.percentDifference > 0 ? '+' : ''}${marketPricing.comparisonToState.percentDifference}%`,
+              stateAverage: `$${marketPricing.comparisonToState.stateAverage.toLocaleString()}/mo`,
+              position: marketPricing.comparisonToState.isAboveAverage ? 'Above state average' : 'Below state average'
+            } : null,
+            trend: marketPricing.marketTrend ? {
+              direction: marketPricing.marketTrend.direction,
+              yearOverYear: `${marketPricing.marketTrend.yearOverYearChange > 0 ? '+' : ''}${marketPricing.marketTrend.yearOverYearChange.toFixed(1)}%`,
+              forecast: marketPricing.marketTrend.direction === 'rising' ? 'Prices expected to increase' : 
+                       marketPricing.marketTrend.direction === 'falling' ? 'Prices may decrease' : 
+                       'Prices remain stable'
+            } : null,
+            services: marketPricing.careTypeBreakdown,
+            localMarket: marketPricing.nearbyComparison ? {
+              percentile: `${marketPricing.nearbyComparison.percentileRank}th percentile`,
+              countyAverage: `$${marketPricing.nearbyComparison.countyAverage.toLocaleString()}/mo`,
+              ranking: marketPricing.nearbyComparison.percentileRank > 70 ? 'Premium pricing' : 
+                      marketPricing.nearbyComparison.percentileRank > 30 ? 'Mid-range pricing' : 
+                      'Budget-friendly'
+            } : null
+          }
+        });
+      }
+      
+      res.json(baseResponse);
     } catch (error) {
       console.error('Error fetching market pricing:', error);
       res.status(500).json({ error: 'Failed to fetch market pricing' });

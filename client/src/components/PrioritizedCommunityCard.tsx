@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2, Home } from "lucide-react";
+import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2, Home, Info } from "lucide-react";
+import { MarketIntelligenceModal } from "./MarketIntelligenceModal";
 
 interface CommunityCardProps {
   community: {
@@ -84,10 +85,29 @@ function CommunityCard({
   // State for market pricing intelligence
   const [marketPricing, setMarketPricing] = useState<{
     display: string;
-    confidence: 'high' | 'medium' | 'low';
+    confidence: 'high' | 'medium' | 'low' | 'verified';
     source: string;
+    insights?: {
+      comparison?: {
+        vsStateAverage: string;
+        stateAverage: string;
+        position: string;
+      };
+      trend?: {
+        direction: 'rising' | 'stable' | 'falling';
+        yearOverYear: string;
+        forecast: string;
+      };
+      localMarket?: {
+        percentile: string;
+        countyAverage: string;
+        ranking: string;
+      };
+    };
   } | null>(null);
   const [loadingPricing, setLoadingPricing] = useState(false);
+  const [showPricingDetails, setShowPricingDetails] = useState(false);
+  const [showMarketModal, setShowMarketModal] = useState(false);
   
   // Debug logging to understand what's being rendered
   console.log('🎯 PrioritizedCommunityCard rendering:', {
@@ -141,14 +161,15 @@ function CommunityCard({
       
       setLoadingPricing(true);
       try {
-        const response = await fetch(`/api/market-pricing/${community.id}`);
+        const response = await fetch(`/api/market-pricing/${community.id}?detailed=true`);
         const data = await response.json();
         
         if (data.pricing) {
           setMarketPricing({
             display: data.display,
             confidence: data.confidence,
-            source: data.source
+            source: data.source,
+            insights: data.insights
           });
         }
       } catch (error) {
@@ -262,6 +283,7 @@ function CommunityCard({
   const pricingColors = getPricingColors();
 
   return (
+    <>
     <Card className="w-full bg-gray-900 border-gray-700 hover:border-gray-600 transition-all duration-200 overflow-hidden">
       {/* Split Header - Availability on Left (color by status), Pricing on Right (color by verification) */}
       <div className="flex">
@@ -406,6 +428,54 @@ function CommunityCard({
               {priceDisplay}
             </div>
             
+            {/* Market Intelligence Insights */}
+            {marketPricing?.insights && (
+              <div className="mt-1 space-y-1">
+                {/* Market Trend Indicator */}
+                {marketPricing.insights.trend && (
+                  <div className="flex items-center justify-end text-xs">
+                    <span className={`px-1.5 py-0.5 rounded ${
+                      marketPricing.insights.trend.direction === 'rising' ? 'bg-red-900/50 text-red-400' :
+                      marketPricing.insights.trend.direction === 'falling' ? 'bg-green-900/50 text-green-400' :
+                      'bg-gray-700 text-gray-400'
+                    }`}>
+                      {marketPricing.insights.trend.direction === 'rising' ? '📈' :
+                       marketPricing.insights.trend.direction === 'falling' ? '📉' : '➡️'}
+                      {' '}{marketPricing.insights.trend.yearOverYear} YoY
+                    </span>
+                  </div>
+                )}
+                
+                {/* State Comparison */}
+                {marketPricing.insights.comparison && (
+                  <div className="text-xs text-gray-400">
+                    <span className={marketPricing.insights.comparison.position.includes('Above') ? 'text-yellow-400' : 'text-green-400'}>
+                      {marketPricing.insights.comparison.position}
+                    </span>
+                  </div>
+                )}
+                
+                {/* Local Market Ranking */}
+                {marketPricing.insights.localMarket && (
+                  <div className="text-xs text-gray-400">
+                    {marketPricing.insights.localMarket.ranking}
+                  </div>
+                )}
+                
+                {/* View Details Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowMarketModal(true);
+                  }}
+                  className="mt-1 text-xs text-purple-400 hover:text-purple-300 flex items-center justify-end gap-1"
+                >
+                  <Info className="h-3 w-3" />
+                  View Details
+                </button>
+              </div>
+            )}
+            
             {/* Pricing Source Citation */}
             <div className="text-xs text-gray-400 italic mt-0.5">
               {isHudProperty ? (
@@ -428,6 +498,14 @@ function CommunityCard({
               ) : community.verified ? (
                 <Badge className="bg-green-600 text-white text-xs px-2 py-0.5">
                   <span className="mr-0.5 text-xs">✓</span> COMMUNITY VERIFIED
+                </Badge>
+              ) : marketPricing ? (
+                <Badge className={`text-white text-xs px-2 py-0.5 ${
+                  marketPricing.confidence === 'high' ? 'bg-purple-600' :
+                  marketPricing.confidence === 'medium' ? 'bg-purple-700' :
+                  'bg-purple-800'
+                }`}>
+                  <span className="mr-0.5 text-xs">📊</span> {marketPricing.confidence.toUpperCase()} CONFIDENCE
                 </Badge>
               ) : priceDisplay !== 'Contact for pricing' ? (
                 <Badge className="bg-yellow-600 text-white text-xs px-2 py-0.5">
@@ -650,6 +728,18 @@ function CommunityCard({
         </div>
       </CardContent>
     </Card>
+    
+    {/* Market Intelligence Modal */}
+    {marketPricing && (
+      <MarketIntelligenceModal
+        isOpen={showMarketModal}
+        onClose={() => setShowMarketModal(false)}
+        communityName={community.name}
+        location={`${community.city}, ${community.state}`}
+        marketPricing={marketPricing}
+      />
+    )}
+    </>
   );
 }
 
