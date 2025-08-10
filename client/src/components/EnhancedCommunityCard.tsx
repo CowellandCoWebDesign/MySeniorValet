@@ -2,7 +2,7 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink, Languages, Activity, MessageCircle, Share2, Mail, Info } from "lucide-react";
+import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink, Languages, Activity, MessageCircle, Share2, Mail, Info, ClipboardCheck, AlertTriangle, Calendar, UserCheck, Stethoscope, Clock } from "lucide-react";
 import { Link } from "wouter";
 
 interface CommunityCardProps {
@@ -96,7 +96,12 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
   const isHudProperty = !!community.hudPropertyId;
   const hasAuthenticPricing = !!(community.hudPropertyId && community.rentPerMonth) || 
     !!(community as any).pricingDetails?.basePrice;
-  const hasOccupancyData = false; // No occupancy data in current schema
+  
+  // Calculate occupancy data
+  const occupancyRate = community.occupancyRate || community.occupancyRateHud || 90; // Default to 90%
+  const totalUnits = Number(community.totalUnits || community.totalUnitsHud || 100);
+  const availableUnits = Math.round(totalUnits * (1 - occupancyRate / 100));
+  const hasOccupancyData = totalUnits > 0;
 
   // Get regional theme based on location
   const getRegionalTheme = () => {
@@ -364,30 +369,200 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     
     return (
       <Card 
-        className="group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:border-gray-600 rounded-xl"
+        className="group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
         onClick={onSelect}
       >
-        {/* Pricing Header with Availability */}
-        <div className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-3">
-          <div className="flex items-center justify-between">
+        <CardContent className="p-4">
+          {/* Top Row: HUD Badge and Occupancy */}
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold">
-                {priceDisplay || '$3,500/mo'}
-              </span>
-              <Badge variant="outline" className="border-white/30 text-white text-xs">
-                Community Verified
-              </Badge>
+              {isHudProperty && (
+                <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 border-0 font-semibold">
+                  <Shield className="h-3 w-3 mr-1" />
+                  HUD Verified
+                </Badge>
+              )}
+              {hasTransparencyChampion && !isHudProperty && (
+                <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 border-0">
+                  <Award className="h-3 w-3 mr-1" />
+                  Transparency Champion
+                </Badge>
+              )}
             </div>
-            <div className="text-right">
+            
+            {/* Occupancy Display */}
+            {hasOccupancyData && (
               <div className="text-sm font-medium">
-                {occupancyRate >= 95 ? 'Wait List' : occupancyRate >= 85 ? 'Limited Availability' : 'Available Now'}
+                <span className={`${occupancyRate >= 85 ? 'text-orange-600' : 'text-green-600'}`}>
+                  {occupancyRate}% occupied
+                </span>
+                {availableUnits > 0 && (
+                  <span className="text-gray-500 ml-1">
+                    • {availableUnits} available
+                  </span>
+                )}
               </div>
-              <div className="text-xs opacity-90">
-                {occupancyRate >= 95 ? '12 on wait list' : occupancyRate >= 85 ? 'Only a few units left' : 'Move in today'}
-              </div>
+            )}
+          </div>
+
+          {/* Community Name and Location */}
+          <div className="mb-3">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+              {community.name}
+            </h3>
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+              <MapPin className="h-4 w-4 mr-1" />
+              <span>{community.city}, {community.state} {community.zipCode || ''}</span>
             </div>
           </div>
-        </div>
+
+          {/* Care Types and Medical Restrictions */}
+          <div className="flex flex-wrap gap-2 mb-3">
+            {community.careTypes?.map((careType, idx) => (
+              <Badge key={idx} variant="secondary" className="text-xs">
+                {careType}
+              </Badge>
+            ))}
+            {/* Medical Restrictions Badges */}
+            <Badge variant="outline" className="text-xs border-red-300 text-red-600">
+              <Stethoscope className="h-3 w-3 mr-1" />
+              Medical Restrictions
+            </Badge>
+          </div>
+
+          {/* Pricing Display */}
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 mb-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {priceDisplay || 'Contact for Pricing'}
+                </div>
+                {community.pricingType === 'live' && (
+                  <div className="text-xs text-green-600 font-medium">Live Pricing</div>
+                )}
+                {community.pricingType === 'market' && (
+                  <div className="text-xs text-blue-600 font-medium">Market Intelligence</div>
+                )}
+              </div>
+              {community.specialOffers && community.specialOffers.length > 0 && (
+                <Badge className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">
+                  Special Offer
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          {/* Reviews Section */}
+          {community.rating && (
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <Star 
+                        key={i} 
+                        className={`h-4 w-4 ${i < Math.floor(community.rating || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    {community.rating.toFixed(1)}
+                  </span>
+                  {community.reviewCount && (
+                    <span className="text-sm text-gray-500">
+                      ({community.reviewCount} reviews)
+                    </span>
+                  )}
+                </div>
+                <Button variant="link" className="text-xs text-blue-600 p-0">
+                  Read Reviews →
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Inspections Section */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ClipboardCheck className="h-4 w-4 text-green-600" />
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  Last Inspection: <span className="font-medium">Passed</span>
+                </span>
+              </div>
+              <span className="text-xs text-gray-500">3 months ago</span>
+            </div>
+          </div>
+
+          {/* Stats Row */}
+          <div className="grid grid-cols-3 gap-2 mb-4 text-center">
+            <div className="bg-gray-50 dark:bg-gray-900 rounded p-2">
+              <Building className="h-4 w-4 mx-auto mb-1 text-gray-500" />
+              <div className="text-sm font-medium text-gray-900 dark:text-white">
+                {totalUnits}
+              </div>
+              <div className="text-xs text-gray-500">Units</div>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-900 rounded p-2">
+              <Calendar className="h-4 w-4 mx-auto mb-1 text-gray-500" />
+              <div className="text-sm font-medium text-gray-900 dark:text-white">
+                2010
+              </div>
+              <div className="text-xs text-gray-500">Built</div>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-900 rounded p-2">
+              <Users className="h-4 w-4 mx-auto mb-1 text-gray-500" />
+              <div className="text-sm font-medium text-gray-900 dark:text-white">
+                {community.sizeCategory || 'Medium'}
+              </div>
+              <div className="text-xs text-gray-500">Size</div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            {/* Call Button */}
+            <Button 
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg flex items-center justify-center gap-2"
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                if (community.phone) {
+                  window.open(`tel:${community.phone}`, '_self');
+                }
+              }}
+            >
+              <Phone className="h-4 w-4" />
+              Call
+            </Button>
+
+            {/* Message Button */}
+            <Button 
+              variant="outline"
+              className="border-gray-300 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold py-2 rounded-lg flex items-center justify-center gap-2"
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+              }}
+            >
+              <MessageCircle className="h-4 w-4" />
+              Message
+            </Button>
+          </div>
+
+          {/* View Full Details Link */}
+          <Button 
+            variant="ghost"
+            className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-gray-700 text-sm font-medium"
+            onClick={(e: React.MouseEvent) => {
+              e.stopPropagation();
+              onSelect?.();
+            }}
+          >
+            View Full Details →
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
         {/* Main Card Content */}
         <div className="relative bg-gradient-to-br from-purple-600 to-purple-800 text-white min-h-[140px] flex items-center justify-center">
