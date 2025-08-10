@@ -363,40 +363,44 @@ function CommunityCard({
           </div>
         )}
 
-        {/* Community Image or Quality Placeholder */}
-        <div className="flex flex-col items-center justify-center">
-          {community.photos && community.photos.length > 0 ? (
+        {/* Community Image or Quality Placeholder - Full Container */}
+        {community.photos && community.photos.length > 0 ? (
+          <div className="absolute inset-0">
             <img 
               src={community.photos[0]} 
               alt={community.name}
-              className="w-full h-[140px] object-cover"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Hide broken images and show placeholder instead
+                e.currentTarget.style.display = 'none';
+              }}
             />
-          ) : (
-            <div className="flex flex-col items-center">
-              <div className="text-5xl mb-2">
-                {community.communitySubtype === 'memory_care' ? '🧠' :
-                 community.communitySubtype === 'skilled_nursing' ? '🏥' :
-                 community.communitySubtype === 'independent_living' ? '🏡' :
-                 community.communitySubtype === 'hud_senior_housing' ? '🏛️' :
-                 community.communitySubtype === 'active_adult_55plus' ? '🎾' :
-                 community.communitySubtype === 'mobile_home_park' ? '🚐' :
-                 '🏢'}
-              </div>
-              <div className="text-sm text-white/80 text-center font-medium">
-                {community.communitySubtype === 'memory_care' ? 'Memory Care' :
-                 community.communitySubtype === 'skilled_nursing' ? 'Skilled Nursing' :
-                 community.communitySubtype === 'independent_living' ? 'Independent Living' :
-                 community.communitySubtype === 'hud_senior_housing' ? 'HUD Housing' :
-                 community.communitySubtype === 'active_adult_55plus' ? '55+ Active' :
-                 community.communitySubtype === 'mobile_home_park' ? 'Mobile Park' :
-                 'Senior Living'}
-              </div>
-              <div className="text-xs text-white/50 mt-1">
-                Beautiful photos coming soon
-              </div>
+          </div>
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div className="text-5xl mb-2">
+              {community.communitySubtype === 'memory_care' ? '🧠' :
+               community.communitySubtype === 'skilled_nursing' ? '🏥' :
+               community.communitySubtype === 'independent_living' ? '🏡' :
+               community.communitySubtype === 'hud_senior_housing' ? '🏛️' :
+               community.communitySubtype === 'active_adult_55plus' ? '🎾' :
+               community.communitySubtype === 'mobile_home_park' ? '🚐' :
+               '🏢'}
             </div>
-          )}
-        </div>
+            <div className="text-sm text-white/80 text-center font-medium">
+              {community.communitySubtype === 'memory_care' ? 'Memory Care' :
+               community.communitySubtype === 'skilled_nursing' ? 'Skilled Nursing' :
+               community.communitySubtype === 'independent_living' ? 'Independent Living' :
+               community.communitySubtype === 'hud_senior_housing' ? 'HUD Housing' :
+               community.communitySubtype === 'active_adult_55plus' ? '55+ Active' :
+               community.communitySubtype === 'mobile_home_park' ? 'Mobile Park' :
+               'Senior Living'}
+            </div>
+            <div className="text-xs text-white/50 mt-1">
+              Beautiful photos coming soon
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Bottom Section - Dark Theme */}

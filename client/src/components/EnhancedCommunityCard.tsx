@@ -849,12 +849,16 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
         <CardContent className="p-0">
           <div className="flex">
             {/* Left Side - Photo */}
-            <div className="relative w-64 h-48 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex-shrink-0">
+            <div className="relative w-64 h-48 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex-shrink-0 overflow-hidden">
               {community.photos && community.photos.length > 0 && community.photos[0] ? (
                 <img 
                   src={community.photos[0]} 
                   alt={community.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    // Hide broken images and show placeholder instead
+                    e.currentTarget.style.display = 'none';
+                  }}
                 />
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center">
