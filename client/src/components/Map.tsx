@@ -117,10 +117,6 @@ const createHospitalIcon = (bgColor: string, isEmergency: boolean = false) => {
       <g transform="translate(${size/2}, ${size/2})">
         <rect x="-3" y="-9" width="6" height="18" fill="${borderColor}" rx="1"/>
         <rect x="-9" y="-3" width="18" height="6" fill="${borderColor}" rx="1"/>
-        ${isEmergency ? `
-          <!-- Emergency "ER" text -->
-          <text x="0" y="12" text-anchor="middle" fill="${borderColor}" font-size="7" font-weight="bold" font-family="Arial, sans-serif">ER</text>
-        ` : ''}
       </g>
     </svg>
   `;
@@ -1074,15 +1070,15 @@ export default function Map({
     const size = isHovered ? 36 : 32;
     const uniqueId = `pin_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    // Create sharp-pointed pin with circle border
+    // Create circular pin with bold border (no pointing portion)
     const svgString = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size + 16}" viewBox="0 0 ${size} ${size + 16}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
         <defs>
           <!-- Enhanced shadow for depth -->
           <filter id="shadow_${uniqueId}" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="1.5"/>
-            <feOffset dx="0" dy="1.5" result="offsetblur"/>
-            <feFlood flood-color="rgba(0,0,0,0.25)"/>
+            <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+            <feOffset dx="0" dy="2" result="offsetblur"/>
+            <feFlood flood-color="rgba(0,0,0,0.3)"/>
             <feComposite in2="offsetblur" operator="in"/>
             <feMerge>
               <feMergeNode/>
@@ -1091,18 +1087,15 @@ export default function Map({
           </filter>
         </defs>
         
-        <!-- Sharp pointed pin shape -->
-        <path fill="#ffffff" stroke="${borderColor}" stroke-width="2.5" filter="url(#shadow_${uniqueId})"
-              d="M${size/2} 2C${size*0.2} 2 2 ${size*0.2} 2 ${size/2}c0 ${size*0.35} ${size/2-2} ${size+14} ${size/2-2} ${size+14}L${size/2} ${size+14}L${size-2} ${size*0.85}C${size-2} ${size*0.85} ${size-2} ${size*0.2} ${size/2} 2z"/>
-        
-        <!-- Circle with color-coded border for emoji -->
-        <circle cx="${size/2}" cy="${size/2}" r="${size*0.38}" 
+        <!-- Main circle with bold colored border -->
+        <circle cx="${size/2}" cy="${size/2}" r="${size/2-2}" 
                 fill="white" 
                 stroke="${borderColor}" 
-                stroke-width="2"/>
+                stroke-width="4" 
+                filter="url(#shadow_${uniqueId})"/>
         
         <!-- Emoji -->
-        <text x="${size/2}" y="${size/2 + 4}" text-anchor="middle" font-size="${size * 0.5}" font-family="Arial, sans-serif">
+        <text x="${size/2}" y="${size/2 + 4}" text-anchor="middle" font-size="${size * 0.45}" font-family="Arial, sans-serif">
           ${emoji}
         </text>
       </svg>
@@ -1110,9 +1103,9 @@ export default function Map({
 
     return new Icon({
       iconUrl: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svgString)}`,
-      iconSize: [size, size + 16],
-      iconAnchor: [size/2, size + 16],
-      popupAnchor: [0, -(size + 16)],
+      iconSize: [size, size],
+      iconAnchor: [size/2, size/2],
+      popupAnchor: [0, -size/2],
       className: `care-level-marker ${isHovered ? 'marker-hover' : ''} ${hasLiveData ? 'has-live-data' : 'no-data'}`
     });
   };
