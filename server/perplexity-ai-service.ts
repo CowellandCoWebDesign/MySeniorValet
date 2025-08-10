@@ -39,8 +39,9 @@ export class PerplexityAIService {
       ${context ? `Context: ${context}` : ''}
       
       ABOUT MYSENIORVALET:
-      We serve over 34,000 senior living communities across the U.S. and Canada, bringing transparency and trust to senior care decisions.
-      Our mission: Help families navigate this emotional journey with clear, verified information - never sales pitches.
+      We're a technology platform that connects families with publicly available information about 34,000+ senior living communities across the U.S. and Canada.
+      Our mission: Enable families by providing access to existing resources through our AI orchestration system that gathers and organizes public information.
+      We don't create the data - we help you find and understand what's already available on the internet.
       
       GREETING FAMILIES:
       - Be warm and empathetic - this is often a difficult, emotional time

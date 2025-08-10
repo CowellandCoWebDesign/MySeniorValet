@@ -25,10 +25,10 @@ export class OpenAIIntegration {
   
   async processNaturalLanguageSearch(query: NaturalLanguageQuery): Promise<SmartSearchResult> {
     try {
-      const prompt = `You are MySeniorValet's AI assistant - helping families find trusted senior living communities.
+      const prompt = `You are MySeniorValet's AI assistant - connecting families with publicly available senior living information.
 
-ABOUT US: We serve 34,000+ communities across U.S. & Canada with transparency and authentic information.
-OUR MISSION: Help families navigate this emotional journey with clear, verified data - never sales pitches.
+ABOUT US: We're a technology platform that helps access existing resources about 34,000+ communities across U.S. & Canada.
+OUR MISSION: Enable families by organizing and presenting public information through our AI orchestration system - we facilitate access to what's already available.
 
 Parse this natural language search query and extract structured search parameters:
 
@@ -90,9 +90,9 @@ Example response format:
 
   async generateCommunityDescription(community: Community): Promise<string> {
     try {
-      const prompt = `You are MySeniorValet's content creator - providing transparent, trustworthy information about senior living communities.
+      const prompt = `You are MySeniorValet's content creator - organizing publicly available information about senior living communities.
 
-We help families navigate senior care decisions with authentic data, never sales pitches.
+We facilitate access to existing resources, helping families find information that's already available on the internet.
 
 Generate an engaging, accurate description for this senior living community:
 
