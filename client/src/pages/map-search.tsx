@@ -1186,23 +1186,31 @@ export default function MapSearch() {
       <div className={"shadow-sm border-b " + (isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700')}>
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setLocation('/')}
-                className={isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white'}
-              >
-                ← Back
-              </Button>
-              <div 
-                className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => setLocation('/')}
-              >
-                <Home className="w-5 h-5 text-blue-600" />
-                <span className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  MySeniorValet
-                </span>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setLocation('/')}
+                  className={isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white'}
+                >
+                  ← Back
+                </Button>
+                <div 
+                  className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => setLocation('/')}
+                >
+                  <Home className="w-5 h-5 text-blue-600" />
+                  <span className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    MySeniorValet
+                  </span>
+                </div>
+              </div>
+              {/* Breadcrumb Navigation */}
+              <div className="ml-12 text-xs text-gray-500 dark:text-gray-400">
+                <span className="hover:text-blue-600 cursor-pointer" onClick={() => setLocation('/')}>Home</span>
+                <span className="mx-1">›</span>
+                <span className="text-gray-700 dark:text-gray-300">Map Search</span>
               </div>
             </div>
 
@@ -1742,17 +1750,17 @@ export default function MapSearch() {
       </div>
       </div> {/* End of Sticky Search and Filter Container */}
 
-      {/* Map Legend Info Button - Only in Map View - In Top Right Corner */}
+      {/* Map Legend Info Button - Only in Map View - Positioned at Top of Map */}
       {viewMode === 'map' && (
-        <div className="absolute top-24 right-4 z-10">
+        <div className="absolute top-4 right-4 z-10">
           <Drawer>
             <DrawerTrigger asChild>
               <Button 
                 variant="outline" 
-                size="sm" 
+                size="default" 
                 className={isDarkMode 
-                  ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600' 
-                  : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:bg-gray-800'
+                  ? 'border-gray-600 bg-gray-800/90 backdrop-blur text-white hover:bg-gray-700 shadow-lg' 
+                  : 'border-gray-300 bg-white/90 backdrop-blur text-gray-900 hover:bg-gray-50 shadow-lg'
                 }
               >
                 <Info className="w-4 h-4 mr-2" />
