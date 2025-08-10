@@ -5,7 +5,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
-import { VoiceGuidanceToggle } from "@/components/VoiceGuidanceToggle";
+import { VoiceGuidanceButton } from "@/components/VoiceGuidanceButton";
 
 interface NavigationHeaderProps {
   title?: string;
@@ -73,7 +73,7 @@ export function NavigationHeader({
           </div>
 
           <div className="flex items-center space-x-2">
-            <VoiceGuidanceToggle showLabel={false} />
+            <VoiceGuidanceButton />
             {isAuthenticated && (
               <Link href="/dashboard?tab=messages">
                 <Button
@@ -82,12 +82,12 @@ export function NavigationHeader({
                   className="relative hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl"
                 >
                   <Bell className="w-5 h-5" />
-                  {unreadCount?.count > 0 && (
+                  {unreadCount && typeof unreadCount === 'object' && 'count' in unreadCount && (unreadCount as any).count > 0 && (
                     <Badge 
                       variant="destructive" 
                       className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 text-xs"
                     >
-                      {unreadCount.count}
+                      {(unreadCount as any).count}
                     </Badge>
                   )}
                 </Button>
