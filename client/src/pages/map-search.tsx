@@ -542,16 +542,54 @@ export default function MapSearch() {
     gcTime: 30000
   });
   
-  // Fetch resources
+  // Fetch resources with enhanced location-based search
   const { data: resources = [], isLoading: isLoadingResources } = useQuery({
-    queryKey: ['resources', searchQuery],
+    queryKey: ['resources', searchQuery, mapBounds?.getCenter()?.lat, mapBounds?.getCenter()?.lng],
     queryFn: async () => {
       if (resultType === 'communities' || resultType === 'vendors' || resultType === 'healthcare') return [];
       
-      const response = await fetch(`/api/resources/search?q=${encodeURIComponent(searchQuery || '')}&limit=20`);
+      // Build query parameters with location if available
+      const params = new URLSearchParams();
+      
+      if (searchQuery && searchQuery.length >= 2) {
+        params.append('q', searchQuery);
+      }
+      
+      // Add location-based parameters if map bounds are available
+      if (mapBounds) {
+        const center = mapBounds.getCenter();
+        params.append('lat', center.lat.toString());
+        params.append('lng', center.lng.toString());
+        params.append('radius', '50'); // 50 mile radius for local resources
+        
+        // Also include the bounds in the search for better local results
+        params.append('swLat', mapBounds.getSouthWest().lat.toString());
+        params.append('swLng', mapBounds.getSouthWest().lng.toString());
+        params.append('neLat', mapBounds.getNorthEast().lat.toString());
+        params.append('neLng', mapBounds.getNorthEast().lng.toString());
+      }
+      
+      params.append('limit', '30'); // Increased limit for better local coverage
+      
+      const response = await fetch(`/api/resources/search?${params.toString()}`);
       if (!response.ok) return [];
       
-      return response.json();
+      const data = await response.json();
+      
+      // Sort by relevance to current location if available
+      if (mapBounds && data.length > 0) {
+        const center = mapBounds.getCenter();
+        return data.sort((a: any, b: any) => {
+          // Prioritize local resources
+          const aIsLocal = a.state === searchQuery || a.city === searchQuery;
+          const bIsLocal = b.state === searchQuery || b.city === searchQuery;
+          if (aIsLocal && !bIsLocal) return -1;
+          if (!aIsLocal && bIsLocal) return 1;
+          return 0;
+        });
+      }
+      
+      return data;
     },
     enabled: showBottomPanel && (resultType === 'all' || resultType === 'resources'),
     staleTime: 10000,
@@ -2051,18 +2089,44 @@ export default function MapSearch() {
                 />
               ))}
               
-              {/* Display resources */}
-              {resultType === 'resources' && resources.map((resource: Resource, index: number) => (
-                <ResourceCard
-                  key={`resource-${resource.id}`}
-                  resource={resource}
-                  onClick={() => {
-                    if (resource.url) {
-                      window.open(resource.url, '_blank');
-                    }
-                  }}
-                />
-              ))}
+              {/* Display resources with local emphasis */}
+              {resultType === 'resources' && (
+                <>
+                  {mapBounds && (
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-3 mb-3 border border-blue-200 dark:border-blue-700">
+                      <div className="flex items-center gap-2">
+                        <MapIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <p className="text-sm text-blue-700 dark:text-blue-300">
+                          Showing local resources based on your current map view
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {resources.map((resource: Resource, index: number) => (
+                    <ResourceCard
+                      key={`resource-${resource.id}`}
+                      resource={resource}
+                      onClick={() => {
+                        if (resource.url) {
+                          window.open(resource.url, '_blank');
+                        }
+                      }}
+                    />
+                  ))}
+                  {resources.length === 0 && !isLoadingResources && (
+                    <div className="text-center py-8">
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+                        <MapPin className="w-12 h-12 mx-auto text-gray-400 mb-3" />
+                        <p className="text-gray-600 dark:text-gray-400">
+                          {mapBounds 
+                            ? "No local resources found in this area. Try zooming out or searching a different location."
+                            : "Search for a location to find local senior resources and support services."}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
               
               {/* Display all results mixed */}
               {resultType === 'all' && (
