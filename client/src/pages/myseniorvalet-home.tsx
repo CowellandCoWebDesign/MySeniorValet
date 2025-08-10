@@ -567,7 +567,7 @@ export default function MySeniorValetHome() {
                         <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
                         <div>
                           <p className="font-semibold text-red-300">Unaware of 10 Levels of Care</p>
-                          <p className="text-gray-300 text-sm">Most think it's just "Assisted Living." They don't know about Independent, Memory Care, Skilled Nursing, Adult Day, PACE, Home Care, Hospice, Respite, or Continuing Care - 10 distinct levels!</p>
+                          <p className="text-gray-300 text-sm">Most think it's just "Assisted Living." They don't know about HUD Housing, VA Housing, Mobile & RV, 55+ Active, Independent Living, Board & Care, Memory Care, CCRC, or Skilled Nursing - 10 distinct levels!</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
@@ -633,7 +633,7 @@ export default function MySeniorValetHome() {
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
                           <p className="font-semibold text-gray-800 dark:text-gray-200">Learn All 10 Levels of Care</p>
-                          <p className="text-gray-600 dark:text-gray-300 text-sm">From Independent Living to Hospice - understand all 10 care levels, when each applies, costs, and transitions between them.</p>
+                          <p className="text-gray-600 dark:text-gray-300 text-sm">From HUD Housing to Skilled Nursing - understand all 10 care levels, pricing ranges, and when each applies to your family's needs.</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
