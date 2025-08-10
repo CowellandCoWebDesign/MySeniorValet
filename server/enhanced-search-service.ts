@@ -6,6 +6,7 @@
 import { zipCodeService } from "./zip-code-mapping";
 import { storage } from "./storage";
 import type { Community, SearchCommunity } from "@shared/schema";
+import { PerplexityAIService } from "./perplexity-ai-service";
 
 export interface SearchResult {
   communities: Community[];
@@ -28,6 +29,66 @@ export interface SearchResult {
 }
 
 export class EnhancedSearchService {
+  private perplexityService: PerplexityAIService;
+
+  constructor() {
+    this.perplexityService = new PerplexityAIService();
+  }
+
+  /**
+   * Enrich community data with real-time web search data from Perplexity
+   */
+  private async enrichWithRealTimeData(communities: Community[], query?: string): Promise<Community[]> {
+    try {
+      // Only enrich top results to manage API costs
+      const topCommunities = communities.slice(0, 5);
+      
+      for (const community of topCommunities) {
+        try {
+          // Query Perplexity for real-time pricing and availability
+          const searchQuery = `${community.name} ${community.city} ${community.state} senior living current pricing availability`;
+          const perplexityData = await this.perplexityService.searchCommunityInfo(searchQuery);
+          
+          if (perplexityData.success && perplexityData.data) {
+            // Parse pricing from Perplexity response
+            const priceMatch = perplexityData.data.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?/g);
+            if (priceMatch && priceMatch[0]) {
+              const priceStr = priceMatch[0].replace(/[^\d-]/g, '');
+              const prices = priceStr.split('-').map(p => parseInt(p));
+              
+              // Update community with real-time data
+              community.realTimePricing = {
+                source: 'Perplexity Live Search',
+                price: prices[0],
+                priceMax: prices[1] || prices[0],
+                lastUpdated: new Date().toISOString(),
+                rawData: perplexityData.data
+              };
+            }
+            
+            // Extract availability if mentioned
+            if (perplexityData.data.toLowerCase().includes('available') || 
+                perplexityData.data.toLowerCase().includes('vacancy')) {
+              community.realTimeAvailability = {
+                hasAvailability: !perplexityData.data.toLowerCase().includes('no availability'),
+                lastChecked: new Date().toISOString()
+              };
+            }
+          }
+        } catch (error) {
+          console.error(`Failed to enrich ${community.name}:`, error);
+          // Continue with next community
+        }
+      }
+      
+      // Return all communities with top ones enriched
+      return communities;
+    } catch (error) {
+      console.error('Real-time enrichment failed:', error);
+      return communities; // Return original data if enrichment fails
+    }
+  }
+
   /**
    * Intelligent search with ZIP code expansion and fallback mechanisms
    */
@@ -82,8 +143,11 @@ export class EnhancedSearchService {
             `Expanded to include all ZIP codes in ${zipInfo.city}, ${zipInfo.county}` :
             `Expanded to include nearby ZIP codes in the same region`;
             
+          // Enrich top results with real-time data
+          const enrichedResults = await this.enrichWithRealTimeData(allResults, location);
+          
           return {
-            communities: allResults,
+            communities: enrichedResults,
             searchMetadata: {
               originalQuery: location,
               searchType: 'expanded',
@@ -92,7 +156,8 @@ export class EnhancedSearchService {
                 expandedZips,
                 expansionReason
               },
-              totalResults: allResults.length
+              totalResults: enrichedResults.length,
+              realTimeEnriched: true
             }
           };
         }
@@ -106,12 +171,16 @@ export class EnhancedSearchService {
       // Original search succeeded
       console.log(`Search returned ${originalResults.length} communities`);
       
+      // Enrich top results with real-time data
+      const enrichedResults = await this.enrichWithRealTimeData(originalResults, location);
+      
       return {
-        communities: originalResults,
+        communities: enrichedResults,
         searchMetadata: {
           originalQuery: location,
           searchType: 'exact',
-          totalResults: originalResults.length
+          totalResults: enrichedResults.length,
+          realTimeEnriched: true
         }
       };
     }

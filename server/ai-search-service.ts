@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { PerplexityAIService } from './perplexity-ai-service';
 
 /*
 <important_code_snippet_instructions>
@@ -15,6 +16,8 @@ const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
+
+const perplexityService = new PerplexityAIService();
 
 export interface AISearchQuery {
   query: string;
@@ -34,9 +37,57 @@ export interface ParsedSearchIntent {
   availability?: string;
   distance?: number;
   searchInterpretation: string;
+  marketInsights?: {
+    source: string;
+    data: string;
+    timestamp: string;
+  };
 }
 
 export class AISearchService {
+  /**
+   * Enhance search intent with real-time market data from Perplexity
+   */
+  async enhanceWithRealTimeData(parsedIntent: ParsedSearchIntent): Promise<ParsedSearchIntent> {
+    try {
+      // Query Perplexity for real-time market insights
+      const locationQuery = parsedIntent.location || 'United States';
+      const careTypeQuery = parsedIntent.careTypes?.join(' ') || 'senior living';
+      const perplexityQuery = `Current senior living pricing and availability in ${locationQuery} for ${careTypeQuery} communities 2025`;
+      
+      const perplexityResult = await perplexityService.searchCommunityInfo(perplexityQuery);
+      
+      if (perplexityResult.success && perplexityResult.data) {
+        // Extract pricing insights
+        const priceMatches = perplexityResult.data.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?/g);
+        if (priceMatches && priceMatches.length > 0) {
+          const prices = priceMatches[0].replace(/[^\d-]/g, '').split('-').map(p => parseInt(p));
+          
+          // Update price range with market data if not specified
+          if (!parsedIntent.priceRange) {
+            parsedIntent.priceRange = {
+              min: prices[0] || 2000,
+              max: prices[1] || prices[0] || 8000
+            };
+          }
+        }
+        
+        // Add market intelligence to interpretation
+        parsedIntent.searchInterpretation += ` (Enhanced with real-time market data from Perplexity)`;
+        parsedIntent.marketInsights = {
+          source: 'Perplexity Live Search',
+          data: perplexityResult.data,
+          timestamp: new Date().toISOString()
+        };
+      }
+      
+      return parsedIntent;
+    } catch (error) {
+      console.error('Failed to enhance with real-time data:', error);
+      return parsedIntent; // Return original if enhancement fails
+    }
+  }
+
   async parseSearchQuery(query: AISearchQuery): Promise<ParsedSearchIntent> {
     try {
       const systemPrompt = `You are an AI assistant for MySeniorValet, trained on a database of 26,306 REAL senior living communities. Parse natural language queries to extract structured search parameters.
@@ -111,7 +162,7 @@ Return a JSON object with the structured search parameters.`;
       const parsed = JSON.parse(cleanedText.trim());
       
       // Normalize the response
-      return {
+      const parsedIntent: ParsedSearchIntent = {
         location: parsed.location || undefined,
         careTypes: parsed.careTypes || [],
         priceRange: parsed.priceRange || undefined,
@@ -121,6 +172,10 @@ Return a JSON object with the structured search parameters.`;
         distance: parsed.distance || undefined,
         searchInterpretation: parsed.searchInterpretation || query.query
       };
+      
+      // Enhance with real-time data from Perplexity
+      const enhancedIntent = await this.enhanceWithRealTimeData(parsedIntent);
+      return enhancedIntent;
 
     } catch (error) {
       console.error('AI search parsing error:', error);

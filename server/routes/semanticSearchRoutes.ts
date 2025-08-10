@@ -3,6 +3,9 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { sql } from 'drizzle-orm';
 import { enhancedWeaviateService } from '../enhanced-weaviate-service';
+import { PerplexityAIService } from '../perplexity-ai-service';
+
+const perplexityService = new PerplexityAIService();
 
 export function registerSemanticSearchRoutes(app: Express) {
   /**
@@ -68,6 +71,33 @@ export function registerSemanticSearchRoutes(app: Express) {
 
         // Sort by semantic score
         enhancedResults.sort((a, b) => b.semanticScore - a.semanticScore);
+
+        // Enhance with Perplexity real-time market data
+        try {
+          const locationContext = enhancedResults[0]?.city && enhancedResults[0]?.state 
+            ? `${enhancedResults[0].city}, ${enhancedResults[0].state}`
+            : query;
+          
+          const perplexityQuery = `Current senior living pricing availability ${locationContext} 2025`;
+          const perplexityResult = await perplexityService.searchCommunityInfo(perplexityQuery);
+          
+          if (perplexityResult.success && perplexityResult.data) {
+            // Add real-time insights to the response
+            const priceMatch = perplexityResult.data.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?/g);
+            
+            enhancedResults.forEach(result => {
+              result.realTimeInsights = {
+                marketPricing: priceMatch?.[0] || 'Contact for pricing',
+                dataSource: 'Perplexity Live Search',
+                timestamp: new Date().toISOString()
+              };
+            });
+            
+            console.log('✅ Enhanced semantic results with Perplexity real-time data');
+          }
+        } catch (error) {
+          console.error('Perplexity enhancement failed for semantic search:', error);
+        }
 
         // Generate RAG recommendations if requested
         let ragRecommendations = null;

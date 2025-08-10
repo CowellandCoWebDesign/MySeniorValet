@@ -96,7 +96,7 @@ import VendorMobilePayment from "@/pages/vendor-mobile-payment";
 import ServicesManagementDashboard from "@/pages/ServicesManagementDashboard";
 import TestTierAccess from "@/pages/test-tier-access";
 import AmazonProductAdmin from "@/pages/AmazonProductAdmin";
-import PerplexityTest from "@/pages/PerplexityTest";
+import PerplexityTest from "@/pages/perplexity-test";
 import MultiAITest from "@/pages/MultiAITest";
 import AISearchComparison from "@/pages/AISearchComparison";
 // ONE consolidated admin dashboard - removed all duplicates
@@ -283,6 +283,7 @@ function Router() {
       <Route path="/payment-demo" component={PaymentDemo} />
       <Route path="/test-community-cards" component={TestCommunityCards} />
       <Route path="/enhanced-card-test" component={EnhancedCardTest} />
+      <Route path="/perplexity-test" component={PerplexityTest} />
       <Route component={NotFound} />
     </Switch>
   );
