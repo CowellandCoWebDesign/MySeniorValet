@@ -748,6 +748,7 @@ export default function MapSearch() {
                     data.searchMetadata.searchType === 'city' ? 12 : 10);
           // Delay showing panel to allow map to update first
           setTimeout(() => {
+            setPanelHeight(70); // Set to 70% height when opening
             setShowBottomPanel(true); // Show results
           }, 500);
           return;
@@ -762,6 +763,7 @@ export default function MapSearch() {
             setMapZoom(12);
             // Delay showing panel to allow map to update first
             setTimeout(() => {
+              setPanelHeight(70); // Set to 70% height when opening
               setShowBottomPanel(true); // Show results
             }, 500);
             return;
@@ -1052,6 +1054,7 @@ export default function MapSearch() {
       } else {
         setMapZoom(12); // Cities and smaller areas
       }
+      setPanelHeight(70); // Set to 70% height when opening
       setShowBottomPanel(true); // Show results panel when using fallback location
     }
   };
@@ -1270,6 +1273,7 @@ export default function MapSearch() {
                   size="sm"
                   onClick={() => {
                     setViewMode('map'); // Stay in map mode
+                    setPanelHeight(70); // Set to 70% height when opening
                     setShowBottomPanel(true); // Open bottom panel for list
                     // Force refresh communities when list is opened
                     console.log('List clicked, refreshing communities...');
