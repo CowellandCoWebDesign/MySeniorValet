@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FixedSizeList as List } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { Heart, Star } from "lucide-react";
-import EnhancedCommunityCard from "./EnhancedCommunityCard";
+import { EnhancedCommunityCard } from "./EnhancedCommunityCard";
 
 export default function SlidePanel({
   communities = [],

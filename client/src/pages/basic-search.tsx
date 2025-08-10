@@ -153,6 +153,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
   const urlSearchQuery = urlParams.get('q');
   
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery || "");
+  const [locationQuery, setLocationQuery] = useState(""); // Added missing state variable
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(urlSearchQuery || "");
   const [activeTab, setActiveTab] = useState('search');
   const [sortBy, setSortBy] = useState('recommended');
@@ -677,7 +678,6 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
       <div className="sticky top-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b-2 border-gray-200 dark:border-gray-700 shadow-lg z-40">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
-            </div>
             <div className="bg-white dark:bg-gray-800 rounded-full px-4 py-2 shadow-md border border-gray-200 dark:border-gray-600">
               <div className="text-sm font-semibold text-gray-900 dark:text-white">
                 {visibleCommunities?.length || 0} communities
@@ -1015,12 +1015,11 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
           <Map
             center={mapCenter}
             zoom={mapZoom}
-            communities={sortedCommunities}
             onBoundsChange={setMapBounds}
             onCommunityClick={(community) => {
               window.location.href = `/community/${community.id}`;
             }}
-            className="w-full h-full"
+            height="100%"
           />
           
           {/* Floating List Toggle Button - Enhanced visibility */}
@@ -1069,6 +1068,5 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             updateCount={5}
           />
         </div>
-      </div>
     );
 };
