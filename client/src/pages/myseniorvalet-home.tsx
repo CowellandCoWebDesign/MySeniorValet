@@ -568,9 +568,16 @@ export default function MySeniorValetHome() {
           <div className="max-w-6xl mx-auto text-center">
             <div className="relative inline-block">
               <div className="absolute -inset-4 bg-gradient-to-r from-purple-600 to-pink-600 blur-3xl opacity-20 animate-pulse"></div>
-              <h2 className="relative text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 dark:from-purple-400 dark:via-pink-400 dark:to-indigo-400 mb-4">
-                Complete Care Intelligence Hub
+              <h2 className="relative text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 dark:from-purple-400 dark:via-pink-400 dark:to-indigo-400 mb-2">
+                Senior Living Command Center
               </h2>
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Brain className="h-5 w-5 text-purple-600 dark:text-purple-400 animate-pulse" />
+                <p className="text-lg md:text-xl font-semibold text-gray-600 dark:text-gray-300">
+                  Powered & Supported by Artificial Intelligence Orchestra
+                </p>
+                <Sparkles className="h-5 w-5 text-indigo-600 dark:text-indigo-400 animate-pulse" />
+              </div>
             </div>
             <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-4xl mx-auto mb-8">
               Your comprehensive command center for senior living decisions - featuring Red Tag specials, complete care spectrum guidance, AI-powered market intelligence, cost calculators, and regional discovery tools

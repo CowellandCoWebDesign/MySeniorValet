@@ -37,8 +37,10 @@ MySeniorValet is a technology platform that connects families with publicly avai
     - Relocated Community Exploration Section from after hero to below mission statement
     - Now appears between Mission Statement and Hawaii Featured Communities sections
     - Maintains logical flow: Hero → Personalized Banner → Mission → Community Exploration → Featured Communities
-14. **Complete Care Intelligence Hub Rename**: Enhanced section naming and features showcase
-    - Renamed "Community Exploration Section" to "Complete Care Intelligence Hub" for greater impact
+14. **Senior Living Command Center Implementation**: Enhanced section naming and AI Orchestra credit
+    - Renamed from "Complete Care Intelligence Hub" to "Senior Living Command Center" as requested
+    - Added AI Orchestra credit line: "Powered & Supported by Artificial Intelligence Orchestra"
+    - Main title on first line, AI credit on second line with animated brain and sparkles icons
     - Updated description to highlight comprehensive features: Red Tag specials, care spectrum guidance, AI market intelligence, cost calculators, regional tools
     - Enhanced badges to showcase key features: Red Tag Specials, AI Market Intelligence, Cost Calculators, 34K+ Communities, Complete Care Spectrum
     - Positioned as the main command center for senior living decision-making on home page
