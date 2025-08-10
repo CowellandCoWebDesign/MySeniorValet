@@ -23,26 +23,26 @@ export function registerPerplexityTestRoutes(app: Express) {
       const startTime = Date.now();
       
       // Call Perplexity service
-      const result = await perplexityService.searchCommunityInfo(query);
+      const result = await perplexityService.searchRealTime(query);
       
       const responseTime = Date.now() - startTime;
       
       // Extract pricing information if present
-      let pricing = [];
-      if (result.data) {
-        const priceMatches = result.data.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?(?:\s*(?:per|\/)\s*(?:month|mo))?/gi);
+      let pricing: Array<{ price: string }> = [];
+      if (result) {
+        const priceMatches = result.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?(?:\s*(?:per|\/)\s*(?:month|mo))?/gi);
         if (priceMatches) {
           pricing = priceMatches.map(price => ({ price }));
         }
       }
 
       res.json({
-        success: result.success,
-        data: result.data,
-        citations: result.citations || [],
+        success: true,
+        data: result,
+        citations: [], // Perplexity includes citations inline
         pricing,
         responseTime: `${responseTime}ms`,
-        tokensUsed: result.tokensUsed || 'N/A',
+        tokensUsed: 'N/A',
         timestamp: new Date().toISOString(),
         query
       });
@@ -63,10 +63,10 @@ export function registerPerplexityTestRoutes(app: Express) {
   app.get('/api/test/perplexity/health', async (req, res) => {
     try {
       const testQuery = "senior living Miami pricing 2025";
-      const result = await perplexityService.searchCommunityInfo(testQuery);
+      const result = await perplexityService.searchRealTime(testQuery);
       
       res.json({
-        status: result.success ? 'healthy' : 'unhealthy',
+        status: result ? 'healthy' : 'unhealthy',
         integration: 'Perplexity AI',
         model: 'llama-3.1-sonar-small-128k-online',
         capabilities: [
@@ -77,7 +77,7 @@ export function registerPerplexityTestRoutes(app: Express) {
           'Zero hallucinations'
         ],
         lastTest: new Date().toISOString(),
-        testResult: result.success
+        testResult: !!result
       });
     } catch (error: any) {
       res.status(500).json({
@@ -105,14 +105,24 @@ export function registerPerplexityTestRoutes(app: Express) {
       const results = await Promise.all(
         queries.map(async (query) => {
           const startTime = Date.now();
-          const result = await perplexityService.searchCommunityInfo(query);
-          return {
-            query,
-            success: result.success,
-            responseTime: Date.now() - startTime,
-            dataLength: result.data?.length || 0,
-            citationsCount: result.citations?.length || 0
-          };
+          try {
+            const result = await perplexityService.searchRealTime(query);
+            return {
+              query,
+              success: true,
+              responseTime: Date.now() - startTime,
+              dataLength: result?.length || 0,
+              citationsCount: 0 // Citations are inline in Perplexity responses
+            };
+          } catch (error) {
+            return {
+              query,
+              success: false,
+              responseTime: Date.now() - startTime,
+              dataLength: 0,
+              citationsCount: 0
+            };
+          }
         })
       );
 
