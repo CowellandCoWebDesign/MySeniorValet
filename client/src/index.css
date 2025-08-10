@@ -190,6 +190,11 @@ body {
   z-index: 700;
 }
 
+/* Push Layers Control down below Legend button */
+.leaflet-control-layers {
+  margin-top: 60px !important;
+}
+
 /* Custom scrollbar utilities */
 @layer utilities {
   .scrollbar-hide {
