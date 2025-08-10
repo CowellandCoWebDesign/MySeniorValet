@@ -519,7 +519,7 @@ export function registerSearchRoutes(app: Express) {
           priceRange,
           availability: service.availability ? 'Available' : 'Contact for availability',
           rating,
-          reviewCount: service.providerReviews || Math.floor(Math.random() * 30) + 5,
+          reviewCount: service.providerReviews || 0, // Golden Data Rule: no synthetic data
           isPopular: rating > 4.5,
           isHospital: false,
         };
@@ -554,7 +554,7 @@ export function registerSearchRoutes(app: Express) {
           priceRange: 'Contact for pricing',
           availability: 'Contact for availability',
           rating: service.rating || 3.5,
-          reviewCount: Math.floor(Math.random() * 50) + 10,
+          reviewCount: 0, // Golden Data Rule: no synthetic data
           isPopular: (service.rating || 3.5) > 4,
           isHospital: false,
           location: `${service.city}, ${service.state}`,

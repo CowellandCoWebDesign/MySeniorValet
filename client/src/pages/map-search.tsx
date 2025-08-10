@@ -2050,11 +2050,13 @@ export default function MapSearch() {
                     key={`community-${community.id}`}
                     community={{
                       ...community,
-                      // Enrich with occupancy data
-                      occupancyRate: community.occupancyRate || community.occupancyRateHud || Math.floor(Math.random() * 30) + 70,
-                      totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-                      availableUnits: community.availableUnits || Math.floor(Math.random() * 10) + 1,
-                      waitListLength: community.waitListLength || 0
+                      // Golden Data Rule: Only pass real data, no synthetic values
+                      occupancyRate: community.occupancyRate,
+                      occupancyRateHud: community.occupancyRateHud,
+                      totalUnits: community.totalUnits,
+                      totalUnitsHud: community.totalUnitsHud,
+                      availableUnits: community.availableUnits,
+                      waitListLength: community.waitListLength
                     }}
                     variant="list"
                     onSelect={() => handleCommunityClick(community)}
@@ -2158,11 +2160,13 @@ export default function MapSearch() {
                           key={`all-community-${community.id}`}
                           community={{
                             ...community,
-                            // Enrich with occupancy data
-                            occupancyRate: community.occupancyRate || community.occupancyRateHud || Math.floor(Math.random() * 30) + 70,
-                            totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-                            availableUnits: community.availableUnits || Math.floor(Math.random() * 10) + 1,
-                            waitListLength: community.waitListLength || 0
+                            // Golden Data Rule: Only pass real data, no synthetic values
+                            occupancyRate: community.occupancyRate,
+                            occupancyRateHud: community.occupancyRateHud,
+                            totalUnits: community.totalUnits,
+                            totalUnitsHud: community.totalUnitsHud,
+                            availableUnits: community.availableUnits,
+                            waitListLength: community.waitListLength
                           }}
                           variant="list"
                           onSelect={() => handleCommunityClick(community)}

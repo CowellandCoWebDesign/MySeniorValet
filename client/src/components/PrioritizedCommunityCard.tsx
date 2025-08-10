@@ -95,7 +95,7 @@ function CommunityCard({
   // Helper functions
   const isHudProperty = Boolean(community.hudPropertyId);
   
-  // Price display logic
+  // Price display logic - Golden Data Rule: only show verified data
   const getPriceDisplay = () => {
     if (isHudProperty && community.rentPerMonth) {
       const rent = typeof community.rentPerMonth === 'string' 
@@ -113,16 +113,46 @@ function CommunityCard({
       return `$${community.monthlyRentRangeStart.toLocaleString()} - $${community.monthlyRentRangeEnd.toLocaleString()}/mo`;
     }
     
-    return '$3,500/mo'; // Default for demo
+    return null; // No synthetic data - follow Golden Data Rule
   };
 
   const priceDisplay = getPriceDisplay();
   
-  // Calculate availability status with details
+  // Calculate availability status with details - Golden Data Rule: only real data
   const getAvailabilityInfo = () => {
-    const occupancy = community.occupancyRate || 0;
-    const totalUnits = community.totalUnits || 100;
-    const availableUnits = community.availableUnits || Math.floor(totalUnits * (1 - occupancy/100));
+    // Only use real occupancy data if it exists from HUD or verified sources
+    const hasRealOccupancyData = community.occupancyRateHud && 
+      (typeof community.occupancyRateHud === 'number' || 
+       (typeof community.occupancyRateHud === 'string' && community.occupancyRateHud !== ''));
+    
+    if (!hasRealOccupancyData) {
+      // No real data available - show contact for availability
+      return {
+        status: 'Contact for Availability',
+        detail: '',
+        bgColor: 'bg-gray-700',
+        lightColor: 'text-gray-300',
+        dotColor: 'bg-gray-400'
+      };
+    }
+    
+    const occupancy = typeof community.occupancyRateHud === 'string' 
+      ? parseFloat(community.occupancyRateHud) 
+      : community.occupancyRateHud;
+    
+    const totalUnits = community.totalUnitsHud || community.totalUnits;
+    const availableUnits = community.availableUnits;
+    
+    if (!totalUnits) {
+      // Have occupancy rate but no unit count
+      return {
+        status: `${Math.round(occupancy)}% Occupied`,
+        detail: '',
+        bgColor: occupancy >= 95 ? 'bg-orange-700' : occupancy >= 85 ? 'bg-yellow-700' : 'bg-green-700',
+        lightColor: occupancy >= 95 ? 'text-orange-200' : occupancy >= 85 ? 'text-yellow-200' : 'text-green-200',
+        dotColor: occupancy >= 95 ? 'bg-orange-400' : occupancy >= 85 ? 'bg-yellow-400' : 'bg-green-400'
+      };
+    }
     
     if (occupancy >= 100) {
       return {
@@ -136,7 +166,7 @@ function CommunityCard({
     if (occupancy >= 95) {
       return {
         status: 'Limited Availability',
-        detail: `${availableUnits} Available`,
+        detail: availableUnits ? `${availableUnits} Available` : '',
         bgColor: 'bg-orange-700',
         lightColor: 'text-orange-200',
         dotColor: 'bg-orange-400'
@@ -145,7 +175,7 @@ function CommunityCard({
     if (occupancy >= 85) {
       return {
         status: 'Available Soon',
-        detail: `${availableUnits} Available`,
+        detail: availableUnits ? `${availableUnits} Available` : '',
         bgColor: 'bg-yellow-700',
         lightColor: 'text-yellow-200',
         dotColor: 'bg-yellow-400'
@@ -153,7 +183,7 @@ function CommunityCard({
     }
     return {
       status: 'Available Now',
-      detail: `${availableUnits} Available`,
+      detail: availableUnits ? `${availableUnits} Available` : '',
       bgColor: 'bg-green-700',
       lightColor: 'text-green-200',
       dotColor: 'bg-green-400'
@@ -194,17 +224,17 @@ function CommunityCard({
           <div className="text-left">
             <div className="text-sm font-bold text-white">{availability.status}</div>
             <div className={`text-xs ${availability.lightColor}`}>
-              {Math.round(community.occupancyRate || 0)}% Occupied • {availability.detail}
+              {availability.detail}
             </div>
           </div>
         </div>
         
         {/* Pricing Section - Color Coded by Verification Source */}
-        <div className={`${pricingColors.bgColor} text-white px-4 py-2 flex items-center justify-end`}>
+        <div className={`${priceDisplay ? pricingColors.bgColor : 'bg-gray-700'} text-white px-4 py-2 flex items-center justify-end`}>
           <span className="text-sm font-medium">
-            {priceDisplay}
+            {priceDisplay || 'Contact for Pricing'}
           </span>
-          <div className={`w-2 h-2 ${pricingColors.dotColor} rounded-full ml-2`}></div>
+          {priceDisplay && <div className={`w-2 h-2 ${pricingColors.dotColor} rounded-full ml-2`}></div>}
         </div>
       </div>
 
