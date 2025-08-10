@@ -75,8 +75,8 @@ export function MarketIntelligenceModal({
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] bg-gray-900 text-white border-gray-700">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] bg-gray-900 text-white border-gray-700 overflow-hidden flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
             <DollarSign className="h-5 w-5 text-purple-400" />
             Market Intelligence Report
@@ -86,7 +86,7 @@ export function MarketIntelligenceModal({
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-4 mt-4">
+        <div className="space-y-4 mt-4 overflow-y-auto flex-1 pr-2 max-h-[calc(90vh-120px)]">
           {/* Current Market Pricing */}
           <div className="bg-gray-800 rounded-lg p-4">
             <div className="flex items-center justify-between mb-3">
