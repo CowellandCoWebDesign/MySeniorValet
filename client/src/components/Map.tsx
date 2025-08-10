@@ -35,19 +35,40 @@ Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-// Simplified icons following Leaflet documentation best practices
+// Circular icons with bold borders (no pointing portion)
 const createSimpleIcon = (color: string) => {
+  const size = 30; // Size of the circular marker
   return new Icon({
     iconUrl: `data:image/svg+xml;base64,${btoa(`
-      <svg xmlns="http://www.w3.org/2000/svg" width="25" height="41" viewBox="0 0 25 41">
-        <path fill="${color}" stroke="#fff" stroke-width="2" 
-              d="M12.5 0C5.6 0 0 5.6 0 12.5c0 7.4 12.5 28.5 12.5 28.5s12.5-21.1 12.5-28.5C25 5.6 19.4 0 12.5 0z"/>
-        <circle cx="12.5" cy="12.5" r="6" fill="#fff"/>
+      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+        <!-- Drop shadow for depth -->
+        <defs>
+          <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+            <feOffset dx="0" dy="2" result="offsetblur"/>
+            <feFlood flood-color="rgba(0,0,0,0.3)"/>
+            <feComposite in2="offsetblur" operator="in"/>
+            <feMerge>
+              <feMergeNode/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        
+        <!-- Main circle with bold colored border -->
+        <circle cx="${size/2}" cy="${size/2}" r="${size/2-2}" 
+                fill="white" 
+                stroke="${color}" 
+                stroke-width="4" 
+                filter="url(#shadow)"/>
+        
+        <!-- Inner dot for visual interest -->
+        <circle cx="${size/2}" cy="${size/2}" r="4" fill="${color}"/>
       </svg>
     `)}`,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [0, -41],
+    iconSize: [size, size],
+    iconAnchor: [size/2, size/2],
+    popupAnchor: [0, -size/2],
   });
 };
 
@@ -61,16 +82,16 @@ const assistedLivingIcon = createSimpleIcon('#3b82f6'); // Blue
 const memoryCareIcon = createSimpleIcon('#8b5cf6'); // Purple
 const independentIcon = createSimpleIcon('#10b981'); // Green
 
-// Hospital icons with distinct medical cross symbol - sharp pointed with circle border
+// Hospital icons with distinct medical cross symbol - circular with bold borders
 const createHospitalIcon = (bgColor: string, isEmergency: boolean = false) => {
-  const size = 40; // Optimized size for visibility
+  const size = 35; // Size of circular hospital marker
   const uniqueId = `hospital_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
   // Color-coded borders for hospitals
   const borderColor = isEmergency ? '#dc2626' : '#f97316'; // Red for emergency, orange for urgent care
   
   const svgString = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size + 18}" viewBox="0 0 ${size} ${size + 18}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
       <defs>
         <!-- Enhanced shadow for depth and prominence -->
         <filter id="shadow_${uniqueId}" x="-50%" y="-50%" width="200%" height="200%">
@@ -85,23 +106,20 @@ const createHospitalIcon = (bgColor: string, isEmergency: boolean = false) => {
         </filter>
       </defs>
       
-      <!-- Sharp pointed pin shape with colored border -->
-      <path fill="#ffffff" stroke="${borderColor}" stroke-width="3" filter="url(#shadow_${uniqueId})"
-            d="M${size/2} 2C${size*0.18} 2 2 ${size*0.18} 2 ${size/2}c0 ${size*0.38} ${size/2-2} ${size+16} ${size/2-2} ${size+16}L${size/2} ${size+16}L${size-2} ${size*0.88}C${size-2} ${size*0.88} ${size-2} ${size*0.18} ${size/2} 2z"/>
-      
-      <!-- Circle with color-coded border for medical cross -->
-      <circle cx="${size/2}" cy="${size/2}" r="${size*0.42}" 
+      <!-- Main circle with bold colored border -->
+      <circle cx="${size/2}" cy="${size/2}" r="${size/2-2}" 
               fill="white" 
               stroke="${borderColor}" 
-              stroke-width="2.5"/>
+              stroke-width="4" 
+              filter="url(#shadow_${uniqueId})"/>
       
       <!-- Medical cross symbol -->
       <g transform="translate(${size/2}, ${size/2})">
-        <rect x="-3" y="-10" width="6" height="20" fill="${borderColor}" rx="1"/>
-        <rect x="-10" y="-3" width="20" height="6" fill="${borderColor}" rx="1"/>
+        <rect x="-3" y="-9" width="6" height="18" fill="${borderColor}" rx="1"/>
+        <rect x="-9" y="-3" width="18" height="6" fill="${borderColor}" rx="1"/>
         ${isEmergency ? `
           <!-- Emergency "ER" text -->
-          <text x="0" y="17" text-anchor="middle" fill="${borderColor}" font-size="8" font-weight="bold" font-family="Arial, sans-serif">ER</text>
+          <text x="0" y="12" text-anchor="middle" fill="${borderColor}" font-size="7" font-weight="bold" font-family="Arial, sans-serif">ER</text>
         ` : ''}
       </g>
     </svg>
@@ -109,9 +127,9 @@ const createHospitalIcon = (bgColor: string, isEmergency: boolean = false) => {
   
   return new Icon({
     iconUrl: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svgString)}`,
-    iconSize: [size, size + 18],
-    iconAnchor: [size/2, size + 18],
-    popupAnchor: [0, -(size + 18)],
+    iconSize: [size, size],
+    iconAnchor: [size/2, size/2],
+    popupAnchor: [0, -size/2],
     className: `hospital-marker ${isEmergency ? 'emergency' : 'urgent-care'}`
   });
 };
