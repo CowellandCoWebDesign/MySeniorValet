@@ -388,11 +388,24 @@ export default function MySeniorValetHome() {
           {/* Centered Headlines - Optimized for Desktop with Better Spacing */}
           <div className="text-center mb-6 md:mb-8 max-w-6xl">
             <div className="space-y-4">
+              {/* Country Coverage Badge */}
+              <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-500/90 to-blue-500/90 backdrop-blur-sm text-white rounded-full text-lg font-bold shadow-2xl mb-4 animate-bounce-slow">
+                <span className="text-2xl mr-2">🇺🇸</span>
+                <span>USA</span>
+                <span className="mx-3">•</span>
+                <span className="text-2xl mr-2">🇲🇽</span>
+                <span>MEXICO</span>
+                <span className="mx-3">•</span>
+                <span className="text-2xl mr-2">🇨🇦</span>
+                <span>CANADA</span>
+              </div>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl tracking-tight">
-                <span className="block mb-2 hero-text-main">Empowering Families to Find Transparent, Affordable Senior Living and Care</span>
+                <span className="block mb-2 hero-text-main bg-gradient-to-r from-white to-amber-200 bg-clip-text text-transparent">
+                  Empowering Families to Find Transparent, Affordable Senior Living
+                </span>
               </h1>
               <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-space-warp max-w-4xl mx-auto font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
-                Explore trusted senior living communities and connect with services that make life easier. Transparent pricing, real-time availability, and seamless service integration, all in one place.
+                Master all 10 levels of care. Real pricing, real availability. <span className="font-bold text-amber-200">No hidden fees, no referral markups, no communication floods.</span> Welcome to complete transparency.
               </h2>
             </div>
           </div>
@@ -535,7 +548,7 @@ export default function MySeniorValetHome() {
           <div className="mb-8">
             <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-base font-bold shadow-2xl mb-6 animate-pulse">
               <Sparkles className="w-5 h-5 mr-2" />
-              NOW LIVE ACROSS USA • MEXICO • CANADA
+              NOW LIVE ACROSS 🇺🇸 USA • 🇲🇽 MEXICO • 🇨🇦 CANADA
               <Sparkles className="w-5 h-5 ml-2" />
             </div>
             <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-4 drop-shadow-2xl">
@@ -589,8 +602,8 @@ export default function MySeniorValetHome() {
                       <div className="flex items-start gap-3">
                         <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-red-300">"White Glove" = Sales Call Flood</p>
-                          <p className="text-gray-300 text-sm">They promise personal assistance, then hand your info to sales teams. Your phone rings non-stop with aggressive pitches.</p>
+                          <p className="font-semibold text-red-300">"White Glove" = Communication Flood</p>
+                          <p className="text-gray-300 text-sm">They promise personal assistance, then hand your info to sales teams. Your phone rings, inbox fills, texts pour in - non-stop aggressive pitches.</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
@@ -630,6 +643,13 @@ export default function MySeniorValetHome() {
                         <div>
                           <p className="font-semibold text-gray-800 dark:text-gray-200">ALL Families Get PLATINUM Features Free</p>
                           <p className="text-gray-600 dark:text-gray-300 text-sm">Every family gets our complete PLATINUM toolkit. No tiers. No upgrades. Always free, guaranteed forever.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-gray-800 dark:text-gray-200">Shareable Tour Tracker - Hyper Rich Reviews</p>
+                          <p className="text-gray-600 dark:text-gray-300 text-sm">Our transparency tool prevents high prices from hiding behind lagging online reviews. Share your real tour experiences to help others see the truth.</p>
                         </div>
                       </div>
                     </div>
@@ -702,7 +722,7 @@ export default function MySeniorValetHome() {
                 <div className="flex flex-wrap justify-center gap-4">
                   <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
                     <Flag className="w-4 h-4 mr-2" />
-                    USA • MEXICO • CANADA
+                    🇺🇸 USA • 🇲🇽 MEXICO • 🇨🇦 CANADA
                   </Badge>
                   <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
                     <Building className="w-4 h-4 mr-2" />
