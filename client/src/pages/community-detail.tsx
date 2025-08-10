@@ -38,6 +38,127 @@ import { MessageCommunityButton } from "@/components/message-community-button";
 import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
 import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
 
+// Real-time AI Insights Component
+const RealTimeInsights = ({ community }: { community: Community }) => {
+  const [insights, setInsights] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchInsights = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/perplexity/community-insights', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          communityName: community.name,
+          city: community.city,
+          state: community.state
+        })
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch insights');
+      const data = await response.json();
+      setInsights(data);
+    } catch (err) {
+      setError('Unable to fetch real-time insights at this moment');
+      console.error('Error fetching insights:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchInsights();
+  }, [community.id]);
+
+  return (
+    <Card className="mb-8 border-2 border-blue-200 dark:border-blue-800">
+      <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+        <CardTitle className="text-2xl font-bold flex items-center">
+          <Sparkles className="w-6 h-6 mr-2 text-blue-600" />
+          Real-Time Community Insights
+        </CardTitle>
+        <CardDescription className="text-base">
+          Powered by AI web search - Latest information from across the internet
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="pt-6">
+        {loading && (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+            <span className="ml-3 text-gray-600 dark:text-gray-400">Searching the web for latest information...</span>
+          </div>
+        )}
+        
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+            <p className="text-red-700 dark:text-red-300">{error}</p>
+          </div>
+        )}
+        
+        {insights && !loading && (
+          <div className="space-y-4">
+            {/* Recent News & Updates */}
+            {insights.recentNews && insights.recentNews.length > 0 && (
+              <div>
+                <h4 className="font-semibold text-lg mb-3 flex items-center">
+                  <Info className="w-5 h-5 mr-2 text-blue-500" />
+                  Recent News & Updates
+                </h4>
+                <div className="space-y-2">
+                  {insights.recentNews.map((news: any, idx: number) => (
+                    <div key={idx} className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                      <p className="text-sm text-gray-700 dark:text-gray-300">{news.summary}</p>
+                      {news.source && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Source: {news.source}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Community Reputation */}
+            {insights.reputation && (
+              <div>
+                <h4 className="font-semibold text-lg mb-3 flex items-center">
+                  <Award className="w-5 h-5 mr-2 text-purple-500" />
+                  Community Reputation
+                </h4>
+                <p className="text-gray-700 dark:text-gray-300">{insights.reputation}</p>
+              </div>
+            )}
+            
+            {/* Local Area Insights */}
+            {insights.areaInsights && (
+              <div>
+                <h4 className="font-semibold text-lg mb-3 flex items-center">
+                  <MapPin className="w-5 h-5 mr-2 text-green-500" />
+                  Local Area Information
+                </h4>
+                <p className="text-gray-700 dark:text-gray-300">{insights.areaInsights}</p>
+              </div>
+            )}
+            
+            {/* Refresh Button */}
+            <Button 
+              onClick={fetchInsights} 
+              variant="outline"
+              className="w-full mt-4"
+              disabled={loading}
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Refresh Insights
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
 // Get subscription tier badge details
 const getSubscriptionTierBadge = (tier?: string) => {
   switch (tier) {
@@ -662,6 +783,9 @@ export default function CommunityDetail() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Real-Time AI Insights */}
+            <RealTimeInsights community={community} />
 
             {/* Community Header */}
             <Card>

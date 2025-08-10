@@ -10,6 +10,7 @@ import SlidePanel from "@/components/SlidePanel";
 import BottomNavigation from "@/components/BottomNavigation";
 import { TransparencyBadgeList } from "@/components/TransparencyBadge";
 import { SearchingMascot } from "@/components/mascot";
+import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
 // Map imports - GeoJSON integration following Leaflet documentation
 import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -530,51 +531,14 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             
             {/* Sample Community Cards */}
             <div className="space-y-3">
-              {filteredCommunities.slice(0, 3).map((community: any, index) => (
-                <div 
-                  key={community.id} 
-                  onClick={() => window.location.href = `/community/${community.id}`}
-                  className="relative bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
-                >
-                  {index === 0 && (
-                    <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                      New listing
-                    </div>
-                  )}
-                  {index === 1 && (
-                    <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
-                      Price drop: $500/mo
-                    </div>
-                  )}
-                  
-                  <div className="h-32 bg-gray-200 relative">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                    <button className="absolute top-2 right-2 w-8 h-8 bg-white dark:bg-gray-800/80 rounded-full flex items-center justify-center">
-                      <Heart className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    </button>
-                  </div>
-                  
-                  <div className="p-3">
-                    <div className="text-lg font-bold text-gray-900 dark:text-white mb-1">
-                      {community.priceRange && community.priceRange.min 
-                        ? `<><span className="text-sm">Starting at</span> ${community.priceRange.min.toLocaleString()}</>` 
-                        : 'Contact for pricing'
-                      }
-                      {community.priceRange && community.priceRange.min && !community.claimed && (
-                        <span className="text-xs text-orange-600 ml-1 font-normal">estimate</span>
-                      )}
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                      {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
-                    </div>
-                    <div className="text-sm text-gray-800 dark:text-gray-200 font-medium">
-                      {community.name}
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {community.city}, {community.state}
-                    </div>
-                  </div>
-                </div>
+              {filteredCommunities.slice(0, 3).map((community: any) => (
+                <PrioritizedCommunityCard
+                  key={community.id}
+                  community={community}
+                  onSelect={() => window.location.href = `/community/${community.id}`}
+                  onToggleFavorite={() => console.log(`Toggled favorite: ${community.name}`)}
+                  isFavorite={false}
+                />
               ))}
             </div>
           </div>
@@ -660,42 +624,13 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
           
           <div className="space-y-4">
             {filteredCommunities.slice(0, 8).map((community: any) => (
-              <div
+              <PrioritizedCommunityCard
                 key={community.id}
-                onClick={() => window.location.href = `/community/${community.id}`}
-                className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-lg transition-shadow cursor-pointer"
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {community.name}
-                  </h4>
-                  <Heart className="w-5 h-5 text-red-500 fill-current" />
-                </div>
-                
-                <div className="flex items-center text-gray-600 dark:text-gray-400 mb-2">
-                  <MapPin className="w-4 h-4 mr-1" />
-                  <span>{community.city}, {community.state}</span>
-                </div>
-                
-                <div className="text-sm text-gray-500 mb-3">
-                  {community.careTypes?.slice(0, 2).join(' • ') || 'Senior Living'}
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="text-lg font-bold text-blue-600">
-                    {community.priceRange && community.priceRange.min 
-                      ? `<><span className="text-sm">Starting at</span> ${community.priceRange.min.toLocaleString()}</>` 
-                      : 'Contact for pricing'
-                    }
-                  </div>
-                  {community.googleRating && (
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                      <span className="text-sm font-medium">{community.googleRating}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
+                community={community}
+                onSelect={() => window.location.href = `/community/${community.id}`}
+                onToggleFavorite={() => console.log(`Toggled favorite: ${community.name}`)}
+                isFavorite={false}
+              />
             ))}
           </div>
         </div>

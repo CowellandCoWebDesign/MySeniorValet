@@ -17,6 +17,7 @@ import { eliminateCallForPricing } from "../intelligent-pricing-system";
 import { realDataAnalyzer } from "../real-data-analyzer";
 import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
+import { PerplexityAIService } from "../perplexity-ai-service";
 
 export function registerCommunityRoutes(app: Express) {
   // IMPORTANT: Specific routes must come BEFORE the /:id route
@@ -493,6 +494,87 @@ export function registerCommunityRoutes(app: Express) {
     } catch (error) {
       console.error("Error processing community contribution:", error);
       res.status(500).json({ error: "Failed to process contribution" });
+    }
+  });
+
+  // Perplexity AI Community Insights endpoint
+  app.post("/api/perplexity/community-insights", async (req, res) => {
+    try {
+      const { communityName, city, state } = req.body;
+      
+      if (!communityName || !city || !state) {
+        return res.status(400).json({ 
+          error: "Missing required fields: communityName, city, and state are required" 
+        });
+      }
+
+      const perplexityService = new PerplexityAIService();
+      
+      if (!perplexityService.isConfigured()) {
+        return res.status(200).json({
+          recentNews: [],
+          reputation: "Real-time web search is currently unavailable. Please check back later.",
+          areaInsights: "Unable to fetch current area information. Contact the community directly for the latest updates."
+        });
+      }
+
+      try {
+        // Construct search query for web search
+        const searchQuery = `"${communityName}" senior living community ${city} ${state} recent news updates reviews 2024 2025`;
+        
+        // Fetch real-time insights
+        const searchResults = await perplexityService.searchRealTime(searchQuery, 
+          `Finding current information about ${communityName} in ${city}, ${state}`
+        );
+        
+        // Parse the results into structured format
+        const insights = {
+          recentNews: [],
+          reputation: "",
+          areaInsights: ""
+        };
+
+        // Extract key information from search results
+        if (searchResults) {
+          // Simple parsing - in production this would be more sophisticated
+          const lines = searchResults.split('\n').filter(line => line.trim());
+          
+          // Try to identify news items
+          const newsItems = lines.slice(0, 2).map(line => ({
+            summary: line.trim(),
+            source: "Web Search"
+          }));
+          
+          if (newsItems.length > 0) {
+            insights.recentNews = newsItems;
+          }
+
+          // Extract reputation and area insights
+          insights.reputation = lines.find(line => 
+            line.toLowerCase().includes('rating') || 
+            line.toLowerCase().includes('review') || 
+            line.toLowerCase().includes('reputation')
+          ) || `${communityName} is a senior living community in ${city}, ${state}. Contact them directly for the most current information.`;
+
+          insights.areaInsights = lines.find(line => 
+            line.toLowerCase().includes('area') || 
+            line.toLowerCase().includes('location') || 
+            line.toLowerCase().includes('neighborhood')
+          ) || `Located in ${city}, ${state}, this community offers senior living services. Visit or call for detailed area information.`;
+        }
+
+        res.json(insights);
+      } catch (perplexityError) {
+        console.error('Perplexity search error:', perplexityError);
+        res.json({
+          recentNews: [],
+          reputation: `${communityName} is located in ${city}, ${state}. For current information, please contact the community directly.`,
+          areaInsights: `This community serves the ${city} area. Contact them for detailed local information and availability.`
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching community insights:", error);
+      res.status(500).json({ error: "Failed to fetch community insights" });
     }
   });
 
