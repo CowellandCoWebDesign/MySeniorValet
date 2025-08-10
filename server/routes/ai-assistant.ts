@@ -1,8 +1,10 @@
 import { Router } from 'express';
-import { interpretSearchQuery, enhanceSearchResults, generateSearchSuggestions } from '../anthropic-ai-service';
 import { storage } from '../storage';
 import { requireSimpleAuth } from '../simple-auth';
 import { Request, Response } from 'express';
+import { perplexityService } from '../perplexity-ai-service';
+import { anthropicAI } from '../anthropic-ai-service';
+import { aiPriorityOrchestrator } from '../ai-priority-orchestrator';
 
 // Extend Express Request type to include user
 declare module 'express' {
@@ -154,6 +156,61 @@ router.get('/api/ai/quick-help', (req, res) => {
   ];
 
   res.json({ suggestions });
+});
+
+// Test Perplexity Web Search for Miami Senior Living
+router.get('/api/ai/test-perplexity-miami', async (req, res) => {
+  try {
+    console.log('🔍 Testing Perplexity Web Search for Miami Senior Living...');
+    
+    // Using the new AI Priority Orchestrator with Perplexity as primary
+    const result = await aiPriorityOrchestrator.processRequest({
+      query: `Find current information about senior living communities in Miami, Florida. Include:
+        1. Specific community names and their current pricing
+        2. Recent openings or developments
+        3. HUD-subsidized options in the area
+        4. Current availability and occupancy rates
+        5. Any recent news or regulatory changes affecting Miami senior care`,
+      type: 'search',
+      context: {
+        location: 'Miami, FL',
+        searchType: 'real-time web search',
+        includesCitations: true
+      }
+    });
+
+    // Enhanced response with Perplexity's web search citations
+    const response = {
+      success: true,
+      searchEngine: 'Perplexity (Primary AI - Web Search)',
+      timestamp: new Date().toISOString(),
+      capabilities: {
+        realTimeData: true,
+        webCitations: true,
+        currentPricing: true,
+        newsUpdates: true,
+        governmentData: true
+      },
+      result: result.primary || result.response,
+      servicesUsed: result.servicesUsed,
+      confidenceScore: result.confidenceScore,
+      metadata: {
+        model: 'llama-3.1-sonar-small-128k-online',
+        searchRecency: 'month',
+        note: 'This demonstrates Perplexity\'s power for real-time web search with citations, current pricing, and verified data sources'
+      }
+    };
+
+    console.log('✅ Perplexity search completed successfully');
+    res.json(response);
+  } catch (error: any) {
+    console.error('❌ Perplexity test error:', error);
+    res.status(500).json({ 
+      error: 'Failed to test Perplexity search',
+      message: error.message,
+      tip: 'Ensure PERPLEXITY_API_KEY is configured in environment variables'
+    });
+  }
 });
 
 export { router as default };

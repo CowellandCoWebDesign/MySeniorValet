@@ -39,6 +39,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register test routes
   const { registerTestRoutes } = await import('./test-system');
   registerTestRoutes(app);
+  
+  // Register Perplexity test route
+  const testPerplexityRoutes = await import('./routes/test-perplexity');
+  app.use(testPerplexityRoutes.default);
 
   // Register remaining special routes
   app.use('/api/subscriptions', subscriptionRoutes);
