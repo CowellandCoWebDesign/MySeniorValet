@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { OnboardingProvider } from "@/contexts/OnboardingContext";
 import { VoiceGuidanceProvider } from "@/components/VoiceGuidanceProvider";
+import { VoiceGuidanceToggle } from "@/components/VoiceGuidanceToggle";
 import { DevModeIndicator } from "@/components/DevModeIndicator";
 
 // Import Leaflet CSS globally for map functionality
@@ -303,6 +304,7 @@ function App() {
                   <CookieConsentBanner />
                   <DisclaimerBanner />
                   <DevModeIndicator />
+                  <VoiceGuidanceToggle />
                 </MascotProvider>
               </TooltipProvider>
             </VoiceGuidanceProvider>

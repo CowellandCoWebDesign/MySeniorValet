@@ -5,6 +5,48 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Voice Guidance Accessibility Styles */
+@layer components {
+  /* High contrast mode for better visibility */
+  .voice-guidance-active {
+    @apply ring-2 ring-blue-500 ring-offset-2;
+  }
+
+  /* Focus visible states for keyboard navigation */
+  .voice-guidance-focus:focus-visible {
+    @apply outline-none ring-2 ring-blue-600 ring-offset-2;
+  }
+
+  /* Animation for speaking indicator */
+  @keyframes voice-pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .voice-speaking {
+    animation: voice-pulse 1.5s ease-in-out infinite;
+  }
+
+  /* Large touch targets for mobile accessibility */
+  .voice-button-touch {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* High contrast tooltips */
+  .voice-tooltip {
+    @apply bg-gray-900 text-white dark:bg-white dark:text-gray-900;
+  }
+
+  /* Screen reader only text */
+  .sr-only-focusable:focus {
+    @apply not-sr-only;
+  }
+}
+
 /* Ensure onboarding dialog appears above all map elements */
 [data-radix-dialog-overlay],
 [role="dialog"] {
