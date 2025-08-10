@@ -13,7 +13,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import Map from '@/components/Map';
 import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
-import { SimplifiedCommunityCard } from '@/components/SimplifiedCommunityCard';
+import { PrioritizedCommunityCard } from '@/components/PrioritizedCommunityCard';
 import { AutocompleteSearch } from '@/components/AutocompleteSearch';
 import { 
   Brain, 
@@ -2051,10 +2051,10 @@ export default function AISearchIntelligence() {
               </div>
             </div>
 
-            {/* Map and List Layout - Full Width */}
-            <div className="flex gap-2 h-[700px] px-2">
-              {/* Map Section - Left Side - Takes 54% */}
-              <div className="w-[54%] bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
+            {/* Map and List Layout - Vertical Stack, Full Width */}
+            <div className="space-y-4 px-4">
+              {/* Map Section - Full Width on Top */}
+              <div className="w-full bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
                 <Map
                   center={mapCenter}
                   zoom={mapZoom}
@@ -2103,12 +2103,12 @@ export default function AISearchIntelligence() {
                       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                   }}
-                  height="700px"
+                  height="400px"
                 />
               </div>
 
-              {/* List Section - Right Side - Takes 46% */}
-              <div className="w-[46%] bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col">
+              {/* List Section - Full Width Below Map */}
+              <div className="w-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col">
                 {/* Header with result count */}
                 <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
                   <div className="flex items-center justify-between mb-2">
@@ -2231,20 +2231,27 @@ export default function AISearchIntelligence() {
                             )}
                             
                             {/* Enhanced card with occupancy display */}
-                            <div className={`${isHUD || isCanadian || isHawaiian ? 'pl-2' : ''}`}>
-                              <EnhancedCommunityCard 
+                            <div className={`${isHUD || isCanadian || isHawaiian ? 'pl-2' : ''} p-2`}>
+                              <PrioritizedCommunityCard 
                                 community={{
                                   ...community,
-                                  // Add occupancy display if available
-                                  displayAvailability: hasOccupancy ? {
-                                    availabilityStatus: `${Math.round(community.occupancyRate || community.occupancyRateHud)}% Occupied`,
-                                    occupancyDisplay: `${Math.round(community.occupancyRate || community.occupancyRateHud)}%`,
-                                    availabilityColor: (community.occupancyRate || community.occupancyRateHud) > 90 ? 'red' : 'green',
-                                    unitsDisplay: community.totalUnits || community.totalUnitsHud ? `${community.totalUnits || community.totalUnitsHud} units` : undefined
-                                  } : community.displayAvailability
+                                  // Ensure occupancy data is properly set
+                                  occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
+                                  totalUnits: community.totalUnits || community.totalUnitsHud || 100,
+                                  availableUnits: community.availableUnits,
+                                  waitListLength: community.waitListLength,
+                                  // Add special promotions if available
+                                  specialPromotions: hasSpecialOffer ? [{
+                                    title: community.specialOffer || 'Special Offer',
+                                    description: community.monthlyDiscount || 'Limited time offer',
+                                    monthsWaived: community.monthsWaived || 1,
+                                    percentageOff: community.percentageOff || 10
+                                  }] : community.specialPromotions
                                 }}
                                 variant="list"
                                 onSelect={() => window.location.href = `/community/${community.id}`}
+                                onToggleFavorite={() => console.log(`Toggle favorite: ${community.name}`)}
+                                isFavorite={false}
                               />
                             </div>
                           </div>
