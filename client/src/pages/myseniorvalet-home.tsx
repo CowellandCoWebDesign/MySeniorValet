@@ -528,32 +528,43 @@ export default function MySeniorValetHome() {
         </div>
       </div>
 
-      {/* Mission Statement Section */}
+      {/* Welcome to Your Search Journey - Launch Focused Message */}
       <section className="px-4 py-12 bg-gradient-to-r from-white to-blue-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex items-center justify-center mb-6">
-            <HeartHandshake className="h-12 w-12 text-blue-600 dark:text-blue-400 mr-3" />
+            <Heart className="h-12 w-12 text-pink-600 dark:text-pink-400 mr-3 animate-pulse" />
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
-              Our Mission
+              Welcome to Your Senior Living Journey
             </h2>
           </div>
           <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-xl border-0">
             <CardContent className="p-8 md:p-12">
-              <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 leading-relaxed">
-                Our mission at MySeniorValet is to transform the senior living experience by providing families with easy access to clear, upfront pricing and comprehensive services. We are committed to fostering transparency, empowering families to make confident decisions, and ensuring that every senior and their loved ones receive the care and support they deserve. Through a one-stop platform that connects seniors to trusted communities, healthcare resources, and essential services, we aim to simplify the journey of aging with dignity and independence.
+              <p className="text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-200 leading-relaxed mb-6">
+                Finding the right care for your loved one can feel overwhelming. You're not alone in this journey.
               </p>
-              <div className="mt-8 flex flex-wrap justify-center gap-4">
-                <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 px-4 py-2 text-sm font-semibold">
-                  <Shield className="w-4 h-4 mr-2" />
-                  Transparency First
-                </Badge>
+              <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 leading-relaxed mb-8">
+                We created MySeniorValet to give families what they need most: <strong className="text-blue-600 dark:text-blue-400">clear pricing, authentic information, and peace of mind</strong>. No more "Contact for pricing." No more uncertainty. Just transparent, helpful guidance when you need it most.
+              </p>
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg p-6 mb-8 border border-blue-200 dark:border-blue-700">
+                <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 font-medium">
+                  "Every family deserves to make informed decisions with confidence and dignity. That's why we're here – to support you through every step of this important decision."
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-3 italic">
+                  – The MySeniorValet Team
+                </p>
+              </div>
+              <div className="flex flex-wrap justify-center gap-4">
                 <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-4 py-2 text-sm font-semibold">
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Transparent Pricing
+                </Badge>
+                <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 px-4 py-2 text-sm font-semibold">
                   <Heart className="w-4 h-4 mr-2" />
-                  Family Focused
+                  Family First
                 </Badge>
                 <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 px-4 py-2 text-sm font-semibold">
-                  <Users className="w-4 h-4 mr-2" />
-                  Dignity & Independence
+                  <Shield className="w-4 h-4 mr-2" />
+                  No Pressure Approach
                 </Badge>
               </div>
             </CardContent>
@@ -2635,6 +2646,39 @@ export default function MySeniorValetHome() {
               </div>
             </details>
           </div>
+        </div>
+      </section>
+
+      {/* Mission Statement Section - Moved from top */}
+      <section className="px-4 py-12 bg-gradient-to-r from-white to-blue-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="flex items-center justify-center mb-6">
+            <HeartHandshake className="h-12 w-12 text-blue-600 dark:text-blue-400 mr-3" />
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+              Our Mission
+            </h2>
+          </div>
+          <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-xl border-0">
+            <CardContent className="p-8 md:p-12">
+              <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 leading-relaxed">
+                Our mission at MySeniorValet is to transform the senior living experience by providing families with easy access to clear, upfront pricing and comprehensive services. We are committed to fostering transparency, empowering families to make confident decisions, and ensuring that every senior and their loved ones receive the care and support they deserve. Through a one-stop platform that connects seniors to trusted communities, healthcare resources, and essential services, we aim to simplify the journey of aging with dignity and independence.
+              </p>
+              <div className="mt-8 flex flex-wrap justify-center gap-4">
+                <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 px-4 py-2 text-sm font-semibold">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Transparency First
+                </Badge>
+                <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-4 py-2 text-sm font-semibold">
+                  <Heart className="w-4 h-4 mr-2" />
+                  Family Focused
+                </Badge>
+                <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 px-4 py-2 text-sm font-semibold">
+                  <Users className="w-4 h-4 mr-2" />
+                  Dignity & Independence
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
