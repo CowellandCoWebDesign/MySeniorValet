@@ -60,25 +60,54 @@ const assistedLivingIcon = createSimpleIcon('#3b82f6'); // Blue
 const memoryCareIcon = createSimpleIcon('#8b5cf6'); // Purple
 const independentIcon = createSimpleIcon('#10b981'); // Green
 
-// Hospital icons with distinct medical cross symbol - larger for better visibility
+// Hospital icons with distinct medical cross symbol - professional gradient design
 const createHospitalIcon = (bgColor: string, isEmergency: boolean = false) => {
-  const size = 45; // Increased from 35 for better visibility
+  const size = 42; // Optimized size for visibility
+  const uniqueId = `hospital_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  // Professional gradient colors for hospitals
+  const gradientStart = isEmergency ? '#ef4444' : '#fb923c'; // Red for emergency, orange for urgent care
+  const gradientEnd = isEmergency ? '#991b1b' : '#ea580c'; // Dark red/orange gradients
+  
   const svgString = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size + 15}" viewBox="0 0 ${size} ${size + 15}">
       <defs>
-        <filter id="hospitalShadow${isEmergency ? 'Emergency' : 'Urgent'}" x="-50%" y="-50%" width="200%" height="200%">
-          <feDropShadow dx="2" dy="3" stdDeviation="3" flood-color="rgba(0,0,0,0.5)"/>
+        <!-- Professional gradient for hospital pins -->
+        <linearGradient id="${uniqueId}" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:${gradientStart};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${gradientEnd};stop-opacity:1" />
+        </linearGradient>
+        <!-- Enhanced shadow for depth and prominence -->
+        <filter id="shadow_${uniqueId}" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="2.5"/>
+          <feOffset dx="0" dy="3" result="offsetblur"/>
+          <feFlood flood-color="rgba(0,0,0,0.3)"/>
+          <feComposite in2="offsetblur" operator="in"/>
+          <feMerge>
+            <feMergeNode/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
         </filter>
       </defs>
-      <!-- Pin shape with thick white border -->
-      <path fill="${bgColor}" stroke="#ffffff" stroke-width="3" filter="url(#hospitalShadow${isEmergency ? 'Emergency' : 'Urgent'})"
-            d="M${size/2} 3C${size*0.25} 3 3 ${size*0.25} 3 ${size/2}c0 ${size*0.45} ${size/2-3} ${size+12-3} ${size/2-3} ${size+12-3}s${size/2-3} ${size*0.67-3} ${size/2-3} ${size+12-3}C${size-3} ${size*0.25} ${size*0.75} 3 ${size/2} 3z"/>
-      <!-- Larger medical cross -->
+      
+      <!-- Elegant teardrop pin shape with gradient -->
+      <path fill="url(#${uniqueId})" filter="url(#shadow_${uniqueId})"
+            d="M${size/2} 3C${size*0.22} 3 3 ${size*0.22} 3 ${size/2}c0 ${size*0.45} ${size/2-3} ${size+12} ${size/2-3} ${size+12}s${size/2-3} ${size*0.67} ${size/2-3} ${size+12}C${size-3} ${size*0.22} ${size*0.78} 3 ${size/2} 3z"/>
+      
+      <!-- Inner shadow for depth -->
+      <ellipse cx="${size/2}" cy="${size/2}" rx="${size*0.35}" ry="${size*0.32}" 
+               fill="rgba(0,0,0,0.2)" opacity="0.3"/>
+      
+      <!-- Clean white medical cross with subtle background -->
+      <circle cx="${size/2}" cy="${size/2}" r="${size*0.33}" fill="rgba(255,255,255,0.9)"/>
+      
+      <!-- Medical cross symbol -->
       <g transform="translate(${size/2}, ${size/2})">
-        <rect x="-3" y="-10" width="6" height="20" fill="white"/>
-        <rect x="-10" y="-3" width="20" height="6" fill="white"/>
+        <rect x="-3" y="-9" width="6" height="18" fill="${gradientEnd}" rx="1"/>
+        <rect x="-9" y="-3" width="18" height="6" fill="${gradientEnd}" rx="1"/>
         ${isEmergency ? `
-          <text x="0" y="18" text-anchor="middle" fill="white" font-size="7" font-weight="bold">ER</text>
+          <!-- Emergency "ER" text -->
+          <text x="0" y="15" text-anchor="middle" fill="${gradientEnd}" font-size="7" font-weight="bold" font-family="Arial, sans-serif">ER</text>
         ` : ''}
       </g>
     </svg>
@@ -89,7 +118,7 @@ const createHospitalIcon = (bgColor: string, isEmergency: boolean = false) => {
     iconSize: [size, size + 15],
     iconAnchor: [size/2, size + 15],
     popupAnchor: [0, -(size + 15)],
-    className: 'hospital-marker'
+    className: `hospital-marker ${isEmergency ? 'emergency' : 'urgent-care'}`
   });
 };
 
@@ -1014,30 +1043,58 @@ export default function Map({
   const getIconForCommunity = (community: Community, isHovered = false, isPulsing = false) => {
     const emoji = getCareEmoji(community);
     
-    // Check for live data to determine border color
+    // Check for live data to determine pin color
     const hasLiveData = (community.rentPerMonth && community.rentPerMonth > 0) || 
                         (community.priceRange && typeof community.priceRange === 'string' && !community.priceRange.includes('Contact')) || 
                         (community.availability && community.availability !== 'Contact for availability') || 
                         community.hudPropertyId || 
                         community.dataSource === 'HUD';
 
-    const borderColor = hasLiveData ? '#10b981' : '#ef4444'; // Brighter green for live data, brighter red for no data
-    const bgColor = isHovered ? '#fef3c7' : '#ffffff'; // Yellow background on hover
-    const size = isHovered ? 32 : 28; // Reduced sizes for more compact pins
+    // Professional gradient colors based on data availability
+    const gradientStart = hasLiveData 
+      ? (isHovered ? '#34d399' : '#10b981') // Green gradient for live data
+      : (isHovered ? '#fb7185' : '#ef4444'); // Red gradient for no data
+    
+    const gradientEnd = hasLiveData 
+      ? (isHovered ? '#065f46' : '#047857') // Dark green end
+      : (isHovered ? '#991b1b' : '#dc2626'); // Dark red end
 
-    // Create more compact pin with thicker border
+    const size = isHovered ? 36 : 32; // Slightly larger for better visibility
+    const uniqueId = `grad_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    // Create elegant, professional pin with gradient fill
     const svgString = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size + 8}" viewBox="0 0 ${size} ${size + 8}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size + 12}" viewBox="0 0 ${size} ${size + 12}">
         <defs>
-          <filter id="shadow${Date.now()}" x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow dx="0.5" dy="1" stdDeviation="1.5" flood-color="rgba(0,0,0,0.3)"/>
+          <!-- Professional gradient -->
+          <linearGradient id="${uniqueId}" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:${gradientStart};stop-opacity:1" />
+            <stop offset="100%" style="stop-color:${gradientEnd};stop-opacity:1" />
+          </linearGradient>
+          <!-- Enhanced shadow for depth -->
+          <filter id="shadow_${uniqueId}" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+            <feOffset dx="0" dy="2" result="offsetblur"/>
+            <feFlood flood-color="rgba(0,0,0,0.25)"/>
+            <feComposite in2="offsetblur" operator="in"/>
+            <feMerge>
+              <feMergeNode/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
           </filter>
         </defs>
-        <!-- Compact pin shape with thicker border -->
-        <path fill="${bgColor}" stroke="${borderColor}" stroke-width="4" filter="url(#shadow${Date.now()})"
-              d="M${size/2} 3C${size*0.25} 3 3 ${size*0.25} 3 ${size/2}c0 ${size*0.35} ${size/2-3} ${size+2} ${size/2-3} ${size+2}s${size/2-3} ${size*0.65-2} ${size/2-3} ${size+2}C${size-3} ${size*0.25} ${size*0.75} 3 ${size/2} 3z"/>
-        <!-- Emoji with adjusted positioning for compact design -->
-        <text x="${size/2}" y="${size/2 + 2}" text-anchor="middle" font-size="${size * 0.55}" font-family="Arial, sans-serif">
+        
+        <!-- Elegant teardrop pin shape with gradient -->
+        <path fill="url(#${uniqueId})" filter="url(#shadow_${uniqueId})"
+              d="M${size/2} 2C${size*0.22} 2 2 ${size*0.22} 2 ${size/2}c0 ${size*0.4} ${size/2-2} ${size+10} ${size/2-2} ${size+10}s${size/2-2} ${size*0.7} ${size/2-2} ${size+10}C${size-2} ${size*0.22} ${size*0.78} 2 ${size/2} 2z"/>
+        
+        <!-- Inner shadow for depth -->
+        <ellipse cx="${size/2}" cy="${size/2 - 1}" rx="${size*0.35}" ry="${size*0.32}" 
+                 fill="rgba(0,0,0,0.15)" opacity="0.3"/>
+        
+        <!-- Emoji with subtle background circle for better contrast -->
+        <circle cx="${size/2}" cy="${size/2 - 1}" r="${size*0.32}" fill="rgba(255,255,255,0.85)"/>
+        <text x="${size/2}" y="${size/2 + 3}" text-anchor="middle" font-size="${size * 0.45}" font-family="Arial, sans-serif">
           ${emoji}
         </text>
       </svg>
@@ -1045,10 +1102,10 @@ export default function Map({
 
     return new Icon({
       iconUrl: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svgString)}`,
-      iconSize: [size, size + 8],
-      iconAnchor: [size/2, size + 8],
-      popupAnchor: [0, -(size + 8)],
-      className: `care-level-marker ${isHovered ? 'marker-hover' : ''}`
+      iconSize: [size, size + 12],
+      iconAnchor: [size/2, size + 12],
+      popupAnchor: [0, -(size + 12)],
+      className: `care-level-marker ${isHovered ? 'marker-hover' : ''} ${hasLiveData ? 'has-live-data' : 'no-data'}`
     });
   };
 
