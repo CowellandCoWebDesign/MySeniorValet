@@ -48,12 +48,16 @@ interface PersonalizedRecommendationsProps {
 }
 
 const CARE_TYPE_OPTIONS = [
-  'independent_living',
-  'assisted_living',
-  'memory_care',
-  'skilled_nursing',
-  'continuing_care',
-  'adult_day_care'
+  'hud-sponsored',
+  'va-housing',
+  'mobile-rv',
+  '55-plus',
+  'independent-living',
+  'board-care',
+  'assisted-living',
+  'memory-care',
+  'ccrc',
+  'skilled-nursing'
 ];
 
 const AMENITY_OPTIONS = [

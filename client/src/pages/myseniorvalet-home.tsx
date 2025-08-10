@@ -388,24 +388,11 @@ export default function MySeniorValetHome() {
           {/* Centered Headlines - Optimized for Desktop with Better Spacing */}
           <div className="text-center mb-6 md:mb-8 max-w-6xl">
             <div className="space-y-4">
-              {/* Country Coverage Badge */}
-              <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-500/90 to-blue-500/90 backdrop-blur-sm text-white rounded-full text-lg font-bold shadow-2xl mb-4 animate-bounce-slow">
-                <span className="text-2xl mr-2">🇺🇸</span>
-                <span>USA</span>
-                <span className="mx-3">•</span>
-                <span className="text-2xl mr-2">🇲🇽</span>
-                <span>MEXICO</span>
-                <span className="mx-3">•</span>
-                <span className="text-2xl mr-2">🇨🇦</span>
-                <span>CANADA</span>
-              </div>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl tracking-tight">
-                <span className="block mb-2 hero-text-main bg-gradient-to-r from-white to-amber-200 bg-clip-text text-transparent">
-                  Empowering Families to Find Transparent, Affordable Senior Living
-                </span>
+                <span className="block mb-2 hero-text-main">Empowering Families to Find Transparent, Affordable Senior Living and Care</span>
               </h1>
               <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-space-warp max-w-4xl mx-auto font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
-                Master all 10 levels of care. Real pricing, real availability. <span className="font-bold text-amber-200">No hidden fees, no referral markups, no communication floods.</span> Welcome to complete transparency.
+                Explore trusted senior living communities and connect with services that make life easier. Transparent pricing, real-time availability, and seamless service integration, all in one place.
               </h2>
             </div>
           </div>
@@ -619,9 +606,27 @@ export default function MySeniorValetHome() {
 
                 {/* The Light Section */}
                 <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-8 border-2 border-green-400">
-                  <h3 className="text-2xl md:text-3xl font-bold mb-6 text-green-600 dark:text-green-400">
-                    THIS STOPS NOW - PLATINUM FEATURES FOR ALL
-                  </h3>
+                  <div className="mb-6">
+                    {/* Country Coverage Badge */}
+                    <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-500/90 to-blue-500/90 backdrop-blur-sm text-white rounded-full text-lg font-bold shadow-2xl mb-4 animate-bounce-slow">
+                      <span className="text-2xl mr-2">🇺🇸</span>
+                      <span>USA</span>
+                      <span className="mx-3">•</span>
+                      <span className="text-2xl mr-2">🇲🇽</span>
+                      <span>MEXICO</span>
+                      <span className="mx-3">•</span>
+                      <span className="text-2xl mr-2">🇨🇦</span>
+                      <span>CANADA</span>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-green-600 dark:text-green-400">
+                      <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                        THIS STOPS NOW - COMPLETE CARE SPECTRUM FOR ALL
+                      </span>
+                    </h3>
+                    <p className="text-lg text-gray-700 dark:text-gray-200 mt-2 font-medium">
+                      Master all 10+ levels of care. Real pricing, real availability. <span className="font-bold text-amber-600 dark:text-amber-400">No hidden fees, no referral markups, no communication floods.</span> Welcome to complete transparency.
+                    </p>
+                  </div>
                   <div className="grid md:grid-cols-2 gap-6 text-left">
                     <div className="space-y-4">
                       <div className="flex items-start gap-3">
