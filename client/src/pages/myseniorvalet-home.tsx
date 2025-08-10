@@ -561,7 +561,7 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Community Exploration Section Title - Beautiful and Prominent */}
+      {/* Complete Care Intelligence Hub - Beautiful and Prominent */}
       <section className="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-pink-900/20">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 dark:from-purple-400/10 dark:to-pink-400/10"></div>
         <div className="relative px-4 py-16">
@@ -569,24 +569,32 @@ export default function MySeniorValetHome() {
             <div className="relative inline-block">
               <div className="absolute -inset-4 bg-gradient-to-r from-purple-600 to-pink-600 blur-3xl opacity-20 animate-pulse"></div>
               <h2 className="relative text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 dark:from-purple-400 dark:via-pink-400 dark:to-indigo-400 mb-4">
-                Community Exploration Section
+                Complete Care Intelligence Hub
               </h2>
             </div>
-            <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto mb-8">
-              Discover senior living communities across North America with transparent pricing, real availability, and authentic reviews
+            <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-4xl mx-auto mb-8">
+              Your comprehensive command center for senior living decisions - featuring Red Tag specials, complete care spectrum guidance, AI-powered market intelligence, cost calculators, and regional discovery tools
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-3">
+              <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 text-sm font-bold shadow-lg">
+                <Flame className="w-4 h-4 mr-2" />
+                Red Tag Specials
+              </Badge>
               <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
+                <Brain className="w-4 h-4 mr-2" />
+                AI Market Intelligence
+              </Badge>
+              <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
+                <Calculator className="w-4 h-4 mr-2" />
+                Cost Calculators
+              </Badge>
+              <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
                 <MapPin className="w-4 h-4 mr-2" />
                 34,180+ Communities
               </Badge>
-              <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                <Building2 className="w-4 h-4 mr-2" />
-                HUD Verified Pricing
-              </Badge>
-              <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
+              <Badge className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
                 <Shield className="w-4 h-4 mr-2" />
-                100% Authentic Data
+                Complete Care Spectrum
               </Badge>
             </div>
           </div>
