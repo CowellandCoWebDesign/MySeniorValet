@@ -1299,17 +1299,7 @@ export default function MapSearch() {
         </div>
       </div>
 
-      {/* Breadcrumb Navigation */}
-      <div className={"border-b " + (isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700')}>
-        <div className="max-w-7xl mx-auto">
-          <BreadcrumbNavigation 
-            items={[
-              { label: 'Home', href: '/' },
-              { label: 'Map Search' }
-            ]}
-          />
-        </div>
-      </div>
+
 
       {/* Sticky Search and Filter Container */}
       <div className="sticky top-0 z-40">
