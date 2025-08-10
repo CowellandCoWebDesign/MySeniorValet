@@ -566,8 +566,8 @@ export default function MySeniorValetHome() {
                       <div className="flex items-start gap-3">
                         <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-red-300">Everyone Thinks It's Just "Assisted Living"</p>
-                          <p className="text-gray-300 text-sm">Most families don't know Independent Living, Memory Care, or Skilled Nursing even exist. No one explains the care spectrum until you're in crisis.</p>
+                          <p className="font-semibold text-red-300">Unaware of 10 Levels of Care</p>
+                          <p className="text-gray-300 text-sm">Most think it's just "Assisted Living." They don't know about Independent, Memory Care, Skilled Nursing, Adult Day, PACE, Home Care, Hospice, Respite, or Continuing Care - 10 distinct levels!</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
@@ -614,22 +614,22 @@ export default function MySeniorValetHome() {
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">Complete Care Spectrum Education</p>
-                          <p className="text-gray-600 dark:text-gray-400 text-sm">Finally understand what each level means, when it's appropriate, and what to expect.</p>
+                          <p className="font-semibold text-gray-800 dark:text-gray-200">Learn All 10 Levels of Care</p>
+                          <p className="text-gray-600 dark:text-gray-300 text-sm">From Independent Living to Hospice - understand all 10 care levels, when each applies, costs, and transitions between them.</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
                           <p className="font-semibold text-gray-800 dark:text-gray-200">Real Pricing, Real Availability</p>
-                          <p className="text-gray-600 dark:text-gray-400 text-sm">Actual prices. Current availability. No more "contact us" gatekeeping.</p>
+                          <p className="text-gray-600 dark:text-gray-300 text-sm">Actual prices. Current availability. No more "contact us" gatekeeping.</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
                           <p className="font-semibold text-gray-800 dark:text-gray-200">ALL Families Get PLATINUM Features Free</p>
-                          <p className="text-gray-600 dark:text-gray-400 text-sm">Every family gets our complete PLATINUM toolkit. No tiers. No upgrades. Always free, guaranteed forever.</p>
+                          <p className="text-gray-600 dark:text-gray-300 text-sm">Every family gets our complete PLATINUM toolkit. No tiers. No upgrades. Always free, guaranteed forever.</p>
                         </div>
                       </div>
                     </div>
@@ -638,37 +638,49 @@ export default function MySeniorValetHome() {
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
                           <p className="font-semibold text-gray-800 dark:text-gray-200">Tour Tracker with Family Sharing</p>
-                          <p className="text-gray-600 dark:text-gray-400 text-sm">Track every tour, save notes, build comparisons. Share instantly with family members for collaborative decisions.</p>
+                          <p className="text-gray-600 dark:text-gray-300 text-sm">Track every tour, save notes, build comparisons. Share instantly with family members for collaborative decisions.</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
                           <p className="font-semibold text-gray-800 dark:text-gray-200">Communities Shine Bright</p>
-                          <p className="text-gray-600 dark:text-gray-400 text-sm">Every facility can represent itself honestly. No more hiding great care in the shadows.</p>
+                          <p className="text-gray-600 dark:text-gray-300 text-sm">Every facility can represent itself honestly. No more hiding great care in the shadows.</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
                           <p className="font-semibold text-gray-800 dark:text-gray-200">Discover Benefits You Qualify For</p>
-                          <p className="text-gray-600 dark:text-gray-400 text-sm">VA Aid & Attendance, Medicaid, state programs - we help you find and understand all available assistance.</p>
+                          <p className="text-gray-600 dark:text-gray-300 text-sm">VA Aid & Attendance, Medicaid, state programs - we help you find and understand all available assistance.</p>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* The Promise */}
+                {/* The Promise - 10 Levels of Care */}
                 <div className="my-8 py-8 border-y-2 border-purple-400 dark:border-purple-600">
                   <Globe className="w-16 h-16 text-purple-600 dark:text-purple-400 mx-auto mb-6" />
-                  <p className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-200 mb-4">
-                    From Seattle to Mexico City, from Toronto to Miami
+                  <p className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-4">
+                    Master the Full 10-Level Care Spectrum
                   </p>
-                  <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300">
-                    Today marks the beginning of <strong className="text-purple-600 dark:text-purple-400">transparency</strong> in senior living.
+                  <div className="text-lg md:text-xl text-gray-700 dark:text-gray-200 mb-6">
+                    <strong className="text-purple-600 dark:text-purple-400">1. Independent Living</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 2. Assisted Living</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 3. Memory Care</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 4. Skilled Nursing</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 5. Continuing Care</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 6. Adult Day Programs</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 7. Home Care</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 8. Hospice Care</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 9. Respite Care</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 10. PACE Programs</strong>
+                  </div>
+                  <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-200">
+                    Finally understand every option, every transition, every cost - <strong className="text-purple-600 dark:text-purple-400">complete transparency</strong> across the entire care journey.
                   </p>
-                  <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mt-4">
+                  <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mt-4">
                     We're not just launching a platform. We're launching a movement to bring light to an industry that has operated in darkness for too long.
                   </p>
                 </div>
@@ -684,8 +696,8 @@ export default function MySeniorValetHome() {
               </div>
 
               <div className="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
-                <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-6 font-bold">
-                  Welcome to the Dawn of Transparency in Senior Living
+                <p className="text-base md:text-lg text-gray-700 dark:text-gray-200 mb-6 font-bold">
+                  Welcome to the Dawn of Transparency in Senior Living - All 10 Care Levels
                 </p>
                 <div className="flex flex-wrap justify-center gap-4">
                   <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
