@@ -1991,6 +1991,11 @@ export default function MapSearch() {
             <div className="space-y-3">
               {/* Display results based on selected filter */}
               {resultType === 'communities' && mapCommunities
+                .filter((item: any) => {
+                  // Filter out hospitals and other non-community items
+                  // Only show actual senior living communities
+                  return !item.type || item.type === 'community';
+                })
                 .sort((a: Community, b: Community) => {
                   // Sort by distance from map center if bounds available
                   if (mapBounds) {
@@ -2076,12 +2081,15 @@ export default function MapSearch() {
                   )}
                   
                   {/* Communities section */}
-                  {mapCommunities.length > 0 && (
+                  {mapCommunities.filter((item: any) => !item.type || item.type === 'community').length > 0 && (
                     <>
                       <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2">
-                        🏠 Communities ({mapCommunities.length})
+                        🏠 Communities ({mapCommunities.filter((item: any) => !item.type || item.type === 'community').length})
                       </h4>
-                      {mapCommunities.slice(0, 5).map((community: Community, index: number) => (
+                      {mapCommunities
+                        .filter((item: any) => !item.type || item.type === 'community')
+                        .slice(0, 5)
+                        .map((community: Community, index: number) => (
                         <PrioritizedCommunityCard
                           key={`all-community-${community.id}`}
                           community={{
@@ -2098,6 +2106,54 @@ export default function MapSearch() {
                           isFavorite={false}
                         />
                       ))}
+                    </>
+                  )}
+                  
+                  {/* Hospitals section */}
+                  {mapCommunities.filter((item: any) => item.type === 'hospital').length > 0 && (
+                    <>
+                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2 mt-4">
+                        🏥 Hospitals ({mapCommunities.filter((item: any) => item.type === 'hospital').length})
+                      </h4>
+                      {mapCommunities
+                        .filter((item: any) => item.type === 'hospital')
+                        .slice(0, 3)
+                        .map((hospital: any, index: number) => (
+                          <div
+                            key={`hospital-${hospital.id}`}
+                            className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 rounded-xl p-4 border border-red-200 dark:border-red-700 hover:shadow-lg transition-all cursor-pointer"
+                            onClick={() => console.log('Hospital clicked:', hospital)}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h5 className="font-semibold text-gray-900 dark:text-white mb-1">
+                                  {hospital.name}
+                                </h5>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                  {hospital.address}, {hospital.city}, {hospital.state} {hospital.zipCode}
+                                </p>
+                                {hospital.emergencyServices && (
+                                  <span className="inline-flex items-center gap-1 text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-2 py-1 rounded-full">
+                                    🚨 Emergency Services
+                                  </span>
+                                )}
+                                {hospital.hospitalType && (
+                                  <span className="inline-flex items-center gap-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full ml-2">
+                                    {hospital.hospitalType}
+                                  </span>
+                                )}
+                              </div>
+                              {hospital.cmsRating && (
+                                <div className="flex items-center gap-1 bg-yellow-100 dark:bg-yellow-900/30 px-2 py-1 rounded-lg">
+                                  <span className="text-yellow-600 dark:text-yellow-400">⭐</span>
+                                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                                    {hospital.cmsRating}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
                     </>
                   )}
                   
