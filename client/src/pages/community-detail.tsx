@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
@@ -58,18 +58,22 @@ const RealTimeInsights = ({ community }: { community: Community }) => {
         })
       });
       
-      if (!response.ok) throw new Error('Failed to fetch insights');
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch insights: ${response.status} ${errorText}`);
+      }
+      
       const data = await response.json();
       setInsights(data);
-    } catch (err) {
+    } catch (err: any) {
       setError('Unable to fetch real-time insights at this moment');
-      console.error('Error fetching insights:', err);
+      console.error('Error fetching insights:', err.message || err.toString());
     } finally {
       setLoading(false);
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchInsights();
   }, [community.id]);
 
@@ -784,8 +788,7 @@ export default function CommunityDetail() {
               </CardContent>
             </Card>
 
-            {/* Real-Time AI Insights */}
-            <RealTimeInsights community={community} />
+
 
             {/* Community Header */}
             <Card>
@@ -1428,6 +1431,9 @@ export default function CommunityDetail() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Real-Time AI Insights */}
+            <RealTimeInsights community={community} />
 
             {/* Available Units Section - Enhanced with Rich Information */}
             <Card>

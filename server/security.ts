@@ -181,6 +181,12 @@ export function sqlInjectionProtection(req: Request, res: Response, next: NextFu
     return next();
   }
 
+  // Skip Perplexity community insights endpoint - legitimate community search
+  if (req.path === '/api/perplexity/community-insights') {
+    console.log('Skipping SQL injection protection for Perplexity community insights');
+    return next();
+  }
+
   const suspiciousPatterns = [
     // Enhanced SQL injection patterns
     /(';)|(\';)|(;)|(--)|(\s(OR|AND)\s.*(=|LIKE))/i,
