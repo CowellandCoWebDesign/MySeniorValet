@@ -321,7 +321,7 @@ function CommunityCard({
       </div>
 
       {/* Main Card Content - Purple Gradient */}
-      <div className="relative bg-gradient-to-br from-purple-600 to-purple-800 text-white min-h-[140px] flex items-center justify-center">
+      <div className="relative bg-gradient-to-br from-purple-600 to-purple-800 text-white min-h-[140px] flex items-center justify-center overflow-hidden">
         {/* Share and Favorite buttons */}
         <div className="absolute top-3 right-3 flex gap-2 z-20">
           <Button
@@ -365,17 +365,41 @@ function CommunityCard({
 
         {/* Community Image or Quality Placeholder - Full Container */}
         {community.photos && community.photos.length > 0 ? (
-          <div className="absolute inset-0">
+          <>
             <img 
               src={community.photos[0]} 
               alt={community.name}
-              className="w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover"
               onError={(e) => {
                 // Hide broken images and show placeholder instead
                 e.currentTarget.style.display = 'none';
               }}
             />
-          </div>
+            {/* Fallback placeholder that shows when image fails to load */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center -z-10">
+              <div className="text-5xl mb-2">
+                {community.communitySubtype === 'memory_care' ? '🧠' :
+                 community.communitySubtype === 'skilled_nursing' ? '🏥' :
+                 community.communitySubtype === 'independent_living' ? '🏡' :
+                 community.communitySubtype === 'hud_senior_housing' ? '🏛️' :
+                 community.communitySubtype === 'active_adult_55plus' ? '🎾' :
+                 community.communitySubtype === 'mobile_home_park' ? '🚐' :
+                 '🏢'}
+              </div>
+              <div className="text-sm text-white/80 text-center font-medium">
+                {community.communitySubtype === 'memory_care' ? 'Memory Care' :
+                 community.communitySubtype === 'skilled_nursing' ? 'Skilled Nursing' :
+                 community.communitySubtype === 'independent_living' ? 'Independent Living' :
+                 community.communitySubtype === 'hud_senior_housing' ? 'HUD Housing' :
+                 community.communitySubtype === 'active_adult_55plus' ? '55+ Active' :
+                 community.communitySubtype === 'mobile_home_park' ? 'Mobile Park' :
+                 'Senior Living'}
+              </div>
+              <div className="text-xs text-white/50 mt-1">
+                Beautiful photos coming soon
+              </div>
+            </div>
+          </>
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <div className="text-5xl mb-2">
