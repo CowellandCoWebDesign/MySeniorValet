@@ -25,6 +25,7 @@ const testCommunities = [
     licenseStatus: "Licensed",
     violations: 0,
     amenities: ["wheelchair_accessible", "wifi", "parking", "dining"],
+    tourTrackerScore: null,  // This will show "No reviews yet"
     specialPromotions: [
       {
         title: "First Month Free",

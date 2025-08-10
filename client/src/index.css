@@ -620,6 +620,22 @@ body {
   animation: gradientShift 3s ease infinite;
 }
 
+/* Subtle glow animation for Tour Tracker */
+@keyframes subtle-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.5),
+                0 0 40px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.7),
+                0 0 60px rgba(59, 130, 246, 0.5);
+  }
+}
+
+.animate-subtle-glow {
+  animation: subtle-glow 3s ease-in-out infinite;
+}
+
 .dark {
   --background: hsl(222, 84%, 4.9%);
   --foreground: hsl(210, 40%, 98%);

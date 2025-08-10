@@ -406,16 +406,33 @@ function CommunityCard({
                 {/* Tour Tracker Score */}
                 <div className="text-center">
                   <div className="flex flex-col items-center">
-                    <div className="w-9 h-9 bg-yellow-500 rounded-full flex items-center justify-center mb-1">
-                      <Home className="h-5 w-5 text-white" />
+                    <div className="relative">
+                      {/* Animated glow effect */}
+                      <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 rounded-full blur-md opacity-60 animate-pulse"></div>
+                      {/* Gradient background with animation */}
+                      <div className="relative w-9 h-9 bg-gradient-to-br from-blue-500 via-purple-500 to-blue-600 rounded-full flex items-center justify-center mb-1 animate-subtle-glow">
+                        <Home className="h-5 w-5 text-white" />
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-400">Tour Tracker</div>
-                    <div className="flex items-center justify-center">
-                      <Star className="h-3 w-3 fill-yellow-500 text-yellow-500 mr-0.5" />
-                      <span className="text-xs font-bold text-yellow-500">
-                        {community.tourTrackerScore || '4.8'}
-                      </span>
+                    <div className="text-xs font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                      Tour Tracker
                     </div>
+                    {community.tourTrackerScore ? (
+                      <div className="flex items-center justify-center">
+                        <Star className="h-3 w-3 fill-yellow-500 text-yellow-500 mr-0.5" />
+                        <span className="text-xs font-bold text-yellow-500">
+                          {community.tourTrackerScore}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="space-y-0.5">
+                        <div className="text-[10px] text-gray-500">No reviews yet</div>
+                        <div className="flex items-center justify-center">
+                          <span className="text-xs font-bold text-gray-400">4.5</span>
+                          <span className="text-[10px] ml-0.5">⭐</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
