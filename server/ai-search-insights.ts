@@ -94,66 +94,165 @@ export class AISearchInsights {
   }
   
   /**
-   * Find top-rated communities
+   * Find top-rated communities (or HUD properties as fallback)
    */
   private static findTopRated(communities: any[]): CommunityInsight[] {
-    return communities
-      .filter(c => c.rating && parseFloat(c.rating) >= 4.5)
+    // First try to find communities with ratings
+    let topCommunities = communities
+      .filter(c => c.rating && parseFloat(c.rating) >= 4.0)
       .sort((a, b) => parseFloat(b.rating) - parseFloat(a.rating))
-      .slice(0, 3)
-      .map(c => this.extractInsight(c));
+      .slice(0, 3);
+    
+    // If no rated communities, prioritize HUD properties as they're government-verified
+    if (topCommunities.length === 0) {
+      topCommunities = communities
+        .filter(c => c.hudPropertyId)
+        .sort((a, b) => {
+          // Sort by occupancy rate (higher is better - shows demand)
+          const aOcc = parseFloat(a.occupancyRate || '0');
+          const bOcc = parseFloat(b.occupancyRate || '0');
+          return bOcc - aOcc;
+        })
+        .slice(0, 3);
+    }
+    
+    // If still no results, take any communities with high occupancy
+    if (topCommunities.length === 0) {
+      topCommunities = communities
+        .filter(c => c.occupancyRate && parseFloat(c.occupancyRate) > 85)
+        .sort((a, b) => parseFloat(b.occupancyRate || '0') - parseFloat(a.occupancyRate || '0'))
+        .slice(0, 3);
+    }
+    
+    return topCommunities.map(c => this.extractInsight(c));
   }
   
   /**
-   * Find best value communities (good rating + reasonable price)
+   * Find best value communities (prioritize HUD and affordable options)
    */
   private static findBestValue(communities: any[]): CommunityInsight[] {
-    return communities
-      .filter(c => {
-        const rating = parseFloat(c.rating || '0');
-        const minPrice = c.displayPricing?.priceRange?.min || c.priceRange?.min || 0;
-        return rating >= 4.0 && minPrice > 0 && minPrice < 5000;
-      })
+    // First priority: HUD properties with verified pricing
+    let valueCommunities = communities
+      .filter(c => c.hudPropertyId && c.rentPerMonth)
       .sort((a, b) => {
-        // Score = rating / price (higher is better value)
-        const aScore = parseFloat(a.rating) / (a.displayPricing?.priceRange?.min || 5000);
-        const bScore = parseFloat(b.rating) / (b.displayPricing?.priceRange?.min || 5000);
-        return bScore - aScore;
+        const aPrice = parseFloat(a.rentPerMonth || '9999');
+        const bPrice = parseFloat(b.rentPerMonth || '9999');
+        return aPrice - bPrice; // Lower price is better value
       })
-      .slice(0, 3)
-      .map(c => this.extractInsight(c));
+      .slice(0, 3);
+    
+    // If not enough HUD properties, add communities with good ratings and reasonable prices
+    if (valueCommunities.length < 3) {
+      const additionalValue = communities
+        .filter(c => {
+          if (valueCommunities.some(v => v.id === c.id)) return false; // Avoid duplicates
+          const rating = parseFloat(c.rating || '0');
+          const minPrice = c.displayPricing?.priceRange?.min || c.priceRange?.min || 0;
+          return rating >= 3.5 && minPrice > 0 && minPrice < 5000;
+        })
+        .sort((a, b) => {
+          const aPrice = a.displayPricing?.priceRange?.min || a.priceRange?.min || 9999;
+          const bPrice = b.displayPricing?.priceRange?.min || b.priceRange?.min || 9999;
+          return aPrice - bPrice;
+        })
+        .slice(0, 3 - valueCommunities.length);
+      
+      valueCommunities = [...valueCommunities, ...additionalValue];
+    }
+    
+    // If still not enough, add any mobile home or manufactured communities (typically affordable)
+    if (valueCommunities.length < 3) {
+      const mobileHomes = communities
+        .filter(c => {
+          if (valueCommunities.some(v => v.id === c.id)) return false;
+          return c.communitySubtype === 'mobile_home_park' || 
+                 c.communitySubtype === 'manufactured_home_community' ||
+                 c.communitySubtype === 'senior_mobile_park';
+        })
+        .slice(0, 3 - valueCommunities.length);
+      
+      valueCommunities = [...valueCommunities, ...mobileHomes];
+    }
+    
+    return valueCommunities.map(c => this.extractInsight(c));
   }
   
   /**
    * Find luxury/premium options
    */
   private static findLuxuryOptions(communities: any[]): CommunityInsight[] {
-    return communities
+    // First try communities with high prices
+    let luxuryCommunities = communities
       .filter(c => {
         const maxPrice = c.displayPricing?.priceRange?.max || c.priceRange?.max || 0;
-        return maxPrice >= 8000;
+        return maxPrice >= 6000; // Lowered threshold for more results
       })
       .sort((a, b) => {
         const aMax = a.displayPricing?.priceRange?.max || 0;
         const bMax = b.displayPricing?.priceRange?.max || 0;
         return bMax - aMax;
       })
-      .slice(0, 3)
-      .map(c => this.extractInsight(c));
+      .slice(0, 3);
+    
+    // If no high-priced communities, look for premium care types
+    if (luxuryCommunities.length === 0) {
+      luxuryCommunities = communities
+        .filter(c => 
+          c.communitySubtype === 'ccrc_life_plan' || 
+          c.communitySubtype === 'active_adult_55_plus' ||
+          c.careTypes?.includes('Life Plan Community') ||
+          c.careTypes?.includes('Continuing Care Retirement Community')
+        )
+        .slice(0, 3);
+    }
+    
+    // If still no results, take communities with many amenities or large size
+    if (luxuryCommunities.length === 0) {
+      luxuryCommunities = communities
+        .filter(c => (c.amenities?.length > 10) || (c.totalUnits > 200))
+        .sort((a, b) => {
+          const aScore = (a.amenities?.length || 0) + (a.totalUnits || 0);
+          const bScore = (b.amenities?.length || 0) + (b.totalUnits || 0);
+          return bScore - aScore;
+        })
+        .slice(0, 3);
+    }
+    
+    return luxuryCommunities.map(c => this.extractInsight(c));
   }
   
   /**
-   * Find communities with potential concerns
+   * Find communities with potential concerns or unique aspects to note
    */
   private static findConcerns(communities: any[]): CommunityInsight[] {
-    return communities
+    // First look for low-rated communities
+    let concernCommunities = communities
       .filter(c => {
         const rating = parseFloat(c.rating || '0');
         return rating > 0 && rating < 3.5;
       })
       .sort((a, b) => parseFloat(a.rating || '0') - parseFloat(b.rating || '0'))
-      .slice(0, 3)
-      .map(c => this.extractInsight(c, true));
+      .slice(0, 3);
+    
+    // If no low-rated communities, look for communities with low occupancy (may indicate issues)
+    if (concernCommunities.length === 0) {
+      concernCommunities = communities
+        .filter(c => {
+          const occupancy = parseFloat(c.occupancyRate || '100');
+          return occupancy < 70; // Low occupancy might indicate concerns
+        })
+        .sort((a, b) => parseFloat(a.occupancyRate || '100') - parseFloat(b.occupancyRate || '100'))
+        .slice(0, 3);
+    }
+    
+    // If still no results, look for communities with limited information
+    if (concernCommunities.length === 0) {
+      concernCommunities = communities
+        .filter(c => !c.phone && !c.website && !c.photos?.length)
+        .slice(0, 3);
+    }
+    
+    return concernCommunities.map(c => this.extractInsight(c, true));
   }
   
   /**

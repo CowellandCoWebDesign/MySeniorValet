@@ -638,6 +638,13 @@ export default function MapSearch() {
   // Fetch autocomplete suggestions
   useEffect(() => {
     const fetchSuggestions = async () => {
+      // Don't show suggestions if we've already searched and are showing results
+      if (hasSearched && showBottomPanel) {
+        setSuggestions([]);
+        setShowSuggestions(false);
+        return;
+      }
+      
       if (debouncedSearchQuery && debouncedSearchQuery.length >= 2) {
         setLoadingSuggestions(true);
         try {
@@ -661,7 +668,7 @@ export default function MapSearch() {
     };
 
     fetchSuggestions();
-  }, [debouncedSearchQuery, resultType]);
+  }, [debouncedSearchQuery, resultType, hasSearched, showBottomPanel]);
 
   // Handle click outside to close suggestions
   useEffect(() => {
@@ -710,6 +717,11 @@ export default function MapSearch() {
 
     setHasSearched(true);
     console.log('🔍 Searching for location:', location);
+    
+    // Clear suggestions after search is initiated
+    setShowSuggestions(false);
+    setSuggestions([]);
+    setSelectedSuggestionIndex(-1);
     
     // Clear any existing map bounds to force a fresh search
     setMapBounds(null);
