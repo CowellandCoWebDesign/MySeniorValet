@@ -461,18 +461,6 @@ function CommunityCard({
                     {marketPricing.insights.localMarket.ranking}
                   </div>
                 )}
-                
-                {/* View Details Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowMarketModal(true);
-                  }}
-                  className="mt-1 text-xs text-purple-400 hover:text-purple-300 flex items-center justify-end gap-1"
-                >
-                  <Info className="h-3 w-3" />
-                  View Details
-                </button>
               </div>
             )}
             
@@ -513,6 +501,20 @@ function CommunityCard({
                 </Badge>
               ) : null}
             </div>
+            
+            {/* View Details Button - Only show if market pricing exists */}
+            {marketPricing && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMarketModal(true);
+                }}
+                className="mt-1 text-xs text-purple-400 hover:text-purple-300 flex items-center justify-end gap-1 ml-auto"
+              >
+                <Info className="h-3 w-3" />
+                View Details
+              </button>
+            )}
             
             {/* Units Info */}
             <div className="flex items-center justify-end text-gray-300 mt-1">
