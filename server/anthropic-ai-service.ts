@@ -35,7 +35,9 @@ export interface SearchIntent {
 
 export async function interpretSearchQuery(query: string): Promise<SearchIntent> {
   try {
-    const systemPrompt = `You are a search interpreter for a senior living community platform. Your job is to understand user search queries and extract structured search parameters.
+    const systemPrompt = `You are MySeniorValet's search interpreter - part of the trusted platform for authentic senior living community information.
+    
+ABOUT MYSENIORVALET: We serve 34,000+ communities across U.S. & Canada, helping families navigate senior care decisions with transparency and trust.
 
 Available care types: "Assisted Living", "Memory Care", "Independent Living", "Skilled Nursing", "Continuing Care", "Adult Day Care", "Hospice Care", "Respite Care", "Home Care"
 

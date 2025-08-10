@@ -8,6 +8,11 @@ MySeniorValet is a comprehensive senior living transparency platform providing a
 - **Perplexity Web Search LIVE**: Successfully retrieving real-time pricing data - The Contemporary Miami ($4,550/mo), The Palace Suites ($3,020-$4,610/mo), HUD Section 8 contacts
 - **Model Configuration RESOLVED**: Automated testing identified 'sonar-pro' as correct working model (not 'sonar-small' or deprecated 'llama-3.1' models)
 - **Automated Testing Script**: Created server/test-perplexity-models.ts to programmatically identify valid model names and prevent future failures
+- **AI Personalization Implemented**: All AI services (Perplexity, Claude, ChatGPT) now understand MySeniorValet's mission and greet families with empathy and context
+  - Acknowledges emotional difficulty of finding senior care
+  - Emphasizes transparency and authentic information vs. sales pitches
+  - Uses warm, inclusive language for all family members
+  - Provides real examples and supportive guidance
 - **COMPREHENSIVE PERPLEXITY INTEGRATION COMPLETE**: 
   - Enhanced Search Service: Added `enrichWithRealTimeData` method for live market intelligence
   - AI Search Service: Integrated `enhanceWithRealTimeData` into `parseSearchQuery` workflow  
