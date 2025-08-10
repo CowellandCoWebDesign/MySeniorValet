@@ -187,6 +187,7 @@ export default function AISearchIntelligence() {
     typeOfLiving: [] as string[],
     amenities: [] as string[],
     unitType: [] as string[],
+    careTypes: [] as string[],
     distance: 50,
     priceRange: [500, 8000] as [number, number],
     immediateAvailability: false
@@ -257,7 +258,7 @@ export default function AISearchIntelligence() {
           setMapCenter([firstCommunity.latitude, firstCommunity.longitude]);
           setMapZoom(12); // Zoom in to city level
           console.log('🗺️ Relocating map to:', firstCommunity.city, firstCommunity.state);
-        } else {
+        } else if (communities && communities.length > 0) {
           // Try to determine location from city/state
           const locationCommunity = communities[0];
           if (locationCommunity?.city && locationCommunity?.state) {
@@ -438,7 +439,7 @@ export default function AISearchIntelligence() {
       if (Array.isArray(data)) {
         console.log(`🔍 Setting ${data.length} search results to list (raw array)`);
         setMapCommunities(data);
-        if (data.length > 0 && data[0].latitude && data[0].longitude) {
+        if (data && data.length > 0 && data[0]?.latitude && data[0]?.longitude) {
           setMapCenter([parseFloat(data[0].latitude), parseFloat(data[0].longitude)]);
           setMapZoom(10);
         }
@@ -456,8 +457,8 @@ export default function AISearchIntelligence() {
         console.log(`🔍 Setting ${data.communities.length} search results to list`);
         setMapCommunities(data.communities);
         if (data.communities.length > 0) {
-          const firstResult = data.communities[0];
-          if (firstResult.latitude && firstResult.longitude) {
+          const firstResult = data.communities && data.communities.length > 0 ? data.communities[0] : null;
+          if (firstResult?.latitude && firstResult?.longitude) {
             setMapCenter([parseFloat(firstResult.latitude), parseFloat(firstResult.longitude)]);
             setMapZoom(10);
           }

@@ -10,7 +10,7 @@ import SlidePanel from "@/components/SlidePanel";
 import BottomNavigation from "@/components/BottomNavigation";
 import { TransparencyBadgeList } from "@/components/TransparencyBadge";
 import { SearchingMascot } from "@/components/mascot";
-import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
+import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 // Map imports - GeoJSON integration following Leaflet documentation
 import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -531,13 +531,13 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             
             {/* Sample Community Cards */}
             <div className="space-y-3">
-              {filteredCommunities.slice(0, 3).map((community: any) => (
-                <PrioritizedCommunityCard
+              {filteredCommunities.slice(0, 3).map((community: any, index: number) => (
+                <EnhancedCommunityCard
                   key={community.id}
                   community={community}
+                  variant="list"
+                  index={index}
                   onSelect={() => window.location.href = `/community/${community.id}`}
-                  onToggleFavorite={() => console.log(`Toggled favorite: ${community.name}`)}
-                  isFavorite={false}
                 />
               ))}
             </div>
@@ -623,13 +623,13 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Saved Communities</h1>
           
           <div className="space-y-4">
-            {filteredCommunities.slice(0, 8).map((community: any) => (
-              <PrioritizedCommunityCard
+            {filteredCommunities.slice(0, 8).map((community: any, index: number) => (
+              <EnhancedCommunityCard
                 key={community.id}
                 community={community}
+                variant="list"
+                index={index}
                 onSelect={() => window.location.href = `/community/${community.id}`}
-                onToggleFavorite={() => console.log(`Toggled favorite: ${community.name}`)}
-                isFavorite={false}
               />
             ))}
           </div>
