@@ -1,57 +1,7 @@
 # MySeniorValet - Senior Living Community Transparency Platform
 
 ## Overview
-MySeniorValet is a technology platform that connects families with publicly available information about over 34,000 senior living communities in the U.S. and Canada. It serves as a facilitator, providing access to existing public resources through advanced AI orchestration systems that gather, organize, and present information from the internet. The platform aims to bring transparency to the senior living market by enabling access to verified HUD pricing and other public information. Its business vision is to empower families with authentic, verified data to make informed decisions about senior living, addressing a critical need for transparency in this market.
-
-## Recent Changes (August 10, 2025)
-1. **Communities Tab Contamination Fix**: Successfully filtered out hospitals, vendors, and resources from Communities tab - now displays only actual senior living communities
-2. **Hospitals Section Enhancement**: Added separate Hospitals section in All tab with emergency services badges and red/pink theme styling
-3. **Frontend Filtering System**: Implemented comprehensive filtering to separate facility types (communities vs hospitals vs vendors vs resources)
-4. **Content Organization**: Enhanced visual distinction between different facility types with proper theming and badges
-5. **Resources Tab Enhancement**: Implemented location-based search for local resources, showing results within 50-mile radius of current map view
-6. **Local Resources Indicators**: Added visual feedback showing when resources are location-filtered with improved empty state messages
-7. **Professional Map Pin Redesign**: Replaced unprofessional white areas in map pins with elegant gradient designs
-   - Community pins: Green gradients for live data, red gradients for no data, with subtle depth shadows
-   - Hospital pins: Red gradients for emergency services, orange gradients for urgent care
-   - All pins now feature professional teardrop shapes with embedded icons and improved visual hierarchy
-8. **Sharp-Pointed Map Pins**: Initially updated map markers to sharp-pointed design, then revised to circular design per user feedback
-9. **Circular Map Pins (Final Design)**: Replaced sharp-pointed pins with clean circular markers per user preference
-   - Community markers: White circles with bold colored borders (green for data, red for no data)
-   - Hospital markers: White circles with bold red borders for emergency, orange for urgent care
-   - All pins are now perfect circles with 4px bold borders and subtle drop shadows
-   - Removed all pointing portions for cleaner visual appearance
-10. **Dark Mode Map Support**: Implemented full dark mode compatibility for map tiles
-    - Added useTheme hook integration for theme detection
-    - All tile layers now switch to dark variants when in dark mode
-    - CartoDB dark tiles for cleaner dark mode experience
-    - Stamen Toner tiles for high contrast in both light and dark modes
-11. **Dev UI Cleanup**: Removed development debug box from production map display
-    - Eliminated permission request status debug info that was showing on map
-    - Production UI now completely clean without development artifacts
-12. **Community Card Photo Styling Fix**: Enhanced photo alignment and containment in listing cards
-    - Fixed PrioritizedCommunityCard photo rendering with proper absolute positioning and full container coverage
-    - Enhanced EnhancedCommunityCard horizontal variant with overflow containment and error handling
-    - Added broken image fallback handling to prevent styling issues with invalid photo URLs
-    - Photos now properly fill their containers with consistent object-cover styling across all card variants
-13. **Home Page Layout Restructure**: Moved Community Exploration Section to optimal position
-    - Relocated Community Exploration Section from after hero to below mission statement
-    - Now appears between Mission Statement and Hawaii Featured Communities sections
-    - Maintains logical flow: Hero → Personalized Banner → Mission → Community Exploration → Featured Communities
-14. **Senior Living Command Center Implementation**: Enhanced section naming and AI Orchestra credit
-    - Renamed from "Complete Care Intelligence Hub" to "Senior Living Command Center" as requested
-    - Added AI Orchestra credit line: "Powered & Supported by Artificial Intelligence Orchestra"
-    - Main title on first line, AI credit on second line with animated brain and sparkles icons
-    - Updated description to highlight comprehensive features: Red Tag specials, care spectrum guidance, AI market intelligence, cost calculators, regional tools
-    - Enhanced badges to showcase key features: Red Tag Specials, AI Market Intelligence, Cost Calculators, 34K+ Communities, Complete Care Spectrum
-    - Positioned as the main command center for senior living decision-making on home page
-15. **Mission Statement Repositioning and Welcome Message Enhancement**: Strategic content restructuring for launch impact
-    - Moved original mission statement section to bottom of page, above Footer section
-    - Transformed current mission area into "Welcome to Your Senior Living Journey" - launch-focused welcome message
-    - Created empathetic, supportive messaging acknowledging the overwhelming nature of senior living search
-    - Emphasized key value propositions: "clear pricing, authentic information, and peace of mind"
-    - Added inspirational team quote in highlighted box to build trust and connection
-    - Updated badges to reflect user benefits: Transparent Pricing, Family First, No Pressure Approach
-    - Positioned as compassionate support for families beginning their senior living journey
+MySeniorValet is a technology platform connecting families with publicly available information about over 34,000 senior living communities in the U.S. and Canada. It acts as a facilitator, using advanced AI orchestration to gather, organize, and present public information, including verified HUD pricing. The platform's vision is to empower families with authentic, verified data for informed decision-making in senior living, bringing much-needed transparency to the market.
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
@@ -73,22 +23,20 @@ MySeniorValet is a technology platform that connects families with publicly avai
 
 ## System Architecture
 The platform is built with a modern web stack, emphasizing transparency and user engagement.
-- **Frontend**: React with TypeScript, Tailwind CSS, and shadcn/ui components. Features include community cards with subtype badges, an interactive Care Spectrum Slider, and dynamic occupancy displays with color-coded status indicators.
+- **Frontend**: React with TypeScript, Tailwind CSS, and shadcn/ui components. Features include community cards with subtype badges, an interactive Care Spectrum Slider, and dynamic occupancy displays with color-coded status indicators. Map pins are circular with bold colored borders (green for data, red for no data; red for emergency, orange for urgent care). Dark mode is fully supported for map tiles.
 - **Backend**: Express.js with TypeScript.
-- **Database**: PostgreSQL, managed with Drizzle ORM, supporting multiple senior living types and a robust services management system with a 5-table architecture.
+- **Database**: PostgreSQL, managed with Drizzle ORM, supporting multiple senior living types and a robust services management system.
 - **Build System**: Vite for the frontend and esbuild for the backend.
 - **Authentication**: Replit Auth with role-based access control.
-- **Key Features**: Interactive Map System with AI analysis, AI-Powered Search with multi-AI verification, Semantic Search capabilities with natural language understanding, Transparent Pricing (HUD-verified data), Comprehensive Community Profiles, Unified Admin Dashboard, Family Collaboration tools, and a Senior Vendor Marketplace. Includes comprehensive notification and in-app messaging, an onboarding wizard with AI character guidance, and a robust photo handling system. Full bilingual functionality (French/English) is supported.
-- **UI/UX Decisions**: Emphasizes a clean, modern aesthetic with cosmic imagery. Dark mode is default. Consistent design elements include horizontal sliders and AI-generated product imagery. Map markers feature compact pins with color-coded pricing status (green for live/verified, red for contact-only) and care level emojis. Search results are displayed in a vertical scrolling "rolodex" style with regional theme styling.
-- **System Design**: Supports dual subscription tier systems for communities and vendors. Community tiers range from Verified Listing ($0/month) to Platinum ($349/month). Vendor tiers range from Basic ($99/month) to National Partner ($499/month).
-- **Dashboard Separation**: User dashboards display personalized journey analytics. Business features (e.g., DocuSign, payment processing) are contextual. Admin dashboards are consolidated into a unified super admin analytics center with RBAC.
-- **Payment System**: Integrated dual payment system supporting Stripe Checkout Sessions and Payment Element for mobile-optimized, on-platform payment experiences. Handles vendor upgrades and promotional pricing.
-- **Search & Navigation**: Simplified AI-powered search with semantic understanding and natural language queries. Live Market Intelligence section integrates the 7-level care spectrum from HUD-Sponsored Housing to Skilled Nursing. Healthcare search includes enhanced map filtering and color-coded hospital cards with CMS ratings. "Perfect Match" functionality has been removed.
+- **Key Features**: Interactive Map System with AI analysis, AI-Powered Search with multi-AI verification, Semantic Search capabilities, Transparent Pricing (HUD-verified data), Comprehensive Community Profiles, Unified Admin Dashboard, Family Collaboration tools, and a Senior Vendor Marketplace. Includes comprehensive notification and in-app messaging, an onboarding wizard with AI character guidance, and a robust photo handling system. Full bilingual functionality (French/English) is supported.
+- **UI/UX Decisions**: Emphasizes a clean, modern aesthetic with cosmic imagery. Dark mode is default. Consistent design elements include horizontal sliders and AI-generated product imagery. Search results are displayed in a vertical scrolling "rolodex" style with regional theme styling. Content is organized with distinct visual theming for communities, hospitals (red/pink theme), vendors, and resources.
+- **System Design**: Supports dual subscription tier systems for communities and vendors. Dashboard separation includes user analytics, contextual business features, and a unified super admin analytics center with RBAC.
+- **Payment System**: Integrated dual payment system supporting Stripe Checkout Sessions and Payment Element for mobile-optimized, on-platform payments.
+- **Search & Navigation**: Simplified AI-powered search with semantic understanding and natural language queries. Live Market Intelligence section integrates the 7-level care spectrum. Healthcare search includes enhanced map filtering and color-coded hospital cards. "Perfect Match" functionality has been removed. AI Search Interface maintains a 3-row layout for amenities/care services, distance/price sliders, and Complete Care Spectrum types.
 - **AI Deep Analysis**: Provides detailed comparative analysis including price comparisons, value leaders, HUD affordable options, neighborhood insights, care type matching, and personalized recommendations. Generates comprehensive market trends and actionable advice. AI personalization ensures empathetic and context-aware interactions.
 - **Onboarding System**: Users can sign up with preferences pre-filled from onboarding data. Community creators have a comprehensive tutorial system with AI character guidance, a 7-step walkthrough, full onboarding form validation, and seamless payment integration.
-- **Legal Document Version Control System**: Enterprise-level system with complete version history tracking, SHA-256 integrity checking, comprehensive audit trails, GDPR/CCPA compliance, document status management, and a professional frontend interface at /legal-document-history.
-- **Availability Heatmap System**: Public version at `/availability-heatmap` and an enhanced admin version at `/admin/availability-heatmap` with detailed analytics overlays.
-- **AI Search Interface Layout**: Maintains a 3-row structure with enhanced mobile responsiveness: Row 1 - Amenities/Care Services and Unit/Room Type selections, Row 2 - Flattened inline distance and price sliders with availability toggle, Row 3 - Complete Care Spectrum types.
+- **Legal Document Version Control System**: Enterprise-level system with complete version history, SHA-256 integrity checks, audit trails, GDPR/CCPA compliance, document status management, and a professional frontend interface at /legal-document-history.
+- **Availability Heatmap System**: Public version at `/availability-heatmap` and an enhanced admin version at `/admin/availability-heatmap`.
 - **Semantic Search Integration**: Weaviate-powered semantic search with natural language understanding. Features include toggle switch for semantic/traditional modes (semantic default), hybrid search, RAG-powered AI recommendations, natural language query support, visual match score indicators, and match explanation display. Endpoint: `/api/semantic/search`.
 
 ## External Dependencies

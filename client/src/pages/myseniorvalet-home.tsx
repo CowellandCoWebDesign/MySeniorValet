@@ -528,44 +528,82 @@ export default function MySeniorValetHome() {
         </div>
       </div>
 
-      {/* Welcome to Your Search Journey - Launch Focused Message */}
-      <section className="px-4 py-12 bg-gradient-to-r from-white to-blue-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="flex items-center justify-center mb-6">
-            <Heart className="h-12 w-12 text-pink-600 dark:text-pink-400 mr-3 animate-pulse" />
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
-              Welcome to Your Senior Living Journey
+      {/* Welcome to History in the Making - Launch Message */}
+      <section className="px-4 py-16 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-pink-900/20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 dark:from-blue-400/10 dark:to-purple-400/10"></div>
+        <div className="max-w-5xl mx-auto text-center relative">
+          <div className="mb-8">
+            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-sm font-bold shadow-lg mb-6 animate-pulse">
+              <Sparkles className="w-4 h-4 mr-2" />
+              NOW LIVE ACROSS USA • MEXICO • CANADA
+              <Sparkles className="w-4 h-4 ml-2" />
+            </div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-4">
+              Today, Everything Changes
             </h2>
+            <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 font-medium">
+              For Every Family Searching for Senior Care
+            </p>
           </div>
-          <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-xl border-0">
-            <CardContent className="p-8 md:p-12">
-              <p className="text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-200 leading-relaxed mb-6">
-                Finding the right care for your loved one can feel overwhelming. You're not alone in this journey.
-              </p>
-              <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 leading-relaxed mb-8">
-                We created MySeniorValet to give families what they need most: <strong className="text-blue-600 dark:text-blue-400">clear pricing, authentic information, and peace of mind</strong>. No more "Contact for pricing." No more uncertainty. Just transparent, helpful guidance when you need it most.
-              </p>
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg p-6 mb-8 border border-blue-200 dark:border-blue-700">
-                <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 font-medium">
-                  "Every family deserves to make informed decisions with confidence and dignity. That's why we're here – to support you through every step of this important decision."
+          
+          <Card className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm shadow-2xl border-0">
+            <CardContent className="p-10 md:p-14">
+              <div className="space-y-6">
+                <p className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 leading-tight">
+                  "The day your parent needs care will be one of the hardest days of your life."
                 </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-3 italic">
-                  – The MySeniorValet Team
+                
+                <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 leading-relaxed">
+                  We know because we've been there. The sleepless nights. The endless phone calls. The frustration of hearing <span className="font-semibold text-red-600 dark:text-red-400">"Contact us for pricing"</span> over and over again. The guilt of not knowing if you're making the right choice.
                 </p>
+
+                <div className="my-8 py-8 border-y-2 border-purple-200 dark:border-purple-700">
+                  <p className="text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
+                    Today, we're changing all of that.
+                  </p>
+                  <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300">
+                    For the first time in history, families across <strong className="text-blue-600 dark:text-blue-400">North America</strong> have access to <strong className="text-green-600 dark:text-green-400">real pricing</strong>, <strong className="text-purple-600 dark:text-purple-400">authentic reviews</strong>, and <strong className="text-orange-600 dark:text-orange-400">transparent information</strong> from over 34,000 senior living communities.
+                  </p>
+                </div>
+
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-xl p-8 border border-blue-300 dark:border-blue-600">
+                  <Globe className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-4" />
+                  <p className="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                    From Seattle to Mexico City, from Toronto to Miami
+                  </p>
+                  <p className="text-base md:text-lg text-gray-700 dark:text-gray-300">
+                    Every family now has a trusted ally in their corner. No hidden costs. No sales pressure. No more searching in the dark. Just compassionate, transparent guidance when you need it most.
+                  </p>
+                </div>
+
+                <div className="pt-6">
+                  <p className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">
+                    This is more than a website launch.
+                  </p>
+                  <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 italic">
+                    This is a promise to every son, daughter, spouse, and family member: <strong className="not-italic text-blue-600 dark:text-blue-400">You deserve the truth. You deserve transparency. You deserve support.</strong>
+                  </p>
+                </div>
               </div>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 px-4 py-2 text-sm font-semibold">
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  Transparent Pricing
-                </Badge>
-                <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 px-4 py-2 text-sm font-semibold">
-                  <Heart className="w-4 h-4 mr-2" />
-                  Family First
-                </Badge>
-                <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 px-4 py-2 text-sm font-semibold">
-                  <Shield className="w-4 h-4 mr-2" />
-                  No Pressure Approach
-                </Badge>
+
+              <div className="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-6">
+                  Welcome to the movement that's putting families first.
+                </p>
+                <div className="flex flex-wrap justify-center gap-4">
+                  <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
+                    <Flag className="w-4 h-4 mr-2" />
+                    USA • MEXICO • CANADA
+                  </Badge>
+                  <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
+                    <Users className="w-4 h-4 mr-2" />
+                    34,000+ Communities
+                  </Badge>
+                  <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
+                    <Heart className="w-4 h-4 mr-2" />
+                    100% Transparent
+                  </Badge>
+                </div>
               </div>
             </CardContent>
           </Card>
