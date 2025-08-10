@@ -262,42 +262,10 @@ function CommunityCard({
 
       {/* Bottom Section - Dark Theme */}
       <CardContent className="p-4 bg-gray-900 text-white">
-        {/* Top Row: Care Type Badge and First Month Free */}
+        {/* Top Row: Pricing on Left, Community Info on Right */}
         <div className="flex items-start justify-between mb-3">
-          {/* Left Side: Badge and Name */}
-          <div className="flex-1 mr-4">
-            {/* Badge Row with Care Type on Left, First Month Free on Right */}
-            <div className="flex items-center justify-between mb-2">
-              <Badge className="bg-blue-600 text-white text-sm px-3 py-1 inline-block">
-                {community.careLevel || 'Assisted Living'}
-              </Badge>
-              
-              {/* First Month Free Promotion */}
-              {community.specialPromotions && community.specialPromotions.length > 0 && (
-                <div className="bg-red-600 border-2 border-red-400 rounded-lg px-2 py-1 animate-pulse shadow-lg shadow-red-500/50">
-                  <div className="text-xs text-white font-bold flex items-center justify-center">
-                    <span className="mr-1">🔥</span> {community.specialPromotions[0].title}
-                  </div>
-                  {community.specialPromotions[0].monthsWaived && (
-                    <div className="text-xs text-red-100 font-semibold text-center">
-                      {community.specialPromotions[0].monthsWaived} months free!
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-            
-            <h3 className="text-xl font-bold text-white mb-1">
-              {community.name}
-            </h3>
-            <div className="flex items-center text-sm text-gray-400">
-              <MapPin className="h-4 w-4 mr-1" />
-              <span>{community.address}, {community.city}, {community.state} {community.zipCode}</span>
-            </div>
-          </div>
-          
-          {/* Right Side: Pricing Stack */}
-          <div className="text-right">
+          {/* Left Side: Pricing Stack */}
+          <div className="text-left mr-4">
             {/* Pricing Display */}
             <div className="text-sm font-bold text-white">
               {priceDisplay}
@@ -334,9 +302,41 @@ function CommunityCard({
             </div>
             
             {/* Units Info */}
-            <div className="flex items-center justify-end text-gray-300 mt-1">
+            <div className="flex items-center text-gray-300 mt-1">
               <Building className="h-3 w-3 mr-0.5" />
               <span className="text-xs">{community.totalUnits || community.totalUnitsHud || '100'} units</span>
+            </div>
+          </div>
+          
+          {/* Right Side: Badge and Name */}
+          <div className="flex-1 text-right">
+            {/* Badge Row with Care Type on Right, First Month Free on Far Right */}
+            <div className="flex items-center justify-end mb-2 gap-2">
+              <Badge className="bg-blue-600 text-white text-sm px-3 py-1 inline-block">
+                {community.careLevel || 'Assisted Living'}
+              </Badge>
+              
+              {/* First Month Free Promotion */}
+              {community.specialPromotions && community.specialPromotions.length > 0 && (
+                <div className="bg-red-600 border-2 border-red-400 rounded-lg px-2 py-1 animate-pulse shadow-lg shadow-red-500/50">
+                  <div className="text-xs text-white font-bold flex items-center justify-center">
+                    <span className="mr-1">🔥</span> {community.specialPromotions[0].title}
+                  </div>
+                  {community.specialPromotions[0].monthsWaived && (
+                    <div className="text-xs text-red-100 font-semibold text-center">
+                      {community.specialPromotions[0].monthsWaived} months free!
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            <h3 className="text-xl font-bold text-white mb-1">
+              {community.name}
+            </h3>
+            <div className="flex items-center justify-end text-sm text-gray-400">
+              <MapPin className="h-4 w-4 mr-1" />
+              <span>{community.address}, {community.city}, {community.state} {community.zipCode}</span>
             </div>
           </div>
         </div>
