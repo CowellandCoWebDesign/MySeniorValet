@@ -176,7 +176,7 @@ function CommunityCard({
 
   return (
     <Card className="w-full bg-gray-900 border-gray-700 hover:border-gray-600 transition-all duration-200 overflow-hidden">
-      {/* Split Header - Availability on Left (color by status), Special Promotion in Center, Pricing on Right (color by verification) */}
+      {/* Split Header - Availability on Left (color by status), Pricing on Right (color by verification) */}
       <div className="flex">
         {/* Availability Section - Color Coded by Availability Status */}
         <div className={`${availability.bgColor} text-white px-4 py-2 flex-1 flex items-center`}>
@@ -187,22 +187,6 @@ function CommunityCard({
             </div>
           </div>
         </div>
-        
-        {/* First Month Free Promotion - Center Position */}
-        {community.specialPromotions && community.specialPromotions.length > 0 && (
-          <div className="flex items-center px-2">
-            <div className="bg-red-600 border-2 border-red-400 rounded-lg px-2 py-1 animate-pulse shadow-lg shadow-red-500/50">
-              <div className="text-xs text-white font-bold flex items-center justify-center">
-                <span className="mr-1">🔥</span> {community.specialPromotions[0].title}
-              </div>
-              {community.specialPromotions[0].monthsWaived && (
-                <div className="text-xs text-red-100 font-semibold text-center">
-                  {community.specialPromotions[0].monthsWaived} months free!
-                </div>
-              )}
-            </div>
-          </div>
-        )}
         
         {/* Pricing Section - Color Coded by Verification Source */}
         <div className={`${pricingColors.bgColor} text-white px-4 py-2 flex items-center justify-end`}>
@@ -239,6 +223,22 @@ function CommunityCard({
             <Share2 className="h-4 w-4" />
           </Button>
         </div>
+
+        {/* Special Promotion Overlay - Bottom of Photo Area */}
+        {community.specialPromotions && community.specialPromotions.length > 0 && (
+          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="bg-red-600 border-2 border-red-400 rounded-lg px-3 py-2 animate-pulse shadow-lg shadow-red-500/50">
+              <div className="text-sm text-white font-bold flex items-center justify-center whitespace-nowrap">
+                <span className="mr-1">🔥</span> {community.specialPromotions[0].title}
+              </div>
+              {community.specialPromotions[0].monthsWaived && (
+                <div className="text-xs text-red-100 font-semibold text-center">
+                  {community.specialPromotions[0].monthsWaived} months free!
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Community Image or Quality Placeholder */}
         <div className="flex flex-col items-center justify-center">
