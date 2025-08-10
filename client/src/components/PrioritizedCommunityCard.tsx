@@ -345,8 +345,8 @@ function CommunityCard({
 
 
 
-        {/* Policy, License & Amenities Badges */}
-        <div className="mb-2 flex flex-wrap gap-2">
+        {/* Policy & License Badges - First Line */}
+        <div className="mb-1 flex flex-wrap gap-2">
           {/* Pet Policy */}
           {community.petFriendly !== undefined && (
             <span className={`text-xs px-2 py-1 rounded-full ${
@@ -366,29 +366,33 @@ function CommunityCard({
               {community.licenseStatus === 'Licensed' ? '✓ Licensed' : community.licenseStatus}
             </span>
           )}
-          
-          {/* Amenities */}
-          {community.amenities && community.amenities.includes('wheelchair_accessible') && (
-            <span className="text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
-              ♿ Wheelchair Access
-            </span>
-          )}
-          {community.amenities && community.amenities.includes('wifi') && (
-            <span className="text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
-              📶 WiFi
-            </span>
-          )}
-          {community.amenities && community.amenities.includes('parking') && (
-            <span className="text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
-              🅿️ Parking
-            </span>
-          )}
-          {community.amenities && community.amenities.includes('dining') && (
-            <span className="text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
-              🍽️ Dining
-            </span>
-          )}
         </div>
+        
+        {/* Amenities Badges - Second Line */}
+        {community.amenities && community.amenities.length > 0 && (
+          <div className="mb-2 flex flex-wrap gap-2">
+            {community.amenities.includes('wheelchair_accessible') && (
+              <span className="text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
+                ♿ Wheelchair Access
+              </span>
+            )}
+            {community.amenities.includes('wifi') && (
+              <span className="text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
+                📶 WiFi
+              </span>
+            )}
+            {community.amenities.includes('parking') && (
+              <span className="text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
+                🅿️ Parking
+              </span>
+            )}
+            {community.amenities.includes('dining') && (
+              <span className="text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
+                🍽️ Dining
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Reviews & Inspections Section */}
         <div className="mb-3 p-3 bg-gray-800 rounded-lg">
