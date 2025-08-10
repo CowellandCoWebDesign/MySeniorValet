@@ -547,8 +547,14 @@ export class AISearchInsights {
       const perplexityService = new PerplexityAIService();
       
       // Get location context from communities
-      const locations = [...new Set(communities.map(c => `${c.city}, ${c.state}`))];
-      const primaryLocation = locations[0] || 'this area';
+      const locations = [...new Set(communities.map(c => {
+        if (c.city && c.state) {
+          return `${c.city}, ${c.state}`;
+        }
+        return null;
+      }).filter(Boolean))];
+      
+      const primaryLocation = locations[0] || 'senior living communities';
       
       // Extract top communities for focused search
       const topCommunities = communities
@@ -556,48 +562,68 @@ export class AISearchInsights {
         .slice(0, 3)
         .map(c => c.name);
       
-      // Build comprehensive query for web search
+      console.log(`🌐 Searching web for insights on ${primaryLocation}...`);
+      
+      // Build location-specific queries
       const queries = [];
       
-      // Search for market trends
-      if (locations.length > 0) {
-        queries.push(`senior living market trends ${primaryLocation} 2025 pricing occupancy`);
-      }
+      // Query 1: Market trends and pricing for the specific location
+      queries.push({
+        query: `senior living market trends ${primaryLocation} 2025 pricing occupancy rates availability`,
+        type: 'marketTrends'
+      });
       
-      // Search for specific community information if we have top-rated ones
-      if (topCommunities.length > 0) {
-        queries.push(`${topCommunities[0]} senior living reviews recent news updates`);
-      }
+      // Query 2: Local news and developments
+      queries.push({
+        query: `senior living communities ${primaryLocation} recent news developments new facilities updates 2025`,
+        type: 'localNews'
+      });
       
-      // Search for local senior living news
-      queries.push(`senior living communities ${primaryLocation} news developments waiting lists`);
-      
-      console.log(`🌐 Searching web for insights on ${communities.length} communities...`);
+      // Query 3: Comparative analysis and market intelligence
+      queries.push({
+        query: `senior living comparison ${primaryLocation} average costs ratings reviews quality of care`,
+        type: 'comparativeAnalysis'
+      });
       
       // Execute searches in parallel for speed
-      const searchPromises = queries.map(q => 
-        perplexityService.searchRealTime(q).catch(err => {
-          console.error(`Web search failed for query: ${q}`, err);
+      const searchPromises = queries.map(async (q) => {
+        try {
+          const result = await perplexityService.searchRealTime(q.query);
+          return { ...result, type: q.type };
+        } catch (err) {
+          console.error(`Web search failed for query: ${q.query}`, err);
           return null;
-        })
-      );
+        }
+      });
       
       const results = await Promise.all(searchPromises);
       const validResults = results.filter(r => r !== null);
       
       if (validResults.length === 0) {
+        console.log('⚠️ No web search results available');
         return null;
       }
       
-      // Parse and structure the web insights
+      // Extract results by type
+      const marketTrendsResult = validResults.find(r => r.type === 'marketTrends');
+      const localNewsResult = validResults.find(r => r.type === 'localNews');
+      const comparativeResult = validResults.find(r => r.type === 'comparativeAnalysis');
+      
+      // Build comprehensive web insights
       const webInsights = {
-        marketTrends: validResults[0]?.summary || 'Current market data being gathered',
-        localNews: validResults[2]?.summary || 'Local senior living updates being collected',
-        comparativeAnalysis: this.extractComparativeInsights(validResults),
-        sources: validResults.flatMap(r => r?.sources || []).slice(0, 5)
+        marketTrends: marketTrendsResult?.summary || null,
+        localNews: localNewsResult?.summary || null,
+        comparativeAnalysis: comparativeResult?.summary || null,
+        sources: validResults.flatMap(r => r?.sources || []).slice(0, 5).filter(Boolean)
       };
       
-      console.log(`✅ Web search insights generated with ${webInsights.sources.length} sources`);
+      // Only return if we have actual content
+      if (!webInsights.marketTrends && !webInsights.localNews && !webInsights.comparativeAnalysis) {
+        console.log('⚠️ Web search returned no meaningful content');
+        return null;
+      }
+      
+      console.log(`✅ Web search insights generated for ${primaryLocation} with ${webInsights.sources.length} sources`);
       return webInsights;
       
     } catch (error) {

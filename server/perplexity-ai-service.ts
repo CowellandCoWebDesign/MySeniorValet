@@ -29,7 +29,7 @@ export class PerplexityAIService {
     return !!this.apiKey;
   }
 
-  async searchRealTime(query: string, context?: string): Promise<string> {
+  async searchRealTime(query: string, context?: string): Promise<{ summary: string; sources: string[] }> {
     if (!this.isConfigured()) {
       throw new Error('Perplexity API key not configured');
     }
@@ -87,7 +87,10 @@ export class PerplexityAIService {
         }
       );
 
-      return response.data.choices[0]?.message?.content || 'No results found';
+      const summary = response.data.choices[0]?.message?.content || 'No results found';
+      const sources = response.data.citations || [];
+      
+      return { summary, sources };
     } catch (error: any) {
       console.error('Perplexity API error:', error.response?.data || error.message);
       throw new Error('Failed to search real-time data');
@@ -111,10 +114,10 @@ export class PerplexityAIService {
       
       // Parse the response for structured data
       return {
-        currentPricing: this.extractPricing(result),
-        recentReviews: this.extractReviews(result),
-        availability: this.extractAvailability(result),
-        marketComparison: this.extractMarketData(result)
+        currentPricing: this.extractPricing(result.summary),
+        recentReviews: this.extractReviews(result.summary),
+        availability: this.extractAvailability(result.summary),
+        marketComparison: this.extractMarketData(result.summary)
       };
     } catch (error) {
       console.error(`Failed to enhance data for ${communityName}:`, error);

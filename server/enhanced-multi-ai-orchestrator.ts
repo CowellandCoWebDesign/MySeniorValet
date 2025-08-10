@@ -133,12 +133,12 @@ export const EnhancedMultiAIOrchestrator = {
     try {
       const perplexityService = new PerplexityAIService();
       
-      const marketData = await perplexityService.searchRealTime(
+      const marketDataResult = await perplexityService.searchRealTime(
         `senior living pricing trends ${userProfile.location || 'nationwide'} 2025`,
         'Market research and pricing analysis'
       );
       
-      const realTimeInfo = await perplexityService.searchRealTime(
+      const realTimeInfoResult = await perplexityService.searchRealTime(
         `assisted living availability ${userProfile.careNeeds?.join(' ') || 'general'} ${userProfile.location || ''}`,
         'Availability and capacity information'
       );
@@ -146,8 +146,9 @@ export const EnhancedMultiAIOrchestrator = {
       return {
         source: 'Perplexity AI',
         specialty: 'Real-time Market Intelligence & Current Pricing',
-        marketData,
-        realTimeInfo,
+        marketData: marketDataResult.summary,
+        realTimeInfo: realTimeInfoResult.summary,
+        sources: [...marketDataResult.sources, ...realTimeInfoResult.sources],
         keyFindings: [
           'Current market pricing trends analyzed',
           'Real-time availability data retrieved',
@@ -164,6 +165,7 @@ export const EnhancedMultiAIOrchestrator = {
         specialty: 'Real-time Market Intelligence & Current Pricing',
         marketData: null,
         realTimeInfo: null,
+        sources: [],
         keyFindings: ['Real-time data unavailable'],
         confidence: 0,
         warnings: ['Unable to retrieve current market data']

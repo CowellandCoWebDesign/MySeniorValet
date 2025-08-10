@@ -248,7 +248,8 @@ export class AIPriorityOrchestrator {
       
       return {
         source: 'Perplexity',
-        realTimeData: searchResults,
+        realTimeData: searchResults.summary,
+        sources: searchResults.sources,
         timestamp: new Date().toISOString()
       };
     } catch (error) {

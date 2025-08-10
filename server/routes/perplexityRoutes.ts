@@ -47,10 +47,13 @@ export function registerPerplexityRoutes(app: Express) {
 
       // Then enhance with Perplexity real-time data if configured
       let perplexityInsights = '';
+      let sources: string[] = [];
       if (perplexityService.isConfigured()) {
         try {
           const enhancedQuery = `Current senior living costs and availability in ${location || 'the area'} for ${query}. Include 2024-2025 pricing data and recent market trends. Avoid aggregator sites.`;
-          perplexityInsights = await perplexityService.searchRealTime(enhancedQuery);
+          const result = await perplexityService.searchRealTime(enhancedQuery);
+          perplexityInsights = result.summary;
+          sources = result.sources;
         } catch (error: any) {
           console.log('Perplexity search failed, using database only:', error.message);
         }
@@ -60,6 +63,7 @@ export function registerPerplexityRoutes(app: Express) {
         communities: dbResults,
         databaseResults: dbResults.length,
         perplexityInsights: perplexityInsights || 'Real-time web search not available',
+        sources: sources,
         searchQuery: query,
         location: location,
         enhanced: !!perplexityInsights,
@@ -153,10 +157,13 @@ export function registerPerplexityRoutes(app: Express) {
 
       // Get real-time market data
       let marketInsights = '';
+      let sources: string[] = [];
       if (perplexityService.isConfigured()) {
         try {
           const marketQuery = `Senior living market analysis for ${location} in 2024-2025. Include average costs, market trends, new construction, and occupancy rates. Focus on authentic community data, not aggregator sites.`;
-          marketInsights = await perplexityService.searchRealTime(marketQuery);
+          const result = await perplexityService.searchRealTime(marketQuery);
+          marketInsights = result.summary;
+          sources = result.sources;
         } catch (error: any) {
           console.log('Market analysis failed:', error.message);
         }
@@ -173,6 +180,7 @@ export function registerPerplexityRoutes(app: Express) {
           }
         },
         marketInsights: marketInsights || 'Real-time market data not available',
+        sources: sources,
         enhanced: !!marketInsights,
         _version: "market_analysis_v1"
       });
