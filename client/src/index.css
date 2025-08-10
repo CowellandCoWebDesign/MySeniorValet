@@ -636,6 +636,12 @@ body {
   animation: subtle-glow 3s ease-in-out infinite;
 }
 
+/* Text stroke for gradient text */
+.text-stroke {
+  -webkit-text-stroke: 0.5px black;
+  text-stroke: 0.5px black;
+}
+
 .dark {
   --background: hsl(222, 84%, 4.9%);
   --foreground: hsl(210, 40%, 98%);

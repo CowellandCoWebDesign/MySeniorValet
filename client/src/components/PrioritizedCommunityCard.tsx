@@ -414,7 +414,7 @@ function CommunityCard({
                         <Home className="h-5 w-5 text-white" />
                       </div>
                     </div>
-                    <div className="text-xs font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    <div className="text-xs font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent text-stroke">
                       Tour Tracker
                     </div>
                     {community.tourTrackerScore ? (
@@ -442,21 +442,16 @@ function CommunityCard({
                     <div className="w-9 h-9 bg-red-600 rounded-full flex items-center justify-center mb-1">
                       <span className="text-xs font-bold text-white">Y</span>
                     </div>
+                    <div className="text-xs text-gray-400">Yelp</div>
                     <a 
-                      href={community.yelpUrl || `https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name)}`}
+                      href={community.yelpUrl || `https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name + ' ' + community.city + ' ' + community.state)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-blue-400 hover:text-blue-300 underline"
+                      className="text-[10px] text-blue-400 hover:text-blue-300 underline"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      Yelp
+                      View Reviews
                     </a>
-                    <div className="flex items-center justify-center">
-                      <Star className="h-3 w-3 fill-red-400 text-red-400 mr-0.5" />
-                      <span className="text-xs font-bold text-red-400">
-                        {community.yelpScore || '4.2'}
-                      </span>
-                    </div>
                   </div>
                 </div>
                 
@@ -466,21 +461,16 @@ function CommunityCard({
                     <div className="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center mb-1">
                       <span className="text-xs font-bold text-white">G</span>
                     </div>
+                    <div className="text-xs text-gray-400">Google</div>
                     <a 
                       href={community.googleUrl || `https://www.google.com/search?q=${encodeURIComponent(community.name + ' ' + community.city + ' ' + community.state)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-blue-400 hover:text-blue-300 underline"
+                      className="text-[10px] text-blue-400 hover:text-blue-300 underline"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      Google
+                      View Reviews
                     </a>
-                    <div className="flex items-center justify-center">
-                      <Star className="h-3 w-3 fill-blue-400 text-blue-400 mr-0.5" />
-                      <span className="text-xs font-bold text-blue-400">
-                        {community.googleScore || '4.5'}
-                      </span>
-                    </div>
                   </div>
                 </div>
               </div>
