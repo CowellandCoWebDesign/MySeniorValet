@@ -47,7 +47,7 @@ export class PerplexityAIService {
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,
         {
-          model: 'sonar-small',  // Current Perplexity model (as of 2025)
+          model: 'sonar-pro',  // Working Perplexity model (verified via automated test)
           messages: [
             {
               role: 'system',
