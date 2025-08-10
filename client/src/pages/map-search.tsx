@@ -138,7 +138,7 @@ export default function MapSearch() {
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [mapBounds, setMapBounds] = useState<any>(null);
   const [showBottomPanel, setShowBottomPanel] = useState(false);
-  const [panelHeight, setPanelHeight] = useState(70); // Percentage of screen height - increased for better visibility
+  const [panelHeight, setPanelHeight] = useState(90); // Percentage of screen height - goes just under navbar
   const [showTutorial, setShowTutorial] = useState(false);
   const [hasSeenTutorial, setHasSeenTutorial] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
@@ -150,7 +150,7 @@ export default function MapSearch() {
   // Drag state for panel resizing
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartY, setDragStartY] = useState(0);
-  const [dragStartHeight, setDragStartHeight] = useState(70);
+  const [dragStartHeight, setDragStartHeight] = useState(90);
   
   // Refs for pull-down gesture
   const listContentRef = useRef<HTMLDivElement>(null);
@@ -748,7 +748,7 @@ export default function MapSearch() {
                     data.searchMetadata.searchType === 'city' ? 12 : 10);
           // Delay showing panel to allow map to update first
           setTimeout(() => {
-            setPanelHeight(70); // Set to 70% height when opening
+            setPanelHeight(90); // Set to 90% height - goes just under navbar
             setShowBottomPanel(true); // Show results
           }, 500);
           return;
@@ -763,7 +763,7 @@ export default function MapSearch() {
             setMapZoom(12);
             // Delay showing panel to allow map to update first
             setTimeout(() => {
-              setPanelHeight(70); // Set to 70% height when opening
+              setPanelHeight(90); // Set to 90% height - goes just under navbar
               setShowBottomPanel(true); // Show results
             }, 500);
             return;
@@ -1054,7 +1054,7 @@ export default function MapSearch() {
       } else {
         setMapZoom(12); // Cities and smaller areas
       }
-      setPanelHeight(70); // Set to 70% height when opening
+      setPanelHeight(90); // Set to 90% height - goes just under navbar
       setShowBottomPanel(true); // Show results panel when using fallback location
     }
   };
@@ -1273,7 +1273,7 @@ export default function MapSearch() {
                   size="sm"
                   onClick={() => {
                     setViewMode('map'); // Stay in map mode
-                    setPanelHeight(70); // Set to 70% height when opening
+                    setPanelHeight(90); // Set to 90% height - goes just under navbar
                     setShowBottomPanel(true); // Open bottom panel for list
                     // Force refresh communities when list is opened
                     console.log('List clicked, refreshing communities...');
