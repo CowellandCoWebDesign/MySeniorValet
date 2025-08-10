@@ -13,6 +13,7 @@ import 'leaflet-control-geocoder';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Star, MapPin, Phone, Globe, Heart, ExternalLink, Zap, Eye, Brain } from 'lucide-react';
 import AIMapIntegration from './AIMapIntegration';
+import PrioritizedCommunityCard from './PrioritizedCommunityCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -1488,133 +1489,30 @@ export default function Map({
                 </Tooltip>
               )}
 
-              {/* Enhanced popup with better design */}
+              {/* Enhanced popup using PrioritizedCommunityCard */}
               <Popup 
                 className="community-popup enhanced-popup" 
                 closeButton={true} 
                 autoPan={true} 
                 autoClose={false}
-                maxWidth={400}
+                maxWidth={450}
               >
-                <div className="w-full max-w-sm p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-bold text-lg leading-tight text-gray-900 pr-2">
-                      {community.name}
-                    </h3>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="flex-shrink-0 hover:bg-gray-100"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const newFavorites = new Set(favorites);
-                        if (favorites.has(community.id)) {
-                          newFavorites.delete(community.id);
-                        } else {
-                          newFavorites.add(community.id);
-                        }
-                        setFavorites(newFavorites);
-                      }}
-                    >
-                      <Heart className={`w-4 h-4 ${favorites.has(community.id) ? 'fill-red-500 text-red-500' : 'text-gray-400 hover:text-red-400'}`} />
-                    </Button>
-                  </div>
-
-                  {/* Enhanced data quality indicator */}
-                  <div className="mb-3">
-                    {(community.hudPropertyId || community.dataSource === 'HUD' || community.hudVerified || (community.rentPerMonth && community.rentPerMonth > 0)) ? (
-                      <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-sm">
-                        ✓ Government Verified Data
-                      </Badge>
-                    ) : (
-                      <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 shadow-sm">
-                        ⚠ Call for Current Pricing
-                      </Badge>
-                    )}
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3 text-sm text-gray-700">
-                      <MapPin className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                      <span className="leading-relaxed">
-                        {community.address}, {community.city}, {community.state}
-                        {community.zipCode && ` ${community.zipCode}`}
-                      </span>
-                    </div>
-
-                    {community.phone && (
-                      <div className="flex items-center gap-3 text-sm text-gray-700">
-                        <Phone className="w-4 h-4 text-green-500 flex-shrink-0" />
-                        <a href={`tel:${community.phone}`} className="text-blue-600 hover:text-blue-800 hover:underline">
-                          {community.phone}
-                        </a>
-                      </div>
-                    )}
-
-                    {community.website && (
-                      <div className="flex items-center gap-3 text-sm text-gray-700">
-                        <Globe className="w-4 h-4 text-purple-500 flex-shrink-0" />
-                        <a href={community.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline">
-                          Visit Website
-                        </a>
-                      </div>
-                    )}
-
-                    {community.rating > 0 && (
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                          <span className="text-sm font-medium">{community.rating}</span>
-                        </div>
-                        <span className="text-xs text-gray-500">
-                          ({community.reviewCount} reviews)
-                        </span>
-                      </div>
-                    )}
-
-                    {community.careTypes.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {community.careTypes.slice(0, 3).map((type) => (
-                          <Badge key={type} variant="secondary" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-                            {type}
-                          </Badge>
-                        ))}
-                        {community.careTypes.length > 3 && (
-                          <Badge variant="secondary" className="text-xs bg-gray-50 text-gray-600">
-                            +{community.careTypes.length - 3} more
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="pt-3 border-t border-gray-200">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-lg font-bold text-green-600">
-                          {formatPrice(community.priceRange)}
-                        </p>
-                        {community.hudPropertyId && (
-                          <Badge className="bg-blue-100 text-blue-800 text-xs">
-                            HUD ID: {community.hudPropertyId}
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-xs text-gray-600">
-                        {community.availability}
-                      </p>
-                    </div>
-
-                    <Button 
-                      className="w-full mt-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-200" 
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCommunityClick(community);
-                      }}
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      View Full Details
-                    </Button>
-                  </div>
+                <div className="w-full max-w-md">
+                  <PrioritizedCommunityCard
+                    community={community}
+                    variant="list"
+                    onSelect={() => window.location.href = `/community/${community.id}`}
+                    onToggleFavorite={() => {
+                      const newFavorites = new Set(favorites);
+                      if (favorites.has(community.id)) {
+                        newFavorites.delete(community.id);
+                      } else {
+                        newFavorites.add(community.id);
+                      }
+                      setFavorites(newFavorites);
+                    }}
+                    isFavorite={favorites.has(community.id)}
+                  />
                 </div>
               </Popup>
             </Marker>

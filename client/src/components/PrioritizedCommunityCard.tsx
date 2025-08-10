@@ -81,6 +81,17 @@ function CommunityCard({
   isFavorite = false 
 }: CommunityCardProps) {
   
+  // Debug logging to understand what's being rendered
+  console.log('🎯 PrioritizedCommunityCard rendering:', {
+    name: community.name,
+    hudPropertyId: community.hudPropertyId,
+    occupancyRate: community.occupancyRate,
+    availableUnits: community.availableUnits,
+    rentPerMonth: community.rentPerMonth,
+    photos: community.photos?.length || 0,
+    communitySubtype: community.communitySubtype
+  });
+  
   // Helper functions
   const isHudProperty = Boolean(community.hudPropertyId);
   
