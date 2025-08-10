@@ -176,7 +176,7 @@ function CommunityCard({
 
   return (
     <Card className="w-full bg-gray-900 border-gray-700 hover:border-gray-600 transition-all duration-200 overflow-hidden">
-      {/* Split Header - Availability on Left (color by status), Pricing on Right (color by verification) */}
+      {/* Split Header - Availability on Left (color by status), Special Promotion in Center, Pricing on Right (color by verification) */}
       <div className="flex">
         {/* Availability Section - Color Coded by Availability Status */}
         <div className={`${availability.bgColor} text-white px-4 py-2 flex-1 flex items-center`}>
@@ -187,6 +187,22 @@ function CommunityCard({
             </div>
           </div>
         </div>
+        
+        {/* First Month Free Promotion - Center Position */}
+        {community.specialPromotions && community.specialPromotions.length > 0 && (
+          <div className="flex items-center px-2">
+            <div className="bg-red-600 border-2 border-red-400 rounded-lg px-2 py-1 animate-pulse shadow-lg shadow-red-500/50">
+              <div className="text-xs text-white font-bold flex items-center justify-center">
+                <span className="mr-1">🔥</span> {community.specialPromotions[0].title}
+              </div>
+              {community.specialPromotions[0].monthsWaived && (
+                <div className="text-xs text-red-100 font-semibold text-center">
+                  {community.specialPromotions[0].monthsWaived} months free!
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         
         {/* Pricing Section - Color Coded by Verification Source */}
         <div className={`${pricingColors.bgColor} text-white px-4 py-2 flex items-center justify-end`}>
@@ -266,25 +282,11 @@ function CommunityCard({
         <div className="flex items-start justify-between mb-3">
           {/* Left Side: Badge and Name */}
           <div className="flex-1 mr-4">
-            {/* Badge Row with Care Type on Left, First Month Free on Right */}
-            <div className="flex items-center justify-between mb-2">
+            {/* Care Type Badge */}
+            <div className="mb-2">
               <Badge className="bg-blue-600 text-white text-sm px-3 py-1 inline-block">
                 {community.careLevel || 'Assisted Living'}
               </Badge>
-              
-              {/* First Month Free Promotion */}
-              {community.specialPromotions && community.specialPromotions.length > 0 && (
-                <div className="bg-red-600 border-2 border-red-400 rounded-lg px-2 py-1 animate-pulse shadow-lg shadow-red-500/50">
-                  <div className="text-xs text-white font-bold flex items-center justify-center">
-                    <span className="mr-1">🔥</span> {community.specialPromotions[0].title}
-                  </div>
-                  {community.specialPromotions[0].monthsWaived && (
-                    <div className="text-xs text-red-100 font-semibold text-center">
-                      {community.specialPromotions[0].monthsWaived} months free!
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
             
             <h3 className="text-xl font-bold text-white mb-1">
