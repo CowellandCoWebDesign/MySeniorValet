@@ -38,126 +38,136 @@ import { MessageCommunityButton } from "@/components/message-community-button";
 import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
 import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
 
-// Real-time AI Insights Component
-const RealTimeInsights = ({ community }: { community: Community }) => {
-  const [insights, setInsights] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+// Real-time AI Insights Component - Enhanced with new data structure
+const RealTimeInsights = ({ community }: { community: any }) => {
+  const realTimeData = community?.realTimeData;
 
-  const fetchInsights = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch('/api/perplexity/community-insights', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          communityName: community.name,
-          city: community.city,
-          state: community.state
-        })
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to fetch insights: ${response.status} ${errorText}`);
-      }
-      
-      const data = await response.json();
-      setInsights(data);
-    } catch (err: any) {
-      setError('Unable to fetch real-time insights at this moment');
-      console.error('Error fetching insights:', err.message || err.toString());
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchInsights();
-  }, [community.id]);
+  if (!realTimeData) {
+    return null;
+  }
 
   return (
     <Card className="mb-8 border-2 border-blue-200 dark:border-blue-800">
       <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
         <CardTitle className="text-2xl font-bold flex items-center">
           <Sparkles className="w-6 h-6 mr-2 text-blue-600" />
-          Real-Time Community Insights
+          Real-Time Community Intelligence
         </CardTitle>
         <CardDescription className="text-base">
-          Powered by AI web search - Latest information from across the internet
+          Live data from web search • Updated {new Date(realTimeData.lastUpdated).toLocaleTimeString()}
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
-        {loading && (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
-            <span className="ml-3 text-gray-600 dark:text-gray-400">Searching the web for latest information...</span>
-          </div>
-        )}
-        
-        {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
-            <p className="text-red-700 dark:text-red-300">{error}</p>
-          </div>
-        )}
-        
-        {insights && !loading && (
-          <div className="space-y-4">
-            {/* Recent News & Updates */}
-            {insights.recentNews && insights.recentNews.length > 0 && (
-              <div>
-                <h4 className="font-semibold text-lg mb-3 flex items-center">
-                  <Info className="w-5 h-5 mr-2 text-blue-500" />
-                  Recent News & Updates
-                </h4>
-                <div className="space-y-2">
-                  {insights.recentNews.map((news: any, idx: number) => (
-                    <div key={idx} className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                      <p className="text-sm text-gray-700 dark:text-gray-300">{news.summary}</p>
-                      {news.source && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Source: {news.source}</p>
-                      )}
+        <div className="space-y-6">
+          {/* Current Availability & Pricing */}
+          {(realTimeData.currentAvailability || realTimeData.currentPricing || realTimeData.waitlistStatus) && (
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-4 rounded-lg">
+              <h4 className="font-semibold text-lg mb-3 flex items-center">
+                <Activity className="w-5 h-5 mr-2 text-green-600" />
+                Current Availability & Pricing
+              </h4>
+              <div className="space-y-2">
+                {realTimeData.currentPricing && (
+                  <div className="flex items-start">
+                    <DollarSign className="w-4 h-4 mt-1 mr-2 text-green-600" />
+                    <div>
+                      <p className="font-medium text-green-800 dark:text-green-200">Live Pricing Found:</p>
+                      <p className="text-lg font-bold text-green-900 dark:text-green-100">{realTimeData.currentPricing}</p>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
+                {realTimeData.currentAvailability && (
+                  <div className="flex items-start">
+                    <CheckCircle className="w-4 h-4 mt-1 mr-2 text-blue-600" />
+                    <div>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">{realTimeData.currentAvailability}</p>
+                    </div>
+                  </div>
+                )}
+                {realTimeData.waitlistStatus && (
+                  <div className="flex items-start">
+                    <Clock className="w-4 h-4 mt-1 mr-2 text-orange-600" />
+                    <div>
+                      <p className="text-sm text-orange-800 dark:text-orange-200">{realTimeData.waitlistStatus}</p>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-            
-            {/* Community Reputation */}
-            {insights.reputation && (
-              <div>
-                <h4 className="font-semibold text-lg mb-3 flex items-center">
-                  <Award className="w-5 h-5 mr-2 text-purple-500" />
-                  Community Reputation
-                </h4>
-                <p className="text-gray-700 dark:text-gray-300">{insights.reputation}</p>
+            </div>
+          )}
+
+          {/* Community Highlights */}
+          {realTimeData.communityHighlights && realTimeData.communityHighlights.length > 0 && (
+            <div>
+              <h4 className="font-semibold text-lg mb-3 flex items-center">
+                <Award className="w-5 h-5 mr-2 text-purple-600" />
+                Community Achievements
+              </h4>
+              <div className="space-y-2">
+                {realTimeData.communityHighlights.map((highlight: string, idx: number) => (
+                  <div key={idx} className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
+                    <p className="text-sm text-purple-900 dark:text-purple-200">{highlight}</p>
+                  </div>
+                ))}
               </div>
-            )}
-            
-            {/* Local Area Insights */}
-            {insights.areaInsights && (
-              <div>
-                <h4 className="font-semibold text-lg mb-3 flex items-center">
-                  <MapPin className="w-5 h-5 mr-2 text-green-500" />
-                  Local Area Information
-                </h4>
-                <p className="text-gray-700 dark:text-gray-300">{insights.areaInsights}</p>
+            </div>
+          )}
+
+          {/* Recent News & Updates */}
+          {realTimeData.recentNews && realTimeData.recentNews.length > 0 && (
+            <div>
+              <h4 className="font-semibold text-lg mb-3 flex items-center">
+                <Info className="w-5 h-5 mr-2 text-blue-600" />
+                Recent News & Updates
+              </h4>
+              <div className="space-y-2">
+                {realTimeData.recentNews.map((news: string, idx: number) => (
+                  <div key={idx} className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{news}</p>
+                  </div>
+                ))}
               </div>
-            )}
-            
-            {/* Refresh Button */}
-            <Button 
-              onClick={fetchInsights} 
-              variant="outline"
-              className="w-full mt-4"
-              disabled={loading}
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Refresh Insights
-            </Button>
-          </div>
-        )}
+            </div>
+          )}
+
+          {/* Upcoming Events */}
+          {realTimeData.upcomingEvents && realTimeData.upcomingEvents.length > 0 && (
+            <div>
+              <h4 className="font-semibold text-lg mb-3 flex items-center">
+                <CalendarIcon className="w-5 h-5 mr-2 text-orange-600" />
+                Upcoming Events
+              </h4>
+              <div className="space-y-2">
+                {realTimeData.upcomingEvents.map((event: string, idx: number) => (
+                  <div key={idx} className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg">
+                    <p className="text-sm text-orange-900 dark:text-orange-200">{event}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Data Sources */}
+          {realTimeData.sources && realTimeData.sources.length > 0 && (
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Information verified from:</p>
+              <div className="flex flex-wrap gap-2">
+                {realTimeData.sources.map((source: string, idx: number) => (
+                  <a 
+                    key={idx}
+                    href={source}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline flex items-center"
+                  >
+                    <ExternalLink className="w-3 h-3 mr-1" />
+                    Source {idx + 1}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

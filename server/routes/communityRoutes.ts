@@ -398,7 +398,7 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
-  // Get single community by ID - MUST BE LAST
+  // Get single community by ID with Perplexity real-time enrichment - MUST BE LAST
   app.get("/api/communities/:id", async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
@@ -425,13 +425,113 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(desc(reviews.createdAt))
         .limit(10);
 
+      // Initialize Perplexity real-time data
+      let realTimeData = {
+        lastUpdated: new Date().toISOString(),
+        currentAvailability: null as string | null,
+        recentNews: [] as string[],
+        currentPricing: null as string | null,
+        waitlistStatus: null as string | null,
+        communityHighlights: [] as string[],
+        upcomingEvents: [] as string[],
+        staffUpdates: [] as string[],
+        sources: [] as string[]
+      };
+
+      // Use Perplexity to get real-time information about the community
+      const perplexityService = new PerplexityAIService();
+      if (perplexityService.isConfigured()) {
+        try {
+          // Query for current availability and pricing
+          const availabilityQuery = `What is the current availability and pricing at ${community.name} senior living community in ${community.city}, ${community.state}? Include any waitlist information, current room availability, and latest pricing for different care levels.`;
+          
+          const availabilityResult = await perplexityService.searchRealTime(
+            availabilityQuery,
+            `Finding real-time availability for ${community.name}`
+          );
+
+          // Query for recent news and updates
+          const newsQuery = `What are the latest news, updates, or changes at ${community.name} in ${community.city}, ${community.state}? Include any recent events, staff changes, renovations, or community highlights from 2024-2025.`;
+          
+          const newsResult = await perplexityService.searchRealTime(
+            newsQuery,
+            `Finding recent updates for ${community.name}`
+          );
+
+          // Parse availability information
+          if (availabilityResult.summary) {
+            // Extract pricing information
+            const priceMatch = availabilityResult.summary.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?(?:\s*(?:per|\/)\s*month)?/gi);
+            if (priceMatch) {
+              realTimeData.currentPricing = priceMatch[0];
+            }
+
+            // Extract availability status
+            if (availabilityResult.summary.toLowerCase().includes('available') || 
+                availabilityResult.summary.toLowerCase().includes('availability')) {
+              realTimeData.currentAvailability = availabilityResult.summary.split('.')[0];
+            }
+
+            // Extract waitlist information
+            if (availabilityResult.summary.toLowerCase().includes('waitlist') || 
+                availabilityResult.summary.toLowerCase().includes('waiting list')) {
+              const waitlistSentences = availabilityResult.summary.split('.').filter(s => 
+                s.toLowerCase().includes('waitlist') || s.toLowerCase().includes('waiting')
+              );
+              if (waitlistSentences.length > 0) {
+                realTimeData.waitlistStatus = waitlistSentences[0].trim();
+              }
+            }
+          }
+
+          // Parse news and updates
+          if (newsResult.summary) {
+            const sentences = newsResult.summary.split('.').filter(s => s.trim().length > 10);
+            realTimeData.recentNews = sentences.slice(0, 3).map(s => s.trim());
+            
+            // Extract highlights
+            if (newsResult.summary.toLowerCase().includes('award') || 
+                newsResult.summary.toLowerCase().includes('recognition') ||
+                newsResult.summary.toLowerCase().includes('certified')) {
+              const highlightSentences = sentences.filter(s => 
+                s.toLowerCase().includes('award') || 
+                s.toLowerCase().includes('recognition') ||
+                s.toLowerCase().includes('certified')
+              );
+              realTimeData.communityHighlights = highlightSentences.slice(0, 2);
+            }
+
+            // Extract upcoming events
+            if (newsResult.summary.toLowerCase().includes('event') || 
+                newsResult.summary.toLowerCase().includes('upcoming')) {
+              const eventSentences = sentences.filter(s => 
+                s.toLowerCase().includes('event') || 
+                s.toLowerCase().includes('upcoming')
+              );
+              realTimeData.upcomingEvents = eventSentences.slice(0, 2);
+            }
+          }
+
+          // Combine sources
+          realTimeData.sources = [
+            ...availabilityResult.sources.slice(0, 2),
+            ...newsResult.sources.slice(0, 2)
+          ].filter(Boolean);
+
+        } catch (perplexityError) {
+          console.log("Perplexity enrichment skipped:", perplexityError);
+          // Continue without real-time data if Perplexity fails
+        }
+      }
+
       // Skip claimed community check for now - table doesn't exist
       
       res.json({
         ...community,
         reviews: communityReviews,
         isClaimed: false,
-        claimInfo: null
+        claimInfo: null,
+        realTimeData: realTimeData
       });
     } catch (error) {
       console.error("Error fetching community:", error);
