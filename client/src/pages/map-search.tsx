@@ -1742,9 +1742,9 @@ export default function MapSearch() {
       </div>
       </div> {/* End of Sticky Search and Filter Container */}
 
-      {/* Map Legend Info Button - Only in Map View - Positioned on Right Side */}
+      {/* Map Legend Info Button - Only in Map View - Top Right Corner */}
       {viewMode === 'map' && (
-        <div className="absolute top-1/2 right-4 -translate-y-1/2 z-10">
+        <div className="absolute top-4 right-16 z-10">
           <Drawer>
             <DrawerTrigger asChild>
               <Button 
