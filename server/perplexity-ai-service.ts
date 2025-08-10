@@ -47,7 +47,7 @@ export class PerplexityAIService {
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,
         {
-          model: 'sonar-small-online',  // Correct Perplexity model for real-time web search
+          model: 'sonar-small',  // Current Perplexity model (as of 2025)
           messages: [
             {
               role: 'system',
