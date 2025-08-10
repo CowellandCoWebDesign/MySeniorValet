@@ -691,16 +691,16 @@ export default function MySeniorValetHome() {
                     Master the Full 10-Level Care Spectrum
                   </p>
                   <div className="text-lg md:text-xl text-gray-700 dark:text-gray-200 mb-6">
-                    <strong className="text-purple-600 dark:text-purple-400">1. Independent Living</strong> • 
-                    <strong className="text-purple-600 dark:text-purple-400"> 2. Assisted Living</strong> • 
-                    <strong className="text-purple-600 dark:text-purple-400"> 3. Memory Care</strong> • 
-                    <strong className="text-purple-600 dark:text-purple-400"> 4. Skilled Nursing</strong> • 
-                    <strong className="text-purple-600 dark:text-purple-400"> 5. Continuing Care</strong> • 
-                    <strong className="text-purple-600 dark:text-purple-400"> 6. Adult Day Programs</strong> • 
-                    <strong className="text-purple-600 dark:text-purple-400"> 7. Home Care</strong> • 
-                    <strong className="text-purple-600 dark:text-purple-400"> 8. Hospice Care</strong> • 
-                    <strong className="text-purple-600 dark:text-purple-400"> 9. Respite Care</strong> • 
-                    <strong className="text-purple-600 dark:text-purple-400"> 10. PACE Programs</strong>
+                    <strong className="text-purple-600 dark:text-purple-400">1. HUD Housing</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 2. VA Housing</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 3. Mobile & RV</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 4. 55+ Active</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 5. Independent Living</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 6. Board & Care</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 7. Assisted Living</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 8. Memory Care</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 9. CCRC</strong> • 
+                    <strong className="text-purple-600 dark:text-purple-400"> 10. Skilled Nursing</strong>
                   </div>
                   <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-200">
                     Finally understand every option, every transition, every cost - <strong className="text-purple-600 dark:text-purple-400">complete transparency</strong> across the entire care journey.
