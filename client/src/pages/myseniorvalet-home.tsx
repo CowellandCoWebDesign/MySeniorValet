@@ -559,22 +559,22 @@ export default function MySeniorValetHome() {
                       <div className="flex items-start gap-3">
                         <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-red-300">No Information Online</p>
-                          <p className="text-gray-400 text-sm">When your parent falls or gets diagnosed, you search desperately for options. You find nothing but marketing fluff.</p>
+                          <p className="font-semibold text-red-300">Information Scattered & Paywalled</p>
+                          <p className="text-gray-300 text-sm">When your parent falls or gets diagnosed, you search desperately. Some info exists, but it's scattered across dozens of sites, most behind paywalls.</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-red-300">What's the Difference?</p>
-                          <p className="text-gray-400 text-sm">Independent Living? Assisted Living? Memory Care? Skilled Nursing? No one explains what these mean or when each is appropriate.</p>
+                          <p className="font-semibold text-red-300">Everyone Thinks It's Just "Assisted Living"</p>
+                          <p className="text-gray-300 text-sm">Most families don't know Independent Living, Memory Care, or Skilled Nursing even exist. No one explains the care spectrum until you're in crisis.</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-red-300">"Contact for Pricing"</p>
-                          <p className="text-gray-400 text-sm">Every website. Every brochure. Hidden pricing everywhere. As if your family's crisis isn't stressful enough.</p>
+                          <p className="font-semibold text-red-300">"Contact for Pricing" Gatekeeping</p>
+                          <p className="text-gray-300 text-sm">Every website. Every brochure. Hidden pricing everywhere. As if your family's crisis isn't stressful enough.</p>
                         </div>
                       </div>
                     </div>
@@ -582,22 +582,22 @@ export default function MySeniorValetHome() {
                       <div className="flex items-start gap-3">
                         <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-red-300">Middleman Paywalls</p>
-                          <p className="text-gray-400 text-sm">Aggregators charge families $500+ just to access basic information that should be free.</p>
+                          <p className="font-semibold text-red-300">Referral Services Raise Everyone's Costs</p>
+                          <p className="text-gray-300 text-sm">Aggregators charge communities up to one full month's rent per move-in. These costs get passed to ALL families through higher prices.</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-red-300">Endless Tours, No Records</p>
-                          <p className="text-gray-400 text-sm">You tour 10 facilities, make 50 calls, and have nothing to show for it. No way to compare or share with family.</p>
+                          <p className="font-semibold text-red-300">"White Glove" = Sales Call Flood</p>
+                          <p className="text-gray-300 text-sm">They promise personal assistance, then hand your info to sales teams. Your phone rings non-stop with aggressive pitches.</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-red-300">Communities Can't Be Found</p>
-                          <p className="text-gray-400 text-sm">Great facilities stay empty because families can't find them. They're hidden in the darkness too.</p>
+                          <p className="font-semibold text-red-300">Unaware of Benefits You Qualify For</p>
+                          <p className="text-gray-300 text-sm">VA Aid & Attendance, Medicaid waivers, state programs - families don't know what help exists or how to access it.</p>
                         </div>
                       </div>
                     </div>
@@ -605,9 +605,9 @@ export default function MySeniorValetHome() {
                 </div>
 
                 {/* The Light Section */}
-                <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-900/30 dark:to-green-900/30 rounded-xl p-8 border-2 border-green-400">
+                <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-8 border-2 border-green-400">
                   <h3 className="text-2xl md:text-3xl font-bold mb-6 text-green-600 dark:text-green-400">
-                    THIS STOPS NOW
+                    THIS STOPS NOW - PLATINUM FEATURES FOR ALL
                   </h3>
                   <div className="grid md:grid-cols-2 gap-6 text-left">
                     <div className="space-y-4">
@@ -628,8 +628,8 @@ export default function MySeniorValetHome() {
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">Zero Paywalls, 100% Free</p>
-                          <p className="text-gray-600 dark:text-gray-400 text-sm">All publicly available information, organized and accessible. No subscriptions. No fees. Ever.</p>
+                          <p className="font-semibold text-gray-800 dark:text-gray-200">ALL Families Get PLATINUM Features Free</p>
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">Every family gets our complete PLATINUM toolkit. No tiers. No upgrades. Always free, guaranteed forever.</p>
                         </div>
                       </div>
                     </div>
@@ -637,8 +637,8 @@ export default function MySeniorValetHome() {
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">Save & Share Your Research</p>
-                          <p className="text-gray-600 dark:text-gray-400 text-sm">Build comparison lists, save notes, share with family. Your hard work documented.</p>
+                          <p className="font-semibold text-gray-800 dark:text-gray-200">Tour Tracker with Family Sharing</p>
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">Track every tour, save notes, build comparisons. Share instantly with family members for collaborative decisions.</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
@@ -651,8 +651,8 @@ export default function MySeniorValetHome() {
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">Immediate Access to Everything</p>
-                          <p className="text-gray-600 dark:text-gray-400 text-sm">34,000+ communities. All information. Right now. No waiting.</p>
+                          <p className="font-semibold text-gray-800 dark:text-gray-200">Discover Benefits You Qualify For</p>
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">VA Aid & Attendance, Medicaid, state programs - we help you find and understand all available assistance.</p>
                         </div>
                       </div>
                     </div>
