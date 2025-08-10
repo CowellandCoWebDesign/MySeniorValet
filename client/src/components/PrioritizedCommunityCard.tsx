@@ -364,7 +364,7 @@ function CommunityCard({
         )}
 
         {/* Community Image or Quality Placeholder - Full Container */}
-        {community.photos && community.photos.length > 0 ? (
+        {community.photos && community.photos.length > 0 && community.photos[0] && community.photos[0].trim() !== '' ? (
           <>
             <img 
               src={community.photos[0]} 
@@ -396,7 +396,7 @@ function CommunityCard({
                  'Senior Living'}
               </div>
               <div className="text-xs text-white/50 mt-1">
-                Beautiful photos coming soon
+                Photos coming soon
               </div>
             </div>
           </>
@@ -421,7 +421,7 @@ function CommunityCard({
                'Senior Living'}
             </div>
             <div className="text-xs text-white/50 mt-1">
-              Beautiful photos coming soon
+              Photos coming soon
             </div>
           </div>
         )}
@@ -626,11 +626,11 @@ function CommunityCard({
                     <div className="text-xs font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent text-stroke">
                       Tour Tracker
                     </div>
-                    {community.tourTrackerScore ? (
+                    {(community as any).tourTrackerScore ? (
                       <div className="flex items-center justify-center">
                         <Star className="h-3 w-3 fill-yellow-500 text-yellow-500 mr-0.5" />
                         <span className="text-xs font-bold text-yellow-500">
-                          {community.tourTrackerScore}
+                          {(community as any).tourTrackerScore}
                         </span>
                       </div>
                     ) : (
@@ -653,7 +653,7 @@ function CommunityCard({
                     </div>
                     <div className="text-xs text-gray-400">Yelp</div>
                     <a 
-                      href={community.yelpUrl || `https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name + ' ' + community.city + ' ' + community.state)}`}
+                      href={(community as any).yelpUrl || `https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name + ' ' + community.city + ' ' + community.state)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[10px] text-blue-400 hover:text-blue-300 underline"
@@ -672,7 +672,7 @@ function CommunityCard({
                     </div>
                     <div className="text-xs text-gray-400">Google</div>
                     <a 
-                      href={community.googleUrl || `https://www.google.com/search?q=${encodeURIComponent(community.name + ' ' + community.city + ' ' + community.state)}`}
+                      href={(community as any).googleUrl || `https://www.google.com/search?q=${encodeURIComponent(community.name + ' ' + community.city + ' ' + community.state)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-[10px] text-blue-400 hover:text-blue-300 underline"

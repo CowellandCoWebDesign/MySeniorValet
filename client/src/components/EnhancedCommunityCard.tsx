@@ -519,23 +519,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                   <div className="text-xs text-green-600 font-medium">Live Pricing</div>
                 )}
                 {(community.pricingType === 'market' || marketPricing) && (
-                  <div className="flex items-center gap-2">
-                    <div className="text-xs text-purple-600 font-medium">Market Intelligence</div>
-                    {marketPricing?.confidence && (
-                      <Badge 
-                        className={`text-xs ${
-                          marketPricing.confidence === 'high' 
-                            ? 'bg-purple-100 text-purple-700' 
-                            : marketPricing.confidence === 'medium'
-                            ? 'bg-purple-50 text-purple-600'
-                            : 'bg-purple-50 text-purple-500'
-                        }`}
-                      >
-                        {marketPricing.confidence === 'high' ? '⭐ High' : 
-                         marketPricing.confidence === 'medium' ? '📊 Medium' : '📈 Low'} Confidence
-                      </Badge>
-                    )}
-                  </div>
+                  <div className="text-xs text-purple-600 font-medium">Market Intelligence</div>
                 )}
               </div>
               {community.specialOffers && community.specialOffers.length > 0 && (
