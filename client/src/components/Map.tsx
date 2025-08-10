@@ -359,6 +359,7 @@ interface MapProps {
   resources?: any[];
   showHeatmapLayer?: boolean;
   heatmapOpacity?: number;
+  showLegend?: boolean;
 }
 
 // Heatmap Overlay Component - Displays availability heatmap
@@ -584,7 +585,8 @@ export default function Map({
   healthcareServices = [],
   resources = [],
   showHeatmapLayer = false,
-  heatmapOpacity = 0.6
+  heatmapOpacity = 0.6,
+  showLegend = false
 }: MapProps) {
   // Start with city-level zoom (no clusters), default to major city
   const [center, setCenter] = useState<[number, number]>(propCenter || [37.7749, -122.4194]); // Default: San Francisco
@@ -1667,6 +1669,91 @@ export default function Map({
           </div>
         )}
       </div>
+
+      {/* Legend Overlay - Display when showLegend is true */}
+      {showLegend && (
+        <div className="absolute top-4 right-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 z-[1001] shadow-xl max-w-sm">
+          <h3 className="font-semibold text-lg mb-3 text-gray-900 dark:text-white">Map Legend</h3>
+          
+          {/* HUD & Data Availability */}
+          <div className="mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
+            <h4 className="font-medium text-sm text-gray-700 dark:text-gray-300 mb-2">Data Availability</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-green-500 rounded-full"></div>
+                <span className="text-gray-600 dark:text-gray-400">Has Live Data</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-red-500 rounded-full"></div>
+                <span className="text-gray-600 dark:text-gray-400">Contact for Info</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Care Types */}
+          <div className="mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
+            <h4 className="font-medium text-sm text-gray-700 dark:text-gray-300 mb-2">Care Types</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-blue-700 rounded-full"></div>
+                <span className="text-gray-600 dark:text-gray-400">Standard Community</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-blue-500 rounded-full"></div>
+                <span className="text-gray-600 dark:text-gray-400">Assisted Living</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-purple-500 rounded-full"></div>
+                <span className="text-gray-600 dark:text-gray-400">Memory Care</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-green-500 rounded-full"></div>
+                <span className="text-gray-600 dark:text-gray-400">Independent Living</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Healthcare Facilities */}
+          <div className="mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
+            <h4 className="font-medium text-sm text-gray-700 dark:text-gray-300 mb-2">Healthcare Facilities</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-7 relative">
+                  <div className="absolute inset-0 bg-blue-600 rounded-full"></div>
+                  <span className="absolute inset-0 flex items-center justify-center text-white text-xs font-bold">+</span>
+                </div>
+                <span className="text-gray-600 dark:text-gray-400">General Hospital</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-7 relative">
+                  <div className="absolute inset-0 bg-red-600 rounded-full"></div>
+                  <span className="absolute inset-0 flex items-center justify-center text-white text-xs font-bold">+</span>
+                </div>
+                <span className="text-gray-600 dark:text-gray-400">Emergency Room</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Availability Heatmap */}
+          <div>
+            <h4 className="font-medium text-sm text-gray-700 dark:text-gray-300 mb-2">Availability Levels</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-gradient-to-r from-green-500 to-blue-500 rounded"></div>
+                <span className="text-gray-600 dark:text-gray-400">High Availability</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-gradient-to-r from-yellow-500 to-orange-500 rounded"></div>
+                <span className="text-gray-600 dark:text-gray-400">Medium Availability</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-gradient-to-r from-orange-500 to-red-500 rounded"></div>
+                <span className="text-gray-600 dark:text-gray-400">Low Availability</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Minimal Map Stats Overlay - Moved to bottom-left corner to avoid blocking controls */}
       <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg p-2 z-10 shadow-sm">

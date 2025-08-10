@@ -141,6 +141,7 @@ export default function MapSearch() {
   const [panelHeight, setPanelHeight] = useState(70); // Percentage of screen height - increased for better visibility
   const [showTutorial, setShowTutorial] = useState(false);
   const [hasSeenTutorial, setHasSeenTutorial] = useState(false);
+  const [showLegend, setShowLegend] = useState(false);
   
   // Heatmap layer state
   const [showHeatmapLayer, setShowHeatmapLayer] = useState(false);
@@ -1710,6 +1711,20 @@ export default function MapSearch() {
             </PopoverContent>
           </Popover>
 
+          {/* Legend Button */}
+          <Button
+            onClick={() => setShowLegend(!showLegend)}
+            size="sm"
+            variant={showLegend ? 'default' : 'outline'}
+            className={`flex items-center gap-1 ${isDarkMode 
+              ? (showLegend ? 'bg-blue-600 text-white' : 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600') 
+              : (showLegend ? 'bg-blue-600 text-white' : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50')
+            }`}
+          >
+            <MapIcon className="w-4 h-4" />
+            <span className="text-xs">Legend</span>
+          </Button>
+
           {activeFiltersCount > 0 && (
             <Button 
               onClick={clearFilters} 
@@ -1860,6 +1875,7 @@ export default function MapSearch() {
               onClusterClick={handleClusterClick}
               showHeatmapLayer={showHeatmapLayer}
               heatmapOpacity={heatmapOpacity}
+              showLegend={showLegend}
             />
           </MapErrorBoundary>
         </div>
