@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink, Languages, Activity, MessageCircle, Share2, Mail, Info, ClipboardCheck, AlertTriangle, Calendar, UserCheck, Stethoscope, Clock } from "lucide-react";
 import { Link } from "wouter";
+import { MarketIntelligenceModal } from "@/components/MarketIntelligenceModal";
 
 interface CommunityCardProps {
   community: {
@@ -96,6 +97,68 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
   const isHudProperty = !!community.hudPropertyId;
   const hasAuthenticPricing = !!(community.hudPropertyId && community.rentPerMonth) || 
     !!(community as any).pricingDetails?.basePrice;
+  
+  // State for market pricing intelligence
+  const [marketPricing, setMarketPricing] = useState<{
+    display: string;
+    confidence: 'high' | 'medium' | 'low' | 'verified';
+    source: string;
+    insights?: {
+      comparison?: {
+        vsStateAverage: string;
+        stateAverage: string;
+        position: string;
+      };
+      trend?: {
+        direction: 'rising' | 'stable' | 'falling';
+        yearOverYear: string;
+        forecast: string;
+      };
+      localMarket?: {
+        percentile: string;
+        countyAverage: string;
+        ranking: string;
+      };
+    };
+  } | null>(null);
+  const [loadingPricing, setLoadingPricing] = useState(false);
+  const [showMarketModal, setShowMarketModal] = useState(false);
+  
+  // Fetch market pricing intelligence when no verified pricing exists
+  useEffect(() => {
+    const fetchMarketPricing = async () => {
+      // Skip if we already have verified pricing
+      if (isHudProperty && community.rentPerMonth) return;
+      if (community.livePricing?.assistedLiving) return;
+      if (community.monthlyRentRangeStart && community.monthlyRentRangeEnd) return;
+      if (marketPricing) return; // Already fetched
+      
+      setLoadingPricing(true);
+      console.log(`🎯 Fetching market pricing for ${community.name} (ID: ${community.id})`);
+      try {
+        const response = await fetch(`/api/market-pricing/${community.id}?detailed=true`);
+        const data = await response.json();
+        console.log(`📊 Market pricing response for ${community.name}:`, data);
+        
+        if (data.pricing) {
+          setMarketPricing({
+            display: data.display,
+            confidence: data.confidence,
+            source: data.source,
+            insights: data.insights
+          });
+          console.log(`✅ Market pricing set for ${community.name}: ${data.display}`);
+        }
+      } catch (error) {
+        console.error('Error fetching market pricing:', error);
+      } finally {
+        setLoadingPricing(false);
+      }
+    };
+    
+    // Fetch market pricing if needed
+    fetchMarketPricing();
+  }, [community.id, isHudProperty, community.rentPerMonth, community.livePricing, community.monthlyRentRangeStart, community.monthlyRentRangeEnd, marketPricing]);
   
   // Calculate occupancy data
   const occupancyRate = community.occupancyRate || community.occupancyRateHud || 90; // Default to 90%
@@ -257,7 +320,17 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
       return `Starting at $${min}/mo`;
     }
     
-    // Default for no pricing data
+    // Use market pricing if available and no verified pricing exists
+    if (marketPricing && marketPricing.display) {
+      return marketPricing.display;
+    }
+    
+    // Still loading market pricing
+    if (loadingPricing) {
+      return 'Loading...';
+    }
+    
+    // Default for no pricing data and no market intelligence
     return 'Contact for Pricing';
   };
 
@@ -435,13 +508,29 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {priceDisplay || 'Contact for Pricing'}
+                  {priceDisplay || marketPricing?.display || 'Contact for Pricing'}
                 </div>
                 {community.pricingType === 'live' && (
                   <div className="text-xs text-green-600 font-medium">Live Pricing</div>
                 )}
-                {community.pricingType === 'market' && (
-                  <div className="text-xs text-blue-600 font-medium">Market Intelligence</div>
+                {(community.pricingType === 'market' || marketPricing) && (
+                  <div className="flex items-center gap-2">
+                    <div className="text-xs text-purple-600 font-medium">Market Intelligence</div>
+                    {marketPricing?.confidence && (
+                      <Badge 
+                        className={`text-xs ${
+                          marketPricing.confidence === 'high' 
+                            ? 'bg-purple-100 text-purple-700' 
+                            : marketPricing.confidence === 'medium'
+                            ? 'bg-purple-50 text-purple-600'
+                            : 'bg-purple-50 text-purple-500'
+                        }`}
+                      >
+                        {marketPricing.confidence === 'high' ? '⭐ High' : 
+                         marketPricing.confidence === 'medium' ? '📊 Medium' : '📈 Low'} Confidence
+                      </Badge>
+                    )}
+                  </div>
                 )}
               </div>
               {community.specialOffers && community.specialOffers.length > 0 && (

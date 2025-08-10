@@ -62,7 +62,7 @@ export class MarketPricingIntelligence {
       // Use Perplexity to search for current market pricing
       const searchQuery = `What is the average monthly cost of ${careType} in ${city}, ${state} in 2025? Include price ranges, specific pricing data from facilities, and how prices compare to state and national averages. Also mention any recent pricing trends or changes.`;
       
-      const webResults = await perplexityService.searchWeb(searchQuery);
+      const webResults = await perplexityService.searchRealTime(searchQuery);
       
       // Parse the response to extract pricing information
       let pricingData = this.parsePricingFromResponse(webResults, city, state, careType);
