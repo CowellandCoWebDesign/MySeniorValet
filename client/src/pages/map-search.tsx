@@ -1989,19 +1989,6 @@ export default function MapSearch() {
             </div>
           ) : (
             <div className="space-y-3">
-              {/* AI-powered insights for communities in view */}
-              {mapBounds && mapCommunities.length > 0 && resultType === 'communities' && (
-                <AISearchInsights 
-                  bounds={{
-                    north: mapBounds.getNorth(),
-                    south: mapBounds.getSouth(),
-                    east: mapBounds.getEast(),
-                    west: mapBounds.getWest()
-                  }}
-                  searchQuery={searchQuery}
-                />
-              )}
-              
               {/* Display results based on selected filter */}
               {resultType === 'communities' && mapCommunities
                 .sort((a: Community, b: Community) => {
@@ -2075,6 +2062,19 @@ export default function MapSearch() {
               {/* Display all results mixed */}
               {resultType === 'all' && (
                 <>
+                  {/* AI-powered insights for communities in view */}
+                  {mapBounds && mapCommunities.length > 0 && (
+                    <AISearchInsights 
+                      bounds={{
+                        north: mapBounds.getNorth(),
+                        south: mapBounds.getSouth(),
+                        east: mapBounds.getEast(),
+                        west: mapBounds.getWest()
+                      }}
+                      searchQuery={searchQuery}
+                    />
+                  )}
+                  
                   {/* Communities section */}
                   {mapCommunities.length > 0 && (
                     <>
