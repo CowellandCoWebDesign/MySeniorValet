@@ -224,15 +224,15 @@ function CommunityCard({
           </Button>
         </div>
 
-        {/* Special Promotion Overlay - Bottom of Photo Area */}
+        {/* Special Promotion Overlay - Bottom Right of Photo Area */}
         {community.specialPromotions && community.specialPromotions.length > 0 && (
-          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 z-10">
-            <div className="bg-red-600 border-2 border-red-400 rounded-lg px-3 py-2 animate-pulse shadow-lg shadow-red-500/50">
-              <div className="text-sm text-white font-bold flex items-center justify-center whitespace-nowrap">
-                <span className="mr-1">🔥</span> {community.specialPromotions[0].title}
+          <div className="absolute bottom-2 right-2 z-10">
+            <div className="bg-red-600 border border-red-400 rounded-md px-2 py-1 animate-pulse shadow-lg shadow-red-500/50">
+              <div className="text-xs text-white font-bold flex items-center justify-center whitespace-nowrap">
+                <span className="mr-1 text-xs">🔥</span> {community.specialPromotions[0].title}
               </div>
               {community.specialPromotions[0].monthsWaived && (
-                <div className="text-xs text-red-100 font-semibold text-center">
+                <div className="text-xs text-red-100 font-medium text-center">
                   {community.specialPromotions[0].monthsWaived} months free!
                 </div>
               )}
