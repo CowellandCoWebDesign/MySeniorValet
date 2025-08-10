@@ -3,6 +3,9 @@
 ## Overview
 MySeniorValet is a comprehensive senior living transparency platform providing accurate, verified information about over 34,000 senior living communities in the U.S. and Canada, including traditional assisted living, 55+ active adult, mobile home parks, and manufactured home communities. Its core purpose is to bring unparalleled transparency to the senior living market by utilizing multi-AI intelligence orchestration for data cross-validation, especially for displaying verified HUD pricing. The project aims to empower families to make informed decisions with verified data and transparent pricing.
 
+### Recent Updates (August 10, 2025)
+- **AI Orchestration Reordered**: Perplexity now primary for web search and verification, Claude secondary for analysis, ChatGPT as backup
+
 ### Recent Updates (August 9, 2025)
 - **Enhanced Community Cards**: Implemented dynamic occupancy display showing actual unit availability (e.g., "3 of 85 units") with color-coded status indicators
 - **Care-Type Placeholders**: Added specific icons for Memory Care (🧠), Skilled Nursing (🏥), Independent Living (🏡), HUD Housing (🏛️), 55+ Active (🎾), Mobile Park (🚐)
@@ -64,10 +67,10 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - **Routing**: `wouter`
 - **UI Libraries**: `@radix-ui/*`, `tailwindcss`, `lucide-react`
 - **Mapping**: `react-leaflet`
-- **AI Integrations**: Priority-based multi-AI orchestration:
-  1. **Claude (Primary)**: `@anthropic-ai/sdk` - Advanced reasoning, complex analysis, care planning, contract analysis
-  2. **Perplexity (Secondary)**: Real-time web search, current pricing, market data, web search relevance
-  3. **ChatGPT-4o (3rd)**: `openai` - Using GPT-4o model for tertiary analysis and validation
+- **AI Integrations**: Priority-based multi-AI orchestration (Updated Aug 10, 2025):
+  1. **Perplexity (Primary)**: Real-time web search, verification of alternative sources, current pricing, market data
+  2. **Claude (Secondary)**: `@anthropic-ai/sdk` - Advanced reasoning, complex analysis, care planning, contract analysis
+  3. **ChatGPT (Backup)**: `openai` - General purpose fallback and validation
 - **Email Service**: SendGrid
 - **Payment Processing**: Stripe
 - **Document Signing**: Documenso (open-source, self-hosted)

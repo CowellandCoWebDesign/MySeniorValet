@@ -261,11 +261,11 @@ app.use((req, res, next) => {
     console.log('  ✅ Notification System - Multi-channel messaging');
     console.log('  ✅ Integration Manager - 10 external service connections');
     console.log('');
-    console.log('🤖 AI PRIORITY ORCHESTRATOR ACTIVATED (August 8, 2025):');
-    console.log('  1️⃣ Claude (Primary) - ' + (process.env.ANTHROPIC_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  2️⃣ Perplexity (Secondary) - ' + (process.env.PERPLEXITY_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  3️⃣ ChatGPT-4o (3rd) - ' + (process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  Note: Gemini and Grok removed from platform to streamline AI services per replit.md');
+    console.log('🤖 AI PRIORITY ORCHESTRATOR ACTIVATED (August 10, 2025):');
+    console.log('  1️⃣ Perplexity (Primary - Web Search) - ' + (process.env.PERPLEXITY_API_KEY ? '✅ Configured' : '❌ Not configured'));
+    console.log('  2️⃣ Claude (Secondary - Analysis) - ' + (process.env.ANTHROPIC_API_KEY ? '✅ Configured' : '❌ Not configured'));
+    console.log('  3️⃣ ChatGPT (Backup) - ' + (process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'));
+    console.log('  Note: Reordered for optimal web search & verification (Perplexity), analysis (Claude), fallback (ChatGPT)');
     console.log('');
     console.log('📄 DOCUMENSO DOCUMENT SIGNING:');
     console.log('  ' + (process.env.DOCUMENSO_API_KEY ? '✅ Self-hosted document signing ready' : '⚠️ Document signing not configured'));

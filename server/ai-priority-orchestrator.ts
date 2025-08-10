@@ -1,14 +1,14 @@
 /**
  * AI Priority Orchestrator for MySeniorValet
  * 
- * Priority Order (as of August 2025):
- * 1. ChatGPT-5 (Primary) - Released Aug 7, 2025 - Best overall performance, fewer hallucinations
- * 2. Claude (Secondary) - Complex reasoning, care planning
- * 3. Perplexity (3rd) - Real-time web search, current pricing
+ * Priority Order (Updated August 10, 2025):
+ * 1. Perplexity (Primary) - Real-time web search and verification of alternative sources
+ * 2. Claude (Secondary) - Complex reasoning, analysis, and care planning
+ * 3. ChatGPT (Backup) - General purpose fallback
  * 
  * Note: Gemini and Grok removed from orchestration per user request (Aug 8, 2025)
- * This orchestrator ensures paid services (ChatGPT-5, Claude, Perplexity) 
- * are prioritized for better results and accuracy.
+ * This orchestrator prioritizes Perplexity for web-based verification, 
+ * Claude for deep analysis, and ChatGPT as reliable backup.
  */
 
 import Anthropic from '@anthropic-ai/sdk';
@@ -75,9 +75,9 @@ export class AIPriorityOrchestrator {
     };
 
     console.log('🚀 AI Priority Orchestrator initialized:');
-    console.log('  1️⃣ ChatGPT-5:', this.aiStatus.chatgpt ? '✅ Active (Primary)' : '❌ Missing API key');
-    console.log('  2️⃣ Claude:', this.aiStatus.claude ? '✅ Active (Secondary)' : '❌ Missing API key');
-    console.log('  3️⃣ Perplexity:', this.aiStatus.perplexity ? '✅ Active (3rd)' : '❌ Missing API key');
+    console.log('  1️⃣ Perplexity:', this.aiStatus.perplexity ? '✅ Active (Primary - Web Search)' : '❌ Missing API key');
+    console.log('  2️⃣ Claude:', this.aiStatus.claude ? '✅ Active (Secondary - Analysis)' : '❌ Missing API key');
+    console.log('  3️⃣ ChatGPT:', this.aiStatus.chatgpt ? '✅ Active (Backup)' : '❌ Missing API key');
     console.log('  ❌ Gemini: Removed from orchestration');
     console.log('  ❌ Grok: Removed from orchestration');
   }
@@ -122,33 +122,38 @@ export class AIPriorityOrchestrator {
           servicesUsed.push('Claude');
         }
       }
-      // Default: Use priority order (ChatGPT-5 first)
+      // Default: Use new priority order (Perplexity first for search/verification)
       else {
-        // Try ChatGPT-5 first (Priority 1)
-        if (this.aiStatus.chatgpt) {
-          console.log('🤖 Using ChatGPT-5 (Primary AI)...');
-          primaryResult = await this.callChatGPT(request);
-          servicesUsed.push('ChatGPT-5');
+        // Try Perplexity first for search and verification (Priority 1)
+        if (this.aiStatus.perplexity && (request.type === 'search' || request.type === 'realtime')) {
+          console.log('🔍 Using Perplexity (Primary AI - Web Search)...');
+          primaryResult = await this.callPerplexity(request);
+          servicesUsed.push('Perplexity');
         }
         
-        // If ChatGPT fails or is unavailable, try Claude (Priority 2)
-        if (!primaryResult && this.aiStatus.claude) {
-          console.log('🧠 Falling back to Claude (Secondary AI)...');
-          primaryResult = await this.callClaude(request);
-          servicesUsed.push('Claude');
-        }
-        
-        // Get supporting analysis from Perplexity (Priority 3)
-        if (primaryResult) {
-          // Try Perplexity for additional context
-          if (this.aiStatus.perplexity && request.type === 'search') {
-            try {
-              secondaryResult = await this.callPerplexity(request);
-              servicesUsed.push('Perplexity');
-            } catch (error) {
-              console.log('⚠️ Perplexity supplemental search failed:', error);
-            }
+        // Use Claude for analysis (Priority 2)
+        if (this.aiStatus.claude) {
+          if (!primaryResult) {
+            // Claude as primary if Perplexity not applicable
+            console.log('🧠 Using Claude (Secondary AI - Analysis)...');
+            primaryResult = await this.callClaude(request);
+            servicesUsed.push('Claude');
+          } else {
+            // Claude analyzes Perplexity results
+            console.log('🧠 Claude analyzing Perplexity results...');
+            secondaryResult = await this.callClaude({
+              ...request,
+              context: { ...request.context, perplexityResults: primaryResult }
+            });
+            servicesUsed.push('Claude');
           }
+        }
+        
+        // ChatGPT as backup (Priority 3)
+        if (!primaryResult && this.aiStatus.chatgpt) {
+          console.log('🤖 Using ChatGPT (Backup AI)...');
+          primaryResult = await this.callChatGPT(request);
+          servicesUsed.push('ChatGPT');
         }
       }
 
