@@ -345,6 +345,51 @@ function CommunityCard({
 
 
 
+        {/* Policy, License & Amenities Badges */}
+        <div className="mb-2 flex flex-wrap gap-2">
+          {/* Pet Policy */}
+          {community.petFriendly !== undefined && (
+            <span className={`text-xs px-2 py-1 rounded-full ${
+              community.petFriendly ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'
+            }`}>
+              {community.petFriendly ? '🐕 Pet Friendly' : '🚫 No Pets'}
+            </span>
+          )}
+          
+          {/* License Status */}
+          {community.licenseStatus && (
+            <span className={`text-xs px-2 py-1 rounded-full ${
+              community.licenseStatus === 'Licensed' ? 
+                'bg-green-900/50 text-green-400' : 
+                'bg-yellow-900/50 text-yellow-400'
+            }`}>
+              {community.licenseStatus === 'Licensed' ? '✓ Licensed' : community.licenseStatus}
+            </span>
+          )}
+          
+          {/* Amenities */}
+          {community.amenities && community.amenities.includes('wheelchair_accessible') && (
+            <span className="text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
+              ♿ Wheelchair Access
+            </span>
+          )}
+          {community.amenities && community.amenities.includes('wifi') && (
+            <span className="text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
+              📶 WiFi
+            </span>
+          )}
+          {community.amenities && community.amenities.includes('parking') && (
+            <span className="text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
+              🅿️ Parking
+            </span>
+          )}
+          {community.amenities && community.amenities.includes('dining') && (
+            <span className="text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
+              🍽️ Dining
+            </span>
+          )}
+        </div>
+
         {/* Reviews & Inspections Section */}
         <div className="mb-3 p-3 bg-gray-800 rounded-lg">
           <div className="flex gap-4">
@@ -440,50 +485,15 @@ function CommunityCard({
           </div>
         </div>
 
-        {/* Critical Information Row */}
-        <div className="mb-3 space-y-2">
-          {/* Pet Policy */}
-          {community.petFriendly !== undefined && (
-            <div className="flex items-center text-sm">
-              <span className={`text-xs px-2 py-1 rounded-full ${
-                community.petFriendly ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'
-              }`}>
-                {community.petFriendly ? '🐕 Pet Friendly' : '🚫 No Pets'}
-              </span>
+        {/* Medical Restrictions Alert */}
+        {community.medicalRestrictions && community.medicalRestrictions.length > 0 && (
+          <div className="mb-3 bg-red-900/30 border border-red-700/50 rounded-lg p-2">
+            <div className="text-xs text-red-400 font-semibold">⚠️ Medical Restrictions</div>
+            <div className="text-xs text-red-300">
+              {community.medicalRestrictions.slice(0, 2).join(', ')}
             </div>
-          )}
-          
-
-          {/* Medical Restrictions Alert */}
-          {community.medicalRestrictions && community.medicalRestrictions.length > 0 && (
-            <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-2">
-              <div className="text-xs text-red-400 font-semibold">⚠️ Medical Restrictions</div>
-              <div className="text-xs text-red-300">
-                {community.medicalRestrictions.slice(0, 2).join(', ')}
-              </div>
-            </div>
-          )}
-          
-          {/* License & Violations Status */}
-          {(community.licenseStatus || community.violations) && (
-            <div className="flex items-center justify-between text-xs">
-              {community.licenseStatus && (
-                <span className={`px-2 py-1 rounded-full ${
-                  community.licenseStatus === 'Licensed' ? 
-                    'bg-green-900/50 text-green-400' : 
-                    'bg-yellow-900/50 text-yellow-400'
-                }`}>
-                  {community.licenseStatus}
-                </span>
-              )}
-              {community.violations !== undefined && community.violations > 0 && (
-                <span className="px-2 py-1 rounded-full bg-orange-900/50 text-orange-400">
-                  {community.violations} violation{community.violations > 1 ? 's' : ''}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3">

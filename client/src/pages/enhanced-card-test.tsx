@@ -24,6 +24,7 @@ const testCommunities = [
     verified: true,  // This shows COMMUNITY VERIFIED badge
     licenseStatus: "Licensed",
     violations: 0,
+    amenities: ["wheelchair_accessible", "wifi", "parking", "dining"],
     specialPromotions: [
       {
         title: "First Month Free",
