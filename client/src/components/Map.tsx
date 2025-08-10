@@ -17,6 +17,7 @@ import PrioritizedCommunityCard from './PrioritizedCommunityCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { useTheme } from 'next-themes';
 
 // Extend window interface for map reference
 declare global {
@@ -60,27 +61,21 @@ const assistedLivingIcon = createSimpleIcon('#3b82f6'); // Blue
 const memoryCareIcon = createSimpleIcon('#8b5cf6'); // Purple
 const independentIcon = createSimpleIcon('#10b981'); // Green
 
-// Hospital icons with distinct medical cross symbol - professional gradient design
+// Hospital icons with distinct medical cross symbol - sharp pointed with circle border
 const createHospitalIcon = (bgColor: string, isEmergency: boolean = false) => {
-  const size = 42; // Optimized size for visibility
+  const size = 40; // Optimized size for visibility
   const uniqueId = `hospital_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   
-  // Professional gradient colors for hospitals
-  const gradientStart = isEmergency ? '#ef4444' : '#fb923c'; // Red for emergency, orange for urgent care
-  const gradientEnd = isEmergency ? '#991b1b' : '#ea580c'; // Dark red/orange gradients
+  // Color-coded borders for hospitals
+  const borderColor = isEmergency ? '#dc2626' : '#f97316'; // Red for emergency, orange for urgent care
   
   const svgString = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size + 15}" viewBox="0 0 ${size} ${size + 15}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size + 18}" viewBox="0 0 ${size} ${size + 18}">
       <defs>
-        <!-- Professional gradient for hospital pins -->
-        <linearGradient id="${uniqueId}" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" style="stop-color:${gradientStart};stop-opacity:1" />
-          <stop offset="100%" style="stop-color:${gradientEnd};stop-opacity:1" />
-        </linearGradient>
         <!-- Enhanced shadow for depth and prominence -->
         <filter id="shadow_${uniqueId}" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="2.5"/>
-          <feOffset dx="0" dy="3" result="offsetblur"/>
+          <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+          <feOffset dx="0" dy="2" result="offsetblur"/>
           <feFlood flood-color="rgba(0,0,0,0.3)"/>
           <feComposite in2="offsetblur" operator="in"/>
           <feMerge>
@@ -90,24 +85,23 @@ const createHospitalIcon = (bgColor: string, isEmergency: boolean = false) => {
         </filter>
       </defs>
       
-      <!-- Elegant teardrop pin shape with gradient -->
-      <path fill="url(#${uniqueId})" filter="url(#shadow_${uniqueId})"
-            d="M${size/2} 3C${size*0.22} 3 3 ${size*0.22} 3 ${size/2}c0 ${size*0.45} ${size/2-3} ${size+12} ${size/2-3} ${size+12}s${size/2-3} ${size*0.67} ${size/2-3} ${size+12}C${size-3} ${size*0.22} ${size*0.78} 3 ${size/2} 3z"/>
+      <!-- Sharp pointed pin shape with colored border -->
+      <path fill="#ffffff" stroke="${borderColor}" stroke-width="3" filter="url(#shadow_${uniqueId})"
+            d="M${size/2} 2C${size*0.18} 2 2 ${size*0.18} 2 ${size/2}c0 ${size*0.38} ${size/2-2} ${size+16} ${size/2-2} ${size+16}L${size/2} ${size+16}L${size-2} ${size*0.88}C${size-2} ${size*0.88} ${size-2} ${size*0.18} ${size/2} 2z"/>
       
-      <!-- Inner shadow for depth -->
-      <ellipse cx="${size/2}" cy="${size/2}" rx="${size*0.35}" ry="${size*0.32}" 
-               fill="rgba(0,0,0,0.2)" opacity="0.3"/>
-      
-      <!-- Clean white medical cross with subtle background -->
-      <circle cx="${size/2}" cy="${size/2}" r="${size*0.33}" fill="rgba(255,255,255,0.9)"/>
+      <!-- Circle with color-coded border for medical cross -->
+      <circle cx="${size/2}" cy="${size/2}" r="${size*0.42}" 
+              fill="white" 
+              stroke="${borderColor}" 
+              stroke-width="2.5"/>
       
       <!-- Medical cross symbol -->
       <g transform="translate(${size/2}, ${size/2})">
-        <rect x="-3" y="-9" width="6" height="18" fill="${gradientEnd}" rx="1"/>
-        <rect x="-9" y="-3" width="18" height="6" fill="${gradientEnd}" rx="1"/>
+        <rect x="-3" y="-10" width="6" height="20" fill="${borderColor}" rx="1"/>
+        <rect x="-10" y="-3" width="20" height="6" fill="${borderColor}" rx="1"/>
         ${isEmergency ? `
           <!-- Emergency "ER" text -->
-          <text x="0" y="15" text-anchor="middle" fill="${gradientEnd}" font-size="7" font-weight="bold" font-family="Arial, sans-serif">ER</text>
+          <text x="0" y="17" text-anchor="middle" fill="${borderColor}" font-size="8" font-weight="bold" font-family="Arial, sans-serif">ER</text>
         ` : ''}
       </g>
     </svg>
@@ -115,9 +109,9 @@ const createHospitalIcon = (bgColor: string, isEmergency: boolean = false) => {
   
   return new Icon({
     iconUrl: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svgString)}`,
-    iconSize: [size, size + 15],
-    iconAnchor: [size/2, size + 15],
-    popupAnchor: [0, -(size + 15)],
+    iconSize: [size, size + 18],
+    iconAnchor: [size/2, size + 18],
+    popupAnchor: [0, -(size + 18)],
     className: `hospital-marker ${isEmergency ? 'emergency' : 'urgent-care'}`
   });
 };
@@ -617,6 +611,10 @@ export default function Map({
   heatmapOpacity = 0.6,
   showLegend = false
 }: MapProps) {
+  // Get theme for dark mode support
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  
   // Start with city-level zoom (no clusters), default to major city
   const [center, setCenter] = useState<[number, number]>(propCenter || [37.7749, -122.4194]); // Default: San Francisco
   const [zoom, setZoom] = useState(propZoom || 12); // City-level zoom (12-14 is city level)
@@ -1050,31 +1048,22 @@ export default function Map({
                         community.hudPropertyId || 
                         community.dataSource === 'HUD';
 
-    // Professional gradient colors based on data availability
-    const gradientStart = hasLiveData 
-      ? (isHovered ? '#34d399' : '#10b981') // Green gradient for live data
-      : (isHovered ? '#fb7185' : '#ef4444'); // Red gradient for no data
-    
-    const gradientEnd = hasLiveData 
-      ? (isHovered ? '#065f46' : '#047857') // Dark green end
-      : (isHovered ? '#991b1b' : '#dc2626'); // Dark red end
+    // Color-coded border based on data availability
+    const borderColor = hasLiveData 
+      ? (isHovered ? '#22c55e' : '#16a34a') // Green for live data
+      : (isHovered ? '#f87171' : '#ef4444'); // Red for no data
 
-    const size = isHovered ? 36 : 32; // Slightly larger for better visibility
-    const uniqueId = `grad_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const size = isHovered ? 36 : 32;
+    const uniqueId = `pin_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    // Create elegant, professional pin with gradient fill
+    // Create sharp-pointed pin with circle border
     const svgString = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size + 12}" viewBox="0 0 ${size} ${size + 12}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size + 16}" viewBox="0 0 ${size} ${size + 16}">
         <defs>
-          <!-- Professional gradient -->
-          <linearGradient id="${uniqueId}" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:${gradientStart};stop-opacity:1" />
-            <stop offset="100%" style="stop-color:${gradientEnd};stop-opacity:1" />
-          </linearGradient>
           <!-- Enhanced shadow for depth -->
           <filter id="shadow_${uniqueId}" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
-            <feOffset dx="0" dy="2" result="offsetblur"/>
+            <feGaussianBlur in="SourceAlpha" stdDeviation="1.5"/>
+            <feOffset dx="0" dy="1.5" result="offsetblur"/>
             <feFlood flood-color="rgba(0,0,0,0.25)"/>
             <feComposite in2="offsetblur" operator="in"/>
             <feMerge>
@@ -1084,17 +1073,18 @@ export default function Map({
           </filter>
         </defs>
         
-        <!-- Elegant teardrop pin shape with gradient -->
-        <path fill="url(#${uniqueId})" filter="url(#shadow_${uniqueId})"
-              d="M${size/2} 2C${size*0.22} 2 2 ${size*0.22} 2 ${size/2}c0 ${size*0.4} ${size/2-2} ${size+10} ${size/2-2} ${size+10}s${size/2-2} ${size*0.7} ${size/2-2} ${size+10}C${size-2} ${size*0.22} ${size*0.78} 2 ${size/2} 2z"/>
+        <!-- Sharp pointed pin shape -->
+        <path fill="#ffffff" stroke="${borderColor}" stroke-width="2.5" filter="url(#shadow_${uniqueId})"
+              d="M${size/2} 2C${size*0.2} 2 2 ${size*0.2} 2 ${size/2}c0 ${size*0.35} ${size/2-2} ${size+14} ${size/2-2} ${size+14}L${size/2} ${size+14}L${size-2} ${size*0.85}C${size-2} ${size*0.85} ${size-2} ${size*0.2} ${size/2} 2z"/>
         
-        <!-- Inner shadow for depth -->
-        <ellipse cx="${size/2}" cy="${size/2 - 1}" rx="${size*0.35}" ry="${size*0.32}" 
-                 fill="rgba(0,0,0,0.15)" opacity="0.3"/>
+        <!-- Circle with color-coded border for emoji -->
+        <circle cx="${size/2}" cy="${size/2}" r="${size*0.38}" 
+                fill="white" 
+                stroke="${borderColor}" 
+                stroke-width="2"/>
         
-        <!-- Emoji with subtle background circle for better contrast -->
-        <circle cx="${size/2}" cy="${size/2 - 1}" r="${size*0.32}" fill="rgba(255,255,255,0.85)"/>
-        <text x="${size/2}" y="${size/2 + 3}" text-anchor="middle" font-size="${size * 0.45}" font-family="Arial, sans-serif">
+        <!-- Emoji -->
+        <text x="${size/2}" y="${size/2 + 4}" text-anchor="middle" font-size="${size * 0.5}" font-family="Arial, sans-serif">
           ${emoji}
         </text>
       </svg>
@@ -1102,9 +1092,9 @@ export default function Map({
 
     return new Icon({
       iconUrl: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svgString)}`,
-      iconSize: [size, size + 12],
-      iconAnchor: [size/2, size + 12],
-      popupAnchor: [0, -(size + 12)],
+      iconSize: [size, size + 16],
+      iconAnchor: [size/2, size + 16],
+      popupAnchor: [0, -(size + 16)],
       className: `care-level-marker ${isHovered ? 'marker-hover' : ''} ${hasLiveData ? 'has-live-data' : 'no-data'}`
     });
   };
@@ -1244,32 +1234,45 @@ export default function Map({
         {/* Map View Controller - Updates map view when center/zoom props change */}
         <MapViewController center={center} zoom={currentZoom} />
 
-        {/* Professional Basemap Selection with fallback */}
+        {/* Professional Basemap Selection with dark mode support */}
         <LayersControl position="topright">
-          {/* Default OpenStreetMap - Most reliable */}
+          {/* Default OpenStreetMap with dark mode support */}
           <LayersControl.BaseLayer checked name="Street Map (Default)">
             <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url={isDark 
+                ? "https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png"
+                : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              }
+              attribution={isDark
+                ? '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              }
+              subdomains={isDark ? "abcd" : "abc"}
               maxZoom={19}
               errorTileUrl="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
             />
           </LayersControl.BaseLayer>
 
-          {/* CartoDB Positron - Clean, minimal design */}
+          {/* CartoDB - Clean design with dark variant */}
           <LayersControl.BaseLayer name="Clean & Simple">
             <TileLayer
-              url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"
+              url={isDark
+                ? "https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png"
+                : "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png"
+              }
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
               subdomains="abcd"
               maxZoom={19}
             />
           </LayersControl.BaseLayer>
 
-          {/* Stamen Toner Lite - High contrast */}
+          {/* Stamen Toner - High contrast (works in both modes) */}
           <LayersControl.BaseLayer name="High Contrast">
             <TileLayer
-              url="https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.png"
+              url={isDark
+                ? "https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.png"
+                : "https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.png"
+              }
               attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
               subdomains="abcd"
               maxZoom={20}
@@ -1277,11 +1280,18 @@ export default function Map({
             />
           </LayersControl.BaseLayer>
 
-          {/* OpenStreetMap HOT - Humanitarian style */}
+          {/* OpenStreetMap HOT - Humanitarian style (better in light mode) */}
           <LayersControl.BaseLayer name="Humanitarian">
             <TileLayer
-              url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a>'
+              url={isDark
+                ? "https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png"
+                : "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+              }
+              attribution={isDark
+                ? '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a>'
+              }
+              subdomains={isDark ? "abcd" : "abc"}
               maxZoom={19}
             />
           </LayersControl.BaseLayer>
