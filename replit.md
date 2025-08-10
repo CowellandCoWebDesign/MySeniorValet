@@ -25,6 +25,9 @@ MySeniorValet is a technology platform that connects families with publicly avai
     - All tile layers now switch to dark variants when in dark mode
     - CartoDB dark tiles for cleaner dark mode experience
     - Stamen Toner tiles for high contrast in both light and dark modes
+11. **Dev UI Cleanup**: Removed development debug box from production map display
+    - Eliminated permission request status debug info that was showing on map
+    - Production UI now completely clean without development artifacts
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.

@@ -1181,13 +1181,7 @@ export default function Map({
           </Button>
         </div>
 
-        {/* Debug Info */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="absolute top-20 right-4 z-[1000] bg-black/80 text-white text-xs p-2 rounded">
-            <div>Permission: {locationPermissionStatus}</div>
-            <div>Requested: {hasRequestedLocation ? 'yes' : 'no'}</div>
-          </div>
-        )}
+        {/* Debug Info removed per user request */}
 
         {/* Location Permission Prompt */}
         {locationPermissionStatus === 'prompt' && !hasRequestedLocation && (
