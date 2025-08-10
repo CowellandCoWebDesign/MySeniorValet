@@ -20,6 +20,7 @@ interface CommunityInsight {
   careTypes: string[];
   strengths: string[];
   concerns: string[];
+  webInsights?: string[];
 }
 
 interface SearchInsights {
@@ -30,6 +31,12 @@ interface SearchInsights {
   marketSummary: string;
   careTypeAnalysis: string;
   priceAnalysis: string;
+  webSearchInsights?: {
+    marketTrends: string;
+    localNews: string;
+    comparativeAnalysis: string;
+    sources: string[];
+  };
   recommendations: string[];
   generatedBy: string[];
   timestamp: string;
@@ -110,11 +117,14 @@ export function AISearchInsights({ bounds, communityIds, searchQuery }: AIInsigh
       
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className={`grid w-full ${insights.webSearchInsights ? 'grid-cols-5' : 'grid-cols-4'}`}>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="top-picks">Top Picks</TabsTrigger>
             <TabsTrigger value="value">Best Value</TabsTrigger>
             <TabsTrigger value="insights">Insights</TabsTrigger>
+            {insights.webSearchInsights && (
+              <TabsTrigger value="web">Web Intel</TabsTrigger>
+            )}
           </TabsList>
           
           <TabsContent value="overview" className="space-y-4 mt-4">
@@ -208,6 +218,56 @@ export function AISearchInsights({ bounds, communityIds, searchQuery }: AIInsigh
               </div>
             )}
           </TabsContent>
+          
+          {insights.webSearchInsights && (
+            <TabsContent value="web" className="space-y-4 mt-4">
+              <div className="space-y-4">
+                {insights.webSearchInsights.marketTrends && (
+                  <div className="space-y-2">
+                    <h4 className="font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                      <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      Market Trends & Analysis
+                    </h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{insights.webSearchInsights.marketTrends}</p>
+                  </div>
+                )}
+                
+                {insights.webSearchInsights.localNews && (
+                  <div className="space-y-2">
+                    <h4 className="font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                      <MapPin className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      Local Senior Living News
+                    </h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{insights.webSearchInsights.localNews}</p>
+                  </div>
+                )}
+                
+                {insights.webSearchInsights.comparativeAnalysis && (
+                  <div className="space-y-2">
+                    <h4 className="font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                      <Brain className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      Comparative Market Intelligence
+                    </h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{insights.webSearchInsights.comparativeAnalysis}</p>
+                  </div>
+                )}
+                
+                {insights.webSearchInsights.sources && insights.webSearchInsights.sources.length > 0 && (
+                  <div className="space-y-2 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300">Sources</h4>
+                    <ul className="space-y-1">
+                      {insights.webSearchInsights.sources.map((source, idx) => (
+                        <li key={idx} className="text-xs text-gray-600 dark:text-gray-400 flex items-start gap-2">
+                          <span className="text-purple-500 dark:text-purple-400">•</span>
+                          <span className="break-all">{source}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          )}
         </Tabs>
       </CardContent>
     </Card>
@@ -272,6 +332,18 @@ function CommunityInsightCard({ community, showConcerns = false }: {
                 <div key={idx} className="text-xs text-amber-700 dark:text-amber-300 flex items-start gap-1">
                   <span className="text-amber-600 dark:text-amber-400 mt-0.5">⚠</span>
                   <span>{concern}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {/* Show web insights if available */}
+          {community.webInsights && community.webInsights.length > 0 && (
+            <div className="space-y-1 mt-2 border-t pt-2 border-purple-200 dark:border-purple-700">
+              <div className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-1">🌐 Web Intelligence</div>
+              {community.webInsights.slice(0, 2).map((insight, idx) => (
+                <div key={idx} className="text-xs text-purple-600 dark:text-purple-400 flex items-start gap-1">
+                  <span>{insight}</span>
                 </div>
               ))}
             </div>

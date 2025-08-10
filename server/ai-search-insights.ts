@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { PerplexityAIService } from './perplexity-ai-service';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -10,6 +11,7 @@ interface CommunityInsight {
   careTypes: string[];
   strengths: string[];
   concerns: string[];
+  webInsights?: string[];
 }
 
 interface SearchInsights {
@@ -20,6 +22,12 @@ interface SearchInsights {
   marketSummary: string;
   careTypeAnalysis: string;
   priceAnalysis: string;
+  webSearchInsights?: {
+    marketTrends: string;
+    localNews: string;
+    comparativeAnalysis: string;
+    sources: string[];
+  };
   recommendations: string[];
   generatedBy: string[];
   timestamp: string;
@@ -43,19 +51,26 @@ export class AISearchInsights {
       const luxuryOptions = this.findLuxuryOptions(communities);
       const concernsToNote = this.findConcerns(communities);
       
-      // Generate AI-powered summaries using multi-AI system
-      const [marketSummary, careTypeAnalysis, priceAnalysis] = await Promise.all([
+      // Generate AI-powered summaries and web search insights in parallel
+      const [marketSummary, careTypeAnalysis, priceAnalysis, webSearchInsights] = await Promise.all([
         this.generateMarketSummary(communities),
         this.generateCareTypeAnalysis(communities),
-        this.generatePriceAnalysis(communities)
+        this.generatePriceAnalysis(communities),
+        this.generateWebSearchInsights(communities)
       ]);
+      
+      // Enhance top communities with web insights if available
+      if (webSearchInsights && topRated.length > 0) {
+        await this.enhanceWithWebInsights(topRated, webSearchInsights);
+      }
       
       // Generate personalized recommendations
       const recommendations = await this.generateRecommendations({
         communities,
         topRated,
         bestValue,
-        marketSummary
+        marketSummary,
+        webInsights: webSearchInsights
       });
       
       return {
@@ -66,8 +81,9 @@ export class AISearchInsights {
         marketSummary,
         careTypeAnalysis,
         priceAnalysis,
+        webSearchInsights,
         recommendations,
-        generatedBy: ['Claude AI', 'Gemini AI', 'ChatGPT', 'Real Data Analysis'],
+        generatedBy: ['Claude AI', 'Gemini AI', 'ChatGPT', 'Perplexity Web Search', 'Real Data Analysis'],
         timestamp: new Date().toISOString()
       };
       
@@ -445,6 +461,11 @@ export class AISearchInsights {
   private static async generateRecommendations(data: any): Promise<string[]> {
     const recommendations: string[] = [];
     
+    // Add web-powered insights if available
+    if (data.webInsights?.marketTrends) {
+      recommendations.push(`🌐 Web Insight: ${data.webInsights.marketTrends.substring(0, 150)}...`);
+    }
+    
     // Value seekers
     if (data.bestValue.length > 0) {
       const value = data.bestValue[0];
@@ -513,6 +534,139 @@ export class AISearchInsights {
     return recommendations.slice(0, 5);
   }
   
+  /**
+   * Generate web search insights using Perplexity AI
+   */
+  private static async generateWebSearchInsights(communities: any[]): Promise<any> {
+    try {
+      if (!process.env.PERPLEXITY_API_KEY) {
+        console.log('⚠️ Perplexity API key not configured - web search insights disabled');
+        return null;
+      }
+
+      const perplexityService = new PerplexityAIService();
+      
+      // Get location context from communities
+      const locations = [...new Set(communities.map(c => `${c.city}, ${c.state}`))];
+      const primaryLocation = locations[0] || 'this area';
+      
+      // Extract top communities for focused search
+      const topCommunities = communities
+        .filter(c => c.rating && parseFloat(c.rating) >= 4.0)
+        .slice(0, 3)
+        .map(c => c.name);
+      
+      // Build comprehensive query for web search
+      const queries = [];
+      
+      // Search for market trends
+      if (locations.length > 0) {
+        queries.push(`senior living market trends ${primaryLocation} 2025 pricing occupancy`);
+      }
+      
+      // Search for specific community information if we have top-rated ones
+      if (topCommunities.length > 0) {
+        queries.push(`${topCommunities[0]} senior living reviews recent news updates`);
+      }
+      
+      // Search for local senior living news
+      queries.push(`senior living communities ${primaryLocation} news developments waiting lists`);
+      
+      console.log(`🌐 Searching web for insights on ${communities.length} communities...`);
+      
+      // Execute searches in parallel for speed
+      const searchPromises = queries.map(q => 
+        perplexityService.searchRealTime(q).catch(err => {
+          console.error(`Web search failed for query: ${q}`, err);
+          return null;
+        })
+      );
+      
+      const results = await Promise.all(searchPromises);
+      const validResults = results.filter(r => r !== null);
+      
+      if (validResults.length === 0) {
+        return null;
+      }
+      
+      // Parse and structure the web insights
+      const webInsights = {
+        marketTrends: validResults[0]?.summary || 'Current market data being gathered',
+        localNews: validResults[2]?.summary || 'Local senior living updates being collected',
+        comparativeAnalysis: this.extractComparativeInsights(validResults),
+        sources: validResults.flatMap(r => r?.sources || []).slice(0, 5)
+      };
+      
+      console.log(`✅ Web search insights generated with ${webInsights.sources.length} sources`);
+      return webInsights;
+      
+    } catch (error) {
+      console.error('Error generating web search insights:', error);
+      return null;
+    }
+  }
+  
+  /**
+   * Extract comparative insights from search results
+   */
+  private static extractComparativeInsights(results: any[]): string {
+    const insights = [];
+    
+    // Look for pricing comparisons
+    const pricingInfo = results.find(r => r?.summary?.toLowerCase().includes('pricing') || 
+                                         r?.summary?.toLowerCase().includes('cost'));
+    if (pricingInfo) {
+      insights.push('Regional pricing data available from recent market reports');
+    }
+    
+    // Look for occupancy trends
+    const occupancyInfo = results.find(r => r?.summary?.toLowerCase().includes('occupancy') || 
+                                           r?.summary?.toLowerCase().includes('availability'));
+    if (occupancyInfo) {
+      insights.push('Current occupancy trends indicate market demand patterns');
+    }
+    
+    // Look for quality indicators
+    const qualityInfo = results.find(r => r?.summary?.toLowerCase().includes('quality') || 
+                                         r?.summary?.toLowerCase().includes('rating'));
+    if (qualityInfo) {
+      insights.push('Quality metrics and ratings data found from industry sources');
+    }
+    
+    return insights.length > 0 
+      ? insights.join('. ') 
+      : 'Comparative market analysis being compiled from multiple sources';
+  }
+  
+  /**
+   * Enhance community insights with web search data
+   */
+  private static async enhanceWithWebInsights(communities: CommunityInsight[], webInsights: any): Promise<void> {
+    if (!webInsights || communities.length === 0) {
+      return;
+    }
+    
+    // Add web insights to top communities
+    communities.forEach((community, index) => {
+      if (index < 3 && webInsights) {
+        community.webInsights = [];
+        
+        // Add relevant web insights based on community characteristics
+        if (webInsights.marketTrends) {
+          community.webInsights.push(`📊 Market Context: ${webInsights.marketTrends.substring(0, 100)}...`);
+        }
+        
+        if (webInsights.localNews && index === 0) {
+          community.webInsights.push(`📰 Local Updates: ${webInsights.localNews.substring(0, 100)}...`);
+        }
+        
+        if (webInsights.comparativeAnalysis) {
+          community.webInsights.push(`📈 ${webInsights.comparativeAnalysis}`);
+        }
+      }
+    });
+  }
+
   /**
    * Return empty insights structure
    */
