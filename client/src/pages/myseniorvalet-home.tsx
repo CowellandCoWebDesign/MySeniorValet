@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useDebounce } from "@/hooks/use-debounce";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock } from "lucide-react";
 import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
@@ -528,67 +528,164 @@ export default function MySeniorValetHome() {
         </div>
       </div>
 
-      {/* Welcome to History in the Making - Launch Message */}
-      <section className="px-4 py-16 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-pink-900/20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 dark:from-blue-400/10 dark:to-purple-400/10"></div>
-        <div className="max-w-5xl mx-auto text-center relative">
+      {/* TODAY, EVERYTHING CHANGES - Historic Launch Message */}
+      <section className="px-4 py-16 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10"></div>
+        <div className="max-w-6xl mx-auto text-center relative">
           <div className="mb-8">
-            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-sm font-bold shadow-lg mb-6 animate-pulse">
-              <Sparkles className="w-4 h-4 mr-2" />
+            <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-base font-bold shadow-2xl mb-6 animate-pulse">
+              <Sparkles className="w-5 h-5 mr-2" />
               NOW LIVE ACROSS USA • MEXICO • CANADA
-              <Sparkles className="w-4 h-4 ml-2" />
+              <Sparkles className="w-5 h-5 ml-2" />
             </div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-4">
-              Today, Everything Changes
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-4 drop-shadow-2xl">
+              TODAY, EVERYTHING CHANGES
             </h2>
-            <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 font-medium">
-              For Every Family Searching for Senior Care
+            <p className="text-2xl md:text-3xl text-gray-200 font-bold">
+              The Darkness in Senior Living Ends Now
             </p>
           </div>
           
-          <Card className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm shadow-2xl border-0">
+          <Card className="bg-white/98 dark:bg-gray-900/98 backdrop-blur-sm shadow-2xl border-0">
             <CardContent className="p-10 md:p-14">
-              <div className="space-y-6">
-                <p className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 leading-tight">
-                  "The day your parent needs care will be one of the hardest days of your life."
-                </p>
-                
-                <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 leading-relaxed">
-                  We know because we've been there. The sleepless nights. The endless phone calls. The frustration of hearing <span className="font-semibold text-red-600 dark:text-red-400">"Contact us for pricing"</span> over and over again. The guilt of not knowing if you're making the right choice.
-                </p>
-
-                <div className="my-8 py-8 border-y-2 border-purple-200 dark:border-purple-700">
-                  <p className="text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-                    Today, we're changing all of that.
-                  </p>
-                  <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300">
-                    For the first time in history, families across <strong className="text-blue-600 dark:text-blue-400">North America</strong> have access to <strong className="text-green-600 dark:text-green-400">real pricing</strong>, <strong className="text-purple-600 dark:text-purple-400">authentic reviews</strong>, and <strong className="text-orange-600 dark:text-orange-400">transparent information</strong> from over 34,000 senior living communities.
-                  </p>
+              <div className="space-y-8">
+                {/* The Darkness Section */}
+                <div className="bg-gray-900 dark:bg-black rounded-xl p-8 text-white">
+                  <h3 className="text-2xl md:text-3xl font-bold mb-6 text-red-400">
+                    For Too Long, Families Have Been Kept in the Dark
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-6 text-left">
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-red-300">No Information Online</p>
+                          <p className="text-gray-400 text-sm">When your parent falls or gets diagnosed, you search desperately for options. You find nothing but marketing fluff.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-red-300">What's the Difference?</p>
+                          <p className="text-gray-400 text-sm">Independent Living? Assisted Living? Memory Care? Skilled Nursing? No one explains what these mean or when each is appropriate.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-red-300">"Contact for Pricing"</p>
+                          <p className="text-gray-400 text-sm">Every website. Every brochure. Hidden pricing everywhere. As if your family's crisis isn't stressful enough.</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-red-300">Middleman Paywalls</p>
+                          <p className="text-gray-400 text-sm">Aggregators charge families $500+ just to access basic information that should be free.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-red-300">Endless Tours, No Records</p>
+                          <p className="text-gray-400 text-sm">You tour 10 facilities, make 50 calls, and have nothing to show for it. No way to compare or share with family.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-red-300">Communities Can't Be Found</p>
+                          <p className="text-gray-400 text-sm">Great facilities stay empty because families can't find them. They're hidden in the darkness too.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-xl p-8 border border-blue-300 dark:border-blue-600">
-                  <Globe className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto mb-4" />
-                  <p className="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">
+                {/* The Light Section */}
+                <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-900/30 dark:to-green-900/30 rounded-xl p-8 border-2 border-green-400">
+                  <h3 className="text-2xl md:text-3xl font-bold mb-6 text-green-600 dark:text-green-400">
+                    THIS STOPS NOW
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-6 text-left">
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-gray-800 dark:text-gray-200">Complete Care Spectrum Education</p>
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">Finally understand what each level means, when it's appropriate, and what to expect.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-gray-800 dark:text-gray-200">Real Pricing, Real Availability</p>
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">Actual prices. Current availability. No more "contact us" gatekeeping.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-gray-800 dark:text-gray-200">Zero Paywalls, 100% Free</p>
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">All publicly available information, organized and accessible. No subscriptions. No fees. Ever.</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-gray-800 dark:text-gray-200">Save & Share Your Research</p>
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">Build comparison lists, save notes, share with family. Your hard work documented.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-gray-800 dark:text-gray-200">Communities Shine Bright</p>
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">Every facility can represent itself honestly. No more hiding great care in the shadows.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-gray-800 dark:text-gray-200">Immediate Access to Everything</p>
+                          <p className="text-gray-600 dark:text-gray-400 text-sm">34,000+ communities. All information. Right now. No waiting.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* The Promise */}
+                <div className="my-8 py-8 border-y-2 border-purple-400 dark:border-purple-600">
+                  <Globe className="w-16 h-16 text-purple-600 dark:text-purple-400 mx-auto mb-6" />
+                  <p className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-200 mb-4">
                     From Seattle to Mexico City, from Toronto to Miami
                   </p>
-                  <p className="text-base md:text-lg text-gray-700 dark:text-gray-300">
-                    Every family now has a trusted ally in their corner. No hidden costs. No sales pressure. No more searching in the dark. Just compassionate, transparent guidance when you need it most.
+                  <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300">
+                    Today marks the beginning of <strong className="text-purple-600 dark:text-purple-400">transparency</strong> in senior living.
+                  </p>
+                  <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mt-4">
+                    We're not just launching a platform. We're launching a movement to bring light to an industry that has operated in darkness for too long.
                   </p>
                 </div>
 
                 <div className="pt-6">
-                  <p className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">
-                    This is more than a website launch.
+                  <p className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+                    To every family searching in the dark: The lights are on now.
                   </p>
-                  <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 italic">
-                    This is a promise to every son, daughter, spouse, and family member: <strong className="not-italic text-blue-600 dark:text-blue-400">You deserve the truth. You deserve transparency. You deserve support.</strong>
+                  <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mt-4">
+                    <strong>You deserve the truth. Communities deserve to be found. The darkness ends today.</strong>
                   </p>
                 </div>
               </div>
 
               <div className="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
-                <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-6">
-                  Welcome to the movement that's putting families first.
+                <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-6 font-bold">
+                  Welcome to the Dawn of Transparency in Senior Living
                 </p>
                 <div className="flex flex-wrap justify-center gap-4">
                   <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
@@ -596,12 +693,12 @@ export default function MySeniorValetHome() {
                     USA • MEXICO • CANADA
                   </Badge>
                   <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
-                    <Users className="w-4 h-4 mr-2" />
+                    <Building className="w-4 h-4 mr-2" />
                     34,000+ Communities
                   </Badge>
                   <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
-                    <Heart className="w-4 h-4 mr-2" />
-                    100% Transparent
+                    <Unlock className="w-4 h-4 mr-2" />
+                    Zero Paywalls
                   </Badge>
                 </div>
               </div>
