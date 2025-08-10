@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -81,6 +81,14 @@ function CommunityCard({
   isFavorite = false 
 }: CommunityCardProps) {
   
+  // State for market pricing intelligence
+  const [marketPricing, setMarketPricing] = useState<{
+    display: string;
+    confidence: 'high' | 'medium' | 'low';
+    source: string;
+  } | null>(null);
+  const [loadingPricing, setLoadingPricing] = useState(false);
+  
   // Debug logging to understand what's being rendered
   console.log('🎯 PrioritizedCommunityCard rendering:', {
     name: community.name,
@@ -95,8 +103,9 @@ function CommunityCard({
   // Helper functions
   const isHudProperty = Boolean(community.hudPropertyId);
   
-  // Price display logic - Golden Data Rule: only show verified data
+  // Price display logic - Golden Data Rule: only show verified data OR market intelligence
   const getPriceDisplay = () => {
+    // First check for verified pricing
     if (isHudProperty && community.rentPerMonth) {
       const rent = typeof community.rentPerMonth === 'string' 
         ? parseInt(community.rentPerMonth.replace(/[^0-9]/g, '')) 
@@ -113,8 +122,45 @@ function CommunityCard({
       return `$${community.monthlyRentRangeStart.toLocaleString()} - $${community.monthlyRentRangeEnd.toLocaleString()}/mo`;
     }
     
-    return null; // No synthetic data - follow Golden Data Rule
+    // If no verified pricing, return market intelligence pricing
+    if (marketPricing) {
+      return marketPricing.display;
+    }
+    
+    return null; // Will trigger market pricing fetch
   };
+  
+  // Fetch market pricing intelligence when no verified pricing exists
+  useEffect(() => {
+    const fetchMarketPricing = async () => {
+      // Skip if we already have verified pricing
+      if (isHudProperty && community.rentPerMonth) return;
+      if (community.livePricing?.assistedLiving) return;
+      if (community.monthlyRentRangeStart && community.monthlyRentRangeEnd) return;
+      if (marketPricing) return; // Already fetched
+      
+      setLoadingPricing(true);
+      try {
+        const response = await fetch(`/api/market-pricing/${community.id}`);
+        const data = await response.json();
+        
+        if (data.pricing) {
+          setMarketPricing({
+            display: data.display,
+            confidence: data.confidence,
+            source: data.source
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching market pricing:', error);
+      } finally {
+        setLoadingPricing(false);
+      }
+    };
+    
+    // Fetch market pricing if needed
+    fetchMarketPricing();
+  }, [community.id, isHudProperty, community.rentPerMonth, community.livePricing, community.monthlyRentRangeStart, community.monthlyRentRangeEnd, marketPricing]);
 
   const priceDisplay = getPriceDisplay();
   
@@ -230,11 +276,25 @@ function CommunityCard({
         </div>
         
         {/* Pricing Section - Color Coded by Verification Source */}
-        <div className={`${priceDisplay ? pricingColors.bgColor : 'bg-gray-700'} text-white px-4 py-2 flex items-center justify-end`}>
-          <span className="text-sm font-medium">
-            {priceDisplay || 'Contact for Pricing'}
-          </span>
-          {priceDisplay && <div className={`w-2 h-2 ${pricingColors.dotColor} rounded-full ml-2`}></div>}
+        <div className={`${priceDisplay ? (marketPricing ? 'bg-purple-600' : pricingColors.bgColor) : 'bg-gray-700'} text-white px-4 py-2 flex items-center justify-end`}>
+          <div className="text-right">
+            {marketPricing && (
+              <div className="text-xs text-purple-200 mb-1">Market Estimate</div>
+            )}
+            <span className="text-sm font-medium">
+              {loadingPricing ? 'Loading pricing...' : (priceDisplay || 'Pricing Unavailable')}
+            </span>
+          </div>
+          {priceDisplay && !marketPricing && <div className={`w-2 h-2 ${pricingColors.dotColor} rounded-full ml-2`}></div>}
+          {marketPricing && (
+            <div className={`ml-2 text-xs px-2 py-0.5 rounded ${
+              marketPricing.confidence === 'high' ? 'bg-green-500/20 text-green-200' :
+              marketPricing.confidence === 'medium' ? 'bg-yellow-500/20 text-yellow-200' :
+              'bg-orange-500/20 text-orange-200'
+            }`}>
+              {marketPricing.confidence === 'high' ? '⬤' : marketPricing.confidence === 'medium' ? '◐' : '○'}
+            </div>
+          )}
         </div>
       </div>
 

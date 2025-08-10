@@ -7,9 +7,57 @@ import { enhancedSearchService } from "../enhanced-search-service";
 import { superclusterService } from "../services/supercluster";
 import { geocodeLocation, getZoomLevel } from "../geocoding-data";
 import { eliminateCallForPricing } from "../intelligent-pricing-system";
+import { MarketPricingIntelligence } from "../market-pricing-intelligence";
 import { z } from "zod";
 
 export function registerSearchRoutes(app: Express) {
+  // Market pricing intelligence endpoint
+  app.get('/api/market-pricing/:communityId', async (req, res) => {
+    try {
+      const { communityId } = req.params;
+      
+      // Get community details
+      const [community] = await db
+        .select({
+          city: communities.city,
+          state: communities.state,
+          careType: communities.communitySubtype
+        })
+        .from(communities)
+        .where(eq(communities.id, parseInt(communityId)))
+        .limit(1);
+      
+      if (!community) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+      
+      // Get market pricing intelligence
+      const marketPricing = await MarketPricingIntelligence.getMarketPricing(
+        community.city,
+        community.state,
+        community.careType || 'assisted living'
+      );
+      
+      if (!marketPricing) {
+        return res.json({ 
+          pricing: null,
+          message: 'Market pricing data unavailable' 
+        });
+      }
+      
+      const pricingWithConfidence = MarketPricingIntelligence.getPricingWithConfidence(marketPricing);
+      
+      res.json({
+        pricing: marketPricing,
+        display: pricingWithConfidence.display,
+        confidence: pricingWithConfidence.confidence,
+        source: pricingWithConfidence.source
+      });
+    } catch (error) {
+      console.error('Error fetching market pricing:', error);
+      res.status(500).json({ error: 'Failed to fetch market pricing' });
+    }
+  });
   // Vendor spatial search endpoint for map
   app.get('/api/vendors/search/spatial', async (req, res) => {
     try {
