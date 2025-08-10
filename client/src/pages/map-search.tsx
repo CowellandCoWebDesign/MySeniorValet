@@ -1279,19 +1279,137 @@ export default function MapSearch() {
               
               {/* Heatmap Layer Toggle */}
               {viewMode === 'map' && (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
-                  <Label htmlFor="heatmap-toggle" className="flex items-center gap-1.5 cursor-pointer">
-                    <Flame className={`w-4 h-4 ${showHeatmapLayer ? 'text-orange-500 animate-fire-wiggle' : 'text-gray-600 dark:text-gray-400'}`} />
-                    <span className={`text-sm font-medium ${showHeatmapLayer ? 'text-orange-600 dark:text-orange-400' : 'text-gray-900 dark:text-white'}`}>
-                      Availability Heat
-                    </span>
-                  </Label>
-                  <Switch
-                    id="heatmap-toggle"
-                    checked={showHeatmapLayer}
-                    onCheckedChange={setShowHeatmapLayer}
-                    className={showHeatmapLayer ? 'data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-red-500 data-[state=checked]:to-orange-500' : ''}
-                  />
+                <div className="flex items-center gap-2">
+                  {/* Legend Button */}
+                  <Drawer>
+                    <DrawerTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="default" 
+                        className={isDarkMode 
+                          ? 'border-gray-600 bg-gray-800/90 backdrop-blur text-white hover:bg-gray-700' 
+                          : 'border-gray-300 bg-white/90 backdrop-blur text-gray-900 hover:bg-gray-50'
+                        }
+                      >
+                        <Info className="w-4 h-4 mr-2" />
+                        Legend
+                      </Button>
+                    </DrawerTrigger>
+                    <DrawerContent className={isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}>
+                      <DrawerHeader>
+                        <DrawerTitle className="text-xl font-bold text-center">Map Legend & Instructions</DrawerTitle>
+                      </DrawerHeader>
+                      <div className="px-6 pb-6 max-h-[70vh] overflow-y-auto">
+                        {/* Legend Content */}
+                        <div className="space-y-6">
+                          {/* Community Markers */}
+                          <div>
+                            <h3 className="font-semibold text-lg mb-3">Community Types</h3>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-10 bg-green-600 rounded-b-full flex items-center justify-center shadow-lg">
+                                  <Home className="w-4 h-4 text-white" />
+                                </div>
+                                <span>Regular Communities - Standard senior living</span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-10 bg-blue-600 rounded-b-full flex items-center justify-center shadow-lg">
+                                  <DollarSign className="w-4 h-4 text-white" />
+                                </div>
+                                <span>HUD Properties - Government-subsidized with verified pricing</span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-10 bg-red-600 rounded-b-full flex items-center justify-center shadow-lg">
+                                  <Heart className="w-4 h-4 text-white" />
+                                </div>
+                                <span>Communities with Limited Availability</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Healthcare Facilities */}
+                          <div>
+                            <h3 className="font-semibold text-lg mb-3">Healthcare Facilities</h3>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
+                                  <span className="text-white font-bold text-xs">H</span>
+                                </div>
+                                <span>Hospitals - Nearby medical centers</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Cluster Indicators */}
+                          <div>
+                            <h3 className="font-semibold text-lg mb-3">Cluster Numbers</h3>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg">
+                                  <span className="text-white font-bold">25</span>
+                                </div>
+                                <span>Number indicates communities grouped in this area</span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                                  <span className="text-white font-bold text-sm">100+</span>
+                                </div>
+                                <span>Larger circles = More communities</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Heat Map */}
+                          <div>
+                            <h3 className="font-semibold text-lg mb-3">Availability Heat Map</h3>
+                            <div className="space-y-2">
+                              <p className="text-sm">When enabled, shows occupancy patterns:</p>
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 bg-gradient-to-r from-green-500 to-yellow-500 rounded"></div>
+                                <span className="text-sm">High Availability (Many open units)</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 bg-gradient-to-r from-yellow-500 to-orange-500 rounded"></div>
+                                <span className="text-sm">Medium Availability</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 bg-gradient-to-r from-orange-500 to-red-500 rounded"></div>
+                                <span className="text-sm">Low Availability (Few open units)</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Navigation Tips */}
+                          <div>
+                            <h3 className="font-semibold text-lg mb-3">Navigation Tips</h3>
+                            <ul className="space-y-1 text-sm">
+                              <li>• Click on markers to view community details</li>
+                              <li>• Click cluster circles to zoom in</li>
+                              <li>• Use + / - buttons or pinch to zoom</li>
+                              <li>• Drag the map to explore different areas</li>
+                              <li>• Use filters above to refine your search</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </DrawerContent>
+                  </Drawer>
+
+                  {/* Availability Heat Toggle */}
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+                    <Label htmlFor="heatmap-toggle" className="flex items-center gap-1.5 cursor-pointer">
+                      <Flame className={`w-4 h-4 ${showHeatmapLayer ? 'text-orange-500 animate-fire-wiggle' : 'text-gray-600 dark:text-gray-400'}`} />
+                      <span className={`text-sm font-medium ${showHeatmapLayer ? 'text-orange-600 dark:text-orange-400' : 'text-gray-900 dark:text-white'}`}>
+                        Availability Heat
+                      </span>
+                    </Label>
+                    <Switch
+                      id="heatmap-toggle"
+                      checked={showHeatmapLayer}
+                      onCheckedChange={setShowHeatmapLayer}
+                      className={showHeatmapLayer ? 'data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-red-500 data-[state=checked]:to-orange-500' : ''}
+                    />
+                  </div>
                 </div>
               )}
             </div>
