@@ -1276,27 +1276,6 @@ export default function MapSearch() {
                   )}
                 </Button>
               </div>
-              
-              {/* Heatmap Layer Toggle */}
-              {viewMode === 'map' && (
-                <div className="flex items-center gap-2">
-                  {/* Availability Heat Toggle Only */}
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
-                    <Label htmlFor="heatmap-toggle" className="flex items-center gap-1.5 cursor-pointer">
-                      <Flame className={`w-4 h-4 ${showHeatmapLayer ? 'text-orange-500 animate-fire-wiggle' : 'text-gray-600 dark:text-gray-400'}`} />
-                      <span className={`text-sm font-medium ${showHeatmapLayer ? 'text-orange-600 dark:text-orange-400' : 'text-gray-900 dark:text-white'}`}>
-                        Availability Heat
-                      </span>
-                    </Label>
-                    <Switch
-                      id="heatmap-toggle"
-                      checked={showHeatmapLayer}
-                      onCheckedChange={setShowHeatmapLayer}
-                      className={showHeatmapLayer ? 'data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-red-500 data-[state=checked]:to-orange-500' : ''}
-                    />
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
