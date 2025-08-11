@@ -27,13 +27,10 @@ export class WebSocketService {
    * Initialize WebSocket server
    */
   initialize(server: Server) {
-    // TEMPORARILY DISABLED: WebSocket server causing Vite instability
-    // The WebSocket on /ws path conflicts with Vite's HMR WebSocket
-    // Uncomment this block when ready to use WebSocket features
-    /*
+    // Use /api/ws path to avoid conflict with Vite's HMR WebSocket
     this.wss = new WebSocketServer({ 
       server, 
-      path: '/ws',
+      path: '/api/ws',  // Changed from /ws to /api/ws to avoid Vite conflict
       perMessageDeflate: false
     });
     
@@ -41,9 +38,8 @@ export class WebSocketService {
     
     // Start heartbeat monitoring
     this.startHeartbeat();
-    */
     
-    console.log('⚠️ WebSocket server disabled to fix Vite stability');
+    console.log('✅ WebSocket server initialized on /api/ws (Vite-compatible path)');
   }
   
   /**

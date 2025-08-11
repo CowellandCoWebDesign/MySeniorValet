@@ -57,7 +57,7 @@ export function MessagesSection() {
     if (!user?.id) return;
 
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    const wsUrl = `${protocol}//${window.location.host}/api/ws`;  // Updated to match server WebSocket path
     
     const ws = new WebSocket(wsUrl);
     
