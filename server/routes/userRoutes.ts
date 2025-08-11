@@ -535,4 +535,102 @@ export function registerUserRoutes(app: Express) {
       res.status(500).json({ message: "Failed to fetch notes" });
     }
   });
+
+  // TourTracker™ Routes - Get user's tours 
+  app.get('/api/user/tours/:userId', requireAuth, async (req: any, res) => {
+    try {
+      const { userId } = req.params;
+      
+      // Mock data for now - replace with database query
+      const tours = [
+        {
+          id: 'TOUR-' + Date.now(),
+          communityId: 7349,
+          communityName: "Sunrise Senior Living",
+          communityAddress: "123 Oak Street, Austin, TX 78701",
+          tourDate: new Date(Date.now() + 86400000).toISOString(), // Tomorrow
+          tourTime: "2:00 PM",
+          tourType: 'in-person',
+          status: 'confirmed',
+          guideContact: {
+            name: "Sarah Johnson",
+            phone: "(512) 555-0123",
+            email: "sarah@sunrisesenior.com"
+          },
+          notes: "Looking forward to showing you our Memory Care facilities"
+        },
+        {
+          id: 'TOUR-' + (Date.now() - 1),
+          communityId: 7350,
+          communityName: "Brookdale Senior Living",
+          communityAddress: "456 Main Street, Austin, TX 78702",
+          tourDate: new Date(Date.now() - 86400000).toISOString(), // Yesterday
+          tourTime: "10:00 AM",
+          tourType: 'virtual',
+          status: 'completed',
+          rating: 5,
+          review: "Excellent tour! The staff was very knowledgeable and the facilities were impressive.",
+          trackedData: {
+            duration: 2700, // 45 minutes in seconds
+            endTime: new Date(Date.now() - 86400000).toISOString()
+          }
+        }
+      ];
+      
+      res.json(tours);
+    } catch (error) {
+      console.error('Error fetching user tours:', error);
+      res.status(500).json({ error: 'Failed to fetch tours' });
+    }
+  });
+
+  // TourTracker™ - Update tour status
+  app.patch('/api/tours/:tourId/status', requireAuth, async (req: any, res) => {
+    try {
+      const { tourId } = req.params;
+      const { status } = req.body;
+      
+      // Update tour status in database
+      // For now, just return success
+      res.json({ success: true, tourId, status });
+    } catch (error) {
+      console.error('Error updating tour status:', error);
+      res.status(500).json({ error: 'Failed to update tour status' });
+    }
+  });
+
+  // TourTracker™ - Save tour tracking data
+  app.post('/api/tours/:tourId/tracking', requireAuth, async (req: any, res) => {
+    try {
+      const { tourId } = req.params;
+      const trackingData = req.body;
+      
+      // Save tracking data to database
+      // For now, just return success
+      res.json({ success: true, tourId, trackingData });
+    } catch (error) {
+      console.error('Error saving tracking data:', error);
+      res.status(500).json({ error: 'Failed to save tracking data' });
+    }
+  });
+
+  // TourTracker™ - Submit tour review
+  app.post('/api/tours/:tourId/review', requireAuth, async (req: any, res) => {
+    try {
+      const { tourId } = req.params;
+      const { rating, review, photos } = req.body;
+      
+      // Save review to database
+      // For now, just return success
+      res.json({ 
+        success: true, 
+        tourId, 
+        reviewId: 'REV-' + Date.now(),
+        message: 'Review submitted successfully'
+      });
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      res.status(500).json({ error: 'Failed to submit review' });
+    }
+  });
 }
