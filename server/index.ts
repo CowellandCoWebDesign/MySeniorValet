@@ -246,8 +246,15 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
     
-    // Initialize simple WebSocket communication
-    simpleWebSocket.initialize(server);
+    // Initialize WebSocket communication service
+    import('./services/websocket-service').then(({ websocketService }) => {
+      websocketService.initialize(server);
+      console.log('✅ WebSocket communication service initialized');
+    }).catch(error => {
+      console.error('Failed to initialize WebSocket service:', error);
+      // Fallback to simple WebSocket if full service fails
+      simpleWebSocket.initialize(server);
+    });
     
     console.log('🚀 ALL ENTERPRISE INFRASTRUCTURE SYSTEMS ACTIVATED:');
     console.log('  ✅ Redis Caching System - Lightning-fast performance');

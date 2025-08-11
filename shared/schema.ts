@@ -2667,6 +2667,73 @@ export const leasingTasksRelations = relations(leasingTasks, ({ one }) => ({
   }),
 }));
 
+// WebSocket Connections for Real-time Messaging
+export const wsConnections = pgTable("ws_connections", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  socketId: varchar("socket_id", { length: 255 }).notNull().unique(),
+  status: varchar("status", { length: 50 }).default('active'), // 'active', 'idle', 'disconnected'
+  deviceType: varchar("device_type", { length: 50 }), // 'desktop', 'mobile', 'tablet'
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  lastHeartbeat: timestamp("last_heartbeat").defaultNow(),
+  connectedAt: timestamp("connected_at").defaultNow(),
+  disconnectedAt: timestamp("disconnected_at"),
+}, (table) => [
+  index("ws_connections_user_idx").on(table.userId),
+  index("ws_connections_status_idx").on(table.status),
+  index("ws_connections_heartbeat_idx").on(table.lastHeartbeat),
+]);
+
+// Family Invitations Table
+export const familyInvitations = pgTable("family_invitations", {
+  id: serial("id").primaryKey(),
+  inviterId: varchar("inviter_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  inviteeEmail: varchar("invitee_email", { length: 255 }).notNull(),
+  inviteePhone: varchar("invitee_phone", { length: 20 }),
+  inviteeName: varchar("invitee_name", { length: 255 }),
+  inviteeId: varchar("invitee_id").references(() => users.id, { onDelete: "set null" }), // Set when invitee registers
+  
+  // Invitation Details
+  invitationToken: varchar("invitation_token", { length: 255 }).notNull().unique(),
+  relationship: varchar("relationship", { length: 100 }), // 'spouse', 'child', 'parent', 'sibling', 'friend', 'caregiver'
+  message: text("message"),
+  
+  // Sharing Preferences
+  sharePreferences: jsonb("share_preferences").$type<{
+    communities: boolean;
+    notes: boolean;
+    documents: boolean;
+    tours: boolean;
+    messages: boolean;
+  }>().default({
+    communities: true,
+    notes: true,
+    documents: false,
+    tours: true,
+    messages: true,
+  }),
+  
+  // Status Tracking
+  status: varchar("status", { length: 50 }).default('pending'), // 'pending', 'accepted', 'declined', 'expired'
+  acceptedAt: timestamp("accepted_at"),
+  declinedAt: timestamp("declined_at"),
+  expiresAt: timestamp("expires_at").notNull(),
+  
+  // Metadata
+  sentVia: varchar("sent_via", { length: 50 }).default('email'), // 'email', 'sms', 'both'
+  reminderCount: integer("reminder_count").default(0),
+  lastReminderAt: timestamp("last_reminder_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("family_invitations_inviter_idx").on(table.inviterId),
+  index("family_invitations_invitee_email_idx").on(table.inviteeEmail),
+  index("family_invitations_token_idx").on(table.invitationToken),
+  index("family_invitations_status_idx").on(table.status),
+  index("family_invitations_expires_idx").on(table.expiresAt),
+]);
+
 // Removal Requests Table
 export const removalRequests = pgTable("removal_requests", {
   id: serial("id").primaryKey(),
