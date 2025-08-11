@@ -37,6 +37,7 @@ import { TourScheduler } from "@/components/TourScheduler";
 import { MessageCommunityButton } from "@/components/message-community-button";
 import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
 import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
+import { PricingHistory } from "@/components/pricing-history";
 
 // Intelligent Pricing Prediction Component
 const IntelligentPricingPrediction = ({ community }: { community: any }) => {
@@ -1768,6 +1769,12 @@ export default function CommunityDetail() {
 
             {/* Intelligent Pricing Prediction */}
             <IntelligentPricingPrediction community={community} />
+
+            {/* Pricing History & Transparency */}
+            <PricingHistory 
+              communityId={community.id} 
+              communityName={community.name} 
+            />
 
             {/* Available Units Section - Enhanced with Rich Information */}
             <Card>
