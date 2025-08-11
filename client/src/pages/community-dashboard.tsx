@@ -19,6 +19,7 @@ import {
   Eye, 
   MessageSquare, 
   Calendar as CalendarIcon,
+  CalendarDays,
   Phone,
   Mail,
   Star,
@@ -43,7 +44,10 @@ import {
   ChevronDown,
   AlertCircle,
   CheckCircle,
-  Building
+  Building,
+  LineChart,
+  MessageSquareText,
+  BarChart3
 } from "lucide-react";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
@@ -63,6 +67,7 @@ export default function CommunityDashboard() {
   const [isEditing, setIsEditing] = useState(false);
   const [showTourDetails, setShowTourDetails] = useState(false);
   const [selectedTour, setSelectedTour] = useState<any>(null);
+  const [tourMateSection, setTourMateSection] = useState("management"); // For TourMate™ sub-navigation
   
   // Form state for contact information
   const [formData, setFormData] = useState({
@@ -1119,21 +1124,59 @@ export default function CommunityDashboard() {
             </div>
           </TabsContent>
 
-          {/* Tours Tab */}
+          {/* Tours Tab - Integrated with TourMate™ */}
           <TabsContent value="tours" className="space-y-6">
-            <Card>
-              <CardHeader>
+            {/* TourMate™ Sub-Navigation */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <h2 className="text-2xl font-bold">TourMate™ Management Center</h2>
+                <Badge className="bg-gradient-to-r from-purple-600 to-violet-600 text-white">
+                  Powered by TourMate™
+                </Badge>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant={tourMateSection === 'management' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setTourMateSection('management')}
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Tour Management
+                </Button>
+                <Button 
+                  variant={tourMateSection === 'analytics' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setTourMateSection('analytics')}
+                >
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  TourMate™ Analytics
+                </Button>
+                <Button 
+                  variant={tourMateSection === 'reviews' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setTourMateSection('reviews')}
+                >
+                  <MessageSquareText className="w-4 h-4 mr-2" />
+                  Reviews & Feedback
+                </Button>
+              </div>
+            </div>
+
+            {/* Tour Management Section */}
+            {tourMateSection === 'management' && (
+              <Card>
+                <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center">
                     <Calendar className="w-5 h-5 mr-2 text-blue-600" />
-                    Tour Management
+                    Tour Scheduling & Management
                   </div>
                   <Badge variant="outline" className="text-sm">
                     {toursData?.tours?.filter((t: any) => t.tour.status === 'scheduled').length || 0} Pending
                   </Badge>
                 </CardTitle>
                 <CardDescription>
-                  Manage scheduled tours and appointments for your community
+                  Manage scheduled tours and appointments through TourMate™
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -1256,9 +1299,11 @@ export default function CommunityDashboard() {
                 )}
               </CardContent>
             </Card>
+            )}
 
             {/* Tour Statistics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {tourMateSection === 'management' && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
@@ -1305,6 +1350,217 @@ export default function CommunityDashboard() {
                 </CardContent>
               </Card>
             </div>
+            )}
+
+            {/* TourMate™ Analytics Section */}
+            {tourMateSection === 'analytics' && (
+              <Card className="border-2 border-purple-500/20">
+                <CardHeader className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20">
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <BarChart3 className="w-5 h-5 mr-2 text-purple-600" />
+                      TourMate™ Advanced Analytics
+                    </div>
+                    <Badge className="bg-gradient-to-r from-purple-600 to-violet-600 text-white">
+                      Enterprise Analytics
+                    </Badge>
+                  </CardTitle>
+                  <CardDescription>
+                    Comprehensive tour performance metrics and insights powered by TourMate™
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Performance Metrics */}
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-sm flex items-center">
+                        <LineChart className="w-4 h-4 mr-2 text-blue-600" />
+                        Performance Metrics
+                      </h3>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded">
+                          <span className="text-sm">Average Response Time</span>
+                          <Badge variant="outline">15 mins</Badge>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded">
+                          <span className="text-sm">Tour Completion Rate</span>
+                          <Badge variant="outline">78%</Badge>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded">
+                          <span className="text-sm">Virtual vs In-Person</span>
+                          <Badge variant="outline">40% / 60%</Badge>
+                        </div>
+                        <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded">
+                          <span className="text-sm">Family Satisfaction Score</span>
+                          <Badge variant="outline">4.8/5.0</Badge>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Conversion Funnel */}
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-sm flex items-center">
+                        <Target className="w-4 h-4 mr-2 text-green-600" />
+                        Conversion Funnel
+                      </h3>
+                      <div className="space-y-2">
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>Inquiries → Tours</span>
+                            <span className="font-semibold">65%</span>
+                          </div>
+                          <Progress value={65} className="h-2" />
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>Tours → Applications</span>
+                            <span className="font-semibold">45%</span>
+                          </div>
+                          <Progress value={45} className="h-2" />
+                        </div>
+                        <div>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>Applications → Move-ins</span>
+                            <span className="font-semibold">32%</span>
+                          </div>
+                          <Progress value={32} className="h-2" />
+                        </div>
+                        <div className="pt-2 text-center">
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                            Overall conversion: <span className="font-bold text-green-600">9.4%</span> (Industry avg: 5.2%)
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Export Analytics Button */}
+                  <div className="mt-6 flex justify-center">
+                    <Button 
+                      className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700"
+                      onClick={() => generateReportMutation.mutate({
+                        reportType: 'tourmate-analytics',
+                        dateRange: selectedDateRange,
+                        format: 'pdf'
+                      })}
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Export TourMate™ Analytics Report
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Reviews & Feedback Section */}
+            {tourMateSection === 'reviews' && (
+              <Card className="border-2 border-amber-500/20">
+                <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Star className="w-5 h-5 mr-2 text-amber-600" />
+                      Reviews & Tour Feedback
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">4.7/5.0 Average</Badge>
+                      <Badge variant="outline">28 Reviews</Badge>
+                    </div>
+                  </CardTitle>
+                  <CardDescription>
+                    Manage and respond to tour feedback and community reviews
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  {/* Recent Reviews */}
+                  <div className="space-y-4">
+                    {/* Sample Review 1 */}
+                    <div className="border rounded-lg p-4 space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
+                            JD
+                          </div>
+                          <div>
+                            <p className="font-semibold">Jane Doe</p>
+                            <div className="flex items-center gap-1">
+                              {[1,2,3,4,5].map(i => (
+                                <Star key={i} className={`w-4 h-4 ${i <= 4 ? 'fill-amber-500 text-amber-500' : 'text-gray-300'}`} />
+                              ))}
+                              <span className="text-xs text-gray-600 ml-2">2 days ago</span>
+                            </div>
+                          </div>
+                        </div>
+                        <Badge variant="secondary">Tour Feedback</Badge>
+                      </div>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        "The tour was very informative and the staff was incredibly welcoming. The facilities are well-maintained and the activities calendar looks amazing!"
+                      </p>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline">
+                          <MessageSquareText className="w-3 h-3 mr-1" />
+                          Respond
+                        </Button>
+                        <Button size="sm" variant="ghost">
+                          Mark as Featured
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Sample Review 2 */}
+                    <div className="border rounded-lg p-4 space-y-3 bg-green-50/50 dark:bg-green-900/10">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white font-semibold">
+                            RS
+                          </div>
+                          <div>
+                            <p className="font-semibold">Robert Smith</p>
+                            <div className="flex items-center gap-1">
+                              {[1,2,3,4,5].map(i => (
+                                <Star key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />
+                              ))}
+                              <span className="text-xs text-gray-600 ml-2">1 week ago</span>
+                            </div>
+                          </div>
+                        </div>
+                        <Badge className="bg-green-600">Responded</Badge>
+                      </div>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        "Outstanding community! My mother loves it here. The care is exceptional and the dining options are excellent."
+                      </p>
+                      <div className="bg-white dark:bg-gray-800 rounded p-3 border-l-4 border-green-500">
+                        <p className="text-xs font-semibold mb-1">Your Response:</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          "Thank you so much for your kind words, Robert! We're thrilled to hear your mother is enjoying her time with us..."
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Review Stats */}
+                  <div className="grid grid-cols-3 gap-4 mt-6">
+                    <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+                      <CardContent className="p-4">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Response Rate</p>
+                        <p className="text-2xl font-bold text-green-600">92%</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20">
+                      <CardContent className="p-4">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Avg Response Time</p>
+                        <p className="text-2xl font-bold text-blue-600">2.5h</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20">
+                      <CardContent className="p-4">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">5-Star Reviews</p>
+                        <p className="text-2xl font-bold text-amber-600">71%</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Settings Tab */}
