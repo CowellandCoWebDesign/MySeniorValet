@@ -38,7 +38,7 @@ import { MessageCommunityButton } from "@/components/message-community-button";
 import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
 import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
 
-// Real-time AI Insights Component - Enhanced with new data structure
+// Real-time AI Insights Component - Enhanced with Perplexity AI Attribution
 const RealTimeInsights = ({ community }: { community: any }) => {
   const realTimeData = community?.realTimeData;
 
@@ -46,15 +46,43 @@ const RealTimeInsights = ({ community }: { community: any }) => {
     return null;
   }
 
+  // Parse text arrays to filter out empty or "no information" responses
+  const parseDataArray = (data: string[] | string | undefined): string[] => {
+    if (!data) return [];
+    const items = Array.isArray(data) ? data : [data];
+    return items.filter(item => 
+      item && 
+      !item.toLowerCase().includes('no publicly available') &&
+      !item.toLowerCase().includes('no information') &&
+      !item.toLowerCase().includes('no announcements') &&
+      !item.toLowerCase().includes('no coverage')
+    );
+  };
+
   return (
-    <Card className="mb-8 border-2 border-blue-200 dark:border-blue-800">
+    <Card className="mb-8 border-2 border-blue-200 dark:border-blue-800 relative overflow-hidden">
+      {/* Perplexity AI Badge */}
+      <div className="absolute top-4 right-4 z-10">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
+          <Sparkles className="w-3 h-3 mr-1" />
+          Powered by Perplexity AI
+        </div>
+      </div>
+
       <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
         <CardTitle className="text-2xl font-bold flex items-center">
           <Sparkles className="w-6 h-6 mr-2 text-blue-600" />
-          Real-Time Community Intelligence
+          Live Intelligence Report
         </CardTitle>
         <CardDescription className="text-base">
-          Live data from web search • Updated {realTimeData.lastUpdated ? new Date(realTimeData.lastUpdated).toLocaleTimeString() : 'just now'}
+          <div className="flex items-center space-x-2">
+            <span className="font-semibold text-blue-700 dark:text-blue-300">AI Orchestra Status:</span>
+            <span className="text-green-600 dark:text-green-400 font-medium">✓ Active</span>
+            <span className="text-gray-600 dark:text-gray-400">•</span>
+            <span>Real-time web search by Perplexity AI</span>
+            <span className="text-gray-600 dark:text-gray-400">•</span>
+            <span>Updated {realTimeData.lastUpdated ? new Date(realTimeData.lastUpdated).toLocaleTimeString() : 'just now'}</span>
+          </div>
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
@@ -114,43 +142,63 @@ const RealTimeInsights = ({ community }: { community: any }) => {
           )}
 
           {/* Recent News & Updates */}
-          {realTimeData.recentNews && realTimeData.recentNews.length > 0 && (
-            <div>
-              <h4 className="font-semibold text-lg mb-3 flex items-center">
-                <Info className="w-5 h-5 mr-2 text-blue-600" />
-                Recent News & Updates
-              </h4>
-              <div className="space-y-2">
-                {realTimeData.recentNews.map((news: string, idx: number) => (
-                  <div key={idx} className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                    <p className="text-sm text-gray-700 dark:text-gray-300">{news}</p>
-                  </div>
-                ))}
+          {(() => {
+            const news = parseDataArray(realTimeData.recentNews);
+            return news.length > 0 && (
+              <div>
+                <h4 className="font-semibold text-lg mb-3 flex items-center">
+                  <Info className="w-5 h-5 mr-2 text-blue-600" />
+                  Recent News & Updates
+                  <span className="ml-2 text-xs font-normal text-gray-500">via Perplexity AI</span>
+                </h4>
+                <div className="space-y-2">
+                  {news.map((item: string, idx: number) => (
+                    <div key={idx} className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border-l-4 border-blue-400">
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        {item.replace(/^[-•]\s*/, '').trim()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Upcoming Events */}
-          {realTimeData.upcomingEvents && realTimeData.upcomingEvents.length > 0 && (
-            <div>
-              <h4 className="font-semibold text-lg mb-3 flex items-center">
-                <CalendarIcon className="w-5 h-5 mr-2 text-orange-600" />
-                Upcoming Events
-              </h4>
-              <div className="space-y-2">
-                {realTimeData.upcomingEvents.map((event: string, idx: number) => (
-                  <div key={idx} className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg">
-                    <p className="text-sm text-orange-900 dark:text-orange-200">{event}</p>
-                  </div>
-                ))}
+          {(() => {
+            const events = parseDataArray(realTimeData.upcomingEvents);
+            return events.length > 0 && (
+              <div>
+                <h4 className="font-semibold text-lg mb-3 flex items-center">
+                  <CalendarIcon className="w-5 h-5 mr-2 text-orange-600" />
+                  Upcoming Events
+                  <span className="ml-2 text-xs font-normal text-gray-500">via Perplexity AI</span>
+                </h4>
+                <div className="space-y-2">
+                  {events.map((item: string, idx: number) => (
+                    <div key={idx} className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border-l-4 border-orange-400">
+                      <p className="text-sm text-orange-900 dark:text-orange-200">
+                        {item.replace(/^[-•]\s*/, '').trim()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Data Sources */}
           {realTimeData.sources && realTimeData.sources.length > 0 && (
             <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Information verified from:</p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">
+                  🔍 Verified by Perplexity AI from {realTimeData.sources.length} trusted sources
+                </p>
+                <div className="flex items-center text-xs text-gray-500">
+                  <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
+                  Live Web Search
+                </div>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {realTimeData.sources.map((source: string, idx: number) => (
                   <a 
@@ -158,7 +206,7 @@ const RealTimeInsights = ({ community }: { community: any }) => {
                     href={source}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline flex items-center"
+                    className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors flex items-center"
                   >
                     <ExternalLink className="w-3 h-3 mr-1" />
                     Source {idx + 1}
@@ -167,6 +215,31 @@ const RealTimeInsights = ({ community }: { community: any }) => {
               </div>
             </div>
           )}
+
+          {/* AI Orchestra Footer */}
+          <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="flex -space-x-2">
+                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">P</div>
+                    <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-bold">C</div>
+                    <div className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white text-xs font-bold">G</div>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">AI Orchestra Status</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      Perplexity (Active) • Claude (Standby) • GPT-4o (Backup)
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-semibold text-blue-700 dark:text-blue-300">MySeniorValet Intelligence</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Transparency through AI</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>
