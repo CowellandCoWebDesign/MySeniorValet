@@ -398,6 +398,104 @@ router.get('/api/tours/community/:communityId', async (req: Request, res: Respon
   }
 });
 
+// Reschedule a tour
+router.post('/api/tours/:tourId/reschedule', async (req: Request, res: Response) => {
+  try {
+    const tourId = parseInt(req.params.tourId);
+    const { newDate, newTime } = req.body;
+    
+    if (!newDate || !newTime) {
+      return res.status(400).json({ error: 'New date and time are required' });
+    }
+    
+    // Get tour details
+    const [tour] = await db
+      .select({
+        tour: tours,
+        community: communities,
+        user: users
+      })
+      .from(tours)
+      .leftJoin(communities, eq(tours.communityId, communities.id))
+      .leftJoin(users, eq(tours.userId, users.id))
+      .where(eq(tours.id, tourId));
+
+    if (!tour) {
+      return res.status(404).json({ error: 'Tour not found' });
+    }
+
+    // Check authorization
+    if (req.user?.id !== tour.tour.userId && req.user?.role !== 'admin') {
+      return res.status(403).json({ error: 'Not authorized to reschedule this tour' });
+    }
+
+    // Combine new date and time
+    const newTourDateTime = new Date(`${newDate}T${newTime}`);
+    
+    // Update tour with new date and status
+    await db
+      .update(tours)
+      .set({ 
+        tourDate: newTourDateTime,
+        status: 'rescheduled',
+        updatedAt: new Date()
+      })
+      .where(eq(tours.id, tourId));
+
+    // Send reschedule confirmation email
+    if (tour.user?.email) {
+      await EmailService.sendEmail({
+        to: tour.user.email,
+        subject: `Tour Rescheduled - ${tour.community?.name}`,
+        html: `
+          <h2>Tour Rescheduled Successfully</h2>
+          <p>Your tour at <strong>${tour.community?.name}</strong> has been rescheduled.</p>
+          <h3>New Tour Details:</h3>
+          <ul>
+            <li><strong>Date:</strong> ${format(newTourDateTime, 'EEEE, MMMM d, yyyy')}</li>
+            <li><strong>Time:</strong> ${format(newTourDateTime, 'h:mm a')}</li>
+            <li><strong>Location:</strong> ${tour.community?.address}, ${tour.community?.city}, ${tour.community?.state}</li>
+          </ul>
+          <p>We look forward to seeing you!</p>
+        `
+      });
+    }
+
+    // Notify community if they have an email
+    const communityEmail = tour.community?.communityManagerEmail || 
+                          tour.community?.email || 
+                          tour.community?.managementEmail;
+    
+    if (communityEmail && tour.community?.isClaimed) {
+      try {
+        await EmailService.sendEmail({
+          to: communityEmail,
+          subject: `Tour Rescheduled - ${tour.user?.firstName || 'Guest'} ${tour.user?.lastName || ''}`,
+          html: `
+            <h2>Tour Rescheduled</h2>
+            <p>A scheduled tour has been rescheduled.</p>
+            <h3>New Tour Details:</h3>
+            <ul>
+              <li><strong>New Date:</strong> ${format(newTourDateTime, 'EEEE, MMMM d, yyyy at h:mm a')}</li>
+              <li><strong>Original Date:</strong> ${format(tour.tour.tourDate, 'EEEE, MMMM d, yyyy at h:mm a')}</li>
+              <li><strong>Guest:</strong> ${tour.user?.firstName || 'Guest'} ${tour.user?.lastName || ''}</li>
+              <li><strong>Contact:</strong> ${tour.user?.email || 'N/A'}</li>
+              <li><strong>Phone:</strong> ${tour.user?.phone || 'N/A'}</li>
+            </ul>
+          `
+        });
+      } catch (error) {
+        console.error('Error sending community reschedule notification:', error);
+      }
+    }
+
+    res.json({ success: true, message: 'Tour rescheduled successfully' });
+  } catch (error) {
+    console.error('Error rescheduling tour:', error);
+    res.status(500).json({ error: 'Failed to reschedule tour' });
+  }
+});
+
 // Cancel a tour
 router.post('/api/tours/:tourId/cancel', async (req: Request, res: Response) => {
   try {
