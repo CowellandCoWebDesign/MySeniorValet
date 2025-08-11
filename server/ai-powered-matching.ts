@@ -3,7 +3,7 @@ import { Community } from '@shared/schema';
 import { storage } from './storage';
 
 export interface CareNeedsProfile {
-  careLevel: 'independent' | 'assisted' | 'memory_care' | 'skilled_nursing';
+  careLevel: 'hud_housing' | 'va_housing' | 'mobile_rv' | '55_active' | 'independent' | 'board_care' | 'assisted' | 'memory_care' | 'ccrc' | 'skilled_nursing';
   mobility: 'full' | 'walker' | 'wheelchair';
   medical: string[];
   budget: { min: number; max: number };

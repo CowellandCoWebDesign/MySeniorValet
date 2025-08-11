@@ -905,19 +905,38 @@ export class DatabaseStorage implements IStorage {
       
       // Map common lowercase variants to proper care type names
       const careTypeMap: Record<string, string> = {
+        // Complete 10-level care spectrum mapping
+        'hud_housing': 'HUD Housing',
+        'hud housing': 'HUD Housing',
+        'subsidized': 'HUD Housing',
+        'va_housing': 'Veterans Housing',
+        'va housing': 'Veterans Housing',
+        'veterans': 'Veterans Housing',
+        'mobile_rv': 'Mobile Home & RV',
+        'mobile rv': 'Mobile Home & RV',
+        'mobile home': 'Mobile Home & RV',
+        'rv park': 'Mobile Home & RV',
+        '55_active': '55+ Active',
+        '55 active': '55+ Active',
+        '55+': '55+ Active',
+        'active adult': '55+ Active',
         'independent': 'Independent Living',
+        'board_care': 'Board & Care',
+        'board care': 'Board & Care',
+        'board and care': 'Board & Care',
+        'board & care': 'Board & Care',
         'assisted': 'Assisted Living',
         'memory_care': 'Memory Care',
         'memory care': 'Memory Care',
+        'ccrc': 'Continuing Care',
+        'continuing care': 'Continuing Care',
         'skilled_nursing': 'Skilled Nursing',
         'skilled nursing': 'Skilled Nursing',
-        'continuing care': 'Continuing Care',
+        // Keep existing mappings for other care types
         'adult day care': 'Adult Day Care',
         'hospice care': 'Hospice Care',
         'respite care': 'Respite Care',
-        'home care': 'Home Care',
-        'board and care': 'Board & Care',
-        'board & care': 'Board & Care'
+        'home care': 'Home Care'
       };
       
       // Use mapped care type if available, otherwise use original

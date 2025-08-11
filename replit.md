@@ -21,6 +21,20 @@ MySeniorValet is a technology platform connecting families with publicly availab
 - **Golden Data Rule**: Zero tolerance for synthetic, mock, sample, or placeholder data. All data must come from verified authentic sources.
 - **Map Interface Preferences**: Legend button positioned on map at top-right (not in header). Map Layers control positioned 60px below Legend button. Heatmap toggle removed from interface to prevent UI overlap issues.
 
+## Recent Updates (August 11, 2025)
+- **AI Matching Assistant Enhancement**: Expanded from 4 care levels to complete 10-level care spectrum:
+  1. HUD Housing (Subsidized) - $0-500/mo
+  2. VA/Veterans Housing - $0-1k/mo
+  3. Mobile Home & RV Parks - $400-1k/mo
+  4. 55+ Active Communities - $1-3k/mo
+  5. Independent Living - $2-4k/mo
+  6. Board & Care Homes - $2.5-5k/mo
+  7. Assisted Living - $3-6k/mo
+  8. Memory Care - $4-8k/mo
+  9. Continuing Care (CCRC) - $5-10k/mo
+  10. Skilled Nursing - $6-12k/mo
+  Care type mapping now handles all variants including lowercase, underscored, and space-separated formats
+
 ## Recent Launch Message Enhancement (August 10, 2025)
 **"TODAY, EVERYTHING CHANGES" - Historic Platform Launch**
 - Powerful narrative structure directly addressing industry darkness

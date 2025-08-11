@@ -174,10 +174,16 @@ export default function AIMatchingAssistant() {
                     <SelectValue placeholder="Select care level" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="independent">Independent Living</SelectItem>
-                    <SelectItem value="assisted">Assisted Living</SelectItem>
-                    <SelectItem value="memory_care">Memory Care</SelectItem>
-                    <SelectItem value="skilled_nursing">Skilled Nursing</SelectItem>
+                    <SelectItem value="hud_housing">HUD Housing (Subsidized) - $0-500/mo</SelectItem>
+                    <SelectItem value="va_housing">VA/Veterans Housing - $0-1k/mo</SelectItem>
+                    <SelectItem value="mobile_rv">Mobile Home & RV Parks - $400-1k/mo</SelectItem>
+                    <SelectItem value="55_active">55+ Active Communities - $1-3k/mo</SelectItem>
+                    <SelectItem value="independent">Independent Living - $2-4k/mo</SelectItem>
+                    <SelectItem value="board_care">Board & Care Homes - $2.5-5k/mo</SelectItem>
+                    <SelectItem value="assisted">Assisted Living - $3-6k/mo</SelectItem>
+                    <SelectItem value="memory_care">Memory Care - $4-8k/mo</SelectItem>
+                    <SelectItem value="ccrc">Continuing Care (CCRC) - $5-10k/mo</SelectItem>
+                    <SelectItem value="skilled_nursing">Skilled Nursing - $6-12k/mo</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
