@@ -71,6 +71,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/go/amazon', amazonRedirectRoutes.default);
   app.use('/api/amazon-compliance', amazonComplianceRoutes.default);
   
+  // Register notification routes
+  const notificationRoutes = await import('./routes/notificationRoutes');
+  app.use('/api/notifications', notificationRoutes.default);
+  
   // Register messaging routes
   const messagingRoutes = await import('./routes/messagingRoutes');
   app.use('/api/messaging', messagingRoutes.default);
@@ -233,10 +237,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
-  
-  // Register notification routes
-  const notificationRoutes = await import('./routes/notificationRoutes');
-  app.use(notificationRoutes.default);
   
   // Register vendor image generation routes
   const { vendorImageRoutes } = await import('./routes/vendorImageRoutes');

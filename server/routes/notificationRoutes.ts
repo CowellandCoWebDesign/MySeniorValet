@@ -1,250 +1,287 @@
-import { Request, Response, Router } from "express";
-import { NotificationService } from "../notification-service";
-import { db } from "../db";
-import { userNotificationPreferences, notifications } from "@shared/schema";
-import { eq } from "drizzle-orm";
-import { z } from "zod";
+import { Router } from 'express';
+import { notificationService } from '../email/notificationService';
 
 const router = Router();
 
-// Get user notifications
-router.get("/api/notifications", async (req: Request, res: Response) => {
+// Test endpoint to verify email system is working
+router.post('/test-email', async (req, res) => {
   try {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const { email } = req.body;
+    const testEmail = email || 'William.cowell01@gmail.com'; // Default to admin
     
-    const unreadOnly = req.query.unreadOnly === 'true';
-    const userNotifications = await NotificationService.getUserNotifications(
-      req.user.id,
-      unreadOnly
-    );
+    const success = await notificationService.sendTestEmail(testEmail);
     
-    res.json(userNotifications);
-  } catch (error) {
-    console.error("Error fetching notifications:", error);
-    res.status(500).json({ error: "Failed to fetch notifications" });
-  }
-});
-
-// Get unread count
-router.get("/api/notifications/unread-count", async (req: Request, res: Response) => {
-  try {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    
-    const count = await NotificationService.getUnreadCount(req.user.id);
-    res.json({ count });
-  } catch (error) {
-    console.error("Error fetching unread count:", error);
-    res.status(500).json({ error: "Failed to fetch unread count" });
-  }
-});
-
-// Mark notification as read
-router.post("/api/notifications/:id/read", async (req: Request, res: Response) => {
-  try {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    
-    const notificationId = parseInt(req.params.id);
-    await NotificationService.markAsRead(notificationId, req.user.id);
-    
-    res.json({ success: true });
-  } catch (error) {
-    console.error("Error marking notification as read:", error);
-    res.status(500).json({ error: "Failed to mark notification as read" });
-  }
-});
-
-// Mark all notifications as read
-router.post("/api/notifications/read-all", async (req: Request, res: Response) => {
-  try {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    
-    await NotificationService.markAllAsRead(req.user.id);
-    res.json({ success: true });
-  } catch (error) {
-    console.error("Error marking all notifications as read:", error);
-    res.status(500).json({ error: "Failed to mark all notifications as read" });
-  }
-});
-
-// Get user notification preferences
-router.get("/api/notifications/preferences", async (req: Request, res: Response) => {
-  try {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    
-    const [preferences] = await db
-      .select()
-      .from(userNotificationPreferences)
-      .where(eq(userNotificationPreferences.userId, req.user.id))
-      .limit(1);
-    
-    // If no preferences exist, create default ones
-    if (!preferences) {
-      const [newPreferences] = await db
-        .insert(userNotificationPreferences)
-        .values({
-          userId: req.user.id
-        })
-        .returning();
-      
-      return res.json(newPreferences);
-    }
-    
-    res.json(preferences);
-  } catch (error) {
-    console.error("Error fetching notification preferences:", error);
-    res.status(500).json({ error: "Failed to fetch notification preferences" });
-  }
-});
-
-// Update notification preferences
-const updatePreferencesSchema = z.object({
-  emailEnabled: z.boolean().optional(),
-  emailFrequency: z.enum(['immediate', 'daily', 'weekly', 'never']).optional(),
-  communityUpdates: z.boolean().optional(),
-  priceChanges: z.boolean().optional(),
-  newPhotos: z.boolean().optional(),
-  newReviews: z.boolean().optional(),
-  availabilityChanges: z.boolean().optional(),
-  milestones: z.boolean().optional(),
-  systemAnnouncements: z.boolean().optional(),
-  watchedCommunities: z.array(z.number()).optional(),
-  quietHoursEnabled: z.boolean().optional(),
-  quietHoursStart: z.string().optional(),
-  quietHoursEnd: z.string().optional(),
-  timezone: z.string().optional()
-});
-
-router.put("/api/notifications/preferences", async (req: Request, res: Response) => {
-  try {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    
-    const parsed = updatePreferencesSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({ error: "Invalid preferences data" });
-    }
-    
-    // Check if preferences exist
-    const [existing] = await db
-      .select()
-      .from(userNotificationPreferences)
-      .where(eq(userNotificationPreferences.userId, req.user.id))
-      .limit(1);
-    
-    if (existing) {
-      // Update existing preferences
-      const [updated] = await db
-        .update(userNotificationPreferences)
-        .set({
-          ...parsed.data,
-          updatedAt: new Date()
-        })
-        .where(eq(userNotificationPreferences.userId, req.user.id))
-        .returning();
-      
-      res.json(updated);
-    } else {
-      // Create new preferences
-      const [created] = await db
-        .insert(userNotificationPreferences)
-        .values({
-          userId: req.user.id,
-          ...parsed.data
-        })
-        .returning();
-      
-      res.json(created);
-    }
-  } catch (error) {
-    console.error("Error updating notification preferences:", error);
-    res.status(500).json({ error: "Failed to update notification preferences" });
-  }
-});
-
-// Add/remove community from watch list
-router.post("/api/notifications/watch-community/:id", async (req: Request, res: Response) => {
-  try {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    
-    const communityId = parseInt(req.params.id);
-    const { watch } = req.body;
-    
-    // Get current preferences
-    const [preferences] = await db
-      .select()
-      .from(userNotificationPreferences)
-      .where(eq(userNotificationPreferences.userId, req.user.id))
-      .limit(1);
-    
-    if (!preferences) {
-      // Create new preferences with this community watched
-      await db.insert(userNotificationPreferences).values({
-        userId: req.user.id,
-        watchedCommunities: watch ? [communityId] : []
+    if (success) {
+      res.json({ 
+        success: true, 
+        message: `Test email sent successfully to ${testEmail}` 
       });
     } else {
-      // Update watched communities list
-      let watchedCommunities = preferences.watchedCommunities || [];
-      
-      if (watch) {
-        if (!watchedCommunities.includes(communityId)) {
-          watchedCommunities.push(communityId);
-        }
-      } else {
-        watchedCommunities = watchedCommunities.filter(id => id !== communityId);
-      }
-      
-      await db
-        .update(userNotificationPreferences)
-        .set({
-          watchedCommunities,
-          updatedAt: new Date()
-        })
-        .where(eq(userNotificationPreferences.userId, req.user.id));
+      res.status(500).json({ 
+        success: false, 
+        message: 'Email system is not configured. Please check SendGrid API key.' 
+      });
     }
-    
-    res.json({ success: true, watching: watch });
-  } catch (error) {
-    console.error("Error updating watched communities:", error);
-    res.status(500).json({ error: "Failed to update watched communities" });
+  } catch (error: any) {
+    console.error('Test email error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message || 'Failed to send test email' 
+    });
   }
 });
 
-// Create test notification (for development)
-router.post("/api/notifications/test", async (req: Request, res: Response) => {
+// Send welcome email to new user
+router.post('/welcome', async (req, res) => {
   try {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: "Unauthorized" });
+    const { userName, userEmail } = req.body;
+    
+    if (!userName || !userEmail) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'userName and userEmail are required' 
+      });
     }
     
-    const notification = await NotificationService.createNotification({
-      type: 'system',
-      category: 'general',
-      priority: 'normal',
-      title: 'Test Notification',
-      message: 'This is a test notification to verify the notification system is working properly.',
-      actionUrl: '/dashboard',
-      iconType: 'bell',
-      userId: req.user.id
+    const success = await notificationService.sendWelcomeEmail({
+      to: userEmail,
+      userName,
+      userEmail
     });
     
-    res.json(notification);
-  } catch (error) {
-    console.error("Error creating test notification:", error);
-    res.status(500).json({ error: "Failed to create test notification" });
+    res.json({ 
+      success, 
+      message: success ? 'Welcome email sent' : 'Email system disabled' 
+    });
+  } catch (error: any) {
+    console.error('Welcome email error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
+  }
+});
+
+// Send community match alert
+router.post('/match-alert', async (req, res) => {
+  try {
+    const { userName, userEmail, matches, searchCriteria } = req.body;
+    
+    if (!userName || !userEmail || !matches || !searchCriteria) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Missing required fields' 
+      });
+    }
+    
+    const success = await notificationService.sendCommunityMatchEmail({
+      to: userEmail,
+      userName,
+      matches,
+      searchCriteria
+    });
+    
+    res.json({ 
+      success, 
+      message: success ? 'Match alert sent' : 'Email system disabled' 
+    });
+  } catch (error: any) {
+    console.error('Match alert error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
+  }
+});
+
+// Send price alert
+router.post('/price-alert', async (req, res) => {
+  try {
+    const { userName, userEmail, community } = req.body;
+    
+    if (!userName || !userEmail || !community) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Missing required fields' 
+      });
+    }
+    
+    const success = await notificationService.sendPriceAlertEmail({
+      to: userEmail,
+      userName,
+      community
+    });
+    
+    res.json({ 
+      success, 
+      message: success ? 'Price alert sent' : 'Email system disabled' 
+    });
+  } catch (error: any) {
+    console.error('Price alert error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
+  }
+});
+
+// Handle contact form submissions
+router.post('/contact', async (req, res) => {
+  try {
+    const { fromName, fromEmail, subject, message, communityName } = req.body;
+    
+    if (!fromName || !fromEmail || !subject || !message) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'All fields are required' 
+      });
+    }
+    
+    const success = await notificationService.sendContactFormEmail({
+      to: 'hello@myseniorvalet.com',
+      fromName,
+      fromEmail,
+      subject,
+      message,
+      communityName
+    });
+    
+    res.json({ 
+      success, 
+      message: success ? 'Your message has been sent' : 'Unable to send message' 
+    });
+  } catch (error: any) {
+    console.error('Contact form error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
+  }
+});
+
+// Admin alert endpoint (internal use)
+router.post('/admin-alert', async (req, res) => {
+  try {
+    const { subject, message, priority = 'medium' } = req.body;
+    
+    if (!subject || !message) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Subject and message are required' 
+      });
+    }
+    
+    const success = await notificationService.sendAdminAlert(
+      subject, 
+      message, 
+      priority as 'low' | 'medium' | 'high'
+    );
+    
+    res.json({ 
+      success, 
+      message: success ? 'Admin alert sent' : 'Email system disabled' 
+    });
+  } catch (error: any) {
+    console.error('Admin alert error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
+  }
+});
+
+// Get email system status
+router.get('/status', async (req, res) => {
+  const isConfigured = !!process.env.SENDGRID_API_KEY;
+  
+  res.json({
+    success: true,
+    status: {
+      configured: isConfigured,
+      provider: 'SendGrid',
+      templates: [
+        'welcome',
+        'community_match',
+        'price_alert',
+        'vendor_welcome',
+        'contact_form',
+        'admin_alert'
+      ],
+      adminEmails: {
+        primary: 'William.cowell01@gmail.com',
+        backup: 'CowellandCoWebDesign@gmail.com',
+        public: 'hello@myseniorvalet.com'
+      }
+    }
+  });
+});
+
+// Batch send for multiple recipients (admin only)
+router.post('/batch-send', async (req, res) => {
+  try {
+    const { type, recipients, data } = req.body;
+    
+    if (!type || !recipients || !Array.isArray(recipients)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid batch send request' 
+      });
+    }
+    
+    let successCount = 0;
+    let failCount = 0;
+    
+    for (const recipient of recipients) {
+      try {
+        let success = false;
+        
+        switch (type) {
+          case 'welcome':
+            success = await notificationService.sendWelcomeEmail({
+              to: recipient.email,
+              userName: recipient.name,
+              userEmail: recipient.email
+            });
+            break;
+            
+          case 'match_alert':
+            success = await notificationService.sendCommunityMatchEmail({
+              to: recipient.email,
+              userName: recipient.name,
+              matches: data.matches,
+              searchCriteria: data.searchCriteria
+            });
+            break;
+            
+          default:
+            console.log('Unknown batch email type:', type);
+        }
+        
+        if (success) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+      } catch (error) {
+        console.error(`Failed to send to ${recipient.email}:`, error);
+        failCount++;
+      }
+    }
+    
+    res.json({
+      success: true,
+      results: {
+        total: recipients.length,
+        sent: successCount,
+        failed: failCount
+      }
+    });
+  } catch (error: any) {
+    console.error('Batch send error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
   }
 });
 

@@ -108,6 +108,7 @@ import RedTagExample from "@/pages/red-tag-example";
 import HospitalDetails from "@/pages/hospital-details";
 import PaymentSuccess from "@/pages/payment-success";
 import PaymentCancel from "@/pages/payment-cancel";
+import EmailTestDashboard from "@/pages/email-test-dashboard";
 import CommunityMobilePayment from "@/pages/community-mobile-payment";
 import PaymentTestDashboard from "@/pages/payment-test-dashboard";
 import PaymentDiagnostics from "@/pages/payment-diagnostics";
@@ -270,6 +271,7 @@ function Router() {
       <Route path="/payment/cancel" component={PaymentCancel} />
       <Route path="/payment-test-dashboard" component={PaymentTestDashboard} />
       <Route path="/payment-diagnostics" component={PaymentDiagnostics} />
+      <Route path="/email-test-dashboard" component={EmailTestDashboard} />
       <Route path="/admin-dashboard" component={AdminDashboard} />
       <Route path="/payment-recovery" component={PaymentRecovery} />
       <Route path="/community-onboarding/:communityId" component={CommunityOnboarding} />
