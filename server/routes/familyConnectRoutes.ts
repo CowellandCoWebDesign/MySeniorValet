@@ -2,18 +2,11 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { db } from '../db';
 import { 
-  familyGroups, 
-  familyMembers, 
-  familyMessages, 
-  familyNotes, 
-  familyTasks,
-  insertFamilyGroupSchema,
-  insertFamilyMemberSchema,
-  insertFamilyMessageSchema,
-  insertFamilyNoteSchema,
-  insertFamilyTaskSchema,
+  familyGroups,
+  messages,
+  conversations
 } from '@shared/schema';
-import { eq, and, or, desc } from 'drizzle-orm';
+import { eq, and, or, desc, sql, lt } from 'drizzle-orm';
 import crypto from 'crypto';
 
 const router = Router();
@@ -32,26 +25,14 @@ router.get('/groups', async (req: any, res: any) => {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    // Get groups where user is primary or a member
-    const memberGroups = await db
-      .select()
-      .from(familyMembers)
-      .where(
-        and(
-          eq(familyMembers.userId, userId),
-          eq(familyMembers.status, 'active')
-        )
-      );
-
-    const groupIds = memberGroups.map(m => m.groupId);
-    
+    // Get groups where user is owner or a member
     const userGroups = await db
       .select()
       .from(familyGroups)
       .where(
         or(
-          eq(familyGroups.primaryUserId, userId),
-          ...(groupIds.length > 0 ? groupIds.map(id => eq(familyGroups.id, id)) : [])
+          eq(familyGroups.ownerId, userId),
+          sql`${familyGroups.members}::text LIKE ${`%"userId":"${userId}"%`}`
         )
       );
 
@@ -66,220 +47,236 @@ router.get('/groups', async (req: any, res: any) => {
 router.post('/groups', async (req: any, res: any) => {
   try {
     const userId = req.user?.id;
-    
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    const validatedData = insertFamilyGroupSchema.parse(req.body);
-    
-    const newGroup = await db
+    const { name } = req.body;
+    if (!name) {
+      return res.status(400).json({ message: 'Group name is required' });
+    }
+
+    const inviteCode = generateInviteCode();
+    const inviteCodeExpiry = new Date();
+    inviteCodeExpiry.setDate(inviteCodeExpiry.getDate() + 7); // 7 days validity
+
+    const [newGroup] = await db
       .insert(familyGroups)
       .values({
-        ...validatedData,
-        primaryUserId: userId,
-        inviteCode: generateInviteCode(),
+        name,
+        ownerId: userId,
+        members: [{
+          userId,
+          role: 'owner' as const,
+          permissions: {
+            canMessage: true,
+            canInvite: true,
+            canRemove: true,
+            canViewAll: true,
+            canEditNotes: true,
+          },
+          joinedAt: new Date().toISOString(),
+        }],
+        inviteCode,
+        inviteCodeExpiry,
+        settings: {
+          allowJoinRequests: true,
+          requireApproval: false,
+          shareLocation: true,
+          shareCalendar: true,
+          notifyOnActivity: true,
+        },
       })
       .returning();
 
-    // Add the creator as an active admin member
-    await db
-      .insert(familyMembers)
-      .values({
-        groupId: newGroup[0].id,
-        userId: userId,
-        email: req.user?.email || '',
-        name: req.user?.name || 'Family Admin',
-        role: 'admin',
-        status: 'active',
-        joinedAt: new Date(),
-      });
-
-    res.json(newGroup[0]);
+    res.json(newGroup);
   } catch (error) {
     console.error('Error creating family group:', error);
     res.status(500).json({ message: 'Failed to create family group' });
   }
 });
 
-// Get family group details with members
-router.get('/groups/:groupId', async (req: any, res: any) => {
+// Join a family group with invite code
+router.post('/groups/join', async (req: any, res: any) => {
   try {
     const userId = req.user?.id;
-    const groupId = parseInt(req.params.groupId);
+    const userName = req.user?.name || 'Family Member';
     
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    // Verify user has access to this group
-    const group = await db
+    const { inviteCode } = req.body;
+    if (!inviteCode) {
+      return res.status(400).json({ message: 'Invite code is required' });
+    }
+
+    // Find the group with the invite code
+    const [group] = await db
       .select()
       .from(familyGroups)
-      .where(eq(familyGroups.id, groupId))
-      .limit(1);
-
-    if (!group.length) {
-      return res.status(404).json({ message: 'Family group not found' });
-    }
-
-    const members = await db
-      .select()
-      .from(familyMembers)
-      .where(eq(familyMembers.groupId, groupId));
-
-    const isMember = group[0].primaryUserId === userId || 
-      members.some(m => m.userId === userId && m.status === 'active');
-
-    if (!isMember) {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-
-    res.json({
-      ...group[0],
-      members,
-    });
-  } catch (error) {
-    console.error('Error fetching family group:', error);
-    res.status(500).json({ message: 'Failed to fetch family group' });
-  }
-});
-
-// Invite a family member
-router.post('/groups/:groupId/invite', async (req: any, res: any) => {
-  try {
-    const userId = req.user?.id;
-    const groupId = parseInt(req.params.groupId);
-    const { email, name } = req.body;
-    
-    if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    // Verify user is admin of this group
-    const member = await db
-      .select()
-      .from(familyMembers)
       .where(
         and(
-          eq(familyMembers.groupId, groupId),
-          eq(familyMembers.userId, userId),
-          eq(familyMembers.role, 'admin'),
-          eq(familyMembers.status, 'active')
+          eq(familyGroups.inviteCode, inviteCode),
+          sql`${familyGroups.inviteCodeExpiry} > NOW()`
         )
-      )
-      .limit(1);
+      );
 
-    if (!member.length) {
-      return res.status(403).json({ message: 'Only group admins can invite members' });
+    if (!group) {
+      return res.status(404).json({ message: 'Invalid or expired invite code' });
     }
 
-    // Check if already invited
-    const existing = await db
-      .select()
-      .from(familyMembers)
-      .where(
-        and(
-          eq(familyMembers.groupId, groupId),
-          eq(familyMembers.email, email)
-        )
-      )
-      .limit(1);
-
-    if (existing.length) {
-      return res.status(400).json({ message: 'This person is already in the group' });
+    // Check if user is already a member
+    const members = group.members || [];
+    if (members.some((m: any) => m.userId === userId)) {
+      return res.status(400).json({ message: 'Already a member of this group' });
     }
 
-    const newMember = await db
-      .insert(familyMembers)
-      .values({
-        groupId,
-        email,
-        name,
-        role: 'member',
-        status: 'pending',
+    // Add user to the group
+    const updatedMembers = [
+      ...members,
+      {
+        userId,
+        role: 'member' as const,
+        permissions: {
+          canMessage: true,
+          canInvite: false,
+          canRemove: false,
+          canViewAll: true,
+          canEditNotes: true,
+        },
+        joinedAt: new Date().toISOString(),
+        invitedBy: group.ownerId,
+      }
+    ];
+
+    const [updatedGroup] = await db
+      .update(familyGroups)
+      .set({ 
+        members: updatedMembers,
+        updatedAt: new Date() 
       })
+      .where(eq(familyGroups.id, group.id))
       .returning();
 
-    // TODO: Send invitation email with invite code
-
-    res.json(newMember[0]);
-  } catch (error) {
-    console.error('Error inviting family member:', error);
-    res.status(500).json({ message: 'Failed to invite family member' });
-  }
-});
-
-// Join a family group using invite code
-router.post('/join', async (req: any, res: any) => {
-  try {
-    const userId = req.user?.id;
-    const { inviteCode } = req.body;
-    
-    if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    // Find group by invite code
-    const group = await db
-      .select()
-      .from(familyGroups)
-      .where(eq(familyGroups.inviteCode, inviteCode))
-      .limit(1);
-
-    if (!group.length) {
-      return res.status(404).json({ message: 'Invalid invite code' });
-    }
-
-    // Check if already a member
-    const existing = await db
-      .select()
-      .from(familyMembers)
-      .where(
-        and(
-          eq(familyMembers.groupId, group[0].id),
-          eq(familyMembers.userId, userId)
-        )
-      )
-      .limit(1);
-
-    if (existing.length && existing[0].status === 'active') {
-      return res.status(400).json({ message: 'You are already a member of this group' });
-    }
-
-    if (existing.length) {
-      // Update existing pending invitation
-      await db
-        .update(familyMembers)
-        .set({
-          status: 'active',
-          userId: userId,
-          joinedAt: new Date(),
-        })
-        .where(eq(familyMembers.id, existing[0].id));
-    } else {
-      // Create new member
-      await db
-        .insert(familyMembers)
-        .values({
-          groupId: group[0].id,
-          userId: userId,
-          email: req.user?.email || '',
-          name: req.user?.name || 'Family Member',
-          role: 'member',
-          status: 'active',
-          joinedAt: new Date(),
-        });
-    }
-
-    res.json({ message: 'Successfully joined family group', group: group[0] });
+    res.json(updatedGroup);
   } catch (error) {
     console.error('Error joining family group:', error);
     res.status(500).json({ message: 'Failed to join family group' });
   }
 });
 
-// Get messages for a family group
+// Get family group conversations
+router.get('/groups/:groupId/conversations', async (req: any, res: any) => {
+  try {
+    const userId = req.user?.id;
+    const groupId = parseInt(req.params.groupId);
+    
+    if (!userId || !groupId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    // Get the family group conversation
+    const [conversation] = await db
+      .select()
+      .from(conversations)
+      .where(
+        and(
+          eq(conversations.familyGroupId, groupId),
+          eq(conversations.type, 'family_group')
+        )
+      );
+
+    res.json(conversation || null);
+  } catch (error) {
+    console.error('Error fetching family conversations:', error);
+    res.status(500).json({ message: 'Failed to fetch conversations' });
+  }
+});
+
+// Send a message in family group
+router.post('/groups/:groupId/messages', async (req: any, res: any) => {
+  try {
+    const userId = req.user?.id;
+    const groupId = parseInt(req.params.groupId);
+    const { content, attachments } = req.body;
+    
+    if (!userId || !groupId || !content) {
+      return res.status(400).json({ message: 'Invalid request' });
+    }
+
+    // First, get or create a conversation for this family group
+    let [conversation] = await db
+      .select()
+      .from(conversations)
+      .where(
+        and(
+          eq(conversations.familyGroupId, groupId),
+          eq(conversations.type, 'family_group')
+        )
+      );
+
+    if (!conversation) {
+      // Create a new conversation for the family group
+      const [group] = await db
+        .select()
+        .from(familyGroups)
+        .where(eq(familyGroups.id, groupId));
+
+      if (!group) {
+        return res.status(404).json({ message: 'Family group not found' });
+      }
+
+      const participants = (group.members || []).map((member: any) => ({
+        userId: member.userId,
+        role: member.role === 'owner' ? 'admin' : 'member',
+        joinedAt: member.joinedAt,
+        notifications: true,
+      }));
+
+      [conversation] = await db
+        .insert(conversations)
+        .values({
+          type: 'family_group',
+          title: `${group.name} - Family Chat`,
+          familyGroupId: groupId,
+          participants,
+          status: 'active',
+        })
+        .returning();
+    }
+
+    // Insert the message
+    const [newMessage] = await db
+      .insert(messages)
+      .values({
+        conversationId: conversation.id,
+        senderId: userId,
+        senderType: 'user',
+        content,
+        attachments: attachments || [],
+        messageType: 'text',
+      })
+      .returning();
+
+    // Update conversation's last message info
+    await db
+      .update(conversations)
+      .set({
+        lastMessageAt: new Date(),
+        lastMessagePreview: content.substring(0, 100),
+        updatedAt: new Date(),
+      })
+      .where(eq(conversations.id, conversation.id));
+
+    res.json(newMessage);
+  } catch (error) {
+    console.error('Error sending family message:', error);
+    res.status(500).json({ message: 'Failed to send message' });
+  }
+});
+
+// Get family group messages
 router.get('/groups/:groupId/messages', async (req: any, res: any) => {
   try {
     const userId = req.user?.id;
@@ -287,320 +284,145 @@ router.get('/groups/:groupId/messages', async (req: any, res: any) => {
     const limit = parseInt(req.query.limit as string) || 50;
     const offset = parseInt(req.query.offset as string) || 0;
     
-    if (!userId) {
+    if (!userId || !groupId) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    // Verify user has access to this group
-    const member = await db
+    // Get the conversation for this family group
+    const [conversation] = await db
       .select()
-      .from(familyMembers)
+      .from(conversations)
       .where(
         and(
-          eq(familyMembers.groupId, groupId),
-          eq(familyMembers.userId, userId),
-          eq(familyMembers.status, 'active')
+          eq(conversations.familyGroupId, groupId),
+          eq(conversations.type, 'family_group')
         )
-      )
-      .limit(1);
+      );
 
-    if (!member.length) {
-      return res.status(403).json({ message: 'Access denied' });
+    if (!conversation) {
+      return res.json([]);
     }
 
-    const messages = await db
-      .select({
-        id: familyMessages.id,
-        message: familyMessages.message,
-        attachments: familyMessages.attachments,
-        createdAt: familyMessages.createdAt,
-        editedAt: familyMessages.editedAt,
-        senderId: familyMessages.senderId,
-        senderName: familyMembers.name,
-      })
-      .from(familyMessages)
-      .leftJoin(familyMembers, eq(familyMessages.senderId, familyMembers.userId))
-      .where(eq(familyMessages.groupId, groupId))
-      .orderBy(desc(familyMessages.createdAt))
+    // Get messages for the conversation
+    const groupMessages = await db
+      .select()
+      .from(messages)
+      .where(eq(messages.conversationId, conversation.id))
+      .orderBy(desc(messages.createdAt))
       .limit(limit)
       .offset(offset);
 
-    res.json(messages);
+    res.json(groupMessages);
   } catch (error) {
-    console.error('Error fetching messages:', error);
+    console.error('Error fetching family messages:', error);
     res.status(500).json({ message: 'Failed to fetch messages' });
   }
 });
 
-// Send a message to family group
-router.post('/groups/:groupId/messages', async (req: any, res: any) => {
-  try {
-    const userId = req.user?.id;
-    const groupId = parseInt(req.params.groupId);
-    
-    if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    // Verify user has access to this group
-    const member = await db
-      .select()
-      .from(familyMembers)
-      .where(
-        and(
-          eq(familyMembers.groupId, groupId),
-          eq(familyMembers.userId, userId),
-          eq(familyMembers.status, 'active')
-        )
-      )
-      .limit(1);
-
-    if (!member.length) {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-
-    const validatedData = insertFamilyMessageSchema.parse({
-      ...req.body,
-      groupId,
-      senderId: userId,
-    });
-
-    const newMessage = await db
-      .insert(familyMessages)
-      .values(validatedData)
-      .returning();
-
-    res.json(newMessage[0]);
-  } catch (error) {
-    console.error('Error sending message:', error);
-    res.status(500).json({ message: 'Failed to send message' });
-  }
-});
-
-// Get notes for a family group
-router.get('/groups/:groupId/notes', async (req: any, res: any) => {
-  try {
-    const userId = req.user?.id;
-    const groupId = parseInt(req.params.groupId);
-    
-    if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    // Verify user has access to this group
-    const member = await db
-      .select()
-      .from(familyMembers)
-      .where(
-        and(
-          eq(familyMembers.groupId, groupId),
-          eq(familyMembers.userId, userId),
-          eq(familyMembers.status, 'active')
-        )
-      )
-      .limit(1);
-
-    if (!member.length) {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-
-    const notes = await db
-      .select()
-      .from(familyNotes)
-      .where(eq(familyNotes.groupId, groupId))
-      .orderBy(desc(familyNotes.updatedAt));
-
-    res.json(notes);
-  } catch (error) {
-    console.error('Error fetching notes:', error);
-    res.status(500).json({ message: 'Failed to fetch notes' });
-  }
-});
-
-// Create a note
+// Add a shared note to family group
 router.post('/groups/:groupId/notes', async (req: any, res: any) => {
   try {
     const userId = req.user?.id;
     const groupId = parseInt(req.params.groupId);
+    const { content, communityId, tags } = req.body;
     
-    if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+    if (!userId || !groupId || !content) {
+      return res.status(400).json({ message: 'Invalid request' });
     }
 
-    // Verify user has access to this group
-    const member = await db
+    // Get the family group
+    const [group] = await db
       .select()
-      .from(familyMembers)
-      .where(
-        and(
-          eq(familyMembers.groupId, groupId),
-          eq(familyMembers.userId, userId),
-          eq(familyMembers.status, 'active')
-        )
-      )
-      .limit(1);
+      .from(familyGroups)
+      .where(eq(familyGroups.id, groupId));
 
-    if (!member.length) {
-      return res.status(403).json({ message: 'Access denied' });
+    if (!group) {
+      return res.status(404).json({ message: 'Family group not found' });
     }
 
-    const validatedData = insertFamilyNoteSchema.parse({
-      ...req.body,
-      groupId,
+    // Check if user is a member
+    const members = group.members || [];
+    const member = members.find((m: any) => m.userId === userId);
+    if (!member) {
+      return res.status(403).json({ message: 'Not a member of this group' });
+    }
+
+    // Add the note to shared notes
+    const newNote = {
+      id: crypto.randomUUID(),
       authorId: userId,
-    });
+      content,
+      communityId,
+      createdAt: new Date().toISOString(),
+      tags: tags || [],
+    };
 
-    const newNote = await db
-      .insert(familyNotes)
-      .values(validatedData)
-      .returning();
+    const sharedNotes = group.sharedNotes || [];
+    sharedNotes.push(newNote);
 
-    res.json(newNote[0]);
+    // Update the group
+    await db
+      .update(familyGroups)
+      .set({ 
+        sharedNotes,
+        updatedAt: new Date() 
+      })
+      .where(eq(familyGroups.id, groupId));
+
+    res.json(newNote);
   } catch (error) {
-    console.error('Error creating note:', error);
-    res.status(500).json({ message: 'Failed to create note' });
+    console.error('Error adding family note:', error);
+    res.status(500).json({ message: 'Failed to add note' });
   }
 });
 
-// Get tasks for a family group
-router.get('/groups/:groupId/tasks', async (req: any, res: any) => {
+// Remove member from family group (owner only)
+router.delete('/groups/:groupId/members/:memberId', async (req: any, res: any) => {
   try {
     const userId = req.user?.id;
     const groupId = parseInt(req.params.groupId);
+    const memberIdToRemove = req.params.memberId;
     
-    if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+    if (!userId || !groupId || !memberIdToRemove) {
+      return res.status(400).json({ message: 'Invalid request' });
     }
 
-    // Verify user has access to this group
-    const member = await db
+    // Get the family group
+    const [group] = await db
       .select()
-      .from(familyMembers)
-      .where(
-        and(
-          eq(familyMembers.groupId, groupId),
-          eq(familyMembers.userId, userId),
-          eq(familyMembers.status, 'active')
-        )
-      )
-      .limit(1);
+      .from(familyGroups)
+      .where(eq(familyGroups.id, groupId));
 
-    if (!member.length) {
-      return res.status(403).json({ message: 'Access denied' });
+    if (!group) {
+      return res.status(404).json({ message: 'Family group not found' });
     }
 
-    const tasks = await db
-      .select()
-      .from(familyTasks)
-      .where(eq(familyTasks.groupId, groupId))
-      .orderBy(desc(familyTasks.createdAt));
+    // Check if user is the owner
+    if (group.ownerId !== userId) {
+      return res.status(403).json({ message: 'Only group owner can remove members' });
+    }
 
-    res.json(tasks);
+    // Remove the member
+    const members = group.members || [];
+    const updatedMembers = members.filter((m: any) => m.userId !== memberIdToRemove);
+
+    if (members.length === updatedMembers.length) {
+      return res.status(404).json({ message: 'Member not found' });
+    }
+
+    // Update the group
+    await db
+      .update(familyGroups)
+      .set({ 
+        members: updatedMembers,
+        updatedAt: new Date() 
+      })
+      .where(eq(familyGroups.id, groupId));
+
+    res.json({ message: 'Member removed successfully' });
   } catch (error) {
-    console.error('Error fetching tasks:', error);
-    res.status(500).json({ message: 'Failed to fetch tasks' });
-  }
-});
-
-// Create a task
-router.post('/groups/:groupId/tasks', async (req: any, res: any) => {
-  try {
-    const userId = req.user?.id;
-    const groupId = parseInt(req.params.groupId);
-    
-    if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    // Verify user has access to this group
-    const member = await db
-      .select()
-      .from(familyMembers)
-      .where(
-        and(
-          eq(familyMembers.groupId, groupId),
-          eq(familyMembers.userId, userId),
-          eq(familyMembers.status, 'active')
-        )
-      )
-      .limit(1);
-
-    if (!member.length) {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-
-    const validatedData = insertFamilyTaskSchema.parse({
-      ...req.body,
-      groupId,
-      createdBy: userId,
-    });
-
-    const newTask = await db
-      .insert(familyTasks)
-      .values(validatedData)
-      .returning();
-
-    res.json(newTask[0]);
-  } catch (error) {
-    console.error('Error creating task:', error);
-    res.status(500).json({ message: 'Failed to create task' });
-  }
-});
-
-// Update task status
-router.patch('/tasks/:taskId', async (req: any, res: any) => {
-  try {
-    const userId = req.user?.id;
-    const taskId = parseInt(req.params.taskId);
-    const { status } = req.body;
-    
-    if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-
-    // Get task to verify access
-    const task = await db
-      .select()
-      .from(familyTasks)
-      .where(eq(familyTasks.id, taskId))
-      .limit(1);
-
-    if (!task.length) {
-      return res.status(404).json({ message: 'Task not found' });
-    }
-
-    // Verify user has access to this group
-    const member = await db
-      .select()
-      .from(familyMembers)
-      .where(
-        and(
-          eq(familyMembers.groupId, task[0].groupId),
-          eq(familyMembers.userId, userId),
-          eq(familyMembers.status, 'active')
-        )
-      )
-      .limit(1);
-
-    if (!member.length) {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-
-    const updateData: any = { status };
-    if (status === 'completed') {
-      updateData.completedAt = new Date();
-    }
-
-    const updatedTask = await db
-      .update(familyTasks)
-      .set(updateData)
-      .where(eq(familyTasks.id, taskId))
-      .returning();
-
-    res.json(updatedTask[0]);
-  } catch (error) {
-    console.error('Error updating task:', error);
-    res.status(500).json({ message: 'Failed to update task' });
+    console.error('Error removing member:', error);
+    res.status(500).json({ message: 'Failed to remove member' });
   }
 });
 

@@ -106,6 +106,18 @@ export const users = pgTable("users", {
 // Type definitions for Replit Auth (removing duplicate User type)
 export type UpsertUser = typeof users.$inferInsert;
 
+// Messaging type exports
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = typeof messages.$inferInsert;
+export type Conversation = typeof conversations.$inferSelect;
+export type InsertConversation = typeof conversations.$inferInsert;
+export type FamilyGroup = typeof familyGroups.$inferSelect;
+export type InsertFamilyGroup = typeof familyGroups.$inferInsert;
+export type MessageTemplate = typeof messageTemplates.$inferSelect;
+export type InsertMessageTemplate = typeof messageTemplates.$inferInsert;
+export type MessagingNotification = typeof messagingNotifications.$inferSelect;
+export type InsertMessagingNotification = typeof messagingNotifications.$inferInsert;
+
 // User sessions table for secure session management
 export const userSessions = pgTable("user_sessions", {
   id: text("id").primaryKey(),
@@ -313,6 +325,187 @@ export const legalDocumentAuditTrail = pgTable("legal_document_audit_trail", {
   index("legal_document_audit_trail_timestamp_idx").on(table.timestamp),
   index("legal_document_audit_trail_user_id_idx").on(table.userId),
   index("legal_document_audit_trail_severity_idx").on(table.severity),
+]);
+
+// Family Groups for collaboration
+export const familyGroups = pgTable("family_groups", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  ownerId: varchar("owner_id").references(() => users.id).notNull(),
+  members: json("members").$type<{
+    userId: string;
+    role: "owner" | "admin" | "member" | "viewer";
+    relationship?: string;
+    permissions: {
+      canMessage: boolean;
+      canInvite: boolean;
+      canRemove: boolean;
+      canViewAll: boolean;
+      canEditNotes: boolean;
+    };
+    joinedAt: string;
+    invitedBy?: string;
+  }[]>().notNull(),
+  sharedCommunities: integer("shared_communities").array().default([]),
+  sharedNotes: json("shared_notes").$type<{
+    id: string;
+    authorId: string;
+    content: string;
+    communityId?: number;
+    createdAt: string;
+    updatedAt?: string;
+    tags?: string[];
+  }[]>().default([]),
+  sharedDocuments: json("shared_documents").$type<{
+    id: string;
+    name: string;
+    url: string;
+    uploadedBy: string;
+    uploadedAt: string;
+    type: string;
+    size: number;
+  }[]>().default([]),
+  settings: json("settings").$type<{
+    allowJoinRequests?: boolean;
+    requireApproval?: boolean;
+    shareLocation?: boolean;
+    shareCalendar?: boolean;
+    notifyOnActivity?: boolean;
+  }>().default({}),
+  inviteCode: text("invite_code").unique(),
+  inviteCodeExpiry: timestamp("invite_code_expiry"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("family_groups_owner_id_idx").on(table.ownerId),
+  index("family_groups_invite_code_idx").on(table.inviteCode),
+]);
+
+// Conversations table for organizing messages
+export const conversations = pgTable("conversations", {
+  id: serial("id").primaryKey(),
+  type: varchar("type", { enum: ["user_to_community", "user_to_user", "family_group", "community_broadcast"] }).notNull(),
+  title: text("title"),
+  communityId: integer("community_id").references(() => communities.id, { onDelete: "cascade" }),
+  participants: json("participants").$type<{
+    userId: string;
+    role: "owner" | "member" | "admin" | "community_rep";
+    joinedAt: string;
+    lastSeenAt?: string;
+    notifications: boolean;
+  }[]>().notNull(),
+  familyGroupId: integer("family_group_id").references(() => familyGroups.id),
+  lastMessageAt: timestamp("last_message_at"),
+  lastMessagePreview: text("last_message_preview"),
+  unreadCounts: json("unread_counts").$type<Record<string, number>>().default({}),
+  settings: json("settings").$type<{
+    muted?: boolean;
+    archived?: boolean;
+    pinned?: boolean;
+    autoTranslate?: boolean;
+    allowAttachments?: boolean;
+  }>().default({}),
+  metadata: json("metadata").$type<{
+    subject?: string;
+    tags?: string[];
+    priority?: "low" | "normal" | "high" | "urgent";
+    communityContact?: string;
+    departmentName?: string;
+  }>().default({}),
+  status: varchar("status", { enum: ["active", "archived", "closed"] }).default("active"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("conversations_type_idx").on(table.type),
+  index("conversations_community_id_idx").on(table.communityId),
+  index("conversations_family_group_id_idx").on(table.familyGroupId),
+  index("conversations_last_message_at_idx").on(table.lastMessageAt),
+  index("conversations_status_idx").on(table.status),
+]);
+
+// Messages table for real-time communication
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id").references(() => conversations.id, { onDelete: "cascade" }).notNull(),
+  senderId: varchar("sender_id").references(() => users.id).notNull(),
+  senderType: varchar("sender_type", { enum: ["user", "community"] }).notNull(),
+  content: text("content").notNull(),
+  messageType: varchar("message_type", { enum: ["text", "image", "file", "system"] }).default("text"),
+  attachments: json("attachments").$type<{
+    url: string;
+    name: string;
+    type: string;
+    size: number;
+  }[]>().default([]),
+  readBy: json("read_by").$type<{
+    userId: string;
+    readAt: string;
+  }[]>().default([]),
+  editedAt: timestamp("edited_at"),
+  deletedAt: timestamp("deleted_at"),
+  metadata: json("metadata").$type<{
+    replyTo?: number;
+    forwarded?: boolean;
+    urgent?: boolean;
+    aiTranslated?: boolean;
+    originalLanguage?: string;
+  }>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("messages_conversation_id_idx").on(table.conversationId),
+  index("messages_sender_id_idx").on(table.senderId),
+  index("messages_created_at_idx").on(table.createdAt),
+]);
+
+// Message Templates for communities
+export const messageTemplates = pgTable("message_templates", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id, { onDelete: "cascade" }).notNull(),
+  name: text("name").notNull(),
+  category: varchar("category", { 
+    enum: ["welcome", "tour_confirmation", "pricing", "availability", "follow_up", "general"] 
+  }).notNull(),
+  subject: text("subject"),
+  content: text("content").notNull(),
+  variables: json("variables").$type<string[]>().default([]), // ["{user_name}", "{tour_date}", "{community_name}"]
+  isActive: boolean("is_active").default(true),
+  usageCount: integer("usage_count").default(0),
+  lastUsedAt: timestamp("last_used_at"),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("message_templates_community_id_idx").on(table.communityId),
+  index("message_templates_category_idx").on(table.category),
+]);
+
+// Notification Preferences for messaging
+export const messagingNotifications = pgTable("messaging_notifications", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  conversationId: integer("conversation_id").references(() => conversations.id, { onDelete: "cascade" }),
+  notificationType: varchar("notification_type", { 
+    enum: ["email", "sms", "push", "in_app"] 
+  }).notNull(),
+  enabled: boolean("enabled").default(true),
+  frequency: varchar("frequency", { 
+    enum: ["instant", "hourly", "daily", "weekly", "never"] 
+  }).default("instant"),
+  quietHoursStart: text("quiet_hours_start"), // "22:00"
+  quietHoursEnd: text("quiet_hours_end"), // "08:00"
+  preferences: json("preferences").$type<{
+    newMessage?: boolean;
+    mentionOnly?: boolean;
+    urgentOnly?: boolean;
+    familyActivity?: boolean;
+    communityUpdates?: boolean;
+    tourReminders?: boolean;
+  }>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("messaging_notifications_user_id_idx").on(table.userId),
+  index("messaging_notifications_conversation_id_idx").on(table.conversationId),
 ]);
 
 // User Consent Records for GDPR/CCPA compliance
@@ -876,56 +1069,7 @@ export const searchHistory = pgTable("search_history", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Messages Table - For communication between users and communities
-export const messages = pgTable("messages", {
-  id: serial("id").primaryKey(),
-  fromUserId: integer("from_user_id").references(() => users.id),
-  toUserId: integer("to_user_id").references(() => users.id),
-  communityId: integer("community_id").references(() => communities.id),
-  conversationId: text("conversation_id").notNull(), // Groups messages in a conversation
-  messageType: text("message_type", { 
-    enum: ["inquiry", "tour_request", "pricing_question", "availability_check", "general", "follow_up"] 
-  }).default("general"),
-  subject: text("subject"),
-  content: text("content").notNull(),
-  attachments: json("attachments").$type<Array<{
-    fileName: string;
-    fileUrl: string;
-    fileType: string;
-    fileSize: number;
-  }>>().default([]),
-  isRead: boolean("is_read").default(false),
-  readAt: timestamp("read_at"),
-  isStarred: boolean("is_starred").default(false),
-  isArchived: boolean("is_archived").default(false),
-  priority: text("priority", { enum: ["Low", "Normal", "High", "Urgent"] }).default("Normal"),
-  metadata: json("metadata").$type<{
-    userAgent?: string;
-    ipAddress?: string;
-    source?: string; // 'web', 'mobile', 'email'
-    tourDate?: string;
-    preferredContactTime?: string;
-    phoneNumber?: string;
-  }>().default({}),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
-
-// Message Templates for Communities
-export const messageTemplates = pgTable("message_templates", {
-  id: serial("id").primaryKey(),
-  communityId: integer("community_id").references(() => communities.id).notNull(),
-  templateName: text("template_name").notNull(),
-  templateType: text("template_type", {
-    enum: ["welcome", "tour_confirmation", "pricing_info", "availability_update", "follow_up", "custom"]
-  }).notNull(),
-  subject: text("subject").notNull(),
-  content: text("content").notNull(),
-  isActive: boolean("is_active").default(true),
-  useCount: integer("use_count").default(0),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+// Note: messages and messageTemplates tables are defined earlier in the schema
 
 // Tours/Visits Scheduling and Tracking - Minimal schema matching actual database
 export const tours = pgTable("tours", {
@@ -2416,19 +2560,14 @@ export const searchHistoryRelations = relations(searchHistory, ({ one }) => ({
 }));
 
 export const messagesRelations = relations(messages, ({ one }) => ({
-  fromUser: one(users, {
-    fields: [messages.fromUserId],
+  sender: one(users, {
+    fields: [messages.senderId],
     references: [users.id],
     relationName: "sentMessages"
   }),
-  toUser: one(users, {
-    fields: [messages.toUserId],
-    references: [users.id],
-    relationName: "receivedMessages"
-  }),
-  community: one(communities, {
-    fields: [messages.communityId],
-    references: [communities.id],
+  conversation: one(conversations, {
+    fields: [messages.conversationId],
+    references: [conversations.id],
   }),
 }));
 
@@ -3597,104 +3736,7 @@ export const insertVendorAnalyticsSchema = createInsertSchema(vendorAnalytics).o
 export type InsertVendorAnalytics = z.infer<typeof insertVendorAnalyticsSchema>;
 export type VendorAnalytics = typeof vendorAnalytics.$inferSelect;
 
-// Family Connect Tables
-export const familyGroups = pgTable('family_groups', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  primaryUserId: integer('primary_user_id').references(() => users.id),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-  inviteCode: text('invite_code').unique(),
-});
-
-export const familyMembers = pgTable('family_members', {
-  id: serial('id').primaryKey(),
-  groupId: integer('group_id').references(() => familyGroups.id).notNull(),
-  userId: integer('user_id').references(() => users.id),
-  email: text('email').notNull(),
-  name: text('name').notNull(),
-  role: text('role').notNull().default('member'), // admin, member
-  status: text('status').notNull().default('pending'), // pending, active
-  invitedAt: timestamp('invited_at').defaultNow().notNull(),
-  joinedAt: timestamp('joined_at'),
-});
-
-export const familyMessages = pgTable('family_messages', {
-  id: serial('id').primaryKey(),
-  groupId: integer('group_id').references(() => familyGroups.id).notNull(),
-  senderId: integer('sender_id').references(() => users.id).notNull(),
-  message: text('message').notNull(),
-  attachments: jsonb('attachments').$type<Array<{url: string; name: string; type: string}>>(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  editedAt: timestamp('edited_at'),
-});
-
-export const familyNotes = pgTable('family_notes', {
-  id: serial('id').primaryKey(),
-  groupId: integer('group_id').references(() => familyGroups.id).notNull(),
-  authorId: integer('author_id').references(() => users.id).notNull(),
-  communityId: integer('community_id').references(() => communities.id),
-  title: text('title').notNull(),
-  content: text('content').notNull(),
-  tags: text('tags').array(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
-
-export const familyTasks = pgTable('family_tasks', {
-  id: serial('id').primaryKey(),
-  groupId: integer('group_id').references(() => familyGroups.id).notNull(),
-  assignedTo: integer('assigned_to').references(() => users.id),
-  createdBy: integer('created_by').references(() => users.id).notNull(),
-  title: text('title').notNull(),
-  description: text('description'),
-  dueDate: timestamp('due_date'),
-  status: text('status').notNull().default('pending'), // pending, in_progress, completed
-  priority: text('priority').notNull().default('medium'), // low, medium, high
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  completedAt: timestamp('completed_at'),
-});
-
-// Insert schemas for Family Connect
-export const insertFamilyGroupSchema = createInsertSchema(familyGroups).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-export type InsertFamilyGroup = z.infer<typeof insertFamilyGroupSchema>;
-export type FamilyGroup = typeof familyGroups.$inferSelect;
-
-export const insertFamilyMemberSchema = createInsertSchema(familyMembers).omit({
-  id: true,
-  invitedAt: true,
-  joinedAt: true,
-});
-export type InsertFamilyMember = z.infer<typeof insertFamilyMemberSchema>;
-export type FamilyMember = typeof familyMembers.$inferSelect;
-
-export const insertFamilyMessageSchema = createInsertSchema(familyMessages).omit({
-  id: true,
-  createdAt: true,
-  editedAt: true,
-});
-export type InsertFamilyMessage = z.infer<typeof insertFamilyMessageSchema>;
-export type FamilyMessage = typeof familyMessages.$inferSelect;
-
-export const insertFamilyNoteSchema = createInsertSchema(familyNotes).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-export type InsertFamilyNote = z.infer<typeof insertFamilyNoteSchema>;
-export type FamilyNote = typeof familyNotes.$inferSelect;
-
-export const insertFamilyTaskSchema = createInsertSchema(familyTasks).omit({
-  id: true,
-  createdAt: true,
-  completedAt: true,
-});
-export type InsertFamilyTask = z.infer<typeof insertFamilyTaskSchema>;
-export type FamilyTask = typeof familyTasks.$inferSelect;
+// Note: Family Connect tables are defined earlier in the schema
 
 // ========== SERVICES MANAGEMENT SYSTEM ==========
 // Service Categories and Products Management

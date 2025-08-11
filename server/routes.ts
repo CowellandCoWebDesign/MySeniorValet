@@ -455,8 +455,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const httpServer = createServer(app);
 
-  // WebSocket functionality temporarily disabled - wsConnections table needs to be added to schema
-  console.log('✅ Simple WebSocket communication initialized (mock)');
+  // Initialize WebSocket for real-time messaging
+  const { messagingService } = await import('./messaging-service');
+  messagingService.initialize(httpServer);
+  console.log('✅ Real-time messaging WebSocket service initialized');
 
   return httpServer;
 }

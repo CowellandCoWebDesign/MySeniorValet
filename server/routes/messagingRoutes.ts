@@ -1,373 +1,381 @@
-import { Router } from 'express';
-import { db } from '../db';
-import { vendorConversations, vendorConversationParticipants, vendorMessages, users, vendorRegistrations, communities } from '../../shared/schema';
-import { eq, and, or, desc, sql } from 'drizzle-orm';
-import { NotificationService } from '../notification-service';
+import { Router } from "express";
+import { messagingService } from "../messaging-service";
+import { db } from "../db";
+import { 
+  messages, 
+  conversations, 
+  familyGroups,
+  messageTemplates,
+  messagingNotifications,
+  users,
+  communities
+} from "@shared/schema";
+import { eq, and, or, desc, sql } from "drizzle-orm";
 
 const router = Router();
 
-// Get conversations for a user or vendor
-router.get('/conversations', async (req, res) => {
+// Get user's conversations
+router.get("/conversations", async (req, res) => {
   try {
-    const { userId, vendorId, type } = req.query;
+    const userId = req.query.userId as string;
     
-    // Get conversations where user/vendor is a participant
-    let participantConditions = [];
-    if (userId) {
-      participantConditions.push(eq(vendorConversationParticipants.userId, parseInt(userId as string)));
+    if (!userId) {
+      return res.status(400).json({ error: "User ID required" });
     }
-    if (vendorId) {
-      participantConditions.push(eq(vendorConversationParticipants.vendorId, parseInt(vendorId as string)));
-    }
-    
-    const conversations = await db
-      .select({
-        conversation: vendorConversations,
-        participants: sql`
-          COALESCE(
-            json_agg(
-              json_build_object(
-                'id', ${vendorConversationParticipants.id},
-                'userId', ${vendorConversationParticipants.userId},
-                'vendorId', ${vendorConversationParticipants.vendorId},
-                'role', ${vendorConversationParticipants.role},
-                'lastReadAt', ${vendorConversationParticipants.lastReadAt}
-              )
-            ) FILTER (WHERE ${vendorConversationParticipants.id} IS NOT NULL),
-            '[]'::json
-          )`
-      })
-      .from(vendorConversations)
-      .leftJoin(
-        vendorConversationParticipants,
-        eq(vendorConversations.id, vendorConversationParticipants.conversationId)
-      )
-      .where(
-        and(
-          type ? eq(vendorConversations.type, type as any) : undefined,
-          participantConditions.length > 0 ? or(...participantConditions) : undefined
-        )
-      )
-      .groupBy(vendorConversations.id)
-      .orderBy(desc(vendorConversations.lastMessageAt));
-    
-    // Map the results to include conversation data at the top level
-    const formattedConversations = conversations.map(item => ({
-      ...item.conversation,
-      participants: item.participants
-    }));
-    
-    res.json(formattedConversations);
-  } catch (error: any) {
-    console.error('Error fetching conversations:', error);
-    res.status(500).json({ error: 'Failed to fetch conversations' });
-  }
-});
 
-// Create a new conversation
-router.post('/conversations', async (req, res) => {
-  try {
-    const { type, subject, priority, metadata, participants } = req.body;
+    const conversations = await messagingService.getConversations(userId);
     
-    // Create conversation
-    const [conversation] = await db.insert(vendorConversations).values({
-      type,
-      subject,
-      priority,
-      metadata
-    }).returning();
-    
-    // Add participants
-    const participantData = participants.map((p: any) => ({
-      conversationId: conversation.id,
-      userId: p.userId || null,
-      vendorId: p.vendorId || null,
-      role: p.role
-    }));
-    
-    await db.insert(vendorConversationParticipants).values(participantData);
-    
-    res.json({ conversation, participants: participantData });
-  } catch (error: any) {
-    console.error('Error creating conversation:', error);
-    res.status(500).json({ error: 'Failed to create conversation' });
+    // Enrich conversations with participant details
+    const enrichedConversations = await Promise.all(
+      conversations.map(async (conv) => {
+        const participants = (conv.participants as any[]) || [];
+        
+        // Get user details for participants
+        const participantDetails = await Promise.all(
+          participants.map(async (p) => {
+            const [user] = await db.select({
+              id: users.id,
+              firstName: users.firstName,
+              lastName: users.lastName,
+              profileImageUrl: users.profileImageUrl
+            })
+            .from(users)
+            .where(eq(users.id, p.userId));
+            
+            return {
+              ...p,
+              user
+            };
+          })
+        );
+
+        // Get community details if applicable
+        let community = null;
+        if (conv.communityId) {
+          [community] = await db.select({
+            id: communities.id,
+            name: communities.name,
+            city: communities.city,
+            state: communities.state,
+            photos: communities.photos
+          })
+          .from(communities)
+          .where(eq(communities.id, conv.communityId));
+        }
+
+        return {
+          ...conv,
+          participants: participantDetails,
+          community
+        };
+      })
+    );
+
+    res.json(enrichedConversations);
+  } catch (error) {
+    console.error("Error fetching conversations:", error);
+    res.status(500).json({ error: "Failed to fetch conversations" });
   }
 });
 
 // Get messages for a conversation
-router.get('/conversations/:conversationId/messages', async (req, res) => {
+router.get("/conversations/:conversationId/messages", async (req, res) => {
   try {
-    const { conversationId } = req.params;
-    const { limit = 50, offset = 0 } = req.query;
-    
-    const messages = await db
-      .select({
-        message: vendorMessages,
-        senderUser: users,
-        senderVendor: vendorRegistrations
+    const conversationId = parseInt(req.params.conversationId);
+    const limit = parseInt(req.query.limit as string) || 50;
+    const offset = parseInt(req.query.offset as string) || 0;
+
+    const conversationMessages = await messagingService.getMessages(conversationId, limit, offset);
+
+    // Enrich messages with sender details
+    const enrichedMessages = await Promise.all(
+      conversationMessages.map(async (msg) => {
+        const [sender] = await db.select({
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          profileImageUrl: users.profileImageUrl
+        })
+        .from(users)
+        .where(eq(users.id, msg.senderId));
+
+        return {
+          ...msg,
+          sender
+        };
       })
-      .from(vendorMessages)
-      .leftJoin(users, eq(vendorMessages.senderId, users.id))
-      .leftJoin(vendorRegistrations, eq(vendorMessages.senderVendorId, vendorRegistrations.id))
-      .where(eq(vendorMessages.conversationId, parseInt(conversationId)))
-      .orderBy(desc(vendorMessages.createdAt))
-      .limit(parseInt(limit as string))
-      .offset(parseInt(offset as string));
-    
-    res.json(messages);
-  } catch (error: any) {
-    console.error('Error fetching messages:', error);
-    res.status(500).json({ error: 'Failed to fetch messages' });
+    );
+
+    res.json(enrichedMessages);
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    res.status(500).json({ error: "Failed to fetch messages" });
   }
 });
 
-// Send a message
-router.post('/conversations/:conversationId/messages', async (req, res) => {
+// Create a new conversation
+router.post("/conversations", async (req, res) => {
   try {
-    const { conversationId } = req.params;
-    const { senderId, senderVendorId, senderType, content, attachments } = req.body;
-    
-    // Create message
-    const [message] = await db.insert(vendorMessages).values({
-      conversationId: parseInt(conversationId),
-      senderId: senderId || null,
-      senderVendorId: senderVendorId || null,
-      senderType,
-      content,
-      attachments: attachments || []
-    }).returning();
-    
-    // Update conversation last message time
-    await db.update(vendorConversations)
-      .set({ 
-        lastMessageAt: new Date(),
-        updatedAt: new Date()
-      })
-      .where(eq(vendorConversations.id, parseInt(conversationId)));
-    
-    // Get sender details
-    let sender = null;
-    if (senderId) {
-      [sender] = await db.select().from(users).where(eq(users.id, senderId));
-    } else if (senderVendorId) {
-      [sender] = await db.select().from(vendorRegistrations).where(eq(vendorRegistrations.id, senderVendorId));
+    const { type, title, participants, communityId, familyGroupId, metadata } = req.body;
+
+    if (!type || !participants || participants.length === 0) {
+      return res.status(400).json({ error: "Type and participants required" });
     }
-    
-    // Get conversation details to determine recipients and send notifications
-    const [conversation] = await db
-      .select()
-      .from(vendorConversations)
-      .where(eq(vendorConversations.id, parseInt(conversationId)));
-    
-    if (conversation) {
-      // Get all participants except the sender
-      const participants = await db
-        .select()
-        .from(vendorConversationParticipants)
-        .where(
-          and(
-            eq(vendorConversationParticipants.conversationId, parseInt(conversationId)),
-            senderId ? 
-              or(
-                vendorConversationParticipants.userId.isNot(senderId),
-                vendorConversationParticipants.vendorId.isNotNull()
-              ) :
-              vendorConversationParticipants.userId.isNotNull()
-          )
-        );
-      
-      // Create notifications for recipients
-      for (const participant of participants) {
-        if (participant.userId && participant.userId !== senderId) {
-          // Notification for user recipient
-          await NotificationService.createNotification({
-            userId: participant.userId,
-            type: 'message',
-            title: 'New Message',
-            message: `You have a new message from ${sender?.name || 'a community'}`,
-            category: 'messages',
-            priority: 'normal',
-            actionUrl: `/messaging`,
-            iconType: 'message-square',
-            metadata: {
-              conversationId: conversation.id,
-              messageId: message.id,
-              senderName: sender?.name || 'Community'
-            }
-          });
-        } else if (participant.vendorId) {
-          // For vendor/community recipients, we need to notify the community manager
-          // This would typically be handled by the vendor's notification system
-          // For now, we'll log it
-          console.log(`New message for vendor ${participant.vendorId} in conversation ${conversationId}`);
-        }
-      }
-      
-      // If conversation type is 'community', check if we need to notify community managers
-      if (conversation.type === 'community' && conversation.metadata?.communityId) {
-        const [community] = await db
-          .select()
-          .from(communities)
-          .where(eq(communities.id, conversation.metadata.communityId));
-        
-        if (community && community.claimedBy) {
-          // Get the user who claimed the community
-          const [communityManager] = await db
-            .select()
-            .from(users)
-            .where(eq(users.id, community.claimedBy));
-          
-          if (communityManager && communityManager.id !== senderId) {
-            await NotificationService.createNotification({
-              userId: communityManager.id,
-              type: 'message',
-              title: 'New Community Message',
-              message: `New message for ${community.name} from ${sender?.name || 'a user'}`,
-              category: 'messages',
-              priority: 'normal',
-              actionUrl: `/messaging`,
-              iconType: 'message-square',
-              communityId: community.id,
-              metadata: {
-                conversationId: conversation.id,
-                messageId: message.id,
-                communityName: community.name,
-                senderName: sender?.name || 'User'
-              }
-            });
-          }
-        }
-      }
+
+    const conversation = await messagingService.createConversation({
+      type,
+      title,
+      participants,
+      communityId,
+      familyGroupId,
+      metadata
+    });
+
+    res.json(conversation);
+  } catch (error) {
+    console.error("Error creating conversation:", error);
+    res.status(500).json({ error: "Failed to create conversation" });
+  }
+});
+
+// Start conversation with community
+router.post("/conversations/community", async (req, res) => {
+  try {
+    const { userId, communityId, message } = req.body;
+
+    if (!userId || !communityId) {
+      return res.status(400).json({ error: "User ID and Community ID required" });
     }
-    
-    res.json({ message, sender });
-  } catch (error: any) {
-    console.error('Error sending message:', error);
-    res.status(500).json({ error: 'Failed to send message' });
+
+    // Check if conversation already exists
+    const existingConversations = await db.select()
+      .from(conversations)
+      .where(and(
+        eq(conversations.communityId, communityId),
+        sql`${conversations.participants}::jsonb @> ${JSON.stringify([{ userId }])}`
+      ));
+
+    let conversation;
+    if (existingConversations.length > 0) {
+      conversation = existingConversations[0];
+    } else {
+      // Get community details
+      const [community] = await db.select()
+        .from(communities)
+        .where(eq(communities.id, communityId));
+
+      if (!community) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
+      // Create new conversation
+      conversation = await messagingService.createConversation({
+        type: 'user_to_community',
+        title: `Chat with ${community.name}`,
+        participants: [
+          { userId, role: 'member', joinedAt: new Date().toISOString(), notifications: true },
+          { userId: `community_${communityId}`, role: 'community_rep', joinedAt: new Date().toISOString(), notifications: true }
+        ],
+        communityId,
+        metadata: {
+          communityName: community.name,
+          communityContact: community.email || community.phone
+        }
+      });
+    }
+
+    // Send initial message if provided
+    if (message) {
+      await db.insert(messages).values({
+        conversationId: conversation.id,
+        senderId: userId,
+        senderType: 'user',
+        content: message,
+        messageType: 'text'
+      });
+
+      await db.update(conversations)
+        .set({
+          lastMessageAt: new Date(),
+          lastMessagePreview: message.substring(0, 100)
+        })
+        .where(eq(conversations.id, conversation.id));
+    }
+
+    res.json(conversation);
+  } catch (error) {
+    console.error("Error starting community conversation:", error);
+    res.status(500).json({ error: "Failed to start conversation" });
   }
 });
 
-// Mark messages as read
-router.post('/conversations/:conversationId/read', async (req, res) => {
+// Create or get family group
+router.post("/family-groups", async (req, res) => {
   try {
-    const { conversationId } = req.params;
-    const { userId, vendorId } = req.body;
-    
-    // Update participant's last read time
-    await db.update(vendorConversationParticipants)
-      .set({ lastReadAt: new Date() })
-      .where(
-        and(
-          eq(vendorConversationParticipants.conversationId, parseInt(conversationId)),
-          userId ? eq(vendorConversationParticipants.userId, userId) : 
-                   eq(vendorConversationParticipants.vendorId, vendorId)
-        )
-      );
-    
-    res.json({ success: true });
-  } catch (error: any) {
-    console.error('Error marking messages as read:', error);
-    res.status(500).json({ error: 'Failed to mark messages as read' });
+    const { name, ownerId, members, settings } = req.body;
+
+    if (!name || !ownerId) {
+      return res.status(400).json({ error: "Name and owner ID required" });
+    }
+
+    const familyGroup = await messagingService.createFamilyGroup({
+      name,
+      ownerId,
+      members: members || [
+        {
+          userId: ownerId,
+          role: 'owner',
+          permissions: {
+            canMessage: true,
+            canInvite: true,
+            canRemove: true,
+            canViewAll: true,
+            canEditNotes: true
+          },
+          joinedAt: new Date().toISOString()
+        }
+      ],
+      settings
+    });
+
+    res.json(familyGroup);
+  } catch (error) {
+    console.error("Error creating family group:", error);
+    res.status(500).json({ error: "Failed to create family group" });
   }
 });
 
-// Update conversation status
-router.patch('/conversations/:conversationId', async (req, res) => {
+// Join family group with invite code
+router.post("/family-groups/join", async (req, res) => {
   try {
-    const { conversationId } = req.params;
-    const { status, priority } = req.body;
-    
-    const updates: any = { updatedAt: new Date() };
-    if (status) updates.status = status;
-    if (priority) updates.priority = priority;
-    
-    const [updated] = await db.update(vendorConversations)
-      .set(updates)
-      .where(eq(vendorConversations.id, parseInt(conversationId)))
-      .returning();
-    
-    res.json(updated);
-  } catch (error: any) {
-    console.error('Error updating conversation:', error);
-    res.status(500).json({ error: 'Failed to update conversation' });
+    const { userId, inviteCode } = req.body;
+
+    if (!userId || !inviteCode) {
+      return res.status(400).json({ error: "User ID and invite code required" });
+    }
+
+    const familyGroup = await messagingService.joinFamilyGroup(userId, inviteCode);
+
+    if (!familyGroup) {
+      return res.status(404).json({ error: "Invalid or expired invite code" });
+    }
+
+    res.json(familyGroup);
+  } catch (error) {
+    console.error("Error joining family group:", error);
+    res.status(500).json({ error: "Failed to join family group" });
   }
 });
 
-// Get unread message count
-router.get('/unread-count', async (req, res) => {
+// Get user's family groups
+router.get("/family-groups", async (req, res) => {
   try {
-    const { userId, vendorId } = req.query;
-    
-    const result = await db
-      .select({
-        count: sql<number>`COUNT(DISTINCT ${vendorMessages.id})`
-      })
-      .from(vendorMessages)
-      .innerJoin(
-        vendorConversationParticipants,
-        eq(vendorMessages.conversationId, vendorConversationParticipants.conversationId)
-      )
-      .where(
-        and(
-          userId ? eq(vendorConversationParticipants.userId, parseInt(userId as string)) :
-                   eq(vendorConversationParticipants.vendorId, parseInt(vendorId as string)),
-          or(
-            sql`${vendorMessages.createdAt} > ${vendorConversationParticipants.lastReadAt}`,
-            sql`${vendorConversationParticipants.lastReadAt} IS NULL`
-          )
-        )
-      );
-    
-    res.json({ unreadCount: result[0]?.count || 0 });
-  } catch (error: any) {
-    console.error('Error getting unread count:', error);
-    res.status(500).json({ error: 'Failed to get unread count' });
-  }
-});
+    const userId = req.query.userId as string;
 
-// Get unread messages count for a user
-router.get('/unread-count', async (req, res) => {
-  try {
-    const userId = req.query.userId || req.user?.id;
     if (!userId) {
-      return res.json({ count: 0 });
+      return res.status(400).json({ error: "User ID required" });
     }
 
-    // Get all conversations the user is part of
-    const participantData = await db
-      .select({
-        conversationId: vendorConversationParticipants.conversationId,
-        lastReadAt: vendorConversationParticipants.lastReadAt
-      })
-      .from(vendorConversationParticipants)
-      .where(eq(vendorConversationParticipants.userId, parseInt(userId as string)));
+    const userFamilyGroups = await db.select()
+      .from(familyGroups)
+      .where(or(
+        eq(familyGroups.ownerId, userId),
+        sql`${familyGroups.members}::jsonb @> ${JSON.stringify([{ userId }])}`
+      ));
 
-    if (participantData.length === 0) {
-      return res.json({ count: 0 });
+    res.json(userFamilyGroups);
+  } catch (error) {
+    console.error("Error fetching family groups:", error);
+    res.status(500).json({ error: "Failed to fetch family groups" });
+  }
+});
+
+// Get or create message templates for community
+router.get("/communities/:communityId/templates", async (req, res) => {
+  try {
+    const communityId = parseInt(req.params.communityId);
+
+    const templates = await db.select()
+      .from(messageTemplates)
+      .where(and(
+        eq(messageTemplates.communityId, communityId),
+        eq(messageTemplates.isActive, true)
+      ))
+      .orderBy(messageTemplates.category, messageTemplates.name);
+
+    res.json(templates);
+  } catch (error) {
+    console.error("Error fetching message templates:", error);
+    res.status(500).json({ error: "Failed to fetch templates" });
+  }
+});
+
+// Create message template
+router.post("/communities/:communityId/templates", async (req, res) => {
+  try {
+    const communityId = parseInt(req.params.communityId);
+    const { name, category, subject, content, variables, createdBy } = req.body;
+
+    if (!name || !category || !content) {
+      return res.status(400).json({ error: "Name, category, and content required" });
     }
 
-    // Count unread messages in those conversations
-    let unreadCount = 0;
-    for (const participant of participantData) {
-      const result = await db
-        .select({ count: sql<number>`cast(count(*) as int)` })
-        .from(vendorMessages)
-        .where(
-          and(
-            eq(vendorMessages.conversationId, participant.conversationId),
-            participant.lastReadAt
-              ? sql`${vendorMessages.createdAt} > ${participant.lastReadAt}`
-              : sql`true`
-          )
-        );
-      
-      unreadCount += result[0]?.count || 0;
+    const [template] = await db.insert(messageTemplates).values({
+      communityId,
+      name,
+      category,
+      subject,
+      content,
+      variables: variables || [],
+      createdBy
+    }).returning();
+
+    res.json(template);
+  } catch (error) {
+    console.error("Error creating message template:", error);
+    res.status(500).json({ error: "Failed to create template" });
+  }
+});
+
+// Update messaging notification preferences
+router.put("/notifications/preferences", async (req, res) => {
+  try {
+    const { userId, conversationId, preferences } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID required" });
     }
 
-    res.json({ count: unreadCount });
-  } catch (error: any) {
-    console.error('Error fetching unread count:', error);
-    res.status(500).json({ error: 'Failed to fetch unread count' });
+    // Check if preferences exist
+    const existing = await db.select()
+      .from(messagingNotifications)
+      .where(and(
+        eq(messagingNotifications.userId, userId),
+        conversationId ? eq(messagingNotifications.conversationId, conversationId) : sql`${messagingNotifications.conversationId} IS NULL`
+      ));
+
+    if (existing.length > 0) {
+      // Update existing preferences
+      await db.update(messagingNotifications)
+        .set({
+          ...preferences,
+          updatedAt: new Date()
+        })
+        .where(eq(messagingNotifications.id, existing[0].id));
+    } else {
+      // Create new preferences
+      await db.insert(messagingNotifications).values({
+        userId,
+        conversationId,
+        notificationType: 'email',
+        ...preferences
+      });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error updating notification preferences:", error);
+    res.status(500).json({ error: "Failed to update preferences" });
   }
 });
 

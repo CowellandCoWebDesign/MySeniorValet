@@ -44,7 +44,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Footer } from "@/components/footer";
 import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
 
-import { MessagesSection } from "@/components/MessagesSection";
+import { MessagingDashboard } from "@/components/messaging/MessagingDashboard";
 
 interface SavedCommunity {
   id: number;
@@ -740,7 +740,7 @@ export default function Dashboard() {
 
           {/* Messages Tab */}
           <TabsContent value="messages" className="space-y-6">
-            <MessagesSection />
+            <MessagingDashboard userId={user?.id || 'guest'} />
           </TabsContent>
 
           {/* Profile Tab */}
