@@ -108,7 +108,12 @@ export function TourScheduler({
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Schedule a Tour</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              Schedule a Tour
+              <span className="text-xs text-muted-foreground font-normal">
+                Powered by TourMate™
+              </span>
+            </DialogTitle>
             <DialogDescription>
               {communityName}
               {communityAddress && (
