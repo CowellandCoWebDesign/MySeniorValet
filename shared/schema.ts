@@ -1093,22 +1093,22 @@ export const userActivity = pgTable("user_activity", {
 // Payment transactions table for Stripe integration
 export const paymentTransactions = pgTable("payment_transactions", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id).notNull(),
-  communityId: integer("community_id").references(() => communities.id).notNull(),
+  userId: integer("userId").references(() => users.id).notNull(),
+  communityId: integer("communityId").references(() => communities.id),
   
   // Stripe fields
-  stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
-  stripeChargeId: text("stripe_charge_id"),
-  stripeCustomerId: text("stripe_customer_id"),
+  stripePaymentIntentId: text("stripePaymentIntentId").unique(),
+  stripeChargeId: text("stripeChargeId"),
+  stripeCustomerId: text("stripeCustomerId"),
   
   // Transaction details
-  paymentType: text("payment_type", {
+  paymentType: text("paymentType", {
     enum: ["tour", "application", "deposit", "document", "priority_support"]
-  }).notNull(),
+  }),
   amount: integer("amount").notNull(), // Always 195 cents ($1.95)
   currency: text("currency").default("usd"),
-  processingFee: integer("processing_fee").default(195), // Our fee
-  netAmount: integer("net_amount").default(0), // Always 0 as we don't handle actual payments
+  processingFee: integer("processingFee").default(195), // Our fee
+  netAmount: integer("netAmount").default(0), // Always 0 as we don't handle actual payments
   
   // Status
   status: text("status", {
@@ -1126,14 +1126,14 @@ export const paymentTransactions = pgTable("payment_transactions", {
   }>().default({}),
   
   // Error handling
-  errorCode: text("error_code"),
-  errorMessage: text("error_message"),
+  errorCode: text("errorCode"),
+  errorMessage: text("errorMessage"),
   
   // Timestamps
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  completedAt: timestamp("completed_at"),
-  refundedAt: timestamp("refunded_at"),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
+  completedAt: timestamp("completedAt"),
+  refundedAt: timestamp("refundedAt"),
 }, (table) => [
   index("payment_transactions_user_idx").on(table.userId),
   index("payment_transactions_community_idx").on(table.communityId),

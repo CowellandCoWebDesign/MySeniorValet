@@ -5,7 +5,6 @@ import {
   communities,
   paymentTransactions,
   communitySubscriptions,
-  searchHistory,
   vendors,
   stripeProducts
 } from '@shared/schema';
@@ -187,20 +186,35 @@ export class AdvancedAnalyticsSystem {
   ): Promise<CohortAnalysisResult> {
     console.log('🔍 Performing comprehensive cohort analysis...');
     
-    // Get user cohorts by signup month
-    const cohortData = await db
+    // Get all user activities to calculate cohorts
+    const activities = await db
       .select({
-        cohortMonth: sql<string>`TO_CHAR(created_at, 'YYYY-MM')`,
-        userCount: count(users.id),
-        userIds: sql<string[]>`ARRAY_AGG(id)`
+        userId: userActivity.userId,
+        createdAt: userActivity.createdAt
       })
-      .from(users)
-      .where(and(
-        gte(users.createdAt, startDate),
-        lte(users.createdAt, endDate)
-      ))
-      .groupBy(sql`TO_CHAR(created_at, 'YYYY-MM')`)
-      .orderBy(sql`TO_CHAR(created_at, 'YYYY-MM')`);
+      .from(userActivity)
+      .orderBy(userActivity.createdAt);
+    
+    // Group users by their first activity month
+    const userFirstActivity = new Map<number, Date>();
+    const cohortMap = new Map<string, number[]>();
+    
+    for (const activity of activities) {
+      if (!userFirstActivity.has(activity.userId)) {
+        userFirstActivity.set(activity.userId, activity.createdAt);
+        const cohortMonth = activity.createdAt.toISOString().substring(0, 7); // YYYY-MM format
+        if (!cohortMap.has(cohortMonth)) {
+          cohortMap.set(cohortMonth, []);
+        }
+        cohortMap.get(cohortMonth)?.push(activity.userId);
+      }
+    }
+    
+    const cohortData = Array.from(cohortMap.entries()).map(([month, userIds]) => ({
+      cohortMonth: month,
+      userCount: userIds.length,
+      userIds
+    })).sort((a, b) => a.cohortMonth.localeCompare(b.cohortMonth));
 
     const cohorts: CohortMetrics[] = [];
     
@@ -374,15 +388,14 @@ export class AdvancedAnalyticsSystem {
     
     // Analyze each segment
     for (const segDef of segmentDefinitions) {
-      // Get users matching segment criteria
+      // Get users matching segment criteria - using userActivity table
       let query = db.select({
         userId: users.id,
-        searchCount: sql<number>`COUNT(DISTINCT sh.id)`,
-        viewCount: sql<number>`COUNT(DISTINCT CASE WHEN ua.activity_type = 'View Community' THEN ua.id END)`,
-        totalSpend: sql<number>`COALESCE(SUM(pt.amount), 0)`
+        searchCount: sql<number>`COUNT(DISTINCT CASE WHEN ${userActivity.activityType} = 'Search' THEN ${userActivity.id} END)`,
+        viewCount: sql<number>`COUNT(DISTINCT CASE WHEN ${userActivity.activityType} = 'View Community' THEN ${userActivity.id} END)`,
+        totalSpend: sql<number>`COALESCE(SUM(${paymentTransactions.amount}), 0)`
       })
       .from(users)
-      .leftJoin(searchHistory, eq(searchHistory.userId, users.id))
       .leftJoin(userActivity, eq(userActivity.userId, users.id))
       .leftJoin(paymentTransactions, eq(paymentTransactions.userId, users.id))
       .groupBy(users.id);
@@ -487,14 +500,14 @@ export class AdvancedAnalyticsSystem {
     // Get historical revenue data
     const historicalData = await db
       .select({
-        month: sql<string>`TO_CHAR(created_at, 'YYYY-MM')`,
-        revenue: sql<number>`SUM(amount)`,
+        month: sql<string>`TO_CHAR(${paymentTransactions.createdAt}, 'YYYY-MM')`,
+        revenue: sql<number>`SUM(${paymentTransactions.amount})`,
         transactionCount: count()
       })
       .from(paymentTransactions)
       .where(eq(paymentTransactions.status, 'completed'))
-      .groupBy(sql`TO_CHAR(created_at, 'YYYY-MM')`)
-      .orderBy(sql`TO_CHAR(created_at, 'YYYY-MM')`);
+      .groupBy(sql`TO_CHAR(${paymentTransactions.createdAt}, 'YYYY-MM')`)
+      .orderBy(sql`TO_CHAR(${paymentTransactions.createdAt}, 'YYYY-MM')`);
     
     // Simple time series forecasting (in production, use proper ML models)
     const revenues = historicalData.map(d => Number(d.revenue));
@@ -556,17 +569,16 @@ export class AdvancedAnalyticsSystem {
       .where(gte(userActivity.createdAt, thirtyDaysAgo));
     const activeUsers = activeUsersResult[0]?.count || 0;
     
-    // Analyze individual user behaviors
+    // Analyze individual user behaviors - using userActivity table
     const userBehaviors = await db
       .select({
         userId: users.id,
-        searchCount: sql<number>`COUNT(DISTINCT sh.id)`,
-        viewCount: sql<number>`COUNT(DISTINCT CASE WHEN ua.activity_type = 'View Community' THEN ua.id END)`,
-        sessionCount: sql<number>`COUNT(DISTINCT DATE(ua.created_at))`,
+        searchCount: sql<number>`COUNT(DISTINCT CASE WHEN ${userActivity.activityType} = 'Search' THEN ${userActivity.id} END)`,
+        viewCount: sql<number>`COUNT(DISTINCT CASE WHEN ${userActivity.activityType} = 'View Community' THEN ${userActivity.id} END)`,
+        sessionCount: sql<number>`COUNT(DISTINCT DATE(${userActivity.createdAt}))`,
         avgSessionDuration: sql<number>`300` // Default 5 minutes
       })
       .from(users)
-      .leftJoin(searchHistory, eq(searchHistory.userId, users.id))
       .leftJoin(userActivity, eq(userActivity.userId, users.id))
       .groupBy(users.id)
       .limit(limit);
