@@ -23,6 +23,7 @@ import { businessIntelligence } from "./infrastructure/business-intelligence";
 import { advancedAnalytics } from "./infrastructure/advanced-analytics";
 import { notificationSystem } from "./infrastructure/notification-system";
 import { integrationManager } from "./infrastructure/integration-manager";
+import { startupOptimizer, runOnce } from "./startup-optimizer";
 import cookieParser from "cookie-parser";
 
 const app = express();
@@ -134,32 +135,53 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  const server = await registerRoutes(app);
+  // Register critical startup tasks
+  startupOptimizer.addTask({
+    name: 'Route Registration',
+    priority: 'critical',
+    fn: async () => {
+      const server = await registerRoutes(app);
+      // Store server for later use
+      (global as any).__server = server;
+    }
+  });
+
+  // Execute critical tasks first (blocking)
+  await startupOptimizer.executeCritical();
+  
+  const server = (global as any).__server;
 
   // NO SEEDING - GOLDEN DATA RULE ENFORCED
-  // seedDatabase() is permanently disabled to prevent fake data
   console.log('✅ Database seeding DISABLED - only real data allowed');
 
-  // Create demo user (non-blocking)
-  import('./seed-demo-user').then(({ createDemoUser }) => {
-    createDemoUser().catch(error => {
-      console.error('Failed to create demo user:', error);
-    });
+  // Register deferred tasks for non-critical services
+  startupOptimizer.addTask({
+    name: 'Demo User Creation',
+    priority: 'low',
+    fn: runOnce('demo-user', async () => {
+      const { createDemoUser } = await import('./seed-demo-user');
+      await createDemoUser();
+    })
   });
   
-  // Initialize super admin notification preferences (non-blocking)
-  import('./notification-service').then(({ NotificationService }) => {
-    NotificationService.initializeSuperAdminPreferences().catch(error => {
-      console.error('Failed to initialize super admin preferences:', error);
-    });
+  startupOptimizer.addTask({
+    name: 'Super Admin Preferences',
+    priority: 'medium',
+    fn: runOnce('admin-prefs', async () => {
+      const { NotificationService } = await import('./notification-service');
+      await NotificationService.initializeSuperAdminPreferences();
+    })
   });
 
-  // Initialize supercluster service (non-blocking)
-  import('./services/supercluster').then(({ superclusterService }) => {
-    console.log('Initializing Supercluster service...');
-    superclusterService.initialize().catch(error => {
-      console.error('Failed to initialize Supercluster service:', error);
-    });
+  startupOptimizer.addTask({
+    name: 'Supercluster Service',
+    priority: 'high',
+    fn: runOnce('supercluster', async () => {
+      const { superclusterService } = await import('./services/supercluster');
+      console.log('Initializing Supercluster service...');
+      await superclusterService.initialize();
+    }),
+    defer: 1000 // Defer by 1 second to allow server to start
   });
 
   // Enhanced error handling middleware
@@ -239,6 +261,22 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = 5000;
+  // Add WebSocket initialization as deferred task
+  startupOptimizer.addTask({
+    name: 'WebSocket Service',
+    priority: 'high',
+    fn: runOnce('websocket', async () => {
+      try {
+        const { websocketService } = await import('./services/websocket-service');
+        websocketService.initialize(server);
+        console.log('✅ WebSocket communication service initialized');
+      } catch (error) {
+        console.error('Failed to initialize WebSocket service:', error);
+        simpleWebSocket.initialize(server);
+      }
+    })
+  });
+
   server.listen({
     port,
     host: "0.0.0.0",
@@ -246,15 +284,8 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
     
-    // Initialize WebSocket communication service
-    import('./services/websocket-service').then(({ websocketService }) => {
-      websocketService.initialize(server);
-      console.log('✅ WebSocket communication service initialized');
-    }).catch(error => {
-      console.error('Failed to initialize WebSocket service:', error);
-      // Fallback to simple WebSocket if full service fails
-      simpleWebSocket.initialize(server);
-    });
+    // Execute deferred tasks after server starts
+    startupOptimizer.executeDeferred();
     
     console.log('🚀 ALL ENTERPRISE INFRASTRUCTURE SYSTEMS ACTIVATED:');
     console.log('  ✅ Redis Caching System - Lightning-fast performance');
@@ -287,5 +318,8 @@ app.use((req, res, next) => {
     console.log('  • Real-time performance monitoring');
     console.log('');
     console.log('🌟 MySeniorValet now has Fortune 500-level infrastructure!');
+    
+    // Report startup time
+    startupOptimizer.reportStartupTime();
   });
 })();
