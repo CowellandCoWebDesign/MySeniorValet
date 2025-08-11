@@ -24,8 +24,10 @@ import {
   User,
   CalendarDays,
   FileText,
-  TrendingUp
+  TrendingUp,
+  BarChart3
 } from 'lucide-react';
+import { useLocation } from 'wouter';
 
 interface Tour {
   tour: {
@@ -47,18 +49,25 @@ interface Tour {
   };
 }
 
+interface Community {
+  id: number;
+  name: string;
+  claimedById?: string;
+}
+
 export default function CommunityTours() {
   const params = useParams();
   const communityId = params.communityId ? parseInt(params.communityId) : 0;
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [selectedTour, setSelectedTour] = useState<Tour | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showDeclineDialog, setShowDeclineDialog] = useState(false);
   const [declineReason, setDeclineReason] = useState('');
 
   // Fetch community details
-  const { data: community } = useQuery({
+  const { data: community } = useQuery<Community>({
     queryKey: [`/api/communities/${communityId}`],
     enabled: communityId > 0
   });
@@ -209,11 +218,21 @@ export default function CommunityTours() {
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Tour Management</h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          {community?.name} - Manage scheduled tours and visitor appointments
-        </p>
+      <div className="mb-8 flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Tour Management</h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            {community?.name} - Manage scheduled tours and visitor appointments
+          </p>
+        </div>
+        <Button
+          onClick={() => setLocation('/tourmate-dashboard')}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <BarChart3 className="h-4 w-4" />
+          TourMate™ Analytics
+        </Button>
       </div>
 
       {/* Quick Stats */}
