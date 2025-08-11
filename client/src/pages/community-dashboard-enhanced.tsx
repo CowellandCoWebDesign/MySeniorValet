@@ -40,6 +40,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { PricingHistory } from "@/components/pricing-history";
 
 interface FeatureAccess {
   // Basic Features
@@ -195,7 +196,7 @@ export default function CommunityDashboardEnhanced() {
 
         {/* Main Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger 
               value="profile"
@@ -212,6 +213,13 @@ export default function CommunityDashboardEnhanced() {
             >
               Analytics
               {!featureAccess?.basicAnalytics && <Lock className="w-3 h-3 ml-1" />}
+            </TabsTrigger>
+            <TabsTrigger 
+              value="pricing"
+              className="relative"
+            >
+              <DollarSign className="w-3 h-3 mr-1" />
+              Pricing
             </TabsTrigger>
             <TabsTrigger 
               value="messaging"
@@ -470,6 +478,21 @@ export default function CommunityDashboardEnhanced() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          {/* Pricing History Tab */}
+          <TabsContent value="pricing">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="w-5 h-5" />
+                  Pricing History & Monitoring
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PricingHistory communityId={communityId} />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Other tabs would follow similar pattern */}

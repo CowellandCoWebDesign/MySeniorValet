@@ -124,7 +124,10 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
   const [loadingPricing, setLoadingPricing] = useState(false);
   const [showMarketModal, setShowMarketModal] = useState(false);
   
-  // Fetch market pricing intelligence when no verified pricing exists
+  // PERFORMANCE FIX: Disabled individual market pricing API calls
+  // This was causing N+1 query problem with 20+ simultaneous API calls
+  // Market pricing should be included in initial search results instead
+  /*
   useEffect(() => {
     const fetchMarketPricing = async () => {
       // Skip if we already have verified pricing
@@ -159,6 +162,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     // Fetch market pricing if needed
     fetchMarketPricing();
   }, [community.id, isHudProperty, community.rentPerMonth, community.livePricing, community.monthlyRentRangeStart, community.monthlyRentRangeEnd, marketPricing]);
+  */
   
   // Calculate occupancy data
   const occupancyRate = community.occupancyRate || community.occupancyRateHud || 90; // Default to 90%
