@@ -234,6 +234,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Register notification routes
+  const notificationRoutes = await import('./routes/notificationRoutes');
+  app.use(notificationRoutes.default);
+  
   // Register vendor image generation routes
   const { vendorImageRoutes } = await import('./routes/vendorImageRoutes');
   app.use(vendorImageRoutes);
