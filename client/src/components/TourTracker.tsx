@@ -80,7 +80,7 @@ export function TourTracker({ userId }: TourTrackerProps) {
   const [reviewPhotos, setReviewPhotos] = useState<string[]>([]);
 
   // Fetch user's tours
-  const { data: tours = [], isLoading } = useQuery({
+  const { data: tours = [], isLoading } = useQuery<Tour[]>({
     queryKey: ['/api/user/tours', userId],
     enabled: !!userId,
   });
