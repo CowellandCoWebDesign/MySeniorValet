@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { queryClient, apiRequest } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,6 +56,26 @@ interface ThreatAlert {
   timestamp: string;
   details: any;
   resolved: boolean;
+}
+
+// Helper function for API requests
+async function apiRequest(
+  method: string,
+  url: string,
+  data?: unknown | undefined,
+): Promise<Response> {
+  const res = await fetch(url, {
+    method,
+    headers: data ? { "Content-Type": "application/json" } : undefined,
+    body: data ? JSON.stringify(data) : undefined,
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`${res.status}: ${body || res.statusText}`);
+  }
+
+  return res;
 }
 
 export default function SecurityDashboard() {
