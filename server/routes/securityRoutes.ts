@@ -6,7 +6,10 @@ import {
   blockIP, 
   unblockIP, 
   getSecurityEvents, 
-  generateSecurityReport
+  generateSecurityReport,
+  getSecurityMetrics,
+  getSecurityAlerts,
+  resolveSecurityAlert
 } from "../security-admin-endpoints";
 
 export function registerSecurityRoutes(app: Express) {
@@ -49,16 +52,7 @@ export function registerSecurityRoutes(app: Express) {
     }
   });
 
-  // Get blocked IPs
-  app.get('/api/security/blocked-ips', requireAuth, isAdmin, async (req, res) => {
-    try {
-      const blockedIPs = await getBlockedIPs();
-      res.json(blockedIPs);
-    } catch (error) {
-      console.error('Error fetching blocked IPs:', error);
-      res.status(500).json({ error: 'Failed to fetch blocked IPs' });
-    }
-  });
+  // Note: Blocked IPs functionality integrated within security dashboard metrics
 
   // Block IP
   app.post('/api/security/block-ip', requireAuth, isAdmin, async (req, res) => {
@@ -94,21 +88,7 @@ export function registerSecurityRoutes(app: Express) {
     }
   });
 
-  // Get login attempts
-  app.get('/api/security/login-attempts', requireAuth, isAdmin, async (req, res) => {
-    try {
-      const { email, ip, days = 7 } = req.query;
-      const attempts = await getLoginAttempts({
-        email: email as string,
-        ip: ip as string,
-        days: parseInt(days as string)
-      });
-      res.json(attempts);
-    } catch (error) {
-      console.error('Error fetching login attempts:', error);
-      res.status(500).json({ error: 'Failed to fetch login attempts' });
-    }
-  });
+  // Note: Login attempts functionality integrated within security dashboard metrics
 
   // Generate security report
   app.post('/api/security/generate-report', requireAuth, isAdmin, async (req, res) => {
@@ -149,6 +129,15 @@ export function registerSecurityRoutes(app: Express) {
       res.status(500).json({ error: 'Failed to check security health' });
     }
   });
+
+  // Get security metrics for dashboard
+  app.get('/api/admin/security/metrics', requireAuth, isAdmin, getSecurityMetrics);
+
+  // Get security alerts for dashboard
+  app.get('/api/admin/security/alerts', requireAuth, isAdmin, getSecurityAlerts);
+
+  // Resolve security alert
+  app.post('/api/admin/security/alerts/:alertId/resolve', requireAuth, isAdmin, resolveSecurityAlert);
 
   // Security configuration (admin only)
   app.get('/api/security/config', requireAuth, isAdmin, async (req, res) => {
