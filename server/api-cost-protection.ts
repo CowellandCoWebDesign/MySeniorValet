@@ -11,6 +11,10 @@ export interface ApiUsageTracker {
   lastReset: Date;
   quotaExceeded: boolean;
   emergencyStop: boolean;
+  // New burst detection fields
+  recentCalls: { timestamp: Date; count: number; cost: number }[];
+  burstDetected: boolean;
+  suspiciousPattern: boolean;
 }
 
 export interface ApiLimits {
@@ -19,6 +23,11 @@ export interface ApiLimits {
   maxCostPerOperation: number;
   maxCallsPerOperation: number;
   emergencyStopCost: number;
+  // New burst protection limits
+  maxCallsPerMinute: number;
+  maxCallsPerHour: number;
+  maxCostPerMinute: number;
+  burstThreshold: number;  // Calls within 10 seconds
 }
 
 export class ApiCostProtection {
@@ -32,7 +41,12 @@ export class ApiCostProtection {
       maxDailyCalls: 1000,           // 1000 calls/day maximum  
       maxCostPerOperation: 5.00,     // $5 per single operation
       maxCallsPerOperation: 50,      // 50 calls per operation
-      emergencyStopCost: 75.00       // Emergency stop at $75
+      emergencyStopCost: 75.00,      // Emergency stop at $75
+      // New burst protection - CRITICAL for preventing Google API incidents
+      maxCallsPerMinute: 60,         // 60 calls/minute maximum
+      maxCallsPerHour: 500,          // 500 calls/hour maximum
+      maxCostPerMinute: 5.00,        // $5/minute maximum (rapid spend detection)
+      burstThreshold: 20             // 20 calls within 10 seconds triggers alert
     };
 
     this.usage = {
@@ -42,7 +56,10 @@ export class ApiCostProtection {
       dailyCost: 0,
       lastReset: new Date(),
       quotaExceeded: false,
-      emergencyStop: false
+      emergencyStop: false,
+      recentCalls: [],
+      burstDetected: false,
+      suspiciousPattern: false
     };
 
     this.logFile = 'server/logs/api-usage.log';
@@ -52,12 +69,103 @@ export class ApiCostProtection {
   /**
    * CRITICAL: Check if operation is allowed before making any API calls
    */
-  async checkBeforeOperation(estimatedCalls: number, estimatedCost: number): Promise<{
+  async checkBeforeOperation(estimatedCalls: number, estimatedCost: number, apiType?: string): Promise<{
     allowed: boolean;
     reason?: string;
     currentUsage: ApiUsageTracker;
   }> {
     this.checkDailyReset();
+    const now = new Date();
+
+    // BURST DETECTION - CRITICAL FOR PREVENTING GOOGLE API INCIDENTS
+    // Clean up old entries (older than 1 hour)
+    this.usage.recentCalls = this.usage.recentCalls.filter(
+      call => (now.getTime() - call.timestamp.getTime()) < 3600000
+    );
+
+    // Check calls in last 10 seconds (burst detection)
+    const tenSecondsAgo = new Date(now.getTime() - 10000);
+    const recentBurstCalls = this.usage.recentCalls.filter(
+      call => call.timestamp > tenSecondsAgo
+    ).reduce((sum, call) => sum + call.count, 0);
+
+    if (recentBurstCalls + estimatedCalls > this.limits.burstThreshold) {
+      this.usage.burstDetected = true;
+      await this.logCriticalAlert(`BURST DETECTED - ${recentBurstCalls + estimatedCalls} calls in 10 seconds`, recentBurstCalls);
+      
+      // Send immediate notification for burst detection
+      try {
+        const { InternalNotificationService } = await import('./services/internal-notifications');
+        await InternalNotificationService.sendAdminAlert(
+          'API Burst Detected - Potential Cost Overrun',
+          `CRITICAL: Detected ${recentBurstCalls + estimatedCalls} API calls within 10 seconds. ` +
+          `This pattern resembles the original Google API incident. Emergency stop activated.`,
+          'critical'
+        );
+      } catch (error) {
+        console.error('Failed to send burst alert:', error);
+      }
+      
+      return {
+        allowed: false,
+        reason: `BURST DETECTED: ${recentBurstCalls + estimatedCalls} calls in 10 seconds (max ${this.limits.burstThreshold})`,
+        currentUsage: this.usage
+      };
+    }
+
+    // Check calls in last minute
+    const oneMinuteAgo = new Date(now.getTime() - 60000);
+    const minuteCalls = this.usage.recentCalls.filter(
+      call => call.timestamp > oneMinuteAgo
+    ).reduce((sum, call) => sum + call.count, 0);
+
+    if (minuteCalls + estimatedCalls > this.limits.maxCallsPerMinute) {
+      await this.logCriticalAlert('MINUTE RATE LIMIT EXCEEDED', minuteCalls + estimatedCalls);
+      return {
+        allowed: false,
+        reason: `Rate limit: ${minuteCalls + estimatedCalls} calls/minute exceeds ${this.limits.maxCallsPerMinute}`,
+        currentUsage: this.usage
+      };
+    }
+
+    // Check cost in last minute (rapid spend detection)
+    const minuteCost = this.usage.recentCalls.filter(
+      call => call.timestamp > oneMinuteAgo
+    ).reduce((sum, call) => sum + call.cost, 0);
+
+    if (minuteCost + estimatedCost > this.limits.maxCostPerMinute) {
+      this.usage.suspiciousPattern = true;
+      await this.logCriticalAlert('RAPID SPENDING DETECTED', minuteCost + estimatedCost);
+      
+      // Send immediate notification for rapid spending
+      try {
+        const { InternalNotificationService } = await import('./services/internal-notifications');
+        await InternalNotificationService.sendAdminAlert(
+          'Rapid API Spending Detected',
+          `WARNING: $${(minuteCost + estimatedCost).toFixed(2)} spent in last minute. ` +
+          `Maximum allowed: $${this.limits.maxCostPerMinute}/minute. Operation blocked.`,
+          'high'
+        );
+      } catch (error) {
+        console.error('Failed to send spending alert:', error);
+      }
+      
+      return {
+        allowed: false,
+        reason: `Rapid spending: $${(minuteCost + estimatedCost).toFixed(2)}/minute exceeds $${this.limits.maxCostPerMinute}`,
+        currentUsage: this.usage
+      };
+    }
+
+    // Special protection for expensive APIs (Google Places, etc)
+    if (apiType === 'google_places' && estimatedCost > 1.00) {
+      await this.logCriticalAlert('GOOGLE PLACES API HIGH COST', estimatedCost);
+      return {
+        allowed: false,
+        reason: `Google Places API blocked: Estimated cost $${estimatedCost} too high`,
+        currentUsage: this.usage
+      };
+    }
 
     // EMERGENCY STOP - absolute maximum
     if (this.usage.totalCost >= this.limits.emergencyStopCost) {
@@ -116,7 +224,21 @@ export class ApiCostProtection {
   /**
    * Record actual API usage after calls are made
    */
-  async recordUsage(actualCalls: number, actualCost: number, operation: string): Promise<void> {
+  async recordUsage(actualCalls: number, actualCost: number, operation: string, apiType?: string): Promise<void> {
+    const now = new Date();
+    
+    // Track in recent calls for burst detection
+    this.usage.recentCalls.push({
+      timestamp: now,
+      count: actualCalls,
+      cost: actualCost
+    });
+    
+    // Keep only last hour of data
+    this.usage.recentCalls = this.usage.recentCalls.filter(
+      call => (now.getTime() - call.timestamp.getTime()) < 3600000
+    );
+    
     this.usage.totalCalls += actualCalls;
     this.usage.totalCost += actualCost;
     this.usage.dailyCalls += actualCalls;
@@ -129,6 +251,24 @@ export class ApiCostProtection {
         this.usage.totalCost > this.limits.emergencyStopCost) {
       this.usage.quotaExceeded = true;
       await this.logCriticalAlert('QUOTA EXCEEDED AFTER OPERATION', this.usage.dailyCost);
+      
+      // Send immediate notification
+      try {
+        const { InternalNotificationService } = await import('./services/internal-notifications');
+        await InternalNotificationService.sendAdminAlert(
+          'API Quota Exceeded',
+          `CRITICAL: API usage exceeded limits. Daily cost: $${this.usage.dailyCost.toFixed(2)}, Total: $${this.usage.totalCost.toFixed(2)}. ` +
+          `All API operations blocked until manual reset.`,
+          'critical'
+        );
+      } catch (error) {
+        console.error('Failed to send quota alert:', error);
+      }
+    }
+    
+    // Detect suspicious patterns
+    if (apiType === 'google_places' && actualCost > 0.50) {
+      console.warn(`⚠️ High cost Google Places API call: $${actualCost} for ${operation}`);
     }
   }
 
