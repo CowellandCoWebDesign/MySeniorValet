@@ -104,12 +104,31 @@ export class AIPoweredMatching {
     // Get communities from primary preferred location
     const primaryLocation = profile.location.preferred[0];
     
-    // Storage layer now handles care type mapping from lowercase to proper names
-    return await storage.searchCommunities({
+    console.log(`AI Matching: Searching for ${profile.careLevel} in ${primaryLocation}`);
+    
+    // Try to get communities matching the specific care type
+    let communities = await storage.searchCommunities({
       location: primaryLocation,
       careType: profile.careLevel,
       limit: 50
     });
+    
+    console.log(`AI Matching: Initial search returned ${communities.length} communities`);
+    
+    // If no communities found for specific care type, get all communities in the area
+    if (communities.length === 0) {
+      console.log(`AI Matching: No ${profile.careLevel} communities found in ${primaryLocation}, fetching all communities without care type filter`);
+      
+      // Search without care type to get all communities in the area
+      communities = await storage.searchCommunities({
+        location: primaryLocation,
+        limit: 50
+      });
+      
+      console.log(`AI Matching: Fallback search returned ${communities.length} communities`);
+    }
+    
+    return communities;
   }
 
   private async calculateAIMatchScore(profile: CareNeedsProfile, community: Community): Promise<number> {
