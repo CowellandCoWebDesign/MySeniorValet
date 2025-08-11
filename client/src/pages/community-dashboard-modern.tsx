@@ -75,7 +75,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { MessagesSection } from "@/components/MessagesSection";
 
 export default function CommunityDashboardModern() {
   const { id } = useParams();
@@ -451,7 +450,72 @@ export default function CommunityDashboardModern() {
           )}
 
           {activeTab === "messages" && (
-            <MessagesSection />
+            <div className="space-y-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold">Messages</h2>
+                <div className="flex items-center space-x-2">
+                  <Button variant="outline" size="sm">
+                    <Filter className="w-4 h-4 mr-2" />
+                    Filter
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Search className="w-4 h-4 mr-2" />
+                    Search
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {messages?.map((message: any) => (
+                  <Card key={message.id} className="border-0 shadow-lg hover:shadow-xl transition-all">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-start space-x-4">
+                          <Avatar>
+                            <AvatarFallback>{message.senderName.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <h3 className="font-semibold">{message.senderName}</h3>
+                            <p className="text-sm text-gray-500">{message.senderEmail}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant={message.priority === 'high' ? 'destructive' : 'secondary'}>
+                            {message.priority}
+                          </Badge>
+                          <Badge variant={message.status === 'unread' ? 'default' : 'outline'}>
+                            {message.status}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      <h4 className="font-medium mb-2">{message.subject}</h4>
+                      <p className="text-gray-600 mb-4">{message.message}</p>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          <span>{message.careLevel}</span>
+                          <span>•</span>
+                          <span>{message.moveInTimeline}</span>
+                          <span>•</span>
+                          <span>${message.budget.min} - ${message.budget.max}/mo</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Button size="sm" variant="outline">
+                            <Phone className="w-4 h-4 mr-2" />
+                            Call
+                          </Button>
+                          <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                            <Send className="w-4 h-4 mr-2" />
+                            Reply
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
           )}
 
           {activeTab === "analytics" && (

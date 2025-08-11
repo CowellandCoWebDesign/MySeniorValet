@@ -46,11 +46,20 @@ export class AIPoweredMatching {
       
       const promises = communitiesToProcess.map(async (community) => {
         try {
-          // Use AI for all communities - no artificial timeouts
+          // Add timeout protection for AI calls
           const [matchScore, aiInsights, priceAnalysis] = await Promise.all([
-            this.calculateAIMatchScore(profile, community),
-            this.generateAIInsights(profile, community),
-            this.generatePriceAnalysis(profile, community)
+            Promise.race([
+              this.calculateAIMatchScore(profile, community),
+              new Promise<number>((resolve) => setTimeout(() => resolve(50), 3000))
+            ]),
+            Promise.race([
+              this.generateAIInsights(profile, community),
+              new Promise<string>((resolve) => setTimeout(() => resolve('Analysis in progress...'), 3000))
+            ]),
+            Promise.race([
+              this.generatePriceAnalysis(profile, community),
+              new Promise<string>((resolve) => setTimeout(() => resolve('Price analysis pending...'), 3000))
+            ])
           ]);
           
           return {
@@ -141,60 +150,17 @@ COMMUNITY: ${community.name}
 
 Rate this match on a scale of 0-100, considering care compatibility, budget fit, location convenience, and amenity alignment. Return only the numeric score.`;
 
-    // Try Perplexity first (most reliable for high-volume)
     try {
-      const perplexityService = (await import('./perplexity-ai-service')).PerplexityAIService;
-      const perplexity = new perplexityService();
-      if (perplexity.isConfigured()) {
-        const response = await perplexity.analyze(prompt);
-        if (response) {
-          const score = parseInt(response?.match(/\d+/)?.[0] || '50');
-          return Math.min(Math.max(score, 0), 100);
-        }
+      if (!this.aiService.isConfigured()) {
+        return 50; // Fallback if AI not configured
       }
-    } catch (error: any) {
-      if (error.status === 429) {
-        console.log('Perplexity rate limited for scoring, trying ChatGPT...');
-      } else {
-        console.log('Perplexity unavailable for scoring, trying ChatGPT...');
-      }
-    }
-
-    // Fallback to ChatGPT if Perplexity fails
-    try {
-      const openAIService = (await import('./openai-intelligence')).ChatGPTIntelligenceService;
-      const chatGPT = new openAIService();
-      if (chatGPT.isConfigured()) {
-        const response = await chatGPT.analyze(prompt);
-        if (response) {
-          const score = parseInt(response?.match(/\d+/)?.[0] || '50');
-          return Math.min(Math.max(score, 0), 100);
-        }
-      }
+      const response = await this.aiService.analyze(prompt);
+      const score = parseInt(response?.match(/\d+/)?.[0] || '50');
+      return Math.min(Math.max(score, 0), 100);
     } catch (error) {
-      console.log('ChatGPT unavailable for scoring, trying Claude as last resort...');
+      console.error('AI scoring error:', error);
+      return 50; // Fallback score
     }
-
-    // Last resort: Try Claude (frequently rate-limited)
-    try {
-      if (this.aiService.isConfigured()) {
-        const response = await this.aiService.analyze(prompt);
-        if (response) {
-          const score = parseInt(response?.match(/\d+/)?.[0] || '50');
-          return Math.min(Math.max(score, 0), 100);
-        }
-      }
-    } catch (error: any) {
-      if (error.status === 429) {
-        console.log('Claude also rate limited - all AI services exhausted');
-      } else {
-        console.error('Claude scoring error:', error);
-      }
-    }
-
-    // Final fallback to basic scoring
-    console.log('All AI services unavailable for scoring - using basic algorithm');
-    return this.calculateBasicMatchScore(profile, community);
   }
 
   private async generateAIInsights(profile: CareNeedsProfile, community: Community): Promise<string> {
@@ -205,64 +171,10 @@ COMMUNITY: ${community.name} in ${community.city}, ${community.state}
 
 Provide 2-3 specific insights about compatibility, focusing on care quality, lifestyle fit, and practical considerations. Keep it conversational and helpful.`;
 
-    // Try Perplexity first (most reliable for high-volume)
-    try {
-      const perplexityService = (await import('./perplexity-ai-service')).PerplexityAIService;
-      const perplexity = new perplexityService();
-      if (perplexity.isConfigured()) {
-        const result = await perplexity.analyze(prompt);
-        if (result) return result;
-      }
-    } catch (error: any) {
-      if (error.status === 429) {
-        console.log('Perplexity rate limited for insights, trying ChatGPT...');
-      } else {
-        console.log('Perplexity unavailable for insights, trying ChatGPT...');
-      }
+    if (!this.aiService.isConfigured()) {
+      return 'AI insights unavailable - please contact community directly';
     }
-
-    // Fallback to ChatGPT if Perplexity fails
-    try {
-      const openAIService = (await import('./openai-intelligence')).ChatGPTIntelligenceService;
-      const chatGPT = new openAIService();
-      if (chatGPT.isConfigured()) {
-        const result = await chatGPT.analyze(prompt);
-        if (result) return result;
-      }
-    } catch (error) {
-      console.log('ChatGPT unavailable for insights, trying Claude as last resort...');
-    }
-
-    // Last resort: Try Claude (frequently rate-limited)
-    try {
-      if (this.aiService.isConfigured()) {
-        const result = await this.aiService.analyze(prompt);
-        if (result) return result;
-      }
-    } catch (error: any) {
-      if (error.status === 429) {
-        console.log('Claude also rate limited - all AI services exhausted');
-      } else {
-        console.error('Claude insights error:', error);
-      }
-    }
-
-    // Final fallback to non-AI insights
-    console.log('All AI services unavailable for insights - using basic algorithm');
-    return this.getFallbackInsights(profile, community);
-  }
-
-  private getFallbackInsights(profile: CareNeedsProfile, community: Community): string {
-    if (community.careTypes?.includes('HUD Housing')) {
-      return `HUD subsidized community offering affordable senior housing. Rent based on income (typically 30% of adjusted gross income). Ideal for seniors seeking budget-friendly independent living.`;
-    }
-    
-    const careTypeMatch = community.careTypes?.includes(profile.careLevel) ? 
-      `Offers ${profile.careLevel.replace(/_/g, ' ')} care level you need. ` : '';
-    
-    const locationInfo = `Located in ${community.city}, ${community.state}. `;
-    
-    return `${careTypeMatch}${locationInfo}Contact community directly for detailed information about amenities and services.`;
+    return await this.aiService.analyze(prompt) || 'Insights being generated...';
   }
 
   private async generatePriceAnalysis(profile: CareNeedsProfile, community: Community): Promise<string> {
@@ -274,68 +186,10 @@ CARE LEVEL: ${profile.careLevel}
 
 Provide a brief analysis of affordability, value for money, and any budget considerations. Be specific about whether this fits their budget range.`;
 
-    // Try Perplexity first (most reliable for high-volume)
-    try {
-      const perplexityService = (await import('./perplexity-ai-service')).PerplexityAIService;
-      const perplexity = new perplexityService();
-      if (perplexity.isConfigured()) {
-        const result = await perplexity.analyze(prompt);
-        if (result) return result;
-      }
-    } catch (error: any) {
-      if (error.status === 429) {
-        console.log('Perplexity rate limited for pricing, trying ChatGPT...');
-      } else {
-        console.log('Perplexity unavailable for pricing, trying ChatGPT...');
-      }
+    if (!this.aiService.isConfigured()) {
+      return 'Price analysis unavailable - please contact community directly';
     }
-
-    // Fallback to ChatGPT if Perplexity fails
-    try {
-      const openAIService = (await import('./openai-intelligence')).ChatGPTIntelligenceService;
-      const chatGPT = new openAIService();
-      if (chatGPT.isConfigured()) {
-        const result = await chatGPT.analyze(prompt);
-        if (result) return result;
-      }
-    } catch (error) {
-      console.log('ChatGPT unavailable for pricing, trying Claude as last resort...');
-    }
-
-    // Last resort: Try Claude (frequently rate-limited)
-    try {
-      if (this.aiService.isConfigured()) {
-        const result = await this.aiService.analyze(prompt);
-        if (result) return result;
-      }
-    } catch (error: any) {
-      if (error.status === 429) {
-        console.log('Claude also rate limited - all AI services exhausted');
-      } else {
-        console.error('Claude pricing error:', error);
-      }
-    }
-
-    // Final fallback to non-AI pricing analysis
-    console.log('All AI services unavailable for pricing - using basic algorithm');
-    return this.getFallbackPriceAnalysis(profile, community);
-  }
-
-  private getFallbackPriceAnalysis(profile: CareNeedsProfile, community: Community): string {
-    if (community.careTypes?.includes('HUD Housing')) {
-      return `Government-subsidized housing with rent based on 30% of income. Perfect for your budget range of $${profile.budget.min}-$${profile.budget.max}/month.`;
-    }
-    
-    if (community.priceRange && community.priceRange !== 'Contact for pricing') {
-      const inBudget = this.analyzePriceCompatibility(profile.budget, community.priceRange);
-      if (inBudget) {
-        return `Community pricing aligns with your budget of $${profile.budget.min}-$${profile.budget.max}/month. Contact for specific rate details.`;
-      } else {
-        return `Pricing may exceed your current budget. Consider discussing payment options with the community.`;
-      }
-    }
-    
-    return `Contact community directly for personalized pricing based on your care needs and budget of $${profile.budget.min}-$${profile.budget.max}/month.`;
+    return await this.aiService.analyze(prompt) || 'Analyzing pricing...';
   }
 
   private getMatchReasons(profile: CareNeedsProfile, community: Community): string[] {
@@ -372,10 +226,7 @@ Provide a brief analysis of affordability, value for money, and any budget consi
     return reasons;
   }
 
-  private analyzePriceCompatibility(budget: { min: number; max: number }, priceRange: any): boolean {
-    // Ensure priceRange is a string
-    if (!priceRange || typeof priceRange !== 'string') return false;
-    
+  private analyzePriceCompatibility(budget: { min: number; max: number }, priceRange: string): boolean {
     // Extract numbers from price range string
     const prices = priceRange.match(/\$?(\d{1,3}(?:,\d{3})*)/g);
     if (!prices) return false;
