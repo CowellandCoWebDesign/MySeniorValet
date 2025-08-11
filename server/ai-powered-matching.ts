@@ -46,33 +46,19 @@ export class AIPoweredMatching {
       
       const promises = communitiesToProcess.map(async (community) => {
         try {
-          // Fast path for HUD Housing - skip ALL AI calls
-          if (profile.careLevel === 'hud_housing' || community.careTypes?.includes('HUD Housing')) {
-            // Calculate simple match score based on location and care type
-            const matchScore = community.careTypes?.includes('HUD Housing') ? 85 : 75;
-            
-            return {
-              community,
-              matchScore,
-              matchReasons: this.getMatchReasons(profile, community),
-              aiInsights: `Government-subsidized housing for seniors 62+. Rent based on 30% of income with utilities included. Perfect for budget-conscious seniors seeking independent living.`,
-              priceAnalysis: `HUD subsidized housing - rent is typically 30% of your adjusted gross income. With your budget of $${profile.budget.min}-$${profile.budget.max}/month, this community offers excellent value through government assistance.`
-            };
-          }
-          
-          // For non-HUD communities, use AI with timeout protection
+          // Use AI for all communities with timeout protection (3 seconds per call)
           const [matchScore, aiInsights, priceAnalysis] = await Promise.all([
             Promise.race([
               this.calculateAIMatchScore(profile, community),
-              new Promise<number>((resolve) => setTimeout(() => resolve(50), 3000))
+              new Promise<number>((resolve) => setTimeout(() => resolve(75), 3000))
             ]),
             Promise.race([
               this.generateAIInsights(profile, community),
-              new Promise<string>((resolve) => setTimeout(() => resolve('Analysis in progress...'), 3000))
+              new Promise<string>((resolve) => setTimeout(() => resolve(this.getFallbackInsights(profile, community)), 3000))
             ]),
             Promise.race([
               this.generatePriceAnalysis(profile, community),
-              new Promise<string>((resolve) => setTimeout(() => resolve('Price analysis pending...'), 3000))
+              new Promise<string>((resolve) => setTimeout(() => resolve(this.getFallbackPriceAnalysis(profile, community)), 3000))
             ])
           ]);
           
@@ -179,11 +165,6 @@ Rate this match on a scale of 0-100, considering care compatibility, budget fit,
 
   private async generateAIInsights(profile: CareNeedsProfile, community: Community): Promise<string> {
     try {
-      // Quick fallback for HUD Housing
-      if (profile.careLevel === 'hud_housing' || community.careTypes?.includes('HUD Housing')) {
-        return `Government-subsidized housing for seniors 62+. Rent based on 30% of income with utilities included. Perfect for budget-conscious seniors seeking independent living.`;
-      }
-
       const prompt = `Generate personalized insights about why this community might be a good fit:
 
 RESIDENT: ${profile.careLevel} care, ${profile.mobility} mobility, ${profile.socialNeeds} social needs
@@ -218,11 +199,6 @@ Provide 2-3 specific insights about compatibility, focusing on care quality, lif
 
   private async generatePriceAnalysis(profile: CareNeedsProfile, community: Community): Promise<string> {
     try {
-      // Quick fallback for HUD Housing
-      if (profile.careLevel === 'hud_housing' || community.careTypes?.includes('HUD Housing')) {
-        return `HUD subsidized housing - rent is typically 30% of your adjusted gross income. With your budget of $${profile.budget.min}-$${profile.budget.max}/month, this community offers excellent value through government assistance.`;
-      }
-
       const prompt = `Analyze the pricing for this senior living situation:
 
 BUDGET: $${profile.budget.min}-${profile.budget.max}/month
