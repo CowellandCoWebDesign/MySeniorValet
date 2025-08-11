@@ -37,7 +37,6 @@ import { TourScheduler } from "@/components/TourScheduler";
 import { MessageCommunityButton } from "@/components/message-community-button";
 import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
 import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
-import { PricingHistoryDisplay } from "@/components/PricingHistoryDisplay";
 
 // Intelligent Pricing Prediction Component
 const IntelligentPricingPrediction = ({ community }: { community: any }) => {
@@ -2227,12 +2226,11 @@ export default function CommunityDetail() {
             <Card>
               <CardContent className="p-6">
                 <Tabs defaultValue="overview" className="w-full">
-                  <TabsList className="grid w-full grid-cols-7">
+                  <TabsList className="grid w-full grid-cols-6">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="attributes">Attributes</TabsTrigger>
                     <TabsTrigger value="amenities">Amenities</TabsTrigger>
                     <TabsTrigger value="care">Care Services</TabsTrigger>
-                    <TabsTrigger value="price-history">Price History</TabsTrigger>
                     <TabsTrigger value="policies">Policies</TabsTrigger>
                     <TabsTrigger value="photos">Photos</TabsTrigger>
                   </TabsList>
@@ -3317,15 +3315,6 @@ export default function CommunityDetail() {
                         />
                       )}
                     </div>
-                  </TabsContent>
-                  
-                  {/* Price History Tab */}
-                  <TabsContent value="price-history" className="space-y-4">
-                    <PricingHistoryDisplay 
-                      communityId={community.id}
-                      communityName={community.name}
-                      isVerified={community.claimVerified}
-                    />
                   </TabsContent>
                 </Tabs>
               </CardContent>
