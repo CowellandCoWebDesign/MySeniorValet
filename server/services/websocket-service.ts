@@ -27,10 +27,9 @@ export class WebSocketService {
    * Initialize WebSocket server
    */
   initialize(server: Server) {
-    // Use /api/ws path to avoid conflict with Vite's HMR WebSocket
     this.wss = new WebSocketServer({ 
       server, 
-      path: '/api/ws',  // Changed from /ws to /api/ws to avoid Vite conflict
+      path: '/ws',
       perMessageDeflate: false
     });
     
@@ -39,7 +38,7 @@ export class WebSocketService {
     // Start heartbeat monitoring
     this.startHeartbeat();
     
-    console.log('✅ WebSocket server initialized on /api/ws (Vite-compatible path)');
+    console.log('✅ WebSocket server initialized on /ws');
   }
   
   /**

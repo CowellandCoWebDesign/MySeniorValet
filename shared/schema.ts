@@ -1093,22 +1093,22 @@ export const userActivity = pgTable("user_activity", {
 // Payment transactions table for Stripe integration
 export const paymentTransactions = pgTable("payment_transactions", {
   id: serial("id").primaryKey(),
-  userId: integer("userId").references(() => users.id).notNull(),
-  communityId: integer("communityId").references(() => communities.id),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
   
   // Stripe fields
-  stripePaymentIntentId: text("stripePaymentIntentId").unique(),
-  stripeChargeId: text("stripeChargeId"),
-  stripeCustomerId: text("stripeCustomerId"),
+  stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
+  stripeChargeId: text("stripe_charge_id"),
+  stripeCustomerId: text("stripe_customer_id"),
   
   // Transaction details
-  paymentType: text("paymentType", {
+  paymentType: text("payment_type", {
     enum: ["tour", "application", "deposit", "document", "priority_support"]
-  }),
+  }).notNull(),
   amount: integer("amount").notNull(), // Always 195 cents ($1.95)
   currency: text("currency").default("usd"),
-  processingFee: integer("processingFee").default(195), // Our fee
-  netAmount: integer("netAmount").default(0), // Always 0 as we don't handle actual payments
+  processingFee: integer("processing_fee").default(195), // Our fee
+  netAmount: integer("net_amount").default(0), // Always 0 as we don't handle actual payments
   
   // Status
   status: text("status", {
@@ -1126,14 +1126,14 @@ export const paymentTransactions = pgTable("payment_transactions", {
   }>().default({}),
   
   // Error handling
-  errorCode: text("errorCode"),
-  errorMessage: text("errorMessage"),
+  errorCode: text("error_code"),
+  errorMessage: text("error_message"),
   
   // Timestamps
-  createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").defaultNow(),
-  completedAt: timestamp("completedAt"),
-  refundedAt: timestamp("refundedAt"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  refundedAt: timestamp("refunded_at"),
 }, (table) => [
   index("payment_transactions_user_idx").on(table.userId),
   index("payment_transactions_community_idx").on(table.communityId),
@@ -2234,7 +2234,7 @@ export const dataProtectionLogs = pgTable("data_protection_logs", {
 
 export const systemFlags = pgTable("system_flags", {
   flagName: varchar("flag_name", { length: 50 }).primaryKey(),
-  flagValue: text("flag_value").notNull(), // Changed from varchar(100) to text for larger JSON storage
+  flagValue: varchar("flag_value", { length: 100 }).notNull(),
   reason: text("reason"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

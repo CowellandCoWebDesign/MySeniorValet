@@ -47,21 +47,14 @@ export class InternalNotificationService {
   private getRecipients(event: NotificationEvent): string[] {
     const recipients: string[] = [];
     
-    // Always notify super admin for high priority events and critical security threats
-    if (event.priority === 'high' || event.priority === 'critical') {
+    // Always notify super admin for high priority events
+    if (event.priority === 'high') {
       recipients.push(NOTIFICATION_EMAIL_CONFIG.superAdmin.primary);
       recipients.push(NOTIFICATION_EMAIL_CONFIG.superAdmin.backup);
     }
     
     // Route based on event type
     switch (event.type) {
-      case 'security_threat':
-        // Always notify super admin and security team for security threats
-        recipients.push(NOTIFICATION_EMAIL_CONFIG.superAdmin.primary);
-        recipients.push(NOTIFICATION_EMAIL_CONFIG.superAdmin.backup);
-        recipients.push(...getEmailsForNotificationType('systemAlerts'));
-        break;
-        
       case 'payment_received':
         recipients.push(...getEmailsForNotificationType('paymentIssues'));
         break;
@@ -110,76 +103,6 @@ export class InternalNotificationService {
     let html = '';
     
     switch (event.type) {
-      case 'security_threat':
-        const severity = event.data.severity?.toUpperCase() || 'UNKNOWN';
-        const icon = severity === 'CRITICAL' ? '🚨🚨🚨' : severity === 'HIGH' ? '⚠️⚠️' : '⚠️';
-        
-        subject = `${icon} SECURITY ALERT: ${severity} - ${event.data.threatType} detected`;
-        html = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="background: ${severity === 'CRITICAL' ? '#DC2626' : '#F59E0B'}; color: white; padding: 15px; border-radius: 8px 8px 0 0;">
-              <h1 style="margin: 0; font-size: 24px;">${icon} SECURITY THREAT DETECTED</h1>
-            </div>
-            <div style="background: #FEF2F2; padding: 20px; border: 2px solid ${severity === 'CRITICAL' ? '#DC2626' : '#F59E0B'}; border-radius: 0 0 8px 8px;">
-              <h2 style="color: #991B1B; margin-top: 0;">Threat Details:</h2>
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                  <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><strong>Threat ID:</strong></td>
-                  <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;">${event.data.threatId}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><strong>Type:</strong></td>
-                  <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;">${event.data.threatType}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><strong>Severity:</strong></td>
-                  <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><span style="color: ${severity === 'CRITICAL' ? '#DC2626' : '#F59E0B'}; font-weight: bold;">${severity}</span></td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><strong>IP Address:</strong></td>
-                  <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;">${event.data.ipAddress}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><strong>User Agent:</strong></td>
-                  <td style="padding: 8px; border-bottom: 1px solid #E5E7EB; word-break: break-all;">${event.data.userAgent}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><strong>Endpoint:</strong></td>
-                  <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;">${event.data.endpoint}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><strong>Action:</strong></td>
-                  <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;">${event.data.action}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><strong>Timestamp:</strong></td>
-                  <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;">${event.data.timestamp}</td>
-                </tr>
-              </table>
-              
-              ${event.data.details ? `
-              <h3 style="color: #991B1B; margin-top: 20px;">Additional Details:</h3>
-              <pre style="background: white; padding: 10px; border-radius: 4px; overflow-x: auto;">${JSON.stringify(event.data.details, null, 2)}</pre>
-              ` : ''}
-              
-              <div style="background: #FEF3C7; padding: 15px; border-radius: 8px; margin-top: 20px;">
-                <h3 style="color: #92400E; margin-top: 0;">⚡ Immediate Action Required:</h3>
-                <ul style="color: #92400E;">
-                  <li>Review the Security Dashboard at <a href="https://myseniorvalet.com/admin/security">https://myseniorvalet.com/admin/security</a></li>
-                  <li>Check if this IP should be blocked</li>
-                  <li>Review server logs for additional context</li>
-                  ${severity === 'CRITICAL' ? '<li><strong>CRITICAL: Consider enabling maintenance mode immediately</strong></li>' : ''}
-                </ul>
-              </div>
-            </div>
-            <p style="color: #6B7280; font-size: 12px; text-align: center; margin-top: 20px;">
-              This is an automated security alert from MySeniorValet Security Monitoring System.<br>
-              Sent to: admin@myseniorvalet.com
-            </p>
-          </div>
-        `;
-        break;
-        
       case 'tour_scheduled':
         subject = `🏠 New Tour Scheduled - ${event.data.communityName}`;
         html = `
