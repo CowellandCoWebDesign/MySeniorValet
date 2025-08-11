@@ -37,9 +37,10 @@ class RealTimeCommunication {
   private communityRooms = new Map<number, Set<string>>(); // communityId -> Set of client IDs
 
   initialize(server: any): void {
+    // Use /api/realtime path to avoid conflict with Vite's HMR WebSocket
     this.wss = new WebSocketServer({ 
       server,
-      path: '/ws',
+      path: '/api/realtime',  // Changed from /ws to /api/realtime to avoid conflicts
       verifyClient: this.verifyClient.bind(this)
     });
 
@@ -48,7 +49,7 @@ class RealTimeCommunication {
     // Heartbeat interval to detect dead connections
     setInterval(this.heartbeat.bind(this), 30000); // 30 seconds
     
-    console.log('✅ Real-time communication server initialized');
+    console.log('✅ Real-time communication server initialized on /api/realtime');
   }
 
   private verifyClient(info: { origin: string; secure: boolean; req: IncomingMessage }): boolean {

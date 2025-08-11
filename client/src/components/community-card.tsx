@@ -3,7 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FamilyShareButton } from './family-share-button';
-import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead, ChevronDown, ChevronUp, ImageIcon, ShieldCheck } from "lucide-react";
+import { MessageCommunityButton } from './message-community-button';
+import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead, ChevronDown, ChevronUp, ImageIcon, ShieldCheck, MessageCircle } from "lucide-react";
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 import { PhotoCarousel } from "@/components/photo-carousel";
@@ -1015,14 +1016,27 @@ export function CommunityCard({ community }: CommunityCardProps) {
             )}
           </div>
           
-          {/* Family Share Button */}
-          <div className="flex justify-center">
-            <FamilyShareButton 
-              community={community} 
-              variant="outline" 
-              size="default"
-              className="px-8 py-2 border-2 border-purple-200 hover:border-purple-300 hover:bg-purple-50 text-purple-700 hover:text-purple-800"
-            />
+          {/* Messaging and Family Share Buttons */}
+          <div className="flex space-x-3">
+            {/* Message Community Button */}
+            <div className="flex-1" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+              <MessageCommunityButton 
+                community={community}
+                variant="outline"
+                size="default"
+                className="w-full px-6 py-2 border-2 border-green-200 hover:border-green-300 hover:bg-green-50 text-green-700 hover:text-green-800"
+              />
+            </div>
+            
+            {/* Family Share Button */}
+            <div className="flex-1" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+              <FamilyShareButton 
+                community={community} 
+                variant="outline" 
+                size="default"
+                className="w-full px-6 py-2 border-2 border-purple-200 hover:border-purple-300 hover:bg-purple-50 text-purple-700 hover:text-purple-800"
+              />
+            </div>
           </div>
         </div>
       </CardContent>

@@ -1292,7 +1292,7 @@ export default function CommunityDetail() {
                                 </span>
                               </Button>
                               <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                                Community needs to upgrade to Standard+ tier to enable messaging
+                                Community needs to claim and verify their contact information to enable real-time messaging
                               </p>
                             </div>
                           );

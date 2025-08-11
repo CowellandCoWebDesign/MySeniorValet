@@ -52,6 +52,7 @@ interface SavedCommunity {
   address: string;
   city: string;
   state: string;
+  zipCode?: string;
   priceRange: string;
   careType: string;
   rating: number;

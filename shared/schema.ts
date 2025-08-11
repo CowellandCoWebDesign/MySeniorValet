@@ -1093,22 +1093,22 @@ export const userActivity = pgTable("user_activity", {
 // Payment transactions table for Stripe integration
 export const paymentTransactions = pgTable("payment_transactions", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id).notNull(),
-  communityId: integer("community_id").references(() => communities.id).notNull(),
+  userId: integer("userId").references(() => users.id).notNull(),
+  communityId: integer("communityId").references(() => communities.id),
   
   // Stripe fields
-  stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
-  stripeChargeId: text("stripe_charge_id"),
-  stripeCustomerId: text("stripe_customer_id"),
+  stripePaymentIntentId: text("stripePaymentIntentId").unique(),
+  stripeChargeId: text("stripeChargeId"),
+  stripeCustomerId: text("stripeCustomerId"),
   
   // Transaction details
-  paymentType: text("payment_type", {
+  paymentType: text("paymentType", {
     enum: ["tour", "application", "deposit", "document", "priority_support"]
-  }).notNull(),
+  }),
   amount: integer("amount").notNull(), // Always 195 cents ($1.95)
   currency: text("currency").default("usd"),
-  processingFee: integer("processing_fee").default(195), // Our fee
-  netAmount: integer("net_amount").default(0), // Always 0 as we don't handle actual payments
+  processingFee: integer("processingFee").default(195), // Our fee
+  netAmount: integer("netAmount").default(0), // Always 0 as we don't handle actual payments
   
   // Status
   status: text("status", {
@@ -1126,14 +1126,14 @@ export const paymentTransactions = pgTable("payment_transactions", {
   }>().default({}),
   
   // Error handling
-  errorCode: text("error_code"),
-  errorMessage: text("error_message"),
+  errorCode: text("errorCode"),
+  errorMessage: text("errorMessage"),
   
   // Timestamps
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-  completedAt: timestamp("completed_at"),
-  refundedAt: timestamp("refunded_at"),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
+  completedAt: timestamp("completedAt"),
+  refundedAt: timestamp("refundedAt"),
 }, (table) => [
   index("payment_transactions_user_idx").on(table.userId),
   index("payment_transactions_community_idx").on(table.communityId),
@@ -2234,7 +2234,7 @@ export const dataProtectionLogs = pgTable("data_protection_logs", {
 
 export const systemFlags = pgTable("system_flags", {
   flagName: varchar("flag_name", { length: 50 }).primaryKey(),
-  flagValue: varchar("flag_value", { length: 100 }).notNull(),
+  flagValue: text("flag_value").notNull(), // Changed from varchar(100) to text for larger JSON storage
   reason: text("reason"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -2666,6 +2666,73 @@ export const leasingTasksRelations = relations(leasingTasks, ({ one }) => ({
     relationName: "completedTasks",
   }),
 }));
+
+// WebSocket Connections for Real-time Messaging
+export const wsConnections = pgTable("ws_connections", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  socketId: varchar("socket_id", { length: 255 }).notNull().unique(),
+  status: varchar("status", { length: 50 }).default('active'), // 'active', 'idle', 'disconnected'
+  deviceType: varchar("device_type", { length: 50 }), // 'desktop', 'mobile', 'tablet'
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  lastHeartbeat: timestamp("last_heartbeat").defaultNow(),
+  connectedAt: timestamp("connected_at").defaultNow(),
+  disconnectedAt: timestamp("disconnected_at"),
+}, (table) => [
+  index("ws_connections_user_idx").on(table.userId),
+  index("ws_connections_status_idx").on(table.status),
+  index("ws_connections_heartbeat_idx").on(table.lastHeartbeat),
+]);
+
+// Family Invitations Table
+export const familyInvitations = pgTable("family_invitations", {
+  id: serial("id").primaryKey(),
+  inviterId: varchar("inviter_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  inviteeEmail: varchar("invitee_email", { length: 255 }).notNull(),
+  inviteePhone: varchar("invitee_phone", { length: 20 }),
+  inviteeName: varchar("invitee_name", { length: 255 }),
+  inviteeId: varchar("invitee_id").references(() => users.id, { onDelete: "set null" }), // Set when invitee registers
+  
+  // Invitation Details
+  invitationToken: varchar("invitation_token", { length: 255 }).notNull().unique(),
+  relationship: varchar("relationship", { length: 100 }), // 'spouse', 'child', 'parent', 'sibling', 'friend', 'caregiver'
+  message: text("message"),
+  
+  // Sharing Preferences
+  sharePreferences: jsonb("share_preferences").$type<{
+    communities: boolean;
+    notes: boolean;
+    documents: boolean;
+    tours: boolean;
+    messages: boolean;
+  }>().default({
+    communities: true,
+    notes: true,
+    documents: false,
+    tours: true,
+    messages: true,
+  }),
+  
+  // Status Tracking
+  status: varchar("status", { length: 50 }).default('pending'), // 'pending', 'accepted', 'declined', 'expired'
+  acceptedAt: timestamp("accepted_at"),
+  declinedAt: timestamp("declined_at"),
+  expiresAt: timestamp("expires_at").notNull(),
+  
+  // Metadata
+  sentVia: varchar("sent_via", { length: 50 }).default('email'), // 'email', 'sms', 'both'
+  reminderCount: integer("reminder_count").default(0),
+  lastReminderAt: timestamp("last_reminder_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("family_invitations_inviter_idx").on(table.inviterId),
+  index("family_invitations_invitee_email_idx").on(table.inviteeEmail),
+  index("family_invitations_token_idx").on(table.invitationToken),
+  index("family_invitations_status_idx").on(table.status),
+  index("family_invitations_expires_idx").on(table.expiresAt),
+]);
 
 // Removal Requests Table
 export const removalRequests = pgTable("removal_requests", {
