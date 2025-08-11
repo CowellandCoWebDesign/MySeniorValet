@@ -1630,6 +1630,156 @@ export const leasingApplications = pgTable("leasing_applications", {
 ]);
 
 // Lease Agreements
+// Pricing History Tracking
+export const pricingHistory = pgTable("pricing_history", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  priceType: text("price_type").notNull(), // 'base', 'assisted_living', 'memory_care', etc.
+  priceAmount: decimal("price_amount", { precision: 10, scale: 2 }),
+  priceMin: decimal("price_min", { precision: 10, scale: 2 }),
+  priceMax: decimal("price_max", { precision: 10, scale: 2 }),
+  effectiveDate: date("effective_date").notNull().default(sql`CURRENT_DATE`),
+  endDate: date("end_date"), // NULL if current price
+  source: text("source").notNull(), // 'HUD', 'community_reported', 'market_intel', 'verified_claim'
+  verificationStatus: text("verification_status", {
+    enum: ["unverified", "pending", "verified", "disputed"]
+  }).default("unverified"),
+  verifiedBy: text("verified_by"),
+  verifiedAt: timestamp("verified_at"),
+  notes: text("notes"),
+  metadata: jsonb("metadata").$type<{
+    currency?: string;
+    paymentTerms?: string;
+    includesUtilities?: boolean;
+    includesMeals?: boolean;
+    [key: string]: any;
+  }>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_pricing_history_community").on(table.communityId),
+  index("idx_pricing_history_effective").on(table.effectiveDate),
+  index("idx_pricing_history_source").on(table.source),
+  index("idx_pricing_history_verification").on(table.verificationStatus),
+]);
+
+// Price Change Alerts
+export const priceChangeAlerts = pgTable("price_change_alerts", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  userId: text("user_id").references(() => users.id),
+  priceType: text("price_type"),
+  oldPrice: decimal("old_price", { precision: 10, scale: 2 }),
+  newPrice: decimal("new_price", { precision: 10, scale: 2 }),
+  changeAmount: decimal("change_amount", { precision: 10, scale: 2 }),
+  changePercentage: decimal("change_percentage", { precision: 5, scale: 2 }),
+  alertType: text("alert_type", {
+    enum: ["price_change", "price_drop", "price_increase"]
+  }).default("price_change"),
+  alertSent: boolean("alert_sent").default(false),
+  sentAt: timestamp("sent_at"),
+  alertMethod: text("alert_method", {
+    enum: ["email", "sms", "push", "in_app"]
+  }),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_price_alerts_community").on(table.communityId),
+  index("idx_price_alerts_user").on(table.userId),
+  index("idx_price_alerts_sent").on(table.alertSent),
+]);
+
+// Enhanced Verified Community Profiles
+export const verifiedCommunityProfiles = pgTable("verified_community_profiles", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).unique().notNull(),
+  claimId: integer("claim_id").references(() => communityClaims.id),
+  
+  // Verification Details
+  verificationBadge: boolean("verification_badge").default(true),
+  verificationTier: text("verification_tier", {
+    enum: ["basic", "enhanced", "premium", "platinum"]
+  }).default("basic"),
+  verificationExpires: date("verification_expires"),
+  
+  // Enhanced Business Information
+  businessHours: jsonb("business_hours").$type<{
+    [day: string]: { open: string; close: string; closed?: boolean };
+  }>().default({}),
+  responseTimeHours: integer("response_time_hours"),
+  responseRatePercent: integer("response_rate_percent"),
+  
+  // Direct Booking & Tours
+  virtualTourUrl: text("virtual_tour_url"),
+  bookingUrl: text("booking_url"),
+  calendarLink: text("calendar_link"),
+  tourSchedulingEnabled: boolean("tour_scheduling_enabled").default(false),
+  instantTourBooking: boolean("instant_tour_booking").default(false),
+  
+  // Payment & Insurance
+  acceptsMedicare: boolean("accepts_medicare"),
+  acceptsMedicaid: boolean("accepts_medicaid"),
+  acceptsVaBenefits: boolean("accepts_va_benefits"),
+  acceptsPrivateInsurance: boolean("accepts_private_insurance"),
+  insurancePartners: jsonb("insurance_partners").$type<string[]>().default([]),
+  paymentOptions: jsonb("payment_options").$type<string[]>().default([]),
+  
+  // Transparency Features
+  priceTransparencyEnabled: boolean("price_transparency_enabled").default(false),
+  availabilityTransparencyEnabled: boolean("availability_transparency_enabled").default(false),
+  staffRatiosPublic: boolean("staff_ratios_public").default(false),
+  inspectionReportsPublic: boolean("inspection_reports_public").default(false),
+  
+  // Marketing Features
+  specialOffers: jsonb("special_offers").$type<Array<{
+    title: string;
+    description: string;
+    validUntil?: string;
+    terms?: string;
+  }>>().default([]),
+  featuredAmenities: jsonb("featured_amenities").$type<string[]>().default([]),
+  awardsCertifications: jsonb("awards_certifications").$type<Array<{
+    name: string;
+    issuer: string;
+    year: number;
+    imageUrl?: string;
+  }>>().default([]),
+  promotionalVideoUrl: text("promotional_video_url"),
+  
+  // Analytics Access
+  analyticsEnabled: boolean("analytics_enabled").default(true),
+  leadNotificationsEnabled: boolean("lead_notifications_enabled").default(true),
+  competitorInsightsEnabled: boolean("competitor_insights_enabled").default(false),
+  
+  // Metadata
+  lastUpdatedBy: text("last_updated_by"),
+  lastUpdatedAt: timestamp("last_updated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_verified_profiles_tier").on(table.verificationTier),
+  index("idx_verified_profiles_expires").on(table.verificationExpires),
+]);
+
+// Verification Activity Log
+export const verificationActivityLog = pgTable("verification_activity_log", {
+  id: serial("id").primaryKey(),
+  claimId: integer("claim_id").references(() => communityClaims.id),
+  communityId: integer("community_id").references(() => communities.id),
+  action: text("action").notNull(), // 'claim_submitted', 'email_sent', 'verified', etc.
+  performedBy: text("performed_by"),
+  performedByRole: text("performed_by_role", {
+    enum: ["user", "admin", "system"]
+  }),
+  details: jsonb("details").$type<Record<string, any>>().default({}),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_verification_log_claim").on(table.claimId),
+  index("idx_verification_log_community").on(table.communityId),
+  index("idx_verification_log_action").on(table.action),
+  index("idx_verification_log_created").on(table.createdAt),
+]);
+
 export const leaseAgreements = pgTable("lease_agreements", {
   id: serial("id").primaryKey(),
   applicationId: integer("application_id").references(() => leasingApplications.id).notNull(),
