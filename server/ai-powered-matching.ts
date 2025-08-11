@@ -226,7 +226,12 @@ Provide a brief analysis of affordability, value for money, and any budget consi
     return reasons;
   }
 
-  private analyzePriceCompatibility(budget: { min: number; max: number }, priceRange: string): boolean {
+  private analyzePriceCompatibility(budget: { min: number; max: number }, priceRange: any): boolean {
+    // Ensure priceRange is a string
+    if (!priceRange || typeof priceRange !== 'string') {
+      return false;
+    }
+    
     // Extract numbers from price range string
     const prices = priceRange.match(/\$?(\d{1,3}(?:,\d{3})*)/g);
     if (!prices) return false;

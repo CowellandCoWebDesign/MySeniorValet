@@ -48,21 +48,40 @@ export default function AIMatchingAssistant() {
 
   const matchingMutation = useMutation({
     mutationFn: async (data: CareNeedsProfile) => {
-      const response = await apiRequest("POST", "/api/communities/ai-match", data);
-      return await response.json();
+      // apiRequest already returns parsed JSON, no need to call .json()
+      return await apiRequest("POST", "/api/communities/ai-match", data);
     },
     onSuccess: (response: any) => {
       console.log('AI Matching Response:', response);
-      const matchesArray = response?.matches || [];
-      console.log('Matches array:', matchesArray);
-      setMatches(matchesArray);
-      setStep(4); // Go to results
-      toast({
-        title: "✨ AI Matching Complete",
-        description: `Found ${matchesArray.length} personalized matches for you!`,
-      });
+      console.log('Response type:', typeof response);
+      console.log('Response success:', response?.success);
+      console.log('Response matches exists:', !!response?.matches);
+      
+      if (response?.success && response?.matches && response.matches.length > 0) {
+        const matchesArray = response.matches;
+        console.log('Setting matches array with', matchesArray.length, 'items');
+        setMatches(matchesArray);
+        console.log('Moving to step 4');
+        setStep(4);
+        
+        toast({
+          title: "✨ AI Matching Complete",
+          description: `Found ${matchesArray.length} personalized matches for you!`,
+        });
+      } else {
+        console.log('No matches or unsuccessful response');
+        setMatches([]);
+        setStep(4); // Still go to results to show "no matches" message
+        
+        toast({
+          title: "No Matches Found",
+          description: "Try adjusting your search criteria",
+          variant: "default"
+        });
+      }
     },
     onError: (error) => {
+      console.error('Matching error:', error);
       toast({
         title: "Matching Error",
         description: "Unable to find matches. Please try again.",
@@ -439,6 +458,7 @@ export default function AIMatchingAssistant() {
         {/* Step 4: Results */}
         {step === 4 && (
           <div className="max-w-4xl mx-auto space-y-6">
+            {console.log('Rendering step 4, matches:', matches.length)}
             {matches.length > 0 ? (
               <>
                 <Card>
