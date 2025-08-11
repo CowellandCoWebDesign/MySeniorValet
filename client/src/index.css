@@ -47,6 +47,23 @@
   }
 }
 
+/* Fix Select dropdown text visibility in dark mode */
+[data-radix-select-content] {
+  @apply bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100;
+}
+
+[data-radix-select-item] {
+  @apply text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700;
+}
+
+[data-radix-select-item][data-state="checked"] {
+  @apply bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white;
+}
+
+[data-radix-select-trigger] {
+  @apply bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100;
+}
+
 /* Ensure onboarding dialog appears above all map elements */
 [data-radix-dialog-overlay],
 [role="dialog"] {
