@@ -10,7 +10,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { OnboardingProvider } from "@/contexts/OnboardingContext";
 import { VoiceGuidanceProvider } from "@/components/VoiceGuidanceProvider";
-import { DevModeIndicator } from "@/components/DevModeIndicator";
+// import { DevModeIndicator } from "@/components/DevModeIndicator";
 
 // Import Leaflet CSS globally for map functionality
 import 'leaflet/dist/leaflet.css';
