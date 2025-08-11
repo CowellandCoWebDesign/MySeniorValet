@@ -62,7 +62,7 @@ export class AIPoweredMatching {
     const primaryLocation = profile.location.preferred[0];
     return await storage.searchCommunities({
       location: primaryLocation,
-      careTypes: [profile.careLevel],
+      careType: profile.careLevel,
       limit: 50
     });
   }
@@ -87,8 +87,11 @@ COMMUNITY: ${community.name}
 Rate this match on a scale of 0-100, considering care compatibility, budget fit, location convenience, and amenity alignment. Return only the numeric score.`;
 
     try {
-      const response = await this.aiService.getSeniorLivingAdvice(prompt);
-      const score = parseInt(response.match(/\d+/)?.[0] || '50');
+      if (!this.aiService.isConfigured()) {
+        return 50; // Fallback if AI not configured
+      }
+      const response = await this.aiService.analyze(prompt);
+      const score = parseInt(response?.match(/\d+/)?.[0] || '50');
       return Math.min(Math.max(score, 0), 100);
     } catch (error) {
       console.error('AI scoring error:', error);
@@ -104,7 +107,10 @@ COMMUNITY: ${community.name} in ${community.city}, ${community.state}
 
 Provide 2-3 specific insights about compatibility, focusing on care quality, lifestyle fit, and practical considerations. Keep it conversational and helpful.`;
 
-    return await this.aiService.getSeniorLivingAdvice(prompt);
+    if (!this.aiService.isConfigured()) {
+      return 'AI insights unavailable - please contact community directly';
+    }
+    return await this.aiService.analyze(prompt) || 'Insights being generated...';
   }
 
   private async generatePriceAnalysis(profile: CareNeedsProfile, community: Community): Promise<string> {
@@ -116,7 +122,10 @@ CARE LEVEL: ${profile.careLevel}
 
 Provide a brief analysis of affordability, value for money, and any budget considerations. Be specific about whether this fits their budget range.`;
 
-    return await this.aiService.getSeniorLivingAdvice(prompt);
+    if (!this.aiService.isConfigured()) {
+      return 'Price analysis unavailable - please contact community directly';
+    }
+    return await this.aiService.analyze(prompt) || 'Analyzing pricing...';
   }
 
   private getMatchReasons(profile: CareNeedsProfile, community: Community): string[] {
@@ -179,7 +188,10 @@ ${i + 1}. ${c.name} (${c.city}, ${c.state})
 
 Provide a helpful comparison focusing on pricing, care options, location advantages, and what makes each unique. Help families understand the key decision factors.`;
 
-    return await this.aiService.getSeniorLivingAdvice(prompt);
+    if (!this.aiService.isConfigured()) {
+      return 'AI comparison unavailable - please review each community individually';
+    }
+    return await this.aiService.analyze(prompt) || 'Generating comparison...';
   }
 
   async generateMoveInPlan(community: Community, profile: CareNeedsProfile): Promise<string> {
@@ -198,7 +210,10 @@ Generate a step-by-step move-in timeline including:
 
 Keep it practical and empathetic for families going through this transition.`;
 
-    return await this.aiService.getSeniorLivingAdvice(prompt);
+    if (!this.aiService.isConfigured()) {
+      return 'AI planning guide unavailable - please contact community directly for move-in assistance';
+    }
+    return await this.aiService.analyze(prompt) || 'Generating move-in plan...';
   }
 }
 

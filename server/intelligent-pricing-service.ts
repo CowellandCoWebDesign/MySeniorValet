@@ -15,6 +15,8 @@ import { searchCache, communityCache, apiCache } from "./infrastructure/cache";
 import { communityStatsCache } from "./community-stats-cache";
 import { realDataAnalyzer } from "./real-data-analyzer";
 import { governmentDataIntegration } from "./government-data-integration";
+import { PerplexityAIService } from "./perplexity-ai-service";
+import { AnthropicAIService } from "./anthropic-ai-service";
 
 interface PricingEstimate {
   min: number;
@@ -234,6 +236,106 @@ class IntelligentPricingService {
     }
     
     return this.generatePricingEstimate(community[0]);
+  }
+
+  /**
+   * AI-Powered Pricing Prediction using real market research
+   * Uses multiple AI models to research and predict pricing based on:
+   * - Similar communities in the area
+   * - Market trends and cost of living data
+   * - Government datasets and public information
+   */
+  async getAIPricingPrediction(community: any): Promise<{
+    prediction: PricingEstimate | null;
+    methodology: string;
+    sources: string[];
+    disclaimer: string;
+  }> {
+    try {
+      // Check if we already have verified pricing
+      const verified = await this.getVerifiedPricing(community);
+      if (verified) {
+        return {
+          prediction: verified,
+          methodology: 'Verified pricing from authentic sources',
+          sources: ['Community-provided data', 'Government records'],
+          disclaimer: 'This is verified pricing, not a prediction'
+        };
+      }
+
+      // Use AI to research pricing for similar communities
+      const perplexity = new PerplexityAIService();
+      const anthropic = new AnthropicAIService();
+      
+      // Query for market pricing data
+      const marketQuery = `What is the average monthly cost for ${community.careTypes?.join(', ') || 'senior living'} in ${community.city}, ${community.state}? Include specific price ranges from recent 2024-2025 data.`;
+      
+      // Get real-time market data from Perplexity
+      let marketResearch = null;
+      if (perplexity.isConfigured()) {
+        marketResearch = await perplexity.searchRealTime(
+          marketQuery,
+          `Researching market pricing for ${community.name}`
+        );
+      }
+
+      // Use Claude to analyze and predict pricing
+      let prediction = null;
+      if (anthropic.isConfigured() && marketResearch) {
+        const analysisPrompt = `Based on this market research data, predict the likely monthly pricing range for ${community.name}:
+          
+          Location: ${community.city}, ${community.state}
+          Care Types: ${community.careTypes?.join(', ') || 'Unknown'}
+          Market Research: ${marketResearch.summary}
+          
+          Provide a JSON response with:
+          {
+            "minPrice": number,
+            "maxPrice": number,
+            "confidence": "high" | "medium" | "low",
+            "reasoning": "brief explanation"
+          }`;
+
+        const analysis = await anthropic.analyze(analysisPrompt);
+        
+        if (analysis) {
+          try {
+            const parsed = JSON.parse(analysis);
+            prediction = {
+              min: parsed.minPrice || 0,
+              max: parsed.maxPrice || 0,
+              careTypePricing: this.calculateCareTypePricing(
+                parsed.minPrice || 0,
+                parsed.maxPrice || 0,
+                community.careTypes || []
+              ),
+              confidence: parsed.confidence || 'low',
+              dataSource: 'estimated' as const,
+              lastUpdated: new Date()
+            };
+          } catch (e) {
+            console.error('Failed to parse AI prediction:', e);
+          }
+        }
+      }
+
+      // Return AI prediction with full transparency
+      return {
+        prediction,
+        methodology: 'AI-powered analysis of regional market data and cost of living factors',
+        sources: marketResearch?.sources || ['Public market research', 'Government datasets'],
+        disclaimer: 'This is an AI-generated prediction based on market research. Contact the community directly for accurate current pricing.'
+      };
+
+    } catch (error) {
+      console.error('AI pricing prediction error:', error);
+      return {
+        prediction: null,
+        methodology: 'Unable to generate prediction',
+        sources: [],
+        disclaimer: 'AI prediction service temporarily unavailable. Please contact the community directly for pricing.'
+      };
+    }
   }
 }
 

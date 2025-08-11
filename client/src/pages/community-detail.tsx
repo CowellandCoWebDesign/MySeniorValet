@@ -5,7 +5,7 @@ import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSig
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, Lock,
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
-         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem } from 'lucide-react';
+         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle } from 'lucide-react';
 import type { Community } from '@shared/schema';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -38,9 +38,146 @@ import { MessageCommunityButton } from "@/components/message-community-button";
 import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
 import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
 
-// Real-time AI Insights Component - Enhanced with Perplexity AI Attribution
+// Intelligent Pricing Prediction Component
+const IntelligentPricingPrediction = ({ community }: { community: any }) => {
+  const [prediction, setPrediction] = React.useState<any>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
+  
+  React.useEffect(() => {
+    // Only fetch prediction if no verified pricing exists
+    if (community && !community.livePricing && !community.rentPerMonth && 
+        !community.priceRange && !community.monthlyRentRangeStart) {
+      setIsLoading(true);
+      
+      fetch(`/api/communities/${community.id}/pricing-prediction`)
+        .then(res => res.json())
+        .then(data => {
+          console.log('Intelligent pricing prediction:', data);
+          setPrediction(data);
+        })
+        .catch(error => {
+          console.error('Failed to get pricing prediction:', error);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [community]);
+  
+  if (!prediction?.prediction || community?.livePricing || community?.rentPerMonth) {
+    return null;
+  }
+  
+  return (
+    <Card className="mb-8 border-2 border-purple-200 dark:border-purple-800">
+      <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20">
+        <CardTitle className="text-xl font-bold flex items-center">
+          <Brain className="w-6 h-6 mr-2 text-purple-600" />
+          AI Pricing Intelligence
+        </CardTitle>
+        <CardDescription className="text-sm">
+          Market-based prediction using AI analysis
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="pt-6">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600" />
+            <p className="ml-3 text-purple-700">Analyzing market data...</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* Predicted Price Range */}
+            <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Predicted Monthly Range
+                </span>
+                <Badge className={`${
+                  prediction.prediction.confidence === 'high' ? 'bg-green-600' :
+                  prediction.prediction.confidence === 'medium' ? 'bg-yellow-600' :
+                  'bg-orange-600'
+                } text-white`}>
+                  {prediction.prediction.confidence} confidence
+                </Badge>
+              </div>
+              <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                ${prediction.prediction.min.toLocaleString()} - ${prediction.prediction.max.toLocaleString()}
+              </p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                Per month (estimated)
+              </p>
+            </div>
+            
+            {/* Methodology */}
+            <div className="text-sm text-gray-700 dark:text-gray-300">
+              <p className="font-medium mb-1">Analysis Method:</p>
+              <p className="text-xs">{prediction.methodology}</p>
+            </div>
+            
+            {/* Sources */}
+            {prediction.sources?.length > 0 && (
+              <div className="text-sm">
+                <p className="font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Data Sources:
+                </p>
+                <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                  {prediction.sources.slice(0, 3).map((source: string, idx: number) => (
+                    <li key={idx} className="flex items-start">
+                      <CheckCircle className="w-3 h-3 mr-1 mt-0.5 text-green-500 flex-shrink-0" />
+                      <span>{source}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {/* Disclaimer */}
+            <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+              <div className="flex items-start">
+                <AlertCircle className="w-4 h-4 mr-2 text-yellow-600 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-yellow-800 dark:text-yellow-200">
+                  {prediction.disclaimer}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+// Real-time AI Insights Component - Enhanced with Multi-AI Verification
 const RealTimeInsights = ({ community }: { community: any }) => {
   const realTimeData = community?.realTimeData;
+  const [verificationReport, setVerificationReport] = React.useState<any>(null);
+  const [isVerifying, setIsVerifying] = React.useState(false);
+
+  // Trigger Multi-AI verification when real-time data is available
+  React.useEffect(() => {
+    if (realTimeData && community?.id && !isVerifying) {
+      setIsVerifying(true);
+      
+      // Call Multi-AI Verification endpoint
+      fetch(`/api/communities/${community.id}/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ realTimeData })
+      })
+      .then(res => res.json())
+      .then(report => {
+        console.log('Multi-AI Verification complete:', report);
+        setVerificationReport(report);
+      })
+      .catch(error => {
+        console.error('Verification error:', error);
+      })
+      .finally(() => {
+        setIsVerifying(false);
+      });
+    }
+  }, [realTimeData, community?.id]);
 
   if (!realTimeData) {
     return null;
@@ -86,6 +223,117 @@ const RealTimeInsights = ({ community }: { community: any }) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
+        {/* Multi-AI Verification Results */}
+        {(verificationReport || isVerifying) && (
+          <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-lg flex items-center">
+                <Shield className="w-5 h-5 mr-2 text-indigo-600" />
+                Multi-AI Verification
+              </h4>
+              {verificationReport?.consensus && (
+                <Badge className={`${
+                  verificationReport.consensus.agreementLevel === 'strong' 
+                    ? 'bg-green-600' 
+                    : verificationReport.consensus.agreementLevel === 'moderate'
+                    ? 'bg-yellow-600'
+                    : verificationReport.consensus.agreementLevel === 'conflicting'
+                    ? 'bg-red-600'
+                    : 'bg-gray-600'
+                } text-white`}>
+                  {verificationReport.consensus.agreementLevel === 'strong' ? '✓ Strong' 
+                    : verificationReport.consensus.agreementLevel === 'moderate' ? '⚠ Moderate'
+                    : verificationReport.consensus.agreementLevel === 'conflicting' ? '⚡ Conflicting'
+                    : 'Weak'} Agreement
+                </Badge>
+              )}
+            </div>
+            
+            {/* AI Orchestra Status */}
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              <div className="bg-white dark:bg-gray-800 p-2 rounded text-center">
+                <div className={`w-3 h-3 mx-auto mb-1 rounded-full ${
+                  verificationReport?.aiOrchestra?.perplexity?.status === 'active' 
+                    ? 'bg-green-500 animate-pulse' 
+                    : 'bg-gray-300'
+                }`} />
+                <p className="text-xs font-medium">Perplexity</p>
+                <p className="text-xs text-gray-500">Web Search</p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded text-center">
+                <div className={`w-3 h-3 mx-auto mb-1 rounded-full ${
+                  verificationReport?.aiOrchestra?.claude?.status === 'active' 
+                    ? 'bg-green-500 animate-pulse' 
+                    : 'bg-gray-300'
+                }`} />
+                <p className="text-xs font-medium">Claude 4.0</p>
+                <p className="text-xs text-gray-500">Verification</p>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-2 rounded text-center">
+                <div className={`w-3 h-3 mx-auto mb-1 rounded-full ${
+                  verificationReport?.aiOrchestra?.chatgpt?.status === 'active' 
+                    ? 'bg-green-500 animate-pulse' 
+                    : 'bg-gray-300'
+                }`} />
+                <p className="text-xs font-medium">ChatGPT-4o</p>
+                <p className="text-xs text-gray-500">Cross-Check</p>
+              </div>
+            </div>
+            
+            {/* Confidence Score */}
+            {verificationReport?.consensus?.confidenceScore > 0 && (
+              <div className="mb-3">
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-gray-600 dark:text-gray-400">Verification Confidence</span>
+                  <span className="font-semibold">{verificationReport.consensus.confidenceScore}%</span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full transition-all duration-500 ${
+                      verificationReport.consensus.confidenceScore >= 80 ? 'bg-green-500' :
+                      verificationReport.consensus.confidenceScore >= 60 ? 'bg-yellow-500' :
+                      'bg-red-500'
+                    }`}
+                    style={{ width: `${verificationReport.consensus.confidenceScore}%` }}
+                  />
+                </div>
+              </div>
+            )}
+            
+            {/* Verified Facts */}
+            {verificationReport?.consensus?.verifiedFacts?.length > 0 && (
+              <div className="mb-3">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">✓ Verified Facts:</p>
+                <ul className="text-xs space-y-1">
+                  {verificationReport.consensus.verifiedFacts.slice(0, 3).map((fact: string, idx: number) => (
+                    <li key={idx} className="text-green-700 dark:text-green-300 flex items-start">
+                      <CheckCircle className="w-3 h-3 mr-1 mt-0.5 flex-shrink-0" />
+                      <span>{fact}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {/* Transparency Note */}
+            {verificationReport?.consensus?.transparencyNotes && (
+              <p className="text-xs text-gray-600 dark:text-gray-400 italic">
+                {verificationReport.consensus.transparencyNotes}
+              </p>
+            )}
+            
+            {/* Loading State */}
+            {isVerifying && !verificationReport && (
+              <div className="flex items-center justify-center py-2">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mr-2" />
+                <p className="text-sm text-indigo-700 dark:text-indigo-300">
+                  Verifying with Claude and ChatGPT...
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+        
         <div className="space-y-6">
           {/* Current Availability & Pricing */}
           {(realTimeData.currentAvailability || realTimeData.currentPricing || realTimeData.waitlistStatus) && (
@@ -1517,6 +1765,9 @@ export default function CommunityDetail() {
 
             {/* Real-Time AI Insights */}
             <RealTimeInsights community={community} />
+
+            {/* Intelligent Pricing Prediction */}
+            <IntelligentPricingPrediction community={community} />
 
             {/* Available Units Section - Enhanced with Rich Information */}
             <Card>

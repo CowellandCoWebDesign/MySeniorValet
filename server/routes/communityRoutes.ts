@@ -18,6 +18,8 @@ import { realDataAnalyzer } from "../real-data-analyzer";
 import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
 import { PerplexityAIService } from "../perplexity-ai-service";
+import { multiAIVerificationService } from "../multi-ai-verification-service";
+import { intelligentPricingService } from "../intelligent-pricing-service";
 
 export function registerCommunityRoutes(app: Express) {
   // IMPORTANT: Specific routes must come BEFORE the /:id route
@@ -362,6 +364,114 @@ export function registerCommunityRoutes(app: Express) {
     } catch (error) {
       console.error("Error fetching pricing coverage:", error);
       res.status(500).json({ error: "Failed to fetch pricing coverage statistics" });
+    }
+  });
+
+  // Intelligent Pricing Prediction endpoint - AI-powered pricing estimates
+  app.get("/api/communities/:id/pricing-prediction", async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: "Invalid community ID" });
+      }
+
+      // Get community details
+      const [community] = await db
+        .select()
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+
+      if (!community) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
+      // Get AI pricing prediction
+      console.log(`💡 Getting intelligent pricing prediction for ${community.name}`);
+      const prediction = await intelligentPricingService.getAIPricingPrediction(community);
+
+      res.json(prediction);
+    } catch (error) {
+      console.error("Pricing prediction error:", error);
+      res.status(500).json({ 
+        error: "Pricing prediction temporarily unavailable",
+        fallback: "Contact community directly for pricing"
+      });
+    }
+  });
+
+  // AI-powered community matching based on care needs profile
+  app.post("/api/communities/ai-match", async (req, res) => {
+    try {
+      const { careLevel, mobility, medical, budget, location, amenities, socialNeeds, familyInvolvement } = req.body;
+      
+      // Validate required fields
+      if (!careLevel || !budget || !location) {
+        return res.status(400).json({ error: 'Missing required fields: careLevel, budget, and location are required' });
+      }
+
+      const profile = {
+        careLevel,
+        mobility: mobility || 'full',
+        medical: medical || [],
+        budget: budget,
+        location: location,
+        amenities: amenities || [],
+        socialNeeds: socialNeeds || 'medium',
+        familyInvolvement: familyInvolvement || 'weekly'
+      };
+
+      const { aiMatching } = await import('../ai-powered-matching');
+      const matches = await aiMatching.findBestMatches(profile, 5);
+      
+      res.json({
+        success: true,
+        matches,
+        profile
+      });
+    } catch (error) {
+      console.error('Error in AI matching:', error);
+      res.status(500).json({ error: 'Failed to generate AI matches' });
+    }
+  });
+
+  // Multi-AI Verification endpoint - verify real-time data using multiple AI sources
+  app.post("/api/communities/:id/verify", async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const { realTimeData } = req.body;
+      
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: "Invalid community ID" });
+      }
+
+      // Get community details
+      const [community] = await db
+        .select()
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+
+      if (!community) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
+      // Run multi-AI verification on the real-time data
+      console.log(`🔬 Running Multi-AI Verification for ${community.name}`);
+      const verificationReport = await multiAIVerificationService.verifyRealTimeData(
+        communityId,
+        community.name,
+        realTimeData
+      );
+
+      res.json(verificationReport);
+    } catch (error) {
+      console.error("Multi-AI verification error:", error);
+      res.status(500).json({ 
+        error: "Multi-AI verification temporarily unavailable",
+        fallback: "Showing web search results only"
+      });
     }
   });
 

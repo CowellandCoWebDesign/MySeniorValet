@@ -486,6 +486,14 @@ export default function MySeniorValetHome() {
                 🔥 Live Availability Heatmap - See What's Open NOW!
               </Button>
             </Link>
+
+            {/* AI Matching Assistant Button */}
+            <Link href="/ai-matching" className="w-full max-w-xl">
+              <Button className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 text-sm md:text-lg px-6 md:px-8 py-3 md:py-4 rounded-xl transform hover:scale-105">
+                <Brain className="mr-2 h-5 w-5" />
+                ✨ AI Matching Assistant - Find Your Perfect Community
+              </Button>
+            </Link>
           </div>
           
 

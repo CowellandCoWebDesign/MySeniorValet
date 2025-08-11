@@ -50,6 +50,7 @@ import CommunityLeasing from "@/pages/community-leasing";
 import TenantPortal from "@/pages/tenant-portal";
 import MyCommunities from "@/pages/my-communities";
 import AISupport from "@/pages/ai-support";
+import AIMatchingAssistant from "@/pages/ai-matching-assistant";
 import AllInOnePlanner from "@/pages/all-in-one-planner";
 import Costs from "@/pages/costs";
 import RealDataPricing from "@/pages/real-data-pricing";
@@ -222,6 +223,7 @@ function Router() {
       <Route path="/tenant-portal" component={TenantPortal} />
       <Route path="/support" component={AISupport} />
       <Route path="/ai-support" component={AISupport} />
+      <Route path="/ai-matching" component={AIMatchingAssistant} />
       <Route path="/all-in-one-planner" component={AllInOnePlanner} />
       <Route path="/costs" component={Costs} />
       <Route path="/real-data-pricing" component={RealDataPricing} />
