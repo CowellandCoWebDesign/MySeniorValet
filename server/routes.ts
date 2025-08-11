@@ -44,6 +44,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const testPerplexityRoutes = await import('./routes/test-perplexity');
   app.use(testPerplexityRoutes.default);
 
+  // Register pricing and claims routes
+  const pricingHistoryRoutes = await import('./routes/pricing-history');
+  const communityClaimsRoutes = await import('./routes/community-claims');
+  const verifiedProfilesRoutes = await import('./routes/verified-profiles');
+  app.use('/api', pricingHistoryRoutes.default);
+  app.use('/api', communityClaimsRoutes.default);
+  app.use('/api', verifiedProfilesRoutes.default);
+  
   // Register remaining special routes
   app.use('/api/subscriptions', subscriptionRoutes);
   app.use('/api/reservations', reservationRoutes);

@@ -155,21 +155,30 @@ CREATE TABLE verification_activity_log (
 - [x] Add relationships between tables
 - [x] All foreign key constraints properly configured
 
-### Step 3: Build API Endpoints
-#### Pricing History APIs
-- [ ] GET /api/communities/:id/pricing-history
-- [ ] POST /api/communities/:id/pricing (for verified owners)
-- [ ] GET /api/pricing/trends/:communityId
-- [ ] POST /api/pricing/alerts/subscribe
+### Step 3: Build API Endpoints ✅ (Complete - See Phase 3 Documentation)
+#### Pricing History APIs ✅
+- [x] GET /api/communities/:id/pricing-history
+- [x] POST /api/communities/:id/pricing (for verified owners)
+- [x] GET /api/communities/:id/pricing-trends
+- [x] POST /api/pricing/alerts/subscribe
+- [x] GET /api/pricing/recent-changes
 
-#### Community Claims APIs
-- [ ] POST /api/claims/initiate
-- [ ] POST /api/claims/verify-email
-- [ ] POST /api/claims/verify-phone
-- [ ] POST /api/claims/upload-documents
-- [ ] GET /api/claims/status/:claimId
-- [ ] PATCH /api/claims/:id/approve (admin only)
-- [ ] PATCH /api/claims/:id/reject (admin only)
+#### Community Claims APIs ✅
+- [x] POST /api/claims/initiate
+- [x] POST /api/claims/verify-email
+- [x] POST /api/claims/upload-documents
+- [x] GET /api/claims/status/:claimId
+- [x] PATCH /api/claims/:id/approve (admin only)
+- [x] PATCH /api/claims/:id/reject (admin only)
+- [x] GET /api/claims/pending (admin only)
+
+#### Verified Profile APIs ✅
+- [x] GET /api/communities/:id/verified-profile
+- [x] PATCH /api/communities/:id/verified-profile
+- [x] PATCH /api/communities/:id/transparency-settings
+- [x] GET /api/communities/:id/verification-badge
+- [x] POST /api/communities/:id/upgrade-tier
+- [x] GET /api/communities/verified
 
 ### Step 4: Frontend Implementation
 - [ ] Claims dashboard for communities
@@ -191,12 +200,13 @@ CREATE TABLE verification_activity_log (
 - [x] All indexes created for performance
 - [x] Database ready for API implementation
 
-## Next Implementation Phase: API & Frontend
-- [ ] Build pricing history API endpoints
-- [ ] Create community claims workflow
-- [ ] Implement email/phone verification
-- [ ] Build admin verification panel
-- [ ] Add verified badge display
+## Next Implementation Phase: Frontend
+- [x] API endpoints complete (See Phase 3 Documentation)
+- [ ] Build frontend pricing transparency display
+- [ ] Create community claim form interface
+- [ ] Implement admin verification panel
+- [ ] Add verified badge display to community cards
+- [ ] Build pricing history charts
 
 ## Security Considerations
 - Prevent fake claims through multi-factor verification
