@@ -49,6 +49,76 @@ export function MessagesSection() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messageInput, setMessageInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
+
+  // Connect to WebSocket for real-time messaging
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    
+    const ws = new WebSocket(wsUrl);
+    
+    ws.onopen = () => {
+      console.log("WebSocket connected for messaging");
+      setConnectionStatus('connected');
+      // Authenticate the WebSocket connection
+      ws.send(JSON.stringify({
+        type: 'auth',
+        data: { userId: user.id }
+      }));
+    };
+    
+    ws.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        
+        switch (message.type) {
+          case 'message':
+            // Refresh messages and conversations when new message received
+            queryClient.invalidateQueries({ queryKey: ['/api/messages', selectedConversation?.id] });
+            queryClient.invalidateQueries({ queryKey: ['/api/messages/conversations'] });
+            
+            // Show toast notification for new message
+            if (message.data?.fromUserId !== user.id) {
+              toast({
+                title: "New message",
+                description: message.data?.content?.substring(0, 50) + "...",
+              });
+            }
+            break;
+            
+          case 'typing':
+            // Handle typing indicator if needed
+            break;
+            
+          case 'connection':
+            console.log('WebSocket connection established:', message.data);
+            break;
+        }
+      } catch (error) {
+        console.error("Error parsing WebSocket message:", error);
+      }
+    };
+    
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+      setConnectionStatus('disconnected');
+    };
+    
+    ws.onclose = () => {
+      console.log("WebSocket disconnected");
+      setConnectionStatus('disconnected');
+    };
+    
+    setSocket(ws);
+    
+    return () => {
+      ws.close();
+    };
+  }, [user?.id, selectedConversation?.id, toast]);
 
   // Fetch conversations
   const { data: conversationsResponse, isLoading: conversationsLoading } = useQuery({
@@ -99,8 +169,8 @@ export function MessagesSection() {
     mutationFn: async (conversationId: number) => {
       if (!user?.id) return;
       
-      const participant = conversations.find(c => c.id === conversationId)?.participants
-        .find(p => p.userId === user.id);
+      const participant = conversations.find((c: Conversation) => c.id === conversationId)?.participants
+        .find((p: any) => p.userId === user.id);
         
       if (!participant) return;
       
