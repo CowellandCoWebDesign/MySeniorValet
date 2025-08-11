@@ -267,7 +267,7 @@ Shared via MySeniorValet - Complete Senior Living Concierge`;
                   <h4 className="font-medium text-gray-900 truncate">{community.name}</h4>
                   <p className="text-sm text-gray-600">{community.city}, {community.state}</p>
                   <div className="flex items-center space-x-2 mt-1">
-                    {community.priceRange && (
+                    {community.priceRange && community.priceRange.min && (
                       <Badge variant="secondary" className="text-xs">
                         ${community.priceRange.min.toLocaleString()}+/month
                       </Badge>

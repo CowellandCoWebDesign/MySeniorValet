@@ -54,7 +54,7 @@ const RealTimeInsights = ({ community }: { community: any }) => {
           Real-Time Community Intelligence
         </CardTitle>
         <CardDescription className="text-base">
-          Live data from web search • Updated {new Date(realTimeData.lastUpdated).toLocaleTimeString()}
+          Live data from web search • Updated {realTimeData.lastUpdated ? new Date(realTimeData.lastUpdated).toLocaleTimeString() : 'just now'}
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
