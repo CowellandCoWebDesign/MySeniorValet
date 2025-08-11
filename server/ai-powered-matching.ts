@@ -141,24 +141,7 @@ COMMUNITY: ${community.name}
 
 Rate this match on a scale of 0-100, considering care compatibility, budget fit, location convenience, and amenity alignment. Return only the numeric score.`;
 
-    // Try Claude first
-    try {
-      if (this.aiService.isConfigured()) {
-        const response = await this.aiService.analyze(prompt);
-        if (response) {
-          const score = parseInt(response?.match(/\d+/)?.[0] || '50');
-          return Math.min(Math.max(score, 0), 100);
-        }
-      }
-    } catch (error: any) {
-      if (error.status === 429) {
-        console.log('Claude rate limited for scoring, trying Perplexity...');
-      } else {
-        console.error('Claude scoring error:', error);
-      }
-    }
-
-    // Fallback to Perplexity if Claude fails
+    // Try Perplexity first (most reliable for high-volume)
     try {
       const perplexityService = (await import('./perplexity-ai-service')).PerplexityAIService;
       const perplexity = new perplexityService();
@@ -169,11 +152,15 @@ Rate this match on a scale of 0-100, considering care compatibility, budget fit,
           return Math.min(Math.max(score, 0), 100);
         }
       }
-    } catch (error) {
-      console.log('Perplexity unavailable for scoring, trying ChatGPT...');
+    } catch (error: any) {
+      if (error.status === 429) {
+        console.log('Perplexity rate limited for scoring, trying ChatGPT...');
+      } else {
+        console.log('Perplexity unavailable for scoring, trying ChatGPT...');
+      }
     }
 
-    // Fallback to ChatGPT if both fail
+    // Fallback to ChatGPT if Perplexity fails
     try {
       const openAIService = (await import('./openai-intelligence')).ChatGPTIntelligenceService;
       const chatGPT = new openAIService();
@@ -185,10 +172,28 @@ Rate this match on a scale of 0-100, considering care compatibility, budget fit,
         }
       }
     } catch (error) {
-      console.log('All AI services unavailable for scoring');
+      console.log('ChatGPT unavailable for scoring, trying Claude as last resort...');
+    }
+
+    // Last resort: Try Claude (frequently rate-limited)
+    try {
+      if (this.aiService.isConfigured()) {
+        const response = await this.aiService.analyze(prompt);
+        if (response) {
+          const score = parseInt(response?.match(/\d+/)?.[0] || '50');
+          return Math.min(Math.max(score, 0), 100);
+        }
+      }
+    } catch (error: any) {
+      if (error.status === 429) {
+        console.log('Claude also rate limited - all AI services exhausted');
+      } else {
+        console.error('Claude scoring error:', error);
+      }
     }
 
     // Final fallback to basic scoring
+    console.log('All AI services unavailable for scoring - using basic algorithm');
     return this.calculateBasicMatchScore(profile, community);
   }
 
@@ -200,21 +205,7 @@ COMMUNITY: ${community.name} in ${community.city}, ${community.state}
 
 Provide 2-3 specific insights about compatibility, focusing on care quality, lifestyle fit, and practical considerations. Keep it conversational and helpful.`;
 
-    // Try Claude first
-    try {
-      if (this.aiService.isConfigured()) {
-        const result = await this.aiService.analyze(prompt);
-        if (result) return result;
-      }
-    } catch (error: any) {
-      if (error.status === 429) {
-        console.log('Claude rate limited, trying Perplexity...');
-      } else {
-        console.error('Claude error:', error);
-      }
-    }
-
-    // Fallback to Perplexity if Claude fails
+    // Try Perplexity first (most reliable for high-volume)
     try {
       const perplexityService = (await import('./perplexity-ai-service')).PerplexityAIService;
       const perplexity = new perplexityService();
@@ -222,11 +213,15 @@ Provide 2-3 specific insights about compatibility, focusing on care quality, lif
         const result = await perplexity.analyze(prompt);
         if (result) return result;
       }
-    } catch (error) {
-      console.log('Perplexity unavailable, trying ChatGPT...');
+    } catch (error: any) {
+      if (error.status === 429) {
+        console.log('Perplexity rate limited for insights, trying ChatGPT...');
+      } else {
+        console.log('Perplexity unavailable for insights, trying ChatGPT...');
+      }
     }
 
-    // Fallback to ChatGPT if both fail
+    // Fallback to ChatGPT if Perplexity fails
     try {
       const openAIService = (await import('./openai-intelligence')).ChatGPTIntelligenceService;
       const chatGPT = new openAIService();
@@ -235,10 +230,25 @@ Provide 2-3 specific insights about compatibility, focusing on care quality, lif
         if (result) return result;
       }
     } catch (error) {
-      console.log('All AI services unavailable');
+      console.log('ChatGPT unavailable for insights, trying Claude as last resort...');
+    }
+
+    // Last resort: Try Claude (frequently rate-limited)
+    try {
+      if (this.aiService.isConfigured()) {
+        const result = await this.aiService.analyze(prompt);
+        if (result) return result;
+      }
+    } catch (error: any) {
+      if (error.status === 429) {
+        console.log('Claude also rate limited - all AI services exhausted');
+      } else {
+        console.error('Claude insights error:', error);
+      }
     }
 
     // Final fallback to non-AI insights
+    console.log('All AI services unavailable for insights - using basic algorithm');
     return this.getFallbackInsights(profile, community);
   }
 
@@ -264,21 +274,7 @@ CARE LEVEL: ${profile.careLevel}
 
 Provide a brief analysis of affordability, value for money, and any budget considerations. Be specific about whether this fits their budget range.`;
 
-    // Try Claude first
-    try {
-      if (this.aiService.isConfigured()) {
-        const result = await this.aiService.analyze(prompt);
-        if (result) return result;
-      }
-    } catch (error: any) {
-      if (error.status === 429) {
-        console.log('Claude rate limited for pricing, trying Perplexity...');
-      } else {
-        console.error('Claude pricing error:', error);
-      }
-    }
-
-    // Fallback to Perplexity if Claude fails
+    // Try Perplexity first (most reliable for high-volume)
     try {
       const perplexityService = (await import('./perplexity-ai-service')).PerplexityAIService;
       const perplexity = new perplexityService();
@@ -286,11 +282,15 @@ Provide a brief analysis of affordability, value for money, and any budget consi
         const result = await perplexity.analyze(prompt);
         if (result) return result;
       }
-    } catch (error) {
-      console.log('Perplexity unavailable for pricing, trying ChatGPT...');
+    } catch (error: any) {
+      if (error.status === 429) {
+        console.log('Perplexity rate limited for pricing, trying ChatGPT...');
+      } else {
+        console.log('Perplexity unavailable for pricing, trying ChatGPT...');
+      }
     }
 
-    // Fallback to ChatGPT if both fail
+    // Fallback to ChatGPT if Perplexity fails
     try {
       const openAIService = (await import('./openai-intelligence')).ChatGPTIntelligenceService;
       const chatGPT = new openAIService();
@@ -299,10 +299,25 @@ Provide a brief analysis of affordability, value for money, and any budget consi
         if (result) return result;
       }
     } catch (error) {
-      console.log('All AI services unavailable for pricing');
+      console.log('ChatGPT unavailable for pricing, trying Claude as last resort...');
+    }
+
+    // Last resort: Try Claude (frequently rate-limited)
+    try {
+      if (this.aiService.isConfigured()) {
+        const result = await this.aiService.analyze(prompt);
+        if (result) return result;
+      }
+    } catch (error: any) {
+      if (error.status === 429) {
+        console.log('Claude also rate limited - all AI services exhausted');
+      } else {
+        console.error('Claude pricing error:', error);
+      }
     }
 
     // Final fallback to non-AI pricing analysis
+    console.log('All AI services unavailable for pricing - using basic algorithm');
     return this.getFallbackPriceAnalysis(profile, community);
   }
 
