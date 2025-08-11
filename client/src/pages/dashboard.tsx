@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { TourScheduler } from "@/components/TourScheduler";
-import { TourTracker } from "@/components/TourTracker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -676,9 +675,68 @@ export default function Dashboard() {
             )}
           </TabsContent>
 
-          {/* Tours Tab - Integrated with TourTracker™ */}
+          {/* Tours Tab */}
           <TabsContent value="tours" className="space-y-6">
-            <TourTracker userId={user?.id} />
+            <div className="flex justify-between items-center">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                Tour Requests
+              </h2>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => setShowCommunitySearch(true)}
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl px-6 py-3"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Schedule New Tour
+                </Button>
+                <Link href="/tour-tracker">
+                  <Button className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl px-6 py-3">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Tour Tracker
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {tourRequests.map((tour) => (
+                <Card key={tour.id} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl rounded-3xl hover:shadow-2xl transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{tour.communityName}</h3>
+                        <div className="space-y-2">
+                          <p className="text-gray-600 dark:text-gray-300 flex items-center">
+                            <Calendar className="h-4 w-4 mr-2 text-green-500" />
+                            Requested Date: {new Date(tour.requestedDate).toLocaleDateString()}
+                          </p>
+                          <p className="text-gray-600 dark:text-gray-300 flex items-center">
+                            <User className="h-4 w-4 mr-2 text-blue-500" />
+                            Contact: {tour.contactPerson}
+                          </p>
+                          <p className="text-gray-600 dark:text-gray-300 flex items-center">
+                            <Phone className="h-4 w-4 mr-2 text-purple-500" />
+                            {tour.phone}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <Badge 
+                          className={`rounded-full px-4 py-2 ${
+                            tour.status === 'pending' ? 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white' :
+                            tour.status === 'confirmed' ? 'bg-gradient-to-r from-green-400 to-emerald-400 text-white' :
+                            tour.status === 'completed' ? 'bg-gradient-to-r from-blue-400 to-purple-400 text-white' :
+                            'bg-gradient-to-r from-red-400 to-pink-400 text-white'
+                          }`}
+                        >
+                          {tour.status.charAt(0).toUpperCase() + tour.status.slice(1)}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           {/* Messages Tab */}
