@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation, useQuery, queryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -57,6 +57,7 @@ export function CommunityClaimsButton({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [claimId, setClaimId] = useState<number | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const form = useForm<ClaimFormData>({
     resolver: zodResolver(claimSchema),
