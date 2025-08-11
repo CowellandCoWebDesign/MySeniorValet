@@ -1,5 +1,6 @@
 import { type Express } from "express";
 import { isAuthenticated as requireAuth, isAdmin } from "../replitAuth";
+import { internalNotifications } from "../services/internal-notifications";
 import { 
   getSecurityDashboard, 
   getUserTrace, 
@@ -13,6 +14,42 @@ import {
 } from "../security-admin-endpoints";
 
 export function registerSecurityRoutes(app: Express) {
+  // Simple email test endpoint (no auth required for testing)
+  app.post('/api/test-email-notification', async (req, res) => {
+    try {
+      console.log('📧 Testing email notification system...');
+      
+      // Test sending a security threat notification
+      await internalNotifications.sendInternalNotification({
+        type: 'security_threat',
+        data: {
+          threatId: 'TEST-' + Date.now(),
+          threatType: 'SQL_INJECTION',
+          severity: 'CRITICAL',
+          ipAddress: '192.168.1.100',
+          userAgent: 'Test Agent',
+          endpoint: '/api/test',
+          action: 'Test threat for email verification',
+          timestamp: new Date().toISOString(),
+          details: {
+            message: 'This is a test security threat to verify email delivery'
+          }
+        },
+        priority: 'critical'
+      });
+      
+      res.json({ 
+        success: true, 
+        message: 'Email notification test triggered. Check console logs for details.' 
+      });
+    } catch (error: any) {
+      console.error('Email test failed:', error);
+      res.status(500).json({ 
+        error: 'Email test failed', 
+        details: error.message 
+      });
+    }
+  });
   // Security dashboard (admin only)
   app.get('/api/security/dashboard', requireAuth, isAdmin, async (req, res) => {
     try {
@@ -181,18 +218,29 @@ export function registerSecurityRoutes(app: Express) {
       const testThreats = [];
       const monitor = SecurityMonitor.getInstance();
 
-      // Helper function to create test request
+      // Helper function to create test request - fixed to work with SecurityMonitor
       const createTestRequest = (method: string, path: string, body?: any, headers?: any) => ({
         method,
         path,
+        url: path,
+        originalUrl: path,
         ip: '192.168.1.100',
+        get: (header: string) => {
+          const hdrs = {
+            'user-agent': 'Mozilla/5.0 (Test Agent) Security Test',
+            ...headers
+          };
+          return hdrs[header.toLowerCase()];
+        },
         headers: {
           'user-agent': 'Mozilla/5.0 (Test Agent) Security Test',
           ...headers
         },
         body,
         query: {},
-        params: {}
+        params: {},
+        socket: { remoteAddress: '192.168.1.100' },
+        connection: { remoteAddress: '192.168.1.100' }
       } as any);
 
       console.log('🧪 Starting comprehensive security notification test...');
