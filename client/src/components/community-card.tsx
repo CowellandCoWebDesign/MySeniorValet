@@ -280,8 +280,8 @@ export function CommunityCard({ community }: CommunityCardProps) {
                     phone: community.phone || undefined,
                     website: community.website || undefined
                   }}
-                  size="icon"
-                  variant="ghost"
+                  size="sm"
+                  variant="default"
                   className="p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white/90 dark:hover:bg-gray-700/90 transition-all duration-300 group shadow-lg transform hover:scale-110 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 delay-75"
                 />
               </div>
@@ -371,8 +371,8 @@ export function CommunityCard({ community }: CommunityCardProps) {
             {/* Housing Type Badge */}
             {community.communitySubtype && (
               <div className="mb-2">
-                <Badge className={`${getCommunitySubtypeLabel(community.communitySubtype).color} text-white text-xs`}>
-                  {getCommunitySubtypeLabel(community.communitySubtype).badge}
+                <Badge className={`${getCommunitySubtypeLabel(community.communitySubtype)?.color || 'bg-gray-500'} text-white text-xs`}>
+                  {getCommunitySubtypeLabel(community.communitySubtype)?.badge || community.communitySubtype}
                 </Badge>
               </div>
             )}
