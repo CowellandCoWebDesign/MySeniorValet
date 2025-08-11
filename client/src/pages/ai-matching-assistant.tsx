@@ -48,21 +48,37 @@ export default function AIMatchingAssistant() {
 
   const matchingMutation = useMutation({
     mutationFn: async (data: CareNeedsProfile) => {
+      console.log('Sending AI match request with data:', data);
       // apiRequest returns a Response object, we need to parse it
       const response = await apiRequest("POST", "/api/communities/ai-match", data);
-      return await response.json();
+      
+      // Clone the response so we can read it twice if needed for debugging
+      const clonedResponse = response.clone();
+      
+      try {
+        const parsed = await response.json();
+        console.log('Parsed response:', parsed);
+        console.log('Success:', parsed?.success, 'Matches:', parsed?.matches?.length);
+        return parsed;
+      } catch (error) {
+        // If JSON parsing fails, read as text for debugging
+        const text = await clonedResponse.text();
+        console.error('Failed to parse response as JSON. Raw text:', text);
+        throw error;
+      }
     },
     onSuccess: (response: any) => {
       console.log('AI Matching Response:', response);
       console.log('Response type:', typeof response);
       console.log('Response success:', response?.success);
       console.log('Response matches exists:', !!response?.matches);
+      console.log('Response matches length:', response?.matches?.length);
       
       if (response?.success && response?.matches && response.matches.length > 0) {
         const matchesArray = response.matches;
         console.log('Setting matches array with', matchesArray.length, 'items');
         setMatches(matchesArray);
-        console.log('Moving to step 4');
+        console.log('Matches state will be:', matchesArray);
         setStep(4);
         
         toast({
@@ -70,7 +86,12 @@ export default function AIMatchingAssistant() {
           description: `Found ${matchesArray.length} personalized matches for you!`,
         });
       } else {
-        console.log('No matches or unsuccessful response');
+        console.log('No matches or unsuccessful response - details:', {
+          success: response?.success,
+          matchesLength: response?.matches?.length,
+          matchesType: typeof response?.matches,
+          fullResponse: response
+        });
         setMatches([]);
         setStep(4); // Still go to results to show "no matches" message
         
