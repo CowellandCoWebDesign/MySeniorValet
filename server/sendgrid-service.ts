@@ -1,10 +1,14 @@
 import sgMail from '@sendgrid/mail';
+import { db } from './db';
+import { users, communities, conversations } from '@shared/schema';
+import { eq } from 'drizzle-orm';
 
-if (!process.env.SENDGRID_API_KEY) {
-  throw new Error('SENDGRID_API_KEY is required');
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  console.log('✅ SendGrid configured for email notifications');
+} else {
+  console.warn('⚠️ SendGrid API key not configured - email notifications disabled');
 }
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 interface EmailParams {
   to: string;
@@ -12,6 +16,14 @@ interface EmailParams {
   subject: string;
   text?: string;
   html?: string;
+}
+
+interface MessageNotificationParams {
+  recipientId: string;
+  recipientType: 'user' | 'community';
+  conversationId: number;
+  messageContent: string;
+  senderName: string;
 }
 
 export async function sendEmail(params: EmailParams): Promise<boolean> {
@@ -58,4 +70,236 @@ export async function notifySuperAdmin(title: string, message: string, data?: an
     `,
     text: `${title}\n\n${message}\n\n${data ? JSON.stringify(data, null, 2) : ''}`
   });
+}
+
+// Message notification for messaging system
+export async function sendMessageNotification(params: MessageNotificationParams): Promise<boolean> {
+  if (!process.env.SENDGRID_API_KEY) {
+    console.log('Email notifications disabled - no SendGrid API key');
+    return false;
+  }
+  
+  try {
+    // Get recipient email
+    const recipientEmail = await getRecipientEmail(params.recipientId, params.recipientType);
+    
+    if (!recipientEmail) {
+      console.log(`No email found for ${params.recipientType} ${params.recipientId}`);
+      return false;
+    }
+    
+    // Check notification preferences
+    const notificationsEnabled = await checkNotificationPreferences(
+      params.recipientId, 
+      params.recipientType
+    );
+    
+    if (!notificationsEnabled) {
+      console.log(`Email notifications disabled for ${params.recipientType} ${params.recipientId}`);
+      return false;
+    }
+    
+    // Get conversation details
+    const [conversation] = await db.select()
+      .from(conversations)
+      .where(eq(conversations.id, params.conversationId))
+      .limit(1);
+    
+    if (!conversation) {
+      console.log('Conversation not found');
+      return false;
+    }
+    
+    // Prepare and send email
+    const dashboardUrl = params.recipientType === 'user' 
+      ? 'https://myseniorvalet.com/dashboard/messages'
+      : 'https://myseniorvalet.com/community-dashboard/messages';
+    
+    const emailSent = await sendEmail({
+      to: recipientEmail,
+      from: 'hello@myseniorvalet.com',
+      subject: `New message from ${params.senderName} on MySeniorValet`,
+      text: `
+New Message on MySeniorValet
+
+You have received a new message from ${params.senderName}
+
+Conversation: ${conversation.title}
+
+Message:
+${params.messageContent}
+
+View and reply to this message at: ${dashboardUrl}
+
+---
+The trusted platform for authentic senior living community information.
+To manage your email preferences, visit your dashboard settings.
+      `.trim(),
+      html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 10px 10px 0 0;
+      text-align: center;
+    }
+    .content {
+      background: white;
+      padding: 30px;
+      border: 1px solid #e5e7eb;
+      border-radius: 0 0 10px 10px;
+    }
+    .message-box {
+      background: #f9fafb;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .button {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 30px;
+      text-decoration: none;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+    .footer {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+      text-align: center;
+      font-size: 12px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1 style="margin: 0; font-size: 24px;">New Message on MySeniorValet</h1>
+  </div>
+  
+  <div class="content">
+    <p>Hello,</p>
+    
+    <p>You have received a new message from <strong>${params.senderName}</strong></p>
+    
+    <p><strong>Conversation:</strong> ${conversation.title}</p>
+    
+    <div class="message-box">
+      <p style="margin: 0;">${params.messageContent}</p>
+    </div>
+    
+    <div style="text-align: center;">
+      <a href="${dashboardUrl}" class="button">View Message & Reply</a>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <p><strong>MySeniorValet</strong><br>
+    The trusted platform for authentic senior living community information.</p>
+    <p>To manage your email preferences, visit your dashboard settings.</p>
+  </div>
+</body>
+</html>
+      `.trim()
+    });
+    
+    if (emailSent) {
+      console.log(`✅ Message notification sent to ${recipientEmail}`);
+    }
+    
+    return emailSent;
+    
+  } catch (error) {
+    console.error('Failed to send message notification:', error);
+    return false;
+  }
+}
+
+// Helper function to get recipient email
+async function getRecipientEmail(recipientId: string, recipientType: 'user' | 'community'): Promise<string | null> {
+  try {
+    if (recipientType === 'user') {
+      // Convert string ID to integer for users table
+      const userId = parseInt(recipientId);
+      if (isNaN(userId)) return null;
+      
+      const [user] = await db.select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+      
+      return user?.email || null;
+    } else {
+      // Communities use string IDs
+      const [community] = await db.select()
+        .from(communities)
+        .where(eq(communities.id, recipientId))
+        .limit(1);
+      
+      // Get contact email from community
+      const emails = community?.emails as any;
+      if (emails && typeof emails === 'object') {
+        return emails.contact || emails.primary || null;
+      }
+      return null;
+    }
+  } catch (error) {
+    console.error('Error getting recipient email:', error);
+    return null;
+  }
+}
+
+// Helper function to check notification preferences
+async function checkNotificationPreferences(recipientId: string, recipientType: 'user' | 'community'): Promise<boolean> {
+  try {
+    if (recipientType === 'user') {
+      const userId = parseInt(recipientId);
+      if (isNaN(userId)) return false;
+      
+      const [user] = await db.select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+      
+      // Check user preferences (default to true if not set)
+      const preferences = user?.preferences as any;
+      if (preferences && typeof preferences === 'object') {
+        return preferences.emailNotifications !== false;
+      }
+      return true; // Default to enabled
+      
+    } else {
+      const [community] = await db.select()
+        .from(communities)
+        .where(eq(communities.id, recipientId))
+        .limit(1);
+      
+      // Check community settings
+      const settings = community?.settings as any;
+      if (settings && typeof settings === 'object') {
+        return settings.emailNotifications !== false;
+      }
+      return true; // Default to enabled
+    }
+  } catch (error) {
+    console.error('Error checking notification preferences:', error);
+    return true; // Default to enabled if error
+  }
 }

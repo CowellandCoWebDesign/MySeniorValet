@@ -16,6 +16,7 @@ import {
   type InsertConversation
 } from "@shared/schema";
 import { eq, and, or, desc, sql, inArray } from "drizzle-orm";
+import { sendMessageNotification } from "./sendgrid-service";
 
 interface AuthenticatedWebSocket extends WebSocket {
   userId?: string;
@@ -219,6 +220,32 @@ export class MessagingService {
             type: 'new_message',
             payload: messageWithSender
           }));
+        });
+      }
+    });
+
+    // Send email notifications to offline participants
+    participants.forEach(async (participant) => {
+      // Don't send notification to the sender
+      if (participant.userId === ws.userId) return;
+      
+      // Check if user is online (has active socket connections)
+      const isOnline = this.clients.has(participant.userId);
+      
+      if (!isOnline || participant.notifications) {
+        // Determine recipient type
+        const recipientType = participant.userId.startsWith('community_') ? 'community' : 'user';
+        const recipientId = recipientType === 'community' 
+          ? participant.userId.replace('community_', '') 
+          : participant.userId;
+        
+        // Send email notification
+        await sendMessageNotification({
+          recipientId,
+          recipientType,
+          conversationId,
+          messageContent: content,
+          senderName: `${sender.firstName || ''} ${sender.lastName || ''}`.trim() || 'User'
         });
       }
     });
@@ -439,6 +466,120 @@ export class MessagingService {
     }
 
     return familyGroup;
+  }
+
+  // Send message via REST API (includes email notifications)
+  async sendMessage(data: {
+    conversationId: number;
+    senderId: string;
+    senderType: 'user' | 'community';
+    content: string;
+    messageType?: 'text' | 'image' | 'document';
+    attachments?: any[];
+    metadata?: any;
+  }): Promise<Message> {
+    const { conversationId, senderId, senderType, content, messageType = 'text', attachments, metadata } = data;
+
+    // Get conversation details
+    const [conversation] = await db.select()
+      .from(conversations)
+      .where(eq(conversations.id, conversationId));
+
+    if (!conversation) {
+      throw new Error('Conversation not found');
+    }
+
+    // Create message
+    const [newMessage] = await db.insert(messages).values({
+      conversationId,
+      senderId,
+      senderType,
+      content,
+      messageType,
+      attachments,
+      metadata
+    }).returning();
+
+    // Update conversation
+    await db.update(conversations)
+      .set({
+        lastMessageAt: new Date(),
+        lastMessagePreview: content.substring(0, 100),
+        updatedAt: new Date()
+      })
+      .where(eq(conversations.id, conversationId));
+
+    // Get sender info
+    let senderName = 'User';
+    if (senderType === 'user') {
+      const [sender] = await db.select({
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName
+      })
+        .from(users)
+        .where(eq(users.id, parseInt(senderId)));
+      if (sender) {
+        senderName = `${sender.firstName || ''} ${sender.lastName || ''}`.trim() || 'User';
+      }
+    } else if (senderType === 'community') {
+      const [community] = await db.select({
+        id: communities.id,
+        name: communities.name
+      })
+        .from(communities)
+        .where(eq(communities.id, senderId));
+      if (community) {
+        senderName = community.name || 'Community';
+      }
+    }
+
+    // Send email notifications to all participants except sender
+    const participants = (conversation.participants as any[]) || [];
+    for (const participant of participants) {
+      // Skip sender
+      if (participant.userId === senderId || 
+          (senderType === 'community' && participant.userId === `community_${senderId}`)) {
+        continue;
+      }
+
+      // Check if participant has notifications enabled
+      if (participant.notifications !== false) {
+        // Determine recipient type
+        const recipientType = participant.userId.startsWith('community_') ? 'community' : 'user';
+        const recipientId = recipientType === 'community' 
+          ? participant.userId.replace('community_', '') 
+          : participant.userId;
+        
+        // Send email notification asynchronously
+        sendMessageNotification({
+          recipientId,
+          recipientType,
+          conversationId,
+          messageContent: content,
+          senderName
+        }).catch(error => {
+          console.error('Failed to send email notification:', error);
+        });
+      }
+    }
+
+    // Broadcast to WebSocket clients if available
+    if (this.wss) {
+      participants.forEach(participant => {
+        const participantSockets = this.clients.get(participant.userId);
+        if (participantSockets) {
+          participantSockets.forEach(socket => {
+            socket.send(JSON.stringify({
+              type: 'new_message',
+              payload: newMessage
+            }));
+          });
+        }
+      });
+    }
+
+    return newMessage;
   }
 }
 

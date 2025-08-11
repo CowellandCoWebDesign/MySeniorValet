@@ -114,6 +114,58 @@ router.get("/conversations/:conversationId/messages", async (req, res) => {
   }
 });
 
+// Send a message to a conversation
+router.post("/conversations/:conversationId/messages", async (req, res) => {
+  try {
+    const conversationId = parseInt(req.params.conversationId);
+    const { senderId, senderType, content, messageType, attachments, metadata } = req.body;
+
+    if (!senderId || !senderType || !content) {
+      return res.status(400).json({ error: "Sender ID, sender type, and content are required" });
+    }
+
+    // Use the messaging service sendMessage function which includes email notifications
+    const message = await messagingService.sendMessage({
+      conversationId,
+      senderId,
+      senderType,
+      content,
+      messageType,
+      attachments,
+      metadata
+    });
+
+    // Enrich message with sender details
+    let sender = null;
+    if (senderType === 'user') {
+      [sender] = await db.select({
+        id: users.id,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        profileImageUrl: users.profileImageUrl
+      })
+      .from(users)
+      .where(eq(users.id, senderId));
+    } else if (senderType === 'community') {
+      [sender] = await db.select({
+        id: communities.id,
+        name: communities.name,
+        photos: communities.photos
+      })
+      .from(communities)
+      .where(eq(communities.id, senderId));
+    }
+
+    res.json({
+      ...message,
+      sender
+    });
+  } catch (error) {
+    console.error("Error sending message:", error);
+    res.status(500).json({ error: "Failed to send message" });
+  }
+});
+
 // Create a new conversation
 router.post("/conversations", async (req, res) => {
   try {
