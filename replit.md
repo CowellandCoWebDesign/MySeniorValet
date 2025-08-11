@@ -87,6 +87,9 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - **Availability Heatmap System**: Public version at `/availability-heatmap` and an enhanced admin version at `/admin/availability-heatmap`.
 - **Semantic Search Integration**: Weaviate-powered semantic search with natural language understanding. Features include toggle switch for semantic/traditional modes (semantic default), hybrid search, RAG-powered AI recommendations, natural language query support, visual match score indicators, and match explanation display. Endpoint: `/api/semantic/search`.
 
+## Recent Changes
+- **August 11, 2025**: Cleaned up orphaned `/api/search` endpoint that was broken but not used by any user-facing features. All search functionality confirmed working through proper endpoints: map search (`/api/communities/search/spatial`), AI search (`/api/communities/search/unified`), and clustering (`/api/communities/clusters`). Updated admin page references to reflect actual endpoints in use.
+
 ## External Dependencies
 - **Database Connectivity**: `@neondatabase/serverless`
 - **ORM**: `drizzle-orm`

@@ -1061,8 +1061,8 @@ export default function AdminDashboard() {
                                 <span className="font-medium">45ms</span>
                               </div>
                               <div className="flex justify-between">
-                                <span>/api/search</span>
-                                <span className="font-medium">123ms</span>
+                                <span>/api/communities/search/unified</span>
+                                <span className="font-medium">85ms</span>
                               </div>
                               <div className="flex justify-between">
                                 <span>/api/admin/*</span>
@@ -1113,7 +1113,7 @@ export default function AdminDashboard() {
                           <div className="space-y-2 text-sm">
                             <div className="flex items-start gap-2">
                               <AlertTriangle className="h-4 w-4 text-yellow-500 mt-0.5" />
-                              <span>Consider adding caching for /api/search endpoint (123ms avg)</span>
+                              <span>Consider optimizing /api/communities/search/unified endpoint (85ms avg)</span>
                             </div>
                             <div className="flex items-start gap-2">
                               <AlertTriangle className="h-4 w-4 text-yellow-500 mt-0.5" />

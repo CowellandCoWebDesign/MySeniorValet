@@ -2,13 +2,11 @@ import { type Express } from "express";
 import { db } from "../db";
 import { communities, vendors, marketplaceVendors, services, marketplaceCategories, serviceCategories, serviceProviders, hospitals } from "@shared/schema";
 import { eq, and, or, desc, sql, ilike, gte, lte, isNotNull, ne, inArray } from "drizzle-orm";
-import { searchCommunitySchema } from "@shared/schema";
 import { enhancedSearchService } from "../enhanced-search-service";
 import { superclusterService } from "../services/supercluster";
 import { geocodeLocation, getZoomLevel } from "../geocoding-data";
 import { eliminateCallForPricing } from "../intelligent-pricing-system";
 import { MarketPricingIntelligence } from "../market-pricing-intelligence";
-import { z } from "zod";
 
 export function registerSearchRoutes(app: Express) {
   // Market pricing intelligence endpoint
@@ -719,39 +717,6 @@ export function registerSearchRoutes(app: Express) {
     } catch (error) {
       console.error('Error searching resources:', error);
       res.status(500).json({ error: 'Failed to search resources' });
-    }
-  });
-  
-  // Basic search endpoint
-  app.get("/api/search", async (req, res) => {
-    try {
-      const searchParams = searchCommunitySchema.parse({
-        location: req.query.location || '',
-        careType: req.query.careType || 'All Types',
-        budget: req.query.budget || 'all',
-        amenities: req.query.amenities ? (req.query.amenities as string).split(',') : [],
-        availability: req.query.availability || 'all',
-        distance: req.query.distance ? parseInt(req.query.distance as string) : undefined,
-        minRating: req.query.minRating ? parseFloat(req.query.minRating as string) : undefined,
-        limit: req.query.limit ? parseInt(req.query.limit as string) : 20,
-        offset: req.query.offset ? parseInt(req.query.offset as string) : 0
-      });
-
-      console.log('Search parameters received:', searchParams);
-
-      const result = await enhancedSearchService.searchCommunities(searchParams);
-      
-      // Apply intelligent pricing to eliminate "call for pricing"
-      result.communities = result.communities.map(community => eliminateCallForPricing(community));
-      
-      console.log(`Search returned ${result.communities.length} communities`);
-      res.json(result);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: "Invalid search parameters", details: error.errors });
-      }
-      console.error("Search error:", error);
-      res.status(500).json({ error: "Search failed" });
     }
   });
 
