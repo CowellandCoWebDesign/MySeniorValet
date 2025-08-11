@@ -128,6 +128,28 @@ export class AIPoweredMatching {
       console.log(`AI Matching: Fallback search returned ${communities.length} communities`);
     }
     
+    // If still no communities, broaden search to just the state
+    if (communities.length === 0 && primaryLocation.includes(',')) {
+      const state = primaryLocation.split(',').pop()?.trim();
+      if (state) {
+        console.log(`AI Matching: No communities found in ${primaryLocation}, searching entire state: ${state}`);
+        communities = await storage.searchCommunities({
+          location: state,
+          limit: 50
+        });
+        console.log(`AI Matching: State-wide search returned ${communities.length} communities`);
+      }
+    }
+    
+    // Final fallback - get any communities from database
+    if (communities.length === 0) {
+      console.log(`AI Matching: No communities found in location, fetching any available communities`);
+      communities = await storage.searchCommunities({
+        limit: 50
+      });
+      console.log(`AI Matching: General search returned ${communities.length} communities`);
+    }
+    
     return communities;
   }
 

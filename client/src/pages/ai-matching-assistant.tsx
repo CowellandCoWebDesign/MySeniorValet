@@ -48,8 +48,9 @@ export default function AIMatchingAssistant() {
 
   const matchingMutation = useMutation({
     mutationFn: async (data: CareNeedsProfile) => {
-      // apiRequest already returns parsed JSON, no need to call .json()
-      return await apiRequest("POST", "/api/communities/ai-match", data);
+      // apiRequest returns a Response object, we need to parse it
+      const response = await apiRequest("POST", "/api/communities/ai-match", data);
+      return await response.json();
     },
     onSuccess: (response: any) => {
       console.log('AI Matching Response:', response);
