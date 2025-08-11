@@ -46,20 +46,11 @@ export class AIPoweredMatching {
       
       const promises = communitiesToProcess.map(async (community) => {
         try {
-          // Use AI for all communities with timeout protection (3 seconds per call)
+          // Use AI for all communities - no artificial timeouts
           const [matchScore, aiInsights, priceAnalysis] = await Promise.all([
-            Promise.race([
-              this.calculateAIMatchScore(profile, community),
-              new Promise<number>((resolve) => setTimeout(() => resolve(75), 3000))
-            ]),
-            Promise.race([
-              this.generateAIInsights(profile, community),
-              new Promise<string>((resolve) => setTimeout(() => resolve(this.getFallbackInsights(profile, community)), 3000))
-            ]),
-            Promise.race([
-              this.generatePriceAnalysis(profile, community),
-              new Promise<string>((resolve) => setTimeout(() => resolve(this.getFallbackPriceAnalysis(profile, community)), 3000))
-            ])
+            this.calculateAIMatchScore(profile, community),
+            this.generateAIInsights(profile, community),
+            this.generatePriceAnalysis(profile, community)
           ]);
           
           return {
@@ -150,38 +141,105 @@ COMMUNITY: ${community.name}
 
 Rate this match on a scale of 0-100, considering care compatibility, budget fit, location convenience, and amenity alignment. Return only the numeric score.`;
 
+    // Try Claude first
     try {
-      if (!this.aiService.isConfigured()) {
-        return 50; // Fallback if AI not configured
+      if (this.aiService.isConfigured()) {
+        const response = await this.aiService.analyze(prompt);
+        if (response) {
+          const score = parseInt(response?.match(/\d+/)?.[0] || '50');
+          return Math.min(Math.max(score, 0), 100);
+        }
       }
-      const response = await this.aiService.analyze(prompt);
-      const score = parseInt(response?.match(/\d+/)?.[0] || '50');
-      return Math.min(Math.max(score, 0), 100);
-    } catch (error) {
-      console.error('AI scoring error:', error);
-      return 50; // Fallback score
+    } catch (error: any) {
+      if (error.status === 429) {
+        console.log('Claude rate limited for scoring, trying Perplexity...');
+      } else {
+        console.error('Claude scoring error:', error);
+      }
     }
+
+    // Fallback to Perplexity if Claude fails
+    try {
+      const perplexityService = (await import('./perplexity-ai-service')).PerplexityAIService;
+      const perplexity = new perplexityService();
+      if (perplexity.isConfigured()) {
+        const response = await perplexity.analyze(prompt);
+        if (response) {
+          const score = parseInt(response?.match(/\d+/)?.[0] || '50');
+          return Math.min(Math.max(score, 0), 100);
+        }
+      }
+    } catch (error) {
+      console.log('Perplexity unavailable for scoring, trying ChatGPT...');
+    }
+
+    // Fallback to ChatGPT if both fail
+    try {
+      const openAIService = (await import('./openai-intelligence')).ChatGPTIntelligenceService;
+      const chatGPT = new openAIService();
+      if (chatGPT.isConfigured()) {
+        const response = await chatGPT.analyze(prompt);
+        if (response) {
+          const score = parseInt(response?.match(/\d+/)?.[0] || '50');
+          return Math.min(Math.max(score, 0), 100);
+        }
+      }
+    } catch (error) {
+      console.log('All AI services unavailable for scoring');
+    }
+
+    // Final fallback to basic scoring
+    return this.calculateBasicMatchScore(profile, community);
   }
 
   private async generateAIInsights(profile: CareNeedsProfile, community: Community): Promise<string> {
-    try {
-      const prompt = `Generate personalized insights about why this community might be a good fit:
+    const prompt = `Generate personalized insights about why this community might be a good fit:
 
 RESIDENT: ${profile.careLevel} care, ${profile.mobility} mobility, ${profile.socialNeeds} social needs
 COMMUNITY: ${community.name} in ${community.city}, ${community.state}
 
 Provide 2-3 specific insights about compatibility, focusing on care quality, lifestyle fit, and practical considerations. Keep it conversational and helpful.`;
 
-      if (!this.aiService.isConfigured()) {
-        return this.getFallbackInsights(profile, community);
+    // Try Claude first
+    try {
+      if (this.aiService.isConfigured()) {
+        const result = await this.aiService.analyze(prompt);
+        if (result) return result;
       }
-      
-      const result = await this.aiService.analyze(prompt);
-      return result || this.getFallbackInsights(profile, community);
-    } catch (error) {
-      console.error('Error in AI insights generation:', error);
-      return this.getFallbackInsights(profile, community);
+    } catch (error: any) {
+      if (error.status === 429) {
+        console.log('Claude rate limited, trying Perplexity...');
+      } else {
+        console.error('Claude error:', error);
+      }
     }
+
+    // Fallback to Perplexity if Claude fails
+    try {
+      const perplexityService = (await import('./perplexity-ai-service')).PerplexityAIService;
+      const perplexity = new perplexityService();
+      if (perplexity.isConfigured()) {
+        const result = await perplexity.analyze(prompt);
+        if (result) return result;
+      }
+    } catch (error) {
+      console.log('Perplexity unavailable, trying ChatGPT...');
+    }
+
+    // Fallback to ChatGPT if both fail
+    try {
+      const openAIService = (await import('./openai-intelligence')).ChatGPTIntelligenceService;
+      const chatGPT = new openAIService();
+      if (chatGPT.isConfigured()) {
+        const result = await chatGPT.analyze(prompt);
+        if (result) return result;
+      }
+    } catch (error) {
+      console.log('All AI services unavailable');
+    }
+
+    // Final fallback to non-AI insights
+    return this.getFallbackInsights(profile, community);
   }
 
   private getFallbackInsights(profile: CareNeedsProfile, community: Community): string {
@@ -198,8 +256,7 @@ Provide 2-3 specific insights about compatibility, focusing on care quality, lif
   }
 
   private async generatePriceAnalysis(profile: CareNeedsProfile, community: Community): Promise<string> {
-    try {
-      const prompt = `Analyze the pricing for this senior living situation:
+    const prompt = `Analyze the pricing for this senior living situation:
 
 BUDGET: $${profile.budget.min}-${profile.budget.max}/month
 COMMUNITY PRICING: ${community.priceRange || 'Contact for pricing'}
@@ -207,16 +264,46 @@ CARE LEVEL: ${profile.careLevel}
 
 Provide a brief analysis of affordability, value for money, and any budget considerations. Be specific about whether this fits their budget range.`;
 
-      if (!this.aiService.isConfigured()) {
-        return this.getFallbackPriceAnalysis(profile, community);
+    // Try Claude first
+    try {
+      if (this.aiService.isConfigured()) {
+        const result = await this.aiService.analyze(prompt);
+        if (result) return result;
       }
-      
-      const result = await this.aiService.analyze(prompt);
-      return result || this.getFallbackPriceAnalysis(profile, community);
-    } catch (error) {
-      console.error('Error in price analysis generation:', error);
-      return this.getFallbackPriceAnalysis(profile, community);
+    } catch (error: any) {
+      if (error.status === 429) {
+        console.log('Claude rate limited for pricing, trying Perplexity...');
+      } else {
+        console.error('Claude pricing error:', error);
+      }
     }
+
+    // Fallback to Perplexity if Claude fails
+    try {
+      const perplexityService = (await import('./perplexity-ai-service')).PerplexityAIService;
+      const perplexity = new perplexityService();
+      if (perplexity.isConfigured()) {
+        const result = await perplexity.analyze(prompt);
+        if (result) return result;
+      }
+    } catch (error) {
+      console.log('Perplexity unavailable for pricing, trying ChatGPT...');
+    }
+
+    // Fallback to ChatGPT if both fail
+    try {
+      const openAIService = (await import('./openai-intelligence')).ChatGPTIntelligenceService;
+      const chatGPT = new openAIService();
+      if (chatGPT.isConfigured()) {
+        const result = await chatGPT.analyze(prompt);
+        if (result) return result;
+      }
+    } catch (error) {
+      console.log('All AI services unavailable for pricing');
+    }
+
+    // Final fallback to non-AI pricing analysis
+    return this.getFallbackPriceAnalysis(profile, community);
   }
 
   private getFallbackPriceAnalysis(profile: CareNeedsProfile, community: Community): string {
