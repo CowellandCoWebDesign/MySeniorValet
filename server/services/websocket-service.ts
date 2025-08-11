@@ -27,6 +27,10 @@ export class WebSocketService {
    * Initialize WebSocket server
    */
   initialize(server: Server) {
+    // TEMPORARILY DISABLED: WebSocket server causing Vite instability
+    // The WebSocket on /ws path conflicts with Vite's HMR WebSocket
+    // Uncomment this block when ready to use WebSocket features
+    /*
     this.wss = new WebSocketServer({ 
       server, 
       path: '/ws',
@@ -37,8 +41,9 @@ export class WebSocketService {
     
     // Start heartbeat monitoring
     this.startHeartbeat();
+    */
     
-    console.log('✅ WebSocket server initialized on /ws');
+    console.log('⚠️ WebSocket server disabled to fix Vite stability');
   }
   
   /**
