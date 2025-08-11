@@ -38,7 +38,6 @@ import { MessageCommunityButton } from "@/components/message-community-button";
 import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
 import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
 import { PricingHistoryDisplay } from "@/components/PricingHistoryDisplay";
-import { CommunityClaimsButton } from "@/components/CommunityClaimsButton";
 
 // Intelligent Pricing Prediction Component
 const IntelligentPricingPrediction = ({ community }: { community: any }) => {
@@ -1161,16 +1160,6 @@ export default function CommunityDetail() {
                       <Badge className="bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200">
                         {community.careTypes?.[0] || 'Senior Living'}
                       </Badge>
-                    </div>
-                    
-                    {/* Community Claims Button */}
-                    <div className="flex items-center gap-3">
-                      <CommunityClaimsButton 
-                        communityId={community.id}
-                        communityName={community.name}
-                        isClaimed={community.isClaimed}
-                        isVerified={community.claimVerified}
-                      />
                     </div>
 
 
