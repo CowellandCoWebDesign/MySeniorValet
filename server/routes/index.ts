@@ -43,7 +43,7 @@ import familyConnectRoutes from "./familyConnectRoutes";
 import amazonProductRoutes from "./amazonProductRoutes";
 import servicesManagementRoutes from "./servicesManagementRoutes";
 import { featureAccessRouter } from "./featureAccessRoutes";
-import { registerAnalyticsRoutes } from "./analyticsRoutes";
+import { analyticsRoutes } from "./analyticsRoutes";
 import { setupVAResourcesRoutes } from "./vaResourcesRoutes";
 import { setupSeniorResourcesRoutes } from "./seniorResourcesRoutes";
 import authenticPricingRoutes from "./authentic-pricing-routes";
@@ -128,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerEmailRoutes(app);
   registerFloralRoutes(app);
   registerMoveInServicesRoutes(app);
-  registerAnalyticsRoutes(app);
+  app.use(analyticsRoutes);
   setupVAResourcesRoutes(app);
   setupSeniorResourcesRoutes(app);
   
