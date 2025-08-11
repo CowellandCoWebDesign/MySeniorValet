@@ -437,19 +437,21 @@ export default function AIMatchingAssistant() {
         )}
 
         {/* Step 4: Results */}
-        {step === 4 && matches.length > 0 && (
+        {step === 4 && (
           <div className="max-w-4xl mx-auto space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-yellow-500" />
-                  Your AI-Powered Matches
-                </CardTitle>
-                <CardDescription>
-                  Found {matches.length} communities perfectly matched to your needs
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            {matches.length > 0 ? (
+              <>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Star className="h-5 w-5 text-yellow-500" />
+                      Your AI-Powered Matches
+                    </CardTitle>
+                    <CardDescription>
+                      Found {matches.length} communities perfectly matched to your needs
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
 
             {matches.map((match, index) => (
               <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
