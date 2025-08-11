@@ -31,67 +31,67 @@ export const users = pgTable("users", {
   username: text("username").unique(),
   password: text("password"),
   phone: text("phone"),
-  // relationshipToCare: text("relationship_to_care", {
-  //   enum: ["Seeking for Self", "Seeking for Parent", "Seeking for Spouse", "Seeking for Other Family", "Healthcare Professional"]
-  // }), // Field doesn't exist in database
-  // careNeeds: text("care_needs").array().default([]), // ['Independent Living', 'Assisted Living', 'Memory Care'] - Field doesn't exist in database
-  // searchPreferences: json("search_preferences").$type<{
-  //   preferredLocation?: string;
-  //   budgetRange?: { min: number; max: number };
-  //   preferredAmenities?: string[];
-  //   mustHaveFeatures?: string[];
-  //   dealBreakers?: string[];
-  // }>().default({}), // Field doesn't exist in database
+  relationshipToCare: text("relationship_to_care", {
+    enum: ["Seeking for Self", "Seeking for Parent", "Seeking for Spouse", "Seeking for Other Family", "Healthcare Professional"]
+  }),
+  careNeeds: text("care_needs").array().default([]), // ['Independent Living', 'Assisted Living', 'Memory Care']
+  searchPreferences: json("search_preferences").$type<{
+    preferredLocation?: string;
+    budgetRange?: { min: number; max: number };
+    preferredAmenities?: string[];
+    mustHaveFeatures?: string[];
+    dealBreakers?: string[];
+  }>().default({}),
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
-  // notifications: json("notifications").$type<{
-  //   emailNotifications: boolean;
-  //   smsNotifications: boolean;
-  //   newListings: boolean;
-  //   priceAlerts: boolean;
-  //   messageAlerts: boolean;
-  //   reviewReminders: boolean;
-  // }>().default({
-  //   emailNotifications: true,
-  //   smsNotifications: false,
-  //   newListings: false,
-  //   priceAlerts: false,
-  //   messageAlerts: true,
-  //   reviewReminders: false,
-  // }), // Field doesn't exist in database
-  // dashboardPreferences: json("dashboard_preferences").$type<{
-  //   layoutType: 'simple' | 'detailed' | 'visual';
-  //   fontSize: 'small' | 'medium' | 'large' | 'extra-large';
-  //   highContrast: boolean;
-  //   reducedMotion: boolean;
-  //   cardSize: 'compact' | 'comfortable' | 'spacious';
-  //   showHelpTips: boolean;
-  //   quickActions: string[];
-  //   dashboardSections: {
-  //     favorites: { visible: boolean; order: number };
-  //     recentSearches: { visible: boolean; order: number };
-  //     recommendations: { visible: boolean; order: number };
-  //     savedCommunities: { visible: boolean; order: number };
-  //     tourSchedule: { visible: boolean; order: number };
-  //     familyNotes: { visible: boolean; order: number };
-  //   };
-  // }>().default({
-  //   layoutType: 'detailed',
-  //   fontSize: 'medium',
-  //   highContrast: false,
-  //   reducedMotion: false,
-  //   cardSize: 'comfortable',
-  //   showHelpTips: true,
-  //   quickActions: ['search', 'favorites', 'schedule-tour', 'family-share'],
-  //   dashboardSections: {
-  //     favorites: { visible: true, order: 1 },
-  //     recentSearches: { visible: true, order: 2 },
-  //     recommendations: { visible: true, order: 3 },
-  //     savedCommunities: { visible: true, order: 4 },
-  //     tourSchedule: { visible: true, order: 5 },
-  //     familyNotes: { visible: true, order: 6 }
-  //   }
-  // }), // Field doesn't exist in database
+  notifications: json("notifications").$type<{
+    emailNotifications: boolean;
+    smsNotifications: boolean;
+    newListings: boolean;
+    priceAlerts: boolean;
+    messageAlerts: boolean;
+    reviewReminders: boolean;
+  }>().default({
+    emailNotifications: true,
+    smsNotifications: false,
+    newListings: false,
+    priceAlerts: false,
+    messageAlerts: true,
+    reviewReminders: false,
+  }),
+  dashboardPreferences: json("dashboard_preferences").$type<{
+    layoutType: 'simple' | 'detailed' | 'visual';
+    fontSize: 'small' | 'medium' | 'large' | 'extra-large';
+    highContrast: boolean;
+    reducedMotion: boolean;
+    cardSize: 'compact' | 'comfortable' | 'spacious';
+    showHelpTips: boolean;
+    quickActions: string[];
+    dashboardSections: {
+      favorites: { visible: boolean; order: number };
+      recentSearches: { visible: boolean; order: number };
+      recommendations: { visible: boolean; order: number };
+      savedCommunities: { visible: boolean; order: number };
+      tourSchedule: { visible: boolean; order: number };
+      familyNotes: { visible: boolean; order: number };
+    };
+  }>().default({
+    layoutType: 'detailed',
+    fontSize: 'medium',
+    highContrast: false,
+    reducedMotion: false,
+    cardSize: 'comfortable',
+    showHelpTips: true,
+    quickActions: ['search', 'favorites', 'schedule-tour', 'family-share'],
+    dashboardSections: {
+      favorites: { visible: true, order: 1 },
+      recentSearches: { visible: true, order: 2 },
+      recommendations: { visible: true, order: 3 },
+      savedCommunities: { visible: true, order: 4 },
+      tourSchedule: { visible: true, order: 5 },
+      familyNotes: { visible: true, order: 6 }
+    }
+  }),
   emailVerified: boolean("email_verified").default(false),
   emailVerificationToken: text("email_verification_token"),
   passwordResetToken: text("password_reset_token"),
