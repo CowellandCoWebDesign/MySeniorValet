@@ -61,6 +61,8 @@ export default function CommunityDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedDateRange, setSelectedDateRange] = useState("30");
   const [isEditing, setIsEditing] = useState(false);
+  const [showTourDetails, setShowTourDetails] = useState(false);
+  const [selectedTour, setSelectedTour] = useState<any>(null);
   
   // Form state for contact information
   const [formData, setFormData] = useState({
@@ -114,6 +116,12 @@ export default function CommunityDashboard() {
   const { data: performance, isLoading: performanceLoading } = useQuery<any>({
     queryKey: [`/api/communities/${id}/dashboard/performance`],
     enabled: !!id && !!user,
+  });
+
+  // Fetch community tours
+  const { data: toursData, isLoading: toursLoading } = useQuery<{ tours: any[] }>({
+    queryKey: [`/api/tours/community/${id}`],
+    enabled: !!id && !!user && activeTab === 'tours',
   });
 
   // Generate report mutation
@@ -505,10 +513,11 @@ export default function CommunityDashboard() {
 
         {/* Main Dashboard */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="engagement">Engagement</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
+            <TabsTrigger value="tours">Tours</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="pricing">Pricing</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -1107,6 +1116,194 @@ export default function CommunityDashboard() {
             <div className="mt-8">
               <h3 className="text-xl font-bold mb-4">Advanced Analytics & Intelligence</h3>
               <AdvancedAnalytics timeRange="30d" showExport={true} autoRefresh={false} />
+            </div>
+          </TabsContent>
+
+          {/* Tours Tab */}
+          <TabsContent value="tours" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Calendar className="w-5 h-5 mr-2 text-blue-600" />
+                    Tour Management
+                  </div>
+                  <Badge variant="outline" className="text-sm">
+                    {toursData?.tours?.filter((t: any) => t.tour.status === 'scheduled').length || 0} Pending
+                  </Badge>
+                </CardTitle>
+                <CardDescription>
+                  Manage scheduled tours and appointments for your community
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {toursLoading ? (
+                  <div className="space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="animate-pulse">
+                        <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                      </div>
+                    ))}
+                  </div>
+                ) : toursData?.tours?.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No Tours Scheduled</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      You don't have any tours scheduled yet. Tours will appear here when families request them.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Today's Tours */}
+                    {toursData?.tours?.filter((t: any) => {
+                      const tourDate = new Date(t.tour.tourDate);
+                      const today = new Date();
+                      return tourDate.toDateString() === today.toDateString();
+                    }).length > 0 && (
+                      <div>
+                        <h3 className="font-semibold text-sm mb-3 flex items-center">
+                          <Clock className="w-4 h-4 mr-2 text-green-600" />
+                          Today's Tours
+                        </h3>
+                        <div className="space-y-2">
+                          {toursData?.tours?.filter((t: any) => {
+                            const tourDate = new Date(t.tour.tourDate);
+                            const today = new Date();
+                            return tourDate.toDateString() === today.toDateString();
+                          }).map((tour: any) => (
+                            <div key={tour.tour.id} className="border-l-4 border-l-green-500 bg-green-50 dark:bg-green-900/20 p-3 rounded">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <p className="font-semibold">
+                                    {new Date(tour.tour.tourDate).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} - 
+                                    {tour.user.firstName} {tour.user.lastName}
+                                  </p>
+                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    {tour.tour.tourType === 'virtual' ? '💻 Virtual' : '🏢 In-Person'} • 
+                                    {tour.tour.attendeeCount} {tour.tour.attendeeCount === 1 ? 'person' : 'people'}
+                                  </p>
+                                  {tour.tour.specialRequests && (
+                                    <p className="text-xs mt-1 text-amber-700 dark:text-amber-400">
+                                      Note: {tour.tour.specialRequests}
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="flex gap-2">
+                                  {tour.tour.status === 'scheduled' && (
+                                    <Button size="sm" variant="outline">
+                                      <CheckCircle className="w-3 h-3 mr-1" />
+                                      Confirm
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Upcoming Tours */}
+                    {toursData?.tours?.filter((t: any) => {
+                      const tourDate = new Date(t.tour.tourDate);
+                      const today = new Date();
+                      return tourDate > today;
+                    }).length > 0 && (
+                      <div>
+                        <h3 className="font-semibold text-sm mb-3 flex items-center">
+                          <CalendarDays className="w-4 h-4 mr-2 text-blue-600" />
+                          Upcoming Tours
+                        </h3>
+                        <div className="space-y-2">
+                          {toursData?.tours?.filter((t: any) => {
+                            const tourDate = new Date(t.tour.tourDate);
+                            const today = new Date();
+                            return tourDate > today;
+                          }).slice(0, 5).map((tour: any) => (
+                            <div key={tour.tour.id} className="border rounded p-3">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <p className="font-semibold">
+                                    {new Date(tour.tour.tourDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at {' '}
+                                    {new Date(tour.tour.tourDate).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                                  </p>
+                                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    {tour.user.firstName} {tour.user.lastName} • {tour.user.email}
+                                  </p>
+                                </div>
+                                <Badge variant={tour.tour.status === 'confirmed' ? 'default' : 'secondary'}>
+                                  {tour.tour.status}
+                                </Badge>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* View All Tours Button */}
+                    {toursData?.tours?.length > 5 && (
+                      <Button 
+                        variant="outline" 
+                        className="w-full"
+                        onClick={() => setLocation(`/community/${id}/tours`)}
+                      >
+                        View All Tours ({toursData?.tours?.length})
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Tour Statistics */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">This Month</p>
+                      <p className="text-2xl font-bold">
+                        {toursData?.tours?.filter((t: any) => {
+                          const tourDate = new Date(t.tour.tourDate);
+                          const now = new Date();
+                          return tourDate.getMonth() === now.getMonth() && tourDate.getFullYear() === now.getFullYear();
+                        }).length || 0}
+                      </p>
+                    </div>
+                    <Calendar className="h-8 w-8 text-blue-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Conversion Rate</p>
+                      <p className="text-2xl font-bold">
+                        {toursData?.tours?.length > 0 
+                          ? Math.round((toursData?.tours?.filter((t: any) => t.tour.status === 'completed').length / toursData?.tours?.length) * 100)
+                          : 0}%
+                      </p>
+                    </div>
+                    <TrendingUp className="h-8 w-8 text-green-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">No Shows</p>
+                      <p className="text-2xl font-bold">
+                        {toursData?.tours?.filter((t: any) => t.tour.status === 'no_show').length || 0}
+                      </p>
+                    </div>
+                    <AlertCircle className="h-8 w-8 text-red-500" />
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
