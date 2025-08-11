@@ -16,7 +16,7 @@ import reservationRoutes from "./routes/reservations";
 import { quizRouter } from "./routes/quiz";
 import subscriptionRoutes from "./routes/subscriptionRoutes";
 import { db } from "./db";
-import { eq, or, like, desc, and } from "drizzle-orm";
+import { eq, or, like, desc } from "drizzle-orm";
 import cookieParser from "cookie-parser";
 import { isAuthenticated } from "./replitAuth";
 import { storage } from "./storage";
@@ -74,10 +74,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register messaging routes
   const messagingRoutes = await import('./routes/messagingRoutes');
   app.use('/api/messaging', messagingRoutes.default);
-  
-  // Register communication routes (family invitations, notifications, WebSocket)
-  const { registerCommunicationRoutes } = await import('./routes/communicationRoutes');
-  registerCommunicationRoutes(app);
   
   // Register engagement routes
   const { registerEngagementRoutes } = await import('./routes/engagementRoutes');
@@ -275,11 +271,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const offset = (pageNum - 1) * limit;
       
       // Build query - only selecting columns that exist in our schema
-      const conditions = [];
-      
-      // Apply search filter
+      let query = db.select({
+        id: users.id,
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        role: users.role,
+        isActive: users.isActive,
+        createdAt: users.createdAt
+      }).from(users);
+
+      // Apply filters
       if (search) {
-        conditions.push(
+        query = query.where(
           or(
             like(users.email, `%${search}%`),
             like(users.firstName, `%${search}%`),
@@ -288,23 +292,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
       }
 
-      // Apply role filter
       if (role !== 'all') {
-        conditions.push(eq(users.role, role as any));
+        query = query.where(eq(users.role, role as string));
       }
 
-      const allUsers = await db.select({
-        id: users.id,
-        email: users.email,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        role: users.role,
-        isActive: users.isActive,
-        createdAt: users.createdAt
-      })
-      .from(users)
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
-      .orderBy(desc(users.createdAt));
+      const allUsers = await query.orderBy(desc(users.createdAt));
       
       res.json(allUsers);
     } catch (error) {

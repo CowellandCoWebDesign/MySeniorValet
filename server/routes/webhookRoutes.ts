@@ -10,24 +10,6 @@ import { sendCommunityWelcomeEmail, sendVendorWelcomeEmail } from '../services/t
 const router = Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
-// Helper function to get tier name from product ID
-function getTierNameFromProductId(productId: string): string {
-  const tierMappings: { [key: string]: string } = {
-    // Community tiers
-    'verified': 'Verified Listing',
-    'standard': 'Standard Listing',
-    'featured-spotlight': 'Featured Spotlight',
-    'platinum-partner': 'Platinum Partner',
-    
-    // Vendor tiers
-    'vendor-basic': 'Basic Services',
-    'vendor-featured': 'Featured Services',
-    'vendor-national': 'National Network'
-  };
-  
-  return tierMappings[productId] || 'Unknown Tier';
-}
-
 // Stripe webhook endpoint - handles subscription events
 router.post('/webhook', async (req: Request, res: Response) => {
   const sig = req.headers['stripe-signature'] as string;
@@ -235,38 +217,8 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
 
       console.log(`⚠️ Subscription ${invoice.subscription} marked as past_due`);
       
-      // Send email notification about payment failure
-      const community = subscription[0].communityId ? 
-        await db.select().from(communities).where(eq(communities.id, subscription[0].communityId)).limit(1) : 
-        [];
-      
-      if (community.length > 0 && community[0].email) {
-        await paymentNotificationService.sendPaymentNotification({
-          type: 'payment_failed',
-          customerEmail: community[0].email,
-          tierName: getTierNameFromProductId(subscription[0].productId || ''),
-          amount: Math.round((invoice.amount_due || 0) / 100),
-          subscriptionType: 'community',
-          metadata: { 
-            communityId: subscription[0].communityId,
-            invoiceId: invoice.id,
-            attemptCount: invoice.attempt_count || 1
-          }
-        });
-      }
-      
-      // Disable premium features after 3 failed attempts
-      if (invoice.attempt_count && invoice.attempt_count >= 3) {
-        await db
-          .update(communities)
-          .set({ 
-            subscriptionTier: 'verified',
-            updatedAt: new Date()
-          })
-          .where(eq(communities.id, subscription[0].communityId!));
-        
-        console.log(`⚠️ Premium features disabled for community ${subscription[0].communityId} after ${invoice.attempt_count} failed payment attempts`);
-      }
+      // TODO: Send email notification to community admin
+      // TODO: Disable premium features if payment remains failed
     }
   }
 }
@@ -318,42 +270,8 @@ async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
 
       console.log(`❌ Subscription ${subscription.id} marked as canceled`);
       
-      // Send cancellation email notification
-      const community = subscriptionRecord[0].communityId ? 
-        await db.select().from(communities).where(eq(communities.id, subscriptionRecord[0].communityId)).limit(1) : 
-        [];
-      
-      if (community.length > 0 && community[0].email) {
-        await paymentNotificationService.sendPaymentNotification({
-          type: 'subscription_cancelled',
-          customerEmail: community[0].email,
-          tierName: getTierNameFromProductId(subscriptionRecord[0].productId || ''),
-          amount: 0, // No charge for cancellation
-          subscriptionType: 'community',
-          metadata: { 
-            communityId: subscriptionRecord[0].communityId,
-            subscriptionId: subscription.id,
-            cancelledAt: new Date().toISOString(),
-            gracePerioEndDate: subscription.current_period_end ? 
-              new Date(subscription.current_period_end * 1000).toISOString() : null
-          }
-        });
-      }
-      
-      // Schedule feature deactivation at end of current period (grace period)
-      if (subscription.current_period_end && subscriptionRecord[0].communityId) {
-        const graceEndDate = new Date(subscription.current_period_end * 1000);
-        console.log(`📅 Features will be disabled on ${graceEndDate.toISOString()} for community ${subscriptionRecord[0].communityId}`);
-        
-        // Store grace period end date for batch processing
-        await db
-          .update(communities)
-          .set({ 
-            subscriptionGracePeriodEnd: graceEndDate,
-            updatedAt: new Date()
-          })
-          .where(eq(communities.id, subscriptionRecord[0].communityId));
-      }
+      // TODO: Send cancellation email to community admin
+      // TODO: Schedule feature deactivation (grace period)
     }
   }
 }

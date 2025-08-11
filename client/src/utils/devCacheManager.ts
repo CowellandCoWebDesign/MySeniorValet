@@ -89,27 +89,25 @@ export class DevCacheManager {
   }
   
   private startUpdateCheck(): void {
-    // Disabled - causing reload issues
     // Check for updates every 5 seconds in dev mode
-    // this.updateCheckInterval = window.setInterval(() => {
-    //   this.checkForUpdates();
-    // }, 5000);
+    this.updateCheckInterval = window.setInterval(() => {
+      this.checkForUpdates();
+    }, 5000);
   }
   
   private async checkForUpdates(): Promise<void> {
-    // Disabled - causing reload issues
-    // try {
-    //   const response = await fetch(`/api/dev/version?_t=${Date.now()}`);
-    //   if (response.ok) {
-    //     const data = await response.json();
-    //     if (data.version && data.version !== this.versionHash) {
-    //       console.log('🔄 New version detected, reloading...');
-    //       window.location.reload();
-    //     }
-    //   }
-    // } catch (error) {
-    //   // Silently fail - this is just a dev helper
-    // }
+    try {
+      const response = await fetch(`/api/dev/version?_t=${Date.now()}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.version && data.version !== this.versionHash) {
+          console.log('🔄 New version detected, reloading...');
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      // Silently fail - this is just a dev helper
+    }
   }
   
   private handleVisibilityChange(): void {

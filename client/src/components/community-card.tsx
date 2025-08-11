@@ -3,8 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FamilyShareButton } from './family-share-button';
-import { MessageCommunityButton } from './message-community-button';
-import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead, ChevronDown, ChevronUp, ImageIcon, ShieldCheck, MessageCircle } from "lucide-react";
+import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead, ChevronDown, ChevronUp, ImageIcon, ShieldCheck } from "lucide-react";
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 import { PhotoCarousel } from "@/components/photo-carousel";
@@ -280,8 +279,8 @@ export function CommunityCard({ community }: CommunityCardProps) {
                     phone: community.phone || undefined,
                     website: community.website || undefined
                   }}
-                  size="sm"
-                  variant="default"
+                  size="icon"
+                  variant="ghost"
                   className="p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white/90 dark:hover:bg-gray-700/90 transition-all duration-300 group shadow-lg transform hover:scale-110 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 delay-75"
                 />
               </div>
@@ -371,8 +370,8 @@ export function CommunityCard({ community }: CommunityCardProps) {
             {/* Housing Type Badge */}
             {community.communitySubtype && (
               <div className="mb-2">
-                <Badge className={`${getCommunitySubtypeLabel(community.communitySubtype)?.color || 'bg-gray-500'} text-white text-xs`}>
-                  {getCommunitySubtypeLabel(community.communitySubtype)?.badge || community.communitySubtype}
+                <Badge className={`${getCommunitySubtypeLabel(community.communitySubtype).color} text-white text-xs`}>
+                  {getCommunitySubtypeLabel(community.communitySubtype).badge}
                 </Badge>
               </div>
             )}
@@ -1016,27 +1015,14 @@ export function CommunityCard({ community }: CommunityCardProps) {
             )}
           </div>
           
-          {/* Messaging and Family Share Buttons */}
-          <div className="flex space-x-3">
-            {/* Message Community Button */}
-            <div className="flex-1" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-              <MessageCommunityButton 
-                community={community}
-                variant="outline"
-                size="default"
-                className="w-full px-6 py-2 border-2 border-green-200 hover:border-green-300 hover:bg-green-50 text-green-700 hover:text-green-800"
-              />
-            </div>
-            
-            {/* Family Share Button */}
-            <div className="flex-1" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-              <FamilyShareButton 
-                community={community} 
-                variant="outline" 
-                size="default"
-                className="w-full px-6 py-2 border-2 border-purple-200 hover:border-purple-300 hover:bg-purple-50 text-purple-700 hover:text-purple-800"
-              />
-            </div>
+          {/* Family Share Button */}
+          <div className="flex justify-center">
+            <FamilyShareButton 
+              community={community} 
+              variant="outline" 
+              size="default"
+              className="px-8 py-2 border-2 border-purple-200 hover:border-purple-300 hover:bg-purple-50 text-purple-700 hover:text-purple-800"
+            />
           </div>
         </div>
       </CardContent>
