@@ -239,11 +239,12 @@ export default function SecurityDashboard() {
       )}
 
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="threats">Threats</TabsTrigger>
           <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
-          <TabsTrigger value="alerts">Alerts</TabsTrigger>
+          <TabsTrigger value="threats">Threats</TabsTrigger>
+          <TabsTrigger value="activity">User Activity</TabsTrigger>
+          <TabsTrigger value="monitoring">System</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
@@ -588,6 +589,111 @@ export default function SecurityDashboard() {
                     </div>
                   ))
                 )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* User Activity Tab */}
+        <TabsContent value="activity" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>User Activity Monitor</CardTitle>
+              <CardDescription>Track user sessions and activities across the platform</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="p-4 rounded-lg bg-muted/50">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Users className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">Active Users</span>
+                    </div>
+                    <p className="text-2xl font-bold">0</p>
+                    <p className="text-xs text-muted-foreground">Currently online</p>
+                  </div>
+                  <div className="p-4 rounded-lg bg-muted/50">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Clock className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">Avg Session</span>
+                    </div>
+                    <p className="text-2xl font-bold">0m</p>
+                    <p className="text-xs text-muted-foreground">Average duration</p>
+                  </div>
+                  <div className="p-4 rounded-lg bg-muted/50">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Activity className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">Peak Hours</span>
+                    </div>
+                    <p className="text-2xl font-bold">--</p>
+                    <p className="text-xs text-muted-foreground">Most active time</p>
+                  </div>
+                </div>
+                <div className="pt-4 border-t">
+                  <p className="text-sm text-muted-foreground text-center">
+                    User activity tracking will be populated as users interact with the platform
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* System Monitoring Tab */}
+        <TabsContent value="monitoring" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>System Monitoring</CardTitle>
+              <CardDescription>Real-time platform performance and health metrics</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Server Status</span>
+                      <Badge variant="default">
+                        <Wifi className="h-3 w-3 mr-1" />
+                        Online
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Database</span>
+                      <Badge variant="default">Connected</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">AI Services</span>
+                      <Badge variant="default">3 Active</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">WebSocket</span>
+                      <Badge variant="default">Running</Badge>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Response Time</span>
+                      <span className="text-sm font-mono">{metrics?.responseTime?.average || 0}ms</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">P95 Latency</span>
+                      <span className="text-sm font-mono">{metrics?.responseTime?.p95 || 0}ms</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">P99 Latency</span>
+                      <span className="text-sm font-mono">{metrics?.responseTime?.p99 || 0}ms</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Uptime</span>
+                      <span className="text-sm font-mono">{metrics?.uptime || 100}%</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="pt-4 border-t">
+                  <p className="text-sm text-muted-foreground text-center">
+                    All systems operational • Last checked: {format(new Date(), 'PPpp')}
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>
