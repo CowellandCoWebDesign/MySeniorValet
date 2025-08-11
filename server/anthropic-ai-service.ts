@@ -180,4 +180,30 @@ export class AnthropicAIService {
   static interpretSearchQuery = interpretSearchQuery;
   static generateSearchSuggestions = generateSearchSuggestions;
   static enhanceSearchResults = enhanceSearchResults;
+  
+  // Instance methods for AI matching compatibility
+  isConfigured(): boolean {
+    return !!process.env.ANTHROPIC_API_KEY;
+  }
+  
+  async analyze(prompt: string): Promise<string> {
+    try {
+      if (!this.isConfigured()) {
+        return 'AI service not configured';
+      }
+      
+      const response = await anthropic.messages.create({
+        model: DEFAULT_MODEL_STR,
+        max_tokens: 1024,
+        messages: [
+          { role: 'user', content: prompt }
+        ],
+      });
+      
+      return response.content[0].type === 'text' ? response.content[0].text : '';
+    } catch (error) {
+      console.error('Error in AI analysis:', error);
+      return 'Analysis unavailable at this time';
+    }
+  }
 }

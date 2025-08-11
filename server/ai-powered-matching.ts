@@ -26,30 +26,73 @@ export class AIPoweredMatching {
 
   async findBestMatches(profile: CareNeedsProfile, limit: number = 10): Promise<MatchingResult[]> {
     try {
+      console.log('AI Matching: Starting findBestMatches with profile:', profile);
+      
       // Get communities based on location and basic filters
       const baseCommunities = await this.getBaseCommunities(profile);
+      console.log(`AI Matching: Found ${baseCommunities.length} base communities`);
       
-      // Use AI to analyze and score matches
+      // If no communities found, return empty array
+      if (baseCommunities.length === 0) {
+        console.log('AI Matching: No communities found for criteria');
+        return [];
+      }
+      
+      // Use AI to analyze and score matches (with parallel processing and timeout)
       const matchResults: MatchingResult[] = [];
       
-      for (const community of baseCommunities.slice(0, 20)) {
-        const matchScore = await this.calculateAIMatchScore(profile, community);
-        const aiInsights = await this.generateAIInsights(profile, community);
-        const priceAnalysis = await this.generatePriceAnalysis(profile, community);
-        
-        matchResults.push({
-          community,
-          matchScore,
-          matchReasons: this.getMatchReasons(profile, community),
-          aiInsights,
-          priceAnalysis
-        });
-      }
+      // Process up to 10 communities in parallel for better performance
+      const communitiesToProcess = baseCommunities.slice(0, 10);
+      
+      const promises = communitiesToProcess.map(async (community) => {
+        try {
+          // Add timeout protection for AI calls
+          const [matchScore, aiInsights, priceAnalysis] = await Promise.all([
+            Promise.race([
+              this.calculateAIMatchScore(profile, community),
+              new Promise<number>((resolve) => setTimeout(() => resolve(50), 3000))
+            ]),
+            Promise.race([
+              this.generateAIInsights(profile, community),
+              new Promise<string>((resolve) => setTimeout(() => resolve('Analysis in progress...'), 3000))
+            ]),
+            Promise.race([
+              this.generatePriceAnalysis(profile, community),
+              new Promise<string>((resolve) => setTimeout(() => resolve('Price analysis pending...'), 3000))
+            ])
+          ]);
+          
+          return {
+            community,
+            matchScore,
+            matchReasons: this.getMatchReasons(profile, community),
+            aiInsights,
+            priceAnalysis
+          };
+        } catch (err) {
+          console.error(`AI Matching: Error processing community ${community.name}:`, err);
+          return {
+            community,
+            matchScore: 50,
+            matchReasons: this.getMatchReasons(profile, community),
+            aiInsights: 'Analysis temporarily unavailable',
+            priceAnalysis: 'Price analysis temporarily unavailable'
+          };
+        }
+      });
+      
+      const results = await Promise.all(promises);
+      matchResults.push(...results);
 
+      console.log(`AI Matching: Processed ${matchResults.length} communities`);
+      
       // Sort by match score and return top results
-      return matchResults
+      const topResults = matchResults
         .sort((a, b) => b.matchScore - a.matchScore)
         .slice(0, limit);
+        
+      console.log(`AI Matching: Returning ${topResults.length} top matches`);
+      return topResults;
         
     } catch (error) {
       console.error('AI matching error:', error);
@@ -60,6 +103,8 @@ export class AIPoweredMatching {
   private async getBaseCommunities(profile: CareNeedsProfile): Promise<Community[]> {
     // Get communities from primary preferred location
     const primaryLocation = profile.location.preferred[0];
+    
+    // Storage layer now handles care type mapping from lowercase to proper names
     return await storage.searchCommunities({
       location: primaryLocation,
       careType: profile.careLevel,

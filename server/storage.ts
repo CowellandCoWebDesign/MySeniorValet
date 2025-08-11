@@ -900,9 +900,29 @@ export class DatabaseStorage implements IStorage {
     const conditions = [];
 
     if (params.careType && params.careType !== "All Types" && params.careType !== "Veterans Housing") {
-      // Handle other care types normally
+      // Handle other care types normally - check for both exact match and lowercase input
       const careType = params.careType.trim();
-      conditions.push(sql.raw(`'${careType}' = ANY(care_types)`));
+      
+      // Map common lowercase variants to proper care type names
+      const careTypeMap: Record<string, string> = {
+        'independent': 'Independent Living',
+        'assisted': 'Assisted Living',
+        'memory_care': 'Memory Care',
+        'memory care': 'Memory Care',
+        'skilled_nursing': 'Skilled Nursing',
+        'skilled nursing': 'Skilled Nursing',
+        'continuing care': 'Continuing Care',
+        'adult day care': 'Adult Day Care',
+        'hospice care': 'Hospice Care',
+        'respite care': 'Respite Care',
+        'home care': 'Home Care',
+        'board and care': 'Board & Care',
+        'board & care': 'Board & Care'
+      };
+      
+      // Use mapped care type if available, otherwise use original
+      const mappedCareType = careTypeMap[careType.toLowerCase()] || careType;
+      conditions.push(sql.raw(`'${mappedCareType}' = ANY(care_types)`));
     }
 
     if (params.location) {
