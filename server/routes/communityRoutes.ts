@@ -552,6 +552,55 @@ export function registerCommunityRoutes(app: Express) {
       const perplexityService = new PerplexityAIService();
       if (perplexityService.isConfigured()) {
         try {
+          // Define sentence splitting function that handles abbreviations
+          const splitSentences = (text: string): string[] => {
+            // Replace common abbreviations with placeholders to prevent splitting
+            const abbrevs = [
+              ['St.', '__ST__'],
+              ['Dr.', '__DR__'],
+              ['Mr.', '__MR__'],
+              ['Mrs.', '__MRS__'],
+              ['Ms.', '__MS__'],
+              ['Sr.', '__SR__'],
+              ['Jr.', '__JR__'],
+              ['Ave.', '__AVE__'],
+              ['Blvd.', '__BLVD__'],
+              ['Co.', '__CO__'],
+              ['Inc.', '__INC__'],
+              ['Ltd.', '__LTD__'],
+              ['vs.', '__VS__'],
+              ['U.S.', '__US__'],
+              ['U.K.', '__UK__'],
+              ['Ph.D.', '__PHD__'],
+              ['M.D.', '__MD__'],
+              ['R.N.', '__RN__'],
+              ['B.A.', '__BA__'],
+              ['M.A.', '__MA__'],
+              ['D.C.', '__DC__'],
+              ['Ph.D', '__PHD__'],
+              ['M.D', '__MD__'],
+              ['CA.', '__CA__'],
+              ['CA,', '__CACOMMA__']
+            ];
+            
+            let processedText = text;
+            for (const [abbrev, placeholder] of abbrevs) {
+              processedText = processedText.replace(new RegExp(abbrev.replace('.', '\\.'), 'gi'), placeholder);
+            }
+            
+            // Split by sentence-ending punctuation followed by space and capital letter
+            const rawSentences = processedText.split(/(?<=[.!?])\s+(?=[A-Z])/);
+            
+            // Restore abbreviations and clean up
+            return rawSentences.map(sentence => {
+              let restored = sentence;
+              for (const [abbrev, placeholder] of abbrevs) {
+                restored = restored.replace(new RegExp(placeholder, 'g'), abbrev);
+              }
+              return restored.trim();
+            }).filter(s => s.length > 10);
+          };
+
           // Query for current availability and pricing
           const availabilityQuery = `What is the current availability and pricing at ${community.name} senior living community in ${community.city}, ${community.state}? Include any waitlist information, current room availability, and latest pricing for different care levels.`;
           
@@ -579,25 +628,30 @@ export function registerCommunityRoutes(app: Express) {
             // Extract availability status
             if (availabilityResult.summary.toLowerCase().includes('available') || 
                 availabilityResult.summary.toLowerCase().includes('availability')) {
-              realTimeData.currentAvailability = availabilityResult.summary.split('.')[0];
+              // Use the same sentence splitting function to avoid breaking on abbreviations
+              const availSentences = splitSentences(availabilityResult.summary);
+              if (availSentences.length > 0) {
+                realTimeData.currentAvailability = availSentences[0];
+              }
             }
 
             // Extract waitlist information
             if (availabilityResult.summary.toLowerCase().includes('waitlist') || 
                 availabilityResult.summary.toLowerCase().includes('waiting list')) {
-              const waitlistSentences = availabilityResult.summary.split('.').filter(s => 
+              const availSentences = splitSentences(availabilityResult.summary);
+              const waitlistSentences = availSentences.filter(s => 
                 s.toLowerCase().includes('waitlist') || s.toLowerCase().includes('waiting')
               );
               if (waitlistSentences.length > 0) {
-                realTimeData.waitlistStatus = waitlistSentences[0].trim();
+                realTimeData.waitlistStatus = waitlistSentences[0];
               }
             }
           }
 
           // Parse news and updates
           if (newsResult.summary) {
-            const sentences = newsResult.summary.split('.').filter(s => s.trim().length > 10);
-            realTimeData.recentNews = sentences.slice(0, 3).map(s => s.trim());
+            const sentences = splitSentences(newsResult.summary);
+            realTimeData.recentNews = sentences.slice(0, 3);
             
             // Extract highlights
             if (newsResult.summary.toLowerCase().includes('award') || 
