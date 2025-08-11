@@ -71,10 +71,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/go/amazon', amazonRedirectRoutes.default);
   app.use('/api/amazon-compliance', amazonComplianceRoutes.default);
   
-  // Register notification routes
-  const notificationRoutes = await import('./routes/notificationRoutes');
-  app.use('/api/notifications', notificationRoutes.default);
-  
   // Register messaging routes
   const messagingRoutes = await import('./routes/messagingRoutes');
   app.use('/api/messaging', messagingRoutes.default);
