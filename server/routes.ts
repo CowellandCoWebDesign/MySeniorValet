@@ -53,14 +53,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { tourRouter } = await import('./routes/tourRoutes');
   app.use(tourRouter);
   
-  // Register TourMate™ analytics, security, and privacy routes
-  const tourMateRoutes = await import('./routes/tourmate-routes');
-  app.use(tourMateRoutes.default);
-  
-  // Register notification configuration routes
-  const notificationConfigRoutes = await import('./routes/notificationConfigRoutes');
-  app.use('/api', notificationConfigRoutes.default);
-  
   // Import and register webhook routes
   const webhookRoutes = await import('./routes/webhookRoutes');
   const webhookDevelopment = await import('./routes/webhookDevelopment');

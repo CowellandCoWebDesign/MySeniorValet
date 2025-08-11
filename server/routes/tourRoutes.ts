@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { db } from '../db';
-import { tours, communities, users, userFavorites, tourFeedback, communityNotificationConfig } from '@shared/schema';
+import { tours, communities, users, userFavorites, tourFeedback } from '@shared/schema';
 import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 import { EmailService } from '../services/email';
 import { format } from 'date-fns';
@@ -156,61 +156,7 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
       }
     );
 
-    // Get notification configuration for the community
-    const [notificationConfig] = await db
-      .select()
-      .from(communityNotificationConfig)
-      .where(eq(communityNotificationConfig.communityId, communityId));
-
-    // Build recipient list based on configuration
-    const recipients = [];
-    const ccRecipients = ['hello@myseniorvalet.com', 'billing@myseniorvalet.com']; // Always CC these
-    
-    if (notificationConfig) {
-      // Add recipients based on configuration
-      if (notificationConfig.sendToAll) {
-        // Send to all configured recipients simultaneously
-        if (notificationConfig.ownerEmail) recipients.push(notificationConfig.ownerEmail);
-        if (notificationConfig.regionalDirectorEmail) recipients.push(notificationConfig.regionalDirectorEmail);
-        if (notificationConfig.salesDirectorEmail) recipients.push(notificationConfig.salesDirectorEmail);
-        
-        // Add custom recipients
-        if (notificationConfig.customRecipients && Array.isArray(notificationConfig.customRecipients)) {
-          const customEmails = notificationConfig.customRecipients
-            .filter((r: any) => r.email)
-            .map((r: any) => r.email);
-          recipients.push(...customEmails);
-        }
-      } else {
-        // Send based on notification order priority
-        const order = notificationConfig.notificationOrder || ['owner', 'regional_director', 'sales_director'];
-        for (const role of order) {
-          switch (role) {
-            case 'owner':
-              if (notificationConfig.ownerEmail) {
-                recipients.push(notificationConfig.ownerEmail);
-                if (!notificationConfig.sendToAll) break; // Stop after first recipient if not sending to all
-              }
-              break;
-            case 'regional_director':
-              if (notificationConfig.regionalDirectorEmail) {
-                recipients.push(notificationConfig.regionalDirectorEmail);
-                if (!notificationConfig.sendToAll) break;
-              }
-              break;
-            case 'sales_director':
-              if (notificationConfig.salesDirectorEmail) {
-                recipients.push(notificationConfig.salesDirectorEmail);
-                if (!notificationConfig.sendToAll) break;
-              }
-              break;
-          }
-          if (recipients.length > 0 && !notificationConfig.sendToAll) break; // Stop after first recipient found
-        }
-      }
-    }
-
-    // Find best available community email as fallback
+    // Find best available community email
     const findBestCommunityEmail = () => {
       return community.communityManagerEmail || 
              community.email || 
@@ -219,19 +165,12 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
     };
     
     const communityEmail = findBestCommunityEmail();
-    
-    // Use configured recipients or fallback to community email
-    if (recipients.length === 0 && communityEmail) {
-      recipients.push(communityEmail);
-    }
-    
     const isTestMode = true; // Always in test mode for now
     const isClaimed = community.isClaimed || false;
     
-    if (recipients.length > 0 || isTestMode) {
+    if (communityEmail || isTestMode) {
       try {
-        // Send to configured recipients or test mode
-        const emailToList = isTestMode && recipients.length === 0 ? ['hello@myseniorvalet.com'] : recipients;
+        const emailTo = isTestMode ? 'hello@myseniorvalet.com' : communityEmail || 'hello@myseniorvalet.com';
         
         // Different subject lines for claimed vs unclaimed
         const subject = isClaimed 
@@ -355,16 +294,13 @@ router.post('/api/tours/schedule', async (req: Request, res: Response) => {
           </div>
         `;
         
-        // Send to each recipient with CC list
-        for (const emailTo of emailToList) {
-          await EmailService.sendEmail({
-            to: emailTo,
-            cc: ccRecipients, // Always CC hello@myseniorvalet.com and billing@myseniorvalet.com
-            subject: subject,
-            html: emailHtml
-          });
-          console.log(`Community notification sent to: ${emailTo}${isTestMode ? ' (TEST MODE)' : ''}`);
-        }
+        await EmailService.sendEmail({
+          to: emailTo,
+          cc: isTestMode ? [] : ['hello@myseniorvalet.com'], // CC in production only
+          subject: subject,
+          html: emailHtml
+        });
+        console.log(`Community notification sent to: ${isTestMode ? 'hello@myseniorvalet.com (TEST MODE)' : emailTo}`);
       } catch (error) {
         console.error('Error sending community notification:', error);
         // Don't fail the tour scheduling if community notification fails
@@ -459,104 +395,6 @@ router.get('/api/tours/community/:communityId', async (req: Request, res: Respon
   } catch (error) {
     console.error('Error fetching community tours:', error);
     res.status(500).json({ error: 'Failed to fetch community tours' });
-  }
-});
-
-// Reschedule a tour
-router.post('/api/tours/:tourId/reschedule', async (req: Request, res: Response) => {
-  try {
-    const tourId = parseInt(req.params.tourId);
-    const { newDate, newTime } = req.body;
-    
-    if (!newDate || !newTime) {
-      return res.status(400).json({ error: 'New date and time are required' });
-    }
-    
-    // Get tour details
-    const [tour] = await db
-      .select({
-        tour: tours,
-        community: communities,
-        user: users
-      })
-      .from(tours)
-      .leftJoin(communities, eq(tours.communityId, communities.id))
-      .leftJoin(users, eq(tours.userId, users.id))
-      .where(eq(tours.id, tourId));
-
-    if (!tour) {
-      return res.status(404).json({ error: 'Tour not found' });
-    }
-
-    // Check authorization
-    if (req.user?.id !== tour.tour.userId && req.user?.role !== 'admin') {
-      return res.status(403).json({ error: 'Not authorized to reschedule this tour' });
-    }
-
-    // Combine new date and time
-    const newTourDateTime = new Date(`${newDate}T${newTime}`);
-    
-    // Update tour with new date and status
-    await db
-      .update(tours)
-      .set({ 
-        tourDate: newTourDateTime,
-        status: 'rescheduled',
-        updatedAt: new Date()
-      })
-      .where(eq(tours.id, tourId));
-
-    // Send reschedule confirmation email
-    if (tour.user?.email) {
-      await EmailService.sendEmail({
-        to: tour.user.email,
-        subject: `Tour Rescheduled - ${tour.community?.name}`,
-        html: `
-          <h2>Tour Rescheduled Successfully</h2>
-          <p>Your tour at <strong>${tour.community?.name}</strong> has been rescheduled.</p>
-          <h3>New Tour Details:</h3>
-          <ul>
-            <li><strong>Date:</strong> ${format(newTourDateTime, 'EEEE, MMMM d, yyyy')}</li>
-            <li><strong>Time:</strong> ${format(newTourDateTime, 'h:mm a')}</li>
-            <li><strong>Location:</strong> ${tour.community?.address}, ${tour.community?.city}, ${tour.community?.state}</li>
-          </ul>
-          <p>We look forward to seeing you!</p>
-        `
-      });
-    }
-
-    // Notify community if they have an email
-    const communityEmail = tour.community?.communityManagerEmail || 
-                          tour.community?.email || 
-                          tour.community?.managementEmail;
-    
-    if (communityEmail && tour.community?.isClaimed) {
-      try {
-        await EmailService.sendEmail({
-          to: communityEmail,
-          subject: `Tour Rescheduled - ${tour.user?.firstName || 'Guest'} ${tour.user?.lastName || ''}`,
-          html: `
-            <h2>Tour Rescheduled</h2>
-            <p>A scheduled tour has been rescheduled.</p>
-            <h3>New Tour Details:</h3>
-            <ul>
-              <li><strong>New Date:</strong> ${format(newTourDateTime, 'EEEE, MMMM d, yyyy at h:mm a')}</li>
-              <li><strong>Original Date:</strong> ${format(tour.tour.tourDate, 'EEEE, MMMM d, yyyy at h:mm a')}</li>
-              <li><strong>Guest:</strong> ${tour.user?.firstName || 'Guest'} ${tour.user?.lastName || ''}</li>
-              <li><strong>Contact:</strong> ${tour.user?.email || 'N/A'}</li>
-              <li><strong>Phone:</strong> ${tour.user?.phone || 'N/A'}</li>
-            </ul>
-          `
-        });
-      } catch (error) {
-        console.error('Error sending community reschedule notification:', error);
-      }
-    }
-
-    res.json({ success: true, message: 'Tour rescheduled successfully' });
-  } catch (error) {
-    console.error('Error rescheduling tour:', error);
-    res.status(500).json({ error: 'Failed to reschedule tour' });
   }
 });
 

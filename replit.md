@@ -3,8 +3,6 @@
 ## Overview
 MySeniorValet is a technology platform connecting families with publicly available information about over 34,000 senior living communities in the U.S. and Canada. It acts as a facilitator, using advanced AI orchestration to gather, organize, and present public information, including verified HUD pricing. The platform's vision is to empower families with authentic, verified data for informed decision-making in senior living, bringing much-needed transparency to the market.
 
-**TourMate™ Integration**: The platform now includes TourMate™, a fully custom enterprise-level tour scheduling system with comprehensive analytics, security, and privacy features competitive with third-party services. This proprietary system eliminates the need for external scheduling tools while providing superior data insights and control. System fully integrated and tested with 100% test pass rate (8/8 tests) as of August 11, 2025.
-
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
 - **Notification Email Configuration**:
@@ -24,10 +22,6 @@ MySeniorValet is a technology platform connecting families with publicly availab
 - **Map Interface Preferences**: Legend button positioned on map at top-right (not in header). Map Layers control positioned 60px below Legend button. Heatmap toggle removed from interface to prevent UI overlap issues.
 
 ## Recent Updates (August 11, 2025)
-- **API Cost Protection System - Comprehensive Coverage**: Enhanced system now monitors ALL external APIs including OpenAI, Anthropic, Perplexity, Gemini, Stripe, SendGrid, CMS, HUD, and all government APIs. Google Places API permanently blocked. Per-API cost models, rate limiting, burst detection, and risk-based protection rules active for every external service.
-- **External API Registry**: Complete mapping of all external APIs with specific cost models, risk levels (critical/high/medium/low), and per-minute rate limits.
-- **Universal Burst Detection**: 10-second burst detection applies to all external APIs with immediate alerts and auto-blocking for suspicious patterns.
-- **Emergency Stop Enhancement**: Emergency stop now automatically blocks all critical and high-risk APIs, preventing incidents like the original Google API cost overrun.
 - **Startup Performance Optimized**: Application now starts in 1.1 seconds with smart task prioritization, deferred loading, and parallel service initialization
 - **Admin Infrastructure Complete**: Security dashboard fully operational at `/admin/security` with threat monitoring, user activity tracking, and system alerts
 - **Maintenance Mode System**: Complete toggle functionality, scheduled maintenance, custom messages, and IP allowlisting
