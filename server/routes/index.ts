@@ -24,6 +24,7 @@ import { registerMultiAITestRoutes } from "./multiAiTestRoutes";
 import { registerAuthRoutes } from "./authRoutes";
 import { registerQuickAuthRoutes } from "./quickAuthRoutes";
 import { registerTourRoutes } from "./tourRoutes";
+import tourmateRoutes from "./tourmate-routes";
 import { registerClaimRoutes } from "./claimRoutes";
 import { registerReviewRoutes } from "./reviewRoutes";
 import { registerFamilyRoutes } from "./familyRoutes";
@@ -106,6 +107,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerAdminRoutes(app);
   registerVendorRoutes(app);
   registerTourRoutes(app);
+  
+  // Register TourMate™ routes
+  app.use(tourmateRoutes);
+  
   registerClaimRoutes(app);
   registerReviewRoutes(app);
   registerFamilyRoutes(app);

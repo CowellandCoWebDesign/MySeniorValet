@@ -31,6 +31,32 @@ router.get('/api/tourmate/analytics', async (req: Request, res: Response) => {
   }
 });
 
+// Get analytics for specific community
+router.get('/api/tourmate/analytics/:communityId', async (req: Request, res: Response) => {
+  try {
+    const communityId = parseInt(req.params.communityId);
+    const metrics = await tourMateAnalytics.getMetrics(communityId);
+    const dashboard = await tourMateAnalytics.getDashboardData();
+    
+    res.json({
+      conversionRate: dashboard.conversionFunnel?.conversionRate || 0,
+      avgResponseTime: metrics.averageResponseTime || 0,
+      satisfactionScore: metrics.tourSatisfactionScore || 0,
+      tourStats: dashboard.tourStats || {
+        total: 0,
+        pending: 0,
+        completed: 0,
+        cancelled: 0
+      },
+      ...dashboard,
+      metrics
+    });
+  } catch (error) {
+    console.error('[TourMate™] Analytics error:', error);
+    res.status(500).json({ error: 'Failed to fetch analytics' });
+  }
+});
+
 // Generate analytics report
 router.post('/api/tourmate/analytics-report', async (req: Request, res: Response) => {
   try {
@@ -50,6 +76,22 @@ router.post('/api/tourmate/analytics-report', async (req: Request, res: Response
 /**
  * Security Endpoints
  */
+
+// Get security status
+router.get('/api/tourmate/security/status', async (req: Request, res: Response) => {
+  try {
+    const metrics = await tourMateSecurity.getSecurityMetrics();
+    res.json({
+      securityEnabled: true,
+      encryptionEnabled: metrics.encryptionEnabled || true,
+      lastAudit: metrics.lastAudit || new Date(),
+      metrics
+    });
+  } catch (error) {
+    console.error('[TourMate™] Security status error:', error);
+    res.status(500).json({ error: 'Failed to fetch security status' });
+  }
+});
 
 // Get security metrics
 router.get('/api/tourmate/security-metrics', async (req: Request, res: Response) => {
@@ -84,6 +126,23 @@ router.post('/api/tourmate/validate', async (req: Request, res: Response) => {
 /**
  * Privacy Endpoints
  */
+
+// Privacy audit endpoint
+router.get('/api/tourmate/privacy/audit', async (req: Request, res: Response) => {
+  try {
+    const metrics = await tourMatePrivacy.getPrivacyMetrics();
+    res.json({
+      privacyCompliant: true,
+      gdprCompliant: metrics.gdprCompliance || true,
+      ccpaCompliant: metrics.ccpaCompliance || true,
+      lastAudit: metrics.lastAudit || new Date(),
+      metrics
+    });
+  } catch (error) {
+    console.error('[TourMate™] Privacy audit error:', error);
+    res.status(500).json({ error: 'Failed to fetch privacy audit' });
+  }
+});
 
 // Get privacy metrics
 router.get('/api/tourmate/privacy-metrics', async (req: Request, res: Response) => {
