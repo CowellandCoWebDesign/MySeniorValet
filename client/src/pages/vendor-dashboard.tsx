@@ -180,22 +180,13 @@ export default function VendorDashboard() {
             </div>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button 
-            onClick={() => setLocation('/tourmate-dashboard')}
-            variant="outline"
-          >
-            <Calendar className="w-4 h-4 mr-2" />
-            TourMate™ Analytics
-          </Button>
-          <Button 
-            onClick={() => setLocation(`/vendor-profile/${vendorId}/edit`)}
-            variant="outline"
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Edit Profile
-          </Button>
-        </div>
+        <Button 
+          onClick={() => setLocation(`/vendor-profile/${vendorId}/edit`)}
+          variant="outline"
+        >
+          <Settings className="w-4 h-4 mr-2" />
+          Edit Profile
+        </Button>
       </div>
 
       {/* Subscription Alert */}
