@@ -224,6 +224,7 @@ function Router() {
       <Route path="/support" component={AISupport} />
       <Route path="/ai-support" component={AISupport} />
       <Route path="/ai-matching" component={AIMatchingAssistant} />
+      <Route path="/ai-matching-assistant" component={AIMatchingAssistant} />
       <Route path="/all-in-one-planner" component={AllInOnePlanner} />
       <Route path="/costs" component={Costs} />
       <Route path="/real-data-pricing" component={RealDataPricing} />
