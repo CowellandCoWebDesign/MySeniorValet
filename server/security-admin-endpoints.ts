@@ -92,52 +92,6 @@ export async function getSecurityDashboard(req: Request, res: Response) {
   }
 }
 
-// Get security metrics for dashboard
-export async function getSecurityMetrics(req: Request, res: Response) {
-  try {
-    const { securityDashboard } = await import('./infrastructure/security-dashboard');
-    const metrics = securityDashboard.getMetrics();
-    res.json(metrics);
-  } catch (error) {
-    console.error('Failed to get security metrics:', error);
-    res.status(500).json({ 
-      error: 'Internal Server Error',
-      message: 'Failed to retrieve security metrics'
-    });
-  }
-}
-
-// Get security alerts for dashboard
-export async function getSecurityAlerts(req: Request, res: Response) {
-  try {
-    const { securityDashboard } = await import('./infrastructure/security-dashboard');
-    const alerts = securityDashboard.getAlerts();
-    res.json(alerts);
-  } catch (error) {
-    console.error('Failed to get security alerts:', error);
-    res.status(500).json({ 
-      error: 'Internal Server Error',
-      message: 'Failed to retrieve security alerts'
-    });
-  }
-}
-
-// Resolve security alert
-export async function resolveSecurityAlert(req: Request, res: Response) {
-  try {
-    const { alertId } = req.params;
-    const { securityDashboard } = await import('./infrastructure/security-dashboard');
-    securityDashboard.resolveAlert(alertId);
-    res.json({ success: true, message: 'Alert resolved' });
-  } catch (error) {
-    console.error('Failed to resolve security alert:', error);
-    res.status(500).json({ 
-      error: 'Internal Server Error',
-      message: 'Failed to resolve security alert'
-    });
-  }
-}
-
 // User trace endpoint
 export async function getUserTrace(req: Request, res: Response) {
   try {

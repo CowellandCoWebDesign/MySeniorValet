@@ -129,7 +129,6 @@ import TestCommunityCards from "@/pages/test-community-cards";
 import EnhancedCardTest from "@/pages/enhanced-card-test";
 import AdminAvailabilityHeatmap from "@/pages/admin-availability-heatmap";
 import AdminReports from "@/pages/admin-reports";
-import SecurityDashboard from "@/pages/security-dashboard";
 
 function Router() {
   const [location] = useLocation();
@@ -173,8 +172,7 @@ function Router() {
       <Route path="/admin/reports" component={SuperAdminAnalytics} />
       <Route path="/admin/settings" component={SuperAdminAnalytics} />
       <Route path="/admin/email-broadcast" component={SuperAdminAnalytics} />
-      <Route path="/admin/security" component={SecurityDashboard} />
-      <Route path="/admin/maintenance" component={SecurityDashboard} />
+      <Route path="/admin/security" component={SuperAdminAnalytics} />
       <Route path="/admin/api-keys" component={SuperAdminAnalytics} />
       <Route path="/admin/users" component={SuperAdminAnalytics} />
       <Route path="/admin/data-quality" component={DataQualityDashboard} />

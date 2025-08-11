@@ -2234,7 +2234,7 @@ export const dataProtectionLogs = pgTable("data_protection_logs", {
 
 export const systemFlags = pgTable("system_flags", {
   flagName: varchar("flag_name", { length: 50 }).primaryKey(),
-  flagValue: text("flag_value").notNull(), // Changed from varchar(100) to text for larger JSON storage
+  flagValue: varchar("flag_value", { length: 100 }).notNull(),
   reason: text("reason"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),

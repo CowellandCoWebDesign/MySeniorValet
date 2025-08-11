@@ -66,23 +66,12 @@ export class EmailService {
         Subject: ${options.subject}`);
 
       const response = await sgMail.send(msg);
-      console.log(`✅ Email sent successfully! Response status: ${response[0].statusCode}`);
-      console.log(`   To: ${Array.isArray(options.to) ? options.to.join(', ') : options.to}`);
-      console.log(`   Subject: ${options.subject}`);
+      console.log(`Email sent successfully! Response status: ${response[0].statusCode}`);
       return true;
     } catch (error: any) {
-      console.error('❌ Error sending email:', error.message || error);
+      console.error('Error sending email:', error);
       if (error.response) {
-        console.error('SendGrid error details:', {
-          status: error.code,
-          message: error.message,
-          response: error.response.body,
-          from: options.from || DEFAULT_FROM_EMAIL
-        });
-        console.error('💡 SOLUTION: You need to verify the sender email in SendGrid');
-        console.error('   1. Go to https://app.sendgrid.com/settings/sender_auth');
-        console.error('   2. Add and verify: noreply@myseniorvalet.com');
-        console.error('   3. OR use a different verified email as the sender');
+        console.error('SendGrid error response:', error.response.body);
       }
       return false;
     }

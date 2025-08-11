@@ -34,7 +34,6 @@ import notificationRoutes from "./notificationRoutes";
 import { registerDocumentRoutes } from "./documentRoutes";
 import { registerSecurityRoutes } from "./securityRoutes";
 import { registerInfrastructureRoutes } from "./infrastructureRoutes";
-import { registerMaintenanceRoutes } from "./maintenanceRoutes";
 import { registerEmailRoutes } from "./emailRoutes";
 import { registerFloralRoutes } from "./floralRoutes";
 import { registerMoveInServicesRoutes } from "./moveInServicesRoutes";
@@ -126,7 +125,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerDocumentRoutes(app);
   registerSecurityRoutes(app);
   registerInfrastructureRoutes(app);
-  registerMaintenanceRoutes(app);
   registerEmailRoutes(app);
   registerFloralRoutes(app);
   registerMoveInServicesRoutes(app);
