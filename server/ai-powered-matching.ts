@@ -46,7 +46,21 @@ export class AIPoweredMatching {
       
       const promises = communitiesToProcess.map(async (community) => {
         try {
-          // Add timeout protection for AI calls
+          // Fast path for HUD Housing - skip ALL AI calls
+          if (profile.careLevel === 'hud_housing' || community.careTypes?.includes('HUD Housing')) {
+            // Calculate simple match score based on location and care type
+            const matchScore = community.careTypes?.includes('HUD Housing') ? 85 : 75;
+            
+            return {
+              community,
+              matchScore,
+              matchReasons: this.getMatchReasons(profile, community),
+              aiInsights: `Government-subsidized housing for seniors 62+. Rent based on 30% of income with utilities included. Perfect for budget-conscious seniors seeking independent living.`,
+              priceAnalysis: `HUD subsidized housing - rent is typically 30% of your adjusted gross income. With your budget of $${profile.budget.min}-$${profile.budget.max}/month, this community offers excellent value through government assistance.`
+            };
+          }
+          
+          // For non-HUD communities, use AI with timeout protection
           const [matchScore, aiInsights, priceAnalysis] = await Promise.all([
             Promise.race([
               this.calculateAIMatchScore(profile, community),
@@ -164,21 +178,52 @@ Rate this match on a scale of 0-100, considering care compatibility, budget fit,
   }
 
   private async generateAIInsights(profile: CareNeedsProfile, community: Community): Promise<string> {
-    const prompt = `Generate personalized insights about why this community might be a good fit:
+    try {
+      // Quick fallback for HUD Housing
+      if (profile.careLevel === 'hud_housing' || community.careTypes?.includes('HUD Housing')) {
+        return `Government-subsidized housing for seniors 62+. Rent based on 30% of income with utilities included. Perfect for budget-conscious seniors seeking independent living.`;
+      }
+
+      const prompt = `Generate personalized insights about why this community might be a good fit:
 
 RESIDENT: ${profile.careLevel} care, ${profile.mobility} mobility, ${profile.socialNeeds} social needs
 COMMUNITY: ${community.name} in ${community.city}, ${community.state}
 
 Provide 2-3 specific insights about compatibility, focusing on care quality, lifestyle fit, and practical considerations. Keep it conversational and helpful.`;
 
-    if (!this.aiService.isConfigured()) {
-      return 'AI insights unavailable - please contact community directly';
+      if (!this.aiService.isConfigured()) {
+        return this.getFallbackInsights(profile, community);
+      }
+      
+      const result = await this.aiService.analyze(prompt);
+      return result || this.getFallbackInsights(profile, community);
+    } catch (error) {
+      console.error('Error in AI insights generation:', error);
+      return this.getFallbackInsights(profile, community);
     }
-    return await this.aiService.analyze(prompt) || 'Insights being generated...';
+  }
+
+  private getFallbackInsights(profile: CareNeedsProfile, community: Community): string {
+    if (community.careTypes?.includes('HUD Housing')) {
+      return `HUD subsidized community offering affordable senior housing. Rent based on income (typically 30% of adjusted gross income). Ideal for seniors seeking budget-friendly independent living.`;
+    }
+    
+    const careTypeMatch = community.careTypes?.includes(profile.careLevel) ? 
+      `Offers ${profile.careLevel.replace(/_/g, ' ')} care level you need. ` : '';
+    
+    const locationInfo = `Located in ${community.city}, ${community.state}. `;
+    
+    return `${careTypeMatch}${locationInfo}Contact community directly for detailed information about amenities and services.`;
   }
 
   private async generatePriceAnalysis(profile: CareNeedsProfile, community: Community): Promise<string> {
-    const prompt = `Analyze the pricing for this senior living situation:
+    try {
+      // Quick fallback for HUD Housing
+      if (profile.careLevel === 'hud_housing' || community.careTypes?.includes('HUD Housing')) {
+        return `HUD subsidized housing - rent is typically 30% of your adjusted gross income. With your budget of $${profile.budget.min}-$${profile.budget.max}/month, this community offers excellent value through government assistance.`;
+      }
+
+      const prompt = `Analyze the pricing for this senior living situation:
 
 BUDGET: $${profile.budget.min}-${profile.budget.max}/month
 COMMUNITY PRICING: ${community.priceRange || 'Contact for pricing'}
@@ -186,10 +231,33 @@ CARE LEVEL: ${profile.careLevel}
 
 Provide a brief analysis of affordability, value for money, and any budget considerations. Be specific about whether this fits their budget range.`;
 
-    if (!this.aiService.isConfigured()) {
-      return 'Price analysis unavailable - please contact community directly';
+      if (!this.aiService.isConfigured()) {
+        return this.getFallbackPriceAnalysis(profile, community);
+      }
+      
+      const result = await this.aiService.analyze(prompt);
+      return result || this.getFallbackPriceAnalysis(profile, community);
+    } catch (error) {
+      console.error('Error in price analysis generation:', error);
+      return this.getFallbackPriceAnalysis(profile, community);
     }
-    return await this.aiService.analyze(prompt) || 'Analyzing pricing...';
+  }
+
+  private getFallbackPriceAnalysis(profile: CareNeedsProfile, community: Community): string {
+    if (community.careTypes?.includes('HUD Housing')) {
+      return `Government-subsidized housing with rent based on 30% of income. Perfect for your budget range of $${profile.budget.min}-$${profile.budget.max}/month.`;
+    }
+    
+    if (community.priceRange && community.priceRange !== 'Contact for pricing') {
+      const inBudget = this.analyzePriceCompatibility(profile.budget, community.priceRange);
+      if (inBudget) {
+        return `Community pricing aligns with your budget of $${profile.budget.min}-$${profile.budget.max}/month. Contact for specific rate details.`;
+      } else {
+        return `Pricing may exceed your current budget. Consider discussing payment options with the community.`;
+      }
+    }
+    
+    return `Contact community directly for personalized pricing based on your care needs and budget of $${profile.budget.min}-$${profile.budget.max}/month.`;
   }
 
   private getMatchReasons(profile: CareNeedsProfile, community: Community): string[] {
