@@ -941,7 +941,13 @@ export class DatabaseStorage implements IStorage {
       
       // Use mapped care type if available, otherwise use original
       const mappedCareType = careTypeMap[careType.toLowerCase()] || careType;
-      conditions.push(sql.raw(`'${mappedCareType}' = ANY(care_types)`));
+      
+      // Handle special case for HUD Housing which is stored as affordable_senior_housing
+      if (mappedCareType === 'HUD Housing' || careType.toLowerCase() === 'hud_housing') {
+        conditions.push(sql.raw(`('HUD Housing' = ANY(care_types) OR 'affordable_senior_housing' = ANY(care_types))`));
+      } else {
+        conditions.push(sql.raw(`'${mappedCareType}' = ANY(care_types)`));
+      }
     }
 
     if (params.location) {
