@@ -123,7 +123,6 @@ import VendorOnboardingWizard from "@/pages/vendor-onboarding-wizard";
 import VendorTierTest from "@/pages/vendor-tier-test";
 import CommunityCreatorPortal from "@/pages/community-creator-portal";
 import MarketingHub from "@/pages/marketing-hub";
-import AnalyticsDashboard from "@/pages/analytics-dashboard";
 import AvailabilityHeatmapPage from "@/pages/availability-heatmap";
 import TestCommunityCards from "@/pages/test-community-cards";
 import EnhancedCardTest from "@/pages/enhanced-card-test";
@@ -181,7 +180,6 @@ function Router() {
       <Route path="/admin/vendor-dashboard" component={VendorDashboard} />
       <Route path="/admin/marketing-hub" component={SuperAdminAnalytics} />
       <Route path="/admin/availability-heatmap" component={SuperAdminAnalytics} />
-      <Route path="/admin/analytics" component={AnalyticsDashboard} />
       <Route path="/ai-search-comparison" component={AISearchComparison} />
       <Route path="/ai-search-intelligence" component={AISearchIntelligence} />
       <Route path="/expansion-monitor" component={SuperAdminAnalytics} />
@@ -273,7 +271,6 @@ function Router() {
       <Route path="/payment-test-dashboard" component={PaymentTestDashboard} />
       <Route path="/payment-diagnostics" component={PaymentDiagnostics} />
       <Route path="/admin-dashboard" component={AdminDashboard} />
-      <Route path="/analytics-dashboard" component={AnalyticsDashboard} />
       <Route path="/payment-recovery" component={PaymentRecovery} />
       <Route path="/community-onboarding/:communityId" component={CommunityOnboarding} />
       <Route path="/vendor-onboarding/:vendorId" component={VendorOnboarding} />
