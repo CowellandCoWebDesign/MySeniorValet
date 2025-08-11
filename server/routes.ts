@@ -53,6 +53,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { tourRouter } = await import('./routes/tourRoutes');
   app.use(tourRouter);
   
+  // Register notification configuration routes
+  const notificationConfigRoutes = await import('./routes/notificationConfigRoutes');
+  app.use('/api', notificationConfigRoutes.default);
+  
   // Import and register webhook routes
   const webhookRoutes = await import('./routes/webhookRoutes');
   const webhookDevelopment = await import('./routes/webhookDevelopment');

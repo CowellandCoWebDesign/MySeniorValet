@@ -209,7 +209,7 @@ export class EmailService {
 
     return this.sendEmail({
       to: email,
-      cc: ['hello@myseniorvalet.com'], // Always CC for tour tracking
+      cc: ['hello@myseniorvalet.com', 'billing@myseniorvalet.com'], // Always CC for tour tracking and billing
       subject: `Tour Confirmed - ${communityName} - ${formattedDate}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

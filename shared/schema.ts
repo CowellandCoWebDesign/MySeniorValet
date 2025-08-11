@@ -1667,6 +1667,89 @@ export const tenantMoveInChecklist = pgTable("tenant_move_in_checklist", {
   index("tenant_checklist_completed_idx").on(table.completed),
 ]);
 
+// Community notification configuration for tour requests
+export const communityNotificationConfig = pgTable("community_notification_config", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull().unique(),
+  
+  // Notification recipients in priority order
+  notificationOrder: text("notification_order").array().default(['owner', 'regional_director', 'sales_director']),
+  
+  // Recipient details
+  ownerEmail: varchar("owner_email", { length: 255 }),
+  ownerPhone: varchar("owner_phone", { length: 20 }),
+  ownerName: varchar("owner_name", { length: 255 }),
+  
+  regionalDirectorEmail: varchar("regional_director_email", { length: 255 }),
+  regionalDirectorPhone: varchar("regional_director_phone", { length: 20 }),
+  regionalDirectorName: varchar("regional_director_name", { length: 255 }),
+  
+  salesDirectorEmail: varchar("sales_director_email", { length: 255 }),
+  salesDirectorPhone: varchar("sales_director_phone", { length: 20 }),
+  salesDirectorName: varchar("sales_director_name", { length: 255 }),
+  
+  // Additional custom recipients
+  customRecipients: jsonb("custom_recipients").$type<Array<{
+    name: string;
+    email: string;
+    phone?: string;
+    role: string;
+  }>>().default([]),
+  
+  // Notification preferences
+  sendToAll: boolean("send_to_all").default(false), // Send to all recipients simultaneously
+  includeBackupNotifications: boolean("include_backup_notifications").default(true),
+  autoConfirmTours: boolean("auto_confirm_tours").default(false),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("community_notification_config_community_idx").on(table.communityId),
+]);
+
+// Community employment verification for claim validation
+export const communityEmploymentVerification = pgTable("community_employment_verification", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  
+  // Verification details
+  verificationMethod: text("verification_method", {
+    enum: ["email_domain", "manual_review", "document_upload", "phone_verification", "reference_check"]
+  }).notNull(),
+  
+  // Employment details
+  employeeRole: varchar("employee_role", { length: 255 }).notNull(),
+  employeeEmail: varchar("employee_email", { length: 255 }).notNull(),
+  employeePhone: varchar("employee_phone", { length: 20 }),
+  department: varchar("department", { length: 100 }),
+  
+  // Verification status
+  verificationStatus: text("verification_status", {
+    enum: ["pending", "verified", "rejected", "expired"]
+  }).default("pending"),
+  
+  // Verification evidence
+  verificationEvidence: jsonb("verification_evidence").$type<{
+    emailDomain?: string;
+    documentUrl?: string;
+    verifierNotes?: string;
+    referenceContact?: string;
+    verificationCode?: string;
+  }>().default({}),
+  
+  // Timestamps
+  verifiedAt: timestamp("verified_at"),
+  verifiedBy: varchar("verified_by").references(() => users.id),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("employment_verification_community_idx").on(table.communityId),
+  index("employment_verification_user_idx").on(table.userId),
+  index("employment_verification_status_idx").on(table.verificationStatus),
+]);
+
 // Vendor connections for move-in services
 export const vendorConnections = pgTable("vendor_connections", {
   id: serial("id").primaryKey(),
