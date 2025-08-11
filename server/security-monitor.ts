@@ -3,6 +3,8 @@ import { auditService } from './audit';
 import { db } from './db';
 import { securityAuditLogs } from '@shared/schema';
 import { eq, gte, and, desc, count, countDistinct } from 'drizzle-orm';
+import { internalNotifications } from './services/internal-notifications';
+import { internalNotificationService } from './services/internal-notifications';
 
 export interface SecurityThreat {
   id: string;
@@ -202,6 +204,25 @@ export class SecurityMonitor {
         timestamp: threat.timestamp.toISOString(),
         details: threat.details
       });
+
+      // Send email notification for high and critical threats
+      if (threat.severity === 'high' || threat.severity === 'critical') {
+        await internalNotifications.sendInternalNotification({
+          type: 'security_threat',
+          data: {
+            threatId: threat.id,
+            threatType: threat.type,
+            severity: threat.severity,
+            ipAddress: threat.ipAddress,
+            userAgent: threat.userAgent || 'Unknown',
+            endpoint: threat.endpoint,
+            action: threat.action,
+            timestamp: threat.timestamp.toISOString(),
+            details: threat.details
+          },
+          priority: threat.severity === 'critical' ? 'critical' : 'high'
+        });
+      }
     } catch (error) {
       console.error('Failed to log security threat:', error);
     }

@@ -173,4 +173,140 @@ export function registerSecurityRoutes(app: Express) {
       res.status(500).json({ error: 'Failed to update security configuration' });
     }
   });
+
+  // Comprehensive test endpoint to trigger various simulated threats and test email notifications
+  app.post('/api/admin/security/test-threat', requireAuth, isAdmin, async (req, res) => {
+    try {
+      const { threatType = 'all' } = req.body;
+      const testThreats = [];
+      const monitor = SecurityMonitor.getInstance();
+
+      // Helper function to create test request
+      const createTestRequest = (method: string, path: string, body?: any, headers?: any) => ({
+        method,
+        path,
+        ip: '192.168.1.100',
+        headers: {
+          'user-agent': 'Mozilla/5.0 (Test Agent) Security Test',
+          ...headers
+        },
+        body,
+        query: {},
+        params: {}
+      } as any);
+
+      console.log('🧪 Starting comprehensive security notification test...');
+      console.log('📧 Email notifications will be sent to: admin@myseniorvalet.com');
+
+      // Test 1: SQL Injection (HIGH severity)
+      if (threatType === 'all' || threatType === 'injection') {
+        const sqlReq = createTestRequest('POST', '/api/search', {
+          query: "SELECT * FROM users WHERE id='1' OR '1'='1'"
+        });
+        const sqlThreats = await monitor.analyzeRequest(sqlReq);
+        testThreats.push(...sqlThreats);
+        console.log('✅ SQL Injection threat generated:', sqlThreats.length, 'threats');
+      }
+
+      // Test 2: Brute Force Attack (CRITICAL severity - multiple failed logins)
+      if (threatType === 'all' || threatType === 'brute_force') {
+        // Simulate 10 failed login attempts
+        for (let i = 0; i < 10; i++) {
+          const bruteReq = createTestRequest('POST', '/api/auth/login', {
+            email: `hacker${i}@attack.com`,
+            password: 'wrongpassword'
+          });
+          const bruteThreats = await monitor.analyzeRequest(bruteReq);
+          testThreats.push(...bruteThreats);
+        }
+        console.log('✅ Brute force threats generated (10 attempts)');
+      }
+
+      // Test 3: XSS Attack (HIGH severity)
+      if (threatType === 'all' || threatType === 'xss') {
+        const xssReq = createTestRequest('POST', '/api/communities/review', {
+          content: '<script>alert("XSS Attack")</script>',
+          rating: 5
+        });
+        const xssThreats = await monitor.analyzeRequest(xssReq);
+        testThreats.push(...xssThreats);
+        console.log('✅ XSS threat generated:', xssThreats.length, 'threats');
+      }
+
+      // Test 4: Path Traversal (HIGH severity)
+      if (threatType === 'all' || threatType === 'path_traversal') {
+        const pathReq = createTestRequest('GET', '/api/files/../../../../etc/passwd');
+        const pathThreats = await monitor.analyzeRequest(pathReq);
+        testThreats.push(...pathThreats);
+        console.log('✅ Path traversal threat generated:', pathThreats.length, 'threats');
+      }
+
+      // Test 5: Command Injection (CRITICAL severity)
+      if (threatType === 'all' || threatType === 'command') {
+        const cmdReq = createTestRequest('POST', '/api/export', {
+          filename: 'report.pdf; rm -rf /'
+        });
+        const cmdThreats = await monitor.analyzeRequest(cmdReq);
+        testThreats.push(...cmdThreats);
+        console.log('✅ Command injection threat generated:', cmdThreats.length, 'threats');
+      }
+
+      // Test 6: Suspicious User Agent (MEDIUM severity)
+      if (threatType === 'all' || threatType === 'suspicious_agent') {
+        const botReq = createTestRequest('GET', '/api/communities', {}, {
+          'user-agent': 'SQLMap/1.6 (http://sqlmap.org)'
+        });
+        const botThreats = await monitor.analyzeRequest(botReq);
+        testThreats.push(...botThreats);
+        console.log('✅ Suspicious user agent threat generated:', botThreats.length, 'threats');
+      }
+
+      // Test 7: Rate Limiting (MEDIUM to HIGH severity)
+      if (threatType === 'all' || threatType === 'rate_limit') {
+        // Simulate 50 rapid requests
+        for (let i = 0; i < 50; i++) {
+          const rateReq = createTestRequest('GET', '/api/communities/search');
+          await monitor.analyzeRequest(rateReq);
+        }
+        console.log('✅ Rate limit threats generated (50 rapid requests)');
+      }
+
+      // Get current metrics to show impact
+      const metrics = await monitor.getCurrentMetrics();
+
+      const highCriticalCount = testThreats.filter(t => t.severity === 'high' || t.severity === 'critical').length;
+      
+      console.log('🧪 Security notification test complete!');
+      console.log(`📊 Total threats generated: ${testThreats.length}`);
+      console.log(`📧 High/Critical threats that triggered email notifications: ${highCriticalCount}`);
+      console.log(`📬 ${highCriticalCount} email notifications sent to admin@myseniorvalet.com`);
+
+      res.json({
+        success: true,
+        message: `Comprehensive security threat test completed. ${highCriticalCount} email notifications sent to admin@myseniorvalet.com`,
+        summary: {
+          totalThreatsGenerated: testThreats.length,
+          highSeverityThreats: testThreats.filter(t => t.severity === 'high').length,
+          criticalSeverityThreats: testThreats.filter(t => t.severity === 'critical').length,
+          mediumSeverityThreats: testThreats.filter(t => t.severity === 'medium').length,
+          emailNotificationsSent: highCriticalCount,
+          emailRecipient: 'admin@myseniorvalet.com'
+        },
+        threats: testThreats,
+        currentMetrics: metrics,
+        testTypes: [
+          'SQL Injection (HIGH) - Triggers email',
+          'Brute Force Attack (CRITICAL) - Triggers email',
+          'XSS Attack (HIGH) - Triggers email',
+          'Path Traversal (HIGH) - Triggers email',
+          'Command Injection (CRITICAL) - Triggers email',
+          'Suspicious User Agent (MEDIUM) - No email',
+          'Rate Limiting (MEDIUM-HIGH) - May trigger email'
+        ]
+      });
+    } catch (error) {
+      console.error('Error generating test threats:', error);
+      res.status(500).json({ error: 'Failed to generate test threats' });
+    }
+  });
 }
