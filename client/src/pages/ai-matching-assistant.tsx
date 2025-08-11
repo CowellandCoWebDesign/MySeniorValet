@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { Brain, MapPin, Heart, DollarSign, Star, Users, Calendar, ChevronRight, Loader2 } from "lucide-react";
+import { AlertCircle, Brain, MapPin, Heart, DollarSign, Star, Users, Calendar, ChevronRight, Loader2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -453,7 +453,7 @@ export default function AIMatchingAssistant() {
                   </CardHeader>
                 </Card>
 
-            {matches.map((match, index) => (
+                {matches.map((match, index) => (
               <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="flex">
                   {/* Match Score */}
@@ -523,22 +523,49 @@ export default function AIMatchingAssistant() {
                   </div>
                 </div>
               </Card>
-            ))}
+                ))}
 
-            <div className="flex justify-center gap-4">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setStep(1);
-                  setMatches([]);
-                }}
-              >
-                Start New Search
-              </Button>
-              <Button onClick={() => setLocation("/")}>
-                Back to Home
-              </Button>
-            </div>
+                <div className="flex justify-center gap-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setStep(1);
+                      setMatches([]);
+                    }}
+                  >
+                    Start New Search
+                  </Button>
+                  <Button onClick={() => setLocation("/")}>
+                    Back to Home
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <Card>
+                <CardContent className="text-center py-12">
+                  <AlertCircle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+                  <CardTitle className="mb-2">No Matches Found</CardTitle>
+                  <CardDescription className="mb-6">
+                    We couldn't find any communities matching your specific criteria.
+                    Try adjusting your search parameters or expanding your location radius.
+                  </CardDescription>
+                  <div className="flex justify-center gap-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setStep(1);
+                        setMatches([]);
+                      }}
+                    >
+                      Try Again
+                    </Button>
+                    <Button onClick={() => setLocation("/")}>
+                      Back to Home
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
       </div>
