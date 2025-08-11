@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { messagingService } from "../messaging-service";
 import { db } from "../db";
+import { runMessagingTests } from "../test-messaging-system";
 import { 
   messages, 
   conversations, 
@@ -376,6 +377,31 @@ router.put("/notifications/preferences", async (req, res) => {
   } catch (error) {
     console.error("Error updating notification preferences:", error);
     res.status(500).json({ error: "Failed to update preferences" });
+  }
+});
+
+// Test endpoint for comprehensive messaging system testing
+router.get("/test", async (req, res) => {
+  try {
+    console.log("🚀 Starting comprehensive messaging system tests...");
+    const testResults = await runMessagingTests();
+    
+    // Format results for response
+    const summary = {
+      totalTests: testResults.length,
+      passed: testResults.filter(r => r.status === 'PASS').length,
+      failed: testResults.filter(r => r.status === 'FAIL').length,
+      passRate: ((testResults.filter(r => r.status === 'PASS').length / testResults.length) * 100).toFixed(1) + '%',
+      results: testResults
+    };
+    
+    res.json(summary);
+  } catch (error) {
+    console.error("Error running messaging tests:", error);
+    res.status(500).json({ 
+      error: "Failed to run messaging tests", 
+      details: error.message 
+    });
   }
 });
 
