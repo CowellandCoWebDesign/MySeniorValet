@@ -181,6 +181,7 @@ function Router() {
       <Route path="/admin/vendor-dashboard" component={VendorDashboard} />
       <Route path="/admin/marketing-hub" component={SuperAdminAnalytics} />
       <Route path="/admin/availability-heatmap" component={SuperAdminAnalytics} />
+      <Route path="/admin/analytics" component={AnalyticsDashboard} />
       <Route path="/ai-search-comparison" component={AISearchComparison} />
       <Route path="/ai-search-intelligence" component={AISearchIntelligence} />
       <Route path="/expansion-monitor" component={SuperAdminAnalytics} />
