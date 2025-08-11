@@ -51,11 +51,14 @@ export default function AIMatchingAssistant() {
       return await apiRequest("POST", "/api/communities/ai-match", data);
     },
     onSuccess: (response: any) => {
-      setMatches(response.matches || []);
+      console.log('AI Matching Response:', response);
+      const matchesArray = response?.matches || [];
+      console.log('Matches array:', matchesArray);
+      setMatches(matchesArray);
       setStep(4); // Go to results
       toast({
         title: "✨ AI Matching Complete",
-        description: `Found ${response.matches?.length || 0} personalized matches for you!`,
+        description: `Found ${matchesArray.length} personalized matches for you!`,
       });
     },
     onError: (error) => {
