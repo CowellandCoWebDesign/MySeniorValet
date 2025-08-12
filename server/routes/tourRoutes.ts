@@ -4,8 +4,13 @@ import { tours, tourAvailability, tourFeedback, communities, users } from "@shar
 import { eq, and, gte, lte, or, desc, asc, sql } from "drizzle-orm";
 import { z } from "zod";
 import { isAuthenticated } from "../replitAuth";
-import { sendEmail } from "../sendgrid";
+import sgMail from "@sendgrid/mail";
 import { format, addDays, parseISO } from "date-fns";
+
+// Initialize SendGrid
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
 
 const router = Router();
 
@@ -44,32 +49,47 @@ const scheduleTourSchema = z.object({
 // Schedule a new tour
 router.post("/schedule", async (req, res) => {
   try {
-    const tourData = scheduleTourSchema.parse(req.body);
+    console.log("Received tour data:", JSON.stringify(req.body, null, 2));
+    
+    // Validate and parse tour data
+    let tourData;
+    try {
+      tourData = scheduleTourSchema.parse(req.body);
+    } catch (zodError: any) {
+      console.error("Validation error details:", JSON.stringify(zodError.errors, null, 2));
+      console.error("Problem field:", zodError.errors[0]?.path);
+      return res.status(400).json({ error: zodError.errors });
+    }
+    
     const userId = (req as any).user?.claims?.sub || null;
     
     // Generate confirmation code
     const confirmationCode = generateConfirmationCode();
     
-    // Create the tour
-    const [newTour] = await db.insert(tours).values({
-      userId,
+    // Create the tour - using camelCase field names as expected by Drizzle
+    const tourInsertData = {
+      userId: userId,
       communityId: tourData.communityId,
       preferredDate: tourData.preferredDate,
       preferredTime: tourData.preferredTime,
-      alternativeDate: tourData.alternativeDate,
-      alternativeTime: tourData.alternativeTime,
+      alternativeDate: tourData.alternativeDate || null,
+      alternativeTime: tourData.alternativeTime || null,
       contactName: tourData.contactName,
       contactEmail: tourData.contactEmail,
       contactPhone: tourData.contactPhone,
-      tourType: tourData.tourType,
+      tourType: tourData.tourType as "in-person" | "virtual" | "self-guided",
       partySize: tourData.partySize,
-      specialRequests: tourData.specialRequests,
-      interestedInCareLevel: tourData.interestedInCareLevel,
-      source: tourData.source,
-      utmParams: tourData.utmParams,
-      confirmationCode,
-      status: "pending",
-    }).returning();
+      specialRequests: tourData.specialRequests || null,
+      interestedInCareLevel: tourData.interestedInCareLevel || [],
+      source: tourData.source as "website" | "mobile" | "phone" | "email" | "partner",
+      utmParams: tourData.utmParams || null,
+      confirmationCode: confirmationCode,
+      status: "pending" as const,
+    };
+    
+    console.log("Inserting tour data:", JSON.stringify(tourInsertData, null, 2));
+    
+    const [newTour] = await db.insert(tours).values(tourInsertData).returning();
     
     // Get community details for email
     const [community] = await db.select()
@@ -107,7 +127,7 @@ router.post("/schedule", async (req, res) => {
         </div>
       `;
       
-      await sendEmail({
+      await sgMail.send({
         to: tourData.contactEmail,
         from: "hello@myseniorvalet.com",
         subject: `Tour Confirmation - ${community?.name} - ${confirmationCode}`,
@@ -150,7 +170,7 @@ router.post("/schedule", async (req, res) => {
           </div>
         `;
         
-        await sendEmail({
+        await sgMail.send({
           to: community.email,
           from: "hello@myseniorvalet.com",
           subject: `New Tour Request - ${tourData.contactName} - ${confirmationCode}`,

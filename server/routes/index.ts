@@ -23,7 +23,7 @@ import { registerMappingFixRoutes } from "./mappingFixRoutes";
 import { registerMultiAITestRoutes } from "./multiAiTestRoutes";
 import { registerAuthRoutes } from "./authRoutes";
 import { registerQuickAuthRoutes } from "./quickAuthRoutes";
-import { registerTourRoutes } from "./tourRoutes";
+// Tour routes are registered directly in server/routes.ts
 import { registerClaimRoutes } from "./claimRoutes";
 import { registerReviewRoutes } from "./reviewRoutes";
 import { registerFamilyRoutes } from "./familyRoutes";
@@ -104,7 +104,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   registerAdminRoutes(app);
   registerVendorRoutes(app);
-  registerTourRoutes(app);
+  // Tour routes are registered directly in server/routes.ts
   registerClaimRoutes(app);
   registerReviewRoutes(app);
   registerFamilyRoutes(app);
