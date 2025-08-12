@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book } from "lucide-react";
 import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
@@ -903,6 +903,247 @@ export default function MySeniorValetHome() {
                 Complete Care Spectrum
               </Badge>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Marketplace Hub - Four Directory Grid */}
+      <section className="px-4 py-16 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Marketplace & Directories
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+              Your complete ecosystem for senior living - access communities, services, healthcare, and resources
+            </p>
+          </div>
+
+          {/* Four Directory Cards in 2x2 Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+            {/* Community Directory */}
+            <Link href="/community-directory">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-blue-500 relative overflow-hidden group transform hover:scale-105">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 opacity-50"></div>
+                <CardHeader className="relative z-10">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg">
+                      <Building2 className="h-8 w-8" />
+                    </div>
+                    <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1">
+                      PRIMARY DATABASE
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-2xl mb-2">Community Directory</CardTitle>
+                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Complete Database Access
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    Access all 34,181+ senior living communities across the United States with verified pricing and real-time availability
+                  </p>
+                  
+                  <div className="flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                    <TrendingUp className="h-5 w-5 text-green-500" />
+                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">34,181+</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Communities</span>
+                  </div>
+
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">All U.S. Communities</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">5,936+ HUD Properties</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Real-Time Availability</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Verified Pricing Data</span>
+                    </div>
+                  </div>
+
+                  <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                    <span className="font-semibold">Explore Directory</span>
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Senior Marketplace */}
+            <Link href="/senior-marketplace">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-amber-400 relative overflow-hidden group transform hover:scale-105">
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 opacity-50"></div>
+                <CardHeader className="relative z-10">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg">
+                      <ShoppingCart className="h-8 w-8" />
+                    </div>
+                    <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1">
+                      COMMERCIAL
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-2xl mb-2">Senior Marketplace</CardTitle>
+                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Commercial Vendor Services
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    Professional services for your senior living needs - moving, legal, floral, transportation, and more
+                  </p>
+                  
+                  <div className="flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                    <TrendingUp className="h-5 w-5 text-green-500" />
+                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">1,500+</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Vendor Services</span>
+                  </div>
+
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Moving & Relocation</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Legal & Financial Services</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Transportation Solutions</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Personal Services</span>
+                    </div>
+                  </div>
+
+                  <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                    <span className="font-semibold">Explore Directory</span>
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Senior Healthcare Services Directory */}
+            <Link href="/senior-healthcare-directory">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-teal-400 relative overflow-hidden group transform hover:scale-105">
+                <div className="absolute inset-0 bg-gradient-to-br from-teal-50 to-blue-50 dark:from-teal-900/20 dark:to-blue-900/20 opacity-50"></div>
+                <CardHeader className="relative z-10">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-teal-500 to-blue-500 text-white shadow-lg">
+                      <Stethoscope className="h-8 w-8" />
+                    </div>
+                    <Badge className="bg-gradient-to-r from-teal-500 to-blue-500 text-white px-3 py-1">
+                      HEALTHCARE
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-2xl mb-2">Senior Healthcare Services Directory</CardTitle>
+                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Healthcare & Care Providers
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    Connect with verified hospitals, home care, therapy services, and medical professionals
+                  </p>
+                  
+                  <div className="flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                    <TrendingUp className="h-5 w-5 text-green-500" />
+                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">6,800+</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Healthcare Providers</span>
+                  </div>
+
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">6,000+ CMS Hospitals</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Home Care Services</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Therapy & Rehabilitation</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Medical Equipment</span>
+                    </div>
+                  </div>
+
+                  <Button className="w-full bg-gradient-to-r from-teal-500 to-blue-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                    <span className="font-semibold">Explore Directory</span>
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Senior Resources and Support Center */}
+            <Link href="/senior-resources-center">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-purple-400 relative overflow-hidden group transform hover:scale-105">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 opacity-50"></div>
+                <CardHeader className="relative z-10">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 text-white shadow-lg">
+                      <Book className="h-8 w-8" />
+                    </div>
+                    <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-3 py-1">
+                      RESOURCES
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-2xl mb-2">Senior Resources and Support Center</CardTitle>
+                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Educational Content & Support
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    Comprehensive guides, government programs, support groups, and educational resources
+                  </p>
+                  
+                  <div className="flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                    <TrendingUp className="h-5 w-5 text-green-500" />
+                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">100+</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Resources</span>
+                  </div>
+
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Care Planning Guides</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Government Programs</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Support Groups</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Educational Materials</span>
+                    </div>
+                  </div>
+
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                    <span className="font-semibold">Explore Directory</span>
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </div>
       </section>
