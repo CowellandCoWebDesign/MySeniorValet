@@ -39,7 +39,7 @@ import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 
 
 export default function MySeniorValetHome() {
-  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 4 WITH MOVE-IN COORDINATION - 34,181 COMMUNITIES");
+  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 4 WITH CENTRALIZED STATISTICS");
   const { t, language } = useLanguage();
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
@@ -86,6 +86,14 @@ export default function MySeniorValetHome() {
   }, []);
   
   // Mobile-optimized queries with reduced memory footprint
+  // Platform statistics for comprehensive data consistency
+  const { data: platformStats } = useQuery({
+    queryKey: ["/api/platform/stats"],
+    retry: false,
+    staleTime: 30 * 60 * 1000, // Cache for 30 minutes to reduce requests
+    gcTime: 60 * 60 * 1000,   // Keep in cache for 1 hour
+  });
+
   const { data: communityStats, isLoading } = useQuery({
     queryKey: ["/api/communities/count"],
     retry: false,
@@ -93,14 +101,7 @@ export default function MySeniorValetHome() {
     gcTime: 60 * 60 * 1000,   // Keep in cache for 1 hour
   });
 
-  // Lazy load platform stats only when needed
-  const { data: platformStats } = useQuery({
-    queryKey: ["/api/platform/stats"],
-    retry: false,
-    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
-    gcTime: 60 * 60 * 1000,   // Keep in cache for 1 hour
-    enabled: false, // Load on demand to reduce initial memory usage
-  });
+
 
 
 
@@ -644,7 +645,7 @@ export default function MySeniorValetHome() {
           {/* Community Count Text - Updated */}
           <div className="mb-2 animate-fade-in-up animation-delay-850">
             <p className="text-white/90 dark:text-gray-300 text-base md:text-lg lg:text-xl drop-shadow-md text-center font-medium">
-              Serving families across <strong className="text-amber-200">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} verified senior living communities</strong>
+              Serving families across <strong className="text-amber-200">{platformStats?.totalCommunities ? `${platformStats.totalCommunities.toLocaleString()}+` : (communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '34,494+'} verified senior living communities</strong>
             </p>
           </div>
           
@@ -876,7 +877,7 @@ export default function MySeniorValetHome() {
                   </Badge>
                   <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
                     <Building className="w-4 h-4 mr-2" />
-                    34,000+ Communities
+                    {platformStats?.totalCommunities ? `${Math.floor(platformStats.totalCommunities / 1000)}K+ Communities` : '34K+ Communities'}
                   </Badge>
                   <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
                     <Unlock className="w-4 h-4 mr-2" />
@@ -959,7 +960,7 @@ export default function MySeniorValetHome() {
                 </Badge>
                 <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
                   <MapPin className="w-4 h-4 mr-2" />
-                  42,481+ Total Resources
+                  {platformStats?.totalCommunities ? `${Math.floor((platformStats.totalCommunities + 8000) / 1000)}K+ Total Resources` : '42K+ Total Resources'}
                 </Badge>
                 <Badge className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
                   <Shield className="w-4 h-4 mr-2" />
@@ -971,7 +972,7 @@ export default function MySeniorValetHome() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
                 <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                   <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">34,181+</div>
+                    <div className="text-2xl font-bold text-white">{platformStats?.totalCommunities ? `${Math.floor(platformStats.totalCommunities / 1000)}K+` : '34K+'}</div>
                     <div className="text-xs text-blue-100">Communities</div>
                   </CardContent>
                 </Card>

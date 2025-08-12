@@ -19,12 +19,12 @@ import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
 import { PerplexityAIService } from "../perplexity-ai-service";
 import { multiAIVerificationService } from "../multi-ai-verification-service";
-import { intelligentPricingService } from "../intelligent-pricing-service";
+import { platformStatisticsService } from "../platform-statistics-service";
 
 export function registerCommunityRoutes(app: Express) {
   // IMPORTANT: Specific routes must come BEFORE the /:id route
   
-  // Get community count
+  // Get community count (now using centralized platform statistics)
   app.get("/api/communities/count", async (_req, res) => {
     try {
       // Add caching headers for better performance
@@ -33,14 +33,48 @@ export function registerCommunityRoutes(app: Express) {
         'ETag': `community-count-${Date.now()}`
       });
       
-      const [{ count }] = await db
-        .select({ count: sql`count(*)` })
-        .from(communities);
+      const stats = await platformStatisticsService.getStatistics();
       
-      res.json({ count: count.toString() });
+      res.json({ 
+        count: stats.totalCommunities.toString(),
+        _version: stats.version,
+        lastUpdated: stats.lastUpdated,
+        breakdown: {
+          us: stats.usCommunities,
+          mexico: stats.mexicoCommunities,
+          canada: stats.canadaCommunities
+        }
+      });
     } catch (error) {
       console.error("Error getting community count:", error);
       res.status(500).json({ error: "Failed to get community count" });
+    }
+  });
+
+  // Get comprehensive platform statistics
+  app.get("/api/platform/stats", async (_req, res) => {
+    try {
+      res.set({
+        'Cache-Control': 'public, max-age=900', // Cache for 15 minutes
+        'ETag': `platform-stats-${Date.now()}`
+      });
+      
+      const stats = await platformStatisticsService.getStatistics();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error getting platform statistics:", error);
+      res.status(500).json({ error: "Failed to get platform statistics" });
+    }
+  });
+
+  // Force refresh platform statistics (admin only)
+  app.post("/api/platform/stats/refresh", requireAuth, isAdmin, async (_req, res) => {
+    try {
+      const stats = await platformStatisticsService.getStatistics(true); // Force refresh
+      res.json({ message: "Platform statistics refreshed", stats });
+    } catch (error) {
+      console.error("Error refreshing platform statistics:", error);
+      res.status(500).json({ error: "Failed to refresh platform statistics" });
     }
   });
   
