@@ -789,82 +789,25 @@ export default function MySeniorValetHome() {
                 {/* The Promise - 10 Levels of Care */}
                 <div className="my-8 py-8 border-y-2 border-purple-400 dark:border-purple-600">
                   <Globe className="w-16 h-16 text-purple-600 dark:text-purple-400 mx-auto mb-6" />
-                  <p className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">
+                  <p className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-4">
                     Master the Full 10-Level Care Spectrum
                   </p>
                   
-                  {/* Care Spectrum Grid with Icons */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-4xl mx-auto mb-6">
-                    <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
-                      <span className="text-2xl">🏛️</span>
-                      <div className="text-left">
-                        <strong className="text-purple-600 dark:text-purple-400">1. HUD Housing</strong>
-                        <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">Government-subsidized</span>
-                      </div>
+                  {/* Ultra-Compact Care Spectrum */}
+                  <div className="text-center mb-6 px-4">
+                    <div className="text-lg md:text-xl text-gray-700 dark:text-gray-200">
+                      <span className="text-purple-600 dark:text-purple-400 font-bold">🏛️ HUD</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🎖️ VA</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🚐 Mobile</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> ⛳ 55+</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🏠 Independent</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🏡 Board & Care</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🤝 Assisted</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🧠 Memory</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> ♾️ CCRC</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🏥 Skilled</span>
                     </div>
-                    <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
-                      <span className="text-2xl">🎖️</span>
-                      <div className="text-left">
-                        <strong className="text-purple-600 dark:text-purple-400">2. VA Housing</strong>
-                        <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">Veterans communities</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
-                      <span className="text-2xl">🚐</span>
-                      <div className="text-left">
-                        <strong className="text-purple-600 dark:text-purple-400">3. Mobile & RV</strong>
-                        <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">Alternative housing</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
-                      <span className="text-2xl">⛳</span>
-                      <div className="text-left">
-                        <strong className="text-purple-600 dark:text-purple-400">4. 55+ Active</strong>
-                        <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">Active adult communities</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
-                      <span className="text-2xl">🏠</span>
-                      <div className="text-left">
-                        <strong className="text-purple-600 dark:text-purple-400">5. Independent Living</strong>
-                        <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">Self-sufficient seniors</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
-                      <span className="text-2xl">🏡</span>
-                      <div className="text-left">
-                        <strong className="text-purple-600 dark:text-purple-400">6. Board & Care</strong>
-                        <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">Residential care homes</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
-                      <span className="text-2xl">🤝</span>
-                      <div className="text-left">
-                        <strong className="text-purple-600 dark:text-purple-400">7. Assisted Living</strong>
-                        <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">Daily living assistance</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
-                      <span className="text-2xl">🧠</span>
-                      <div className="text-left">
-                        <strong className="text-purple-600 dark:text-purple-400">8. Memory Care</strong>
-                        <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">Dementia & Alzheimer's</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
-                      <span className="text-2xl">♾️</span>
-                      <div className="text-left">
-                        <strong className="text-purple-600 dark:text-purple-400">9. CCRC</strong>
-                        <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">Continuing care retirement</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
-                      <span className="text-2xl">🏥</span>
-                      <div className="text-left">
-                        <strong className="text-purple-600 dark:text-purple-400">10. Skilled Nursing</strong>
-                        <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">24/7 medical care</span>
-                      </div>
-                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Complete care continuum from independent to full medical support</p>
                   </div>
 
                   <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-200">
