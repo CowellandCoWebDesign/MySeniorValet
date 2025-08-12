@@ -33,7 +33,7 @@ import {
   MessageSquare, Phone, Mail, Bell, AlertTriangle,
   CheckCircle2, XCircle, Info, Sparkles, Hash,
   UserPlus, Edit, Trash2, Save, X, Loader2, Store, Map,
-  ExternalLink, Pencil
+  ExternalLink, Pencil, Crown, Calculator, Receipt
 } from "lucide-react";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -127,6 +127,24 @@ export default function SuperAdminAnalytics() {
   const [selectedProvider, setSelectedProvider] = useState("all");
   const [vendorList, setVendorList] = useState<any[]>([]);
   const [communityList, setCommunityList] = useState<any[]>([]);
+  
+  // Subscription Management State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedPlan, setSelectedPlan] = useState<string>("");
+  const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  const [showBulkActions, setShowBulkActions] = useState(false);
+  const [selectedSubscriptions, setSelectedSubscriptions] = useState<number[]>([]);
+  
+  // Payment Monitoring State
+  const [paymentTests, setPaymentTests] = useState<any[]>([]);
+  const [isTestRunning, setIsTestRunning] = useState(false);
+  const [completedTests, setCompletedTests] = useState(1);
+  const [notifications, setNotifications] = useState<string[]>([]);
+  
+  // Data Quality State
+  const [dataQualityMetrics, setDataQualityMetrics] = useState<any>(null);
+  const [apiCostData, setApiCostData] = useState<any>(null);
+  
   const { toast } = useToast();
   
   // Fetch vendors when tab changes to vendors
@@ -152,6 +170,27 @@ export default function SuperAdminAnalytics() {
         });
     }
   }, [activeMetricTab]);
+  
+  // Fetch subscription data when tab changes to subscriptions
+  const { data: subscriptionMetrics } = useQuery({
+    queryKey: ["/api/admin/subscriptions/metrics"],
+    enabled: activeMetricTab === 'subscriptions'
+  });
+  
+  const { data: subscriptionPlans } = useQuery({
+    queryKey: ["/api/admin/subscriptions/plans"],
+    enabled: activeMetricTab === 'subscriptions'
+  });
+  
+  const { data: allSubscriptions } = useQuery({
+    queryKey: ["/api/admin/subscriptions/all"],
+    enabled: activeMetricTab === 'subscriptions'
+  });
+  
+  const { data: paymentHistory } = useQuery({
+    queryKey: ["/api/admin/subscriptions/payment-history"],
+    enabled: activeMetricTab === 'subscriptions' || activeMetricTab === 'payments'
+  });
   
   // Comprehensive metrics query - MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   const { data: metrics, isLoading, refetch } = useQuery<DashboardMetrics>({
@@ -440,12 +479,13 @@ export default function SuperAdminAnalytics() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Zap className="h-5 w-5 text-yellow-500" />
-                  Quick Access Dashboard
+                  Super Admin Command Center - Quick Access
                 </CardTitle>
-                <CardDescription>Jump directly to any admin function</CardDescription>
+                <CardDescription>All admin tools in one place - Jump directly to any function</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-8 gap-2">
+                  {/* Row 1 - Core Functions */}
                   <Button 
                     variant={activeMetricTab === "overview" ? "default" : "outline"} 
                     className="flex flex-col items-center justify-center h-20 text-xs"
@@ -463,12 +503,28 @@ export default function SuperAdminAnalytics() {
                     Heatmap
                   </Button>
                   <Button 
+                    variant={activeMetricTab === "subscriptions" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs bg-purple-50 hover:bg-purple-100 dark:bg-purple-950 dark:hover:bg-purple-900 border-purple-300"
+                    onClick={() => setActiveMetricTab("subscriptions")}
+                  >
+                    <Crown className="h-6 w-6 mb-1 text-purple-600" />
+                    Subscriptions
+                  </Button>
+                  <Button 
                     variant={activeMetricTab === "financial" ? "default" : "outline"}
                     className="flex flex-col items-center justify-center h-20 text-xs"
                     onClick={() => setActiveMetricTab("financial")}
                   >
                     <DollarSign className="h-6 w-6 mb-1" />
                     Financial
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "payments" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("payments")}
+                  >
+                    <CreditCard className="h-6 w-6 mb-1" />
+                    Payments
                   </Button>
                   <Button 
                     variant={activeMetricTab === "users" ? "default" : "outline"}
@@ -494,14 +550,8 @@ export default function SuperAdminAnalytics() {
                     <Store className="h-6 w-6 mb-1" />
                     Vendors
                   </Button>
-                  <Button 
-                    variant={activeMetricTab === "payments" ? "default" : "outline"}
-                    className="flex flex-col items-center justify-center h-20 text-xs"
-                    onClick={() => setActiveMetricTab("payments")}
-                  >
-                    <CreditCard className="h-6 w-6 mb-1" />
-                    Payments
-                  </Button>
+                  
+                  {/* Row 2 - Analytics & Operations */}
                   <Button 
                     variant={activeMetricTab === "ai" ? "default" : "outline"}
                     className="flex flex-col items-center justify-center h-20 text-xs"
@@ -517,6 +567,88 @@ export default function SuperAdminAnalytics() {
                   >
                     <TrendingUp className="h-6 w-6 mb-1" />
                     Marketing
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "data-quality" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("data-quality")}
+                  >
+                    <CheckCircle className="h-6 w-6 mb-1" />
+                    Data Quality
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "integration" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("integration")}
+                  >
+                    <Layers className="h-6 w-6 mb-1" />
+                    Integration
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "api-costs" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("api-costs")}
+                  >
+                    <Calculator className="h-6 w-6 mb-1" />
+                    API Costs
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "storage" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("storage")}
+                  >
+                    <HardDrive className="h-6 w-6 mb-1" />
+                    Storage
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "reports" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("reports")}
+                  >
+                    <FileText className="h-6 w-6 mb-1" />
+                    Reports
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "security" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("security")}
+                  >
+                    <Shield className="h-6 w-6 mb-1" />
+                    Security
+                  </Button>
+                  
+                  {/* Row 3 - Special Tools */}
+                  <Button 
+                    variant={activeMetricTab === "email-broadcast" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("email-broadcast")}
+                  >
+                    <Mail className="h-6 w-6 mb-1" />
+                    Email Tools
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "audit-logs" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("audit-logs")}
+                  >
+                    <Eye className="h-6 w-6 mb-1" />
+                    Audit Logs
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "amazon-admin" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("amazon-admin")}
+                  >
+                    <Package className="h-6 w-6 mb-1" />
+                    Amazon
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "services-mgmt" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("services-mgmt")}
+                  >
+                    <Settings className="h-6 w-6 mb-1" />
+                    Services
                   </Button>
                   <Button 
                     variant={activeMetricTab === "legal" ? "default" : "outline"}
@@ -1688,6 +1820,231 @@ export default function SuperAdminAnalytics() {
                 </div>
               </TabsContent>
 
+              {/* Subscription Management Tab */}
+              <TabsContent value="subscriptions" className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Subscription Management</h2>
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={handleRefresh}>
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Refresh
+                    </Button>
+                    <Button variant="default">
+                      <Crown className="h-4 w-4 mr-2" />
+                      Create Plan
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Subscription Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Total MRR</span>
+                        <span className="text-2xl font-bold">${subscriptionMetrics?.totalMrr?.toLocaleString() || '0'}</span>
+                        <span className="text-xs text-green-600">+{subscriptionMetrics?.mrrGrowth || 0}% growth</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Active Subscriptions</span>
+                        <span className="text-2xl font-bold">{subscriptionMetrics?.activeSubscriptions || '0'}</span>
+                        <span className="text-xs text-blue-600">{subscriptionMetrics?.trialSubscriptions || 0} in trial</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Churn Rate</span>
+                        <span className="text-2xl font-bold">{subscriptionMetrics?.churnRate || 0}%</span>
+                        <span className="text-xs text-gray-600">Monthly average</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Avg Revenue/User</span>
+                        <span className="text-2xl font-bold">${subscriptionMetrics?.avgRevenuePerUser || 0}</span>
+                        <span className="text-xs text-gray-600">LTV: ${subscriptionMetrics?.lifetimeValue || 0}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Active Subscriptions Table */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Active Subscriptions</CardTitle>
+                    <CardDescription>Manage all platform subscriptions</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="mb-4 flex gap-2">
+                      <Input 
+                        placeholder="Search subscriptions..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="max-w-sm"
+                      />
+                      <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Status</SelectItem>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="trialing">Trial</SelectItem>
+                          <SelectItem value="past_due">Past Due</SelectItem>
+                          <SelectItem value="canceled">Canceled</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Community</TableHead>
+                          <TableHead>Plan</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Amount</TableHead>
+                          <TableHead>Next Billing</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {allSubscriptions?.filter((sub: any) => 
+                          (selectedStatus === 'all' || sub.status === selectedStatus) &&
+                          (!searchQuery || sub.communityName.toLowerCase().includes(searchQuery.toLowerCase()))
+                        ).slice(0, 10).map((subscription: any) => (
+                          <TableRow key={subscription.id}>
+                            <TableCell className="font-medium">{subscription.communityName}</TableCell>
+                            <TableCell>{subscription.planName}</TableCell>
+                            <TableCell>
+                              <Badge variant={
+                                subscription.status === 'active' ? 'default' :
+                                subscription.status === 'trialing' ? 'secondary' :
+                                subscription.status === 'past_due' ? 'destructive' : 'outline'
+                              }>
+                                {subscription.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>${subscription.amount}/mo</TableCell>
+                            <TableCell>{subscription.currentPeriodEnd ? format(new Date(subscription.currentPeriodEnd), 'MMM d, yyyy') : '-'}</TableCell>
+                            <TableCell>
+                              <Button size="sm" variant="ghost">Manage</Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Payment Monitoring Tab */}
+              <TabsContent value="payments" className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Payment Monitoring</h2>
+                  <Button variant="default" onClick={() => setIsTestRunning(true)}>
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Run Payment Tests
+                  </Button>
+                </div>
+
+                {/* Payment Test Results */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Community Payment Tiers</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center p-2 border rounded">
+                          <span>Verified (Free)</span>
+                          <Badge variant="outline" className="text-green-600">Active</Badge>
+                        </div>
+                        <div className="flex justify-between items-center p-2 border rounded">
+                          <span>Standard ($149/mo)</span>
+                          <Badge variant="outline" className="text-green-600">Configured</Badge>
+                        </div>
+                        <div className="flex justify-between items-center p-2 border rounded">
+                          <span>Featured ($249/mo)</span>
+                          <Badge variant="outline" className="text-green-600">Configured</Badge>
+                        </div>
+                        <div className="flex justify-between items-center p-2 border rounded">
+                          <span>Platinum ($349/mo)</span>
+                          <Badge variant="outline" className="text-green-600">Configured</Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Vendor Payment Tiers</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center p-2 border rounded">
+                          <span>Basic Listing ($99/mo)</span>
+                          <Badge variant="outline" className="text-green-600">Configured</Badge>
+                        </div>
+                        <div className="flex justify-between items-center p-2 border rounded">
+                          <span>Featured Vendor ($249/mo)</span>
+                          <Badge variant="outline" className="text-green-600">Configured</Badge>
+                        </div>
+                        <div className="flex justify-between items-center p-2 border rounded">
+                          <span>National Partner ($499/mo)</span>
+                          <Badge variant="outline" className="text-green-600">Configured</Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Recent Payments */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Recent Payment Activity</CardTitle>
+                    <CardDescription>Last 24 hours of payment transactions</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Transaction ID</TableHead>
+                          <TableHead>Entity</TableHead>
+                          <TableHead>Amount</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Date</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {paymentHistory?.slice(0, 10).map((payment: any) => (
+                          <TableRow key={payment.id}>
+                            <TableCell className="font-mono text-sm">{payment.id}</TableCell>
+                            <TableCell>{payment.communityName}</TableCell>
+                            <TableCell>${payment.amount}</TableCell>
+                            <TableCell>
+                              <Badge variant={
+                                payment.status === 'succeeded' ? 'default' :
+                                payment.status === 'pending' ? 'secondary' : 'destructive'
+                              }>
+                                {payment.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{format(new Date(payment.date), 'MMM d, h:mm a')}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
               {/* Legal Documents Tab */}
               <TabsContent value="legal" className="space-y-6">
                 <div className="flex justify-between items-center mb-4">
@@ -1736,6 +2093,359 @@ export default function SuperAdminAnalytics() {
                     </Table>
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              {/* Data Quality Tab */}
+              <TabsContent value="data-quality" className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Data Quality Management</h2>
+                  <Button variant="default" onClick={handleRefresh}>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Run Quality Check
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Data Completeness</span>
+                        <span className="text-2xl font-bold">94.5%</span>
+                        <Progress value={94.5} className="mt-2" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Verified Pricing</span>
+                        <span className="text-2xl font-bold">5,241</span>
+                        <span className="text-xs text-green-600">HUD-verified communities</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Missing Photos</span>
+                        <span className="text-2xl font-bold">1,287</span>
+                        <span className="text-xs text-orange-600">Communities need images</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Last AI Check</span>
+                        <span className="text-2xl font-bold">2h ago</span>
+                        <span className="text-xs text-blue-600">Next run in 4 hours</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Data Quality Issues</CardTitle>
+                    <CardDescription>Communities requiring attention</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Community</TableHead>
+                          <TableHead>Issue Type</TableHead>
+                          <TableHead>Priority</TableHead>
+                          <TableHead>Impact</TableHead>
+                          <TableHead>Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell>Sunrise Manor</TableCell>
+                          <TableCell>Missing Phone</TableCell>
+                          <TableCell><Badge variant="destructive">High</Badge></TableCell>
+                          <TableCell>Conversion Rate -15%</TableCell>
+                          <TableCell><Button size="sm" variant="ghost">Fix</Button></TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>Oak Valley Care</TableCell>
+                          <TableCell>No Photos</TableCell>
+                          <TableCell><Badge variant="secondary">Medium</Badge></TableCell>
+                          <TableCell>Engagement -30%</TableCell>
+                          <TableCell><Button size="sm" variant="ghost">Fix</Button></TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* API Costs Tab */}
+              <TabsContent value="api-costs" className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">API Cost Management</h2>
+                  <Badge variant="outline" className="text-lg px-3 py-1">
+                    Monthly Budget: $500 / $2,000
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">OpenAI</span>
+                        <span className="text-2xl font-bold">$127.45</span>
+                        <Progress value={25} className="mt-2" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Anthropic</span>
+                        <span className="text-2xl font-bold">$89.23</span>
+                        <Progress value={18} className="mt-2" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Perplexity</span>
+                        <span className="text-2xl font-bold">$45.67</span>
+                        <Progress value={9} className="mt-2" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Google Gemini</span>
+                        <span className="text-2xl font-bold">$237.65</span>
+                        <Progress value={47} className="mt-2" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>API Usage Trends</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={[
+                        { day: 'Mon', openai: 18, anthropic: 12, perplexity: 6, gemini: 34 },
+                        { day: 'Tue', openai: 22, anthropic: 15, perplexity: 8, gemini: 38 },
+                        { day: 'Wed', openai: 15, anthropic: 10, perplexity: 5, gemini: 32 },
+                        { day: 'Thu', openai: 20, anthropic: 14, perplexity: 7, gemini: 36 },
+                        { day: 'Fri', openai: 19, anthropic: 13, perplexity: 6, gemini: 35 },
+                        { day: 'Sat', openai: 17, anthropic: 11, perplexity: 7, gemini: 33 },
+                        { day: 'Sun', openai: 16, anthropic: 14, perplexity: 6, gemini: 30 }
+                      ]}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="day" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Line type="monotone" dataKey="openai" stroke="#10b981" name="OpenAI" />
+                        <Line type="monotone" dataKey="anthropic" stroke="#8b5cf6" name="Anthropic" />
+                        <Line type="monotone" dataKey="perplexity" stroke="#f59e0b" name="Perplexity" />
+                        <Line type="monotone" dataKey="gemini" stroke="#3b82f6" name="Gemini" />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Storage Tab */}
+              <TabsContent value="storage" className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Storage Management</h2>
+                  <Button variant="default">
+                    <HardDrive className="h-4 w-4 mr-2" />
+                    Optimize Storage
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Database Size</span>
+                        <span className="text-2xl font-bold">2.47 GB</span>
+                        <Progress value={24.7} className="mt-2" />
+                        <span className="text-xs text-gray-600 mt-1">of 10 GB limit</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Image Storage</span>
+                        <span className="text-2xl font-bold">856 MB</span>
+                        <Progress value={8.56} className="mt-2" />
+                        <span className="text-xs text-gray-600 mt-1">12,847 images</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Cache Usage</span>
+                        <span className="text-2xl font-bold">145 MB</span>
+                        <Button size="sm" variant="outline" className="mt-2">Clear Cache</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              {/* Integration Tab */}
+              <TabsContent value="integration" className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Integration Status</h2>
+                  <Button variant="default">
+                    <Layers className="h-4 w-4 mr-2" />
+                    Add Integration
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-center">
+                        <CardTitle className="text-base">Stripe</CardTitle>
+                        <Badge variant="outline" className="text-green-600">Connected</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-sm text-gray-600">Payment processing</div>
+                      <div className="text-xs text-gray-500 mt-1">Last sync: 2 min ago</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-center">
+                        <CardTitle className="text-base">SendGrid</CardTitle>
+                        <Badge variant="outline" className="text-green-600">Connected</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-sm text-gray-600">Email delivery</div>
+                      <div className="text-xs text-gray-500 mt-1">12,847 emails sent</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-center">
+                        <CardTitle className="text-base">Amazon Associates</CardTitle>
+                        <Badge variant="outline" className="text-green-600">Connected</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-sm text-gray-600">Affiliate links</div>
+                      <div className="text-xs text-gray-500 mt-1">1,287 products linked</div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              {/* Reports Tab */}
+              <TabsContent value="reports" className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Analytics Reports</h2>
+                  <Button variant="default">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Generate Report
+                  </Button>
+                </div>
+
+                <Card>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Report Name</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Frequency</TableHead>
+                          <TableHead>Last Generated</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell>Monthly Revenue Report</TableCell>
+                          <TableCell>Financial</TableCell>
+                          <TableCell>Monthly</TableCell>
+                          <TableCell>Jan 1, 2025</TableCell>
+                          <TableCell>
+                            <Button size="sm" variant="ghost">Download</Button>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>User Growth Analytics</TableCell>
+                          <TableCell>Growth</TableCell>
+                          <TableCell>Weekly</TableCell>
+                          <TableCell>Jan 7, 2025</TableCell>
+                          <TableCell>
+                            <Button size="sm" variant="ghost">Download</Button>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Security Tab */}
+              <TabsContent value="security" className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Security Center</h2>
+                  <Badge variant="outline" className="text-green-600">
+                    All Systems Secure
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Failed Login Attempts</span>
+                        <span className="text-2xl font-bold">3</span>
+                        <span className="text-xs text-gray-600">Last 24 hours</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Active Sessions</span>
+                        <span className="text-2xl font-bold">127</span>
+                        <span className="text-xs text-gray-600">Currently online</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">SSL Certificate</span>
+                        <span className="text-2xl font-bold text-green-600">Valid</span>
+                        <span className="text-xs text-gray-600">Expires in 89 days</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Last Security Scan</span>
+                        <span className="text-2xl font-bold">100%</span>
+                        <span className="text-xs text-green-600">No vulnerabilities</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </TabsContent>
 
               {/* System Health Tab */}

@@ -266,11 +266,11 @@ function Router() {
       <Route path="/test-map-views" component={TestMapViews} />
       <Route path="/auth-debug" component={AuthDebug} />
       <Route path="/weaviate-test" component={WeaviateTest} />
-      <Route path="/data-quality" component={DataQualityDashboard} />
+      <Route path="/data-quality" component={SuperAdminAnalytics} />
       <Route path="/database-test" component={DatabaseTest} />
-      <Route path="/integrations" component={IntegrationsPage} />
-      <Route path="/integration-dashboard" component={IntegrationDashboard} />
-      <Route path="/subscriptions" component={SubscriptionManagement} />
+      <Route path="/integrations" component={SuperAdminAnalytics} />
+      <Route path="/integration-dashboard" component={SuperAdminAnalytics} />
+      <Route path="/subscriptions" component={SuperAdminAnalytics} />
       <Route path="/ai-demo" component={AIDemoPage} />
       <Route path="/ai-map-showcase" component={AIMapShowcase} />
       <Route path="/vendor-signup" component={VendorSignup} />
@@ -297,7 +297,7 @@ function Router() {
       <Route path="/community-creator-portal" component={CommunityCreatorPortal} />
       <Route path="/super-admin-dashboard" component={SuperAdminAnalytics} />
       <Route path="/super-admin-analytics" component={SuperAdminAnalytics} />
-      <Route path="/admin-subscription-management" component={AdminSubscriptionManagement} />
+      <Route path="/admin-subscription-management" component={SuperAdminAnalytics} />
       <Route path="/admin/marketing-hub" component={SuperAdminAnalytics} />
       <Route path="/availability-heatmap" component={AvailabilityHeatmapPage} />
       <Route path="/admin/availability-heatmap" component={SuperAdminAnalytics} />
