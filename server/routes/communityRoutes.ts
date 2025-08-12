@@ -457,12 +457,28 @@ export function registerCommunityRoutes(app: Express) {
         return res.status(404).json({ error: "Community not found" });
       }
 
-      // Run multi-AI verification on the real-time data
+      // Run multi-AI verification on the real-time data with full community context
       console.log(`🔬 Running Multi-AI Verification for ${community.name}`);
       const verificationReport = await multiAIVerificationService.verifyRealTimeData(
         communityId,
         community.name,
-        realTimeData
+        realTimeData,
+        {
+          city: community.city,
+          state: community.state,
+          zipCode: community.zip,
+          address: community.address,
+          careTypes: community.careTypes || [],
+          communityType: community.communityType,
+          communitySubtype: community.communitySubtype,
+          rating: community.rating,
+          bedCount: community.bedCount,
+          yearEstablished: community.yearEstablished,
+          description: community.description,
+          ownershipType: community.ownershipType,
+          certifications: community.certifications || [],
+          hudPropertyId: community.hudPropertyId
+        }
       );
 
       res.json(verificationReport);

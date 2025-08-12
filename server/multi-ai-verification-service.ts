@@ -53,7 +53,23 @@ export class MultiAIVerificationService {
   async verifyRealTimeData(
     communityId: number,
     communityName: string,
-    perplexityData: any
+    perplexityData: any,
+    communityContext?: {
+      city: string;
+      state: string;
+      zipCode: string;
+      address: string;
+      careTypes: string[];
+      communityType: string;
+      communitySubtype: string;
+      rating: number;
+      bedCount: number;
+      yearEstablished: number;
+      description: string;
+      ownershipType: string;
+      certifications: string[];
+      hudPropertyId: string;
+    }
   ): Promise<MultiAIVerificationReport> {
     console.log(`🔍 Starting Multi-AI Verification for ${communityName}`);
     
@@ -93,8 +109,8 @@ export class MultiAIVerificationService {
     try {
       // Run parallel verification with Claude and ChatGPT
       const [claudeResult, chatgptResult] = await Promise.allSettled([
-        this.verifyWithClaude(communityName, perplexityData),
-        this.verifyWithChatGPT(communityName, perplexityData)
+        this.verifyWithClaude(communityName, perplexityData, communityContext),
+        this.verifyWithChatGPT(communityName, perplexityData, communityContext)
       ]);
 
       // Process Claude verification
@@ -150,11 +166,26 @@ export class MultiAIVerificationService {
   // Verify with Claude (Anthropic)
   private async verifyWithClaude(
     communityName: string,
-    perplexityData: any
+    perplexityData: any,
+    communityContext?: any
   ): Promise<VerificationResult | null> {
     try {
-      const prompt = `You are verifying information about "${communityName}" senior living community.
+      const contextInfo = communityContext ? `
+Community Details:
+- Location: ${communityContext.address}, ${communityContext.city}, ${communityContext.state} ${communityContext.zipCode}
+- Care Types: ${communityContext.careTypes?.join(', ') || 'Not specified'}
+- Community Type: ${communityContext.communityType}
+- Community Subtype: ${communityContext.communitySubtype}
+- Bed Count: ${communityContext.bedCount || 'Unknown'}
+- Year Established: ${communityContext.yearEstablished || 'Unknown'}
+- Ownership Type: ${communityContext.ownershipType || 'Unknown'}
+- HUD Property: ${communityContext.hudPropertyId ? 'Yes' : 'No'}
 
+Based on the location and care types, please provide estimated market pricing ranges for this community.
+` : '';
+
+      const prompt = `You are verifying information about "${communityName}" senior living community.
+${contextInfo}
 Please verify the following data gathered from web search:
 ${JSON.stringify(perplexityData, null, 2)}
 
@@ -162,11 +193,12 @@ Analyze this information and provide:
 1. Verified findings (facts that seem accurate and consistent)
 2. Concerns (information that seems questionable or needs further verification)
 3. Recommendations for families considering this community
+4. Estimated market pricing based on location and care types (if community context is provided)
 
 Format your response as a JSON object with these keys:
 - verified: boolean (overall verification status)
 - confidence: number (0-100)
-- findings: array of verified facts
+- findings: array of verified facts (include pricing estimates if available)
 - concerns: array of concerns
 - recommendations: array of recommendations for families`;
 
@@ -214,25 +246,41 @@ Format your response as a JSON object with these keys:
   // Verify with ChatGPT-4o
   private async verifyWithChatGPT(
     communityName: string,
-    perplexityData: any
+    perplexityData: any,
+    communityContext?: any
   ): Promise<VerificationResult | null> {
     try {
+      const contextInfo = communityContext ? `
+Community Details:
+- Location: ${communityContext.address}, ${communityContext.city}, ${communityContext.state} ${communityContext.zipCode}
+- Care Types: ${communityContext.careTypes?.join(', ') || 'Not specified'}
+- Community Type: ${communityContext.communityType}
+- Community Subtype: ${communityContext.communitySubtype}
+- Bed Count: ${communityContext.bedCount || 'Unknown'}
+- Year Established: ${communityContext.yearEstablished || 'Unknown'}
+- Ownership Type: ${communityContext.ownershipType || 'Unknown'}
+- HUD Property: ${communityContext.hudPropertyId ? 'Yes' : 'No'}
+
+Based on the location and care types, please provide estimated market pricing ranges for this community.
+` : '';
+
       const response = await openai.chat.completions.create({
         model: 'gpt-4o', // Latest GPT model
         messages: [
           {
             role: 'system',
-            content: 'You are a senior living expert verifying information accuracy. Respond with JSON only.'
+            content: 'You are a senior living expert verifying information accuracy and providing market pricing estimates. Respond with JSON only.'
           },
           {
             role: 'user',
             content: `Verify this information about "${communityName}":
+${contextInfo}
 ${JSON.stringify(perplexityData, null, 2)}
 
 Return JSON with:
 - verified: boolean
 - confidence: 0-100
-- findings: array of verified facts
+- findings: array of verified facts (include pricing estimates if context is provided)
 - concerns: array of concerns
 - recommendations: array for families`
           }
