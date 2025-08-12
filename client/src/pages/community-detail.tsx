@@ -213,13 +213,25 @@ const RealTimeInsights = ({ community }: { community: any }) => {
           Live Intelligence Report
         </CardTitle>
         <CardDescription className="text-base">
-          <div className="flex items-center space-x-2">
-            <span className="font-semibold text-blue-700 dark:text-blue-300">AI Orchestra Status:</span>
-            <span className="text-green-600 dark:text-green-400 font-medium">✓ Active</span>
-            <span className="text-gray-600 dark:text-gray-400">•</span>
-            <span>Real-time web search by Perplexity AI</span>
-            <span className="text-gray-600 dark:text-gray-400">•</span>
-            <span>Updated {realTimeData.lastUpdated ? new Date(realTimeData.lastUpdated).toLocaleTimeString() : 'just now'}</span>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center space-x-2">
+              <span className="font-semibold text-blue-700 dark:text-blue-300">AI Orchestra Status:</span>
+              <span className="text-green-600 dark:text-green-400 font-medium">✓ Active</span>
+              <span className="text-gray-600 dark:text-gray-400">•</span>
+              <span>Updated {realTimeData.lastUpdated ? new Date(realTimeData.lastUpdated).toLocaleTimeString() : 'just now'}</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <span className="font-medium text-gray-600 dark:text-gray-400">Powered by:</span>
+              <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-2 py-0.5 text-xs">
+                1. Perplexity AI (Primary - Web Search)
+              </Badge>
+              <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-2 py-0.5 text-xs">
+                2. Claude Sonnet 4.0 (Secondary - Analysis)
+              </Badge>
+              <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-2 py-0.5 text-xs">
+                3. ChatGPT-4o (Backup - Verification)
+              </Badge>
+            </div>
           </div>
         </CardDescription>
       </CardHeader>
