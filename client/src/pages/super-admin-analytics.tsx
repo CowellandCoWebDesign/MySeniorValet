@@ -1058,6 +1058,35 @@ export default function SuperAdminAnalytics() {
 
               {/* Financial Tab */}
               <TabsContent value="financial" className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">Financial Management</h2>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        toast({
+                          title: "Export Financial Report",
+                          description: "Generating comprehensive financial report..."
+                        });
+                      }}
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Export Report
+                    </Button>
+                    <Button 
+                      variant="default"
+                      onClick={() => {
+                        toast({
+                          title: "Process Refund",
+                          description: "Opening refund processing form..."
+                        });
+                      }}
+                    >
+                      <DollarSign className="h-4 w-4 mr-2" />
+                      Process Refund
+                    </Button>
+                  </div>
+                </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Subscription Distribution */}
                   <Card>
@@ -1121,6 +1150,128 @@ export default function SuperAdminAnalytics() {
                     </CardContent>
                   </Card>
                 </div>
+
+                {/* Recent Transactions Table */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Recent Transactions</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Transaction ID</TableHead>
+                          <TableHead>Customer</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Amount</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">txn_1234567890</TableCell>
+                          <TableCell>john.smith@email.com</TableCell>
+                          <TableCell><Badge variant="default">Subscription</Badge></TableCell>
+                          <TableCell>$249.00</TableCell>
+                          <TableCell><Badge variant="default" className="bg-green-600">Completed</Badge></TableCell>
+                          <TableCell>Jan 12, 2025</TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Viewing Transaction",
+                                    description: "Opening transaction details for txn_1234567890..."
+                                  });
+                                }}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Process Refund",
+                                    description: "Opening refund form for txn_1234567890...",
+                                    variant: "destructive"
+                                  });
+                                }}
+                              >
+                                <RefreshCw className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Download Receipt",
+                                    description: "Generating receipt PDF..."
+                                  });
+                                }}
+                              >
+                                <FileText className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm">txn_0987654321</TableCell>
+                          <TableCell>sarah.jones@email.com</TableCell>
+                          <TableCell><Badge variant="outline">One-time</Badge></TableCell>
+                          <TableCell>$49.00</TableCell>
+                          <TableCell><Badge variant="default" className="bg-green-600">Completed</Badge></TableCell>
+                          <TableCell>Jan 11, 2025</TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Viewing Transaction",
+                                    description: "Opening transaction details for txn_0987654321..."
+                                  });
+                                }}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Process Refund",
+                                    description: "Opening refund form for txn_0987654321...",
+                                    variant: "destructive"
+                                  });
+                                }}
+                              >
+                                <RefreshCw className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Download Receipt",
+                                    description: "Generating receipt PDF..."
+                                  });
+                                }}
+                              >
+                                <FileText className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
               </TabsContent>
 
               {/* AI Analytics Tab */}
@@ -2025,7 +2176,15 @@ export default function SuperAdminAnalytics() {
               <TabsContent value="marketing" className="space-y-6">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-2xl font-bold">Marketing Hub</h2>
-                  <Button variant="default">
+                  <Button 
+                    variant="default"
+                    onClick={() => {
+                      toast({
+                        title: "Create Marketing Campaign",
+                        description: "Opening campaign creation wizard..."
+                      });
+                    }}
+                  >
                     <TrendingUp className="h-4 w-4 mr-2" />
                     Create Campaign
                   </Button>
@@ -2059,6 +2218,176 @@ export default function SuperAdminAnalytics() {
                     </CardContent>
                   </Card>
                 </div>
+
+                {/* Active Campaigns Table */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Active Marketing Campaigns</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Campaign Name</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Opens</TableHead>
+                          <TableHead>Clicks</TableHead>
+                          <TableHead>Conversions</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-medium">Winter Care Special</TableCell>
+                          <TableCell><Badge variant="outline">Email</Badge></TableCell>
+                          <TableCell><Badge className="bg-green-600">Active</Badge></TableCell>
+                          <TableCell>3,542</TableCell>
+                          <TableCell>892</TableCell>
+                          <TableCell>47</TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "View Campaign Analytics",
+                                    description: "Opening detailed analytics for Winter Care Special..."
+                                  });
+                                }}
+                              >
+                                <BarChart3 className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Edit Campaign",
+                                    description: "Opening campaign editor..."
+                                  });
+                                }}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Pause Campaign",
+                                    description: "Campaign paused successfully",
+                                    variant: "destructive"
+                                  });
+                                }}
+                              >
+                                <Pause className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">New Community Spotlight</TableCell>
+                          <TableCell><Badge variant="outline">Social</Badge></TableCell>
+                          <TableCell><Badge className="bg-green-600">Active</Badge></TableCell>
+                          <TableCell>8,921</TableCell>
+                          <TableCell>2,103</TableCell>
+                          <TableCell>156</TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "View Campaign Analytics",
+                                    description: "Opening detailed analytics for New Community Spotlight..."
+                                  });
+                                }}
+                              >
+                                <BarChart3 className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Edit Campaign",
+                                    description: "Opening campaign editor..."
+                                  });
+                                }}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Pause Campaign",
+                                    description: "Campaign paused successfully",
+                                    variant: "destructive"
+                                  });
+                                }}
+                              >
+                                <Pause className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Family Resource Guide</TableCell>
+                          <TableCell><Badge variant="outline">Content</Badge></TableCell>
+                          <TableCell><Badge className="bg-yellow-600">Scheduled</Badge></TableCell>
+                          <TableCell>-</TableCell>
+                          <TableCell>-</TableCell>
+                          <TableCell>-</TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Preview Campaign",
+                                    description: "Opening campaign preview..."
+                                  });
+                                }}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Edit Campaign",
+                                    description: "Opening campaign editor..."
+                                  });
+                                }}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Launch Campaign",
+                                    description: "Campaign launched successfully!"
+                                  });
+                                }}
+                              >
+                                <Play className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
               </TabsContent>
 
               {/* Subscription Management Tab */}
