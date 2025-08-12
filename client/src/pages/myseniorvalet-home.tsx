@@ -321,11 +321,11 @@ export default function MySeniorValetHome() {
                         <Heart className="h-5 w-5" />
                         <span>Healthcare & Services</span>
                       </Link>
-                      <Link href="/hospitals" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                      <Link href="/senior-healthcare-directory" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
                         <Building2 className="h-5 w-5" />
                         <span>Hospital Directory</span>
                       </Link>
-                      <Link href="/care-marketplace" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                      <Link href="/marketplace" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
                         <ShoppingBag className="h-5 w-5" />
                         <span>Care Marketplace</span>
                       </Link>
