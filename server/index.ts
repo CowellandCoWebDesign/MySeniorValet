@@ -69,15 +69,36 @@ app.use(securityHeaders);
 app.use(securityLogger);
 app.use(enhanceSessionSecurity);
 
-// Performance monitoring (DISABLED - slowing startup)
-// app.use(performanceMonitor.middleware());
+// Lazy load infrastructure after basic middleware setup
+let infrastructure: any = null;
 
-// DISABLE Security monitoring (slowing startup)
-// if (process.env.NODE_ENV !== 'development') {
-//   app.use(securityDashboard.middleware());
-// } else {
-//   console.log('⚠️ Security monitoring DISABLED in development mode');
-// }
+// Performance monitoring (will be enabled after infrastructure loads)
+app.use(async (req, res, next) => {
+  if (!infrastructure) {
+    infrastructure = await loadInfrastructure();
+  }
+  if (infrastructure.performanceMonitor) {
+    infrastructure.performanceMonitor.middleware()(req, res, next);
+  } else {
+    next();
+  }
+});
+
+// Security monitoring (will be enabled after infrastructure loads)
+if (process.env.NODE_ENV !== 'development') {
+  app.use(async (req, res, next) => {
+    if (!infrastructure) {
+      infrastructure = await loadInfrastructure();
+    }
+    if (infrastructure.securityDashboard) {
+      infrastructure.securityDashboard.middleware()(req, res, next);
+    } else {
+      next();
+    }
+  });
+} else {
+  console.log('⚠️ Security monitoring DISABLED in development mode');
+}
 
 // Apply rate limiting only to API routes (excluding map operations)
 app.use('/api', (req, res, next) => {
@@ -273,10 +294,20 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
     
-    // Initialize simple WebSocket communication (DISABLED - slowing startup)
-    // simpleWebSocket.initialize(server);
+    // Initialize infrastructure components after server starts (non-blocking)
+    loadInfrastructure().then(infra => {
+      infrastructure = infra;
+      // Initialize WebSocket communication
+      if (infra.simpleWebSocket) {
+        infra.simpleWebSocket.initialize(server);
+        console.log('✅ WebSocket communication initialized');
+      }
+      console.log('✅ All infrastructure components loaded successfully');
+    }).catch(err => {
+      console.error('Warning: Some infrastructure components failed to load:', err);
+    });
     
-    console.log('🚀 ALL ENTERPRISE INFRASTRUCTURE SYSTEMS ACTIVATED:');
+    console.log('🚀 ENTERPRISE INFRASTRUCTURE SYSTEMS LOADING:');
     console.log('  ✅ Redis Caching System - Lightning-fast performance');
     console.log('  ✅ Security Dashboard & Monitoring - Real-time threat detection');
     console.log('  ✅ Performance Monitor - System health tracking');
