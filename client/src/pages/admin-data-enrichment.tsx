@@ -33,6 +33,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CitySearchControl } from '@/components/CitySearchControl';
+import { RegionalEnrichmentControl } from '@/components/RegionalEnrichmentControl';
 
 const US_STATES = [
   { code: 'CA', name: 'California' },
@@ -243,12 +245,32 @@ export default function AdminDataEnrichmentPage() {
       </Card>
 
       {/* Control Tabs */}
-      <Tabs defaultValue="batch" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="batch">Batch Enrichment</TabsTrigger>
-          <TabsTrigger value="specific">Specific Communities</TabsTrigger>
+      <Tabs defaultValue="regional" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="regional">Regional</TabsTrigger>
+          <TabsTrigger value="city">City Search</TabsTrigger>
+          <TabsTrigger value="batch">Batch States</TabsTrigger>
+          <TabsTrigger value="specific">Specific IDs</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="regional">
+          <RegionalEnrichmentControl 
+            onEnrichmentStart={(region, states) => {
+              console.log(`Starting regional enrichment for ${region} with ${states.length} states`);
+              refetchStatus();
+            }}
+            showCompliance={true}
+          />
+        </TabsContent>
+
+        <TabsContent value="city">
+          <CitySearchControl 
+            onSearchComplete={() => {
+              refetchStatus();
+            }}
+          />
+        </TabsContent>
 
         <TabsContent value="batch">
           <Card>

@@ -3785,6 +3785,75 @@ export default function CommunityDetail() {
         communityId={community.id}
         communityName={community.name}
       />
+
+      {/* Comprehensive Data Transparency and Compliance Notice */}
+      <div className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-700">
+        <div className="space-y-4">
+          <div className="flex items-center">
+            <Shield className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-3" />
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+              Data Transparency & Compliance Policy
+            </h3>
+          </div>
+          
+          <div className="text-sm text-gray-700 dark:text-gray-300 space-y-3">
+            <div className="flex items-start">
+              <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+              <p>
+                <strong>AI-Powered Public Information:</strong> All community data is sourced through AI-powered search 
+                (primarily Perplexity AI) from publicly available information across the web, including official facility 
+                websites, government databases, and public review platforms. We maintain full transparency in our data 
+                collection methods.
+              </p>
+            </div>
+            
+            <div className="flex items-start">
+              <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+              <p>
+                <strong>Regional Compliance:</strong> We respect regional data protection preferences:
+                • US data cached per FTC guidelines (24-48 hours for pricing)
+                • Canadian data per PIPEDA compliance (24-72 hours)
+                • Mexican data per LFPDPPP regulations (48-168 hours)
+              </p>
+            </div>
+            
+            <div className="flex items-start">
+              <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mr-2 mt-0.5 flex-shrink-0" />
+              <p>
+                <strong>Attribution & Sources:</strong> Information may be aggregated from multiple public sources 
+                including aggregator sites (as secondary sources), but we always seek primary verification through 
+                official channels. Perplexity AI helps us identify and verify authentic public information while 
+                maintaining source attribution.
+              </p>
+            </div>
+            
+            <div className="flex items-start">
+              <AlertCircle className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2 mt-0.5 flex-shrink-0" />
+              <p>
+                <strong>Your Rights:</strong> If you represent this facility, you have the right to:
+                • Request data correction or updates
+                • Understand our data sources
+                • Claim and manage your listing
+                • Opt for premium verification services
+                Contact us at transparency@myseniorvalet.com for any data concerns.
+              </p>
+            </div>
+            
+            <div className="flex items-start">
+              <Info className="w-4 h-4 text-purple-600 dark:text-purple-400 mr-2 mt-0.5 flex-shrink-0" />
+              <p className="text-xs">
+                <strong>Last Data Refresh:</strong> {community.lastUpdated ? 
+                  new Date(community.lastUpdated).toLocaleDateString() : 
+                  'Within compliance window'} | 
+                <strong> Cache Policy:</strong> {community.state ? 
+                  `${community.state} regulations applied` : 
+                  'Standard compliance'} | 
+                <strong> Next Update:</strong> Automatic per regional policy
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

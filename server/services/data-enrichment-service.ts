@@ -8,6 +8,7 @@ import { db } from "../db";
 import { communities } from "@shared/schema";
 import { eq, sql, and, isNull, or, lt } from "drizzle-orm";
 import { perplexityService } from "../perplexity-ai-service";
+import { cacheComplianceService } from "./cache-compliance-service";
 
 interface EnrichmentResult {
   communityId: number;
@@ -490,6 +491,114 @@ export class DataEnrichmentService {
       success: true,
       results,
       message: `Enriched ${results.filter(r => r.success).length} of ${results.length} communities`
+    };
+  }
+
+  /**
+   * Enrich communities by region with compliance-aware caching
+   */
+  public async enrichByRegion(region: string, states: string[]) {
+    const conditions = [];
+    
+    // Apply state filter
+    if (states.length > 0) {
+      conditions.push(
+        sql`${communities.state} = ANY(${states})`
+      );
+    }
+
+    // Get communities that need enrichment based on compliance windows
+    const communities_needing_update = await db.select()
+      .from(communities)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .limit(100); // Process in batches
+
+    const results = [];
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const community of communities_needing_update) {
+      // Check compliance window for this community's location
+      const cacheDuration = cacheComplianceService.getCacheDuration(
+        community.country || 'US',
+        community.state
+      );
+
+      // Check if data is expired based on compliance
+      const lastUpdate = community.last_price_update ? new Date(community.last_price_update) : null;
+      const needsUpdate = !lastUpdate || 
+        (Date.now() - lastUpdate.getTime() > cacheDuration.pricing);
+
+      if (needsUpdate) {
+        const result = await this.enrichSingleCommunity(community);
+        results.push(result);
+        
+        if (result.success) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+
+        // Rate limiting
+        await this.delay(2000);
+      }
+    }
+
+    return {
+      success: true,
+      region,
+      states,
+      totalProcessed: results.length,
+      successful: successCount,
+      failed: failCount,
+      message: `Processed ${results.length} communities in ${region}`
+    };
+  }
+
+  /**
+   * Search communities by city and enrich with live data
+   */
+  public async searchCityAndEnrich(city: string, state: string) {
+    // Find communities in the specified city
+    const cityQuery = db.select()
+      .from(communities)
+      .where(
+        and(
+          sql`LOWER(${communities.city}) = LOWER(${city})`,
+          state ? eq(communities.state, state) : undefined
+        )
+      )
+      .limit(50);
+
+    const cityResults = await cityQuery;
+    
+    const enrichmentResults = [];
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const community of cityResults) {
+      const result = await this.enrichSingleCommunity(community);
+      enrichmentResults.push(result);
+      
+      if (result.success) {
+        successCount++;
+      } else {
+        failCount++;
+      }
+
+      // Rate limiting
+      await this.delay(2000);
+    }
+
+    return {
+      success: true,
+      city,
+      state,
+      totalFound: cityResults.length,
+      enriched: successCount,
+      failed: failCount,
+      communities: cityResults,
+      enrichmentResults
     };
   }
 }
