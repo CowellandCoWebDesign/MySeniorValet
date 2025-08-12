@@ -1,6 +1,6 @@
 import { db } from './db';
-import { communities } from '@shared/schema';
-import { eq, and, isNull, lt } from 'drizzle-orm';
+import { communities, pricing_history as pricingHistory } from '@shared/schema';
+import { eq, and, isNull, lt, gte, desc } from 'drizzle-orm';
 import { PerplexityAIService } from './perplexity-ai-service';
 import { MultiAIVerificationService } from './multi-ai-verification-service';
 
@@ -15,6 +15,16 @@ interface MarketIntelligenceData {
     confidence: number;
     lastUpdated: string;
   };
+  governmentPricing?: {
+    amount: number;
+    source: string;
+    note: string;
+  };
+  pricingDiscrepancy?: {
+    governmentRate: number;
+    marketRate: number;
+    message: string;
+  };
   marketContext: {
     averageAreaPrice: number;
     priceRange: { min: number; max: number };
@@ -28,12 +38,15 @@ export class AIMarketIntelligenceService {
   private perplexityService: PerplexityAIService;
   private verificationService: MultiAIVerificationService;
   private cache: Map<number, { data: MarketIntelligenceData; timestamp: number }>;
+  private apiCallCount: Map<string, number>;
   private CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+  private MAX_API_CALLS_PER_DAY = 100; // Maximum API calls per day
 
   constructor() {
     this.perplexityService = new PerplexityAIService();
     this.verificationService = new MultiAIVerificationService();
     this.cache = new Map();
+    this.apiCallCount = new Map();
   }
 
   // Get AI-powered market intelligence for a community
@@ -62,64 +75,60 @@ export class AIMarketIntelligenceService {
         throw new Error('Community not found');
       }
 
-      // CRITICAL: Check if this is HUD or government-sourced pricing
-      if (community.hudPropertyId || community.dataSource === 'HUD' || 
-          community.dataSource === 'Government' || community.communitySubtype === 'hud_senior_housing') {
-        console.log(`✅ ${community.name} has verified government pricing - NOT calling AI`);
+      // Track if this has government pricing
+      const hasGovernmentPricing = community.hudPropertyId || 
+                                   community.dataSource === 'HUD' || 
+                                   community.dataSource === 'Government' || 
+                                   community.communitySubtype === 'hud_senior_housing';
+      
+      const governmentPrice = hasGovernmentPricing ? (community.priceRange?.min || 500) : null;
+
+      // Check if we have recent AI-verified pricing (within 7 days)
+      const existingAiPricing = await db
+        .select()
+        .from(pricingHistory)
+        .where(
+          and(
+            eq(pricingHistory.communityId, communityId),
+            eq(pricingHistory.source, 'AI Verified'),
+            gte(pricingHistory.verifiedAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
+          )
+        )
+        .orderBy(desc(pricingHistory.verifiedAt))
+        .limit(1);
+
+      if (existingAiPricing.length > 0 && !forceRefresh) {
+        console.log(`📊 ${community.name} has recent AI-verified pricing - using cached data`);
         
-        // Return the existing government-verified data without AI calls
+        const aiPricing = existingAiPricing[0];
         const intelligenceData: MarketIntelligenceData = {
           communityId,
           communityName: community.name,
           pricing: {
             verified: true,
-            amount: community.priceRange?.min || 500, // HUD pricing typically starts at $500
-            minMax: community.priceRange,
+            amount: aiPricing.price,
+            minMax: { min: aiPricing.price, max: aiPricing.price },
+            source: 'AI Verified',
+            confidence: 95,
+            lastUpdated: aiPricing.verifiedAt.toISOString()
+          },
+          governmentPricing: hasGovernmentPricing ? {
+            amount: governmentPrice!,
             source: 'HUD Verified',
-            confidence: 100,
-            lastUpdated: community.updatedAt?.toISOString() || new Date().toISOString()
-          },
+            note: 'Government subsidized rate'
+          } : undefined,
           marketContext: {
-            averageAreaPrice: community.priceRange?.min || 500,
-            priceRange: community.priceRange || { min: 500, max: 800 },
-            competitorCount: 0,
-            demandLevel: 'high' // HUD properties typically have high demand
-          },
-          dataQuality: 'verified'
-        };
-
-        // Cache it
-        this.cache.set(communityId, {
-          data: intelligenceData,
-          timestamp: Date.now()
-        });
-
-        return intelligenceData;
-      }
-
-      // Check if we already have recent pricing data (not from government sources)
-      if (community.priceRange && community.updatedAt && 
-          Date.now() - community.updatedAt.getTime() < 7 * 24 * 60 * 60 * 1000) {
-        console.log(`📊 ${community.name} has recent pricing data - NOT calling AI`);
-        
-        const intelligenceData: MarketIntelligenceData = {
-          communityId,
-          communityName: community.name,
-          pricing: {
-            verified: false,
-            amount: community.priceRange.min,
-            minMax: community.priceRange,
-            source: 'Database',
-            confidence: 75,
-            lastUpdated: community.updatedAt.toISOString()
-          },
-          marketContext: {
-            averageAreaPrice: community.priceRange.min,
-            priceRange: community.priceRange,
+            averageAreaPrice: aiPricing.price,
+            priceRange: { min: aiPricing.price, max: aiPricing.price },
             competitorCount: 0,
             demandLevel: 'medium'
           },
-          dataQuality: 'estimated'
+          dataQuality: 'verified',
+          pricingDiscrepancy: hasGovernmentPricing && governmentPrice !== aiPricing.price ? {
+            governmentRate: governmentPrice!,
+            marketRate: aiPricing.price,
+            message: 'AI found current market pricing differs from government records'
+          } : undefined
         };
 
         // Cache it
@@ -131,7 +140,48 @@ export class AIMarketIntelligenceService {
         return intelligenceData;
       }
 
-      console.log(`🔍 Fetching AI market intelligence for ${community.name} (no existing pricing)`);
+      console.log(`🔍 Fetching NEW AI market intelligence for ${community.name}`);
+
+      // Check API call limits
+      const todayKey = new Date().toDateString();
+      const todayCount = this.apiCallCount.get(todayKey) || 0;
+      if (todayCount >= this.MAX_API_CALLS_PER_DAY) {
+        console.log(`⚠️ Daily API call limit reached (${this.MAX_API_CALLS_PER_DAY})`);
+        
+        // Return existing government pricing or estimate
+        if (hasGovernmentPricing) {
+          return {
+            communityId,
+            communityName: community.name,
+            pricing: {
+              verified: true,
+              amount: governmentPrice!,
+              minMax: community.priceRange,
+              source: 'HUD Verified',
+              confidence: 100,
+              lastUpdated: new Date().toISOString()
+            },
+            governmentPricing: {
+              amount: governmentPrice!,
+              source: 'HUD Verified',
+              note: 'Government subsidized rate'
+            },
+            marketContext: {
+              averageAreaPrice: governmentPrice!,
+              priceRange: community.priceRange || { min: 500, max: 800 },
+              competitorCount: 0,
+              demandLevel: 'high'
+            },
+            dataQuality: 'verified'
+          };
+        }
+        
+        return this.getEstimatedPricing(community);
+      }
+
+      // Update API call count
+      this.apiCallCount.set(todayKey, todayCount + 1);
+      console.log(`📊 API calls today: ${todayCount + 1}/${this.MAX_API_CALLS_PER_DAY}`);
 
       // Use Perplexity to search for pricing data
       const searchQuery = `"${community.name}" senior living pricing costs ${community.city} ${community.state} monthly rates 2025`;
@@ -171,17 +221,49 @@ export class AIMarketIntelligenceService {
       const dataQuality = verificationReport.pricing?.verified ? 'verified' :
                          verificationReport.consensus.confidenceScore > 70 ? 'estimated' : 'outdated';
 
-      // Build market intelligence data
+      // Save AI pricing to database if verified
+      if (verificationReport.pricing?.verified && verificationReport.pricing.amount) {
+        try {
+          await db.insert(pricingHistory).values({
+            communityId,
+            price: verificationReport.pricing.amount,
+            source: 'AI Verified',
+            verifiedAt: new Date(),
+            verificationStatus: 'verified',
+            verificationDetails: {
+              perplexity: perplexityData,
+              consensus: verificationReport.consensus,
+              sources: verificationReport.sources
+            }
+          });
+          console.log(`💾 Saved AI-verified pricing for ${community.name}: $${verificationReport.pricing.amount}`);
+        } catch (saveError) {
+          console.error('Error saving pricing to database:', saveError);
+        }
+      }
+
+      // Build market intelligence data with dual-display support
+      const aiPrice = verificationReport.pricing?.amount || this.getEstimatedPrice(community);
       const intelligenceData: MarketIntelligenceData = {
         communityId,
         communityName: community.name,
         pricing: verificationReport.pricing || {
           verified: false,
-          amount: this.getEstimatedPrice(community),
+          amount: aiPrice,
           source: 'Market Intelligence Estimate',
           confidence: 50,
           lastUpdated: new Date().toISOString()
         },
+        governmentPricing: hasGovernmentPricing ? {
+          amount: governmentPrice!,
+          source: 'HUD Verified',
+          note: 'Government subsidized rate'
+        } : undefined,
+        pricingDiscrepancy: hasGovernmentPricing && governmentPrice !== aiPrice ? {
+          governmentRate: governmentPrice!,
+          marketRate: aiPrice,
+          message: 'AI found current market pricing differs from government records'
+        } : undefined,
         marketContext,
         dataQuality
       };
@@ -226,16 +308,15 @@ export class AIMarketIntelligenceService {
     }
   }
 
-  // Batch process communities to update market intelligence
-  async updateMarketIntelligenceBatch(limit = 10): Promise<void> {
+  // Update market intelligence for trending/featured communities only
+  async updateTrendingCommunities(limit = 10): Promise<void> {
     try {
-      // Find communities that need updates (no pricing, NOT government sources)
-      const communitiesToUpdate = await db
+      // Get trending communities (typically shown on homepage)
+      const trendingCommunities = await db
         .select()
         .from(communities)
         .where(
           and(
-            isNull(communities.priceRange),
             // EXCLUDE HUD and government sources
             isNull(communities.hudPropertyId),
             communities.dataSource !== 'HUD',
@@ -243,12 +324,23 @@ export class AIMarketIntelligenceService {
             communities.communitySubtype !== 'hud_senior_housing'
           )
         )
+        .orderBy(desc(communities.createdAt))  // Most recently added
         .limit(limit);
 
-      console.log(`🔄 Updating market intelligence for ${communitiesToUpdate.length} non-government communities`);
+      console.log(`🔄 Updating market intelligence for ${trendingCommunities.length} trending non-government communities`);
 
-      for (const community of communitiesToUpdate) {
+      // Update each community with rate limiting
+      let updated = 0;
+      for (const community of trendingCommunities) {
         try {
+          const todayKey = new Date().toDateString();
+          const todayCount = this.apiCallCount.get(todayKey) || 0;
+          
+          if (todayCount >= this.MAX_API_CALLS_PER_DAY) {
+            console.log(`⚠️ Daily API limit reached. Updated ${updated}/${trendingCommunities.length} communities`);
+            break;
+          }
+          
           const intelligence = await this.getMarketIntelligence(community.id, true);
           
           // Update database with verified pricing if found
@@ -266,10 +358,13 @@ export class AIMarketIntelligenceService {
             
             console.log(`💰 Updated verified pricing for ${community.name}: $${intelligence.pricing.amount}`);
           }
+          updated++;
         } catch (error) {
           console.error(`Failed to update intelligence for ${community.name}:`, error);
         }
       }
+      
+      console.log(`✅ Trending update complete: ${updated} communities updated`);
     } catch (error) {
       console.error('Batch update error:', error);
     }
