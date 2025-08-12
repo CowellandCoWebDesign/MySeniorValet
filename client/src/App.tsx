@@ -26,7 +26,7 @@ import Accessibility from "@/pages/accessibility";
 import Login from "@/pages/login";
 import Signup from "@/pages/signup";
 import Dashboard from "@/pages/dashboard";
-import PersonalizedDashboard from "@/pages/personalized-dashboard";
+// PersonalizedDashboard removed - consolidated to Dashboard
 import TourTracker from "@/pages/tour-tracker";
 import SupportResources from "@/pages/support-resources";
 import VeteransHousing from "@/pages/veterans-housing";
@@ -46,7 +46,7 @@ import Team from "@/pages/team";
 import Testimonials from "@/pages/testimonials";
 import Help from "@/pages/help";
 import CareGuide from "@/pages/care-guide";
-import CommunityPortal from "@/pages/community-portal";
+// CommunityPortal removed - consolidated to CommunityDashboard
 import CommunityDashboard from "@/pages/community-dashboard-enhanced";
 import CommunityLeasing from "@/pages/community-leasing";
 import TenantPortal from "@/pages/tenant-portal";
@@ -83,9 +83,9 @@ import TestMapViews from "@/pages/test-map-views";
 import AuthDebug from "@/pages/auth-debug";
 import PaymentDemo from "@/pages/payment-demo";
 import WeaviateTest from "@/pages/weaviate-test";
-import DataQualityDashboard from "@/pages/data-quality-dashboard";
+// DataQualityDashboard removed - consolidated to SuperAdminAnalytics tab
 import DatabaseTest from "@/pages/database-test";
-import IntegrationDashboard from "@/pages/integration-dashboard";
+// IntegrationDashboard removed - consolidated to SuperAdminAnalytics tab
 import IntegrationsPage from "@/pages/integrations";
 import SubscriptionManagement from "@/pages/SubscriptionManagement";
 import AIDemoPage from "@/pages/ai-demo";
@@ -96,7 +96,7 @@ import VendorSignup from "@/pages/vendor-signup";
 import VendorDashboard from "@/pages/vendor-dashboard";
 import VendorWelcome from "@/pages/vendor-welcome";
 import VendorMobilePayment from "@/pages/vendor-mobile-payment";
-import ServicesManagementDashboard from "@/pages/ServicesManagementDashboard";
+// ServicesManagementDashboard removed - consolidated to SuperAdminAnalytics tab
 import TestTierAccess from "@/pages/test-tier-access";
 import AmazonProductAdmin from "@/pages/AmazonProductAdmin";
 import PerplexityTest from "@/pages/perplexity-test";
@@ -113,7 +113,7 @@ import HospitalDetails from "@/pages/hospital-details";
 import PaymentSuccess from "@/pages/payment-success";
 import PaymentCancel from "@/pages/payment-cancel";
 import CommunityMobilePayment from "@/pages/community-mobile-payment";
-import PaymentTestDashboard from "@/pages/payment-test-dashboard";
+// PaymentTestDashboard removed - consolidated to SuperAdminAnalytics tab
 import PaymentDiagnostics from "@/pages/payment-diagnostics";
 // AdminDashboard removed - all admin functionality consolidated into SuperAdminAnalytics
 import TermsOfService from "@/pages/terms-of-service";
@@ -194,8 +194,9 @@ function Router() {
       <Route path="/ai-search-intelligence" component={AISearchIntelligence} />
       <Route path="/expansion-monitor" component={SuperAdminAnalytics} />
       <Route path="/api-costs" component={SuperAdminAnalytics} />
+      {/* User/Client Dashboard - ONE ONLY */}
       <Route path="/dashboard" component={Dashboard} />
-      <Route path="/personalized-dashboard" component={PersonalizedDashboard} />
+      <Route path="/personalized-dashboard" component={Dashboard} /> {/* Redirect to main dashboard */}
       <Route path="/tour-tracker" component={TourTracker} />
       <Route path="/tour-tracker/:communityId" component={TourTracker} />
       <Route path="/edit-tour/:tourId" component={TourTracker} />
@@ -227,8 +228,10 @@ function Router() {
       <Route path="/testimonials" component={Testimonials} />
       <Route path="/help" component={Help} />
       <Route path="/care-guide" component={CareGuide} />
-      <Route path="/community-portal" component={CommunityPortal} />
+      {/* Community Dashboard - ONE ONLY (CommunityDashboard) */}
+      <Route path="/community-portal" component={CommunityDashboard} /> {/* Redirect to main */}
       <Route path="/my-communities" component={MyCommunities} />
+      <Route path="/community-dashboard" component={CommunityDashboard} />
       <Route path="/community-dashboard/:id" component={CommunityDashboard} />
       <Route path="/community-portal/:id/leasing" component={CommunityLeasing} />
       <Route path="/tenant-portal" component={TenantPortal} />
@@ -266,10 +269,11 @@ function Router() {
       <Route path="/test-map-views" component={TestMapViews} />
       <Route path="/auth-debug" component={AuthDebug} />
       <Route path="/weaviate-test" component={WeaviateTest} />
-      <Route path="/data-quality" component={DataQualityDashboard} />
+      {/* Specialized dashboards consolidated to SuperAdminAnalytics tabs */}
+      <Route path="/data-quality" component={SuperAdminAnalytics} /> {/* Data Quality tab in admin */}
       <Route path="/database-test" component={DatabaseTest} />
       <Route path="/integrations" component={IntegrationsPage} />
-      <Route path="/integration-dashboard" component={IntegrationDashboard} />
+      <Route path="/integration-dashboard" component={SuperAdminAnalytics} /> {/* Integrations tab in admin */}
       <Route path="/subscriptions" component={SubscriptionManagement} />
       <Route path="/ai-demo" component={AIDemoPage} />
       <Route path="/ai-map-showcase" component={AIMapShowcase} />
@@ -285,7 +289,7 @@ function Router() {
       <Route path="/payment-monitoring" component={SuperAdminAnalytics} />
       <Route path="/payment/success" component={PaymentSuccess} />
       <Route path="/payment/cancel" component={PaymentCancel} />
-      <Route path="/payment-test-dashboard" component={PaymentTestDashboard} />
+      <Route path="/payment-test-dashboard" component={SuperAdminAnalytics} /> {/* Payment testing tab in admin */}
       <Route path="/payment-diagnostics" component={PaymentDiagnostics} />
       {/* ALL admin dashboards consolidated to SuperAdminAnalytics - NO EXCEPTIONS */}
       <Route path="/admin-dashboard" component={SuperAdminAnalytics} />

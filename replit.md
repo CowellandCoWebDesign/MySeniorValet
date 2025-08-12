@@ -4,7 +4,15 @@
 MySeniorValet is a technology platform connecting families with publicly available information about over 34,000 senior living communities in the U.S. and Canada. It leverages advanced AI orchestration to gather, organize, and present public information, including verified HUD pricing. The platform's vision is to empower families with authentic, verified data for informed decision-making in senior living, bringing much-needed transparency to the market. It aims to be "The Dawn of Transparency in Senior Living" by providing a complete care spectrum education, real pricing, zero paywalls, and tools for saving and sharing research. Features the fully operational TourMate™ tour scheduling system with confirmation codes, email notifications, and comprehensive tour tracking capabilities. Includes One-Touch Emergency Contact Shortcut with 911 access, personal contacts management, crisis hotlines integration, and admin email alerts for safety monitoring.
 
 ## User Preferences
-- **CRITICAL ARCHITECTURE RULE**: NEVER create new admin dashboards or parallel systems. Always enhance SuperAdminAnalytics (/super-admin) instead. This is the ONLY admin interface. Any new admin functionality MUST be added as tabs or sections within SuperAdminAnalytics. No exceptions. No parallel building.
+- **COMPREHENSIVE PLATFORM-WIDE CONSOLIDATION RULE - ABSOLUTELY NO REDUNDANCY ALLOWED**: 
+  - **Admin**: ONE dashboard only - SuperAdminAnalytics (/super-admin). No exceptions. ALL 12+ redundant admin dashboards eliminated.
+  - **User/Client**: ONE dashboard only - Dashboard (/dashboard). No parallel user dashboards. PersonalizedDashboard eliminated.
+  - **Community**: ONE dashboard only - CommunityDashboard (/community-dashboard). No duplicates. ALL 7+ redundant community dashboards eliminated.
+  - **Vendor**: ONE dashboard only - VendorDashboard (/vendor/dashboard). No alternatives.
+  - **Financial/Analytics/Integrations**: ALL specialized dashboards now tabs/sections in SuperAdminAnalytics. No separate dashboard files.
+  - **COMPREHENSIVE CONSOLIDATION FIRST**: Before creating ANY new component, page, or feature - CHECK if it can be added to existing systems as tabs, sections, or enhancements. NO PARALLEL BUILDING. NO REDUNDANT COMPONENTS. NO DUPLICATE FUNCTIONALITY.
+  - **This applies to ALL components**: buttons, modals, forms, pages, dashboards, tools, design patterns - EVERYTHING.
+  - **Platform-Wide Enforcement**: 60+ redundant dashboard files eliminated on August 12, 2025. ALL future development must enhance existing systems, not create parallel ones.
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
 - **Notification Email Configuration**:
   - Primary Admin Notifications: admin@myseniorvalet.com (system events, emergency alerts)
