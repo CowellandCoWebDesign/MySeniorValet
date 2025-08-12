@@ -99,7 +99,7 @@ router.post("/polls", async (req: Request, res: Response) => {
     } = req.body;
     
     // For development, use a test user ID
-    const testUserId = 1;
+    const testUserId = 41; // Using actual test user from database
     
     // Use raw SQL to avoid schema mismatches
     const result = await db.execute(sql`
@@ -135,43 +135,31 @@ router.post("/polls/:pollId/vote", async (req: Request, res: Response) => {
     const { optionIds, comment } = req.body;
     
     // For development, use a test user ID
-    const testUserId = 1;
+    const testUserId = 41; // Using actual test user from database
     
-    // Check if user already voted
-    const existingVote = await db.select()
-      .from(familyPollVotes)
-      .where(
-        and(
-          eq(familyPollVotes.pollId, parseInt(pollId)),
-          eq(familyPollVotes.userId, testUserId)
-        )
-      );
+    // Check if user already voted using raw SQL
+    const existingVote = await db.execute(sql`
+      SELECT * FROM family_poll_votes 
+      WHERE poll_id = ${parseInt(pollId)} 
+      AND user_id = ${testUserId}
+    `);
     
-    if (existingVote.length > 0) {
-      // Update existing vote
-      await db.update(familyPollVotes)
-        .set({
-          selectedOptions: JSON.stringify(optionIds),
-          comment: comment || null,
-          updatedAt: new Date()
-        })
-        .where(
-          and(
-            eq(familyPollVotes.pollId, parseInt(pollId)),
-            eq(familyPollVotes.userId, testUserId)
-          )
-        );
+    if (existingVote.rows && existingVote.rows.length > 0) {
+      // Update existing vote using raw SQL
+      await db.execute(sql`
+        UPDATE family_poll_votes 
+        SET option_ids = ${JSON.stringify(optionIds)}::json,
+            vote_reason = ${comment || null},
+            voted_at = NOW()
+        WHERE poll_id = ${parseInt(pollId)} 
+        AND user_id = ${testUserId}
+      `);
     } else {
-      // Create new vote
-      await db.insert(familyPollVotes)
-        .values({
-          pollId: parseInt(pollId),
-          userId: testUserId,
-          selectedOptions: JSON.stringify(optionIds),
-          comment: comment || null,
-          voteWeight: 1,
-          votedAt: new Date()
-        });
+      // Create new vote using raw SQL
+      await db.execute(sql`
+        INSERT INTO family_poll_votes (poll_id, user_id, option_ids, vote_reason, vote_weight, voted_at)
+        VALUES (${parseInt(pollId)}, ${testUserId}, ${JSON.stringify(optionIds)}::json, ${comment || null}, 1, NOW())
+      `);
     }
     
     res.json({
@@ -256,26 +244,36 @@ router.post("/decisions", async (req: Request, res: Response) => {
       pollId
     } = req.body;
     
-    const [newDecision] = await db.insert(familyDecisions)
-      .values({
-        familyGroupId: familyGroupId || 1,
-        decisionType,
-        title,
-        description,
-        decision,
-        rationale,
-        consensus: consensus || false,
-        participants: JSON.stringify(participants),
-        communityIds: communityIds || [],
-        tourIds: tourIds || [],
-        pollId: pollId || null,
-        discussionStarted: new Date(),
-        decisionMade: new Date(),
-        status: "decided",
-        createdAt: new Date(),
-        updatedAt: new Date()
-      })
-      .returning();
+    // For development, use a test user ID
+    const testUserId = 41;
+    
+    // Use raw SQL to insert decision with correct column names
+    const result = await db.execute(sql`
+      INSERT INTO family_decisions (
+        family_group_id, decision_type, decision_value, 
+        consensus_level, decided_by, poll_id, 
+        community_id, tour_id, notes, decision_date, created_at
+      ) VALUES (
+        ${familyGroupId || 5}, 
+        ${decisionType || 'community_selected'}, 
+        ${JSON.stringify({
+          title: title || '',
+          description: description || '',
+          decision: decision || '',
+          rationale: rationale || ''
+        })}::json,
+        ${consensus ? 'unanimous' : 'majority'},
+        ${testUserId},
+        ${pollId || null},
+        ${communityIds && communityIds[0] ? communityIds[0] : null},
+        ${tourIds && tourIds[0] ? tourIds[0] : null},
+        ${rationale || ''},
+        NOW(),
+        NOW()
+      ) RETURNING *
+    `);
+    
+    const newDecision = result.rows[0];
     
     res.json({
       success: true,
@@ -315,7 +313,7 @@ router.post("/tour-conversations", async (req: Request, res: Response) => {
     } = req.body;
     
     // For development, use a test user ID
-    const testUserId = 1;
+    const testUserId = 41; // Using actual test user from database
     
     const [link] = await db.insert(tourConversations)
       .values({
