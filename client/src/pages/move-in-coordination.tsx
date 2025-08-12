@@ -108,6 +108,16 @@ export default function MoveInCoordination() {
   const { data: marketplaceVendors } = useQuery({
     queryKey: ['/api/marketplace/vendors'],
   });
+  
+  // Fetch care directory services
+  const { data: careDirectory } = useQuery({
+    queryKey: ['/api/care-services'],
+  });
+  
+  // Fetch hospitals
+  const { data: hospitals } = useQuery({
+    queryKey: ['/api/hospitals/featured'],
+  });
 
   // Care services from existing Care directory
   const careServices: Service[] = [
@@ -523,18 +533,22 @@ export default function MoveInCoordination() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="checklist" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="checklist">
               <CheckCircle2 className="h-4 w-4 mr-2" />
               Checklist
             </TabsTrigger>
+            <TabsTrigger value="care-directory">
+              <Stethoscope className="h-4 w-4 mr-2" />
+              Care Directory
+            </TabsTrigger>
             <TabsTrigger value="care">
               <Heart className="h-4 w-4 mr-2" />
-              Care Services
+              Local Services
             </TabsTrigger>
             <TabsTrigger value="vendor">
               <Package className="h-4 w-4 mr-2" />
-              Vendor Services
+              Vendors
             </TabsTrigger>
           </TabsList>
 
@@ -612,7 +626,185 @@ export default function MoveInCoordination() {
             </Card>
           </TabsContent>
 
-          {/* Care Services Tab */}
+          {/* Care Directory Tab - Real Services from API */}
+          <TabsContent value="care-directory" className="space-y-4">
+            {/* Hospitals Section */}
+            {hospitals && hospitals.length > 0 && (
+              <Card className="gradient-card border-white/20 shadow-xl">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-6 w-6 text-red-600" />
+                    <div>
+                      <CardTitle className="text-2xl">Nearby Hospitals</CardTitle>
+                      <CardDescription>Major medical centers and emergency services</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {hospitals.slice(0, 6).map((hospital: any) => (
+                      <motion.div
+                        key={hospital.id}
+                        whileHover={{ scale: 1.02 }}
+                        className="p-4 bg-gradient-to-br from-white/70 to-red-50/50 dark:from-gray-800/70 dark:to-red-900/20 rounded-xl border border-red-100 dark:border-red-900/30 shadow-lg backdrop-blur-sm"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <Building2 className="h-8 w-8 text-red-600" />
+                          {hospital.cms_rating && (
+                            <div className="flex items-center gap-1">
+                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                              <span className="text-sm font-medium">{hospital.cms_rating}/5</span>
+                            </div>
+                          )}
+                        </div>
+                        <h3 className="font-semibold mb-1">{hospital.name}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                          {hospital.city}, {hospital.state}
+                        </p>
+                        <p className="text-sm mb-3">
+                          {hospital.hospital_type} • {hospital.bed_count} beds
+                        </p>
+                        {hospital.emergency_services && (
+                          <Badge className="bg-red-100 text-red-700 mb-3">
+                            <AlertCircle className="h-3 w-3 mr-1" />
+                            Emergency Services
+                          </Badge>
+                        )}
+                        <div className="flex gap-2">
+                          {hospital.phone && (
+                            <Button size="sm" variant="outline" className="flex-1">
+                              <Phone className="h-3 w-3 mr-1" />
+                              Call
+                            </Button>
+                          )}
+                          <Button 
+                            size="sm" 
+                            className="flex-1"
+                            onClick={() => {
+                              toast({
+                                title: "Hospital Saved",
+                                description: `${hospital.name} added to your move-in plan`,
+                              });
+                            }}
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Care Services Section */}
+            {careDirectory && careDirectory.length > 0 && (
+              <Card className="gradient-card border-white/20 shadow-xl">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Activity className="h-6 w-6 text-green-600" />
+                    <div>
+                      <CardTitle className="text-2xl">Healthcare Services</CardTitle>
+                      <CardDescription>Home care, medical equipment, therapy, and more</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {careDirectory.slice(0, 9).map((service: any) => {
+                      const iconMap: any = {
+                        'Home Care': Home,
+                        'Medical Equipment': Package,
+                        'Physical Therapy': Activity,
+                        'Hospice': Heart,
+                        'Dialysis': Droplets,
+                        'Mental Health': Brain,
+                        'Rehabilitation': Activity,
+                        'Pharmacy': Pill,
+                        'Nursing': Stethoscope
+                      };
+                      const Icon = iconMap[service.type] || Heart;
+                      
+                      return (
+                        <motion.div
+                          key={service.id}
+                          whileHover={{ scale: 1.02 }}
+                          className="p-4 bg-gradient-to-br from-white/70 to-green-50/50 dark:from-gray-800/70 dark:to-green-900/20 rounded-xl border border-green-100 dark:border-green-900/30 shadow-lg backdrop-blur-sm"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <Icon className="h-8 w-8 text-green-600" />
+                            {service.rating && (
+                              <div className="flex items-center gap-1">
+                                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                <span className="text-sm">{service.rating.toFixed(1)}</span>
+                              </div>
+                            )}
+                          </div>
+                          <h3 className="font-semibold mb-1">{service.name}</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            {service.type}
+                          </p>
+                          <p className="text-sm mb-2">
+                            {service.city}, {service.state}
+                          </p>
+                          {service.services && service.services.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-3">
+                              {service.services.slice(0, 2).map((svc: string, idx: number) => (
+                                <Badge key={idx} variant="secondary" className="text-xs">
+                                  {svc}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                          <div className="flex gap-2">
+                            {service.phone && (
+                              <Button size="sm" variant="outline" className="flex-1">
+                                <Phone className="h-3 w-3 mr-1" />
+                                Call
+                              </Button>
+                            )}
+                            <Button 
+                              size="sm" 
+                              className="flex-1"
+                              onClick={() => {
+                                toast({
+                                  title: "Service Saved",
+                                  description: `${service.name} added to your move-in plan`,
+                                });
+                              }}
+                            >
+                              Save
+                            </Button>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                  
+                  {careDirectory.length > 9 && (
+                    <div className="mt-6 text-center">
+                      <Link href="/care">
+                        <Button variant="outline" className="border-green-200 hover:bg-green-50">
+                          View All {careDirectory.length} Care Services
+                          <ArrowRight className="h-4 w-4 ml-2" />
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Loading State */}
+            {!hospitals && !careDirectory && (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+                <span className="ml-3 text-gray-600">Loading healthcare services...</span>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Local Services Tab (renamed from Care Services) */}
           <TabsContent value="care" className="space-y-4">
             <Card className="gradient-card border-white/20 shadow-xl">
               <CardHeader>
