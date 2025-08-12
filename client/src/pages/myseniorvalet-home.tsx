@@ -878,9 +878,28 @@ export default function MySeniorValetHome() {
                   </div>
                 </div>
               </div>
-              <p className="text-xl text-blue-100 max-w-4xl mx-auto mb-8">
-                Access the most comprehensive senior living ecosystem ever assembled - 34,181+ communities with verified HUD pricing, 1,500+ vendor services, 6,800+ healthcare providers, and educational resources all enhanced by AI-powered search, Red Tag specials, and real-time market intelligence
-              </p>
+              <div className="text-xl text-blue-100 max-w-4xl mx-auto mb-8">
+                <p className="mb-4">Access the most comprehensive senior living ecosystem ever assembled:</p>
+                <div className="space-y-2 text-lg">
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-2xl">🏘️</span>
+                    <span className="font-semibold">34,181+ Communities</span> with verified HUD pricing
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-2xl">🛍️</span>
+                    <span className="font-semibold">1,500+ Vendor Services</span> for senior living needs
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-2xl">🏥</span>
+                    <span className="font-semibold">6,800+ Healthcare Providers</span> nationwide
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-2xl">📚</span>
+                    <span className="font-semibold">100+ Educational Resources</span> for informed decisions
+                  </div>
+                </div>
+                <p className="mt-4 text-base text-blue-200">Enhanced by AI-powered search, Red Tag specials, and real-time market intelligence</p>
+              </div>
               
               {/* Feature Badges */}
               <div className="flex flex-wrap justify-center gap-3 mb-8">
