@@ -1,11 +1,11 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { GoogleGenAI } from '@google/genai';
+// import { GoogleGenAI } from '@google/genai'; // DISABLED: Gemini service disabled
 
 /*
 COMPREHENSIVE MULTI-AI SYSTEM FOR MYSENIORVALET
 Leverages each AI's unique strengths for maximum impact:
 - Anthropic Claude: Complex reasoning, analysis, decision-making
-- Google Gemini: Visual analysis, multimodal processing, real-time data
+- Google Gemini: Visual analysis, multimodal processing, real-time data - DISABLED
 - Combined: Unprecedented senior living intelligence
 */
 
@@ -14,7 +14,7 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
 });
 
-const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+// const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! }); // DISABLED: Gemini service disabled
 
 // Multi-AI Response Interface
 export interface ComprehensiveAIAnalysis {
@@ -103,7 +103,8 @@ Return JSON with detailed reasoning for each community.`;
       messages: [{ role: 'user', content: prompt }]
     });
 
-    return JSON.parse(response.content[0].text);
+    const content = response.content[0];
+    return JSON.parse('type' in content && content.type === 'text' ? content.text : '{}');
   }
 
   static async createCarePlan(userProfile: any): Promise<CarePlanRecommendation> {
@@ -127,7 +128,8 @@ Return detailed JSON care plan with timeline and budget projections.`;
       messages: [{ role: 'user', content: prompt }]
     });
 
-    return JSON.parse(response.content[0].text);
+    const content = response.content[0];
+    return JSON.parse('type' in content && content.type === 'text' ? content.text : '{}');
   }
 
   static async analyzeContractRisks(contractText: string): Promise<any> {
@@ -152,108 +154,61 @@ Return comprehensive risk analysis with specific concerns and recommendations.`;
       messages: [{ role: 'user', content: prompt }]
     });
 
-    return JSON.parse(response.content[0].text);
+    const content = response.content[0];
+    return JSON.parse('type' in content && content.type === 'text' ? content.text : '{}');
   }
 }
 
-// 2. GEMINI SPECIALIZATION: Visual Analysis & Real-time Data
+// 2. GEMINI SPECIALIZATION: Visual Analysis & Real-time Data - DISABLED
 export class GeminiSpecialistService {
   static async analyzeCommunityPhotos(photos: string[]): Promise<CommunityPhotoAnalysis> {
-    const model = genai.models.generateContent({
-      model: "gemini-2.5-pro"
-    });
-
-    const prompt = `Analyze these senior living community photos for:
-1. Facility quality and maintenance
-2. Accessibility features
-3. Amenity visibility
-4. Overall atmosphere and welcoming nature
-5. Safety features visible
-6. Cleanliness and upkeep
-
-Provide detailed analysis for family decision-making.`;
-
-    // Process first photo (extend for multiple)
-    const response = await genai.models.generateContent({
-      model: "gemini-2.5-pro",
-      contents: [
-        { text: prompt },
-        {
-          inlineData: {
-            data: photos[0], // Base64 image data
-            mimeType: "image/jpeg"
-          }
-        }
-      ]
-    });
-
+    // DISABLED: Gemini service disabled - returning fallback values
+    console.log('Gemini photo analysis requested but service is disabled');
+    
     return {
       facilityQuality: {
-        overall: response.text?.includes('well-maintained') ? 'Excellent' : 'Good',
-        specific: ['Clean hallways', 'Modern fixtures', 'Professional landscaping'],
+        overall: 'Analysis unavailable',
+        specific: [],
         concerns: []
       },
-      amenityVisibility: ['Dining area', 'Common spaces', 'Outdoor areas'],
+      amenityVisibility: [],
       accessibility: {
-        wheelchair: true,
-        mobility: ['Ramps visible', 'Wide doorways', 'Accessible parking'],
+        wheelchair: false,
+        mobility: [],
         concerns: []
       },
       atmosphere: {
-        welcoming: true,
-        modern: true,
-        homelike: true,
-        description: 'Warm, professional environment with residential feel'
+        welcoming: false,
+        modern: false,
+        homelike: false,
+        description: 'Photo analysis currently unavailable'
       }
     };
   }
 
   static async analyzeMarketTrends(location: string): Promise<any> {
-    const prompt = `Analyze current senior living market trends for ${location}:
-1. Average pricing trends
-2. Occupancy rates
-3. New developments
-4. Care level demand
-5. Quality improvements
-6. Technology adoption
-
-Provide comprehensive market intelligence for informed decision-making.`;
-
-    const response = await genai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt
-    });
-
+    // DISABLED: Gemini service disabled - returning fallback values
+    console.log('Gemini market analysis requested but service is disabled');
+    
     return {
-      pricingTrends: 'Stable with 3-5% annual increases',
-      occupancyRates: 'High demand, 85-90% occupancy',
-      marketInsights: response.text || 'Market analysis completed',
-      recommendations: ['Act quickly on preferred communities', 'Consider future care needs']
+      pricingTrends: 'Market analysis temporarily unavailable',
+      occupancyRates: 'Data unavailable',
+      marketInsights: 'Market analysis currently unavailable',
+      recommendations: []
     };
   }
 
   static async generateVirtualTourQuestions(communityData: any): Promise<string[]> {
-    const prompt = `Generate intelligent questions for virtual/in-person tours based on this community data:
-
-COMMUNITY: ${JSON.stringify(communityData)}
-
-Create 15-20 specific questions that families should ask, covering:
-1. Care capabilities and limitations
-2. Staff-to-resident ratios
-3. Emergency procedures
-4. Activity programs
-5. Dining options and flexibility
-6. Family involvement policies
-7. Financial transparency
-
-Make questions specific to this community's offerings and gaps.`;
-
-    const response = await genai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt
-    });
-
-    return response.text?.split('\n').filter(line => line.trim().startsWith('1.') || line.trim().includes('?')) || [];
+    // DISABLED: Gemini service disabled - returning basic questions
+    console.log('Gemini tour question generation requested but service is disabled');
+    
+    return [
+      'What is the staff-to-resident ratio?',
+      'How do you handle medical emergencies?',
+      'What activities are available?',
+      'What dining options are offered?',
+      'What are the visiting hours?'
+    ];
   }
 }
 
@@ -350,7 +305,8 @@ Provide care level recommendations with medical reasoning.`;
       messages: [{ role: 'user', content: prompt }]
     });
 
-    return JSON.parse(response.content[0].text);
+    const content = response.content[0];
+    return JSON.parse('type' in content && content.type === 'text' ? content.text : '{}');
   }
 
   static async optimizeFamilyMeetings(familyProfiles: any[]): Promise<any> {
@@ -375,7 +331,8 @@ Ensure all voices are heard and decisions are collaborative.`;
       messages: [{ role: 'user', content: prompt }]
     });
 
-    return JSON.parse(response.content[0].text);
+    const content = response.content[0];
+    return JSON.parse('type' in content && content.type === 'text' ? content.text : '{}');
   }
 
   static async generateTransitionPlan(currentSituation: any, targetCommunity: any): Promise<any> {
@@ -402,12 +359,9 @@ Make transition as smooth as possible for senior and family.`;
       messages: [{ role: 'user', content: prompt }]
     });
 
-    return JSON.parse(response.content[0].text);
+    const content = response.content[0];
+    return JSON.parse('type' in content && content.type === 'text' ? content.text : '{}');
   }
 }
 
-export {
-  ComprehensiveAIAnalysis,
-  CommunityPhotoAnalysis,
-  CarePlanRecommendation
-};
+// Interfaces are already exported at their definition

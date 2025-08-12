@@ -1,12 +1,12 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { GoogleGenAI } from '@google/genai';
+// import { GoogleGenAI } from '@google/genai'; // DISABLED: Gemini service disabled
 
 // Initialize AI services
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+// const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' }); // DISABLED: Gemini service disabled
 
 // AI Service Types
 export interface CommunityRecommendation {
@@ -215,45 +215,13 @@ Focus on: care quality, staff behavior, facility conditions, food quality, activ
   }
 }
 
-// Gemini AI Services (Multimodal Capabilities)
+// Gemini AI Services (DISABLED - Using Claude alternatives)
 export class GeminiAIService {
-  // Image Analysis for Community Photos
+  // Image Analysis for Community Photos - DISABLED
   static async analyzeCommunityImage(imageBase64: string): Promise<string> {
-    try {
-      const response = await genai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: [
-          {
-            parts: [
-              {
-                inlineData: {
-                  data: imageBase64,
-                  mimeType: "image/jpeg"
-                }
-              },
-              {
-                text: `Analyze this senior living community image. Provide detailed insights about:
-        
-        1. Facility Quality & Condition
-        2. Accessibility Features
-        3. Safety & Security Elements  
-        4. Amenities & Common Areas
-        5. Overall Atmosphere & Appeal
-        6. Maintenance & Cleanliness
-        7. Potential Concerns or Red Flags
-
-        Format as a professional assessment for families evaluating senior living options.`
-              }
-            ]
-          }
-        ]
-      });
-
-      return response.text || 'Unable to analyze image';
-    } catch (error) {
-      console.error('Error analyzing community image:', error);
-      return 'Unable to analyze image at this time.';
-    }
+    // DISABLED: Gemini service disabled - returning placeholder response
+    console.log('Image analysis requested but Gemini is disabled');
+    return 'Image analysis temporarily unavailable. Please use text-based community information for now.';
   }
 
   // Smart Search Enhancement using Claude instead (more reliable)

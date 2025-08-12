@@ -13,7 +13,7 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
-import { GoogleGenAI } from '@google/genai';
+// import { GoogleGenAI } from '@google/genai'; // DISABLED: Gemini service disabled
 import { perplexityService } from './perplexity-ai-service';
 import { grokService } from './xai-grok-integration';
 
@@ -26,9 +26,9 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!
 });
 
-const genai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY!
-});
+// const genai = new GoogleGenAI({
+//   apiKey: process.env.GEMINI_API_KEY!
+// }); // DISABLED: Gemini service disabled
 
 // Latest model versions
 const CLAUDE_MODEL = "claude-sonnet-4-20250514"; // Latest Claude 4 Sonnet
@@ -259,28 +259,12 @@ export class AIPriorityOrchestrator {
   }
 
   /**
-   * Call Gemini API (Priority 4)
+   * Call Gemini API (Priority 4) - DISABLED
    */
   private async callGemini(request: AIAnalysisRequest): Promise<any> {
-    try {
-      const prompt = this.buildPrompt(request);
-      
-      const response = await genai.models.generateContent({
-        model: GEMINI_MODEL,
-        contents: prompt,
-      });
-      
-      const text = response.text || "";
-      
-      try {
-        return JSON.parse(text);
-      } catch {
-        return { analysis: text };
-      }
-    } catch (error) {
-      console.error('Gemini API error:', error);
-      throw error;
-    }
+    // DISABLED: Gemini service disabled
+    console.log('Gemini service requested but is disabled');
+    throw new Error('Gemini service is currently disabled');
   }
 
   /**

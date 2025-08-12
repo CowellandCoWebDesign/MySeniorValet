@@ -1,19 +1,18 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { GoogleGenAI } from '@google/genai';
+// import { GoogleGenAI } from '@google/genai'; // DISABLED: Gemini service disabled
 
 /*
 MULTI-AI INTELLIGENCE SYSTEM FOR MYSENIORVALET
-Combines Anthropic Claude + Google Gemini for unprecedented capabilities:
+Currently using Anthropic Claude for all AI capabilities
 - Claude: Complex reasoning, care planning, contract analysis
-- Gemini: Visual analysis, real-time data, market insights
-- Together: Comprehensive senior living intelligence
+- Gemini: DISABLED
 */
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!,
 });
 
-const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+// const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! }); // DISABLED: Gemini service disabled
 
 // Multi-AI Analysis Interfaces
 export interface MultiAIAnalysis {
@@ -226,30 +225,17 @@ Focus on:
 
 Provide detailed insights for families evaluating senior living options.`;
 
-    try {
-      const response = await genai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: [{ text: prompt }]
-      });
-
-      return {
-        facilityQuality: 'Professional and well-maintained',
-        accessibility: ['Wheelchair accessible', 'Wide corridors', 'Accessible parking'],
-        atmosphere: 'Welcoming and homelike environment',
-        safetyFeatures: ['Well-lit areas', 'Security systems', 'Emergency procedures'],
-        amenities: ['Dining facilities', 'Common areas', 'Outdoor spaces'],
-        overallAssessment: response.text || 'Positive facility assessment',
-        confidence: 80
-      };
-    } catch (error) {
-      console.error('Gemini photo analysis error:', error);
-      return {
-        facilityQuality: 'Analysis pending',
-        accessibility: ['Professional assessment recommended'],
-        atmosphere: 'Tour recommended for full evaluation',
-        confidence: 50
-      };
-    }
+    // DISABLED: Gemini service disabled - returning default response
+    console.log('Photo analysis requested but Gemini is disabled');
+    return {
+      facilityQuality: 'Visual analysis temporarily unavailable',
+      accessibility: ['Schedule in-person tour for assessment'],
+      atmosphere: 'Tour recommended for full evaluation',
+      safetyFeatures: ['Request safety information during tour'],
+      amenities: ['Verify amenities during visit'],
+      overallAssessment: 'Photo analysis service temporarily unavailable - please schedule a tour',
+      confidence: 0
+    };
   }
 
   static async getMarketIntelligence(location: string): Promise<any> {
@@ -265,35 +251,22 @@ Provide detailed insights for families evaluating senior living options.`;
 
 Focus on actionable insights for families making decisions.`;
 
-    try {
-      const response = await genai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: [{ text: prompt }]
-      });
-
-      return {
-        pricingTrends: 'Stable with 3-5% annual increases',
-        occupancyRates: 'High demand market with 85-90% occupancy',
-        marketOutlook: 'Strong and stable senior living market',
-        newDevelopments: 'Several planned communities in development',
-        qualityTrends: 'Increasing focus on technology and amenities',
-        recommendations: [
-          'Act quickly on preferred communities',
-          'Consider waiting lists for top choices',
-          'Evaluate long-term market stability'
-        ],
-        fullAnalysis: response.text || 'Market analysis completed',
-        confidence: 85
-      };
-    } catch (error) {
-      console.error('Market intelligence error:', error);
-      return {
-        pricingTrends: 'Market research recommended',
-        occupancyRates: 'Local market analysis needed',
-        recommendations: ['Consult local senior living specialist'],
-        confidence: 40
-      };
-    }
+    // DISABLED: Gemini service disabled - returning default response
+    console.log('Market intelligence requested but Gemini is disabled');
+    return {
+      pricingTrends: 'Contact communities directly for current pricing',
+      occupancyRates: 'Availability varies - contact communities directly',
+      marketOutlook: 'Market analysis temporarily unavailable',
+      newDevelopments: 'Check local resources for new communities',
+      qualityTrends: 'Quality assessments available during tours',
+      recommendations: [
+        'Contact communities directly for availability',
+        'Schedule tours to assess current market',
+        'Consult with local senior living advisors'
+      ],
+      fullAnalysis: 'Market intelligence service temporarily unavailable',
+      confidence: 0
+    };
   }
 
   static async generateTourQuestions(communityData: any): Promise<string[]> {
@@ -312,35 +285,34 @@ Create 15-20 questions covering:
 
 Make questions specific to this community's features and any gaps in information.`;
 
-    try {
-      const response = await genai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: [{ text: prompt }]
-      });
+    // DISABLED: Gemini service disabled - returning default questions
+    console.log('Tour questions generation requested but Gemini is disabled');
+    const questions = [
+      "What is the staff-to-resident ratio during day and night shifts?",
+      "How do you handle medical emergencies?",
+      "What activities and programs are available for residents?",
+      "Can you explain the pricing structure and what's included?",
+      "How do you accommodate dietary restrictions and preferences?",
+      "What is your policy on family visits and involvement?",
+      "How do you assess and adapt to changing care needs?",
+      "What safety and security measures are in place?",
+      "Can residents personalize their living spaces?",
+      "What qualifications do your care staff have?",
+      "How do you handle medication management?",
+      "What transportation services are available?",
+      "How do you support residents with memory care needs?",
+      "What is your move-in and move-out process?",
+      "Can you provide references from current residents' families?"
+    ];
 
-      const text = response.text || '';
-      const questions = text.split('\n')
-        .filter(line => line.trim().length > 0)
-        .filter(line => line.includes('?') || line.match(/^\d+\./))
-        .slice(0, 20);
-
-      return questions.length > 0 ? questions : [
-        'What is the staff-to-resident ratio?',
-        'How are medical emergencies handled?',
-        'What activities are available daily?',
-        'Can you accommodate special dietary needs?',
-        'What are the move-in and move-out policies?',
-        'How do you handle care level changes?'
-      ];
-    } catch (error) {
-      console.error('Tour questions error:', error);
-      return [
-        'What care services are included?',
-        'What is the fee structure?',
-        'How are families kept informed?',
-        'What is the community atmosphere like?'
-      ];
-    }
+    return questions.length > 0 ? questions : [
+      'What is the staff-to-resident ratio?',
+      'How are medical emergencies handled?',
+      'What activities are available daily?',
+      'Can you accommodate special dietary needs?',
+      'What are the move-in and move-out policies?',
+      'How do you handle care level changes?'
+    ];
   }
 }
 
@@ -352,12 +324,15 @@ export class MultiAIOrchestrator {
     photos: string[] = []
   ): Promise<MultiAIAnalysis> {
     try {
-      // Parallel processing for maximum efficiency
-      const [claudeAnalysis, geminiVisual, geminiMarket] = await Promise.all([
-        ClaudeIntelligenceService.analyzeComprehensiveFit(communities, userProfile),
-        photos.length > 0 ? GeminiIntelligenceService.analyzeCommunityPhotos(photos) : null,
-        GeminiIntelligenceService.getMarketIntelligence(userProfile.location || 'California')
-      ]);
+      // Only using Claude since Gemini is disabled
+      const claudeAnalysis = await ClaudeIntelligenceService.analyzeComprehensiveFit(communities, userProfile);
+      
+      // DISABLED: Gemini service disabled - using fallback values
+      const geminiVisual = null;
+      const geminiMarket = {
+        fullAnalysis: 'Market analysis temporarily unavailable',
+        confidence: 0
+      };
 
       return {
         claudeInsights: {
