@@ -115,7 +115,7 @@ import PaymentCancel from "@/pages/payment-cancel";
 import CommunityMobilePayment from "@/pages/community-mobile-payment";
 import PaymentTestDashboard from "@/pages/payment-test-dashboard";
 import PaymentDiagnostics from "@/pages/payment-diagnostics";
-import AdminDashboard from "@/pages/admin-dashboard";
+// AdminDashboard removed - all admin functionality consolidated into SuperAdminAnalytics
 import TermsOfService from "@/pages/terms-of-service";
 import PrivacyPolicy from "@/pages/privacy-policy";
 import CookiePolicy from "@/pages/cookie-policy";
@@ -287,7 +287,12 @@ function Router() {
       <Route path="/payment/cancel" component={PaymentCancel} />
       <Route path="/payment-test-dashboard" component={PaymentTestDashboard} />
       <Route path="/payment-diagnostics" component={PaymentDiagnostics} />
-      <Route path="/admin-dashboard" component={AdminDashboard} />
+      {/* ALL admin dashboards consolidated to SuperAdminAnalytics - NO EXCEPTIONS */}
+      <Route path="/admin-dashboard" component={SuperAdminAnalytics} />
+      <Route path="/admin" component={SuperAdminAnalytics} />
+      <Route path="/admin-clean" component={SuperAdminAnalytics} />
+      <Route path="/super-admin-dashboard" component={SuperAdminAnalytics} />
+      {/* Non-admin routes */}
       <Route path="/payment-recovery" component={PaymentRecovery} />
       <Route path="/community-onboarding/:communityId" component={CommunityOnboarding} />
       <Route path="/vendor-onboarding/:vendorId" component={VendorOnboarding} />
@@ -295,7 +300,6 @@ function Router() {
       <Route path="/vendor-tier-test" component={VendorTierTest} />
       <Route path="/community-creator" component={CommunityCreatorPortal} />
       <Route path="/community-creator-portal" component={CommunityCreatorPortal} />
-      <Route path="/super-admin-dashboard" component={SuperAdminAnalytics} />
       <Route path="/super-admin-analytics" component={SuperAdminAnalytics} />
       <Route path="/admin-subscription-management" component={AdminSubscriptionManagement} />
       <Route path="/admin/marketing-hub" component={SuperAdminAnalytics} />
