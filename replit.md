@@ -7,6 +7,7 @@ MySeniorValet is a technology platform connecting families with publicly availab
 - **Unified Admin Dashboard Consolidation**: Successfully merged all administrative functionality into Super Admin Analytics dashboard with comprehensive tabs for Subscriptions, Payments, Data Quality, API Costs, Storage, Integration, Reports, and Security
 - **Quick Access Grid Implementation**: Added rapid-access button grid for all admin tools, replacing multiple separate pages with efficient single-dashboard access
 - **Route Consolidation Complete**: All admin routes now redirect to unified Super Admin Analytics dashboard for improved space efficiency and navigation
+  - Fixed login redirect issue: `/admin-dashboard` now properly redirects to unified Super Admin Analytics dashboard (August 12, 2025)
 - **State Management Enhancement**: Integrated subscription and payment monitoring state management into unified dashboard
 - **Dashboard Functionality Transformation** (August 12, 2025): Major upgrade from basic UI displays to comprehensive management capabilities:
   - Community Management: Full CRUD operations with View, Edit, Delete actions connected to API endpoints
