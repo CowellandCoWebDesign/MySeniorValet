@@ -14,42 +14,15 @@ import {
 } from "./security";
 import { cacheBuster, devModeHeaders } from "./cache-buster";
 import { devCacheKiller, clearViteCache } from "./dev-cache-killer";
-// Lazy load infrastructure components to speed up startup
-const loadInfrastructure = async () => {
-  const [
-    { redisCache },
-    { securityDashboard },
-    { performanceMonitor },
-    { simpleWebSocket },
-    { documentManagement },
-    { businessIntelligence },
-    { advancedAnalytics },
-    { notificationSystem },
-    { integrationManager }
-  ] = await Promise.all([
-    import("./infrastructure/redis-cache"),
-    import("./infrastructure/security-dashboard"),
-    import("./infrastructure/performance-monitor"),
-    import("./infrastructure/simple-websocket"),
-    import("./infrastructure/document-management"),
-    import("./infrastructure/business-intelligence"),
-    import("./infrastructure/advanced-analytics"),
-    import("./infrastructure/notification-system"),
-    import("./infrastructure/integration-manager")
-  ]);
-  
-  return {
-    redisCache,
-    securityDashboard,
-    performanceMonitor,
-    simpleWebSocket,
-    documentManagement,
-    businessIntelligence,
-    advancedAnalytics,
-    notificationSystem,
-    integrationManager
-  };
-};
+import { redisCache } from "./infrastructure/redis-cache";
+import { securityDashboard } from "./infrastructure/security-dashboard";
+import { performanceMonitor } from "./infrastructure/performance-monitor";
+import { simpleWebSocket } from "./infrastructure/simple-websocket";
+import { documentManagement } from "./infrastructure/document-management";
+import { businessIntelligence } from "./infrastructure/business-intelligence";
+import { advancedAnalytics } from "./infrastructure/advanced-analytics";
+import { notificationSystem } from "./infrastructure/notification-system";
+import { integrationManager } from "./infrastructure/integration-manager";
 import cookieParser from "cookie-parser";
 
 const app = express();
@@ -69,33 +42,12 @@ app.use(securityHeaders);
 app.use(securityLogger);
 app.use(enhanceSessionSecurity);
 
-// Lazy load infrastructure after basic middleware setup
-let infrastructure: any = null;
+// Performance monitoring (lightweight)
+app.use(performanceMonitor.middleware());
 
-// Performance monitoring (will be enabled after infrastructure loads)
-app.use(async (req, res, next) => {
-  if (!infrastructure) {
-    infrastructure = await loadInfrastructure();
-  }
-  if (infrastructure.performanceMonitor) {
-    infrastructure.performanceMonitor.middleware()(req, res, next);
-  } else {
-    next();
-  }
-});
-
-// Security monitoring (will be enabled after infrastructure loads)
+// DISABLE Security monitoring in development to prevent rate limiting
 if (process.env.NODE_ENV !== 'development') {
-  app.use(async (req, res, next) => {
-    if (!infrastructure) {
-      infrastructure = await loadInfrastructure();
-    }
-    if (infrastructure.securityDashboard) {
-      infrastructure.securityDashboard.middleware()(req, res, next);
-    } else {
-      next();
-    }
-  });
+  app.use(securityDashboard.middleware());
 } else {
   console.log('⚠️ Security monitoring DISABLED in development mode');
 }
@@ -294,20 +246,10 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
     
-    // Initialize infrastructure components after server starts (non-blocking)
-    loadInfrastructure().then(infra => {
-      infrastructure = infra;
-      // Initialize WebSocket communication
-      if (infra.simpleWebSocket) {
-        infra.simpleWebSocket.initialize(server);
-        console.log('✅ WebSocket communication initialized');
-      }
-      console.log('✅ All infrastructure components loaded successfully');
-    }).catch(err => {
-      console.error('Warning: Some infrastructure components failed to load:', err);
-    });
+    // Initialize simple WebSocket communication
+    simpleWebSocket.initialize(server);
     
-    console.log('🚀 ENTERPRISE INFRASTRUCTURE SYSTEMS LOADING:');
+    console.log('🚀 ALL ENTERPRISE INFRASTRUCTURE SYSTEMS ACTIVATED:');
     console.log('  ✅ Redis Caching System - Lightning-fast performance');
     console.log('  ✅ Security Dashboard & Monitoring - Real-time threat detection');
     console.log('  ✅ Performance Monitor - System health tracking');
