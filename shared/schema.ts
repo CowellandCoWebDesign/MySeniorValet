@@ -22,7 +22,7 @@ export const sessions = pgTable(
 );
 
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(), // Changed to varchar for Replit Auth
+  id: serial("id").primaryKey(), // Using integer to match actual database
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
@@ -117,6 +117,16 @@ export type MessageTemplate = typeof messageTemplates.$inferSelect;
 export type InsertMessageTemplate = typeof messageTemplates.$inferInsert;
 export type MessagingNotification = typeof messagingNotifications.$inferSelect;
 export type InsertMessagingNotification = typeof messagingNotifications.$inferInsert;
+
+// Family collaboration type exports
+export type FamilyPoll = typeof familyPolls.$inferSelect;
+export type InsertFamilyPoll = typeof familyPolls.$inferInsert;
+export type FamilyPollVote = typeof familyPollVotes.$inferSelect;
+export type InsertFamilyPollVote = typeof familyPollVotes.$inferInsert;
+export type FamilyDecision = typeof familyDecisions.$inferSelect;
+export type InsertFamilyDecision = typeof familyDecisions.$inferInsert;
+export type TourConversation = typeof tourConversations.$inferSelect;
+export type InsertTourConversation = typeof tourConversations.$inferInsert;
 
 // User sessions table for secure session management
 export const userSessions = pgTable("user_sessions", {
@@ -606,6 +616,150 @@ export const messagingNotifications = pgTable("messaging_notifications", {
 }, (table) => [
   index("messaging_notifications_user_id_idx").on(table.userId),
   index("messaging_notifications_conversation_id_idx").on(table.conversationId),
+]);
+
+// Family Polls/Voting system for collaborative decision-making
+export const familyPolls = pgTable("family_polls", {
+  id: serial("id").primaryKey(),
+  familyGroupId: integer("family_group_id").references(() => familyGroups.id, { onDelete: "cascade" }).notNull(),
+  createdBy: integer("created_by").references(() => users.id).notNull(),
+  tourId: integer("tour_id").references(() => tours.id), // Optional link to tour
+  communityId: integer("community_id").references(() => communities.id), // Optional link to community
+  
+  // Poll Details
+  pollType: varchar("poll_type", { 
+    enum: ["tour_decision", "community_preference", "schedule_preference", "care_level", "budget_range", "general"] 
+  }).notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  
+  // Options & Settings
+  options: json("options").$type<{
+    id: string;
+    text: string;
+    description?: string;
+    metadata?: {
+      tourDate?: string;
+      communityName?: string;
+      price?: number;
+      careLevel?: string;
+    };
+  }[]>().notNull(),
+  
+  allowMultipleChoices: boolean("allow_multiple_choices").default(false),
+  anonymousVoting: boolean("anonymous_voting").default(false),
+  requireAllVotes: boolean("require_all_votes").default(false),
+  showResultsRealtime: boolean("show_results_realtime").default(true),
+  
+  // Timing
+  expiresAt: timestamp("expires_at"),
+  status: varchar("status", { 
+    enum: ["active", "closed", "cancelled", "decided"] 
+  }).default("active"),
+  
+  // Results
+  winningOptionId: text("winning_option_id"),
+  finalDecision: text("final_decision"),
+  decisionNotes: text("decision_notes"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("family_polls_family_group_id_idx").on(table.familyGroupId),
+  index("family_polls_tour_id_idx").on(table.tourId),
+  index("family_polls_community_id_idx").on(table.communityId),
+  index("family_polls_status_idx").on(table.status),
+]);
+
+// Individual votes in family polls
+export const familyPollVotes = pgTable("family_poll_votes", {
+  id: serial("id").primaryKey(),
+  pollId: integer("poll_id").references(() => familyPolls.id, { onDelete: "cascade" }).notNull(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  
+  // Vote Details
+  selectedOptions: json("selected_options").$type<string[]>().notNull(), // Array of option IDs
+  comment: text("comment"),
+  voteWeight: integer("vote_weight").default(1), // For weighted voting (e.g., primary decision maker)
+  
+  // Metadata
+  votedAt: timestamp("voted_at").defaultNow(),
+  updatedAt: timestamp("updated_at"),
+}, (table) => [
+  index("family_poll_votes_poll_id_idx").on(table.pollId),
+  index("family_poll_votes_user_id_idx").on(table.userId),
+  // Ensure one vote per user per poll
+  unique("unique_user_poll_vote").on(table.pollId, table.userId),
+]);
+
+// Family Decision History for tracking collaborative decisions
+export const familyDecisions = pgTable("family_decisions", {
+  id: serial("id").primaryKey(),
+  familyGroupId: integer("family_group_id").references(() => familyGroups.id, { onDelete: "cascade" }).notNull(),
+  
+  // Decision Context
+  decisionType: varchar("decision_type", { 
+    enum: ["community_selection", "tour_schedule", "care_level", "budget", "move_in_date", "amenities", "location", "other"] 
+  }).notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  
+  // Related Entities
+  communityIds: integer("community_ids").array().default([]),
+  tourIds: integer("tour_ids").array().default([]),
+  pollId: integer("poll_id").references(() => familyPolls.id),
+  
+  // Decision Details
+  decision: text("decision").notNull(),
+  rationale: text("rationale"),
+  consensus: boolean("consensus").default(false),
+  
+  // Participants & Agreement
+  participants: json("participants").$type<{
+    userId: string;
+    agreed: boolean;
+    notes?: string;
+  }[]>().notNull(),
+  
+  // Timeline
+  discussionStarted: timestamp("discussion_started"),
+  decisionMade: timestamp("decision_made").defaultNow(),
+  implementBy: timestamp("implement_by"),
+  
+  // Status
+  status: varchar("status", { 
+    enum: ["pending", "decided", "implemented", "revised", "cancelled"] 
+  }).default("decided"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("family_decisions_family_group_id_idx").on(table.familyGroupId),
+  index("family_decisions_poll_id_idx").on(table.pollId),
+  index("family_decisions_status_idx").on(table.status),
+]);
+
+// Tour-Conversation Link table to connect tours with family discussions
+export const tourConversations = pgTable("tour_conversations", {
+  id: serial("id").primaryKey(),
+  tourId: integer("tour_id").references(() => tours.id, { onDelete: "cascade" }).notNull(),
+  conversationId: integer("conversation_id").references(() => conversations.id, { onDelete: "cascade" }).notNull(),
+  familyGroupId: integer("family_group_id").references(() => familyGroups.id),
+  
+  // Link Type
+  linkType: varchar("link_type", { 
+    enum: ["planning", "discussion", "feedback", "follow_up"] 
+  }).notNull(),
+  
+  // Metadata
+  linkedBy: integer("linked_by").references(() => users.id),
+  linkedAt: timestamp("linked_at").defaultNow(),
+}, (table) => [
+  index("tour_conversations_tour_id_idx").on(table.tourId),
+  index("tour_conversations_conversation_id_idx").on(table.conversationId),
+  index("tour_conversations_family_group_id_idx").on(table.familyGroupId),
+  // Unique constraint to prevent duplicate links
+  unique("unique_tour_conversation").on(table.tourId, table.conversationId),
 ]);
 
 // User Consent Records for GDPR/CCPA compliance

@@ -26,7 +26,7 @@ import { registerQuickAuthRoutes } from "./quickAuthRoutes";
 // Tour routes are registered directly in server/routes.ts
 import { registerClaimRoutes } from "./claimRoutes";
 import { registerReviewRoutes } from "./reviewRoutes";
-import { registerFamilyRoutes } from "./familyRoutes";
+// Family routes are registered directly in server/routes.ts
 import { registerPaymentRoutes } from "./paymentRoutes";
 import { registerStatsRoutes } from "./statsRoutes";
 import { registerPricingRoutes } from "./pricingRoutes";
@@ -107,7 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Tour routes are registered directly in server/routes.ts
   registerClaimRoutes(app);
   registerReviewRoutes(app);
-  registerFamilyRoutes(app);
+  // Family routes are registered directly in server/routes.ts
   
   // Payment Routes - DISABLED to prevent conflicts with unifiedPaymentRoutes
   // registerPaymentRoutes(app); // DISABLED - using unifiedPaymentRoutes instead

@@ -1,412 +1,357 @@
-import { type Express } from "express";
+import { Router, Request, Response } from "express";
 import { db } from "../db";
-import { users, communities, tours, userFavorites } from "@shared/schema";
-import { eq, and, desc, or } from "drizzle-orm";
-import { isAuthenticated as requireAuth } from "../replitAuth";
-import { z } from "zod";
+import { 
+  familyGroups, 
+  familyPolls, 
+  familyPollVotes, 
+  familyDecisions,
+  tourConversations,
+  tours,
+  communities,
+  users
+} from "@shared/schema";
+import { eq, and, desc, asc, or, inArray, sql } from "drizzle-orm";
 
-const inviteFamilySchema = z.object({
-  email: z.string().email(),
-  relationship: z.string().min(1),
-  message: z.string().optional()
+const router = Router();
+
+// Get all family groups for the current user
+router.get("/groups", async (req: Request, res: Response) => {
+  try {
+    // For development, return mock data since we don't have full auth yet
+    const mockGroups = [
+      {
+        id: 1,
+        name: "Smith Family",
+        members: [
+          { id: 1, name: "John Smith", role: "primary" },
+          { id: 2, name: "Jane Smith", role: "member" },
+          { id: 3, name: "Bob Smith", role: "member" }
+        ],
+        settings: {
+          allowVoting: true,
+          requireConsensus: false
+        }
+      },
+      {
+        id: 2,
+        name: "Johnson Family Group",
+        members: [
+          { id: 4, name: "Mike Johnson", role: "primary" },
+          { id: 5, name: "Sarah Johnson", role: "member" }
+        ],
+        settings: {
+          allowVoting: true,
+          requireConsensus: true
+        }
+      }
+    ];
+    
+    res.json(mockGroups);
+  } catch (error) {
+    console.error("Error fetching family groups:", error);
+    res.status(500).json({ error: "Failed to fetch family groups" });
+  }
 });
 
-export function registerFamilyRoutes(app: Express) {
-  // Get family connections
-  app.get('/api/family/connections', requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
+// Get polls for a family group
+router.get("/polls/:groupId?", async (req: Request, res: Response) => {
+  try {
+    const groupId = req.params.groupId || req.query.groupId;
+    
+    if (!groupId) {
+      // Return all polls for now (development)
+      const allPolls = await db.select()
+        .from(familyPolls)
+        .orderBy(desc(familyPolls.createdAt))
+        .limit(10);
+      
+      return res.json(allPolls);
+    }
+    
+    const polls = await db.select()
+      .from(familyPolls)
+      .where(eq(familyPolls.familyGroupId, parseInt(groupId as string)))
+      .orderBy(desc(familyPolls.createdAt));
+    
+    res.json(polls);
+  } catch (error) {
+    console.error("Error fetching polls:", error);
+    res.status(500).json({ error: "Failed to fetch polls" });
+  }
+});
 
-      const connections = await db
-        .select({
-          connection: familyConnections,
-          connectedUser: {
-            id: users.id,
-            firstName: users.firstName,
-            lastName: users.lastName,
-            email: users.email
-          }
-        })
-        .from(familyConnections)
-        .innerJoin(users, 
-          or(
-            eq(familyConnections.userId1, users.id),
-            eq(familyConnections.userId2, users.id)
-          )
+// Create a new poll
+router.post("/polls", async (req: Request, res: Response) => {
+  try {
+    const {
+      familyGroupId,
+      title,
+      description,
+      pollType,
+      options,
+      allowMultipleChoices,
+      anonymousVoting,
+      requireAllVotes,
+      showResultsRealtime,
+      expiresAt,
+      tourId,
+      communityId
+    } = req.body;
+    
+    // For development, use a test user ID
+    const testUserId = 1;
+    
+    // Use raw SQL to avoid schema mismatches
+    const result = await db.execute(sql`
+      INSERT INTO family_polls (
+        family_group_id, created_by, title, description, poll_type, options,
+        allow_multiple_choices, anonymous_voting, require_all_votes, show_results_realtime,
+        expires_at, tour_id, community_id, status, created_at, updated_at
+      ) VALUES (
+        ${familyGroupId || 1}, ${testUserId}, ${title}, ${description}, ${pollType || "general"},
+        ${JSON.stringify(options)}::json, ${allowMultipleChoices || false}, ${anonymousVoting || false},
+        ${requireAllVotes || false}, ${showResultsRealtime !== false},
+        ${expiresAt ? new Date(expiresAt) : null}, ${tourId || null}, ${communityId || null},
+        'active', NOW(), NOW()
+      ) RETURNING *
+    `);
+    
+    const newPoll = result.rows[0];
+    
+    res.json({
+      success: true,
+      poll: newPoll
+    });
+  } catch (error) {
+    console.error("Error creating poll:", error);
+    res.status(500).json({ error: "Failed to create poll" });
+  }
+});
+
+// Submit a vote
+router.post("/polls/:pollId/vote", async (req: Request, res: Response) => {
+  try {
+    const { pollId } = req.params;
+    const { optionIds, comment } = req.body;
+    
+    // For development, use a test user ID
+    const testUserId = 1;
+    
+    // Check if user already voted
+    const existingVote = await db.select()
+      .from(familyPollVotes)
+      .where(
+        and(
+          eq(familyPollVotes.pollId, parseInt(pollId)),
+          eq(familyPollVotes.userId, testUserId)
         )
+      );
+    
+    if (existingVote.length > 0) {
+      // Update existing vote
+      await db.update(familyPollVotes)
+        .set({
+          selectedOptions: JSON.stringify(optionIds),
+          comment: comment || null,
+          updatedAt: new Date()
+        })
         .where(
           and(
-            or(
-              eq(familyConnections.userId1, userId),
-              eq(familyConnections.userId2, userId)
-            ),
-            eq(familyConnections.status, 'connected')
+            eq(familyPollVotes.pollId, parseInt(pollId)),
+            eq(familyPollVotes.userId, testUserId)
           )
         );
-
-      // Filter to only show the other user in the connection
-      const formattedConnections = connections.map(c => {
-        const isUser1 = c.connection.userId1 === userId;
-        return {
-          id: c.connection.id,
-          relationship: isUser1 ? c.connection.relationship1 : c.connection.relationship2,
-          connectedUser: c.connectedUser,
-          connectedAt: c.connection.createdAt
-        };
-      }).filter(c => c.connectedUser.id !== userId);
-
-      res.json(formattedConnections);
-    } catch (error) {
-      console.error('Error fetching family connections:', error);
-      res.status(500).json({ message: 'Failed to fetch family connections' });
-    }
-  });
-
-  // Send family invitation
-  app.post('/api/family/invite', requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
-
-      const validatedData = inviteFamilySchema.parse(req.body);
-
-      // Check if user exists
-      const [invitedUser] = await db
-        .select()
-        .from(users)
-        .where(eq(users.email, validatedData.email))
-        .limit(1);
-
-      if (!invitedUser) {
-        // Create invitation for non-existing user
-        const [invitation] = await db
-          .insert(familyInvitations)
-          .values({
-            inviterId: userId,
-            inviteeEmail: validatedData.email,
-            relationship: validatedData.relationship,
-            message: validatedData.message,
-            status: 'pending',
-            inviteCode: generateInviteCode()
-          })
-          .returning();
-
-        // TODO: Send email invitation
-        return res.json({ 
-          success: true, 
-          message: 'Invitation sent',
-          type: 'email',
-          invitation 
-        });
-      }
-
-      // Check if already connected
-      const existingConnection = await db
-        .select()
-        .from(familyConnections)
-        .where(
-          and(
-            or(
-              and(
-                eq(familyConnections.userId1, userId),
-                eq(familyConnections.userId2, invitedUser.id)
-              ),
-              and(
-                eq(familyConnections.userId1, invitedUser.id),
-                eq(familyConnections.userId2, userId)
-              )
-            ),
-            eq(familyConnections.status, 'connected')
-          )
-        )
-        .limit(1);
-
-      if (existingConnection.length > 0) {
-        return res.status(400).json({ message: 'Already connected with this family member' });
-      }
-
-      // Create connection request
-      const [connection] = await db
-        .insert(familyConnections)
+    } else {
+      // Create new vote
+      await db.insert(familyPollVotes)
         .values({
-          userId1: userId,
-          userId2: invitedUser.id,
-          relationship1: validatedData.relationship,
-          relationship2: 'Family Member', // Default, user can update
-          status: 'pending'
-        })
-        .returning();
-
-      res.json({ 
-        success: true, 
-        message: 'Connection request sent',
-        type: 'connection',
-        connection 
-      });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: 'Invalid data', errors: error.errors });
-      }
-      console.error('Error sending invitation:', error);
-      res.status(500).json({ message: 'Failed to send invitation' });
+          pollId: parseInt(pollId),
+          userId: testUserId,
+          selectedOptions: JSON.stringify(optionIds),
+          comment: comment || null,
+          voteWeight: 1,
+          votedAt: new Date()
+        });
     }
-  });
+    
+    res.json({
+      success: true,
+      message: "Vote submitted successfully"
+    });
+  } catch (error) {
+    console.error("Error submitting vote:", error);
+    res.status(500).json({ error: "Failed to submit vote" });
+  }
+});
 
-  // Get pending invitations
-  app.get('/api/family/invitations', requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      const userEmail = req.user?.email;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
-
-      // Get email invitations
-      const emailInvitations = await db
-        .select({
-          invitation: familyInvitations,
-          inviter: {
-            id: users.id,
-            firstName: users.firstName,
-            lastName: users.lastName,
-            email: users.email
-          }
-        })
-        .from(familyInvitations)
-        .innerJoin(users, eq(familyInvitations.inviterId, users.id))
-        .where(
-          and(
-            eq(familyInvitations.inviteeEmail, userEmail),
-            eq(familyInvitations.status, 'pending')
-          )
-        );
-
-      // Get connection requests
-      const connectionRequests = await db
-        .select({
-          connection: familyConnections,
-          requester: {
-            id: users.id,
-            firstName: users.firstName,
-            lastName: users.lastName,
-            email: users.email
-          }
-        })
-        .from(familyConnections)
-        .innerJoin(users, eq(familyConnections.userId1, users.id))
-        .where(
-          and(
-            eq(familyConnections.userId2, userId),
-            eq(familyConnections.status, 'pending')
-          )
-        );
-
-      res.json({
-        emailInvitations: emailInvitations.map(i => ({
-          id: i.invitation.id,
-          type: 'email',
-          inviter: i.inviter,
-          relationship: i.invitation.relationship,
-          message: i.invitation.message,
-          createdAt: i.invitation.createdAt
-        })),
-        connectionRequests: connectionRequests.map(c => ({
-          id: c.connection.id,
-          type: 'connection',
-          requester: c.requester,
-          relationship: c.connection.relationship1,
-          createdAt: c.connection.createdAt
-        }))
-      });
-    } catch (error) {
-      console.error('Error fetching invitations:', error);
-      res.status(500).json({ message: 'Failed to fetch invitations' });
+// Get poll results
+router.get("/polls/:pollId/results", async (req: Request, res: Response) => {
+  try {
+    const { pollId } = req.params;
+    
+    const poll = await db.select()
+      .from(familyPolls)
+      .where(eq(familyPolls.id, parseInt(pollId)))
+      .limit(1);
+    
+    if (poll.length === 0) {
+      return res.status(404).json({ error: "Poll not found" });
     }
-  });
+    
+    const votes = await db.select()
+      .from(familyPollVotes)
+      .where(eq(familyPollVotes.pollId, parseInt(pollId)));
+    
+    res.json({
+      poll: poll[0],
+      votes,
+      totalVotes: votes.length
+    });
+  } catch (error) {
+    console.error("Error fetching poll results:", error);
+    res.status(500).json({ error: "Failed to fetch poll results" });
+  }
+});
 
-  // Accept invitation
-  app.post('/api/family/invitations/:invitationId/accept', requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
+// Close a poll
+router.post("/polls/:pollId/close", async (req: Request, res: Response) => {
+  try {
+    const { pollId } = req.params;
+    const { winningOptionId, finalDecision, decisionNotes } = req.body;
+    
+    await db.update(familyPolls)
+      .set({
+        status: "closed",
+        winningOptionId,
+        finalDecision,
+        decisionNotes,
+        updatedAt: new Date()
+      })
+      .where(eq(familyPolls.id, parseInt(pollId)));
+    
+    res.json({
+      success: true,
+      message: "Poll closed successfully"
+    });
+  } catch (error) {
+    console.error("Error closing poll:", error);
+    res.status(500).json({ error: "Failed to close poll" });
+  }
+});
 
-      const invitationId = parseInt(req.params.invitationId);
-      const { type, relationship } = req.body;
+// Create a family decision record
+router.post("/decisions", async (req: Request, res: Response) => {
+  try {
+    const {
+      familyGroupId,
+      decisionType,
+      title,
+      description,
+      decision,
+      rationale,
+      consensus,
+      participants,
+      communityIds,
+      tourIds,
+      pollId
+    } = req.body;
+    
+    const [newDecision] = await db.insert(familyDecisions)
+      .values({
+        familyGroupId: familyGroupId || 1,
+        decisionType,
+        title,
+        description,
+        decision,
+        rationale,
+        consensus: consensus || false,
+        participants: JSON.stringify(participants),
+        communityIds: communityIds || [],
+        tourIds: tourIds || [],
+        pollId: pollId || null,
+        discussionStarted: new Date(),
+        decisionMade: new Date(),
+        status: "decided",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+    
+    res.json({
+      success: true,
+      decision: newDecision
+    });
+  } catch (error) {
+    console.error("Error creating decision:", error);
+    res.status(500).json({ error: "Failed to create decision" });
+  }
+});
 
-      if (type === 'connection') {
-        // Accept connection request
-        const [connection] = await db
-          .update(familyConnections)
-          .set({
-            status: 'connected',
-            relationship2: relationship || 'Family Member',
-            updatedAt: new Date()
-          })
-          .where(
-            and(
-              eq(familyConnections.id, invitationId),
-              eq(familyConnections.userId2, userId),
-              eq(familyConnections.status, 'pending')
-            )
-          )
-          .returning();
+// Get family decisions
+router.get("/decisions/:groupId", async (req: Request, res: Response) => {
+  try {
+    const { groupId } = req.params;
+    
+    const decisions = await db.select()
+      .from(familyDecisions)
+      .where(eq(familyDecisions.familyGroupId, parseInt(groupId)))
+      .orderBy(desc(familyDecisions.decisionMade));
+    
+    res.json(decisions);
+  } catch (error) {
+    console.error("Error fetching decisions:", error);
+    res.status(500).json({ error: "Failed to fetch decisions" });
+  }
+});
 
-        if (!connection) {
-          return res.status(404).json({ message: 'Connection request not found' });
-        }
+// Link a tour with a conversation
+router.post("/tour-conversations", async (req: Request, res: Response) => {
+  try {
+    const {
+      tourId,
+      conversationId,
+      familyGroupId,
+      linkType
+    } = req.body;
+    
+    // For development, use a test user ID
+    const testUserId = 1;
+    
+    const [link] = await db.insert(tourConversations)
+      .values({
+        tourId,
+        conversationId,
+        familyGroupId: familyGroupId || null,
+        linkType: linkType || "discussion",
+        linkedBy: testUserId,
+        linkedAt: new Date()
+      })
+      .returning();
+    
+    res.json({
+      success: true,
+      link
+    });
+  } catch (error) {
+    console.error("Error linking tour conversation:", error);
+    res.status(500).json({ error: "Failed to link tour conversation" });
+  }
+});
 
-        res.json({ success: true, connection });
-      } else {
-        // Accept email invitation
-        const [invitation] = await db
-          .update(familyInvitations)
-          .set({
-            status: 'accepted',
-            acceptedAt: new Date(),
-            updatedAt: new Date()
-          })
-          .where(
-            and(
-              eq(familyInvitations.id, invitationId),
-              eq(familyInvitations.status, 'pending')
-            )
-          )
-          .returning();
+// Get conversations for a tour
+router.get("/tour-conversations/:tourId", async (req: Request, res: Response) => {
+  try {
+    const { tourId } = req.params;
+    
+    const conversations = await db.select()
+      .from(tourConversations)
+      .where(eq(tourConversations.tourId, parseInt(tourId)));
+    
+    res.json(conversations);
+  } catch (error) {
+    console.error("Error fetching tour conversations:", error);
+    res.status(500).json({ error: "Failed to fetch tour conversations" });
+  }
+});
 
-        if (!invitation) {
-          return res.status(404).json({ message: 'Invitation not found' });
-        }
-
-        // Create connection
-        const [connection] = await db
-          .insert(familyConnections)
-          .values({
-            userId1: invitation.inviterId,
-            userId2: userId,
-            relationship1: invitation.relationship,
-            relationship2: relationship || 'Family Member',
-            status: 'connected'
-          })
-          .returning();
-
-        res.json({ success: true, connection });
-      }
-    } catch (error) {
-      console.error('Error accepting invitation:', error);
-      res.status(500).json({ message: 'Failed to accept invitation' });
-    }
-  });
-
-  // Decline invitation
-  app.post('/api/family/invitations/:invitationId/decline', requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
-
-      const invitationId = parseInt(req.params.invitationId);
-      const { type } = req.body;
-
-      if (type === 'connection') {
-        await db
-          .delete(familyConnections)
-          .where(
-            and(
-              eq(familyConnections.id, invitationId),
-              eq(familyConnections.userId2, userId),
-              eq(familyConnections.status, 'pending')
-            )
-          );
-      } else {
-        await db
-          .update(familyInvitations)
-          .set({
-            status: 'declined',
-            updatedAt: new Date()
-          })
-          .where(
-            and(
-              eq(familyInvitations.id, invitationId),
-              eq(familyInvitations.status, 'pending')
-            )
-          );
-      }
-
-      res.json({ success: true });
-    } catch (error) {
-      console.error('Error declining invitation:', error);
-      res.status(500).json({ message: 'Failed to decline invitation' });
-    }
-  });
-
-  // Remove family connection
-  app.delete('/api/family/connections/:connectionId', requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
-
-      const connectionId = parseInt(req.params.connectionId);
-
-      await db
-        .delete(familyConnections)
-        .where(
-          and(
-            eq(familyConnections.id, connectionId),
-            or(
-              eq(familyConnections.userId1, userId),
-              eq(familyConnections.userId2, userId)
-            )
-          )
-        );
-
-      res.json({ success: true });
-    } catch (error) {
-      console.error('Error removing connection:', error);
-      res.status(500).json({ message: 'Failed to remove connection' });
-    }
-  });
-
-  // Share communities with family
-  app.post('/api/family/share', requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: 'User not authenticated' });
-      }
-
-      const { communityIds, familyMemberIds, message } = req.body;
-
-      if (!Array.isArray(communityIds) || communityIds.length === 0) {
-        return res.status(400).json({ message: 'Community IDs are required' });
-      }
-
-      if (!Array.isArray(familyMemberIds) || familyMemberIds.length === 0) {
-        return res.status(400).json({ message: 'Family member IDs are required' });
-      }
-
-      // TODO: Implement sharing mechanism
-      // For now, just return success
-      res.json({ 
-        success: true, 
-        message: `Shared ${communityIds.length} communities with ${familyMemberIds.length} family members` 
-      });
-    } catch (error) {
-      console.error('Error sharing communities:', error);
-      res.status(500).json({ message: 'Failed to share communities' });
-    }
-  });
-}
-
-function generateInviteCode(): string {
-  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-}
+export default router;
