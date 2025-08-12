@@ -14,15 +14,16 @@ import {
 } from "./security";
 import { cacheBuster, devModeHeaders } from "./cache-buster";
 import { devCacheKiller, clearViteCache } from "./dev-cache-killer";
-import { redisCache } from "./infrastructure/redis-cache";
-import { securityDashboard } from "./infrastructure/security-dashboard";
-import { performanceMonitor } from "./infrastructure/performance-monitor";
-import { simpleWebSocket } from "./infrastructure/simple-websocket";
-import { documentManagement } from "./infrastructure/document-management";
-import { businessIntelligence } from "./infrastructure/business-intelligence";
-import { advancedAnalytics } from "./infrastructure/advanced-analytics";
-import { notificationSystem } from "./infrastructure/notification-system";
-import { integrationManager } from "./infrastructure/integration-manager";
+// TEMPORARILY DISABLED - Heavy infrastructure components slowing startup
+// import { redisCache } from "./infrastructure/redis-cache";
+// import { securityDashboard } from "./infrastructure/security-dashboard";
+// import { performanceMonitor } from "./infrastructure/performance-monitor";
+// import { simpleWebSocket } from "./infrastructure/simple-websocket";
+// import { documentManagement } from "./infrastructure/document-management";
+// import { businessIntelligence } from "./infrastructure/business-intelligence";
+// import { advancedAnalytics } from "./infrastructure/advanced-analytics";
+// import { notificationSystem } from "./infrastructure/notification-system";
+// import { integrationManager } from "./infrastructure/integration-manager";
 import cookieParser from "cookie-parser";
 
 const app = express();
@@ -42,15 +43,15 @@ app.use(securityHeaders);
 app.use(securityLogger);
 app.use(enhanceSessionSecurity);
 
-// Performance monitoring (lightweight)
-app.use(performanceMonitor.middleware());
+// Performance monitoring (DISABLED - slowing startup)
+// app.use(performanceMonitor.middleware());
 
-// DISABLE Security monitoring in development to prevent rate limiting
-if (process.env.NODE_ENV !== 'development') {
-  app.use(securityDashboard.middleware());
-} else {
-  console.log('⚠️ Security monitoring DISABLED in development mode');
-}
+// DISABLE Security monitoring (slowing startup)
+// if (process.env.NODE_ENV !== 'development') {
+//   app.use(securityDashboard.middleware());
+// } else {
+//   console.log('⚠️ Security monitoring DISABLED in development mode');
+// }
 
 // Apply rate limiting only to API routes (excluding map operations)
 app.use('/api', (req, res, next) => {
