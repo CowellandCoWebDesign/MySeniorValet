@@ -194,8 +194,8 @@ export default function MySeniorValetHome() {
   });
 
   // Mexican communities - load on demand
-  const { data: californiaCommunities, isLoading: californiaLoading } = useQuery({
-    queryKey: ["/api/communities/by-location/Mexico"],
+  const { data: mexicoCommunities, isLoading: mexicoLoading } = useQuery({
+    queryKey: ["/api/communities/mexico-real-time"],
     retry: false,
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
@@ -1809,10 +1809,10 @@ export default function MySeniorValetHome() {
             </div>
           </div>
           
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{(californiaCommunities as any[] || []).length || 0} communities • Mexico City, Guadalajara, Puerto Vallarta with exceptional value</p>
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{(mexicoCommunities as any[] || []).length || 0} communities • Mexico City, Guadalajara, Puerto Vallarta with exceptional value</p>
         
           <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-            {californiaLoading ? (
+            {mexicoLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
                 <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
@@ -1826,9 +1826,9 @@ export default function MySeniorValetHome() {
                 </Card>
               ))
             ) : (
-              ((californiaCommunities as any[] || []).slice(0, 12)).map((community: any, index: number) => (
+              ((mexicoCommunities as any[] || []).slice(0, 12)).map((community: any, index: number) => (
                 <EnhancedCommunityCard
-                  key={`california-${community.id}-${index}`}
+                  key={`mexico-${community.id}-${index}`}
                   community={community}
                   index={index}
                   variant='featured'
