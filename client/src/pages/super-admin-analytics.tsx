@@ -720,7 +720,7 @@ export default function SuperAdminAnalytics() {
                     {/* Primary Actions */}
                     <div>
                       <h3 className="text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">Core Management</h3>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                         <Button 
                           variant="outline" 
                           className="flex flex-col items-center justify-center h-20 hover:bg-blue-50 dark:hover:bg-blue-950"
@@ -752,6 +752,14 @@ export default function SuperAdminAnalytics() {
                         >
                           <CreditCard className="h-5 w-5 mb-1 text-yellow-600" />
                           <span className="text-xs">Payments</span>
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="flex flex-col items-center justify-center h-20 hover:bg-orange-50 dark:hover:bg-orange-950"
+                          onClick={() => window.location.href = '/admin-subscription-management'}
+                        >
+                          <ShoppingBag className="h-5 w-5 mb-1 text-orange-600" />
+                          <span className="text-xs">Subscriptions</span>
                         </Button>
                       </div>
                     </div>
