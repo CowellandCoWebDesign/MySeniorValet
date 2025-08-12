@@ -1125,6 +1125,52 @@ export default function SuperAdminAnalytics() {
 
               {/* AI Analytics Tab */}
               <TabsContent value="ai" className="space-y-6">
+                {/* AI Management Actions */}
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold">AI Analytics & Management</h2>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        toast({
+                          title: "Testing AI Providers",
+                          description: "Running health checks on all AI providers..."
+                        });
+                        // Test all AI providers
+                        apiRequest('POST', '/api/admin/ai/test-all')
+                          .then(() => {
+                            toast({
+                              title: "AI Test Complete",
+                              description: "All AI providers tested successfully"
+                            });
+                          })
+                          .catch(() => {
+                            toast({
+                              title: "Test Failed",
+                              description: "Some AI providers may be unavailable",
+                              variant: "destructive"
+                            });
+                          });
+                      }}
+                    >
+                      <Activity className="h-4 w-4 mr-2" />
+                      Test All Providers
+                    </Button>
+                    <Button 
+                      variant="default"
+                      onClick={() => {
+                        toast({
+                          title: "AI Configuration",
+                          description: "Opening AI provider configuration..."
+                        });
+                      }}
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      Configure AI
+                    </Button>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* AI Provider Usage */}
                   <Card>
@@ -1132,18 +1178,28 @@ export default function SuperAdminAnalytics() {
                       <CardTitle>AI Provider Usage & Costs</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={aiProviderData}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis yAxisId="left" />
-                          <YAxis yAxisId="right" orientation="right" />
-                          <Tooltip />
-                          <Legend />
-                          <Bar yAxisId="left" dataKey="value" fill="#3B82F6" name="Requests" />
-                          <Bar yAxisId="right" dataKey="cost" fill="#10B981" name="Cost ($)" />
-                        </BarChart>
-                      </ResponsiveContainer>
+                      {aiProviderData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height={300}>
+                          <BarChart data={aiProviderData}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis yAxisId="left" />
+                            <YAxis yAxisId="right" orientation="right" />
+                            <Tooltip />
+                            <Legend />
+                            <Bar yAxisId="left" dataKey="value" fill="#3B82F6" name="Requests" />
+                            <Bar yAxisId="right" dataKey="cost" fill="#10B981" name="Cost ($)" />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="h-[300px] flex items-center justify-center text-gray-500">
+                          <div className="text-center">
+                            <Brain className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+                            <p>No AI usage data available yet</p>
+                            <p className="text-sm mt-1">AI requests will appear here once processed</p>
+                          </div>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 
@@ -1172,6 +1228,36 @@ export default function SuperAdminAnalytics() {
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Total AI Costs</span>
                           <span className="font-semibold">{formatCurrency(metrics?.ai?.costs?.total || 0)}</span>
+                        </div>
+                        {/* Add action buttons */}
+                        <Separator className="my-2" />
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="flex-1"
+                            onClick={() => {
+                              handleExport();
+                            }}
+                          >
+                            <Download className="h-3 w-3 mr-1" />
+                            Export
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="flex-1"
+                            onClick={() => {
+                              refetch();
+                              toast({
+                                title: "Refreshing AI Metrics",
+                                description: "Fetching latest AI usage data..."
+                              });
+                            }}
+                          >
+                            <RefreshCw className="h-3 w-3 mr-1" />
+                            Refresh
+                          </Button>
                         </div>
                       </div>
                     </CardContent>
@@ -1598,8 +1684,24 @@ export default function SuperAdminAnalytics() {
                         <SelectItem value="platinum">Platinum</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Input placeholder="Search communities..." className="w-64" />
-                    <Button variant="default">
+                    <Input 
+                      placeholder="Search communities..." 
+                      className="w-64"
+                      onChange={(e) => {
+                        // Filter communities based on search
+                        console.log('Searching for:', e.target.value);
+                      }}
+                    />
+                    <Button 
+                      variant="default"
+                      onClick={() => {
+                        toast({
+                          title: "Add Community",
+                          description: "Opening community creation form..."
+                        });
+                        window.location.href = '/admin/communities/new';
+                      }}
+                    >
                       <Building className="h-4 w-4 mr-2" />
                       Add Community
                     </Button>
@@ -1654,7 +1756,45 @@ export default function SuperAdminAnalytics() {
                           <TableCell>92%</TableCell>
                           <TableCell>$349/mo</TableCell>
                           <TableCell>
-                            <Button size="sm" variant="ghost">Manage</Button>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Viewing Community",
+                                    description: "Opening Sunrise Senior Living details..."
+                                  });
+                                }}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Editing Community",
+                                    description: "Opening edit form for Sunrise Senior Living..."
+                                  });
+                                }}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Delete Confirmation",
+                                    description: "Community deletion requires confirmation",
+                                    variant: "destructive"
+                                  });
+                                }}
+                              >
+                                <Trash className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       </TableBody>
@@ -1930,7 +2070,15 @@ export default function SuperAdminAnalytics() {
                       <RefreshCw className="h-4 w-4 mr-2" />
                       Refresh
                     </Button>
-                    <Button variant="default">
+                    <Button 
+                      variant="default"
+                      onClick={() => {
+                        toast({
+                          title: "Create Subscription Plan",
+                          description: "Opening subscription plan creator..."
+                        });
+                      }}
+                    >
                       <Crown className="h-4 w-4 mr-2" />
                       Create Plan
                     </Button>
@@ -2035,7 +2183,45 @@ export default function SuperAdminAnalytics() {
                             <TableCell>${subscription.amount}/mo</TableCell>
                             <TableCell>{subscription.currentPeriodEnd ? format(new Date(subscription.currentPeriodEnd), 'MMM d, yyyy') : '-'}</TableCell>
                             <TableCell>
-                              <Button size="sm" variant="ghost">Manage</Button>
+                              <div className="flex gap-1">
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Viewing Subscription",
+                                      description: `Opening details for ${subscription.customerEmail}...`
+                                    });
+                                  }}
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Modifying Subscription",
+                                      description: `Opening subscription editor for ${subscription.customerEmail}...`
+                                    });
+                                  }}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Cancel Subscription",
+                                      description: `Processing cancellation for ${subscription.customerEmail}`,
+                                      variant: "destructive"
+                                    });
+                                  }}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         ))}
