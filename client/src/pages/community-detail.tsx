@@ -5,7 +5,7 @@ import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSig
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, Lock,
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
-         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package } from 'lucide-react';
+         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope } from 'lucide-react';
 import type { Community } from '@shared/schema';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -152,11 +152,11 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
 // Real-time AI Insights Component - Enhanced with Multi-AI Verification
 const RealTimeInsights = ({ community }: { community: any }) => {
   const realTimeData = community?.realTimeData;
-  const [verificationReport, setVerificationReport] = React.useState<any>(null);
-  const [isVerifying, setIsVerifying] = React.useState(false);
+  const [verificationReport, setVerificationReport] = useState<any>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   // Trigger Multi-AI verification when real-time data is available
-  React.useEffect(() => {
+  useEffect(() => {
     if (realTimeData && community?.id && !isVerifying) {
       setIsVerifying(true);
       
@@ -790,6 +790,7 @@ export default function CommunityDetail() {
   const [waitlistPreferences, setWaitlistPreferences] = useState('');
   const [selectedUnitType, setSelectedUnitType] = useState<string | null>(null);
   const [expandedUnits, setExpandedUnits] = useState<Set<string>>(new Set());
+  const [verificationReport, setVerificationReport] = useState<any>(null);
   
   // Advanced reservation flow state
   const [showAdvancedReservation, setShowAdvancedReservation] = useState(false);
