@@ -132,6 +132,7 @@ import EnhancedCardTest from "@/pages/enhanced-card-test";
 import AdminAvailabilityHeatmap from "@/pages/admin-availability-heatmap";
 import AdminReports from "@/pages/admin-reports";
 import MoveInCoordination from "@/pages/move-in-coordination";
+import Marketplace from "@/pages/marketplace";
 
 function Router() {
   const [location] = useLocation();
@@ -237,6 +238,7 @@ function Router() {
       <Route path="/senior-services" component={SeniorServices} />
       <Route path="/senior-resources" component={SeniorResources} />
       <Route path="/move-in-coordination" component={MoveInCoordination} />
+      <Route path="/marketplace" component={Marketplace} />
       <Route path="/vendor-marketplace" component={VendorMarketplace} />
       <Route path="/vendor-marketplace-tiers" component={VendorMarketplaceTiers} />
       <Route path="/florals" component={FloralServices} />

@@ -577,42 +577,82 @@ export default function MoveInCoordination() {
               <CardContent>
                 <div className="space-y-6">
                   {['Pre-Move', 'Healthcare', 'Utilities', 'Administrative', 'Post-Move'].map(category => (
-                    <div key={category}>
-                      <h3 className="font-semibold text-lg mb-3">{category}</h3>
-                      <div className="space-y-2">
+                    <div key={category} className="mb-8">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+                          {category === 'Pre-Move' && <Package className="w-5 h-5 text-white" />}
+                          {category === 'Healthcare' && <Stethoscope className="w-5 h-5 text-white" />}
+                          {category === 'Utilities' && <Zap className="w-5 h-5 text-white" />}
+                          {category === 'Administrative' && <FileText className="w-5 h-5 text-white" />}
+                          {category === 'Post-Move' && <Home className="w-5 h-5 text-white" />}
+                        </div>
+                        <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                          {category}
+                        </h3>
+                        <Badge className="ml-auto bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                          {getChecklistByCategory(category).filter(item => item.completed).length}/{getChecklistByCategory(category).length}
+                        </Badge>
+                      </div>
+                      <div className="space-y-3">
                         {getChecklistByCategory(category).map(item => (
                           <motion.div 
                             key={item.id}
-                            whileHover={{ scale: 1.01 }}
-                            className="flex items-center justify-between p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg border border-purple-100 dark:border-purple-900/30 backdrop-blur-sm"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-300 ${
+                              item.completed 
+                                ? 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-300 dark:border-green-700' 
+                                : 'bg-gradient-to-r from-white to-purple-50/30 dark:from-gray-800 dark:to-purple-900/20 border-purple-200 dark:border-purple-800 hover:border-purple-400 dark:hover:border-purple-600'
+                            } backdrop-blur-sm shadow-sm hover:shadow-lg`}
                           >
-                            <div className="flex items-center gap-3">
-                              <Checkbox
-                                checked={item.completed}
-                                onCheckedChange={() => toggleChecklistItem(item.id)}
-                                className="border-purple-300"
-                              />
-                              <span className={item.completed ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-200'}>
-                                {item.task}
-                              </span>
+                            <div className="flex items-center gap-4">
+                              <div className="relative">
+                                <Checkbox
+                                  checked={item.completed}
+                                  onCheckedChange={() => toggleChecklistItem(item.id)}
+                                  className={`w-6 h-6 rounded-lg border-2 transition-all duration-300 ${
+                                    item.completed 
+                                      ? 'bg-gradient-to-br from-green-500 to-emerald-600 border-green-600 data-[state=checked]:bg-gradient-to-br data-[state=checked]:from-green-500 data-[state=checked]:to-emerald-600' 
+                                      : 'border-purple-400 hover:border-purple-600 data-[state=checked]:bg-gradient-to-br data-[state=checked]:from-purple-500 data-[state=checked]:to-pink-600'
+                                  }`}
+                                />
+                                {item.completed && (
+                                  <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                                  >
+                                    <CheckCircle className="w-6 h-6 text-white" />
+                                  </motion.div>
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                <span className={`text-base font-medium transition-all duration-300 ${
+                                  item.completed 
+                                    ? 'line-through text-gray-500 dark:text-gray-400' 
+                                    : 'text-gray-800 dark:text-gray-200'
+                                }`}>
+                                  {item.task}
+                                </span>
+                              </div>
                               <Badge 
                                 variant="outline" 
-                                className={`${getPriorityColor(item.priority)} border-current`}
+                                className={`${getPriorityColor(item.priority)} font-semibold px-3 py-1 border-2`}
                               >
-                                {item.priority}
+                                <span className="uppercase text-xs tracking-wider">{item.priority}</span>
                               </Badge>
                             </div>
                             {item.relatedService && (
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                                className="ml-4 text-purple-600 hover:text-purple-700 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-lg transition-all duration-200"
                                 onClick={() => {
                                   const service = allServices.find(s => s.id === item.relatedService);
                                   if (service) saveService(service);
                                 }}
                               >
-                                View Service
+                                <span className="font-medium">View Service</span>
                                 <ChevronRight className="h-4 w-4 ml-1" />
                               </Button>
                             )}
