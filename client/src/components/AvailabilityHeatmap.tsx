@@ -419,25 +419,47 @@ export function AvailabilityHeatmap({
               
               {/* Render heatmap data points */}
               {heatmapData?.success && heatmapData.region.data.map((dataPoint, index) => {
-                const color = dataPoint.availabilityScore >= 80 ? '#10b981' : // green
-                             dataPoint.availabilityScore >= 60 ? '#eab308' : // yellow
-                             dataPoint.availabilityScore >= 40 ? '#f97316' : // orange
-                             dataPoint.availabilityScore >= 20 ? '#ef4444' : // red
-                             '#6b7280'; // gray
+                // Enhanced gradient color calculation
+                const getGradientColor = (score: number) => {
+                  if (showHeatGradient) {
+                    // Smooth gradient transition based on score
+                    const hue = ((score / 100) * 120).toFixed(0); // 0 = red, 120 = green
+                    const saturation = 70 + (score / 100) * 30; // 70-100% saturation
+                    const lightness = 45 + (score / 100) * 10; // 45-55% lightness
+                    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+                  } else {
+                    // Standard stepped colors
+                    return dataPoint.availabilityScore >= 80 ? '#10b981' : // green
+                           dataPoint.availabilityScore >= 60 ? '#eab308' : // yellow
+                           dataPoint.availabilityScore >= 40 ? '#f97316' : // orange
+                           dataPoint.availabilityScore >= 20 ? '#ef4444' : // red
+                           '#6b7280'; // gray
+                  }
+                };
                 
-                const radius = Math.max(5, Math.min(30, dataPoint.communityCount * 2));
+                const color = getGradientColor(dataPoint.availabilityScore);
+                
+                // Dynamic radius based on community count and zoom level
+                const baseRadius = Math.sqrt(dataPoint.communityCount) * 3;
+                const zoomAdjustedRadius = Math.max(5, Math.min(40, baseRadius * (mapZoom / 8)));
+                
+                // Enhanced opacity for gradient effect
+                const baseOpacity = showHeatGradient ? 0.3 : 0.4;
+                const fillOpacity = showHeatGradient 
+                  ? baseOpacity + (dataPoint.availabilityScore / 100) * 0.4  // 0.3 to 0.7 range
+                  : baseOpacity + (dataPoint.availabilityScore / 200); // Original calculation
                 
                 return (
                   <CircleMarker
                     key={index}
                     center={[dataPoint.latitude, dataPoint.longitude]}
-                    radius={radius}
+                    radius={zoomAdjustedRadius}
                     pathOptions={{
                       fillColor: color,
-                      color: color,
-                      weight: 2,
-                      opacity: 0.7,
-                      fillOpacity: 0.4 + (dataPoint.availabilityScore / 200)
+                      color: showHeatGradient ? color : color,
+                      weight: showHeatGradient ? 1 : 2,
+                      opacity: showHeatGradient ? 0.5 : 0.7,
+                      fillOpacity: fillOpacity
                     }}
                     eventHandlers={{
                       click: () => handleDataPointClick(dataPoint),

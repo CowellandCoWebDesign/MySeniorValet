@@ -132,6 +132,7 @@ import TestCommunityCards from "@/pages/test-community-cards";
 import EnhancedCardTest from "@/pages/enhanced-card-test";
 import AdminAvailabilityHeatmap from "@/pages/admin-availability-heatmap";
 import AdminReports from "@/pages/admin-reports";
+import AdminDataEnrichment from "@/pages/admin-data-enrichment";
 import MoveInCoordination from "@/pages/move-in-coordination";
 import Marketplace from "@/pages/marketplace";
 import SeniorMarketplace from "@/pages/senior-marketplace";
@@ -179,6 +180,7 @@ function Router() {
       <Route path="/admin/communities" component={SuperAdminAnalytics} />
       {/* Admin section routes - ALL consolidated to SuperAdminAnalytics */}
       <Route path="/admin/reports" component={SuperAdminAnalytics} />
+      <Route path="/admin/data-enrichment" component={AdminDataEnrichment} />
       <Route path="/admin/settings" component={SuperAdminAnalytics} />
       <Route path="/admin/email-broadcast" component={SuperAdminAnalytics} />
       <Route path="/admin/security" component={SuperAdminAnalytics} />

@@ -60,6 +60,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const analyticsIntelligenceRoutes = await import('./routes/analytics-intelligence-routes');
   app.use(analyticsIntelligenceRoutes.default);
   
+  // Register data enrichment routes
+  const dataEnrichmentRoutes = await import('./routes/data-enrichment-routes');
+  app.use(dataEnrichmentRoutes.default);
+  
   // Register remaining special routes
   app.use('/api/subscriptions', subscriptionRoutes);
   app.use('/api/reservations', reservationRoutes);
