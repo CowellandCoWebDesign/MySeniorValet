@@ -762,12 +762,26 @@ export default function MySeniorValetHome() {
               <h2 className="relative text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 dark:from-purple-400 dark:via-pink-400 dark:to-indigo-400 mb-2">
                 Senior Living Command Center
               </h2>
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <Brain className="h-5 w-5 text-purple-600 dark:text-purple-400 animate-pulse" />
-                <p className="text-lg md:text-xl font-semibold text-gray-600 dark:text-gray-300">
-                  Powered & Supported by Artificial Intelligence Orchestra
-                </p>
-                <Sparkles className="h-5 w-5 text-indigo-600 dark:text-indigo-400 animate-pulse" />
+              <div className="flex flex-col items-center justify-center gap-2 mb-4">
+                <div className="flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-purple-600 dark:text-purple-400 animate-pulse" />
+                  <p className="text-lg md:text-xl font-semibold text-gray-600 dark:text-gray-300">
+                    Powered & Supported by Artificial Intelligence Orchestra
+                  </p>
+                  <Sparkles className="h-5 w-5 text-indigo-600 dark:text-indigo-400 animate-pulse" />
+                </div>
+                <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                  <span className="font-medium">Powered by:</span>
+                  <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-2 py-0.5 text-xs">
+                    1. Perplexity AI (Primary - Web Search)
+                  </Badge>
+                  <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-2 py-0.5 text-xs">
+                    2. Claude Sonnet 4.0 (Secondary - Analysis)
+                  </Badge>
+                  <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-2 py-0.5 text-xs">
+                    3. ChatGPT-4o (Backup - Verification)
+                  </Badge>
+                </div>
               </div>
             </div>
             <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-4xl mx-auto mb-8">
