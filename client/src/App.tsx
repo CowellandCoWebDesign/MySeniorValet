@@ -18,6 +18,7 @@ import MySeniorValetHome from "@/pages/myseniorvalet-home";
 import Claim from "@/pages/claim";
 // All admin functionality consolidated into SuperAdminAnalytics
 import SuperAdminAnalytics from "@/pages/super-admin-analytics";
+import AdminSubscriptionManagement from "@/pages/admin-subscription-management";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import Disclaimer from "@/pages/disclaimer";
@@ -296,6 +297,7 @@ function Router() {
       <Route path="/community-creator-portal" component={CommunityCreatorPortal} />
       <Route path="/super-admin-dashboard" component={SuperAdminAnalytics} />
       <Route path="/super-admin-analytics" component={SuperAdminAnalytics} />
+      <Route path="/admin-subscription-management" component={AdminSubscriptionManagement} />
       <Route path="/admin/marketing-hub" component={SuperAdminAnalytics} />
       <Route path="/availability-heatmap" component={AvailabilityHeatmapPage} />
       <Route path="/admin/availability-heatmap" component={SuperAdminAnalytics} />

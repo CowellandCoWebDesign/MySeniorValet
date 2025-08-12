@@ -115,6 +115,7 @@ export default function SuperAdminDashboard() {
       title: "Financial & Monitoring",
       icon: DollarSign,
       links: [
+        { name: "🔥 Admin Subscription Management", href: "/admin-subscription-management", description: "Complete subscription control, revenue analytics, and advanced management tools", icon: Crown, status: "featured" },
         { name: "Enhanced Financial Dashboard", href: "/enhanced-financial-dashboard", description: "Advanced revenue analytics", icon: TrendingUp, status: "active" },
         { name: "Payment Monitoring", href: "/payment-monitoring", description: "Payment system health", icon: CreditCard, status: "active" },
         { name: "API Cost Dashboard", href: "/api-cost-dashboard", description: "Monitor API usage and costs", icon: Calculator, status: "active" },
