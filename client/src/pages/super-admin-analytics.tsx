@@ -1097,25 +1097,25 @@ export default function SuperAdminAnalytics() {
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Payment Success Rate</span>
                           <div className="flex items-center gap-2">
-                            <Progress value={metrics?.financial.paymentSuccess || 0} className="w-24" />
-                            <span className="font-semibold">{formatPercent(metrics?.financial.paymentSuccess || 0)}</span>
+                            <Progress value={metrics?.financial?.paymentSuccess || 0} className="w-24" />
+                            <span className="font-semibold">{formatPercent(metrics?.financial?.paymentSuccess || 0)}</span>
                           </div>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Churn Rate</span>
                           <div className="flex items-center gap-2">
-                            <Badge variant={metrics?.financial.churnRate && metrics.financial.churnRate < 5 ? "default" : "destructive"}>
-                              {formatPercent(metrics?.financial.churnRate || 0)}
+                            <Badge variant={metrics?.financial?.churnRate && metrics.financial.churnRate < 5 ? "default" : "destructive"}>
+                              {formatPercent(metrics?.financial?.churnRate || 0)}
                             </Badge>
                           </div>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">Customer LTV</span>
-                          <span className="font-semibold">{formatCurrency(metrics?.financial.ltv || 0)}</span>
+                          <span className="font-semibold">{formatCurrency(metrics?.financial?.ltv || 0)}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-600">ARPU</span>
-                          <span className="font-semibold">{formatCurrency(metrics?.financial.arpu || 0)}</span>
+                          <span className="font-semibold">{formatCurrency(metrics?.financial?.arpu || 0)}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -1432,8 +1432,23 @@ export default function SuperAdminAnalytics() {
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-2xl font-bold">User Management</h2>
                   <div className="flex gap-2">
-                    <Input placeholder="Search users..." className="w-64" />
-                    <Button variant="default">
+                    <Input 
+                      placeholder="Search users..." 
+                      className="w-64"
+                      onChange={(e) => {
+                        // Would filter users in a real implementation
+                        console.log('Search:', e.target.value);
+                      }}
+                    />
+                    <Button 
+                      variant="default"
+                      onClick={() => {
+                        toast({
+                          title: "Add User",
+                          description: "User creation dialog will be available soon. For now, use Replit Auth for user management."
+                        });
+                      }}
+                    >
                       <UserPlus className="h-4 w-4 mr-2" />
                       Add User
                     </Button>
@@ -1461,7 +1476,32 @@ export default function SuperAdminAnalytics() {
                           <TableCell><Badge variant="outline" className="text-green-600">Active</Badge></TableCell>
                           <TableCell>Jan 1, 2025</TableCell>
                           <TableCell>
-                            <Button size="sm" variant="ghost">Edit</Button>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Edit User",
+                                    description: "Editing William Cowell - Super Admin privileges cannot be modified for primary admin account."
+                                  });
+                                }}
+                              >
+                                <Pencil className="h-3 w-3" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "View Details",
+                                    description: "William Cowell - Primary super admin with full system access."
+                                  });
+                                }}
+                              >
+                                <Eye className="h-3 w-3" />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                         <TableRow>
@@ -1471,13 +1511,74 @@ export default function SuperAdminAnalytics() {
                           <TableCell><Badge variant="outline" className="text-green-600">Active</Badge></TableCell>
                           <TableCell>Jan 5, 2025</TableCell>
                           <TableCell>
-                            <Button size="sm" variant="ghost">Edit</Button>
+                            <div className="flex gap-1">
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "Edit User",
+                                    description: "Editing admin@myseniorvalet.com - System admin account for automated notifications."
+                                  });
+                                }}
+                              >
+                                <Pencil className="h-3 w-3" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => {
+                                  toast({
+                                    title: "View Details",
+                                    description: "System admin account - Handles automated notifications and system events."
+                                  });
+                                }}
+                              >
+                                <Eye className="h-3 w-3" />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       </TableBody>
                     </Table>
                   </CardContent>
                 </Card>
+                
+                {/* User Management Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Total Users</span>
+                        <span className="text-2xl font-bold">{formatNumber(metrics?.platform?.totalUsers || 0)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Active Today</span>
+                        <span className="text-2xl font-bold text-green-600">{formatNumber(metrics?.engagement?.dailyActiveUsers || 0)}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">New This Week</span>
+                        <span className="text-2xl font-bold text-blue-600">0</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm text-gray-600">Admin Users</span>
+                        <span className="text-2xl font-bold text-purple-600">2</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </TabsContent>
 
               {/* Communities Management Tab */}
