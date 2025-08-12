@@ -2,6 +2,12 @@ import { Router, Request, Response } from "express";
 import { db } from "../db";
 import { emergencyContacts } from "@shared/schema";
 import { eq, and, sql } from "drizzle-orm";
+import sgMail from "@sendgrid/mail";
+
+// Initialize SendGrid
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
 
 const router = Router();
 
@@ -246,6 +252,86 @@ router.get("/quick-dial/:userId", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error fetching quick dial numbers:", error);
     res.status(500).json({ error: "Failed to fetch emergency numbers" });
+  }
+});
+
+// Log emergency button press and notify admin
+router.post("/button-pressed", async (req: Request, res: Response) => {
+  try {
+    const { userId, userEmail, userName, location } = req.body;
+    
+    console.log("🚨 EMERGENCY BUTTON PRESSED:", {
+      userId,
+      userEmail,
+      userName,
+      location,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Send email notification to admin
+    if (process.env.SENDGRID_API_KEY) {
+      const adminEmail = "William.cowell01@gmail.com";
+      const timestamp = new Date().toLocaleString("en-US", {
+        timeZone: "America/New_York",
+        dateStyle: "full",
+        timeStyle: "long"
+      });
+      
+      const msg = {
+        to: adminEmail,
+        from: "hello@myseniorvalet.com",
+        subject: "🚨 URGENT: Emergency Button Pressed on MySeniorValet",
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+            <div style="background: #dc2626; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+              <h2 style="margin: 0;">⚠️ EMERGENCY BUTTON ACTIVATED</h2>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #dc2626;">
+              <h3 style="color: #1f2937; margin-top: 0;">User Information:</h3>
+              <ul style="color: #4b5563; line-height: 1.8;">
+                <li><strong>User ID:</strong> ${userId || "Unknown"}</li>
+                <li><strong>Email:</strong> ${userEmail || "Not logged in"}</li>
+                <li><strong>Name:</strong> ${userName || "Anonymous"}</li>
+                <li><strong>Location:</strong> ${location || "Not specified"}</li>
+                <li><strong>Time:</strong> ${timestamp}</li>
+              </ul>
+              
+              <div style="background: #fef2f2; padding: 15px; border-radius: 6px; margin-top: 20px;">
+                <p style="color: #991b1b; margin: 0;">
+                  <strong>Action Required:</strong> This user may be experiencing an emergency situation. 
+                  Consider reaching out if contact information is available.
+                </p>
+              </div>
+            </div>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #e5e7eb; border-radius: 8px; text-align: center;">
+              <p style="color: #6b7280; margin: 0; font-size: 14px;">
+                This is an automated alert from MySeniorValet Emergency System<br>
+                <strong>The trusted platform for authentic senior living community information</strong>
+              </p>
+            </div>
+          </div>
+        `
+      };
+      
+      try {
+        await sgMail.send(msg);
+        console.log("✅ Admin notification email sent successfully");
+      } catch (emailError) {
+        console.error("Failed to send admin notification email:", emailError);
+      }
+    }
+    
+    res.json({ 
+      success: true,
+      message: "Emergency button press logged successfully"
+    });
+  } catch (error) {
+    console.error("Error logging emergency button press:", error);
+    res.status(500).json({ 
+      error: "Failed to log emergency button press" 
+    });
   }
 });
 

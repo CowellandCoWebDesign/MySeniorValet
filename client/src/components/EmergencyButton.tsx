@@ -60,9 +60,31 @@ export function EmergencyButton({ userId }: { userId?: string }) {
     }
   };
 
-  const handleEmergencyClick = () => {
+  const handleEmergencyClick = async () => {
     setShowDialog(true);
     fetchQuickDialData();
+    
+    // Send notification to admin when emergency button is pressed
+    try {
+      const response = await fetch("/api/emergency/button-pressed", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: userId || "anonymous",
+          userEmail: "test-user@example.com", // In production, this would come from user context
+          userName: "Test User", // In production, this would come from user context
+          location: window.location.pathname
+        }),
+      });
+      
+      if (response.ok) {
+        console.log("✅ Admin notified of emergency button press");
+      }
+    } catch (error) {
+      console.error("Failed to notify admin:", error);
+    }
   };
 
   const makeCall = (number: string, label: string) => {
