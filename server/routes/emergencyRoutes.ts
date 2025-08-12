@@ -270,7 +270,8 @@ router.post("/button-pressed", async (req: Request, res: Response) => {
     
     // Send email notification to admin
     if (process.env.SENDGRID_API_KEY) {
-      const adminEmail = "William.cowell01@gmail.com";
+      const primaryEmail = "admin@myseniorvalet.com";
+      const backupEmail = "William.cowell01@gmail.com";
       const timestamp = new Date().toLocaleString("en-US", {
         timeZone: "America/New_York",
         dateStyle: "full",
@@ -278,7 +279,7 @@ router.post("/button-pressed", async (req: Request, res: Response) => {
       });
       
       const msg = {
-        to: adminEmail,
+        to: [primaryEmail, backupEmail], // Send to both admin and personal backup
         from: "hello@myseniorvalet.com",
         subject: "🚨 URGENT: Emergency Button Pressed on MySeniorValet",
         html: `
