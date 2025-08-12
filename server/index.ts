@@ -14,16 +14,42 @@ import {
 } from "./security";
 import { cacheBuster, devModeHeaders } from "./cache-buster";
 import { devCacheKiller, clearViteCache } from "./dev-cache-killer";
-// TEMPORARILY DISABLED - Heavy infrastructure components slowing startup
-// import { redisCache } from "./infrastructure/redis-cache";
-// import { securityDashboard } from "./infrastructure/security-dashboard";
-// import { performanceMonitor } from "./infrastructure/performance-monitor";
-// import { simpleWebSocket } from "./infrastructure/simple-websocket";
-// import { documentManagement } from "./infrastructure/document-management";
-// import { businessIntelligence } from "./infrastructure/business-intelligence";
-// import { advancedAnalytics } from "./infrastructure/advanced-analytics";
-// import { notificationSystem } from "./infrastructure/notification-system";
-// import { integrationManager } from "./infrastructure/integration-manager";
+// Lazy load infrastructure components to speed up startup
+const loadInfrastructure = async () => {
+  const [
+    { redisCache },
+    { securityDashboard },
+    { performanceMonitor },
+    { simpleWebSocket },
+    { documentManagement },
+    { businessIntelligence },
+    { advancedAnalytics },
+    { notificationSystem },
+    { integrationManager }
+  ] = await Promise.all([
+    import("./infrastructure/redis-cache"),
+    import("./infrastructure/security-dashboard"),
+    import("./infrastructure/performance-monitor"),
+    import("./infrastructure/simple-websocket"),
+    import("./infrastructure/document-management"),
+    import("./infrastructure/business-intelligence"),
+    import("./infrastructure/advanced-analytics"),
+    import("./infrastructure/notification-system"),
+    import("./infrastructure/integration-manager")
+  ]);
+  
+  return {
+    redisCache,
+    securityDashboard,
+    performanceMonitor,
+    simpleWebSocket,
+    documentManagement,
+    businessIntelligence,
+    advancedAnalytics,
+    notificationSystem,
+    integrationManager
+  };
+};
 import cookieParser from "cookie-parser";
 
 const app = express();
