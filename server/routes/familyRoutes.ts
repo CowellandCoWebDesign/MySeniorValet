@@ -290,12 +290,29 @@ router.get("/decisions/:groupId", async (req: Request, res: Response) => {
   try {
     const { groupId } = req.params;
     
-    const decisions = await db.select()
-      .from(familyDecisions)
-      .where(eq(familyDecisions.familyGroupId, parseInt(groupId)))
-      .orderBy(desc(familyDecisions.decisionMade));
+    // Use raw SQL to get decisions with correct column names
+    const result = await db.execute(sql`
+      SELECT 
+        id,
+        family_group_id as "familyGroupId",
+        poll_id as "pollId",
+        tour_id as "tourId",
+        community_id as "communityId",
+        decision_type as "decisionType",
+        decision_value as "decisionValue",
+        consensus_level as "consensusLevel",
+        decided_by as "decidedBy",
+        decision_date as "decisionDate",
+        is_final as "isFinal",
+        execution_date as "executionDate",
+        notes,
+        created_at as "createdAt"
+      FROM family_decisions
+      WHERE family_group_id = ${parseInt(groupId)}
+      ORDER BY created_at DESC
+    `);
     
-    res.json(decisions);
+    res.json(result.rows);
   } catch (error) {
     console.error("Error fetching decisions:", error);
     res.status(500).json({ error: "Failed to fetch decisions" });
