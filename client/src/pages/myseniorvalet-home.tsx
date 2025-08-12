@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book } from "lucide-react";
 import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
@@ -312,39 +312,76 @@ export default function MySeniorValetHome() {
                         <span className="text-sm text-gray-500 font-medium -mt-1">Senior Living Search</span>
                       </div>
                     </div>
-                    <nav className="flex flex-col space-y-2">
-                      <Link href="/search" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <Search className="h-5 w-5" />
-                        <span>Search Communities</span>
-                      </Link>
-                      <Link href="/services" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <Heart className="h-5 w-5" />
-                        <span>Healthcare & Services</span>
-                      </Link>
-                      <Link href="/senior-healthcare-directory" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <Building2 className="h-5 w-5" />
-                        <span>Hospital Directory</span>
-                      </Link>
-                      <Link href="/marketplace" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <ShoppingBag className="h-5 w-5" />
-                        <span>Care Marketplace</span>
-                      </Link>
-                      <Link href="/move-in-coordination" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <Truck className="h-5 w-5" />
-                        <span>Move-In Coordination</span>
-                      </Link>
-                      <Link href="/community-portal" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <Building className="h-5 w-5" />
-                        <span>Community Portal</span>
-                      </Link>
-                      <Link href="/care-guide" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <BookOpen className="h-5 w-5" />
-                        <span>Care Guide</span>
-                      </Link>
-                      <Link href="/about" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <Users className="h-5 w-5" />
-                        <span>About Us</span>
-                      </Link>
+                    <nav className="flex flex-col space-y-1">
+                      {/* Primary Navigation - Essential Services */}
+                      <div className="mb-2">
+                        <Link href="/" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                          <Home className="h-5 w-5" />
+                          <span>Home</span>
+                        </Link>
+                        <Link href="/search" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                          <Search className="h-5 w-5" />
+                          <span>Search Communities</span>
+                        </Link>
+                        <Link href="/community-portal" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                          <Building className="h-5 w-5" />
+                          <span>Communities</span>
+                        </Link>
+                        <Link href="/senior-marketplace" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                          <ShoppingBag className="h-5 w-5" />
+                          <span>Senior Marketplace</span>
+                        </Link>
+                        <Link href="/senior-healthcare-directory" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                          <Building2 className="h-5 w-5" />
+                          <span>Healthcare Directory</span>
+                        </Link>
+                        <Link href="/senior-resources" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                          <Heart className="h-5 w-5" />
+                          <span>Resources & Support</span>
+                        </Link>
+                        <Link href="/tours" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600 shadow-sm">
+                          <Calendar className="h-5 w-5" />
+                          <span>Schedule Tours</span>
+                        </Link>
+                      </div>
+
+                      {/* Additional Services */}
+                      <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <p className="px-4 pb-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Planning Tools
+                        </p>
+                        <Link href="/tour-tracker" className="flex items-center space-x-3 px-4 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+                          <CheckSquare className="h-4 w-4" />
+                          <span>Tour Tracker</span>
+                        </Link>
+                        <Link href="/move-in-coordination" className="flex items-center space-x-3 px-4 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+                          <Truck className="h-4 w-4" />
+                          <span>Move-In Coordination</span>
+                        </Link>
+                        <Link href="/family-collaboration" className="flex items-center space-x-3 px-4 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+                          <Users2 className="h-4 w-4" />
+                          <span>Family Collaboration</span>
+                        </Link>
+                      </div>
+
+                      {/* Resources */}
+                      <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <p className="px-4 pb-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Learn & Explore
+                        </p>
+                        <Link href="/care-guide" className="flex items-center space-x-3 px-4 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+                          <BookOpen className="h-4 w-4" />
+                          <span>Care Guide</span>
+                        </Link>
+                        <Link href="/ai-matching-assistant" className="flex items-center space-x-3 px-4 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+                          <Brain className="h-4 w-4" />
+                          <span>AI Matching Assistant</span>
+                        </Link>
+                        <Link href="/about" className="flex items-center space-x-3 px-4 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+                          <Users className="h-4 w-4" />
+                          <span>About Us</span>
+                        </Link>
+                      </div>
                     </nav>
                     
                     {/* Accessibility Options Section */}
