@@ -454,6 +454,7 @@ export function registerCommunityRoutes(app: Express) {
           address: communities.address,
           rating: communities.rating,
           rentPerMonth: communities.rentPerMonth,
+          priceRange: communities.priceRange,
           careTypes: communities.careTypes,
           description: communities.description,
           phone: communities.phone,
@@ -469,15 +470,39 @@ export function registerCommunityRoutes(app: Express) {
         .limit(100);
       
       // Transform data for frontend compatibility
-      const transformedCommunities = mexicoCommunities.map(community => ({
-        ...community,
-        rentPerMonth: community.rentPerMonth ? `$${community.rentPerMonth}` : 'Contact for pricing',
-        realTimeData: {
-          currentPricing: community.rentPerMonth ? `$${community.rentPerMonth}/month` : 'Contact for pricing',
-          availability: 'Contact for availability',
-          marketComparison: '50-70% less than comparable US facilities'
+      const transformedCommunities = mexicoCommunities.map(community => {
+        // Extract pricing from either rentPerMonth or priceRange
+        let monthlyRent = null;
+        let priceDisplay = 'Contact for pricing';
+        let pricingForData = 'Contact for pricing';
+        
+        if (community.rentPerMonth) {
+          // Remove any existing $ and parse the number
+          const cleanPrice = String(community.rentPerMonth).replace(/[$,]/g, '');
+          const numericPrice = parseFloat(cleanPrice);
+          
+          if (!isNaN(numericPrice) && numericPrice > 0) {
+            priceDisplay = `$${Math.round(numericPrice)}`;
+            pricingForData = `$${Math.round(numericPrice)}/month`;
+          }
+        } else if (community.priceRange && typeof community.priceRange === 'object') {
+          monthlyRent = community.priceRange.monthly_rent || community.priceRange.monthlyRent;
+          if (monthlyRent) {
+            priceDisplay = `$${monthlyRent}`;
+            pricingForData = `$${monthlyRent}/month`;
+          }
         }
-      }));
+
+        return {
+          ...community,
+          rentPerMonth: priceDisplay,
+          realTimeData: {
+            currentPricing: pricingForData,
+            availability: 'Contact for availability',
+            marketComparison: '50-70% less than comparable US facilities'
+          }
+        };
+      });
       
       res.json(transformedCommunities);
     } catch (error) {
