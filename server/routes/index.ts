@@ -15,6 +15,8 @@ import { registerSemanticSearchRoutes } from "./semanticSearchRoutes";
 import autocompleteRoutes from "./autocompleteRoutes";
 
 import { registerAdminRoutes } from "./adminRoutes";
+import { registerDataEnrichmentRoutes } from "./data-enrichment-routes";
+import { registerSearchAnalyticsRoutes } from "./search-analytics-routes";
 import { registerVendorRoutes } from "./vendorRoutes";
 import { registerSearchRoutes } from "./searchRoutes";
 import { registerUnifiedSearchRoutes } from "./unifiedSearchRoutes";
@@ -104,6 +106,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', autocompleteRoutes); // Register autocomplete routes
 
   registerAdminRoutes(app);
+  registerDataEnrichmentRoutes(app);
+  registerSearchAnalyticsRoutes(app);
   registerVendorRoutes(app);
   // Tour routes are registered directly in server/routes.ts
   registerClaimRoutes(app);

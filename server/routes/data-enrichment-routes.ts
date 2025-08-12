@@ -112,4 +112,8 @@ router.post('/api/admin/enrichment/test', adminAuth, async (req, res) => {
   }
 });
 
+export function registerDataEnrichmentRoutes(app: any) {
+  app.use(router);
+}
+
 export default router;

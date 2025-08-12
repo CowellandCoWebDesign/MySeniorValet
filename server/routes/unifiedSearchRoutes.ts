@@ -5,6 +5,7 @@ import { eq, and, or, desc, sql, isNotNull, gte } from "drizzle-orm";
 import { enhancedSearchService } from "../enhanced-search-service";
 import { cache } from "../cache";
 import { eliminateCallForPricing } from "../intelligent-pricing-system";
+import { SearchAnalyticsService } from "../services/search-analytics-service";
 
 interface SearchParams {
   // Text search params
@@ -56,6 +57,19 @@ export function registerUnifiedSearchRoutes(app: Express) {
       const cacheKey = `search:${JSON.stringify(params)}`;
       const cached = await cache.get(cacheKey);
       if (cached) {
+        // Track cached search for analytics (no cost)
+        await SearchAnalyticsService.trackSearch({
+          query: searchQuery || '',
+          city: city || '',
+          state: state || '',
+          careType: careType || '',
+          resultCount: cached.communities?.length || cached.results?.length || 0,
+          apiCalls: 0,
+          estimatedCost: 0,
+          searchType: isMapSearch ? 'bounds' : city ? 'city' : state ? 'state' : 'text',
+          cached: true,
+          timestamp: new Date()
+        });
         return res.json(cached);
       }
       
@@ -283,6 +297,22 @@ export function registerUnifiedSearchRoutes(app: Express) {
           hasMore: totalCount > Number(offset) + results.length
         }
       };
+      
+      // Track uncached search for analytics
+      const searchType = isMapSearch ? 'bounds' : city ? 'city' : state ? 'state' : 'text';
+      const apiCalls = searchType === 'city' ? 1 : searchType === 'state' ? 3 : 5;
+      await SearchAnalyticsService.trackSearch({
+        query: searchQuery || '',
+        city: city || '',
+        state: state || '',
+        careType: careType || '',
+        resultCount: results.length,
+        apiCalls,
+        estimatedCost: SearchAnalyticsService.calculateSearchCost(searchType, apiCalls, false),
+        searchType,
+        cached: false,
+        timestamp: new Date()
+      });
       
       // Cache for 5 minutes
       await cache.set(cacheKey, response, 300);
