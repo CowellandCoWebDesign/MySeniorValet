@@ -133,6 +133,9 @@ import AdminAvailabilityHeatmap from "@/pages/admin-availability-heatmap";
 import AdminReports from "@/pages/admin-reports";
 import MoveInCoordination from "@/pages/move-in-coordination";
 import Marketplace from "@/pages/marketplace";
+import SeniorMarketplace from "@/pages/senior-marketplace";
+import SeniorHealthcareDirectory from "@/pages/senior-healthcare-directory";
+import SeniorResourcesCenter from "@/pages/senior-resources-center";
 
 function Router() {
   const [location] = useLocation();
@@ -239,6 +242,9 @@ function Router() {
       <Route path="/senior-resources" component={SeniorResources} />
       <Route path="/move-in-coordination" component={MoveInCoordination} />
       <Route path="/marketplace" component={Marketplace} />
+      <Route path="/senior-marketplace" component={SeniorMarketplace} />
+      <Route path="/senior-healthcare-directory" component={SeniorHealthcareDirectory} />
+      <Route path="/senior-resources-center" component={SeniorResourcesCenter} />
       <Route path="/vendor-marketplace" component={VendorMarketplace} />
       <Route path="/vendor-marketplace-tiers" component={VendorMarketplaceTiers} />
       <Route path="/florals" component={FloralServices} />
