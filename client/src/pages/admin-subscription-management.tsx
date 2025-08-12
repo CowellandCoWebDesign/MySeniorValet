@@ -94,6 +94,7 @@ interface PaymentHistory {
 }
 
 export default function AdminSubscriptionManagement() {
+  // All hooks must be called before any conditional returns
   const { user } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
@@ -103,30 +104,6 @@ export default function AdminSubscriptionManagement() {
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [selectedSubscriptions, setSelectedSubscriptions] = useState<number[]>([]);
   
-  // Check super admin access
-  const userRole = (user as any)?.role || '';
-  const isSuperAdmin = userRole === 'super_admin';
-  
-  if (!user || !isSuperAdmin) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <Card className="max-w-2xl">
-          <CardHeader>
-            <CardTitle>Access Denied</CardTitle>
-            <CardDescription>
-              This page is restricted to super administrators only.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => window.location.href = "/"}>
-              Return to Home
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   // Fetch subscription metrics
   const { data: metrics, isLoading: metricsLoading } = useQuery<SubscriptionMetrics>({
     queryKey: ["/api/admin/subscriptions/metrics"],
@@ -184,6 +161,30 @@ export default function AdminSubscriptionManagement() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/subscriptions/all"] });
     }
   });
+  
+  // Check super admin access AFTER all hooks
+  const userRole = (user as any)?.role || '';
+  const isSuperAdmin = userRole === 'super_admin';
+  
+  if (!user || !isSuperAdmin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <Card className="max-w-2xl">
+          <CardHeader>
+            <CardTitle>Access Denied</CardTitle>
+            <CardDescription>
+              This page is restricted to super administrators only.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => window.location.href = "/"}>
+              Return to Home
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   // Filter subscriptions
   const filteredSubscriptions = subscriptions?.filter(sub => {

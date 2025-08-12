@@ -52,6 +52,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', communityClaimsRoutes.default);
   app.use('/api', verifiedProfilesRoutes.default);
   
+  // Register admin subscription management routes
+  const adminSubscriptionRoutes = await import('./routes/admin-subscription-routes');
+  app.use('/api', adminSubscriptionRoutes.default);
+  
   // Register remaining special routes
   app.use('/api/subscriptions', subscriptionRoutes);
   app.use('/api/reservations', reservationRoutes);
