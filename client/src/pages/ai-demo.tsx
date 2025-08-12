@@ -101,10 +101,6 @@ export default function AIDemoPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <NavigationHeader 
-        title="AI-Powered Senior Living Intelligence" 
-        subtitle="Experience the future with Claude and Gemini AI"
-      />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-12">
@@ -118,15 +114,18 @@ export default function AIDemoPage() {
             AI-Powered Senior Living Intelligence
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
-            Experience the future of senior living discovery with Claude and Gemini AI working together 
+            Experience the future of senior living discovery with Perplexity, Claude, and ChatGPT AI working together 
             to provide personalized recommendations, care planning, and family communication assistance.
           </p>
           <div className="flex flex-wrap justify-center gap-2 mb-8">
+            <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-4 py-2">
+              Powered by Perplexity AI
+            </Badge>
             <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2">
-              Powered by Anthropic Claude
+              Enhanced by Claude AI
             </Badge>
             <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2">
-              Enhanced by Google Gemini
+              Backed by ChatGPT
             </Badge>
             <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2">
               100% Authentic Data

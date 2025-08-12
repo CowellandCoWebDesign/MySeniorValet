@@ -146,6 +146,10 @@ export default function SuperAdminAnalytics() {
   const [dataQualityMetrics, setDataQualityMetrics] = useState<any>(null);
   const [apiCostData, setApiCostData] = useState<any>(null);
   
+  // Community Edit Modal State
+  const [editingCommunity, setEditingCommunity] = useState<any>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  
   const { toast } = useToast();
   
   // Fetch vendors when tab changes to vendors
@@ -1975,10 +1979,15 @@ export default function SuperAdminAnalytics() {
                                 size="sm" 
                                 variant="ghost"
                                 onClick={() => {
-                                  toast({
-                                    title: "Editing Community",
-                                    description: "Opening edit form for Sunrise Senior Living..."
+                                  setEditingCommunity({
+                                    id: '1',
+                                    name: 'Sunrise Senior Living',
+                                    location: 'Miami, FL',
+                                    tier: 'Platinum',
+                                    occupancy: 92,
+                                    revenue: 349
                                   });
+                                  setIsEditModalOpen(true);
                                 }}
                               >
                                 <Edit className="h-4 w-4" />
@@ -2888,9 +2897,9 @@ export default function SuperAdminAnalytics() {
                   <Card>
                     <CardContent className="p-4">
                       <div className="flex flex-col">
-                        <span className="text-sm text-gray-600">Google Gemini</span>
-                        <span className="text-2xl font-bold">$237.65</span>
-                        <Progress value={47} className="mt-2" />
+                        <span className="text-sm text-gray-600 line-through">Gemini (Disabled)</span>
+                        <span className="text-2xl font-bold text-gray-400">$0.00</span>
+                        <Progress value={0} className="mt-2" />
                       </div>
                     </CardContent>
                   </Card>
@@ -2903,23 +2912,22 @@ export default function SuperAdminAnalytics() {
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
                       <LineChart data={[
-                        { day: 'Mon', openai: 18, anthropic: 12, perplexity: 6, gemini: 34 },
-                        { day: 'Tue', openai: 22, anthropic: 15, perplexity: 8, gemini: 38 },
-                        { day: 'Wed', openai: 15, anthropic: 10, perplexity: 5, gemini: 32 },
-                        { day: 'Thu', openai: 20, anthropic: 14, perplexity: 7, gemini: 36 },
-                        { day: 'Fri', openai: 19, anthropic: 13, perplexity: 6, gemini: 35 },
-                        { day: 'Sat', openai: 17, anthropic: 11, perplexity: 7, gemini: 33 },
-                        { day: 'Sun', openai: 16, anthropic: 14, perplexity: 6, gemini: 30 }
+                        { day: 'Mon', perplexity: 24, anthropic: 18, openai: 8 },
+                        { day: 'Tue', perplexity: 28, anthropic: 22, openai: 10 },
+                        { day: 'Wed', perplexity: 20, anthropic: 15, openai: 7 },
+                        { day: 'Thu', perplexity: 27, anthropic: 20, openai: 9 },
+                        { day: 'Fri', perplexity: 25, anthropic: 19, openai: 8 },
+                        { day: 'Sat', perplexity: 23, anthropic: 17, openai: 9 },
+                        { day: 'Sun', perplexity: 22, anthropic: 20, openai: 8 }
                       ]}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="day" />
                         <YAxis />
                         <Tooltip />
                         <Legend />
-                        <Line type="monotone" dataKey="openai" stroke="#10b981" name="OpenAI" />
-                        <Line type="monotone" dataKey="anthropic" stroke="#8b5cf6" name="Anthropic" />
-                        <Line type="monotone" dataKey="perplexity" stroke="#f59e0b" name="Perplexity" />
-                        <Line type="monotone" dataKey="gemini" stroke="#3b82f6" name="Gemini" />
+                        <Line type="monotone" dataKey="perplexity" stroke="#f59e0b" name="Perplexity (Primary)" />
+                        <Line type="monotone" dataKey="anthropic" stroke="#8b5cf6" name="Claude (Secondary)" />
+                        <Line type="monotone" dataKey="openai" stroke="#10b981" name="ChatGPT (Backup)" />
                       </LineChart>
                     </ResponsiveContainer>
                   </CardContent>
@@ -3436,6 +3444,113 @@ export default function SuperAdminAnalytics() {
           </div>
         )}
       </div>
+      
+      {/* Community Edit Modal */}
+      {isEditModalOpen && editingCommunity && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Edit Community</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Community Name</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                  value={editingCommunity.name || ''}
+                  onChange={(e) => setEditingCommunity({...editingCommunity, name: e.target.value})}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Location</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                  value={editingCommunity.location || ''}
+                  onChange={(e) => setEditingCommunity({...editingCommunity, location: e.target.value})}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Tier</label>
+                <select
+                  className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                  value={editingCommunity.tier || 'Basic'}
+                  onChange={(e) => setEditingCommunity({...editingCommunity, tier: e.target.value})}
+                >
+                  <option value="Basic">Basic</option>
+                  <option value="Featured">Featured</option>
+                  <option value="Platinum">Platinum</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Occupancy (%)</label>
+                <input
+                  type="number"
+                  className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                  value={editingCommunity.occupancy || 0}
+                  onChange={(e) => setEditingCommunity({...editingCommunity, occupancy: parseInt(e.target.value)})}
+                  min="0"
+                  max="100"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Monthly Revenue ($)</label>
+                <input
+                  type="number"
+                  className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
+                  value={editingCommunity.revenue || 0}
+                  onChange={(e) => setEditingCommunity({...editingCommunity, revenue: parseInt(e.target.value)})}
+                  min="0"
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end gap-2 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsEditModalOpen(false);
+                  setEditingCommunity(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={async () => {
+                  try {
+                    await apiRequest('PUT', `/api/admin/communities/${editingCommunity.id}`, editingCommunity);
+                    toast({
+                      title: "Success",
+                      description: "Community updated successfully",
+                      duration: 3000
+                    });
+                    setIsEditModalOpen(false);
+                    setEditingCommunity(null);
+                    
+                    // Refresh community list
+                    apiRequest('GET', '/api/admin/communities')
+                      .then(data => setCommunityList(data || []))
+                      .catch(err => console.error('Failed to refresh communities:', err));
+                  } catch (error) {
+                    toast({
+                      title: "Error",
+                      description: "Failed to update community",
+                      variant: "destructive",
+                      duration: 3000
+                    });
+                  }
+                }}
+              >
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -110,7 +110,7 @@ export default function AIMapShowcase() {
                 Dual AI + Map Integration Showcase
               </h1>
               <p className="text-lg text-gray-600 dark:text-gray-400 mt-1">
-                Anthropic Claude + Google Gemini seamlessly integrated with React-Leaflet
+                Perplexity + Claude AI seamlessly integrated with React-Leaflet
               </p>
             </div>
           </div>
@@ -231,29 +231,29 @@ export default function AIMapShowcase() {
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                  <div className="p-4 bg-orange-50 dark:bg-orange-900/30 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
-                      <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-                      <span className="font-medium text-blue-900 dark:text-blue-100">Anthropic Claude</span>
+                      <div className="w-3 h-3 bg-orange-600 rounded-full"></div>
+                      <span className="font-medium text-orange-900 dark:text-orange-100">Perplexity (Primary)</span>
                     </div>
-                    <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-                      <li>• Natural language processing</li>
-                      <li>• Community recommendations</li>
-                      <li>• Care planning assistance</li>
-                      <li>• Family communication</li>
+                    <ul className="text-sm text-orange-800 dark:text-orange-200 space-y-1">
+                      <li>• Real-time web search</li>
+                      <li>• Current pricing data</li>
+                      <li>• Live availability</li>
+                      <li>• Market intelligence</li>
                     </ul>
                   </div>
                   
                   <div className="p-4 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-3 h-3 bg-purple-600 rounded-full"></div>
-                      <span className="font-medium text-purple-900 dark:text-purple-100">Google Gemini</span>
+                      <span className="font-medium text-purple-900 dark:text-purple-100">Claude AI (Secondary)</span>
                     </div>
                     <ul className="text-sm text-purple-800 dark:text-purple-200 space-y-1">
-                      <li>• Multimodal image analysis</li>
-                      <li>• Geospatial intelligence</li>
-                      <li>• Area demographics</li>
-                      <li>• Visual facility assessment</li>
+                      <li>• Complex analysis</li>
+                      <li>• Natural language processing</li>
+                      <li>• Care recommendations</li>
+                      <li>• Family communication</li>
                     </ul>
                   </div>
                 </div>
