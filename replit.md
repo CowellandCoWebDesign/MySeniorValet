@@ -1,34 +1,7 @@
 # MySeniorValet - Senior Living Community Transparency Platform
 
 ## Overview
-MySeniorValet is a technology platform connecting families with publicly available information about over 34,000 senior living communities in the U.S. and Canada. It acts as a facilitator, using advanced AI orchestration to gather, organize, and present public information, including verified HUD pricing. The platform's vision is to empower families with authentic, verified data for informed decision-making in senior living, bringing much-needed transparency to the market.
-
-## Recent Enhancements (August 12, 2025)
-
-### Dual-Display Pricing System Implementation
-- **Dual Pricing Display**: Shows government pricing (HUD verified) alongside AI-verified market rates
-- **Transparency First**: Clear notifications when AI pricing differs from government records
-- **Progressive Growth Strategy**: Database grows organically with each user search from 5,936 HUD communities
-- **Cost Controls**: Maximum 100 API calls/day, 24-hour caching, targeted updates for trending/featured only
-- **Database Integration**: AI pricing saves to pricing_history table while preserving government data integrity
-
-### Database Enhancements (August 11, 2025)
-- **Phase 1 Complete**: Successfully enabled 5 critical user profile enhancement fields
-  - relationshipToCare: Understanding who's searching (self, parent, spouse, etc.)
-  - careNeeds array: Tracking specific care requirements (Independent Living, Assisted Living, Memory Care)
-  - searchPreferences JSON: Personalized search settings (location, budget, amenities)
-  - notifications JSON: User communication preferences (email, SMS, alerts)
-  - dashboardPreferences JSON: UI customization for accessibility and preferences
-- **Phase 2 Complete**: Pricing History & Community Verification Infrastructure
-  - pricing_history table: Track all pricing changes over time with verification status
-  - price_change_alerts table: Alert users when saved communities change pricing
-  - community_claims table: Allow communities to claim their listings
-  - verified_community_profiles table: Enhanced profiles for verified communities
-  - verification_activity_log table: Full audit trail of verification activities
-  - pricing_update_queue table: Batch processing for pricing updates
-  - All foreign key relationships and indexes properly configured
-- **Migration Method**: Direct SQL migration via psql
-- **Documentation**: Phase 1 in docs/DATABASE_ENHANCEMENT_PHASE_1.md, Phase 2 in docs/DATABASE_ENHANCEMENT_PHASE_2.md
+MySeniorValet is a technology platform connecting families with publicly available information about over 34,000 senior living communities in the U.S. and Canada. It leverages advanced AI orchestration to gather, organize, and present public information, including verified HUD pricing. The platform's vision is to empower families with authentic, verified data for informed decision-making in senior living, bringing much-needed transparency to the market. It aims to be "The Dawn of Transparency in Senior Living" by providing a complete care spectrum education, real pricing, zero paywalls, and tools for saving and sharing research.
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
@@ -48,74 +21,22 @@ MySeniorValet is a technology platform connecting families with publicly availab
 - **Golden Data Rule**: Zero tolerance for synthetic, mock, sample, or placeholder data. All data must come from verified authentic sources.
 - **Map Interface Preferences**: Legend button positioned on map at top-right (not in header). Map Layers control positioned 60px below Legend button. Heatmap toggle removed from interface to prevent UI overlap issues.
 
-## Recent Updates (August 11, 2025)
-### Messaging System Tests - 100% Pass Rate Achieved
-- Fixed all 27 messaging system tests - achieving perfect 100% pass rate
-- Resolved data type mismatches (string to integer user IDs)
-- Created test users (IDs: 99995-99999) and test community (ID: 1) for testing
-- Fixed JSON field parsing issues across all test functions
-- Test progression: 0% → 13.3% → 76% → 96.3% → 100% pass rate
-- **✅ AI MATCHING ASSISTANT FULLY OPERATIONAL**: Successfully displaying personalized community matches
-  - Fixed critical Response body parsing issue in frontend mutation handler
-  - Implemented progressive search fallbacks for better match coverage
-  - Confirmed working with all care types (Assisted Living, Memory Care, HUD Housing, Independent Living)
-  - User verified: Successfully displaying 5 matched communities with AI insights and pricing analysis
-- **CRITICAL DATA FIX COMPLETED**: Fixed massive HUD Housing misclassification affecting 7,296 properties nationwide that were incorrectly labeled as "Independent Living". All HUD Section 202/8 properties now correctly classified as "HUD Housing".
-- **AI MATCHING FIXED**: Resolved frontend JSON parsing issue in AI Matching Assistant. Now successfully returns HUD Housing matches including 14 properties in Redding area.
-- **VERIFIED HUD PROPERTIES**: Redding has 14 confirmed HUD Housing communities including Redding Senior Manor, Della Williams Gardens, Heritage Plaza Phase II, Hotel Redding, and others - all now properly searchable.
-- **AI Matching Assistant Enhancement**: Expanded from 4 care levels to complete 10-level care spectrum:
-  1. HUD Housing (Subsidized) - $0-500/mo
-  2. VA/Veterans Housing - $0-1k/mo
-  3. Mobile Home & RV Parks - $400-1k/mo
-  4. 55+ Active Communities - $1-3k/mo
-  5. Independent Living - $2-4k/mo
-  6. Board & Care Homes - $2.5-5k/mo
-  7. Assisted Living - $3-6k/mo
-  8. Memory Care - $4-8k/mo
-  9. Continuing Care (CCRC) - $5-10k/mo
-  10. Skilled Nursing - $6-12k/mo
-  Care type mapping now handles all variants including lowercase, underscored, and space-separated formats
-
-## Recent Launch Message Enhancement (August 10, 2025)
-**"TODAY, EVERYTHING CHANGES" - Historic Platform Launch**
-- Powerful narrative structure directly addressing industry darkness
-- **The Darkness Section** confronts all pain points:
-  * No Information Online - families searching desperately
-  * Care Level Confusion - no understanding of care differences
-  * "Contact for Pricing" - universal gatekeeping during crisis
-  * Middleman Paywalls - $500+ charges for basic information
-  * Endless Tours, No Records - nothing to show for hard work
-  * Communities Hidden Too - great facilities lost in darkness
-- **THIS STOPS NOW Section** presents platform solutions:
-  * Complete Care Spectrum Education
-  * Real Pricing, Real Availability
-  * Zero Paywalls, 100% Free
-  * Save & Share Research
-  * Communities Shine Bright
-  * Immediate Access to Everything
-- Closing: "To every family searching in the dark: The lights are on now"
-- Positions as "The Dawn of Transparency in Senior Living"
-
 ## System Architecture
 The platform is built with a modern web stack, emphasizing transparency and user engagement.
-- **Frontend**: React with TypeScript, Tailwind CSS, and shadcn/ui components. Features include community cards with subtype badges, an interactive Care Spectrum Slider, and dynamic occupancy displays with color-coded status indicators. Map pins are circular with bold colored borders (green for data, red for no data; red for emergency, orange for urgent care). Dark mode is fully supported for map tiles.
+- **Frontend**: React with TypeScript, Tailwind CSS, and shadcn/ui components. Features include community cards with subtype badges, an interactive Care Spectrum Slider, and dynamic occupancy displays. Map pins are circular with bold colored borders. Dark mode is fully supported.
 - **Backend**: Express.js with TypeScript.
-- **Database**: PostgreSQL, managed with Drizzle ORM, supporting multiple senior living types and a robust services management system.
+- **Database**: PostgreSQL, managed with Drizzle ORM, supporting multiple senior living types and a robust services management system. Database includes tables for pricing history, price change alerts, community claims, verified community profiles, and verification activity logs.
 - **Build System**: Vite for the frontend and esbuild for the backend.
 - **Authentication**: Replit Auth with role-based access control.
-- **Key Features**: Interactive Map System with AI analysis, AI-Powered Search with multi-AI verification, Semantic Search capabilities, Transparent Pricing (HUD-verified data), Comprehensive Community Profiles, Unified Admin Dashboard, Family Collaboration tools, and a Senior Vendor Marketplace. Includes comprehensive notification and in-app messaging, an onboarding wizard with AI character guidance, and a robust photo handling system. Full bilingual functionality (French/English) is supported.
-- **UI/UX Decisions**: Emphasizes a clean, modern aesthetic with cosmic imagery. Dark mode is default. Consistent design elements include horizontal sliders and AI-generated product imagery. Search results are displayed in a vertical scrolling "rolodex" style with regional theme styling. Content is organized with distinct visual theming for communities, hospitals (red/pink theme), vendors, and resources.
-- **System Design**: Supports dual subscription tier systems for communities and vendors. Dashboard separation includes user analytics, contextual business features, and a unified super admin analytics center with RBAC.
-- **Payment System**: Integrated dual payment system supporting Stripe Checkout Sessions and Payment Element for mobile-optimized, on-platform payments.
-- **Search & Navigation**: Simplified AI-powered search with semantic understanding and natural language queries. Live Market Intelligence section integrates the 7-level care spectrum. Healthcare search includes enhanced map filtering and color-coded hospital cards. "Perfect Match" functionality has been removed. AI Search Interface maintains a 3-row layout for amenities/care services, distance/price sliders, and Complete Care Spectrum types.
+- **Key Features**: Interactive Map System with AI analysis, AI-Powered Search with multi-AI verification, Semantic Search capabilities (Weaviate-powered, natural language understanding), Transparent Pricing (HUD-verified data and AI-verified market rates), Comprehensive Community Profiles, Unified Admin Dashboard, Family Collaboration tools, Senior Vendor Marketplace, comprehensive notification and in-app messaging, an onboarding wizard with AI character guidance, and a robust photo handling system. Full bilingual functionality (French/English) is supported.
+- **UI/UX Decisions**: Emphasizes a clean, modern aesthetic with cosmic imagery. Dark mode is default. Consistent design elements include horizontal sliders and AI-generated product imagery. Search results are displayed in a vertical scrolling "rolodex" style with regional theme styling. Content is organized with distinct visual theming for communities, hospitals, vendors, and resources.
+- **System Design**: Supports dual subscription tier systems for communities and vendors. Dashboard separation includes user analytics, contextual business features, and a unified super admin analytics center with RBAC. Dual pricing display shows government pricing alongside AI-verified market rates with clear notifications for discrepancies. Dynamic scaling cost controls are implemented for API calls with regional caching and batch processing.
+- **Payment System**: Integrated dual payment system supporting Stripe Checkout Sessions and Payment Element.
+- **Search & Navigation**: Simplified AI-powered search with semantic understanding and natural language queries. Live Market Intelligence section integrates a 10-level care spectrum. Healthcare search includes enhanced map filtering and color-coded hospital cards. AI Search Interface maintains a 3-row layout for amenities/care services, distance/price sliders, and Complete Care Spectrum types.
 - **AI Deep Analysis**: Provides detailed comparative analysis including price comparisons, value leaders, HUD affordable options, neighborhood insights, care type matching, and personalized recommendations. Generates comprehensive market trends and actionable advice. AI personalization ensures empathetic and context-aware interactions.
 - **Onboarding System**: Users can sign up with preferences pre-filled from onboarding data. Community creators have a comprehensive tutorial system with AI character guidance, a 7-step walkthrough, full onboarding form validation, and seamless payment integration.
-- **Legal Document Version Control System**: Enterprise-level system with complete version history, SHA-256 integrity checks, audit trails, GDPR/CCPA compliance, document status management, and a professional frontend interface at /legal-document-history.
+- **Legal Document Version Control System**: Enterprise-level system with complete version history, SHA-256 integrity checks, audit trails, GDPR/CCPA compliance, document status management, and a professional frontend interface.
 - **Availability Heatmap System**: Public version at `/availability-heatmap` and an enhanced admin version at `/admin/availability-heatmap`.
-- **Semantic Search Integration**: Weaviate-powered semantic search with natural language understanding. Features include toggle switch for semantic/traditional modes (semantic default), hybrid search, RAG-powered AI recommendations, natural language query support, visual match score indicators, and match explanation display. Endpoint: `/api/semantic/search`.
-
-## Recent Changes
-- **August 11, 2025**: Cleaned up orphaned `/api/search` endpoint that was broken but not used by any user-facing features. All search functionality confirmed working through proper endpoints: map search (`/api/communities/search/spatial`), AI search (`/api/communities/search/unified`), and clustering (`/api/communities/clusters`). Updated admin page references to reflect actual endpoints in use.
 
 ## External Dependencies
 - **Database Connectivity**: `@neondatabase/serverless`
@@ -125,9 +46,9 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - **UI Libraries**: `@radix-ui/*`, `tailwindcss`, `lucide-react`
 - **Mapping**: `react-leaflet`
 - **AI Integrations**: Priority-based multi-AI orchestration:
-  1. **Perplexity (Primary)**: Real-time web search, verification of alternative sources, current pricing, market data.
-  2. **Claude (Secondary)**: `@anthropic-ai/sdk` - Advanced reasoning, complex analysis, care planning, contract analysis.
-  3. **ChatGPT (Backup)**: `openai` - General purpose fallback and validation.
+  - **Perplexity (Primary)**: Real-time web search, verification of alternative sources, current pricing, market data.
+  - **Claude (Secondary)**: `@anthropic-ai/sdk` - Advanced reasoning, complex analysis, care planning, contract analysis.
+  - **ChatGPT (Backup)**: `openai` - General purpose fallback and validation.
 - **Email Service**: SendGrid
 - **Payment Processing**: Stripe
 - **Document Signing**: Documenso (open-source, self-hosted)

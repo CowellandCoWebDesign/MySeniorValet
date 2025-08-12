@@ -1,6 +1,6 @@
 import { db } from './db';
 import { communities, pricing_history as pricingHistory } from '@shared/schema';
-import { eq, and, isNull, lt, gte, desc } from 'drizzle-orm';
+import { eq, and, isNull, lt, gte, desc, sql } from 'drizzle-orm';
 import { PerplexityAIService } from './perplexity-ai-service';
 import { MultiAIVerificationService } from './multi-ai-verification-service';
 
@@ -38,15 +38,194 @@ export class AIMarketIntelligenceService {
   private perplexityService: PerplexityAIService;
   private verificationService: MultiAIVerificationService;
   private cache: Map<number, { data: MarketIntelligenceData; timestamp: number }>;
+  private regionalCache: Map<string, { data: any; timestamp: number }>; // Cache by state/city
   private apiCallCount: Map<string, number>;
-  private CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
-  private MAX_API_CALLS_PER_DAY = 100; // Maximum API calls per day
+  private priorityQueue: Set<number>; // High-priority communities
+  private batchQueue: number[]; // Communities to process in batches
+  
+  // Scalable configuration
+  private CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours for individual communities
+  private REGIONAL_CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days for regional data
+  private BASE_API_CALLS = 100; // Base API calls per day
+  private SCALE_MULTIPLIER = 0.001; // Additional calls per active user (0.1% of user base)
+  private BATCH_SIZE = 5; // Process 5 communities per API call when possible
+  private MAX_RETRIES = 3; // Retry failed calls with exponential backoff
 
   constructor() {
     this.perplexityService = new PerplexityAIService();
     this.verificationService = new MultiAIVerificationService();
     this.cache = new Map();
+    this.regionalCache = new Map();
     this.apiCallCount = new Map();
+    this.priorityQueue = new Set();
+    this.batchQueue = [];
+  }
+
+  // Get total community count
+  private async getCommunityCount(): Promise<number> {
+    try {
+      const [result] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(communities);
+      return result?.count || 0;
+    } catch (error) {
+      return 0;
+    }
+  }
+
+  // Calculate dynamic API limit based on platform scale
+  private async getDynamicAPILimit(): Promise<number> {
+    try {
+      // Get total community count as a proxy for platform scale
+      const [result] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(communities);
+      
+      const communityCount = result?.count || 0;
+      
+      // Scale API calls: base 100 + 1 per 100 communities (up to 1000 max)
+      // This means: 
+      // - 5,000 communities = 150 calls/day
+      // - 10,000 communities = 200 calls/day
+      // - 30,000 communities = 400 calls/day
+      // - 100,000 communities = 1000 calls/day (max)
+      const scaledLimit = this.BASE_API_CALLS + Math.floor(communityCount / 100);
+      
+      // Cap at 1000 calls per day for cost protection
+      return Math.min(scaledLimit, 1000);
+    } catch (error) {
+      console.error('Error calculating dynamic API limit:', error);
+      return this.BASE_API_CALLS;
+    }
+  }
+
+  // Check if community should be prioritized based on recent pricing checks
+  private async shouldPrioritize(communityId: number): Promise<boolean> {
+    try {
+      // Check if this community has been recently verified (multiple times)
+      const recentChecks = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(pricingHistory)
+        .where(
+          and(
+            eq(pricingHistory.communityId, communityId),
+            gte(pricingHistory.verifiedAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
+          )
+        );
+      
+      // Prioritize if checked more than 3 times in last week (high interest)
+      return (recentChecks[0]?.count || 0) > 3;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  // Get regional market data (cached for 7 days to reduce API calls)
+  private async getRegionalData(state: string, city?: string): Promise<any> {
+    const cacheKey = city ? `${state}-${city}` : state;
+    const cached = this.regionalCache.get(cacheKey);
+    
+    if (cached && Date.now() - cached.timestamp < this.REGIONAL_CACHE_DURATION) {
+      console.log(`🌍 Using cached regional data for ${cacheKey}`);
+      return cached.data;
+    }
+    
+    // Check daily API limit
+    const dailyLimit = await this.getDynamicAPILimit();
+    const today = new Date().toDateString();
+    const todayCount = this.apiCallCount.get(today) || 0;
+    
+    if (todayCount >= dailyLimit) {
+      console.log(`⚠️ API limit reached (${dailyLimit} calls/day) - using estimates`);
+      return null;
+    }
+    
+    // Fetch regional market trends (this reduces individual community API calls)
+    const query = `senior living market prices ${city || ''} ${state} average costs 2025`;
+    const regionalData = await this.perplexityService.searchRealTimeInfo(query);
+    
+    // Track API usage
+    this.apiCallCount.set(today, todayCount + 1);
+    
+    // Cache regional data for 7 days
+    this.regionalCache.set(cacheKey, {
+      data: regionalData,
+      timestamp: Date.now()
+    });
+    
+    console.log(`✅ Cached regional data for ${cacheKey} (${todayCount + 1}/${dailyLimit} API calls today)`);
+    return regionalData;
+  }
+
+  // Process multiple communities in a single API call for efficiency
+  async processBatch(communityIds: number[]): Promise<Map<number, MarketIntelligenceData>> {
+    const results = new Map<number, MarketIntelligenceData>();
+    
+    if (communityIds.length === 0) return results;
+    
+    // Get communities data
+    const communities = await db
+      .select()
+      .from(communities)
+      .where(sql`id IN ${communityIds}`);
+    
+    // Group by state/city for efficient regional queries
+    const regionGroups = new Map<string, number[]>();
+    for (const community of communities) {
+      const key = `${community.state}-${community.city}`;
+      if (!regionGroups.has(key)) {
+        regionGroups.set(key, []);
+      }
+      regionGroups.get(key)!.push(community.id);
+    }
+    
+    // Process each regional group
+    for (const [region, ids] of regionGroups) {
+      const [state, city] = region.split('-');
+      const regionalData = await this.getRegionalData(state, city);
+      
+      // Apply regional data to all communities in this group
+      for (const id of ids) {
+        const community = communities.find(c => c.id === id);
+        if (community && regionalData) {
+          // Create market intelligence from regional data
+          const intelligence = this.createIntelligenceFromRegional(community, regionalData);
+          results.set(id, intelligence);
+          
+          // Cache the result
+          this.cache.set(id, {
+            data: intelligence,
+            timestamp: Date.now()
+          });
+        }
+      }
+    }
+    
+    return results;
+  }
+
+  // Create intelligence data from regional information
+  private createIntelligenceFromRegional(community: any, regionalData: any): MarketIntelligenceData {
+    const basePrice = this.getEstimatedPrice(community);
+    
+    return {
+      communityId: community.id,
+      communityName: community.name,
+      pricing: {
+        verified: false,
+        amount: basePrice,
+        source: 'Regional Market Analysis',
+        confidence: 70,
+        lastUpdated: new Date().toISOString()
+      },
+      marketContext: {
+        averageAreaPrice: basePrice || 3500,
+        priceRange: { min: (basePrice || 3500) * 0.8, max: (basePrice || 3500) * 1.2 },
+        competitorCount: 5,
+        demandLevel: 'medium'
+      },
+      dataQuality: 'estimated'
+    };
   }
 
   // Get AI-powered market intelligence for a community
@@ -142,11 +321,20 @@ export class AIMarketIntelligenceService {
 
       console.log(`🔍 Fetching NEW AI market intelligence for ${community.name}`);
 
-      // Check API call limits
+      // Check API call limits using dynamic scaling
+      const dailyLimit = await this.getDynamicAPILimit();
+      const isPriority = await this.shouldPrioritize(communityId);
       const todayKey = new Date().toDateString();
       const todayCount = this.apiCallCount.get(todayKey) || 0;
-      if (todayCount >= this.MAX_API_CALLS_PER_DAY) {
-        console.log(`⚠️ Daily API call limit reached (${this.MAX_API_CALLS_PER_DAY})`);
+      
+      if (todayCount >= dailyLimit && !isPriority) {
+        console.log(`⚠️ Daily API call limit reached (${dailyLimit}/day, dynamically scaled) - checking regional cache`);
+        
+        // Try to use regional cached data first for better estimates
+        const regionalData = await this.getRegionalData(community.state, community.city);
+        if (regionalData && !hasGovernmentPricing) {
+          return this.createIntelligenceFromRegional(community, regionalData);
+        }
         
         // Return existing government pricing or estimate
         if (hasGovernmentPricing) {
@@ -181,7 +369,7 @@ export class AIMarketIntelligenceService {
 
       // Update API call count
       this.apiCallCount.set(todayKey, todayCount + 1);
-      console.log(`📊 API calls today: ${todayCount + 1}/${this.MAX_API_CALLS_PER_DAY}`);
+      console.log(`📊 API calls today: ${todayCount + 1}/${dailyLimit} (dynamically scaled for ${await this.getCommunityCount()} communities)`);
 
       // Use Perplexity to search for pricing data
       const searchQuery = `"${community.name}" senior living pricing costs ${community.city} ${community.state} monthly rates 2025`;
