@@ -16,7 +16,7 @@ import {
   CreditCard, Store, Wrench, TestTube, LineChart,
   Layers, Palette, Lock, AlertTriangle, CheckCircle,
   TrendingUp, FileSearch, Sparkles, Bot, Gauge, X,
-  Calculator
+  Calculator, Crown
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
