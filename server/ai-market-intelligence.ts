@@ -1,6 +1,6 @@
 import { db } from './db';
-import { communities, pricing_history as pricingHistory } from '@shared/schema';
-import { eq, and, isNull, lt, gte, desc, sql } from 'drizzle-orm';
+import { communities, pricingHistory, marketIntelligenceCache, searchIntentAnalysis } from '@shared/schema';
+import { eq, and, isNull, lt, gte, desc, sql, or } from 'drizzle-orm';
 import { PerplexityAIService } from './perplexity-ai-service';
 import { MultiAIVerificationService } from './multi-ai-verification-service';
 
@@ -38,7 +38,6 @@ export class AIMarketIntelligenceService {
   private perplexityService: PerplexityAIService;
   private verificationService: MultiAIVerificationService;
   private cache: Map<number, { data: MarketIntelligenceData; timestamp: number }>;
-  private regionalCache: Map<string, { data: any; timestamp: number }>; // Cache by state/city
   private apiCallCount: Map<string, number>;
   private priorityQueue: Set<number>; // High-priority communities
   private batchQueue: number[]; // Communities to process in batches
@@ -55,7 +54,6 @@ export class AIMarketIntelligenceService {
     this.perplexityService = new PerplexityAIService();
     this.verificationService = new MultiAIVerificationService();
     this.cache = new Map();
-    this.regionalCache = new Map();
     this.apiCallCount = new Map();
     this.priorityQueue = new Set();
     this.batchQueue = [];
@@ -70,6 +68,106 @@ export class AIMarketIntelligenceService {
       return result?.count || 0;
     } catch (error) {
       return 0;
+    }
+  }
+
+  // Save market intelligence data to database cache
+  private async saveToCache(city: string, state: string, careLevel: string, data: any): Promise<void> {
+    try {
+      await db
+        .insert(marketIntelligenceCache)
+        .values({
+          city,
+          state,
+          careLevel,
+          avgPrice: data.avgPrice?.toString() || null,
+          occupancyRate: data.occupancyRate?.toString() || null,
+          dataSources: data.dataSources || {},
+          priceRange: data.priceRange || null,
+          marketTrends: data.marketTrends || null,
+          dataQuality: data.dataQuality || 'estimated',
+          sampleSize: data.sampleSize || null,
+          lastUpdated: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: [marketIntelligenceCache.city, marketIntelligenceCache.state, marketIntelligenceCache.careLevel],
+          set: {
+            avgPrice: data.avgPrice?.toString() || null,
+            occupancyRate: data.occupancyRate?.toString() || null,
+            dataSources: data.dataSources || {},
+            priceRange: data.priceRange || null,
+            marketTrends: data.marketTrends || null,
+            dataQuality: data.dataQuality || 'estimated',
+            sampleSize: data.sampleSize || null,
+            lastUpdated: new Date(),
+          },
+        });
+    } catch (error) {
+      console.error('Error saving to market intelligence cache:', error);
+    }
+  }
+
+  // Retrieve market intelligence data from database cache
+  private async getFromCache(city: string, state: string, careLevel: string): Promise<any | null> {
+    try {
+      const [cached] = await db
+        .select()
+        .from(marketIntelligenceCache)
+        .where(
+          and(
+            eq(marketIntelligenceCache.city, city),
+            eq(marketIntelligenceCache.state, state),
+            eq(marketIntelligenceCache.careLevel, careLevel)
+          )
+        );
+      
+      if (cached && cached.lastUpdated) {
+        const cacheAge = Date.now() - new Date(cached.lastUpdated).getTime();
+        if (cacheAge < this.REGIONAL_CACHE_DURATION) {
+          return cached;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error('Error retrieving from market intelligence cache:', error);
+      return null;
+    }
+  }
+
+  // Log search intent for analytics
+  async logSearchIntent(data: {
+    userId?: number;
+    sessionId?: string;
+    searchQuery?: string;
+    searchType?: string;
+    searchFilters?: any;
+    searchLocation?: any;
+    resultsCount?: number;
+    clickedResults?: number[];
+    timeSpent?: number;
+    conversionType?: string;
+    conversionCommunityId?: number;
+    deviceType?: string;
+    userAgent?: string;
+  }): Promise<void> {
+    try {
+      await db.insert(searchIntentAnalysis).values({
+        userId: data.userId || null,
+        sessionId: data.sessionId || null,
+        searchQuery: data.searchQuery || null,
+        searchType: data.searchType || null,
+        searchFilters: data.searchFilters || null,
+        searchLocation: data.searchLocation || null,
+        resultsCount: data.resultsCount || null,
+        clickedResults: data.clickedResults || [],
+        timeSpent: data.timeSpent || null,
+        conversionType: data.conversionType || null,
+        conversionCommunityId: data.conversionCommunityId || null,
+        deviceType: data.deviceType || null,
+        userAgent: data.userAgent || null,
+      });
+    } catch (error) {
+      console.error('Error logging search intent:', error);
     }
   }
 

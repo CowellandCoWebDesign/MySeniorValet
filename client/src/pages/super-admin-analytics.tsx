@@ -33,7 +33,7 @@ import {
   MessageSquare, Phone, Mail, Bell, AlertTriangle,
   CheckCircle2, XCircle, Info, Sparkles, Hash,
   UserPlus, Edit, Trash2, Save, X, Loader2, Store, Map,
-  ExternalLink, Pencil, Crown, Calculator, Receipt
+  ExternalLink, Pencil, Crown, Calculator, Receipt, Pause, Play
 } from "lucide-react";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -123,6 +123,7 @@ export default function SuperAdminAnalytics() {
   const { user } = useAuth();
   const [timeRange, setTimeRange] = useState("7d");
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshingMarketData, setRefreshingMarketData] = useState(false);
   const [activeMetricTab, setActiveMetricTab] = useState("overview");
   const [selectedProvider, setSelectedProvider] = useState("all");
   const [vendorList, setVendorList] = useState<any[]>([]);
@@ -191,6 +192,32 @@ export default function SuperAdminAnalytics() {
     queryKey: ["/api/admin/subscriptions/payment-history"],
     enabled: activeMetricTab === 'subscriptions' || activeMetricTab === 'payments'
   });
+
+  // Market Intelligence queries
+  const { data: marketIntelData, refetch: refetchMarketIntel } = useQuery({
+    queryKey: ["/api/analytics/market-intelligence/stats"],
+    enabled: activeMetricTab === 'market-intelligence'
+  });
+
+  const { data: searchIntentData, refetch: refetchSearchIntent } = useQuery({
+    queryKey: ["/api/analytics/search-intent/stats"],
+    enabled: activeMetricTab === 'market-intelligence'
+  });
+
+  const { data: popularLocations } = useQuery({
+    queryKey: ["/api/analytics/market-intelligence/popular-locations"],
+    enabled: activeMetricTab === 'market-intelligence'
+  });
+
+  const { data: careLevelTrends } = useQuery({
+    queryKey: ["/api/analytics/market-intelligence/care-level-trends"],
+    enabled: activeMetricTab === 'market-intelligence'
+  });
+
+  const { data: stateTrends } = useQuery({
+    queryKey: ["/api/analytics/market-intelligence/state-trends"],
+    enabled: activeMetricTab === 'market-intelligence'
+  });
   
   // Comprehensive metrics query - MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   const { data: metrics, isLoading, refetch } = useQuery<DashboardMetrics>({
@@ -247,6 +274,29 @@ export default function SuperAdminAnalytics() {
       description: "All metrics have been updated",
     });
     setRefreshing(false);
+  };
+
+  // Refresh market intelligence data
+  const refreshMarketIntelligence = async () => {
+    setRefreshingMarketData(true);
+    try {
+      await Promise.all([
+        refetchMarketIntel(),
+        refetchSearchIntent()
+      ]);
+      toast({
+        title: "Market Intelligence Updated",
+        description: "Latest market data has been loaded",
+      });
+    } catch (error) {
+      toast({
+        title: "Update Failed",
+        description: "Failed to refresh market intelligence data",
+        variant: "destructive"
+      });
+    } finally {
+      setRefreshingMarketData(false);
+    }
   };
 
   // Export data
@@ -712,6 +762,7 @@ export default function SuperAdminAnalytics() {
                   <TabsTrigger value="performance" className="px-4">⚡ Performance</TabsTrigger>
                   <TabsTrigger value="engagement" className="px-4">📱 Engagement</TabsTrigger>
                   <TabsTrigger value="geographic" className="px-4">🌍 Geographic</TabsTrigger>
+                  <TabsTrigger value="market-intelligence" className="px-4">🧠 Market Intelligence</TabsTrigger>
                 </TabsList>
               </div>
 
@@ -1943,7 +1994,7 @@ export default function SuperAdminAnalytics() {
                                   });
                                 }}
                               >
-                                <Trash className="h-4 w-4" />
+                                <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
                           </TableCell>
@@ -3146,6 +3197,240 @@ export default function SuperAdminAnalytics() {
                     </div>
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              {/* Market Intelligence Tab */}
+              <TabsContent value="market-intelligence" className="space-y-6">
+                <div className="grid gap-6">
+                  {/* Market Intelligence Overview */}
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Cities Covered</CardTitle>
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{marketIntelData?.stats?.citiesCovered || 0}</div>
+                        <p className="text-xs text-muted-foreground">With market data</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Avg Price</CardTitle>
+                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">
+                          ${marketIntelData?.stats?.avgPrice ? Number(marketIntelData.stats.avgPrice).toLocaleString() : '0'}
+                        </div>
+                        <p className="text-xs text-muted-foreground">Monthly average</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Avg Occupancy</CardTitle>
+                        <Activity className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">
+                          {marketIntelData?.stats?.avgOccupancy ? `${Number(marketIntelData.stats.avgOccupancy).toFixed(1)}%` : '0%'}
+                        </div>
+                        <p className="text-xs text-muted-foreground">Facility occupancy rate</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">States Covered</CardTitle>
+                        <Globe className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{marketIntelData?.stats?.statesCovered || 0}</div>
+                        <p className="text-xs text-muted-foreground">With market data</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Search Intent Analytics */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Search Intent Analytics</CardTitle>
+                      <CardDescription>User search behavior and conversion metrics</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Search className="h-4 w-4 text-gray-500" />
+                            <span className="text-sm text-gray-600">Total Searches</span>
+                          </div>
+                          <p className="text-2xl font-bold">{searchIntentData?.stats?.totalSearches || 0}</p>
+                          <p className="text-xs text-muted-foreground">{searchIntentData?.stats?.period}</p>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Users className="h-4 w-4 text-gray-500" />
+                            <span className="text-sm text-gray-600">Unique Users</span>
+                          </div>
+                          <p className="text-2xl font-bold">{searchIntentData?.stats?.uniqueUsers || 0}</p>
+                          <p className="text-xs text-muted-foreground">Active searchers</p>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Target className="h-4 w-4 text-gray-500" />
+                            <span className="text-sm text-gray-600">Conversion Rate</span>
+                          </div>
+                          <p className="text-2xl font-bold">{searchIntentData?.stats?.conversionRate || '0%'}</p>
+                          <p className="text-xs text-muted-foreground">Search to action</p>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-gray-500" />
+                            <span className="text-sm text-gray-600">Avg Time Spent</span>
+                          </div>
+                          <p className="text-2xl font-bold">
+                            {searchIntentData?.stats?.avgTimeSpent ? `${Math.round(searchIntentData.stats.avgTimeSpent / 60)}m` : '0m'}
+                          </p>
+                          <p className="text-xs text-muted-foreground">Per search session</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Popular Search Locations */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Popular Search Locations</CardTitle>
+                      <CardDescription>Top locations users are searching for</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>City</TableHead>
+                            <TableHead>State</TableHead>
+                            <TableHead className="text-right">Search Count</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {popularLocations?.slice(0, 10).map((location: any, index: number) => (
+                            <TableRow key={index}>
+                              <TableCell>{location.city || 'N/A'}</TableCell>
+                              <TableCell>{location.state || 'N/A'}</TableCell>
+                              <TableCell className="text-right">{location.searchCount || 0}</TableCell>
+                            </TableRow>
+                          )) || (
+                            <TableRow>
+                              <TableCell colSpan={3} className="text-center text-gray-500">
+                                No search data available yet
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+
+                  {/* Market Trends by Care Level */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Market Trends by Care Level</CardTitle>
+                      <CardDescription>Pricing and occupancy across different care types</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Care Level</TableHead>
+                            <TableHead className="text-right">Avg Price</TableHead>
+                            <TableHead className="text-right">Avg Occupancy</TableHead>
+                            <TableHead className="text-right">Locations</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {careLevelTrends?.map((trend: any, index: number) => (
+                            <TableRow key={index}>
+                              <TableCell>{trend.careLevel}</TableCell>
+                              <TableCell className="text-right">
+                                ${trend.avgPrice ? Number(trend.avgPrice).toLocaleString() : '0'}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {trend.avgOccupancy ? `${Number(trend.avgOccupancy).toFixed(1)}%` : '0%'}
+                              </TableCell>
+                              <TableCell className="text-right">{trend.locationCount || 0}</TableCell>
+                            </TableRow>
+                          )) || (
+                            <TableRow>
+                              <TableCell colSpan={4} className="text-center text-gray-500">
+                                No market trend data available yet
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+
+                  {/* Market Trends by State */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Market Trends by State</CardTitle>
+                      <CardDescription>Top states by average pricing</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>State</TableHead>
+                            <TableHead className="text-right">Avg Price</TableHead>
+                            <TableHead className="text-right">Avg Occupancy</TableHead>
+                            <TableHead className="text-right">Cities</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {stateTrends?.slice(0, 10).map((trend: any, index: number) => (
+                            <TableRow key={index}>
+                              <TableCell>{trend.state}</TableCell>
+                              <TableCell className="text-right">
+                                ${trend.avgPrice ? Number(trend.avgPrice).toLocaleString() : '0'}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {trend.avgOccupancy ? `${Number(trend.avgOccupancy).toFixed(1)}%` : '0%'}
+                              </TableCell>
+                              <TableCell className="text-right">{trend.cityCount || 0}</TableCell>
+                            </TableRow>
+                          )) || (
+                            <TableRow>
+                              <TableCell colSpan={4} className="text-center text-gray-500">
+                                No state trend data available yet
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+
+                  {/* Refresh Data Button */}
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={refreshMarketIntelligence}
+                      disabled={refreshingMarketData}
+                      className="flex items-center gap-2"
+                    >
+                      {refreshingMarketData ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Refreshing Data...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="h-4 w-4" />
+                          Refresh Market Intelligence
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
               </TabsContent>
             </Tabs>
           </div>

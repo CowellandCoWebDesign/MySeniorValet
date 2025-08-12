@@ -2238,6 +2238,85 @@ export const vendorConnections = pgTable("vendor_connections", {
   index("vendor_connections_active_idx").on(table.isActive),
 ]);
 
+// ============ ANALYTICS & INTELLIGENCE TABLES ============
+
+// Market Intelligence Cache table for aggregated market data
+export const marketIntelligenceCache = pgTable("market_intelligence_cache", {
+  id: serial("id").primaryKey(),
+  city: varchar("city", { length: 100 }).notNull(),
+  state: varchar("state", { length: 2 }).notNull(),
+  careLevel: varchar("care_level", { length: 50 }).notNull(), // 'Independent Living', 'Assisted Living', 'Memory Care', 'Skilled Nursing'
+  avgPrice: decimal("avg_price", { precision: 10, scale: 2 }),
+  occupancyRate: decimal("occupancy_rate", { precision: 5, scale: 2 }), // Percentage as decimal (e.g., 85.50 for 85.5%)
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  dataSources: jsonb("data_sources").$type<{
+    hudData?: boolean;
+    stateReports?: boolean;
+    aiVerified?: boolean;
+    communityReported?: boolean;
+    sources?: string[];
+  }>().default({}),
+  priceRange: jsonb("price_range").$type<{
+    min: number;
+    max: number;
+    median: number;
+    percentile25?: number;
+    percentile75?: number;
+  }>(),
+  marketTrends: jsonb("market_trends").$type<{
+    priceChange30Days?: number;
+    priceChange90Days?: number;
+    demandLevel?: 'high' | 'medium' | 'low';
+    supplyLevel?: 'high' | 'medium' | 'low';
+    competitorCount?: number;
+  }>(),
+  dataQuality: varchar("data_quality", { length: 20 }).default('estimated'), // 'verified', 'estimated', 'outdated'
+  sampleSize: integer("sample_size"), // Number of communities in this aggregation
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("market_intelligence_location_idx").on(table.city, table.state),
+  index("market_intelligence_care_level_idx").on(table.careLevel),
+  index("market_intelligence_last_updated_idx").on(table.lastUpdated),
+  unique("market_intelligence_unique_location_care").on(table.city, table.state, table.careLevel),
+]);
+
+// Search Intent Analysis table for tracking user search patterns
+export const searchIntentAnalysis = pgTable("search_intent_analysis", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  sessionId: varchar("session_id", { length: 100 }),
+  searchQuery: text("search_query"),
+  searchType: varchar("search_type", { length: 50 }), // 'location', 'community_name', 'care_type', 'price_range', 'amenities'
+  searchFilters: jsonb("search_filters").$type<{
+    careLevel?: string[];
+    priceRange?: { min: number; max: number };
+    amenities?: string[];
+    distance?: number;
+    rating?: number;
+  }>(),
+  searchLocation: jsonb("search_location").$type<{
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    lat?: number;
+    lng?: number;
+    radius?: number;
+  }>(),
+  resultsCount: integer("results_count"),
+  clickedResults: integer("clicked_results").array().default([]), // Array of community IDs clicked
+  timeSpent: integer("time_spent"), // Seconds spent on search results
+  conversionType: varchar("conversion_type", { length: 50 }), // 'tour_scheduled', 'contact_made', 'saved', 'shared'
+  conversionCommunityId: integer("conversion_community_id").references(() => communities.id),
+  deviceType: varchar("device_type", { length: 20 }), // 'desktop', 'mobile', 'tablet'
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("search_intent_user_idx").on(table.userId),
+  index("search_intent_session_idx").on(table.sessionId),
+  index("search_intent_created_idx").on(table.createdAt),
+  index("search_intent_conversion_idx").on(table.conversionType),
+]);
+
 // ============ VENDOR MARKETPLACE TABLES ============
 
 // Vendors - Main vendor account table
