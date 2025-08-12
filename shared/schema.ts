@@ -132,6 +132,106 @@ export const userSessions = pgTable("user_sessions", {
   index("user_sessions_expires_at_idx").on(table.expiresAt),
 ]);
 
+// TourMate™ Tours Table - For scheduling and managing community tours
+export const tours = pgTable("tours", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  communityId: integer("community_id").references(() => communities.id, { onDelete: "cascade" }).notNull(),
+  
+  // Tour Details
+  preferredDate: date("preferred_date").notNull(),
+  preferredTime: text("preferred_time", { 
+    enum: ["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"] 
+  }).notNull(),
+  alternativeDate: date("alternative_date"),
+  alternativeTime: text("alternative_time"),
+  
+  // Contact Information
+  contactName: text("contact_name").notNull(),
+  contactEmail: text("contact_email").notNull(),
+  contactPhone: text("contact_phone").notNull(),
+  
+  // Tour Preferences
+  tourType: text("tour_type", { 
+    enum: ["in-person", "virtual", "self-guided"] 
+  }).default("in-person"),
+  partySize: integer("party_size").default(1),
+  specialRequests: text("special_requests"),
+  interestedInCareLevel: text("interested_in_care_level").array(),
+  
+  // Tour Status
+  status: text("status", { 
+    enum: ["pending", "confirmed", "rescheduled", "completed", "cancelled", "no-show"] 
+  }).default("pending"),
+  confirmedDate: date("confirmed_date"),
+  confirmedTime: text("confirmed_time"),
+  confirmationCode: text("confirmation_code"),
+  
+  // Community Response
+  communityResponse: text("community_response"),
+  communityNotes: text("community_notes"),
+  assignedRepId: varchar("assigned_rep_id").references(() => users.id),
+  assignedRepName: text("assigned_rep_name"),
+  
+  // Follow-up & Feedback
+  tourCompleted: boolean("tour_completed").default(false),
+  tourRating: integer("tour_rating"), // 1-5 stars
+  tourFeedback: text("tour_feedback"),
+  followUpScheduled: boolean("follow_up_scheduled").default(false),
+  followUpDate: date("follow_up_date"),
+  
+  // Integration with TourTracker™
+  tourTrackerLinked: boolean("tour_tracker_linked").default(false),
+  tourTrackerScore: integer("tour_tracker_score"), // 1-100 comprehensive score
+  
+  // Metadata
+  source: text("source", { 
+    enum: ["website", "mobile", "phone", "email", "partner"] 
+  }).default("website"),
+  referralSource: text("referral_source"),
+  utmParams: jsonb("utm_params").$type<{
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+  }>(),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("tours_user_id_idx").on(table.userId),
+  index("tours_community_id_idx").on(table.communityId),
+  index("tours_status_idx").on(table.status),
+  index("tours_preferred_date_idx").on(table.preferredDate),
+  index("tours_created_at_idx").on(table.createdAt),
+]);
+
+// Tour Availability Slots - Communities set their available tour times
+export const tourAvailability = pgTable("tour_availability", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id, { onDelete: "cascade" }).notNull(),
+  
+  // Availability Settings
+  dayOfWeek: integer("day_of_week").notNull(), // 0 = Sunday, 6 = Saturday
+  startTime: text("start_time").notNull(), // "09:00"
+  endTime: text("end_time").notNull(), // "17:00"
+  slotDuration: integer("slot_duration").default(60), // minutes
+  maxToursPerSlot: integer("max_tours_per_slot").default(1),
+  
+  // Blackout Dates
+  blackoutDates: date("blackout_dates").array().default([]),
+  
+  // Special Hours
+  isActive: boolean("is_active").default(true),
+  effectiveFrom: date("effective_from"),
+  effectiveUntil: date("effective_until"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("tour_availability_community_id_idx").on(table.communityId),
+  index("tour_availability_day_of_week_idx").on(table.dayOfWeek),
+]);
+
 // Security audit logs for monitoring and compliance
 export const securityAuditLogs = pgTable("security_audit_logs", {
   id: serial("id").primaryKey(),
@@ -1071,26 +1171,11 @@ export const searchHistory = pgTable("search_history", {
 
 // Note: messages and messageTemplates tables are defined earlier in the schema
 
-// Tours/Visits Scheduling and Tracking - Minimal schema matching actual database
-export const tours = pgTable("tours", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id).notNull(),
-  communityId: integer("community_id").references(() => communities.id).notNull(),
-  tourDate: timestamp("tour_date").notNull(),
-  tourType: text("tour_type", { 
-    enum: ["in_person", "virtual", "group", "private"] 
-  }).default("in_person"),
-  status: text("status", {
-    enum: ["scheduled", "confirmed", "completed", "cancelled", "rescheduled", "no_show"]
-  }).default("scheduled"),
-  attendeeCount: integer("attendee_count").default(1),
-  specialRequests: text("special_requests"),
-  contactPreference: text("contact_preference", { enum: ["email", "phone", "text"] }).default("email"),
-  reminderSent: boolean("reminder_sent").default(false),
-  feedbackSubmitted: boolean("feedback_submitted").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
-});
+// TourMate™ Type Exports
+export type Tour = typeof tours.$inferSelect;
+export type InsertTour = typeof tours.$inferInsert;
+export type TourAvailability = typeof tourAvailability.$inferSelect;
+export type InsertTourAvailability = typeof tourAvailability.$inferInsert;
 
 // Tour Feedback - Stores detailed feedback after tour completion
 export const tourFeedback = pgTable("tour_feedback", {

@@ -57,9 +57,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/reservations', reservationRoutes);
   app.use('/api/quiz', quizRouter);
   
-  // Register tour routes
-  const { tourRouter } = await import('./routes/tourRoutes');
-  app.use(tourRouter);
+  // Register TourMate™ tour routes
+  const tourRoutes = await import('./routes/tourRoutes');
+  app.use('/api/tours', tourRoutes.default);
   
   // Import and register webhook routes
   const webhookRoutes = await import('./routes/webhookRoutes');
