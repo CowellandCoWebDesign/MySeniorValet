@@ -1695,6 +1695,25 @@ export const pendingCommunities = pgTable("pending_communities", {
   index("pending_communities_city_idx").on(table.city),
 ]);
 
+// Emergency Contacts - Quick access emergency contact system
+export const emergencyContacts = pgTable("emergency_contacts", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  name: text("name").notNull(),
+  relationship: text("relationship"),
+  phone: text("phone").notNull(),
+  isPrimary: boolean("is_primary").default(false),
+  contactType: text("contact_type", {
+    enum: ["personal", "medical", "facility", "emergency_service"]
+  }).default("personal"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("emergency_contacts_user_idx").on(table.userId),
+  index("emergency_contacts_primary_idx").on(table.userId, table.isPrimary),
+]);
+
 // Claimed Communities - Verified operator accounts
 export const claimedCommunities = pgTable("claimed_communities", {
   id: serial("id").primaryKey(),

@@ -31,6 +31,7 @@ import SupportResources from "@/pages/support-resources";
 import VeteransHousing from "@/pages/veterans-housing";
 import AffordableHousing from "@/pages/affordable-housing";
 import FamilyCollaboration from "@/pages/family-collaboration";
+import EmergencyContacts from "@/pages/emergency-contacts";
 import CommunityDetail from "@/pages/community-detail";
 import CommunityContribute from "@/pages/community-contribute";
 import MapSearch from "@/pages/map-search";
@@ -103,6 +104,7 @@ import AISearchComparison from "@/pages/AISearchComparison";
 // ONE consolidated admin dashboard - removed all duplicates
 import { useAuth } from "@/hooks/useAuth";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+import { EmergencyButton } from "@/components/EmergencyButton";
 import CanadaPage from "@/pages/canada";
 import RedTagExample from "@/pages/red-tag-example";
 import HospitalDetails from "@/pages/hospital-details";
@@ -199,6 +201,7 @@ function Router() {
       <Route path="/affordable-housing" component={AffordableHousing} />
       <Route path="/family-collaboration" component={FamilyCollaboration} />
       <Route path="/family-connect" component={FamilyConnect} />
+      <Route path="/emergency-contacts" component={EmergencyContacts} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
       <Route path="/about" component={About} />
@@ -292,26 +295,35 @@ function Router() {
   );
 }
 
-function App() {
+function AppContent() {
+  const { user } = useAuth();
+  
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light">
-        <LanguageProvider>
-          <OnboardingProvider>
-            <VoiceGuidanceProvider>
-              <TooltipProvider>
-                <MascotProvider>
-                  <Toaster />
-                  <Router />
-                  <CookieConsentBanner />
-                  <DisclaimerBanner />
-                  <DevModeIndicator />
+    <ThemeProvider defaultTheme="light">
+      <LanguageProvider>
+        <OnboardingProvider>
+          <VoiceGuidanceProvider>
+            <TooltipProvider>
+              <MascotProvider>
+                <Toaster />
+                <Router />
+                <CookieConsentBanner />
+                <DisclaimerBanner />
+                <DevModeIndicator />
+                {user && <EmergencyButton userId={user.id} />}
                 </MascotProvider>
               </TooltipProvider>
             </VoiceGuidanceProvider>
           </OnboardingProvider>
         </LanguageProvider>
       </ThemeProvider>
+  );
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AppContent />
     </QueryClientProvider>
   );
 }

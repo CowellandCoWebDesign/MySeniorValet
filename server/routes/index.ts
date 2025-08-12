@@ -31,6 +31,7 @@ import { registerPaymentRoutes } from "./paymentRoutes";
 import { registerStatsRoutes } from "./statsRoutes";
 import { registerPricingRoutes } from "./pricingRoutes";
 import notificationRoutes from "./notificationRoutes";
+import emergencyRoutes from "./emergencyRoutes";
 import { registerDocumentRoutes } from "./documentRoutes";
 import { registerSecurityRoutes } from "./securityRoutes";
 import { registerInfrastructureRoutes } from "./infrastructureRoutes";
@@ -140,6 +141,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register family connect routes
   app.use('/api/family-connect', familyConnectRoutes);
+  
+  // Register emergency contact routes
+  app.use('/api/emergency', emergencyRoutes);
   
   // Register Amazon product routes
   app.use('/api/amazon-products', amazonProductRoutes);
