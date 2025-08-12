@@ -21,7 +21,11 @@ import {
   Activity,
   Shield,
   Clock,
-  Home
+  Home,
+  Truck,
+  Package,
+  CheckCircle,
+  Stethoscope
 } from "lucide-react";
 
 interface Community {
@@ -187,6 +191,55 @@ export default function MySeniorValetCommunity() {
             </div>
             <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
               Request this time
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Move-In Coordination Section */}
+        <Card className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200">
+          <CardContent className="p-4">
+            <div className="flex items-center mb-2">
+              <Truck className="w-5 h-5 text-blue-600 mr-2" />
+              <h3 className="text-base font-semibold text-gray-900">
+                Moving Soon? We'll Help Coordinate Everything
+              </h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">
+              Our Move-In Coordination Center helps you manage every aspect of the transition.
+            </p>
+            <div className="flex flex-wrap gap-2 mb-3">
+              <Badge variant="outline" className="text-xs">
+                <Package className="w-3 h-3 mr-1" />
+                Moving Services
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                <Stethoscope className="w-3 h-3 mr-1" />
+                Healthcare Setup
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                <Home className="w-3 h-3 mr-1" />
+                Utilities Transfer
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                <CheckCircle className="w-3 h-3 mr-1" />
+                Checklist Tracking
+              </Badge>
+            </div>
+            <Button 
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={() => {
+                // Save community info to localStorage for Move-In Coordination
+                localStorage.setItem('moveInCommunity', JSON.stringify({
+                  id: community.id,
+                  name: community.name,
+                  address: `${community.address}, ${community.city}, ${community.state} ${community.zipCode}`,
+                  phone: community.phone
+                }));
+                window.location.href = '/move-in-coordination';
+              }}
+            >
+              <Truck className="w-4 h-4 mr-2" />
+              Start Move-In Planning
             </Button>
           </CardContent>
         </Card>

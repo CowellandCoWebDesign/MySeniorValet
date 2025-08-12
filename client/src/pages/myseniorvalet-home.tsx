@@ -39,7 +39,7 @@ import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 
 
 export default function MySeniorValetHome() {
-  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 3 WITH CONCIERGE SERVICES PRIORITIZED - 25,376 COMMUNITIES");
+  console.log("MYSENIORVALET HOME PAGE LOADED - VERSION 4 WITH MOVE-IN COORDINATION - 34,181 COMMUNITIES");
   const { t, language } = useLanguage();
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");

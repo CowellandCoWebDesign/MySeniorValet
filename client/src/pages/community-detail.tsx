@@ -5,7 +5,7 @@ import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSig
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, Lock,
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
-         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle } from 'lucide-react';
+         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package } from 'lucide-react';
 import type { Community } from '@shared/schema';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -1763,6 +1763,60 @@ export default function CommunityDetail() {
                           Call Now
                         </Button>
                       </div>
+
+                      {/* Move-In Coordination Section */}
+                      <Card className="mt-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-800">
+                        <CardContent className="p-6">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center mb-2">
+                                <Truck className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-2" />
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                  Moving Soon? We'll Help Coordinate Everything
+                                </h3>
+                              </div>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                Our Move-In Coordination Center helps you manage every aspect of the transition - from hiring movers to setting up healthcare providers and utilities.
+                              </p>
+                              <div className="flex flex-wrap gap-2 mb-4">
+                                <Badge variant="outline" className="text-xs">
+                                  <Package className="w-3 h-3 mr-1" />
+                                  Moving Services
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  <Stethoscope className="w-3 h-3 mr-1" />
+                                  Healthcare Setup
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  <Home className="w-3 h-3 mr-1" />
+                                  Utilities Transfer
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  <CheckCircle className="w-3 h-3 mr-1" />
+                                  Checklist Tracking
+                                </Badge>
+                              </div>
+                              <Button 
+                                variant="default"
+                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                                onClick={() => {
+                                  // Save community info to localStorage for Move-In Coordination
+                                  localStorage.setItem('moveInCommunity', JSON.stringify({
+                                    id: community.id,
+                                    name: community.name,
+                                    address: `${community.address}, ${community.city}, ${community.state} ${community.zipCode}`,
+                                    phone: community.phone
+                                  }));
+                                  window.location.href = '/move-in-coordination';
+                                }}
+                              >
+                                <Truck className="w-4 h-4 mr-2" />
+                                Start Move-In Planning
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
 
                       {/* Waitlist Dialog */}
                       <Dialog open={isWaitlistOpen} onOpenChange={setIsWaitlistOpen}>
