@@ -558,6 +558,70 @@ export default function SuperAdminAnalytics() {
                     <Globe className="h-6 w-6 mb-1" />
                     Geographic
                   </Button>
+                  <Button 
+                    variant={activeMetricTab === "data-quality" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("data-quality")}
+                  >
+                    <Search className="h-6 w-6 mb-1" />
+                    Data Quality
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "integrations" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("integrations")}
+                  >
+                    <Layers className="h-6 w-6 mb-1" />
+                    Integrations
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "payment-test" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("payment-test")}
+                  >
+                    <Shield className="h-6 w-6 mb-1" />
+                    Payment Test
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "services" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("services")}
+                  >
+                    <Package className="h-6 w-6 mb-1" />
+                    Services
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "subscriptions" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("subscriptions")}
+                  >
+                    <ShoppingBag className="h-6 w-6 mb-1" />
+                    Subscriptions
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "reports" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("reports")}
+                  >
+                    <FileText className="h-6 w-6 mb-1" />
+                    Reports
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "security" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("security")}
+                  >
+                    <Lock className="h-6 w-6 mb-1" />
+                    Security
+                  </Button>
+                  <Button 
+                    variant={activeMetricTab === "notifications" ? "default" : "outline"}
+                    className="flex flex-col items-center justify-center h-20 text-xs"
+                    onClick={() => setActiveMetricTab("notifications")}
+                  >
+                    <Bell className="h-6 w-6 mb-1" />
+                    Notifications
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -580,6 +644,14 @@ export default function SuperAdminAnalytics() {
                   <TabsTrigger value="performance" className="px-4">⚡ Performance</TabsTrigger>
                   <TabsTrigger value="engagement" className="px-4">📱 Engagement</TabsTrigger>
                   <TabsTrigger value="geographic" className="px-4">🌍 Geographic</TabsTrigger>
+                  <TabsTrigger value="data-quality" className="px-4">🔍 Data Quality</TabsTrigger>
+                  <TabsTrigger value="integrations" className="px-4">🔌 Integrations</TabsTrigger>
+                  <TabsTrigger value="payment-test" className="px-4">🧪 Payment Testing</TabsTrigger>
+                  <TabsTrigger value="services" className="px-4">🛠️ Services Mgmt</TabsTrigger>
+                  <TabsTrigger value="subscriptions" className="px-4">📊 Subscriptions</TabsTrigger>
+                  <TabsTrigger value="reports" className="px-4">📋 Reports</TabsTrigger>
+                  <TabsTrigger value="security" className="px-4">🔐 Security</TabsTrigger>
+                  <TabsTrigger value="notifications" className="px-4">🔔 Notifications</TabsTrigger>
                 </TabsList>
               </div>
 
