@@ -879,7 +879,7 @@ export default function MySeniorValetHome() {
                 </div>
               </div>
               <div className="text-xl text-blue-100 max-w-4xl mx-auto mb-8">
-                <p className="mb-4">Access the most comprehensive senior living ecosystem ever assembled:</p>
+                <p className="mb-6">Access the most comprehensive senior living ecosystem ever assembled - over 42,000 resources spanning communities, vendors, healthcare, and education. Every listing enhanced by AI-powered search, Red Tag specials, and real-time market intelligence.</p>
                 <div className="space-y-2 text-lg">
                   <div className="flex items-center justify-center gap-2">
                     <span className="text-2xl">🏘️</span>
@@ -898,7 +898,6 @@ export default function MySeniorValetHome() {
                     <span className="font-semibold">100+ Educational Resources</span> for informed decisions
                   </div>
                 </div>
-                <p className="mt-4 text-base text-blue-200">Enhanced by AI-powered search, Red Tag specials, and real-time market intelligence</p>
               </div>
               
               {/* Feature Badges */}
