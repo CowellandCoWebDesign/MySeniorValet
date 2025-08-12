@@ -1,11 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { Home, ArrowLeft, Bell } from "lucide-react";
+import { Home, ArrowLeft, Bell, Menu, Settings, Shield, Eye, Volume2, Move, Type, Phone } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { VoiceGuidanceButton } from "@/components/VoiceGuidanceButton";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
+import { useState } from "react";
 
 interface NavigationHeaderProps {
   title?: string;
@@ -22,6 +28,8 @@ export function NavigationHeader({
 }: NavigationHeaderProps) {
   const [location, setLocation] = useLocation();
   const { user, isAuthenticated } = useAuth();
+  const { preferences, togglePreference } = useAccessibilityPreferences();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   
   // Query for unread messages count
   const { data: unreadCount } = useQuery({
