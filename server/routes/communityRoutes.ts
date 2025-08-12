@@ -444,155 +444,42 @@ export function registerCommunityRoutes(app: Express) {
   // Get real-time Mexico communities for American retirees
   app.get("/api/communities/mexico-real-time", async (req, res) => {
     try {
-      // Return curated Mexico communities for American retirees
-      const mexicoCommunities = [
-        {
-          id: 99001,
-          name: 'Casa de la Tercera Edad - Tijuana',
-          city: 'Tijuana',
-          state: 'MX',
-          address: 'Zona Rio, Tijuana, Mexico',
-          rating: '4.5',
-          rentPerMonth: '$1,800',
-          careTypes: ['Assisted Living', 'Memory Care'],
-          description: 'Premier senior care facility near US border with bilingual staff and American-style amenities',
-          phone: '+52 664-123-4567',
-          amenitiesCount: 8,
-          latitude: 32.5149,
-          longitude: -117.0382,
-          photos: ['/api/placeholder/400/300'],
-          features: ['Bilingual Staff', 'US Medicare Accepted', '24/7 Medical Care', 'American Food Options'],
-          reviewCount: 45,
-          hudPropertyId: null,
-          realTimeData: {
-            currentPricing: '$1,800 - $2,500/month',
-            availability: 'Immediate availability',
-            marketComparison: '60% less than comparable US facilities'
-          }
-        },
-        {
-          id: 99002,
-          name: 'Residencia Dorada - Guadalajara',
-          city: 'Guadalajara',
-          state: 'MX',
-          address: 'Providencia, Guadalajara, Mexico',
-          rating: '4.6',
-          rentPerMonth: '$1,500',
-          careTypes: ['Independent Living', 'Assisted Living'],
-          description: 'Luxury retirement community in the heart of Guadalajara with American expat community',
-          phone: '+52 33-1234-5678',
-          amenitiesCount: 10,
-          latitude: 20.6597,
-          longitude: -103.3496,
-          photos: ['/api/placeholder/400/300'],
-          features: ['English Speaking Staff', 'American Style Apartments', 'Expat Community', 'Medical Tourism Support'],
-          reviewCount: 38,
-          hudPropertyId: null,
-          realTimeData: {
-            currentPricing: '$1,500 - $2,200/month',
-            availability: '3 units available',
-            marketComparison: '65% savings vs. similar US communities'
-          }
-        },
-        {
-          id: 99003,
-          name: 'Paradise Senior Living - Puerto Vallarta',
-          city: 'Puerto Vallarta',
-          state: 'MX',
-          address: 'Marina Vallarta, Puerto Vallarta, Mexico',
-          rating: '4.7',
-          rentPerMonth: '$2,200',
-          careTypes: ['Independent Living', 'Assisted Living'],
-          description: 'Beachfront senior community with ocean views and American expat services',
-          phone: '+52 322-234-5678',
-          amenitiesCount: 12,
-          latitude: 20.6534,
-          longitude: -105.2253,
-          photos: ['/api/placeholder/400/300'],
-          features: ['Ocean Views', 'Beach Access', 'US TV Channels', 'American Healthcare Partners'],
-          reviewCount: 52,
-          hudPropertyId: null,
-          realTimeData: {
-            currentPricing: '$2,200 - $3,000/month',
-            availability: 'Waitlist for ocean view units',
-            marketComparison: '50% less than beachfront US facilities'
-          }
-        },
-        {
-          id: 99004,
-          name: 'Cancun Senior Resort',
-          city: 'Cancun',
-          state: 'MX',
-          address: 'Hotel Zone, Cancun, Mexico',
-          rating: '4.4',
-          rentPerMonth: '$2,500',
-          careTypes: ['Independent Living', 'Luxury Care'],
-          description: 'Resort-style senior living in tropical paradise with full medical support',
-          phone: '+52 998-345-6789',
-          amenitiesCount: 15,
-          latitude: 21.1619,
-          longitude: -86.8515,
-          photos: ['/api/placeholder/400/300'],
-          features: ['Resort Amenities', 'International Cuisine', 'Medical Concierge', 'Airport Transport'],
-          reviewCount: 41,
-          hudPropertyId: null,
-          realTimeData: {
-            currentPricing: '$2,500 - $3,500/month',
-            availability: '5 units available',
-            marketComparison: '55% savings vs. Florida resort communities'
-          }
-        },
-        {
-          id: 99005,
-          name: 'San Miguel Senior Haven',
-          city: 'San Miguel de Allende',
-          state: 'MX',
-          address: 'Centro, San Miguel de Allende, Mexico',
-          rating: '4.8',
-          rentPerMonth: '$1,600',
-          careTypes: ['Independent Living', 'Assisted Living'],
-          description: 'Colonial charm meets modern care in UNESCO World Heritage city',
-          phone: '+52 415-456-7890',
-          amenitiesCount: 11,
-          latitude: 20.9144,
-          longitude: -100.7452,
-          photos: ['/api/placeholder/400/300'],
-          features: ['Historic Location', 'Art Programs', 'Expat Community', 'Cultural Activities'],
-          reviewCount: 63,
-          hudPropertyId: null,
-          realTimeData: {
-            currentPricing: '$1,600 - $2,400/month',
-            availability: '2 units available',
-            marketComparison: '70% less than comparable US artistic communities'
-          }
-        },
-        {
-          id: 99006,
-          name: 'Playa del Carmen Senior Paradise',
-          city: 'Playa del Carmen',
-          state: 'MX',
-          address: 'Playacar, Playa del Carmen, Mexico',
-          rating: '4.5',
-          rentPerMonth: '$2,000',
-          careTypes: ['Independent Living', 'Assisted Living'],
-          description: 'Caribbean senior living with American amenities and healthcare',
-          phone: '+52 984-567-8901',
-          amenitiesCount: 13,
-          latitude: 20.6296,
-          longitude: -87.0739,
-          photos: ['/api/placeholder/400/300'],
-          features: ['Beach Club Access', 'Golf Course', 'US Board Certified Doctors', 'Shopping Shuttle'],
-          reviewCount: 48,
-          hudPropertyId: null,
-          realTimeData: {
-            currentPricing: '$2,000 - $2,800/month',
-            availability: 'Limited availability',
-            marketComparison: '60% less than Florida coastal communities'
-          }
-        }
-      ];
+      // Query actual Mexico communities from database
+      const mexicoCommunities = await db
+        .select({
+          id: communities.id,
+          name: communities.name,
+          city: communities.city,
+          state: communities.state,
+          address: communities.address,
+          rating: communities.rating,
+          rentPerMonth: communities.rentPerMonth,
+          careTypes: communities.careTypes,
+          description: communities.description,
+          phone: communities.phone,
+          latitude: communities.latitude,
+          longitude: communities.longitude,
+          photos: communities.photos,
+          features: communities.features,
+          reviewCount: communities.reviewCount,
+          hudPropertyId: communities.hudPropertyId
+        })
+        .from(communities)
+        .where(eq(communities.country, 'MX'))
+        .limit(100);
       
-      res.json(mexicoCommunities);
+      // Transform data for frontend compatibility
+      const transformedCommunities = mexicoCommunities.map(community => ({
+        ...community,
+        rentPerMonth: community.rentPerMonth ? `$${community.rentPerMonth}` : 'Contact for pricing',
+        realTimeData: {
+          currentPricing: community.rentPerMonth ? `$${community.rentPerMonth}/month` : 'Contact for pricing',
+          availability: 'Contact for availability',
+          marketComparison: '50-70% less than comparable US facilities'
+        }
+      }));
+      
+      res.json(transformedCommunities);
     } catch (error) {
       console.error("Error fetching Mexico communities:", error);
       res.status(500).json({ error: "Failed to fetch Mexico communities" });
