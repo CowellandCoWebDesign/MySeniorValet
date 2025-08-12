@@ -329,6 +329,10 @@ export default function MySeniorValetHome() {
                         <ShoppingBag className="h-5 w-5" />
                         <span>Care Marketplace</span>
                       </Link>
+                      <Link href="/move-in-coordination" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <Truck className="h-5 w-5" />
+                        <span>Move-In Coordination</span>
+                      </Link>
                       <Link href="/community-portal" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
                         <Building className="h-5 w-5" />
                         <span>Community Portal</span>
