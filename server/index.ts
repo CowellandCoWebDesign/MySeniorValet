@@ -247,8 +247,8 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
     
-    // Initialize simple WebSocket communication
-    simpleWebSocket.initialize(server);
+    // Initialize simple WebSocket communication (DISABLED - slowing startup)
+    // simpleWebSocket.initialize(server);
     
     console.log('🚀 ALL ENTERPRISE INFRASTRUCTURE SYSTEMS ACTIVATED:');
     console.log('  ✅ Redis Caching System - Lightning-fast performance');
