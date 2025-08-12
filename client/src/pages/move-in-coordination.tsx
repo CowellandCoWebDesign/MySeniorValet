@@ -7,7 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Truck, 
   Home, 
@@ -40,10 +48,17 @@ import {
   ChevronRight,
   PhoneCall,
   Mail,
-  Globe
+  Globe,
+  Loader2,
+  Download,
+  Send,
+  AlertCircle,
+  CheckCircle,
+  Info
 } from "lucide-react";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { motion } from "framer-motion";
+import { Link } from "wouter";
 
 interface Service {
   id: string;
@@ -76,10 +91,23 @@ interface ChecklistItem {
 export default function MoveInCoordination() {
   const { toast } = useToast();
   const [selectedCommunity, setSelectedCommunity] = useState<string>("");
+  const [selectedCommunityName, setSelectedCommunityName] = useState<string>("");
   const [moveDate, setMoveDate] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  
+  // Fetch communities for dropdown
+  const { data: communities, isLoading: loadingCommunities } = useQuery({
+    queryKey: ['/api/communities/search', 'move-in-dropdown'],
+    queryFn: () => apiRequest("GET", "/api/communities/search?limit=100"),
+  });
+  
+  // Fetch marketplace vendors
+  const { data: marketplaceVendors } = useQuery({
+    queryKey: ['/api/marketplace/vendors'],
+  });
 
   // Care services from existing Care directory
   const careServices: Service[] = [
@@ -362,50 +390,132 @@ export default function MoveInCoordination() {
     }
   };
 
+  // Email checklist function
+  const sendChecklistEmail = async () => {
+    setSendingEmail(true);
+    try {
+      const checklistText = checklist.map(item => 
+        `${item.completed ? '✓' : '○'} ${item.task} (${item.priority})`
+      ).join('\n');
+      
+      await apiRequest("POST", "/api/send-notification", {
+        type: 'move-in-checklist',
+        email: 'admin@myseniorvalet.com',
+        community: selectedCommunityName || 'Not selected',
+        moveDate: moveDate || 'Not set',
+        checklist: checklistText
+      });
+      
+      toast({
+        title: "Checklist Sent!",
+        description: "Your move-in checklist has been emailed successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send checklist. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/30 to-pink-50/30 dark:from-gray-900 dark:via-purple-900/20 dark:to-pink-900/20">
       <NavigationHeader />
       
       <main className="container mx-auto px-4 py-8 mt-16">
-        {/* Hero Section */}
+        {/* Hero Section with Gradient */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gradient">
             Move-In Coordination Center
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            Everything you need for a smooth transition - from healthcare setup to utility connections
+            Streamline your transition with comprehensive support - from healthcare setup to vendor connections
           </p>
         </motion.div>
 
-        {/* Quick Setup */}
-        <Card className="mb-8">
+        {/* Quick Setup with Enhanced Styling */}
+        <Card className="mb-8 gradient-card border-white/20 shadow-xl">
           <CardHeader>
-            <CardTitle>Your Move-In Details</CardTitle>
-            <CardDescription>Let's personalize your move-in experience</CardDescription>
+            <div className="flex items-center gap-2">
+              <Home className="h-6 w-6 text-purple-600" />
+              <div>
+                <CardTitle className="text-2xl">Your Move-In Details</CardTitle>
+                <CardDescription>Connect with your new community and set your move date</CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="community">Moving To</Label>
-                <Input 
-                  id="community"
-                  placeholder="Enter community name"
-                  value={selectedCommunity}
-                  onChange={(e) => setSelectedCommunity(e.target.value)}
-                />
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="community" className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-purple-600" />
+                  Select Your Community
+                </Label>
+                {loadingCommunities ? (
+                  <div className="flex items-center justify-center p-2 border rounded-lg">
+                    <Loader2 className="h-5 w-5 animate-spin text-purple-600" />
+                    <span className="ml-2 text-sm">Loading communities...</span>
+                  </div>
+                ) : (
+                  <Select 
+                    value={selectedCommunity} 
+                    onValueChange={(value) => {
+                      setSelectedCommunity(value);
+                      const community = communities?.communities?.find((c: any) => c.id.toString() === value);
+                      if (community) {
+                        setSelectedCommunityName(community.name);
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-full border-purple-200 focus:border-purple-400">
+                      <SelectValue placeholder="Choose your community" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {communities?.communities?.slice(0, 50).map((community: any) => (
+                        <SelectItem key={community.id} value={community.id.toString()}>
+                          {community.name} - {community.city}, {community.state}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                {selectedCommunity && (
+                  <Link href={`/community/${selectedCommunity}`}>
+                    <Button variant="link" className="text-purple-600 p-0 h-auto">
+                      View Community Details →
+                    </Button>
+                  </Link>
+                )}
               </div>
-              <div>
-                <Label htmlFor="date">Move Date</Label>
+              <div className="space-y-2">
+                <Label htmlFor="date" className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-purple-600" />
+                  Target Move Date
+                </Label>
                 <Input 
                   id="date"
                   type="date"
                   value={moveDate}
                   onChange={(e) => setMoveDate(e.target.value)}
+                  className="border-purple-200 focus:border-purple-400"
                 />
+                {moveDate && (
+                  <p className="text-sm text-gray-600">
+                    {new Date(moveDate).toLocaleDateString('en-US', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </p>
+                )}
               </div>
             </div>
           </CardContent>
@@ -430,17 +540,20 @@ export default function MoveInCoordination() {
 
           {/* Checklist Tab */}
           <TabsContent value="checklist" className="space-y-4">
-            <Card>
+            <Card className="gradient-card border-white/20 shadow-xl">
               <CardHeader>
                 <div className="flex justify-between items-center">
-                  <CardTitle>Move-In Checklist</CardTitle>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                    <CheckCircle2 className="h-6 w-6 text-purple-600" />
+                    <CardTitle className="text-2xl">Move-In Checklist</CardTitle>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
                       Progress: {getChecklistProgress()}%
                     </span>
-                    <div className="w-32 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div className="w-32 h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-primary transition-all"
+                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
                         style={{ width: `${getChecklistProgress()}%` }}
                       />
                     </div>
@@ -457,17 +570,21 @@ export default function MoveInCoordination() {
                           <motion.div 
                             key={item.id}
                             whileHover={{ scale: 1.01 }}
-                            className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                            className="flex items-center justify-between p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg border border-purple-100 dark:border-purple-900/30 backdrop-blur-sm"
                           >
                             <div className="flex items-center gap-3">
                               <Checkbox
                                 checked={item.completed}
                                 onCheckedChange={() => toggleChecklistItem(item.id)}
+                                className="border-purple-300"
                               />
-                              <span className={item.completed ? 'line-through text-gray-400' : ''}>
+                              <span className={item.completed ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-200'}>
                                 {item.task}
                               </span>
-                              <Badge variant="outline" className={getPriorityColor(item.priority)}>
+                              <Badge 
+                                variant="outline" 
+                                className={`${getPriorityColor(item.priority)} border-current`}
+                              >
                                 {item.priority}
                               </Badge>
                             </div>
@@ -475,6 +592,7 @@ export default function MoveInCoordination() {
                               <Button
                                 variant="ghost"
                                 size="sm"
+                                className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
                                 onClick={() => {
                                   const service = allServices.find(s => s.id === item.relatedService);
                                   if (service) saveService(service);
@@ -496,10 +614,15 @@ export default function MoveInCoordination() {
 
           {/* Care Services Tab */}
           <TabsContent value="care" className="space-y-4">
-            <Card>
+            <Card className="gradient-card border-white/20 shadow-xl">
               <CardHeader>
-                <CardTitle>Healthcare & Care Services</CardTitle>
-                <CardDescription>Essential medical and care providers in your new area</CardDescription>
+                <div className="flex items-center gap-2">
+                  <Heart className="h-6 w-6 text-pink-600" />
+                  <div>
+                    <CardTitle className="text-2xl">Healthcare & Care Services</CardTitle>
+                    <CardDescription>Essential medical and care providers in your new area</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -509,7 +632,7 @@ export default function MoveInCoordination() {
                       <motion.div
                         key={service.id}
                         whileHover={{ scale: 1.02 }}
-                        className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                        className="p-4 bg-gradient-to-br from-white/70 to-pink-50/50 dark:from-gray-800/70 dark:to-pink-900/20 rounded-xl border border-pink-100 dark:border-pink-900/30 shadow-lg backdrop-blur-sm"
                       >
                         <div className="flex items-start justify-between mb-3">
                           <Icon className="h-8 w-8 text-primary" />
@@ -555,10 +678,15 @@ export default function MoveInCoordination() {
 
           {/* Vendor Services Tab */}
           <TabsContent value="vendor" className="space-y-4">
-            <Card>
+            <Card className="gradient-card border-white/20 shadow-xl">
               <CardHeader>
-                <CardTitle>Vendor & Relocation Services</CardTitle>
-                <CardDescription>Moving assistance, utilities, shopping, and more</CardDescription>
+                <div className="flex items-center gap-2">
+                  <Package className="h-6 w-6 text-indigo-600" />
+                  <div>
+                    <CardTitle className="text-2xl">Vendor & Relocation Services</CardTitle>
+                    <CardDescription>Moving assistance, utilities, shopping, and essential services</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -568,7 +696,7 @@ export default function MoveInCoordination() {
                       <motion.div
                         key={service.id}
                         whileHover={{ scale: 1.02 }}
-                        className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                        className="p-4 bg-gradient-to-br from-white/70 to-indigo-50/50 dark:from-gray-800/70 dark:to-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-900/30 shadow-lg backdrop-blur-sm"
                       >
                         <div className="flex items-start justify-between mb-3">
                           <Icon className="h-8 w-8 text-primary" />
@@ -618,26 +746,110 @@ export default function MoveInCoordination() {
           </TabsContent>
         </Tabs>
 
-        {/* Quick Actions */}
-        <Card className="mt-8">
+        {/* Quick Actions with Real Features */}
+        <Card className="mt-8 gradient-card border-white/20 shadow-xl">
           <CardHeader>
-            <CardTitle>Need Help?</CardTitle>
-            <CardDescription>Our move-in specialists are here to assist you</CardDescription>
+            <div className="flex items-center gap-2">
+              <Info className="h-6 w-6 text-purple-600" />
+              <div>
+                <CardTitle className="text-2xl">Resource Center</CardTitle>
+                <CardDescription>Tools and resources to support your transition</CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-4">
-              <Button>
-                <PhoneCall className="h-4 w-4 mr-2" />
-                Call Move-In Support
-              </Button>
-              <Button variant="outline">
-                <Mail className="h-4 w-4 mr-2" />
-                Email Your Checklist
-              </Button>
-              <Button variant="outline">
-                <FileText className="h-4 w-4 mr-2" />
-                Download Move-In Guide
-              </Button>
+            <div className="grid md:grid-cols-3 gap-4">
+              {/* Email Checklist */}
+              <motion.div whileHover={{ scale: 1.02 }} className="space-y-2">
+                <Button 
+                  className="w-full gradient-primary hover:opacity-90 text-white"
+                  onClick={sendChecklistEmail}
+                  disabled={sendingEmail}
+                >
+                  {sendingEmail ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4 mr-2" />
+                  )}
+                  Email Your Checklist
+                </Button>
+                <p className="text-xs text-gray-600 text-center">
+                  Send your progress to admin@myseniorvalet.com
+                </p>
+              </motion.div>
+              
+              {/* Download Guide */}
+              <motion.div whileHover={{ scale: 1.02 }} className="space-y-2">
+                <Button 
+                  variant="outline" 
+                  className="w-full border-purple-200 hover:bg-purple-50"
+                  onClick={() => {
+                    const checklistText = checklist.map(item => 
+                      `[${item.completed ? 'X' : ' '}] ${item.task} (${item.priority})\n`
+                    ).join('');
+                    
+                    const blob = new Blob([
+                      `Move-In Checklist\n\n`,
+                      `Community: ${selectedCommunityName || 'Not selected'}\n`,
+                      `Move Date: ${moveDate || 'Not set'}\n\n`,
+                      checklistText
+                    ], { type: 'text/plain' });
+                    
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'move-in-checklist.txt';
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    
+                    toast({
+                      title: "Downloaded!",
+                      description: "Your checklist has been saved.",
+                    });
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Checklist
+                </Button>
+                <p className="text-xs text-gray-600 text-center">
+                  Save your checklist as a text file
+                </p>
+              </motion.div>
+              
+              {/* Contact Vendors */}
+              <motion.div whileHover={{ scale: 1.02 }} className="space-y-2">
+                <Link href="/marketplace">
+                  <Button variant="outline" className="w-full border-purple-200 hover:bg-purple-50">
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    Browse Marketplace
+                  </Button>
+                </Link>
+                <p className="text-xs text-gray-600 text-center">
+                  Connect with verified service providers
+                </p>
+              </motion.div>
+            </div>
+            
+            {/* Info Alert */}
+            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                <div>
+                  <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                    Professional Moving Support Available
+                  </h4>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    Connect with certified Senior Move Managers and relocation specialists through our 
+                    Marketplace. These professionals specialize in downsizing, packing, and coordinating 
+                    all aspects of senior relocations.
+                  </p>
+                  <Link href="/marketplace?category=Moving">
+                    <Button variant="link" className="text-blue-600 p-0 h-auto mt-2">
+                      Find Moving Specialists →
+                    </Button>
+                  </Link>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
