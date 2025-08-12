@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Heart, MapPin, Filter, Star, Home, ArrowLeft, Settings, Map, List } from "lucide-react";
+import { Search, Heart, MapPin, Filter, Star, Home, ArrowLeft, Settings, Map, List, Loader2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { PricingTransparencyBadgeList, TransparencyScore } from "@/components/PricingTransparencyBadge";
 import { NavigationHeader } from "@/components/NavigationHeader";
@@ -56,6 +56,11 @@ export default function MySeniorValetSearch() {
     minRating: '',
     region: ''
   });
+  
+  // Pagination state
+  const [displayedCount, setDisplayedCount] = useState(20); // Start with 20 communities
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Parse URL parameters
   useEffect(() => {
@@ -64,17 +69,18 @@ export default function MySeniorValetSearch() {
     if (q) setSearchQuery(q);
   }, [location]);
 
+  // Fetch communities with smaller initial limit
   const { data: communitiesResponse, isLoading } = useQuery({
-    queryKey: ["/api/communities/search", { limit: 2000 }],
+    queryKey: ["/api/communities/search", { limit: 500 }], // Reduced from 2000
     queryFn: async () => {
-      const response = await fetch("/api/communities/search?limit=2000");
+      const response = await fetch("/api/communities/search?limit=500");
       if (!response.ok) throw new Error("Failed to fetch communities");
       return response.json();
     },
     retry: false,
   });
 
-  // Extract communities array from search response (now returns direct array, not paginated)
+  // Extract communities array from search response
   const communities = Array.isArray(communitiesResponse) ? communitiesResponse : [];
 
   const filteredCommunities = communities?.filter(community => {
@@ -86,6 +92,32 @@ export default function MySeniorValetSearch() {
       community.careTypes.some(type => type.toLowerCase().includes(query))
     );
   }) || [];
+  
+  // Get only the communities to display based on pagination
+  const displayedCommunities = filteredCommunities.slice(0, displayedCount);
+  
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    if (!loadMoreRef.current) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && displayedCount < filteredCommunities.length && !isLoadingMore) {
+          setIsLoadingMore(true);
+          // Simulate loading delay for smooth UX
+          setTimeout(() => {
+            setDisplayedCount(prev => Math.min(prev + 20, filteredCommunities.length));
+            setIsLoadingMore(false);
+          }, 300);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    
+    observer.observe(loadMoreRef.current);
+    
+    return () => observer.disconnect();
+  }, [displayedCount, filteredCommunities.length, isLoadingMore]);
 
   const handleHeartClick = (e: React.MouseEvent, communityId: number) => {
     e.preventDefault();
@@ -152,7 +184,7 @@ export default function MySeniorValetSearch() {
       <div className="px-4 py-3 gradient-card border-b border-white/20">
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-700 font-medium">
-            {filteredCommunities.length} results
+            Showing {displayedCommunities.length} of {filteredCommunities.length} results
           </p>
           <Button className="gradient-primary hover:opacity-90 text-white px-4 py-2 rounded-full border-0 animate-gradient">
             <Search className="w-4 h-4 mr-2" />
@@ -174,8 +206,8 @@ export default function MySeniorValetSearch() {
       {/* Communities List - Enhanced with Better Information Display */}
       {!isLoading && viewMode === 'list' && (
         <div className="px-4 py-2 space-y-4">
-          {filteredCommunities.map((community, index) => (
-            <div key={community.id} className="animate-fadeIn" style={{animationDelay: `${index * 0.05}s`}}>
+          {displayedCommunities.map((community, index) => (
+            <div key={community.id} className="animate-fadeIn" style={{animationDelay: `${Math.min(index, 10) * 0.05}s`}}>
               <EnhancedCommunityCard
                 community={community}
                 variant="list"
@@ -184,13 +216,28 @@ export default function MySeniorValetSearch() {
               />
             </div>
           ))}
+          
+          {/* Load More Trigger */}
+          {displayedCount < filteredCommunities.length && (
+            <div ref={loadMoreRef} className="py-8 text-center">
+              {isLoadingMore ? (
+                <div className="gradient-card p-4 rounded-lg animate-pulse-glow">
+                  <Loader2 className="w-6 h-6 mx-auto text-purple-600 animate-spin" />
+                  <p className="text-gradient mt-2 font-semibold">Loading more communities...</p>
+                </div>
+              ) : (
+                <p className="text-gray-500">Scroll to load more</p>
+              )}
+            </div>
+          )}
         </div>
       )}
 
       {/* Grid View - Keep for Map Mode */}
       {!isLoading && viewMode === 'map' && (
-        <div className="px-4 py-2 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-          {filteredCommunities.map((community, index) => (
+        <div className="px-4 py-2">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+            {displayedCommunities.map((community, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden cursor-pointer bg-white shadow-sm hover:shadow-md transition-shadow animate-float w-full" style={{animationDelay: `${index * 0.1}s`}}>
                 {/* Photo Section - Matching Homepage Style */}
@@ -373,6 +420,21 @@ export default function MySeniorValetSearch() {
               </Card>
             </Link>
           ))}
+          </div>
+          
+          {/* Load More Trigger for Map View */}
+          {displayedCount < filteredCommunities.length && (
+            <div ref={loadMoreRef} className="py-8 text-center">
+              {isLoadingMore ? (
+                <div className="gradient-card p-4 rounded-lg animate-pulse-glow">
+                  <Loader2 className="w-6 h-6 mx-auto text-purple-600 animate-spin" />
+                  <p className="text-gradient mt-2 font-semibold">Loading more communities...</p>
+                </div>
+              ) : (
+                <p className="text-gray-500">Scroll to load more</p>
+              )}
+            </div>
+          )}
         </div>
       )}
 
