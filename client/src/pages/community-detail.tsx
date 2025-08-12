@@ -318,12 +318,26 @@ const RealTimeInsights = ({ community }: { community: any }) => {
               <div className="mb-3">
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">✓ Verified Facts:</p>
                 <ul className="text-xs space-y-1">
-                  {verificationReport.consensus.verifiedFacts.slice(0, 3).map((fact: string, idx: number) => (
-                    <li key={idx} className="text-green-700 dark:text-green-300 flex items-start">
-                      <CheckCircle className="w-3 h-3 mr-1 mt-0.5 flex-shrink-0" />
-                      <span>{fact}</span>
-                    </li>
-                  ))}
+                  {verificationReport.consensus.verifiedFacts.slice(0, 3).map((fact: any, idx: number) => {
+                    // Check if fact is JSON string and parse it
+                    let factText = fact;
+                    try {
+                      if (typeof fact === 'string' && fact.includes('{') && fact.includes('}')) {
+                        const parsed = JSON.parse(fact);
+                        factText = parsed.fact || parsed.text || parsed.message || JSON.stringify(parsed);
+                      } else if (typeof fact === 'object') {
+                        factText = fact.fact || fact.text || fact.message || JSON.stringify(fact);
+                      }
+                    } catch (e) {
+                      // If it's not valid JSON, use as-is
+                    }
+                    return (
+                      <li key={idx} className="text-green-700 dark:text-green-300 flex items-start">
+                        <CheckCircle className="w-3 h-3 mr-1 mt-0.5 flex-shrink-0" />
+                        <span>{factText}</span>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}
@@ -361,7 +375,19 @@ const RealTimeInsights = ({ community }: { community: any }) => {
                     <DollarSign className="w-4 h-4 mt-1 mr-2 text-green-600" />
                     <div>
                       <p className="font-medium text-green-800 dark:text-green-200">Live Pricing Found:</p>
-                      <p className="text-lg font-bold text-green-900 dark:text-green-100">{realTimeData.currentPricing}</p>
+                      {(() => {
+                        // Check if it's JSON string and parse it
+                        let pricingText = realTimeData.currentPricing;
+                        try {
+                          if (typeof pricingText === 'string' && pricingText.includes('{') && pricingText.includes('}')) {
+                            const parsed = JSON.parse(pricingText);
+                            pricingText = parsed.price || parsed.amount || parsed.text || JSON.stringify(parsed);
+                          }
+                        } catch (e) {
+                          // If it's not valid JSON, use as-is
+                        }
+                        return <p className="text-lg font-bold text-green-900 dark:text-green-100">{pricingText}</p>;
+                      })()}
                     </div>
                   </div>
                 )}
@@ -369,7 +395,19 @@ const RealTimeInsights = ({ community }: { community: any }) => {
                   <div className="flex items-start">
                     <CheckCircle className="w-4 h-4 mt-1 mr-2 text-blue-600" />
                     <div>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">{realTimeData.currentAvailability}</p>
+                      {(() => {
+                        // Check if it's JSON string and parse it
+                        let availabilityText = realTimeData.currentAvailability;
+                        try {
+                          if (typeof availabilityText === 'string' && availabilityText.includes('{') && availabilityText.includes('}')) {
+                            const parsed = JSON.parse(availabilityText);
+                            availabilityText = parsed.message || parsed.text || JSON.stringify(parsed);
+                          }
+                        } catch (e) {
+                          // If it's not valid JSON, use as-is
+                        }
+                        return <p className="text-sm text-gray-700 dark:text-gray-300">{availabilityText}</p>;
+                      })()}
                     </div>
                   </div>
                 )}
@@ -377,7 +415,19 @@ const RealTimeInsights = ({ community }: { community: any }) => {
                   <div className="flex items-start">
                     <Clock className="w-4 h-4 mt-1 mr-2 text-orange-600" />
                     <div>
-                      <p className="text-sm text-orange-800 dark:text-orange-200">{realTimeData.waitlistStatus}</p>
+                      {(() => {
+                        // Check if it's JSON string and parse it
+                        let waitlistText = realTimeData.waitlistStatus;
+                        try {
+                          if (typeof waitlistText === 'string' && waitlistText.includes('{') && waitlistText.includes('}')) {
+                            const parsed = JSON.parse(waitlistText);
+                            waitlistText = parsed.message || parsed.text || parsed.status || JSON.stringify(parsed);
+                          }
+                        } catch (e) {
+                          // If it's not valid JSON, use as-is
+                        }
+                        return <p className="text-sm text-orange-800 dark:text-orange-200">{waitlistText}</p>;
+                      })()}
                     </div>
                   </div>
                 )}
@@ -393,11 +443,23 @@ const RealTimeInsights = ({ community }: { community: any }) => {
                 Community Achievements
               </h4>
               <div className="space-y-2">
-                {realTimeData.communityHighlights.map((highlight: string, idx: number) => (
-                  <div key={idx} className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
-                    <p className="text-sm text-purple-900 dark:text-purple-200">{highlight}</p>
-                  </div>
-                ))}
+                {realTimeData.communityHighlights.map((highlight: string, idx: number) => {
+                  // Check if highlight is JSON string and parse it
+                  let highlightText = highlight;
+                  try {
+                    if (typeof highlightText === 'string' && highlightText.includes('{') && highlightText.includes('}')) {
+                      const parsed = JSON.parse(highlightText);
+                      highlightText = parsed.text || parsed.highlight || parsed.message || JSON.stringify(parsed);
+                    }
+                  } catch (e) {
+                    // If it's not valid JSON, use as-is
+                  }
+                  return (
+                    <div key={idx} className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
+                      <p className="text-sm text-purple-900 dark:text-purple-200">{highlightText}</p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
