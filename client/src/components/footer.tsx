@@ -144,7 +144,7 @@ export function Footer() {
               
               {/* Dashboard Login Buttons */}
               <div className="flex items-center space-x-4 border-l border-gray-600 pl-6">
-                <Link href="/admin-subscription-management" className="flex items-center space-x-1 text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">
+                <Link href="/super-admin" className="flex items-center space-x-1 text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">
                   <Settings className="h-4 w-4" />
                   <span>Admin</span>
                 </Link>
