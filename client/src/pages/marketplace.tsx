@@ -15,6 +15,28 @@ export default function Marketplace() {
   const directories = [
     {
       id: 1,
+      title: "Community Directory",
+      subtitle: "Complete Database Access",
+      description: "Access all 34,181+ senior living communities across the United States with verified pricing and real-time availability",
+      icon: Building2,
+      link: "/community-directory",
+      color: "from-blue-600 to-indigo-600",
+      stats: {
+        count: "34,181+",
+        label: "Communities"
+      },
+      features: [
+        "All U.S. Communities",
+        "5,936+ HUD Properties",
+        "Real-Time Availability",
+        "Verified Pricing Data"
+      ],
+      badge: "PRIMARY DATABASE",
+      bgPattern: "from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20",
+      borderColor: "border-blue-500"
+    },
+    {
+      id: 2,
       title: "Senior Marketplace",
       subtitle: "Commercial Vendor Services",
       description: "Professional services for your senior living needs - moving, legal, floral, transportation, and more",
@@ -36,7 +58,7 @@ export default function Marketplace() {
       borderColor: "border-amber-400"
     },
     {
-      id: 2,
+      id: 3,
       title: "Senior Healthcare Services Directory",
       subtitle: "Healthcare & Care Providers",
       description: "Connect with verified hospitals, home care, therapy services, and medical professionals",
@@ -58,7 +80,7 @@ export default function Marketplace() {
       borderColor: "border-teal-400"
     },
     {
-      id: 3,
+      id: 4,
       title: "Senior Resources and Support Center",
       subtitle: "Educational Content & Support",
       description: "Comprehensive guides, government programs, support groups, and educational resources",
@@ -101,23 +123,29 @@ export default function Marketplace() {
             </p>
             
             {/* Quick Stats */}
-            <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+            <div className="grid grid-cols-4 gap-4 max-w-3xl mx-auto">
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                <CardContent className="p-4 text-center">
-                  <div className="text-3xl font-bold text-white">1,500+</div>
-                  <div className="text-sm text-blue-100">Vendor Services</div>
+                <CardContent className="p-3 text-center">
+                  <div className="text-2xl font-bold text-white">34,181+</div>
+                  <div className="text-xs text-blue-100">Communities</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                <CardContent className="p-4 text-center">
-                  <div className="text-3xl font-bold text-white">6,800+</div>
-                  <div className="text-sm text-blue-100">Healthcare Providers</div>
+                <CardContent className="p-3 text-center">
+                  <div className="text-2xl font-bold text-white">1,500+</div>
+                  <div className="text-xs text-blue-100">Vendors</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                <CardContent className="p-4 text-center">
-                  <div className="text-3xl font-bold text-white">100+</div>
-                  <div className="text-sm text-blue-100">Resources</div>
+                <CardContent className="p-3 text-center">
+                  <div className="text-2xl font-bold text-white">6,800+</div>
+                  <div className="text-xs text-blue-100">Healthcare</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                <CardContent className="p-3 text-center">
+                  <div className="text-2xl font-bold text-white">100+</div>
+                  <div className="text-xs text-blue-100">Resources</div>
                 </CardContent>
               </Card>
             </div>
@@ -125,7 +153,7 @@ export default function Marketplace() {
         </div>
       </section>
 
-      {/* Main Content - Three Directory Cards */}
+      {/* Main Content - Four Directory Cards */}
       <section className="px-4 py-16">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
@@ -137,7 +165,7 @@ export default function Marketplace() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
             {directories.map((directory) => (
               <motion.div
                 key={directory.id}

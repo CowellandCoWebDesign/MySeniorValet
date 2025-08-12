@@ -136,6 +136,7 @@ import Marketplace from "@/pages/marketplace";
 import SeniorMarketplace from "@/pages/senior-marketplace";
 import SeniorHealthcareDirectory from "@/pages/senior-healthcare-directory";
 import SeniorResourcesCenter from "@/pages/senior-resources-center";
+import CommunityDirectory from "@/pages/community-directory";
 
 function Router() {
   const [location] = useLocation();
@@ -245,6 +246,7 @@ function Router() {
       <Route path="/senior-marketplace" component={SeniorMarketplace} />
       <Route path="/senior-healthcare-directory" component={SeniorHealthcareDirectory} />
       <Route path="/senior-resources-center" component={SeniorResourcesCenter} />
+      <Route path="/community-directory" component={CommunityDirectory} />
       <Route path="/vendor-marketplace" component={VendorMarketplace} />
       <Route path="/vendor-marketplace-tiers" component={VendorMarketplaceTiers} />
       <Route path="/florals" component={FloralServices} />
