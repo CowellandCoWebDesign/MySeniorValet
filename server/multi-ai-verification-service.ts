@@ -44,6 +44,13 @@ interface MultiAIVerificationReport {
     confidenceScore: number;
     transparencyNotes: string;
   };
+  pricing?: {
+    verified: boolean;
+    amount: number | null;
+    minMax?: { min: number; max: number };
+    source: string;
+    confidence: number;
+  };
   recommendations: string[];
 }
 
@@ -145,6 +152,13 @@ export class MultiAIVerificationService {
 
       // Build consensus from all three AI sources
       report.consensus = this.buildConsensus(
+        perplexityData,
+        report.verificationResults.claudeVerification,
+        report.verificationResults.chatgptVerification
+      );
+
+      // Extract pricing information from AI data
+      report.pricing = this.extractPricingData(
         perplexityData,
         report.verificationResults.claudeVerification,
         report.verificationResults.chatgptVerification
@@ -368,6 +382,99 @@ Return JSON:
       return `🔍 AI systems show conflicting analysis. We recommend contacting the community directly for clarification.`;
     } else {
       return `📊 Limited verification available (${activeAIs} AI system${activeAIs > 1 ? 's' : ''}). Additional verification recommended.`;
+    }
+  }
+
+  // Extract pricing data from AI responses
+  private extractPricingData(
+    perplexityData: any,
+    claudeResult: VerificationResult | null,
+    chatgptResult: VerificationResult | null
+  ): MultiAIVerificationReport['pricing'] {
+    try {
+      // First try to extract pricing from Perplexity data
+      const searchContent = perplexityData?.searchContent || '';
+      const findings = perplexityData?.findings || [];
+      const allText = `${searchContent} ${findings.join(' ')}`;
+      
+      // Look for price patterns in the text
+      const pricePatterns = [
+        /\$(\d{1,3},?\d{3})\s*(?:-|to)\s*\$?(\d{1,3},?\d{3})/gi, // Range: $2,000 - $4,000
+        /\$(\d{1,3},?\d{3})\s*(?:per|\/)\s*month/gi, // Single: $2,900 per month
+        /starting\s*(?:at|from)\s*\$(\d{1,3},?\d{3})/gi, // Starting at $2,500
+        /monthly\s*(?:rent|cost|fee|price)[\s:]*\$(\d{1,3},?\d{3})/gi, // Monthly rent: $3,000
+      ];
+      
+      let extractedPricing: any = null;
+      let source = 'AI Web Search';
+      
+      // Try each pattern to find pricing
+      for (const pattern of pricePatterns) {
+        const match = pattern.exec(allText);
+        if (match) {
+          if (match[2]) {
+            // Range found
+            extractedPricing = {
+              min: parseInt(match[1].replace(',', '')),
+              max: parseInt(match[2].replace(',', ''))
+            };
+          } else {
+            // Single price found
+            extractedPricing = {
+              amount: parseInt(match[1].replace(',', ''))
+            };
+          }
+          break;
+        }
+      }
+      
+      // Check if Claude or ChatGPT mentioned specific pricing
+      const allFindings = [
+        ...(claudeResult?.findings || []),
+        ...(chatgptResult?.findings || [])
+      ];
+      
+      for (const finding of allFindings) {
+        const priceMatch = finding.match(/\$(\d{1,3},?\d{3})/);
+        if (priceMatch && !extractedPricing) {
+          extractedPricing = {
+            amount: parseInt(priceMatch[1].replace(',', ''))
+          };
+          source = 'Multi-AI Consensus';
+        }
+      }
+      
+      if (extractedPricing) {
+        const confidence = (claudeResult && chatgptResult) ? 85 : 
+                          (claudeResult || chatgptResult) ? 70 : 60;
+        
+        return {
+          verified: true,
+          amount: extractedPricing.amount || null,
+          minMax: extractedPricing.min ? {
+            min: extractedPricing.min,
+            max: extractedPricing.max
+          } : undefined,
+          source,
+          confidence
+        };
+      }
+      
+      return {
+        verified: false,
+        amount: null,
+        source: 'No pricing found',
+        confidence: 0
+      };
+      
+    } catch (error) {
+      console.error('Error extracting pricing:', error);
+      return {
+        verified: false,
+        amount: null,
+        source: 'Error extracting pricing',
+        confidence: 0
+      };
     }
   }
 

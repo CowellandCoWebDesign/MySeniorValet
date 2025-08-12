@@ -1387,30 +1387,53 @@ export default function CommunityDetail() {
                     {/* Live Pricing with Badge */}
                     <div className="mb-3">
                       <div className="flex items-center justify-end mb-1">
-                        <Badge className={`${hasLiveData ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : 'bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-200'} mr-2`}>
-                          <div className={`w-2 h-2 ${hasLiveData ? 'bg-green-500 dark:bg-green-400' : 'bg-orange-500 dark:bg-orange-400'} rounded-full mr-1`}></div>
-                          {hasLiveData ? 'Live Pricing' : 'Estimate - Not Live'}
+                        <Badge className={`${hasLiveData || verificationReport?.pricing?.verified ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200' : 'bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-200'} mr-2`}>
+                          <div className={`w-2 h-2 ${hasLiveData || verificationReport?.pricing?.verified ? 'bg-green-500 dark:bg-green-400' : 'bg-orange-500 dark:bg-orange-400'} rounded-full mr-1`}></div>
+                          {hasLiveData ? 'Live Pricing' : verificationReport?.pricing?.verified ? 'AI Verified Pricing' : 'Estimate - Not Live'}
                         </Badge>
                       </div>
                       <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                        {community.priceRange && community.priceRange.min > 0 ? 
-                          `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}` : 
-                          (community as any).rentPerMonth ? 
-                          `$${(community as any).rentPerMonth}/month` :
-                          // Show market intelligence estimates instead of "Contact for pricing"
-                          community.communitySubtype === 'hud_senior_housing' ? 
-                          "$200 - $800" :
-                          community.careTypes?.includes('memory_care') ?
-                          "$5,000 - $8,000" :
-                          community.careTypes?.includes('assisted_living') ?
-                          "$3,500 - $5,500" :
-                          community.careTypes?.includes('independent_living') ?
-                          "$2,500 - $4,500" :
-                          "$2,000 - $6,000"
-                        }
+                        {(() => {
+                          // First check for AI verified pricing from Multi-AI report
+                          if (verificationReport?.pricing?.verified && verificationReport.pricing.amount) {
+                            const amount = verificationReport.pricing.amount;
+                            const minMax = verificationReport.pricing.minMax;
+                            if (minMax && minMax.min && minMax.max) {
+                              return `$${minMax.min.toLocaleString()} - $${minMax.max.toLocaleString()}`;
+                            } else if (amount) {
+                              return `$${amount.toLocaleString()}/month`;
+                            }
+                          }
+                          
+                          // Then check traditional price sources
+                          if (community.priceRange && community.priceRange.min > 0) {
+                            return `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}`;
+                          }
+                          
+                          if ((community as any).rentPerMonth) {
+                            return `$${(community as any).rentPerMonth}/month`;
+                          }
+                          
+                          // Show market intelligence estimates as fallback
+                          if (community.communitySubtype === 'hud_senior_housing') {
+                            return "$200 - $800";
+                          }
+                          if (community.careTypes?.includes('memory_care')) {
+                            return "$5,000 - $8,000";
+                          }
+                          if (community.careTypes?.includes('assisted_living')) {
+                            return "$3,500 - $5,500";
+                          }
+                          if (community.careTypes?.includes('independent_living')) {
+                            return "$2,500 - $4,500";
+                          }
+                          return "$2,000 - $6,000";
+                        })()}
                       </div>
                       <div className="text-sm text-gray-900 dark:text-gray-100">
-                        {community.priceRange && community.priceRange.min > 0 ? 
+                        {verificationReport?.pricing?.verified && verificationReport.pricing.source ? 
+                          `AI Verified - ${verificationReport.pricing.source}` :
+                          community.priceRange && community.priceRange.min > 0 ? 
                           "per month starting rate" : 
                           (community as any).rentPerMonth ? 
                           "HUD verified monthly rent" : 
