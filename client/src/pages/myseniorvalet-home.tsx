@@ -5,7 +5,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
 import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock } from "lucide-react";
 import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
@@ -44,6 +47,7 @@ export default function MySeniorValetHome() {
   const [showProtectionModal, setShowProtectionModal] = useState(false);
   const [protectionSearchQuery, setProtectionSearchQuery] = useState('');
   const [showRemovalModal, setShowRemovalModal] = useState(false);
+  const { preferences, togglePreference } = useAccessibilityPreferences();
 
 
   const [showIntegrationSpotlight, setShowIntegrationSpotlight] = useState(true);
@@ -338,6 +342,92 @@ export default function MySeniorValetHome() {
                         <span>About Us</span>
                       </Link>
                     </nav>
+                    
+                    {/* Accessibility Options Section */}
+                    <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
+                      <div className="px-4 pb-3">
+                        <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Accessibility Options
+                        </h3>
+                      </div>
+                      <div className="space-y-3 px-4">
+                        {/* Emergency Button */}
+                        <div className="flex items-center justify-between py-2">
+                          <div className="flex items-center space-x-3">
+                            <Phone className="h-4 w-4 text-red-500" />
+                            <Label htmlFor="emergency-button" className="text-sm font-medium cursor-pointer">
+                              Emergency Button
+                            </Label>
+                          </div>
+                          <Switch
+                            id="emergency-button"
+                            checked={preferences.emergencyButton}
+                            onCheckedChange={() => togglePreference('emergencyButton')}
+                          />
+                        </div>
+                        
+                        {/* Voice Guidance */}
+                        <div className="flex items-center justify-between py-2">
+                          <div className="flex items-center space-x-3">
+                            <Users2 className="h-4 w-4 text-blue-500" />
+                            <Label htmlFor="voice-guidance" className="text-sm font-medium cursor-pointer">
+                              Voice Guidance
+                            </Label>
+                          </div>
+                          <Switch
+                            id="voice-guidance"
+                            checked={preferences.voiceGuidance}
+                            onCheckedChange={() => togglePreference('voiceGuidance')}
+                          />
+                        </div>
+                        
+                        {/* High Contrast */}
+                        <div className="flex items-center justify-between py-2">
+                          <div className="flex items-center space-x-3">
+                            <Eye className="h-4 w-4 text-purple-500" />
+                            <Label htmlFor="high-contrast" className="text-sm font-medium cursor-pointer">
+                              High Contrast
+                            </Label>
+                          </div>
+                          <Switch
+                            id="high-contrast"
+                            checked={preferences.highContrast}
+                            onCheckedChange={() => togglePreference('highContrast')}
+                          />
+                        </div>
+                        
+                        {/* Large Text */}
+                        <div className="flex items-center justify-between py-2">
+                          <div className="flex items-center space-x-3">
+                            <MessageSquare className="h-4 w-4 text-green-500" />
+                            <Label htmlFor="large-text" className="text-sm font-medium cursor-pointer">
+                              Large Text
+                            </Label>
+                          </div>
+                          <Switch
+                            id="large-text"
+                            checked={preferences.largeText}
+                            onCheckedChange={() => togglePreference('largeText')}
+                          />
+                        </div>
+                        
+                        {/* Reduced Motion */}
+                        <div className="flex items-center justify-between py-2">
+                          <div className="flex items-center space-x-3">
+                            <RefreshCw className="h-4 w-4 text-orange-500" />
+                            <Label htmlFor="reduced-motion" className="text-sm font-medium cursor-pointer">
+                              Reduced Motion
+                            </Label>
+                          </div>
+                          <Switch
+                            id="reduced-motion"
+                            checked={preferences.reducedMotion}
+                            onCheckedChange={() => togglePreference('reducedMotion')}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
                     <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
                       <Link href="/login">
                         <Button className="w-full">Sign In</Button>

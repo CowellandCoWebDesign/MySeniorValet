@@ -105,6 +105,7 @@ import AISearchComparison from "@/pages/AISearchComparison";
 import { useAuth } from "@/hooks/useAuth";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { EmergencyButton } from "@/components/EmergencyButton";
+import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
 import CanadaPage from "@/pages/canada";
 import RedTagExample from "@/pages/red-tag-example";
 import HospitalDetails from "@/pages/hospital-details";
@@ -297,6 +298,7 @@ function Router() {
 
 function AppContent() {
   const { user } = useAuth();
+  const { preferences } = useAccessibilityPreferences();
   
   return (
     <ThemeProvider defaultTheme="light">
@@ -310,7 +312,7 @@ function AppContent() {
                 <CookieConsentBanner />
                 <DisclaimerBanner />
                 <DevModeIndicator />
-                {user && <EmergencyButton userId={user.id} />}
+                {user && preferences.emergencyButton && <EmergencyButton userId={user.id} />}
                 </MascotProvider>
               </TooltipProvider>
             </VoiceGuidanceProvider>
