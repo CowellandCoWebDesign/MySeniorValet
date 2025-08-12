@@ -170,37 +170,21 @@ export class MultiAIVerificationService {
     communityContext?: any
   ): Promise<VerificationResult | null> {
     try {
-      const contextInfo = communityContext ? `
-Community Details:
-- Location: ${communityContext.address}, ${communityContext.city}, ${communityContext.state} ${communityContext.zipCode}
-- Care Types: ${communityContext.careTypes?.join(', ') || 'Not specified'}
-- Community Type: ${communityContext.communityType}
-- Community Subtype: ${communityContext.communitySubtype}
-- Bed Count: ${communityContext.bedCount || 'Unknown'}
-- Year Established: ${communityContext.yearEstablished || 'Unknown'}
-- Ownership Type: ${communityContext.ownershipType || 'Unknown'}
-- HUD Property: ${communityContext.hudPropertyId ? 'Yes' : 'No'}
+      const location = communityContext ? 
+        `${communityContext.city}, ${communityContext.state}` : 
+        'Location unknown';
 
-Based on the location and care types, please provide estimated market pricing ranges for this community.
-` : '';
+      const prompt = `Verify this senior living community data for ${communityName} in ${location}.
 
-      const prompt = `You are verifying information about "${communityName}" senior living community.
-${contextInfo}
-Please verify the following data gathered from web search:
+Data to verify:
 ${JSON.stringify(perplexityData, null, 2)}
 
-Analyze this information and provide:
-1. Verified findings (facts that seem accurate and consistent)
-2. Concerns (information that seems questionable or needs further verification)
-3. Recommendations for families considering this community
-4. Estimated market pricing based on location and care types (if community context is provided)
-
-Format your response as a JSON object with these keys:
-- verified: boolean (overall verification status)
-- confidence: number (0-100)
-- findings: array of verified facts (include pricing estimates if available)
-- concerns: array of concerns
-- recommendations: array of recommendations for families`;
+Return JSON with:
+- verified: boolean
+- confidence: 0-100  
+- findings: string array (key facts)
+- concerns: string array (issues found)
+- recommendations: string array (for families)`;
 
       const response = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514', // Latest Claude model
@@ -250,39 +234,28 @@ Format your response as a JSON object with these keys:
     communityContext?: any
   ): Promise<VerificationResult | null> {
     try {
-      const contextInfo = communityContext ? `
-Community Details:
-- Location: ${communityContext.address}, ${communityContext.city}, ${communityContext.state} ${communityContext.zipCode}
-- Care Types: ${communityContext.careTypes?.join(', ') || 'Not specified'}
-- Community Type: ${communityContext.communityType}
-- Community Subtype: ${communityContext.communitySubtype}
-- Bed Count: ${communityContext.bedCount || 'Unknown'}
-- Year Established: ${communityContext.yearEstablished || 'Unknown'}
-- Ownership Type: ${communityContext.ownershipType || 'Unknown'}
-- HUD Property: ${communityContext.hudPropertyId ? 'Yes' : 'No'}
-
-Based on the location and care types, please provide estimated market pricing ranges for this community.
-` : '';
+      const location = communityContext ? 
+        `${communityContext.city}, ${communityContext.state}` : 
+        'Location unknown';
 
       const response = await openai.chat.completions.create({
         model: 'gpt-4o', // Latest GPT model
         messages: [
           {
             role: 'system',
-            content: 'You are a senior living expert verifying information accuracy and providing market pricing estimates. Respond with JSON only.'
+            content: 'You are a senior living expert. Respond with JSON only.'
           },
           {
             role: 'user',
-            content: `Verify this information about "${communityName}":
-${contextInfo}
-${JSON.stringify(perplexityData, null, 2)}
+            content: `Verify: ${communityName} in ${location}
+Data: ${JSON.stringify(perplexityData, null, 2)}
 
-Return JSON with:
+Return JSON:
 - verified: boolean
 - confidence: 0-100
-- findings: array of verified facts (include pricing estimates if context is provided)
-- concerns: array of concerns
-- recommendations: array for families`
+- findings: string array (facts)
+- concerns: string array
+- recommendations: string array`
           }
         ],
         response_format: { type: 'json_object' }
