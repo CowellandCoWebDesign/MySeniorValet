@@ -617,20 +617,31 @@ export function registerCommunityRoutes(app: Express) {
             }).filter(s => s.length > 10);
           };
 
-          // Query for current availability and pricing
-          const availabilityQuery = `What is the current availability and pricing at ${community.name} senior living community in ${community.city}, ${community.state}? Include any waitlist information, current room availability, and latest pricing for different care levels.`;
+          // Query for current availability and pricing with full context
+          const careTypesStr = community.careTypes?.join(', ') || 'senior living';
+          const communityDetails = `${community.name} ${community.communityType || 'senior living'} community${community.bedCount ? ` with ${community.bedCount} beds` : ''} offering ${careTypesStr} in ${community.city}, ${community.state} ${community.zip || ''}`;
+          
+          const availabilityQuery = `What is the current availability and pricing at ${communityDetails}? Include: 
+          1. Current monthly pricing ranges for ${careTypesStr}
+          2. Any waitlist information or room availability
+          3. Market rates for similar ${community.communityType || 'senior living'} communities in ${community.city}, ${community.state}
+          4. Pricing for different care levels (Independent Living, Assisted Living, Memory Care) if available`;
           
           const availabilityResult = await perplexityService.searchRealTime(
             availabilityQuery,
-            `Finding real-time availability for ${community.name}`
+            `Finding real-time availability and market pricing for ${community.name}`
           );
 
-          // Query for recent news and updates
-          const newsQuery = `What are the latest news, updates, or changes at ${community.name} in ${community.city}, ${community.state}? Include any recent events, staff changes, renovations, or community highlights from 2024-2025.`;
+          // Query for recent news and updates with pricing focus
+          const newsQuery = `What are the latest news, pricing updates, or changes at ${communityDetails}? Include: 
+          1. Recent pricing changes or promotions for ${careTypesStr}
+          2. Current market rates in ${community.city}, ${community.state} for ${community.communityType || 'senior living'}
+          3. Any recent events, staff changes, renovations from 2024-2025
+          4. Average costs for ${careTypesStr} in the ${community.state} area`;
           
           const newsResult = await perplexityService.searchRealTime(
             newsQuery,
-            `Finding recent updates for ${community.name}`
+            `Finding recent updates and market pricing for ${community.name}`
           );
 
           // Parse availability information
