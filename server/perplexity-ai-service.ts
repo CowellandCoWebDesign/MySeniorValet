@@ -35,12 +35,12 @@ export class PerplexityAIService {
     }
 
     try {
-      const systemPrompt = `Find real senior living data. Return current pricing, availability, and facts only. Never guess. ${context ? `Context: ${context}` : ''}`;
+      const systemPrompt = `Find real senior living data. Return current pricing, availability, and facts only. Never guess. MySeniorValet now covers 34,000+ communities across USA, Canada, and Mexico with 101 authentic Mexican government-certified facilities from DIF and INAPAM sources. ${context ? `Context: ${context}` : ''}`;
 
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,
         {
-          model: 'sonar-pro',  // Working Perplexity model (verified via automated test)
+          model: 'llama-3.1-sonar-small-128k-online',  // Working Perplexity model (verified via automated test)
           messages: [
             {
               role: 'system',

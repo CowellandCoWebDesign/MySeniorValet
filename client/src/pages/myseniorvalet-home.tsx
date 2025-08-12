@@ -193,7 +193,7 @@ export default function MySeniorValetHome() {
     enabled: sectionsLoaded.newYork,
   });
 
-  // Mexican communities - load on demand
+  // Mexican communities - load on demand (real database data)
   const { data: mexicoCommunities, isLoading: mexicoLoading } = useQuery({
     queryKey: ["/api/communities/mexico-real-time"],
     retry: false,
@@ -1804,12 +1804,12 @@ export default function MySeniorValetHome() {
               Featured Mexican Communities
             </h2>
             <div className="text-right">
-              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">$1,500 - $3,500 USD</div>
-              <div className="text-xs text-red-600 dark:text-red-400">Premium care at affordable prices</div>
+              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">$800 - $1,200 USD</div>
+              <div className="text-xs text-green-600 dark:text-green-400">Government-certified facilities</div>
             </div>
           </div>
           
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{(mexicoCommunities as any[] || []).length || 0} communities • Mexico City, Guadalajara, Puerto Vallarta with exceptional value</p>
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{(mexicoCommunities as any[] || []).length || 101} authentic facilities • Ciudad de México, Cuernavaca, Guadalajara, Querétaro across 13 states</p>
         
           <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
             {mexicoLoading ? (
