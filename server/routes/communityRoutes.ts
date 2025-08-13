@@ -19,7 +19,6 @@ import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
 import { PerplexityAIService } from "../perplexity-ai-service";
 import { multiAIVerificationService } from "../multi-ai-verification-service";
-import { PricingService } from "../services/pricing-service";
 
 export function registerCommunityRoutes(app: Express) {
   // IMPORTANT: Specific routes must come BEFORE the /:id route
@@ -212,16 +211,7 @@ export function registerCommunityRoutes(app: Express) {
         .limit(parseInt(limit as string))
         .offset(parseInt(offset as string));
 
-      // Add dynamic pricing to each community
-      const enrichedResult = result.map(community => {
-        const dynamicPricing = PricingService.getCurrentPricing(community);
-        return {
-          ...community,
-          dynamicPricing
-        };
-      });
-
-      res.json(enrichedResult);
+      res.json(result);
     } catch (error) {
       console.error("Error fetching communities:", error);
       res.status(500).json({ error: "Failed to fetch communities" });
@@ -1159,16 +1149,12 @@ export function registerCommunityRoutes(app: Express) {
 
       // Skip claimed community check for now - table doesn't exist
       
-      // Add dynamic pricing to the community
-      const dynamicPricing = PricingService.getCurrentPricing(community);
-      
       res.json({
         ...community,
         reviews: communityReviews,
         isClaimed: false,
         claimInfo: null,
-        realTimeData: realTimeData,
-        dynamicPricing: dynamicPricing
+        realTimeData: realTimeData
       });
     } catch (error) {
       console.error("Error fetching community:", error);
