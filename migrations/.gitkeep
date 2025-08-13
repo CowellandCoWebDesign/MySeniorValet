@@ -1,0 +1,2 @@
+# This file ensures the migrations folder exists for deployment
+# The project uses db:push instead of migrations, but Replit deployment expects this folder
