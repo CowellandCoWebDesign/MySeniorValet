@@ -333,6 +333,67 @@ export default function PaymentTestSuite() {
     setIsTestingAll(false);
   };
 
+  // Run COMPLETE automated test including payment processing
+  const runCompleteAutomatedTest = async () => {
+    setIsTestingAll(true);
+    setTestResults([]);
+    
+    toast({
+      title: "🚀 Running Complete Automated Test",
+      description: "This will test all payment systems including real transactions",
+    });
+
+    try {
+      const response = await apiRequest('POST', '/api/payments/automated/run-complete-test', {
+        email: 'test@myseniorvalet.com'
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Display test results
+        data.results.tests.forEach((test: any) => {
+          updateTestResult(
+            test.name,
+            test.status === 'passed' ? 'success' : test.status === 'failed' ? 'failed' : 'pending',
+            test.error || test.details ? JSON.stringify(test.details).substring(0, 100) : undefined,
+            test.details
+          );
+        });
+
+        toast({
+          title: "✅ Automated Test Complete!",
+          description: data.message,
+        });
+
+        // If email test passed, show email notification
+        const emailTest = data.results.tests.find((t: any) => t.name === 'Email Notification');
+        if (emailTest && emailTest.status === 'passed') {
+          toast({
+            title: "📧 Email Sent",
+            description: `Test results sent to ${emailTest.details.to}`,
+          });
+        }
+
+      } else {
+        toast({
+          title: "Test Failed",
+          description: data.message || "Some tests failed. Check details below.",
+          variant: "destructive"
+        });
+      }
+      
+    } catch (error: any) {
+      toast({
+        title: "Test Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setIsTestingAll(false);
+    }
+  };
+
   // Copy test card number to clipboard
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -416,19 +477,38 @@ export default function PaymentTestSuite() {
               <CardDescription>
                 Run comprehensive tests on all payment system components
               </CardDescription>
-              <Button onClick={runAllTests} disabled={isTestingAll} className="mt-4">
-                {isTestingAll ? (
-                  <>
-                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    Running Tests...
-                  </>
-                ) : (
-                  <>
-                    <TestTube className="mr-2 h-4 w-4" />
-                    Run All Tests
-                  </>
-                )}
-              </Button>
+              <div className="flex gap-4 mt-4">
+                <Button 
+                  onClick={runCompleteAutomatedTest} 
+                  disabled={isTestingAll} 
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {isTestingAll ? (
+                    <>
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      Running Full Test...
+                    </>
+                  ) : (
+                    <>
+                      <DollarSign className="mr-2 h-4 w-4" />
+                      Run Complete Payment Test (Automated)
+                    </>
+                  )}
+                </Button>
+                <Button onClick={runAllTests} disabled={isTestingAll} variant="outline">
+                  {isTestingAll ? (
+                    <>
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      Running Tests...
+                    </>
+                  ) : (
+                    <>
+                      <TestTube className="mr-2 h-4 w-4" />
+                      Run Configuration Tests Only
+                    </>
+                  )}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
