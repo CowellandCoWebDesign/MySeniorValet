@@ -746,15 +746,21 @@ export default function MySeniorValetHome() {
                 <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-8 border-2 border-green-400">
                   <div className="mb-6">
                     {/* Country Coverage Badge */}
-                    <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-500/90 to-blue-500/90 backdrop-blur-sm text-white rounded-full text-lg font-bold shadow-2xl mb-4 animate-bounce-slow">
-                      <span className="text-2xl mr-2">🇺🇸</span>
-                      <span>USA</span>
-                      <span className="mx-3">•</span>
-                      <span className="text-2xl mr-2">🇲🇽</span>
-                      <span>MEXICO</span>
-                      <span className="mx-3">•</span>
-                      <span className="text-2xl mr-2">🇨🇦</span>
-                      <span>CANADA</span>
+                    <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-gradient-to-r from-emerald-500/90 to-blue-500/90 backdrop-blur-sm text-white rounded-full text-sm sm:text-lg font-bold shadow-2xl mb-4 animate-bounce-slow">
+                      <span className="flex items-center">
+                        <span className="text-xl sm:text-2xl mr-1">🇺🇸</span>
+                        <span>USA</span>
+                      </span>
+                      <span className="hidden sm:inline mx-2">•</span>
+                      <span className="flex items-center">
+                        <span className="text-xl sm:text-2xl mr-1">🇲🇽</span>
+                        <span>MEXICO</span>
+                      </span>
+                      <span className="hidden sm:inline mx-2">•</span>
+                      <span className="flex items-center">
+                        <span className="text-xl sm:text-2xl mr-1">🇨🇦</span>
+                        <span>CANADA</span>
+                      </span>
                     </div>
                     <h3 className="text-2xl md:text-3xl font-bold text-green-600 dark:text-green-400">
                       <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
