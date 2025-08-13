@@ -171,7 +171,7 @@ class MultiAIOrchestrator {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar-small-online',
           messages: [
             {
               role: 'system',
@@ -318,7 +318,7 @@ class MultiAIOrchestrator {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar-small-online',
           messages: [
             {
               role: 'user',
@@ -472,7 +472,7 @@ class MultiAIOrchestrator {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar-small-online',
           messages: [{
             role: 'user',
             content: `What are current best practices for matching senior living communities to these preferences: ${JSON.stringify(preferences)}?`

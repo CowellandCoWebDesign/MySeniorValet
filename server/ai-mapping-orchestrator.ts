@@ -56,11 +56,11 @@ Focus on:
         try {
           const location = analysis.detectedLocations?.[0] || params.query;
           const perplexityQuery = `Current senior living pricing availability trends ${location} 2025`;
-          const perplexityResult = await perplexityService.searchCommunityInfo(perplexityQuery);
+          const perplexityResult = await perplexityService.searchRealTime(perplexityQuery);
           
-          if (perplexityResult.success && perplexityResult.data) {
+          if (perplexityResult.summary) {
             // Extract real-time insights
-            const priceMatch = perplexityResult.data.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?/g);
+            const priceMatch = perplexityResult.summary.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?/g);
             
             analysis.realTimeInsights = {
               pricing: priceMatch?.[0] || undefined,

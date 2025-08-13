@@ -55,11 +55,11 @@ export class AISearchService {
       const careTypeQuery = parsedIntent.careTypes?.join(' ') || 'senior living';
       const perplexityQuery = `Current senior living pricing and availability in ${locationQuery} for ${careTypeQuery} communities 2025`;
       
-      const perplexityResult = await perplexityService.searchCommunityInfo(perplexityQuery);
+      const perplexityResult = await perplexityService.searchRealTime(perplexityQuery);
       
-      if (perplexityResult.success && perplexityResult.data) {
+      if (perplexityResult.summary) {
         // Extract pricing insights
-        const priceMatches = perplexityResult.data.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?/g);
+        const priceMatches = perplexityResult.summary.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?/g);
         if (priceMatches && priceMatches.length > 0) {
           const prices = priceMatches[0].replace(/[^\d-]/g, '').split('-').map(p => parseInt(p));
           
