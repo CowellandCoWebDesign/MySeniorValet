@@ -347,6 +347,113 @@ export default function SeniorHealthcareDirectory() {
         </div>
       </section>
 
+      {/* Featured Healthcare Providers - Real Links Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-teal-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Featured Healthcare Providers
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Click to explore detailed information about top healthcare systems
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Mayo Clinic Card with Real Link */}
+            <Link href="/providers/mayo-clinic">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-blue-400">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-500 opacity-5"></div>
+                <CardHeader>
+                  <Badge className="w-fit mb-2 bg-blue-500 text-white">TOP RANKED</Badge>
+                  <CardTitle className="text-xl">Mayo Clinic</CardTitle>
+                  <CardDescription>World-renowned medical care</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-gray-500" />
+                      <span>Rochester, Phoenix, Jacksonville</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-gray-500" />
+                      <span>507-284-2511</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      <span>5.0 Rating • 4,500+ Physicians</span>
+                    </div>
+                  </div>
+                  <Button className="w-full mt-4" variant="default">
+                    View Full Profile →
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Cleveland Clinic Card with Real Link */}
+            <Link href="/providers/cleveland-clinic">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-green-400">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-teal-500 opacity-5"></div>
+                <CardHeader>
+                  <Badge className="w-fit mb-2 bg-green-500 text-white">HEART LEADER</Badge>
+                  <CardTitle className="text-xl">Cleveland Clinic</CardTitle>
+                  <CardDescription>World-class healthcare innovation</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-gray-500" />
+                      <span>Cleveland, Weston, Las Vegas</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-gray-500" />
+                      <span>216-444-2200</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      <span>5.0 Rating • #2 US Hospital</span>
+                    </div>
+                  </div>
+                  <Button className="w-full mt-4" variant="default">
+                    View Full Profile →
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Johns Hopkins Card - Coming Soon */}
+            <Card className="h-full opacity-75 border-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 opacity-5"></div>
+              <CardHeader>
+                <Badge className="w-fit mb-2" variant="secondary">COMING SOON</Badge>
+                <CardTitle className="text-xl">Johns Hopkins Medicine</CardTitle>
+                <CardDescription>Leading medical research center</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-gray-500" />
+                    <span>Baltimore, Washington DC</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-gray-500" />
+                    <span>410-955-5000</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-yellow-500" />
+                    <span>5.0 Rating • Research Pioneer</span>
+                  </div>
+                </div>
+                <Button className="w-full mt-4" variant="outline" disabled>
+                  Profile Coming Soon
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Featured Hospitals Carousel */}
       <section className="px-4 py-12 bg-gray-100 dark:bg-gray-800">
         <div className="max-w-6xl mx-auto">

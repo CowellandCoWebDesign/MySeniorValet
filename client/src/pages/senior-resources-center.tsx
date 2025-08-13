@@ -269,6 +269,111 @@ export default function SeniorResourcesCenter() {
         </div>
       </section>
 
+      {/* Featured Resources Section - Real Links */}
+      <section className="px-4 py-12 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Featured Essential Resources
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Click to explore comprehensive guides and official information
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Medicare Guide Card with Real Link */}
+            <Link href="/resources/medicare-guide">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-blue-400">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-500 opacity-5"></div>
+                <CardHeader>
+                  <Badge className="w-fit mb-2 bg-blue-600 text-white">2025 UPDATED</Badge>
+                  <CardTitle className="text-xl">Medicare Complete Guide</CardTitle>
+                  <CardDescription>Everything about Medicare coverage</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-gray-500" />
+                      <span>Parts A, B, C, D Explained</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-gray-500" />
+                      <span>Enrollment Periods</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-gray-500" />
+                      <span>2025 Costs & Coverage</span>
+                    </div>
+                  </div>
+                  <Button className="w-full mt-4" variant="default">
+                    Read Full Guide →
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Social Security Guide - Coming Soon */}
+            <Card className="h-full opacity-75 border-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-500 opacity-5"></div>
+              <CardHeader>
+                <Badge className="w-fit mb-2" variant="secondary">COMING SOON</Badge>
+                <CardTitle className="text-xl">Social Security Benefits</CardTitle>
+                <CardDescription>Complete benefits guide</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-gray-500" />
+                    <span>Retirement Benefits</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Heart className="h-4 w-4 text-gray-500" />
+                    <span>Survivor Benefits</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calculator className="h-4 w-4 text-gray-500" />
+                    <span>Benefit Calculator</span>
+                  </div>
+                </div>
+                <Button className="w-full mt-4" variant="outline" disabled>
+                  Guide Coming Soon
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Medicaid Guide - Coming Soon */}
+            <Card className="h-full opacity-75 border-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 opacity-5"></div>
+              <CardHeader>
+                <Badge className="w-fit mb-2" variant="secondary">COMING SOON</Badge>
+                <CardTitle className="text-xl">Medicaid Eligibility</CardTitle>
+                <CardDescription>State-by-state requirements</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-gray-500" />
+                    <span>State Requirements</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-gray-500" />
+                    <span>Application Process</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Home className="h-4 w-4 text-gray-500" />
+                    <span>Asset Protection</span>
+                  </div>
+                </div>
+                <Button className="w-full mt-4" variant="outline" disabled>
+                  Guide Coming Soon
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Database Resources Section */}
       {resources && resources.length > 0 && (
         <section className="px-4 py-12 bg-gray-50 dark:bg-gray-900">

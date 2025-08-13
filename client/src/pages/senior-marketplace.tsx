@@ -244,6 +244,113 @@ export default function SeniorMarketplace() {
         </div>
       </section>
 
+      {/* Featured Vendors Section - Real Links */}
+      <section className="px-4 py-12 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Featured National Partners
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Click to explore detailed information about top pharmacy and retail partners
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Walgreens Card with Real Link */}
+            <Link href="/vendors/walgreens">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-red-400">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-500 to-pink-500 opacity-5"></div>
+                <CardHeader>
+                  <Badge className="w-fit mb-2 bg-red-500 text-white">9,000+ STORES</Badge>
+                  <CardTitle className="text-xl">Walgreens</CardTitle>
+                  <CardDescription>Your Neighborhood Health Destination</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-gray-500" />
+                      <span>Nationwide Coverage</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-gray-500" />
+                      <span>1-800-WALGREENS</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      <span>Senior Day Discounts</span>
+                    </div>
+                  </div>
+                  <Button className="w-full mt-4" variant="default">
+                    View Full Profile →
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* CVS Pharmacy Card with Real Link */}
+            <Link href="/vendors/cvs-pharmacy">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-red-400">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-600 to-red-500 opacity-5"></div>
+                <CardHeader>
+                  <Badge className="w-fit mb-2 bg-red-700 text-white">9,900+ STORES</Badge>
+                  <CardTitle className="text-xl">CVS Pharmacy</CardTitle>
+                  <CardDescription>Health is Everything</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-gray-500" />
+                      <span>MinuteClinic Available</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-gray-500" />
+                      <span>1-800-SHOP-CVS</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      <span>ExtraCare Rewards</span>
+                    </div>
+                  </div>
+                  <Button className="w-full mt-4" variant="default">
+                    View Full Profile →
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Amazon Pharmacy Card - Coming Soon */}
+            <Card className="h-full opacity-75 border-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-yellow-500 opacity-5"></div>
+              <CardHeader>
+                <Badge className="w-fit mb-2" variant="secondary">COMING SOON</Badge>
+                <CardTitle className="text-xl">Amazon Pharmacy</CardTitle>
+                <CardDescription>Medications Delivered</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-gray-500" />
+                    <span>Free Delivery</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-gray-500" />
+                    <span>855-745-5725</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-yellow-500" />
+                    <span>Prime Discounts</span>
+                  </div>
+                </div>
+                <Button className="w-full mt-4" variant="outline" disabled>
+                  Profile Coming Soon
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Service Cards Grid */}
       <section className="px-4 py-12">
         <div className="max-w-6xl mx-auto">
