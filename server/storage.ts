@@ -1899,14 +1899,7 @@ export class DatabaseStorage implements IStorage {
       .where(inArray(communities.id, ids));
   }
 
-  async getSuperAdminCount(): Promise<number> {
-    const result = await db
-      .select({ count: sql`count(*)` })
-      .from(users)
-      .where(eq(users.role, 'super_admin'));
-    
-    return Number(result[0]?.count || 0);
-  }
+
 
   // Session management methods (required for authentication)
   async createSession(userId: string): Promise<UserSession> {
@@ -1941,34 +1934,7 @@ export class DatabaseStorage implements IStorage {
     await db.delete(userSessions).where(sql`expires_at < NOW()`);
   }
 
-  // Missing interface methods - provide minimal implementations to prevent crashes
-  async getAllCommunitiesForClustering(): Promise<Community[]> {
-    try {
-      return await db.select().from(communities).where(and(isNotNull(communities.latitude), isNotNull(communities.longitude)));
-    } catch {
-      return [];
-    }
-  }
-
-  async createListingFlag(flag: InsertListingFlag): Promise<ListingFlag> {
-    const [created] = await db.insert(listingFlags).values(flag).returning();
-    return created;
-  }
-
-  async getListingFlags(params: { status?: string; page?: number; limit?: number }): Promise<ListingFlag[]> {
-    let query = db.select().from(listingFlags);
-    if (params.status) {
-      query = query.where(eq(listingFlags.status, params.status));
-    }
-    const limit = params.limit || 50;
-    const offset = ((params.page || 1) - 1) * limit;
-    return query.limit(limit).offset(offset);
-  }
-
-  async updateListingFlag(id: number, updates: Partial<InsertListingFlag>): Promise<ListingFlag | undefined> {
-    const [updated] = await db.update(listingFlags).set(updates).where(eq(listingFlags.id, id)).returning();
-    return updated || undefined;
-  }
+  // These methods are already defined above, removed duplicates
 
   // Stub implementations for missing methods to prevent interface errors
   async upsertUser(user: UpsertUser): Promise<User> {
