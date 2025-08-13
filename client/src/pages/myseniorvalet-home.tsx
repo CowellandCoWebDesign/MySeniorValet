@@ -303,7 +303,7 @@ export default function MySeniorValetHome() {
                 <SheetContent side="left" className="w-80">
                   <div className="flex flex-col space-y-6 mt-8">
                     <div className="flex items-center space-x-3 pb-4 border-b border-gray-200 dark:border-gray-700">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                      <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                         <Home className="text-white h-5 w-5" />
                       </div>
                       <div className="flex flex-col">
@@ -889,7 +889,7 @@ export default function MySeniorValetHome() {
               </div>
 
               <div className="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
-                <p className="text-base md:text-lg text-gray-700 dark:text-gray-200 mb-6 font-bold">
+                <p className="text-base md:text-lg text-white dark:text-gray-200 mb-6 font-bold">
                   Welcome to the Dawn of Transparency in Senior Living - All 10 Care Levels
                 </p>
                 <div className="flex flex-wrap justify-center gap-4">
