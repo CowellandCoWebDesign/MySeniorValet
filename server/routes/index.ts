@@ -10,15 +10,11 @@ import { registerUserRoutes } from "./userRoutes";
 import { registerAIRoutes } from "./aiRoutes";
 import { registerPerplexityRoutes } from "./perplexityRoutes";
 import { registerPerplexityTestRoutes } from "./perplexityTestRoutes";
-import aiAssistantRouter from "./ai-assistant";
 import { registerAIInsightsRoutes } from "./aiInsightsRoutes";
 import { registerSemanticSearchRoutes } from "./semanticSearchRoutes";
 import autocompleteRoutes from "./autocompleteRoutes";
-import aiAssistantRoutes from "./ai-assistant";
 
 import { registerAdminRoutes } from "./adminRoutes";
-import { registerDataEnrichmentRoutes } from "./data-enrichment-routes";
-import { registerSearchAnalyticsRoutes } from "./search-analytics-routes";
 import { registerVendorRoutes } from "./vendorRoutes";
 import { registerSearchRoutes } from "./searchRoutes";
 import { registerUnifiedSearchRoutes } from "./unifiedSearchRoutes";
@@ -103,15 +99,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerAIRoutes(app);
   registerPerplexityRoutes(app);
   registerPerplexityTestRoutes(app);
-  app.use('/', aiAssistantRouter);  // Register AI assistant routes with proper path
   registerAIInsightsRoutes(app);
   registerSemanticSearchRoutes(app); // Register semantic search for natural language understanding
   app.use('/api', autocompleteRoutes); // Register autocomplete routes
-  app.use(aiAssistantRoutes); // Register AI assistant routes for chat and advice
 
   registerAdminRoutes(app);
-  registerDataEnrichmentRoutes(app);
-  registerSearchAnalyticsRoutes(app);
   registerVendorRoutes(app);
   // Tour routes are registered directly in server/routes.ts
   registerClaimRoutes(app);

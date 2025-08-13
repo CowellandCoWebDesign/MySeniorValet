@@ -79,11 +79,11 @@ export function registerSemanticSearchRoutes(app: Express) {
             : query;
           
           const perplexityQuery = `Current senior living pricing availability ${locationContext} 2025`;
-          const perplexityResult = await perplexityService.searchRealTime(perplexityQuery);
+          const perplexityResult = await perplexityService.searchCommunityInfo(perplexityQuery);
           
-          if (perplexityResult.summary) {
+          if (perplexityResult.success && perplexityResult.data) {
             // Add real-time insights to the response
-            const priceMatch = perplexityResult.summary.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?/g);
+            const priceMatch = perplexityResult.data.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?/g);
             
             enhancedResults.forEach(result => {
               result.realTimeInsights = {

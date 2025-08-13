@@ -1217,9 +1217,7 @@ export function registerAIRoutes(app: Express) {
     }
   });
 
-  // AI chat assistant - DISABLED: Using ai-assistant.ts implementation instead
-  // This route is now handled by ai-assistant.ts using the AI Priority Orchestrator
-  /*
+  // AI chat assistant
   app.post('/api/ai/chat', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id;
@@ -1242,7 +1240,6 @@ export function registerAIRoutes(app: Express) {
       res.status(500).json({ error: 'Failed to process chat message' });
     }
   });
-  */
 
   // AI insights
   app.get('/api/ai/insights/:topic', async (req, res) => {

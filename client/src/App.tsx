@@ -84,8 +84,6 @@ import AuthDebug from "@/pages/auth-debug";
 import PaymentDemo from "@/pages/payment-demo";
 import WeaviateTest from "@/pages/weaviate-test";
 import DataQualityDashboard from "@/pages/data-quality-dashboard";
-import { AdminSearchAnalytics } from "@/pages/AdminSearchAnalytics";
-import AdminDataEnrichment from "@/pages/admin-data-enrichment";
 import DatabaseTest from "@/pages/database-test";
 import IntegrationDashboard from "@/pages/integration-dashboard";
 import IntegrationsPage from "@/pages/integrations";
@@ -181,8 +179,6 @@ function Router() {
       <Route path="/admin/communities" component={SuperAdminAnalytics} />
       {/* Admin section routes - ALL consolidated to SuperAdminAnalytics */}
       <Route path="/admin/reports" component={SuperAdminAnalytics} />
-      <Route path="/admin/data-enrichment" component={AdminDataEnrichment} />
-      <Route path="/admin/search-analytics" component={AdminSearchAnalytics} />
       <Route path="/admin/settings" component={SuperAdminAnalytics} />
       <Route path="/admin/email-broadcast" component={SuperAdminAnalytics} />
       <Route path="/admin/security" component={SuperAdminAnalytics} />

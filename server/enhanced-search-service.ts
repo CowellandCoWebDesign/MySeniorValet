@@ -47,11 +47,11 @@ export class EnhancedSearchService {
         try {
           // Query Perplexity for real-time pricing and availability
           const searchQuery = `${community.name} ${community.city} ${community.state} senior living current pricing availability`;
-          const perplexityData = await this.perplexityService.searchRealTime(searchQuery);
+          const perplexityData = await this.perplexityService.searchCommunityInfo(searchQuery);
           
-          if (perplexityData.summary) {
+          if (perplexityData.success && perplexityData.data) {
             // Parse pricing from Perplexity response
-            const priceMatch = perplexityData.summary.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?/g);
+            const priceMatch = perplexityData.data.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?/g);
             if (priceMatch && priceMatch[0]) {
               const priceStr = priceMatch[0].replace(/[^\d-]/g, '');
               const prices = priceStr.split('-').map(p => parseInt(p));
@@ -62,15 +62,15 @@ export class EnhancedSearchService {
                 price: prices[0],
                 priceMax: prices[1] || prices[0],
                 lastUpdated: new Date().toISOString(),
-                rawData: perplexityData.summary
+                rawData: perplexityData.data
               };
             }
             
             // Extract availability if mentioned
-            if (perplexityData.summary.toLowerCase().includes('available') || 
-                perplexityData.summary.toLowerCase().includes('vacancy')) {
+            if (perplexityData.data.toLowerCase().includes('available') || 
+                perplexityData.data.toLowerCase().includes('vacancy')) {
               community.realTimeAvailability = {
-                hasAvailability: !perplexityData.summary.toLowerCase().includes('no availability'),
+                hasAvailability: !perplexityData.data.toLowerCase().includes('no availability'),
                 lastChecked: new Date().toISOString()
               };
             }

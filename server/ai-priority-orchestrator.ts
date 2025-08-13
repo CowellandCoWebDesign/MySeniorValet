@@ -34,7 +34,7 @@ const openai = new OpenAI({
 const CLAUDE_MODEL = "claude-sonnet-4-20250514"; // Latest Claude 4 Sonnet
 const CHATGPT_MODEL = "gpt-5"; // Upgraded to GPT-5 (Released August 7, 2025)
 const GEMINI_MODEL = "gemini-2.5-pro"; // Latest Gemini 2.5
-const PERPLEXITY_MODEL = "sonar-large-online"; // Best Perplexity model
+const PERPLEXITY_MODEL = "llama-3.1-sonar-large-128k-online"; // Best Perplexity model
 
 export interface AIServiceStatus {
   claude: boolean;

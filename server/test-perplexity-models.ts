@@ -28,9 +28,9 @@ const modelsToTest = [
   'sonar-medium-online',
   
   // Old deprecated models (just in case)
-  'sonar-small-online',
-  'sonar-large-online',
-  'sonar-huge-online',
+  'llama-3.1-sonar-small-128k-online',
+  'llama-3.1-sonar-large-128k-online',
+  'llama-3.1-sonar-huge-128k-online',
   
   // Other potential names
   'sonar-1',

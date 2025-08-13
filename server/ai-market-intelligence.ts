@@ -240,7 +240,7 @@ export class AIMarketIntelligenceService {
     
     // Fetch regional market trends (this reduces individual community API calls)
     const query = `senior living market prices ${city || ''} ${state} average costs 2025`;
-    const regionalData = await this.perplexityService.searchRealTime(query);
+    const regionalData = await this.perplexityService.searchRealTimeInfo(query);
     
     // Track API usage
     this.apiCallCount.set(today, todayCount + 1);
@@ -471,7 +471,7 @@ export class AIMarketIntelligenceService {
 
       // Use Perplexity to search for pricing data
       const searchQuery = `"${community.name}" senior living pricing costs ${community.city} ${community.state} monthly rates 2025`;
-      const perplexityData = await this.perplexityService.searchRealTime(searchQuery);
+      const perplexityData = await this.perplexityService.searchRealTimeInfo(searchQuery);
 
       // Run Multi-AI verification on the data
       const verificationReport = await this.verificationService.verifyRealTimeData(
