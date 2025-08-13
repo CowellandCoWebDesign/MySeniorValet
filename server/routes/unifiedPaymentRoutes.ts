@@ -858,7 +858,9 @@ router.post('/test-payment', async (req: Request, res: Response) => {
     // Confirm with test card
     const confirmed = await stripe.paymentIntents.confirm(paymentIntent.id, {
       payment_method: 'pm_card_visa',
-      return_url: 'http://localhost:5000/payment-success',
+      return_url: process.env.NODE_ENV === 'production' 
+        ? 'https://www.myseniorvalet.com/payment-success'
+        : 'http://localhost:5000/payment-success',
     });
 
     res.json({

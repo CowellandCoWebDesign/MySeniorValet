@@ -1,6 +1,5 @@
 import { type Express } from "express";
 import { createServer, type Server } from "http";
-import { setupAuth } from "../replitAuth";
 import { setupAuthBypass } from "../auth-bypass";
 import { communityStatsCache } from "../community-stats-cache";
 

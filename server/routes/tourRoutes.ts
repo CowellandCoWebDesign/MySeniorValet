@@ -3,7 +3,7 @@ import { db } from "../db";
 import { tours, tourAvailability, tourFeedback, communities, users } from "@shared/schema";
 import { eq, and, gte, lte, or, desc, asc, sql } from "drizzle-orm";
 import { z } from "zod";
-import { isAuthenticated } from "../replitAuth";
+import { isAuthenticated } from "../auth-middleware";
 import sgMail from "@sendgrid/mail";
 import { format, addDays, parseISO } from "date-fns";
 

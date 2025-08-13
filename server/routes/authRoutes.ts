@@ -4,7 +4,7 @@ import { users, userSessions } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { loginSchema, signupSchema } from "@shared/schema";
 import { authService } from "../auth";
-import { isAuthenticated as requireAuth } from "../replitAuth";
+import { isAuthenticated as requireAuth } from "../auth-middleware";
 import { z } from "zod";
 import { authLimiter, createRateLimitMiddleware } from "../infrastructure/rateLimiter";
 import { internalNotifications } from "../services/internal-notifications";

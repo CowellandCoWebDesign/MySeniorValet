@@ -8,7 +8,7 @@ import { AnthropicAIService, GeminiAIService, AIOrchestrator } from "../ai-servi
 import { aiSearchService } from "../ai-search-service";
 // Google Reviews AI removed to prevent API charges
 import { perplexityService } from "../perplexity-ai-service";
-import { isAuthenticated as requireAuth } from "../replitAuth";
+import { isAuthenticated as requireAuth } from "../auth-middleware";
 import { aiPriorityOrchestrator } from "../ai-priority-orchestrator";
 import OpenAI from "openai";
 
