@@ -601,6 +601,99 @@ export class DataEnrichmentService {
       enrichmentResults
     };
   }
+
+  /**
+   * Get communities by states
+   */
+  public async getCommunitiesByStates(states: string[]) {
+    const query = db.select()
+      .from(communities)
+      .where(sql`${communities.state} = ANY(ARRAY[${sql.join(states.map(s => sql`${s}`), sql`,`)}])`)
+      .limit(100);
+    
+    return await query;
+  }
+
+  /**
+   * Enrich with compliance-aware caching
+   */
+  public async enrichWithCompliance(communityIds: number[], options: {
+    country?: string;
+    cachePolicy?: string;
+    batchSize?: number;
+    respectCacheExpiry?: boolean;
+  }) {
+    const results = [];
+    let successCount = 0;
+    let failCount = 0;
+    
+    for (const id of communityIds.slice(0, options.batchSize || 25)) {
+      const [community] = await db.select()
+        .from(communities)
+        .where(eq(communities.id, id))
+        .limit(1);
+      
+      if (community) {
+        // Check compliance window if respectCacheExpiry is true
+        if (options.respectCacheExpiry) {
+          const cacheDuration = cacheComplianceService.getCacheDuration(
+            community.country || options.country || 'US',
+            community.state
+          );
+          
+          const lastUpdate = community.last_price_update ? new Date(community.last_price_update) : null;
+          const needsUpdate = !lastUpdate || 
+            (Date.now() - lastUpdate.getTime() > cacheDuration.pricing);
+          
+          if (!needsUpdate) {
+            continue; // Skip if data is still fresh per compliance
+          }
+        }
+        
+        const result = await this.enrichSingleCommunity(community);
+        results.push(result);
+        
+        if (result.success) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+        
+        // Rate limiting
+        await this.delay(2000);
+      }
+    }
+    
+    return {
+      processed: results.length,
+      successful: successCount,
+      failed: failCount,
+      results
+    };
+  }
+
+  /**
+   * Get regional statistics
+   */
+  public async getRegionalStats(states: string[]) {
+    const communitiesInRegion = await db.select({
+      total: sql<number>`COUNT(*)`,
+      withPricing: sql<number>`COUNT(CASE WHEN rent_per_month IS NOT NULL THEN 1 END)`,
+      withAvailability: sql<number>`COUNT(CASE WHEN available_units IS NOT NULL THEN 1 END)`,
+      withPhone: sql<number>`COUNT(CASE WHEN phone IS NOT NULL THEN 1 END)`
+    })
+    .from(communities)
+    .where(sql`${communities.state} = ANY(ARRAY[${sql.join(states.map(s => sql`${s}`), sql`,`)}])`);
+    
+    return {
+      total: communitiesInRegion[0]?.total || 0,
+      withPricing: communitiesInRegion[0]?.withPricing || 0,
+      withAvailability: communitiesInRegion[0]?.withAvailability || 0,
+      withPhone: communitiesInRegion[0]?.withPhone || 0,
+      pricingCoverage: communitiesInRegion[0]?.total ? 
+        Math.round((communitiesInRegion[0]?.withPricing / communitiesInRegion[0]?.total) * 100) : 0
+    };
+  }
 }
 
 // Export singleton instance
