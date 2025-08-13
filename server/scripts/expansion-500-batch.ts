@@ -55,6 +55,8 @@ async function delay(ms: number): Promise<void> {
 async function findCommercialChains(city: string, state: string) {
   console.log(`\n📍 Searching for commercial chains in ${city}, ${state}...`);
   
+  let newChains = 0;  // Track new chains added in this city
+  
   try {
     // Smart query targeting commercial chains with marketing budgets
     const query = `Find all senior living communities in ${city}, ${state} including Brookdale, Sunrise Senior Living, Aegis Living, Atria, Five Star, Belmont Village, Watermark. Include name, address, phone, website, and current 2025 pricing. Focus on commercial assisted living and memory care communities, not HUD or affordable housing.`;
@@ -151,31 +153,51 @@ async function findCommercialChains(city: string, state: string) {
         .limit(1);
       
       if (existing.length === 0) {
-        // New commercial chain - save it!
-        const communityData = {
-          name: communityName,
-          address: address,
-          city: city,
-          state: state,
-          zipCode: '00000',
-          phone: phone,
-          website: null,
-          description: `${communityName} is a premium senior living community in ${city}, ${state} offering assisted living and memory care services.`,
-          careTypes: ['Assisted Living', 'Memory Care'],
-          price_range_min: priceMin,
-          price_range_max: priceMax,
-          ai_enrichment_date: new Date(),
-          ai_enrichment_version: 'expansion-batch-v1',
-          communitySubtype: 'traditional_assisted_living' as const,
-          latitude: null,
-          longitude: null
-        };
-        
-        await db.insert(communities).values(communityData);
-        console.log(`  ✨ Added new commercial chain: ${communityName}`);
-        
-        if (priceMin) {
-          console.log(`    💰 Pricing: $${priceMin.toLocaleString()}-$${priceMax?.toLocaleString()}/month`);
+        // Insert with minimal fields to avoid constraint violations
+        try {
+          const insertQuery = sql`
+            INSERT INTO communities (
+              name, 
+              address, 
+              city, 
+              state, 
+              zip_code,
+              care_types,
+              description,
+              community_subtype,
+              phone,
+              price_range_min,
+              price_range_max,
+              ai_enrichment_date,
+              ai_enrichment_version,
+              subscription_tier
+            ) VALUES (
+              ${communityName},
+              ${address},
+              ${city},
+              ${state},
+              ${''}, 
+              ARRAY['Assisted Living', 'Memory Care']::text[],
+              ${`${communityName} is a premium senior living community in ${city}, ${state} offering assisted living and memory care services.`},
+              ${'traditional_assisted_living'},
+              ${phone},
+              ${priceMin},
+              ${priceMax},
+              ${new Date()},
+              ${'expansion-batch-v1'},
+              NULL
+            )
+          `;
+          
+          await db.execute(insertQuery);
+          console.log(`  ✨ Added new commercial chain: ${communityName}`);
+          
+          if (priceMin) {
+            console.log(`    💰 Pricing: $${priceMin.toLocaleString()}-$${priceMax?.toLocaleString()}/month`);
+          }
+          newChains++;
+        } catch (error) {
+          console.error(`  ❌ Error inserting ${communityName}:`, error);
         }
       } else {
         // Update existing with latest data
@@ -210,6 +232,7 @@ async function findCommercialChains(city: string, state: string) {
     }
     
     stats.citiesProcessed.push(`${city}, ${state}`);
+    stats.newCommunities += newChains;
     
     // Rate limiting - be respectful
     await delay(2000);
