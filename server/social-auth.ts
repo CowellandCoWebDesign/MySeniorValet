@@ -117,8 +117,20 @@ export function setupSocialAuth(app: any) {
         profileImageUrl: user.profileImageUrl,
       };
 
-      // Redirect to dashboard
-      res.redirect('/dashboard');
+      // Save session explicitly before redirecting
+      req.session.save((err: any) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.redirect('/login?error=session_error');
+        }
+        console.log('Google OAuth successful for user:', user.email);
+        
+        // Check if user was trying to make a payment
+        const redirectTo = (req.session as any).redirectAfterLogin || '/dashboard';
+        delete (req.session as any).redirectAfterLogin;
+        
+        res.redirect(redirectTo);
+      });
     } catch (error) {
       console.error('Google OAuth error:', error);
       res.redirect('/login?error=auth_failed');
@@ -219,8 +231,20 @@ export function setupSocialAuth(app: any) {
         profileImageUrl: user.profileImageUrl,
       };
 
-      // Redirect to dashboard
-      res.redirect('/dashboard');
+      // Save session explicitly before redirecting
+      req.session.save((err: any) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.redirect('/login?error=session_error');
+        }
+        console.log('Facebook OAuth successful for user:', user.email);
+        
+        // Check if user was trying to make a payment
+        const redirectTo = (req.session as any).redirectAfterLogin || '/dashboard';
+        delete (req.session as any).redirectAfterLogin;
+        
+        res.redirect(redirectTo);
+      });
     } catch (error) {
       console.error('Facebook OAuth error:', error);
       res.redirect('/login?error=auth_failed');
