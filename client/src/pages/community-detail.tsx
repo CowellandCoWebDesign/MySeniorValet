@@ -319,25 +319,49 @@ const RealTimeInsights = ({ community }: { community: any }) => {
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">✓ Verified Facts:</p>
                 <ul className="text-xs space-y-1">
                   {verificationReport.consensus.verifiedFacts.slice(0, 3).map((fact: any, idx: number) => {
-                    // Check if fact is JSON string and parse it
-                    let factText = fact;
+                    // Extract clean text from various data formats
+                    let factText = '';
                     try {
-                      if (typeof fact === 'string' && fact.includes('{') && fact.includes('}')) {
-                        const parsed = JSON.parse(fact);
-                        factText = parsed.fact || parsed.text || parsed.message || JSON.stringify(parsed);
-                      } else if (typeof fact === 'object') {
-                        factText = fact.fact || fact.text || fact.message || JSON.stringify(fact);
+                      if (typeof fact === 'string') {
+                        // Try to parse if it looks like JSON
+                        if (fact.includes('{') && fact.includes('}')) {
+                          try {
+                            const parsed = JSON.parse(fact);
+                            factText = parsed.fact || parsed.text || parsed.message || parsed.description || fact;
+                          } catch {
+                            // Not JSON, use as-is
+                            factText = fact;
+                          }
+                        } else {
+                          factText = fact;
+                        }
+                      } else if (typeof fact === 'object' && fact !== null) {
+                        // Extract text from object
+                        factText = fact.fact || fact.text || fact.message || fact.description || 
+                                  fact.content || fact.value || 'Information verified';
+                      } else {
+                        factText = String(fact);
+                      }
+                      
+                      // Clean up any remaining JSON-like strings
+                      factText = factText.replace(/[\{\}\[\]\"]/g, '').trim();
+                      
+                      // Skip if empty or too technical
+                      if (!factText || factText.length < 3) {
+                        return null;
                       }
                     } catch (e) {
-                      // If it's not valid JSON, use as-is
+                      console.error('Error processing fact:', e);
+                      return null;
                     }
+                    
                     return (
                       <li key={idx} className="text-green-700 dark:text-green-300 flex items-start">
                         <CheckCircle className="w-3 h-3 mr-1 mt-0.5 flex-shrink-0" />
                         <span>{factText}</span>
                       </li>
                     );
-                  })}
+                  }).filter(Boolean)}
                 </ul>
               </div>
             )}
@@ -376,17 +400,30 @@ const RealTimeInsights = ({ community }: { community: any }) => {
                     <div>
                       <p className="font-medium text-green-800 dark:text-green-200">Live Pricing Found:</p>
                       {(() => {
-                        // Check if it's JSON string and parse it
+                        // Extract clean pricing text from various formats
                         let pricingText = realTimeData.currentPricing;
                         try {
-                          if (typeof pricingText === 'string' && pricingText.includes('{') && pricingText.includes('}')) {
-                            const parsed = JSON.parse(pricingText);
-                            pricingText = parsed.price || parsed.amount || parsed.text || JSON.stringify(parsed);
+                          if (typeof pricingText === 'string') {
+                            // Try to parse if it looks like JSON
+                            if (pricingText.includes('{') && pricingText.includes('}')) {
+                              try {
+                                const parsed = JSON.parse(pricingText);
+                                pricingText = parsed.price || parsed.amount || parsed.text || 
+                                            parsed.pricing || parsed.range || parsed.value || pricingText;
+                              } catch {
+                                // Not valid JSON, use as-is
+                              }
+                            }
+                          } else if (typeof pricingText === 'object' && pricingText !== null) {
+                            pricingText = pricingText.price || pricingText.amount || pricingText.text || 
+                                        pricingText.pricing || pricingText.range || 'Pricing available';
                           }
+                          // Clean up any remaining JSON-like characters
+                          pricingText = String(pricingText).replace(/[\{\}\[\]\"]/g, '').trim();
                         } catch (e) {
-                          // If it's not valid JSON, use as-is
+                          console.error('Error processing pricing:', e);
                         }
-                        return <p className="text-lg font-bold text-green-900 dark:text-green-100">{pricingText}</p>;
+                        return <p className="text-lg font-bold text-green-900 dark:text-green-100">{pricingText || 'Contact for pricing'}</p>;
                       })()}
                     </div>
                   </div>
@@ -396,17 +433,30 @@ const RealTimeInsights = ({ community }: { community: any }) => {
                     <CheckCircle className="w-4 h-4 mt-1 mr-2 text-blue-600" />
                     <div>
                       {(() => {
-                        // Check if it's JSON string and parse it
+                        // Extract clean availability text from various formats
                         let availabilityText = realTimeData.currentAvailability;
                         try {
-                          if (typeof availabilityText === 'string' && availabilityText.includes('{') && availabilityText.includes('}')) {
-                            const parsed = JSON.parse(availabilityText);
-                            availabilityText = parsed.message || parsed.text || JSON.stringify(parsed);
+                          if (typeof availabilityText === 'string') {
+                            // Try to parse if it looks like JSON
+                            if (availabilityText.includes('{') && availabilityText.includes('}')) {
+                              try {
+                                const parsed = JSON.parse(availabilityText);
+                                availabilityText = parsed.message || parsed.text || parsed.availability || 
+                                                 parsed.status || parsed.description || availabilityText;
+                              } catch {
+                                // Not valid JSON, use as-is
+                              }
+                            }
+                          } else if (typeof availabilityText === 'object' && availabilityText !== null) {
+                            availabilityText = availabilityText.message || availabilityText.text || 
+                                             availabilityText.availability || availabilityText.status || 'Check availability';
                           }
+                          // Clean up any remaining JSON-like characters
+                          availabilityText = String(availabilityText).replace(/[\{\}\[\]\"]/g, '').trim();
                         } catch (e) {
-                          // If it's not valid JSON, use as-is
+                          console.error('Error processing availability:', e);
                         }
-                        return <p className="text-sm text-gray-700 dark:text-gray-300">{availabilityText}</p>;
+                        return <p className="text-sm text-gray-700 dark:text-gray-300">{availabilityText || 'Contact for availability'}</p>;
                       })()}
                     </div>
                   </div>
@@ -416,17 +466,30 @@ const RealTimeInsights = ({ community }: { community: any }) => {
                     <Clock className="w-4 h-4 mt-1 mr-2 text-orange-600" />
                     <div>
                       {(() => {
-                        // Check if it's JSON string and parse it
+                        // Extract clean waitlist text from various formats
                         let waitlistText = realTimeData.waitlistStatus;
                         try {
-                          if (typeof waitlistText === 'string' && waitlistText.includes('{') && waitlistText.includes('}')) {
-                            const parsed = JSON.parse(waitlistText);
-                            waitlistText = parsed.message || parsed.text || parsed.status || JSON.stringify(parsed);
+                          if (typeof waitlistText === 'string') {
+                            // Try to parse if it looks like JSON
+                            if (waitlistText.includes('{') && waitlistText.includes('}')) {
+                              try {
+                                const parsed = JSON.parse(waitlistText);
+                                waitlistText = parsed.message || parsed.text || parsed.status || 
+                                             parsed.waitlist || parsed.description || waitlistText;
+                              } catch {
+                                // Not valid JSON, use as-is
+                              }
+                            }
+                          } else if (typeof waitlistText === 'object' && waitlistText !== null) {
+                            waitlistText = waitlistText.message || waitlistText.text || 
+                                         waitlistText.status || waitlistText.waitlist || 'Waitlist available';
                           }
+                          // Clean up any remaining JSON-like characters
+                          waitlistText = String(waitlistText).replace(/[\{\}\[\]\"]/g, '').trim();
                         } catch (e) {
-                          // If it's not valid JSON, use as-is
+                          console.error('Error processing waitlist:', e);
                         }
-                        return <p className="text-sm text-orange-800 dark:text-orange-200">{waitlistText}</p>;
+                        return <p className="text-sm text-orange-800 dark:text-orange-200">{waitlistText || 'Check waitlist status'}</p>;
                       })()}
                     </div>
                   </div>
@@ -444,22 +507,45 @@ const RealTimeInsights = ({ community }: { community: any }) => {
               </h4>
               <div className="space-y-2">
                 {realTimeData.communityHighlights.map((highlight: string, idx: number) => {
-                  // Check if highlight is JSON string and parse it
-                  let highlightText = highlight;
+                  // Extract clean highlight text from various formats
+                  let highlightText = '';
                   try {
-                    if (typeof highlightText === 'string' && highlightText.includes('{') && highlightText.includes('}')) {
-                      const parsed = JSON.parse(highlightText);
-                      highlightText = parsed.text || parsed.highlight || parsed.message || JSON.stringify(parsed);
+                    if (typeof highlight === 'string') {
+                      // Try to parse if it looks like JSON
+                      if (highlight.includes('{') && highlight.includes('}')) {
+                        try {
+                          const parsed = JSON.parse(highlight);
+                          highlightText = parsed.text || parsed.highlight || parsed.message || 
+                                        parsed.achievement || parsed.description || highlight;
+                        } catch {
+                          // Not valid JSON, use as-is
+                          highlightText = highlight;
+                        }
+                      } else {
+                        highlightText = highlight;
+                      }
+                    } else if (typeof highlight === 'object' && highlight !== null) {
+                      highlightText = highlight.text || highlight.highlight || highlight.message || 
+                                    highlight.achievement || 'Community achievement';
+                    }
+                    // Clean up any remaining JSON-like characters
+                    highlightText = String(highlightText).replace(/[\{\}\[\]\"]/g, '').trim();
+                    
+                    // Skip if empty or too short
+                    if (!highlightText || highlightText.length < 3) {
+                      return null;
                     }
                   } catch (e) {
-                    // If it's not valid JSON, use as-is
+                    console.error('Error processing highlight:', e);
+                    return null;
                   }
+                  
                   return (
                     <div key={idx} className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
                       <p className="text-sm text-purple-900 dark:text-purple-200">{highlightText}</p>
                     </div>
                   );
-                })}
+                }).filter(Boolean)}
               </div>
             </div>
           )}
