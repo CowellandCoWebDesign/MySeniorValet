@@ -286,8 +286,7 @@ export function corsPolicy(req: Request, res: Response, next: NextFunction) {
     origin === 'https://myseniorvalet.com' || 
     origin === 'https://www.myseniorvalet.com' ||
     origin === 'https://myseniorvalet.replit.app' || // Explicitly allow production domain
-    origin === 'https://MySeniorValet.replit.app' || // Case-sensitive variant
-    origin === 'https://seniorvalet.replit.app' // Without "my" prefix variant
+    origin === 'https://MySeniorValet.replit.app' // Case-sensitive variant
   );
   
   if (isAllowedOrigin) {
