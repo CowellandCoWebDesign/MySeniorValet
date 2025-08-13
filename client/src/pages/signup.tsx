@@ -60,8 +60,15 @@ export default function SignupPage() {
           description: "Welcome to MySeniorValet",
         });
         
-        // Redirect to dashboard
-        window.location.href = "/dashboard";
+        // Check for pending community payment
+        const pendingCommunityTier = sessionStorage.getItem('pendingCommunityTier');
+        if (pendingCommunityTier) {
+          // Redirect back to community payment with tier
+          window.location.href = `/community-mobile-payment/${pendingCommunityTier}`;
+        } else {
+          // Redirect to dashboard
+          window.location.href = "/dashboard";
+        }
       } else {
         toast({
           title: "Registration failed",

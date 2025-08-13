@@ -38,9 +38,16 @@ export default function LoginPage() {
           description: "Successfully logged in to MySeniorValet",
         });
         
-        // Redirect based on user role
-        window.location.href = data.user.role === "super_admin" ? "/admin-unified" : 
-                              data.user.role === "admin" ? "/admin-unified" : "/dashboard";
+        // Check for pending community payment
+        const pendingCommunityTier = sessionStorage.getItem('pendingCommunityTier');
+        if (pendingCommunityTier) {
+          // Redirect back to community payment with tier
+          window.location.href = `/community-mobile-payment/${pendingCommunityTier}`;
+        } else {
+          // Redirect based on user role
+          window.location.href = data.user.role === "super_admin" ? "/admin-unified" : 
+                                data.user.role === "admin" ? "/admin-unified" : "/dashboard";
+        }
       } else {
         toast({
           title: "Login failed",

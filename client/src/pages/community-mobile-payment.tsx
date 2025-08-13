@@ -3,12 +3,13 @@ import { useParams, useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Loader2, Shield, CheckCircle2, Star, Crown, Trophy } from 'lucide-react';
+import { Loader2, Shield, CheckCircle2, Star, Crown, Trophy, UserPlus, LogIn } from 'lucide-react';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { MobilePaymentForm } from '@/components/MobilePaymentForm';
 import { toast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import PaymentJourneyTracker, { COMMUNITY_PAYMENT_STEPS, PaymentStep } from '@/components/PaymentJourneyTracker';
+import { useAuth } from '@/hooks/useAuth';
 
 const TIER_DETAILS = {
   standard: {
@@ -66,27 +67,39 @@ export default function CommunityMobilePayment() {
   const [isLoading, setIsLoading] = useState(true);
   const [communityData, setCommunityData] = useState<any>(null);
   const [error, setError] = useState('');
-  const [currentStep, setCurrentStep] = useState('tier-selection');
+  const [currentStep, setCurrentStep] = useState('account-setup');
   const [paymentSteps, setPaymentSteps] = useState<PaymentStep[]>(COMMUNITY_PAYMENT_STEPS);
+  const { user, isLoading: authLoading, isAuthenticated } = useAuth();
 
   const tierDetails = TIER_DETAILS[tier as keyof typeof TIER_DETAILS];
 
   useEffect(() => {
+    if (authLoading) return;
+
     if (!tierDetails) {
       setError('Invalid tier selected. Please choose a valid subscription plan.');
       setIsLoading(false);
       return;
     }
 
-    // Initialize payment steps based on tier selection
+    // Initialize payment steps based on authentication status
     const updatedSteps = paymentSteps.map(step => {
+      if (step.id === 'account-setup' && isAuthenticated) {
+        return { ...step, status: 'completed' as const };
+      }
       if (step.id === 'tier-selection') {
         return { ...step, status: 'completed' as const };
       }
       return step;
     });
     setPaymentSteps(updatedSteps);
-    setCurrentStep('payment-details');
+    
+    // Set current step based on authentication status
+    if (!isAuthenticated) {
+      setCurrentStep('account-setup');
+    } else {
+      setCurrentStep('payment-details');
+    }
 
     // Try to get data from sessionStorage first (from community portal)
     const storedData = sessionStorage.getItem('communityUpgradeData');
@@ -106,7 +119,7 @@ export default function CommunityMobilePayment() {
     }
     
     setIsLoading(false);
-  }, [tier, tierDetails]);
+  }, [tier, tierDetails, authLoading, isAuthenticated]);
 
 
 
@@ -270,30 +283,85 @@ export default function CommunityMobilePayment() {
             </CardContent>
           </Card>
 
-          {/* Payment Form */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Payment Information</CardTitle>
-              <CardDescription>
-                Enter your payment details to complete the upgrade
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <MobilePaymentForm
-                productId={tier || ''}
-                productName={`${tierDetails.name} Community Subscription`}
-                price={tierDetails.price * 100}
-                metadata={{
-                  communityId: communityData?.communityId || 'new',
-                  communityName: communityData?.communityName || 'New Community',
-                  tier: tier || '',
-                  type: 'community_subscription'
-                }}
-                onSuccess={handlePaymentSuccess}
-                onCancel={handleCancel}
-              />
-            </CardContent>
-          </Card>
+          {/* Account Setup or Payment Form */}
+          {currentStep === 'account-setup' && !isAuthenticated ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Create Your Account</CardTitle>
+                <CardDescription>
+                  Sign up or log in to complete your purchase and manage your subscription
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    Your {tierDetails.name} subscription will be linked to your account for easy management and renewal.
+                  </p>
+                </div>
+                
+                <div className="space-y-3">
+                  <Button 
+                    onClick={() => {
+                      // Store tier selection for after login
+                      sessionStorage.setItem('pendingCommunityTier', tier as string);
+                      sessionStorage.setItem('pendingCommunityData', JSON.stringify(communityData));
+                      setLocation('/signup');
+                    }}
+                    className="w-full"
+                    size="lg"
+                  >
+                    <UserPlus className="mr-2 h-5 w-5" />
+                    Create New Account
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => {
+                      // Store tier selection for after login
+                      sessionStorage.setItem('pendingCommunityTier', tier as string);
+                      sessionStorage.setItem('pendingCommunityData', JSON.stringify(communityData));
+                      setLocation('/login');
+                    }}
+                    variant="outline"
+                    className="w-full"
+                    size="lg"
+                  >
+                    <LogIn className="mr-2 h-5 w-5" />
+                    Sign In to Existing Account
+                  </Button>
+                </div>
+                
+                <div className="text-center text-sm text-gray-500 dark:text-gray-400 pt-2">
+                  <Shield className="inline-block mr-1 h-4 w-4" />
+                  Your payment information is secured with bank-level encryption
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle>Payment Information</CardTitle>
+                <CardDescription>
+                  Enter your payment details to complete the upgrade
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <MobilePaymentForm
+                  productId={tier || ''}
+                  productName={`${tierDetails.name} Community Subscription`}
+                  price={tierDetails.price * 100}
+                  metadata={{
+                    communityId: communityData?.communityId || 'new',
+                    communityName: communityData?.communityName || 'New Community',
+                    tier: tier || '',
+                    type: 'community_subscription',
+                    userId: user?.id || null // Ensure payment is tied to user account
+                  }}
+                  onSuccess={handlePaymentSuccess}
+                  onCancel={handleCancel}
+                />
+              </CardContent>
+            </Card>
+          )}
           </div>
 
           {/* Trust Badges */}

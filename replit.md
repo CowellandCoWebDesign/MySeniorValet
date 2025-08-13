@@ -18,6 +18,13 @@ MySeniorValet is a technology platform connecting families with publicly availab
   - ✅ All route files updated to use custom auth-middleware.ts instead of replitAuth
   - ✅ Fixed authentication crash by replacing all replitAuth imports across 19+ route files
   - Note: Social login requires OAuth credentials (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET)
+- **Community Payment Flow - CRITICAL BUSINESS FIX COMPLETE**:
+  - ✅ Redesigned payment process to require account setup as first step
+  - ✅ Prevents lost purchases by tying all payments to user accounts
+  - ✅ Payment flow: Account Setup → Tier Selection → Payment → Activation
+  - ✅ Tier selection preserved in sessionStorage during authentication
+  - ✅ Login/signup pages redirect back to payment after authentication
+  - ✅ All payments now include userId in metadata for proper tracking
 - Production deployment configured for:
   - Primary: https://www.myseniorvalet.com
   - Replit Domain: https://MySeniorValet.replit.app

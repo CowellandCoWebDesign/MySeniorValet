@@ -239,6 +239,14 @@ export default function PaymentJourneyTracker({
 // Predefined step templates for different payment flows
 export const COMMUNITY_PAYMENT_STEPS: PaymentStep[] = [
   {
+    id: 'account-setup',
+    title: 'Account Setup',
+    description: 'Create or sign in to your account',
+    status: 'pending',
+    icon: Shield,
+    estimatedTime: '1-2 minutes'
+  },
+  {
     id: 'tier-selection',
     title: 'Tier Selection',
     description: 'Choose your community subscription tier',
@@ -269,7 +277,7 @@ export const COMMUNITY_PAYMENT_STEPS: PaymentStep[] = [
   },
   {
     id: 'activation',
-    title: 'Account Activation',
+    title: 'Subscription Activation',
     description: 'Activating your subscription and features',
     status: 'pending',
     icon: Sparkles,
