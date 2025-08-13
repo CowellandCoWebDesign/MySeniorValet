@@ -92,7 +92,7 @@ async function upsertUser(
       }
     } else {
       // Update existing user
-      user = await storage.updateUser(user.id, {
+      user = await storage.updateUser(String(user.id), {
         email: userEmail,
         firstName: claims["first_name"] || null,
         lastName: claims["last_name"] || null
@@ -140,8 +140,24 @@ export async function setupAuth(app: Express) {
     }
   };
 
-  for (const domain of process.env
-    .REPLIT_DOMAINS!.split(",")) {
+  // Get domains from environment variable
+  const replitDomains = process.env.REPLIT_DOMAINS?.split(",") || [];
+  
+  // Add production deployment domain if not included
+  const productionDomain = 'my-senior-valet-williamcowell01.replit.app';
+  if (!replitDomains.includes(productionDomain)) {
+    replitDomains.push(productionDomain);
+  }
+  
+  // Also handle custom domain when it's configured
+  const customDomain = 'www.myseniorvalet.com';
+  if (!replitDomains.includes(customDomain)) {
+    replitDomains.push(customDomain);
+  }
+  
+  console.log('Configuring auth for domains:', replitDomains);
+
+  for (const domain of replitDomains) {
     const strategy = new Strategy(
       {
         name: `replitauth:${domain}`,
@@ -177,14 +193,30 @@ export async function setupAuth(app: Express) {
     const returnTo = req.headers.referer || '/';
     (req.session as any).returnTo = returnTo;
     
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    const strategyName = `replitauth:${req.hostname}`;
+    console.log(`Login attempt for hostname: ${req.hostname}`);
+    
+    passport.authenticate(strategyName, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
+    }, (err: any, user: any, info: any) => {
+      if (err) {
+        console.error(`Auth strategy error for ${req.hostname}:`, err);
+        return res.status(500).json({ 
+          error: 'Authentication configuration error',
+          hostname: req.hostname,
+          message: 'Please ensure you are accessing from the correct domain'
+        });
+      }
+      next();
     })(req, res, next);
   });
 
   app.get("/api/callback", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, (err: any, user: any, info: any) => {
+    const strategyName = `replitauth:${req.hostname}`;
+    console.log(`Callback for hostname: ${req.hostname}`);
+    
+    passport.authenticate(strategyName, (err: any, user: any, info: any) => {
       if (err || !user) {
         console.error("Authentication failed:", err || info);
         return res.redirect("/api/login?error=auth_failed");
