@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
+import compression from "compression";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seed";
@@ -27,11 +28,26 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
-// Clear ALL caches on startup in development
+// Production mode - caches enabled for performance
 if (process.env.NODE_ENV === 'development') {
   clearViteCache();
   console.log('🔥 DEVELOPMENT MODE: All caches cleared, instant edit visibility enabled');
+} else {
+  console.log('⚡ PRODUCTION MODE: Optimized caching enabled for maximum performance');
 }
+
+// Enable compression for all responses (production optimization)
+app.use(compression({
+  level: 6, // Balanced compression level
+  threshold: 1024, // Only compress responses larger than 1KB
+  filter: (req, res) => {
+    // Compress everything except server-sent events
+    if (res.getHeader('Content-Type') === 'text/event-stream') {
+      return false;
+    }
+    return compression.filter(req, res);
+  }
+}));
 
 // Trust proxy for accurate IP detection
 app.set('trust proxy', 1);
@@ -83,10 +99,12 @@ app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 // Add cookie parser middleware early in the chain
 app.use(cookieParser());
 
-// AGGRESSIVE cache busting for development
-app.use(devCacheKiller); // This MUST be first
-app.use(cacheBuster);
-app.use(devModeHeaders);
+// Cache optimization: disable aggressive dev mode cache busting in production
+if (process.env.NODE_ENV === 'development') {
+  app.use(devCacheKiller); // Only in development
+  app.use(cacheBuster);
+  app.use(devModeHeaders);
+}
 
 // Input security middleware
 app.use(sanitizeInput);
@@ -101,37 +119,67 @@ if (process.env.NODE_ENV === 'development') {
     res.set('X-Frame-Options', 'DENY');
     next();
   });
+} else {
+  // Production mode - enable smart caching for performance
+  app.use((req, res, next) => {
+    // Static assets get longer cache
+    if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+      res.set('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+    // API responses get shorter cache
+    else if (req.path.startsWith('/api/')) {
+      res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
+    }
+    res.set('X-Content-Type-Options', 'nosniff');
+    res.set('X-Frame-Options', 'SAMEORIGIN');
+    next();
+  });
 }
 
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+// Request logging - verbose in development, minimal in production
+if (process.env.NODE_ENV === 'development') {
+  app.use((req, res, next) => {
+    const start = Date.now();
+    const path = req.path;
+    let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
+    const originalResJson = res.json;
+    res.json = function (bodyJson, ...args) {
+      capturedJsonResponse = bodyJson;
+      return originalResJson.apply(res, [bodyJson, ...args]);
+    };
 
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+    res.on("finish", () => {
+      const duration = Date.now() - start;
+      if (path.startsWith("/api")) {
+        let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+        if (capturedJsonResponse) {
+          logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+        }
+
+        if (logLine.length > 80) {
+          logLine = logLine.slice(0, 79) + "…";
+        }
+
+        log(logLine);
       }
+    });
 
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
-    }
+    next();
   });
-
-  next();
-});
+} else {
+  // Production: only log errors and important events
+  app.use((req, res, next) => {
+    const start = Date.now();
+    res.on("finish", () => {
+      if (res.statusCode >= 400) {
+        const duration = Date.now() - start;
+        log(`${req.method} ${req.path} ${res.statusCode} in ${duration}ms`);
+      }
+    });
+    next();
+  });
+}
 
 (async () => {
   const server = await registerRoutes(app);

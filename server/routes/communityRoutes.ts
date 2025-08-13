@@ -49,6 +49,14 @@ export function registerCommunityRoutes(app: Express) {
   // HUD featured communities
   app.get("/api/communities/hud-featured", async (req, res) => {
     try {
+      // Add production caching headers for HUD data
+      if (process.env.NODE_ENV !== 'development') {
+        res.set({
+          'Cache-Control': 'public, max-age=900, s-maxage=1800', // 15 min client, 30 min CDN
+          'ETag': `hud-featured-${new Date().getTime()}`
+        });
+      }
+      
       const hudFeatured = await db
         .select()
         .from(communities)
@@ -118,6 +126,14 @@ export function registerCommunityRoutes(app: Express) {
   // Get all communities with filters
   app.get("/api/communities", async (req, res) => {
     try {
+      // Add production caching headers for better performance
+      if (process.env.NODE_ENV !== 'development') {
+        res.set({
+          'Cache-Control': 'public, max-age=300, s-maxage=600', // 5 min client, 10 min CDN
+          'ETag': `communities-${new Date().getTime()}`
+        });
+      }
+      
       const { 
         limit = "20", 
         offset = "0", 

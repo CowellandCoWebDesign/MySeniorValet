@@ -53,11 +53,10 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
       fetch(`/api/communities/${community.id}/pricing-prediction`)
         .then(res => res.json())
         .then(data => {
-          console.log('Intelligent pricing prediction:', data);
           setPrediction(data);
         })
         .catch(error => {
-          console.error('Failed to get pricing prediction:', error);
+          // Silently handle error in production
         })
         .finally(() => {
           setIsLoading(false);
@@ -168,11 +167,10 @@ const RealTimeInsights = ({ community }: { community: any }) => {
       })
       .then(res => res.json())
       .then(report => {
-        console.log('Multi-AI Verification complete:', report);
         setVerificationReport(report);
       })
       .catch(error => {
-        console.error('Verification error:', error);
+        // Silently handle error in production
       })
       .finally(() => {
         setIsVerifying(false);
