@@ -338,7 +338,7 @@ export default function MySeniorValetHome() {
                           <Heart className="h-5 w-5" />
                           <span>Resources & Support</span>
                         </Link>
-                        <Link href="/tours" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-sm">
+                        <Link href="/tours" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600 shadow-sm">
                           <Calendar className="h-5 w-5" />
                           <span>Schedule Tours</span>
                         </Link>
@@ -588,7 +588,7 @@ export default function MySeniorValetHome() {
 
               {/* AI Intelligence - Premium Gradient Design */}
               <Link href="/ai-search-intelligence" className="flex-1">
-                <Button className="w-full h-auto bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white px-5 py-2 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden">
+                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-5 py-2 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative flex items-center justify-center space-x-2">
                     <Sparkles className="h-4 w-4" />
@@ -619,7 +619,7 @@ export default function MySeniorValetHome() {
 
             {/* AI Matching Assistant Button */}
             <Link href="/ai-matching" className="w-full max-w-xl">
-              <Button className="w-full bg-gradient-to-r from-blue-600 via-green-600 to-blue-600 hover:from-blue-700 hover:via-green-700 hover:to-blue-700 text-white font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 text-sm md:text-lg px-6 md:px-8 py-3 md:py-4 rounded-xl transform hover:scale-105">
+              <Button className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 text-sm md:text-lg px-6 md:px-8 py-3 md:py-4 rounded-xl transform hover:scale-105">
                 <Brain className="mr-2 h-5 w-5" />
                 ✨ AI Matching Assistant - Find Your Perfect Community
               </Button>
@@ -667,7 +667,7 @@ export default function MySeniorValetHome() {
       </div>
 
       {/* TODAY, EVERYTHING CHANGES - Historic Launch Message */}
-      <section className="px-4 py-16 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-black dark:via-blue-950 dark:to-black relative overflow-hidden">
+      <section className="px-4 py-16 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-blue-600/10"></div>
         <div className="max-w-6xl mx-auto text-center relative">
           <div className="mb-8">
@@ -823,8 +823,8 @@ export default function MySeniorValetHome() {
                 </div>
 
                 {/* The Promise - 10 Levels of Care - ACTIVE BETA */}
-                <div className="my-8 py-8 border-y-2 border-blue-400 dark:border-blue-600">
-                  <Globe className="w-16 h-16 text-blue-600 dark:text-blue-400 mx-auto mb-6" />
+                <div className="my-8 py-8 border-y-2 border-purple-400 dark:border-purple-600">
+                  <Globe className="w-16 h-16 text-purple-600 dark:text-purple-400 mx-auto mb-6" />
                   
                   {/* Beta Launch Badge */}
                   <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full text-sm font-bold shadow-lg mb-4 animate-pulse">
@@ -839,22 +839,22 @@ export default function MySeniorValetHome() {
                   {/* Ultra-Compact Care Spectrum */}
                   <div className="text-center mb-6 px-4">
                     <div className="text-lg md:text-xl text-gray-700 dark:text-gray-200">
-                      <span className="text-blue-600 dark:text-blue-400 font-bold">🏛️ HUD</span> → 
-                      <span className="text-blue-600 dark:text-blue-400 font-bold"> 🎖️ VA</span> → 
-                      <span className="text-blue-600 dark:text-blue-400 font-bold"> 🚐 Mobile</span> → 
-                      <span className="text-blue-600 dark:text-blue-400 font-bold"> ⛳ 55+</span> → 
-                      <span className="text-blue-600 dark:text-blue-400 font-bold"> 🏠 Independent</span> → 
-                      <span className="text-blue-600 dark:text-blue-400 font-bold"> 🏡 Board & Care</span> → 
-                      <span className="text-blue-600 dark:text-blue-400 font-bold"> 🤝 Assisted</span> → 
-                      <span className="text-blue-600 dark:text-blue-400 font-bold"> 🧠 Memory</span> → 
-                      <span className="text-blue-600 dark:text-blue-400 font-bold"> ♾️ CCRC</span> → 
-                      <span className="text-blue-600 dark:text-blue-400 font-bold"> 🏥 Skilled</span>
+                      <span className="text-gray-700 dark:text-purple-400 font-bold">🏛️ HUD</span> → 
+                      <span className="text-gray-700 dark:text-purple-400 font-bold"> 🎖️ VA</span> → 
+                      <span className="text-gray-700 dark:text-purple-400 font-bold"> 🚐 Mobile</span> → 
+                      <span className="text-gray-700 dark:text-purple-400 font-bold"> ⛳ 55+</span> → 
+                      <span className="text-gray-700 dark:text-purple-400 font-bold"> 🏠 Independent</span> → 
+                      <span className="text-gray-700 dark:text-purple-400 font-bold"> 🏡 Board & Care</span> → 
+                      <span className="text-gray-700 dark:text-purple-400 font-bold"> 🤝 Assisted</span> → 
+                      <span className="text-gray-700 dark:text-purple-400 font-bold"> 🧠 Memory</span> → 
+                      <span className="text-gray-700 dark:text-purple-400 font-bold"> ♾️ CCRC</span> → 
+                      <span className="text-gray-700 dark:text-purple-400 font-bold"> 🏥 Skilled</span>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Complete care continuum from independent to full medical support</p>
                   </div>
 
                   <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-200">
-                    Finally understand every option, every transition, every cost - <strong className="text-blue-600 dark:text-blue-400">complete transparency</strong> across the entire care journey.
+                    Finally understand every option, every transition, every cost - <strong className="text-gray-800 dark:text-purple-400">complete transparency</strong> across the entire care journey.
                   </p>
                   
                   {/* Beta Notice */}
@@ -915,9 +915,9 @@ export default function MySeniorValetHome() {
       {/* Senior Living Command Center with Integrated Marketplace */}
       <section className="relative overflow-hidden">
         {/* Command Center Header with Beautiful Gradient - matching marketplace page */}
-        <div className="px-4 py-12 bg-gradient-to-r from-blue-600 via-blue-700 to-green-600">
+        <div className="px-4 py-12 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
           {/* Animated gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-blue-900/20 to-green-900/20 animate-pulse"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-pink-900/20 animate-pulse"></div>
           
           <div className="max-w-7xl mx-auto relative z-10">
             <div className="text-center">
