@@ -3,8 +3,10 @@ import { storage } from '../storage';
 import { requireSimpleAuth } from '../simple-auth';
 import { Request, Response } from 'express';
 import { perplexityService } from '../perplexity-ai-service';
-import { anthropicAI } from '../anthropic-ai-service';
+// Using AI Priority Orchestrator instead of direct Anthropic service
 import { aiPriorityOrchestrator } from '../ai-priority-orchestrator';
+
+console.log('🔍 AI Assistant Router Loading - aiPriorityOrchestrator:', typeof aiPriorityOrchestrator, !!aiPriorityOrchestrator);
 
 // Extend Express Request type to include user
 declare module 'express' {
@@ -28,6 +30,8 @@ const aiChatSchema = z.object({
 
 router.post('/api/ai/chat', async (req, res) => {
   try {
+    console.log('📩 AI Chat endpoint hit with body:', req.body);
+    
     const validatedData = aiChatSchema.parse(req.body);
     
     // Get user context if authenticated
@@ -37,9 +41,22 @@ router.post('/api/ai/chat', async (req, res) => {
       userId: userId || undefined
     };
 
-    const response = await anthropicAI.processAssistantRequest({
-      message: validatedData.message,
-      context
+    console.log('🤖 Calling aiPriorityOrchestrator with:', { query: validatedData.message, context });
+    
+    // Check if aiPriorityOrchestrator exists
+    if (!aiPriorityOrchestrator) {
+      console.error('❌ aiPriorityOrchestrator is undefined!');
+      return res.status(500).json({ 
+        error: 'AI service not initialized' 
+      });
+    }
+
+    // Use AI Priority Orchestrator for better AI handling
+    const response = await aiPriorityOrchestrator.analyzeWithPriority({
+      query: validatedData.message,
+      type: 'search',  // Using search type for chat queries about senior living
+      context,
+      requireRealTime: true  // Ensure real-time data for senior living info
     });
 
     res.json(response);
@@ -48,7 +65,12 @@ router.post('/api/ai/chat', async (req, res) => {
       res.status(400).json({ error: 'Invalid request data', details: error.errors });
     } else {
       console.error('AI chat error:', error);
-      res.status(500).json({ error: 'Failed to process AI request' });
+      console.error('Error details:', (error as any).message);
+      console.error('Error stack:', (error as any).stack);
+      res.status(500).json({ 
+        error: 'Failed to process AI request',
+        details: (error as any).message 
+      });
     }
   }
 });
@@ -164,7 +186,7 @@ router.get('/api/ai/test-perplexity-miami', async (req, res) => {
     console.log('🔍 Testing Perplexity Web Search for Miami Senior Living...');
     
     // Using the new AI Priority Orchestrator with Perplexity as primary
-    const result = await aiPriorityOrchestrator.processRequest({
+    const result = await aiPriorityOrchestrator.analyzeWithPriority({
       query: `Find current information about senior living communities in Miami, Florida. Include:
         1. Specific community names and their current pricing
         2. Recent openings or developments
@@ -176,7 +198,8 @@ router.get('/api/ai/test-perplexity-miami', async (req, res) => {
         location: 'Miami, FL',
         searchType: 'real-time web search',
         includesCitations: true
-      }
+      },
+      requireRealTime: true
     });
 
     // Enhanced response with Perplexity's web search citations
@@ -191,11 +214,11 @@ router.get('/api/ai/test-perplexity-miami', async (req, res) => {
         newsUpdates: true,
         governmentData: true
       },
-      result: result.primary || result.response,
+      result: result.primaryResult || result.secondaryResult || 'No results found',
       servicesUsed: result.servicesUsed,
-      confidenceScore: result.confidenceScore,
+      consensusScore: result.consensusScore,
       metadata: {
-        model: 'sonar-small-online',
+        model: 'sonar-pro',
         searchRecency: 'month',
         note: 'This demonstrates Perplexity\'s power for real-time web search with citations, current pricing, and verified data sources'
       }
