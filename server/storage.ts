@@ -677,11 +677,12 @@ export class DatabaseStorage implements IStorage {
       
       // Add the ID parameter
       values.push(id);
+      const idParamIndex = paramIndex; // Use the current index for the WHERE clause
       
       const query = `
         UPDATE users 
         SET ${updateFields.join(', ')}
-        WHERE id = $${paramIndex}
+        WHERE id = $${idParamIndex}
         RETURNING id, username, email, password, role, first_name, last_name
       `;
       

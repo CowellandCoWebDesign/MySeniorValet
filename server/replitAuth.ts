@@ -210,6 +210,14 @@ export async function setupAuth(app: Express) {
   });
 
   app.get("/api/callback", (req, res, next) => {
+    console.log('🚨 CALLBACK HIT! Full details:', {
+      url: req.url,
+      hostname: req.hostname,
+      query: req.query,
+      sessionID: req.sessionID,
+      hasCookies: !!req.headers.cookie
+    });
+    
     const strategyName = `replitauth:${req.hostname}`;
     console.log(`🔍 OAuth Callback Debug:`, {
       hostname: req.hostname,
@@ -274,6 +282,27 @@ export async function setupAuth(app: Express) {
         }).href
       );
     });
+  });
+  
+  // Debug route to catch any OAuth-related callbacks
+  app.get("/oidc/*", (req, res) => {
+    console.log('🚨 OIDC route hit:', {
+      path: req.path,
+      url: req.url,
+      query: req.query,
+      hostname: req.hostname
+    });
+    res.redirect('/');
+  });
+  
+  app.get("/oauth/*", (req, res) => {
+    console.log('🚨 OAuth route hit:', {
+      path: req.path,
+      url: req.url,
+      query: req.query,
+      hostname: req.hostname
+    });
+    res.redirect('/');
   });
 }
 
