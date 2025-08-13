@@ -3,7 +3,7 @@ import { z } from "zod";
 import { db } from "../db";
 import { reservations, communities } from "@shared/schema";
 import { eq, and, gt, sql } from "drizzle-orm";
-import { isAuthenticated } from "../replitAuth";
+import { isAuthenticated } from "../auth-middleware";
 import sgMail from "@sendgrid/mail";
 
 const router = Router();

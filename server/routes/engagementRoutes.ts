@@ -8,7 +8,7 @@ import {
   scorecardConfigurations 
 } from "../../shared/engagementSchemas";
 import { EngagementAnalyticsService } from "../services/engagement-analytics-service";
-import { isAuthenticated } from "../replitAuth";
+import { isAuthenticated } from "../auth-middleware";
 
 const engagementService = new EngagementAnalyticsService();
 

@@ -2,7 +2,7 @@ import { type Express } from "express";
 import { db } from "../db";
 import { communityClaims, claimedCommunities, communities, users } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
-import { isAuthenticated as requireAuth, checkRole } from "../replitAuth";
+import { isAuthenticated as requireAuth, checkRole } from "../auth-middleware";
 import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
 

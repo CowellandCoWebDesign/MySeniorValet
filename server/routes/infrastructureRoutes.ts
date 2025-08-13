@@ -1,5 +1,5 @@
 import { type Express } from "express";
-import { isAuthenticated as requireAuth, isAdmin } from "../replitAuth";
+import { isAuthenticated as requireAuth, isAdmin } from "../auth-middleware";
 
 export function registerInfrastructureRoutes(app: Express) {
   // Health check endpoint

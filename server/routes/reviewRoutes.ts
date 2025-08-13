@@ -2,7 +2,7 @@ import { type Express } from "express";
 import { db } from "../db";
 import { reviews, communities, users } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
-import { isAuthenticated as requireAuth } from "../replitAuth";
+import { isAuthenticated as requireAuth } from "../auth-middleware";
 import { insertReviewSchema } from "@shared/schema";
 import { z } from "zod";
 

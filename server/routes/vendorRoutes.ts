@@ -2,7 +2,7 @@ import { type Express } from "express";
 import { db } from "../db";
 import { vendors, vendorServices, vendorReviews } from "@shared/schema";
 import { eq, and, desc, sql, or } from "drizzle-orm";
-import { isAuthenticated as requireAuth, checkRole } from "../replitAuth";
+import { isAuthenticated as requireAuth, checkRole } from "../auth-middleware";
 import { z } from "zod";
 
 const createVendorSchema = z.object({

@@ -4,7 +4,7 @@ import { db } from "../db";
 import { eq } from "drizzle-orm";
 import { vendors, vendorSubscriptionPlans } from "@shared/schema";
 import { VENDOR_SUBSCRIPTION_TIERS } from "../services/vendor-subscription";
-import { isAuthenticated } from "../replitAuth";
+import { isAuthenticated } from "../auth-middleware";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');

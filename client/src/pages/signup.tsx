@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Heart, Shield, Users, UserPlus, Mail, Lock, User } from "lucide-react";
+import { FaGoogle, FaFacebook, FaApple } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -115,6 +116,49 @@ export default function SignupPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Social Signup Options */}
+            <div className="space-y-3">
+              <Button
+                onClick={() => window.location.href = "/api/auth/google"}
+                className="w-full h-12 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-medium flex items-center justify-center gap-3"
+                type="button"
+              >
+                <FaGoogle className="h-5 w-5 text-red-500" />
+                Sign up with Google
+              </Button>
+              
+              <Button
+                onClick={() => window.location.href = "/api/auth/facebook"}
+                className="w-full h-12 bg-[#1877F2] hover:bg-[#166FE5] text-white font-medium flex items-center justify-center gap-3"
+                type="button"
+              >
+                <FaFacebook className="h-5 w-5" />
+                Sign up with Facebook
+              </Button>
+              
+              <Button
+                className="w-full h-12 bg-black hover:bg-gray-900 text-white font-medium flex items-center justify-center gap-3 opacity-50 cursor-not-allowed"
+                type="button"
+                disabled
+                title="Coming soon"
+              >
+                <FaApple className="h-5 w-5" />
+                Sign up with Apple (Coming Soon)
+              </Button>
+            </div>
+            
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
+                  Or sign up with email
+                </span>
+              </div>
+            </div>
+            
             {/* Registration Form - No Replit Account Required */}
             <form onSubmit={handleSignup} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">

@@ -11,7 +11,7 @@ import {
   claimedCommunities
 } from "@shared/schema";
 import { eq, desc, sql, and, or, gte } from "drizzle-orm";
-import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../replitAuth";
+import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../auth-middleware";
 import { 
   getSecurityDashboard, 
   getUserTrace, 

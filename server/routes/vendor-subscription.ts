@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { VendorSubscriptionService, VENDOR_SUBSCRIPTION_TIERS } from "../services/vendor-subscription";
-import { isAuthenticated } from "../replitAuth";
+import { isAuthenticated } from "../auth-middleware";
 import { db } from "../db";
 import { eq } from "drizzle-orm";
 import { vendors } from "@shared/schema";

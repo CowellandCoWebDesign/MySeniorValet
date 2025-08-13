@@ -29,6 +29,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { setupCustomAuth } = await import('./custom-auth');
   setupCustomAuth(app);
   
+  // Initialize social authentication (Google & Facebook OAuth)
+  const { setupSocialAuth } = await import('./social-auth');
+  setupSocialAuth(app);
+  
   // Keep auth bypass for super admin access
   const { setupAuthBypass } = await import('./auth-bypass');
   await setupAuthBypass(app);

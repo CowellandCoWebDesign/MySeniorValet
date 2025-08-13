@@ -3,7 +3,7 @@ import { db } from '../db';
 import { communities, enrichments } from '@shared/schema';
 import { eq, and, isNull, sql } from 'drizzle-orm';
 import { communityEnrichmentService } from '../community-enrichment-service';
-import { isAuthenticated, checkRole } from '../replitAuth';
+import { isAuthenticated, checkRole } from '../auth-middleware';
 
 const router = Router();
 

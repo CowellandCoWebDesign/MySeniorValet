@@ -5,7 +5,7 @@
 
 import { type Express } from "express";
 import { documensoService } from "../documenso-integration";
-import { isAuthenticated } from "../replitAuth";
+import { isAuthenticated } from "../auth-middleware";
 import { db } from "../db";
 import { communities, users } from "@shared/schema";
 import { eq } from "drizzle-orm";

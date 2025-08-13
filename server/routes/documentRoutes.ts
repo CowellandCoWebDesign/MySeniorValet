@@ -2,7 +2,7 @@ import { type Express } from "express";
 import { db } from "../db";
 import { messages, users } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
-import { isAuthenticated as requireAuth } from "../replitAuth";
+import { isAuthenticated as requireAuth } from "../auth-middleware";
 import multer from "multer";
 import path from "path";
 import fs from "fs/promises";

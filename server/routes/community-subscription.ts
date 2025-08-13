@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { db } from '../db';
 import { communities } from '@shared/schema';
 import { eq } from 'drizzle-orm';
-import { isAuthenticated } from '../replitAuth';
+import { isAuthenticated } from '../auth-middleware';
 import { 
   loadCommunitySubscription, 
   requireFeature, 

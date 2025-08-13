@@ -106,17 +106,7 @@ export const users = pgTable("users", {
 // Type definitions for Replit Auth (removing duplicate User type)
 export type UpsertUser = typeof users.$inferInsert;
 
-// Messaging type exports
-export type Message = typeof messages.$inferSelect;
-export type InsertMessage = typeof messages.$inferInsert;
-export type Conversation = typeof conversations.$inferSelect;
-export type InsertConversation = typeof conversations.$inferInsert;
-export type FamilyGroup = typeof familyGroups.$inferSelect;
-export type InsertFamilyGroup = typeof familyGroups.$inferInsert;
-export type MessageTemplate = typeof messageTemplates.$inferSelect;
-export type InsertMessageTemplate = typeof messageTemplates.$inferInsert;
-export type MessagingNotification = typeof messagingNotifications.$inferSelect;
-export type InsertMessagingNotification = typeof messagingNotifications.$inferInsert;
+// Messaging type exports (removed duplicates - defined later in file)
 
 // Family collaboration type exports
 export type FamilyPoll = typeof familyPolls.$inferSelect;

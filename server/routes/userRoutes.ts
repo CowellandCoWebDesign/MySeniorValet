@@ -9,7 +9,7 @@ import {
   communities 
 } from "@shared/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
-import { isAuthenticated as requireAuth } from "../replitAuth";
+import { isAuthenticated as requireAuth } from "../auth-middleware";
 import { storage } from "../storage";
 
 export function registerUserRoutes(app: Express) {

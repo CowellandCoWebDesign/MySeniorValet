@@ -3,7 +3,7 @@ import express from "express";
 import { db } from "../db";
 import { users, paymentTransactions, vendors, communities } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
-import { isAuthenticated as requireAuth, createAuthenticatedSession } from "../replitAuth";
+import { isAuthenticated as requireAuth, createAuthenticatedSession } from "../auth-middleware";
 import { stripeSubscriptionService } from "../stripe-subscription-service";
 import { testStripeCharge } from "../stripe-test";
 import { notifySuperAdmin } from "../sendgrid-service";

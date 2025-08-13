@@ -2,7 +2,7 @@ import { type Express } from "express";
 import { db } from "../db";
 import { communities } from "@shared/schema";
 import { eq } from "drizzle-orm";
-import { isAuthenticated as requireAuth, isAdmin } from "../replitAuth";
+import { isAuthenticated as requireAuth, isAdmin } from "../auth-middleware";
 import { intelligentPricingService } from "../intelligent-pricing-service";
 import { nationwidePricingResearch } from "../nationwide-pricing-research";
 import { pricingTransparencyService } from "../pricing-transparency-badges";

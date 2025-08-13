@@ -11,8 +11,8 @@ import {
   vendors
 } from '@shared/schema';
 import { eq, gte, lte, and, sql, desc, asc } from 'drizzle-orm';
-import { isAuthenticated } from '../replitAuth';
-import { checkRole } from '../replitAuth';
+import { isAuthenticated } from '../auth-middleware';
+import { checkRole } from '../auth-middleware';
 import Stripe from 'stripe';
 
 const stripe = process.env.STRIPE_SECRET_KEY 
