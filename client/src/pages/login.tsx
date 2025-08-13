@@ -26,7 +26,17 @@ export default function LoginPage() {
     }
   }, [user, isLoading, setLocation]);
 
+  // Only show loading during initial check
   if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+  
+  // If user is already authenticated, redirect will happen via useEffect
+  if (user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
