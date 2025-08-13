@@ -143,8 +143,8 @@ export async function setupAuth(app: Express) {
   // Get domains from environment variable
   const replitDomains = process.env.REPLIT_DOMAINS?.split(",") || [];
   
-  // Add production deployment domain if not included
-  const productionDomain = 'my-senior-valet-williamcowell01.replit.app';
+  // Add production deployment domain if not included (case-sensitive!)
+  const productionDomain = 'MySeniorValet.replit.app';
   if (!replitDomains.includes(productionDomain)) {
     replitDomains.push(productionDomain);
   }
@@ -153,6 +153,12 @@ export async function setupAuth(app: Express) {
   const customDomain = 'www.myseniorvalet.com';
   if (!replitDomains.includes(customDomain)) {
     replitDomains.push(customDomain);
+  }
+  
+  // Also add lowercase version just in case
+  const productionDomainLower = 'myseniorvalet.replit.app';
+  if (!replitDomains.includes(productionDomainLower)) {
+    replitDomains.push(productionDomainLower);
   }
   
   console.log('Configuring auth for domains:', replitDomains);
