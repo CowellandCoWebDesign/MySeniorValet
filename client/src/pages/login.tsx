@@ -13,23 +13,17 @@ export default function LoginPage() {
   const [, setLocation] = useLocation();
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
-  const [showStandardLogin, setShowStandardLogin] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Handle OAuth login redirect
-  const handleOAuthLogin = () => {
-    window.location.href = "/api/login";
-  };
   
-  // Handle standard login
-  const handleStandardLogin = async (e: React.FormEvent) => {
+  // Handle standard login (no Replit account required)
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
-      const response = await fetch("/api/auth/login-bypass", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -39,23 +33,24 @@ export default function LoginPage() {
       
       if (response.ok && data.success) {
         toast({
-          title: "Login successful",
-          description: "Welcome back!",
+          title: "Welcome back!",
+          description: "Successfully logged in to MySeniorValet",
         });
         
-        // Reload to update auth state
-        window.location.href = data.user.role === "super_admin" ? "/admin-unified" : "/dashboard";
+        // Redirect based on user role
+        window.location.href = data.user.role === "super_admin" ? "/admin-unified" : 
+                              data.user.role === "admin" ? "/admin-unified" : "/dashboard";
       } else {
         toast({
           title: "Login failed",
-          description: data.message || "Invalid credentials",
+          description: data.message || "Invalid email or password",
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to connect to server",
+        description: "Failed to connect to server. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -109,95 +104,82 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {!showStandardLogin ? (
-              <>
-                {/* OAuth Login Button */}
-                <Button
-                  onClick={handleOAuthLogin}
-                  className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
-                >
-                  <LogIn className="h-5 w-5 mr-2" />
-                  Sign In with Replit
+            {/* Standard Login Form - No Replit Account Required */}
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                  className="mt-1"
+                />
+              </div>
+              
+              {/* Forgot Password Link */}
+              <div className="flex justify-end">
+                <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
+                  Forgot password?
+                </Link>
+              </div>
+              
+              <Button
+                type="submit"
+                className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Signing in...
+                  </div>
+                ) : (
+                  <>
+                    <LogIn className="h-5 w-5 mr-2" />
+                    Sign In
+                  </>
+                )}
+              </Button>
+            </form>
+            
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
+                  New to MySeniorValet?
+                </span>
+              </div>
+            </div>
+            
+            {/* Sign Up Link */}
+            <div className="text-center">
+              <Link href="/signup">
+                <Button variant="outline" className="w-full h-12">
+                  <Users className="h-5 w-5 mr-2" />
+                  Create an Account
                 </Button>
-
-                {/* Divider */}
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
-                      Or use standard login
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Standard Login Option */}
-                <Button
-                  onClick={() => setShowStandardLogin(true)}
-                  variant="outline"
-                  className="w-full h-12"
-                >
-                  <Mail className="h-5 w-5 mr-2" />
-                  Sign In with Email
-                </Button>
-              </>
-            ) : (
-              <>
-                {/* Standard Login Form */}
-                <form onSubmit={handleStandardLogin} className="space-y-4">
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="admin@myseniorvalet.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      disabled={isSubmitting}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      disabled={isSubmitting}
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <div className="flex items-center">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Signing in...
-                      </div>
-                    ) : (
-                      <>
-                        <Lock className="h-5 w-5 mr-2" />
-                        Sign In
-                      </>
-                    )}
-                  </Button>
-                </form>
-                
-                <Button
-                  onClick={() => setShowStandardLogin(false)}
-                  variant="ghost"
-                  className="w-full"
-                >
-                  ← Back to login options
-                </Button>
-              </>
-            )}
+              </Link>
+            </div>
 
             {/* Benefits */}
             <div className="space-y-3">
