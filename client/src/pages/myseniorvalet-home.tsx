@@ -832,29 +832,29 @@ export default function MySeniorValetHome() {
                     <span>ACTIVE BETA - LIVE NOW</span>
                   </div>
                   
-                  <p className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-4">
+                  <p className="text-2xl md:text-3xl font-bold text-white dark:text-gray-100 mb-4">
                     Master the Full 10-Level Care Spectrum
                   </p>
                   
                   {/* Ultra-Compact Care Spectrum */}
                   <div className="text-center mb-6 px-4">
-                    <div className="text-lg md:text-xl text-gray-700 dark:text-gray-200">
-                      <span className="text-purple-600 dark:text-purple-400 font-bold">🏛️ HUD</span> → 
-                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🎖️ VA</span> → 
-                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🚐 Mobile</span> → 
-                      <span className="text-purple-600 dark:text-purple-400 font-bold"> ⛳ 55+</span> → 
-                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🏠 Independent</span> → 
-                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🏡 Board & Care</span> → 
-                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🤝 Assisted</span> → 
-                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🧠 Memory</span> → 
-                      <span className="text-purple-600 dark:text-purple-400 font-bold"> ♾️ CCRC</span> → 
-                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🏥 Skilled</span>
+                    <div className="text-lg md:text-xl text-gray-100 dark:text-gray-200">
+                      <span className="text-amber-300 dark:text-purple-400 font-bold">🏛️ HUD</span> → 
+                      <span className="text-amber-300 dark:text-purple-400 font-bold"> 🎖️ VA</span> → 
+                      <span className="text-amber-300 dark:text-purple-400 font-bold"> 🚐 Mobile</span> → 
+                      <span className="text-amber-300 dark:text-purple-400 font-bold"> ⛳ 55+</span> → 
+                      <span className="text-amber-300 dark:text-purple-400 font-bold"> 🏠 Independent</span> → 
+                      <span className="text-amber-300 dark:text-purple-400 font-bold"> 🏡 Board & Care</span> → 
+                      <span className="text-amber-300 dark:text-purple-400 font-bold"> 🤝 Assisted</span> → 
+                      <span className="text-amber-300 dark:text-purple-400 font-bold"> 🧠 Memory</span> → 
+                      <span className="text-amber-300 dark:text-purple-400 font-bold"> ♾️ CCRC</span> → 
+                      <span className="text-amber-300 dark:text-purple-400 font-bold"> 🏥 Skilled</span>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Complete care continuum from independent to full medical support</p>
+                    <p className="text-sm text-gray-200 dark:text-gray-400 mt-2">Complete care continuum from independent to full medical support</p>
                   </div>
 
-                  <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-200">
-                    Finally understand every option, every transition, every cost - <strong className="text-purple-600 dark:text-purple-400">complete transparency</strong> across the entire care journey.
+                  <p className="text-xl md:text-2xl text-gray-100 dark:text-gray-200">
+                    Finally understand every option, every transition, every cost - <strong className="text-amber-300 dark:text-purple-400">complete transparency</strong> across the entire care journey.
                   </p>
                   
                   {/* Beta Notice */}
@@ -873,16 +873,16 @@ export default function MySeniorValetHome() {
                     </p>
                   </div>
                   
-                  <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mt-4">
+                  <p className="text-lg md:text-xl text-gray-100 dark:text-gray-300 mt-4">
                     We're not just launching a platform. We're launching a movement - and you're part of it.
                   </p>
                 </div>
 
                 <div className="pt-6">
-                  <p className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+                  <p className="text-2xl md:text-3xl font-black text-white dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-blue-400 dark:to-purple-400">
                     To every family searching in the dark: The lights are on now.
                   </p>
-                  <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mt-4">
+                  <p className="text-lg md:text-xl text-gray-100 dark:text-gray-300 mt-4">
                     <strong>You deserve the truth. Communities deserve to be found. The darkness ends today.</strong>
                   </p>
                 </div>
