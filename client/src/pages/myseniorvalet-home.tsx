@@ -518,7 +518,7 @@ export default function MySeniorValetHome() {
           {/* Centered Headlines - Optimized for Desktop with Better Spacing */}
           <div className="text-center mb-6 md:mb-8 max-w-6xl">
             <div className="space-y-4">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl tracking-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl tracking-tight">
                 <span className="block mb-2 hero-text-main">Empowering Families to Find Transparent, Affordable Senior Living and Care</span>
               </h1>
               <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-space-warp max-w-4xl mx-auto font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
@@ -761,8 +761,8 @@ export default function MySeniorValetHome() {
                         THIS STOPS NOW - COMPLETE CARE SPECTRUM FOR ALL
                       </span>
                     </h3>
-                    <p className="text-lg text-gray-800 dark:text-gray-100 mt-2 font-medium">
-                      Master all 10+ levels of care. Real pricing, real availability. <span className="font-bold text-blue-700 dark:text-blue-300">No hidden fees, no referral markups, no communication floods.</span> Welcome to complete transparency.
+                    <p className="text-lg text-gray-700 dark:text-gray-200 mt-2 font-medium">
+                      Master all 10+ levels of care. Real pricing, real availability. <span className="font-bold text-amber-600 dark:text-amber-400">No hidden fees, no referral markups, no communication floods.</span> Welcome to complete transparency.
                     </p>
                   </div>
                   <div className="grid md:grid-cols-2 gap-6 text-left">
@@ -3327,8 +3327,8 @@ export default function MySeniorValetHome() {
         entityType="vendor"
       />
       
-      {/* Onboarding Wizard - TEMPORARILY DISABLED DURING BETA */}
-      {/* <OnboardingWrapper /> */}
+      {/* Onboarding Wizard */}
+      <OnboardingWrapper />
     </div>
   );
 }
