@@ -110,50 +110,41 @@ export function registerAuthRoutes(app: Express) {
   // Get current user
   app.get("/api/auth/user", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.id;
-      if (!userId) {
+      // Get Replit user ID from claims
+      const replitUserId = req.user?.claims?.sub;
+      if (!replitUserId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      // Handle test users in development
-      if (typeof userId === 'string' && userId.startsWith('test-')) {
-        // Return mock user data for test users
-        return res.json({
-          id: userId,
-          email: 'test@example.com',
-          firstName: 'Test',
-          lastName: 'User',
-          phone: null,
-          role: 'user',
-          dateOfBirth: null,
-          relationshipToCare: null,
-          careNeeds: null,
-          searchPreferences: {},
-          notifications: {},
-          dashboardPreferences: {},
-          emailVerified: true,
-          isActive: true,
-          createdAt: new Date()
-        });
-      }
-
-      // Ensure userId is a number for database queries
-      const numericUserId = typeof userId === 'string' ? parseInt(userId, 10) : userId;
-      if (isNaN(numericUserId)) {
-        return res.status(400).json({ message: 'Invalid user ID' });
-      }
-
+      // Get user from database using Replit user ID as string
       const [user] = await db
         .select()
         .from(users)
-        .where(eq(users.id, numericUserId))
+        .where(eq(users.id, String(replitUserId)))
         .limit(1);
 
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(401).json({ message: "User not found" });
       }
 
-      res.json(user);
+      // Return user data including role for admin dashboard access control
+      return res.json({
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        role: user.role,
+        dateOfBirth: user.dateOfBirth,
+        relationshipToCare: user.relationshipToCare,
+        careNeeds: user.careNeeds,
+        searchPreferences: user.searchPreferences,
+        notifications: user.notifications,
+        dashboardPreferences: user.dashboardPreferences,
+        emailVerified: user.emailVerified,
+        isActive: user.isActive,
+        createdAt: user.createdAt
+      });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -163,8 +154,8 @@ export function registerAuthRoutes(app: Express) {
   // Update user profile
   app.patch("/api/auth/user", requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user?.id;
-      if (!userId) {
+      const replitUserId = req.user?.claims?.sub;
+      if (!replitUserId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
@@ -184,7 +175,7 @@ export function registerAuthRoutes(app: Express) {
           ...updates,
           updatedAt: new Date()
         })
-        .where(eq(users.id, userId))
+        .where(eq(users.id, String(replitUserId)))
         .returning();
 
       if (!updatedUser) {

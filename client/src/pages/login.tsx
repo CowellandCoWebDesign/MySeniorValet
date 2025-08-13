@@ -1,83 +1,18 @@
-import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Eye, EyeOff, Heart, Shield, Users } from "lucide-react";
+import { Heart, Shield, Users, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NavigationHeader } from "@/components/NavigationHeader";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { z } from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
-});
-
-type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { user, isLoading } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  // Handle form submission
-  const onSubmit = async (data: LoginForm) => {
-    setIsSubmitting(true);
-    try {
-      const response = await fetch("/api/auth/quick-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Login failed");
-      }
-
-      toast({
-        title: "Login successful!",
-        description: "Welcome back to MySeniorValet",
-      });
-
-      // Redirect based on user role
-      if (result.user.role === "super_admin") {
-        setLocation("/admin-unified");
-      } else {
-        setLocation("/dashboard");
-      }
-    } catch (error) {
-      toast({
-        title: "Login failed",
-        description: error instanceof Error ? error.message : "Invalid credentials",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+  // Handle OAuth login redirect
+  const handleLogin = () => {
+    window.location.href = "/api/login";
   };
 
   // Redirect if already logged in
@@ -112,88 +47,18 @@ export default function LoginPage() {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">Sign In to MySeniorValet</CardTitle>
             <CardDescription className="text-gray-600 dark:text-gray-300">
-              Access your dashboard and admin tools
+              Access your dashboard and personalized tools
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Login Form */}
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="your@email.com"
-                          autoComplete="email"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Enter your password"
-                            autoComplete="current-password"
-                            {...field}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowPassword(!showPassword)}
-                          >
-                            {showPassword ? (
-                              <EyeOff className="h-4 w-4 text-gray-400" />
-                            ) : (
-                              <Eye className="h-4 w-4 text-gray-400" />
-                            )}
-                            <span className="sr-only">
-                              {showPassword ? "Hide password" : "Show password"}
-                            </span>
-                          </Button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
-                >
-                  {isSubmitting ? (
-                    <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Signing in...
-                    </div>
-                  ) : (
-                    <>
-                      <Shield className="h-5 w-5 mr-2" />
-                      Sign In
-                    </>
-                  )}
-                </Button>
-              </form>
-            </Form>
+            {/* OAuth Login Button */}
+            <Button
+              onClick={handleLogin}
+              className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+            >
+              <LogIn className="h-5 w-5 mr-2" />
+              Sign In with Replit
+            </Button>
 
             {/* Divider */}
             <div className="relative">
@@ -211,7 +76,7 @@ export default function LoginPage() {
             <div className="space-y-3">
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                 <Shield className="h-4 w-4 mr-3 text-green-500" />
-                Industry-standard security
+                Industry-standard OAuth security
               </div>
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                 <Users className="h-4 w-4 mr-3 text-blue-500" />

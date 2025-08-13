@@ -11,7 +11,7 @@ export default function EmergencyContacts() {
 
   // In production, get the actual user ID from authentication
   const { data: userData } = useQuery({
-    queryKey: ["/api/auth/quick-user"],
+    queryKey: ["/api/auth/user"],
     enabled: false, // Disabled for now, using test user
   });
 

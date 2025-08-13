@@ -69,7 +69,7 @@ export function AutocompleteSearch({
   
   // Fetch user authentication status
   const { data: user } = useQuery<{ success: boolean; user: any }>({
-    queryKey: ['/api/auth/quick-user'],
+    queryKey: ['/api/auth/user'],
   });
   
   // Favorites management

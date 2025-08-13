@@ -71,8 +71,8 @@ import socialMediaRoutes from "./social-media-api";
 import emailCampaignRoutes from "./email-campaign-api";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Initialize Replit Auth before other routes
-  await setupAuth(app);
+  // Note: Replit Auth is already initialized in server/routes.ts
+  // Don't initialize it again here to avoid conflicts
 
   // Initialize community stats cache on startup (non-blocking)
   communityStatsCache.initialize().catch(error => {
@@ -84,7 +84,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register all route modules - ORDER MATTERS!
   registerAuthRoutes(app);
-  registerQuickAuthRoutes(app);
+  // DISABLED: Quick auth bypass removed for production
+  // registerQuickAuthRoutes(app);
   registerPlatformRoutes(app);
   
   // Register community onboarding routes
