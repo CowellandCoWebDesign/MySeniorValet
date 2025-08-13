@@ -34,6 +34,7 @@ import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import HospitalCarousel from "@/components/HospitalCarousel";
 import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
+import { useSEO } from '@/hooks/useSEO';
 
 
 
@@ -41,6 +42,15 @@ import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 export default function MySeniorValetHome() {
   const { t, language } = useLanguage();
   const [, setLocation] = useLocation();
+  
+  // Set SEO metadata for home page
+  useSEO({
+    title: 'Senior Living Made Simple - Find Communities, Real Pricing, No Hidden Fees',
+    description: 'Search 34,494+ senior living communities with transparent pricing, verified HUD rates, and real availability. Compare assisted living, memory care, nursing homes across USA & Canada. Free tour scheduling, family sharing tools, and senior resources.',
+    keywords: 'senior living, assisted living, memory care, nursing homes, HUD senior housing, independent living, retirement communities, elder care, senior care facilities, Medicare, Medicaid, VA benefits',
+    canonicalUrl: 'https://www.myseniorvalet.com/'
+  });
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showProtectionModal, setShowProtectionModal] = useState(false);

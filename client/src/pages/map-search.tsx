@@ -25,6 +25,7 @@ import { AISearchInsights } from '@/components/AISearchInsights';
 import { useQuery } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { useDebounce } from '@/hooks/use-debounce';
+import { useSEO, SEOTemplates } from '@/hooks/useSEO';
 
 interface Community {
   id: number;
@@ -100,6 +101,9 @@ interface SearchFilters {
 
 export default function MapSearch() {
   const [, setLocation] = useLocation();
+
+  // Set SEO metadata for this page
+  useSEO(SEOTemplates.mapSearch);
 
   // Get search query from URL parameters
   const urlParams = new URLSearchParams(window.location.search);
