@@ -202,19 +202,10 @@ export async function setupAuth(app: Express) {
     const strategyName = `replitauth:${req.hostname}`;
     console.log(`Login attempt for hostname: ${req.hostname}`);
     
+    // Use standard passport authenticate without custom callback for login
     passport.authenticate(strategyName, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
-    }, (err: any, user: any, info: any) => {
-      if (err) {
-        console.error(`Auth strategy error for ${req.hostname}:`, err);
-        return res.status(500).json({ 
-          error: 'Authentication configuration error',
-          hostname: req.hostname,
-          message: 'Please ensure you are accessing from the correct domain'
-        });
-      }
-      next();
     })(req, res, next);
   });
 
