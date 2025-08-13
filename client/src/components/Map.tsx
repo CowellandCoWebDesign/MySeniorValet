@@ -1740,13 +1740,6 @@ export default function Map({
             </div>
           </div>
         )}
-
-        {/* Minimal Map Stats Overlay - Moved to bottom-left corner to avoid blocking controls */}
-        <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg p-2 z-10 shadow-sm">
-          <p className="text-xs text-gray-600 font-medium">
-            {clusterData?.clusters?.filter((f: any) => !f.properties?.cluster).length || 0} communities
-          </p>
-        </div>
       </div>
 
       {/* Legend Overlay - Display when showLegend is true */}
@@ -1847,10 +1840,17 @@ export default function Map({
                 <span className="text-gray-600 dark:text-gray-400">Low Availability</span>
               </div>
             </div>
+            </div>
           </div>
         </div>
-      </div>
       )}
+
+      {/* Minimal Map Stats Overlay - Moved to bottom-left corner to avoid blocking controls */}
+      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg p-2 z-10 shadow-sm">
+        <p className="text-xs text-gray-600 font-medium">
+          {clusterData?.clusters?.filter((f: any) => !f.properties?.cluster).length || 0} communities
+        </p>
+      </div>
     </div>
   );
 }
