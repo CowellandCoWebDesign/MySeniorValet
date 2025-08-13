@@ -459,14 +459,17 @@ export function setupSeniorResourcesRoutes(app: Express) {
       }
 
       // Aggregate all resources for the county
+      const baseUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://www.myseniorvalet.com'
+        : 'http://localhost:5000';
       const foodBankResponse = await fetch(
-        `http://localhost:5000/api/senior-resources/food-banks?county=${county}&state=${state}`
+        `${baseUrl}/api/senior-resources/food-banks?county=${county}&state=${state}`
       );
       const ihssResponse = await fetch(
-        `http://localhost:5000/api/senior-resources/ihss?county=${county}&state=${state}`
+        `${baseUrl}/api/senior-resources/ihss?county=${county}&state=${state}`
       );
       const slsResponse = await fetch(
-        `http://localhost:5000/api/senior-resources/sls?county=${county}&state=${state}`
+        `${baseUrl}/api/senior-resources/sls?county=${county}&state=${state}`
       );
 
       const foodBankData = await foodBankResponse.json();

@@ -168,7 +168,10 @@ export function registerAIRoutes(app: Express) {
           }
           
           // Make internal request to enhanced search endpoint
-          const enhancedSearchUrl = `http://localhost:5000/api/communities/search/enhanced?${params.toString()}`;
+          const baseUrl = process.env.NODE_ENV === 'production' 
+            ? 'https://www.myseniorvalet.com'
+            : 'http://localhost:5000';
+          const enhancedSearchUrl = `${baseUrl}/api/communities/search/enhanced?${params.toString()}`;
           console.log(`🔄 AI Search calling enhanced search: ${enhancedSearchUrl}`);
           const response = await fetch(enhancedSearchUrl);
           
@@ -747,7 +750,10 @@ export function registerAIRoutes(app: Express) {
           }
           
           // Make internal request to enhanced search endpoint
-          const enhancedSearchUrl = `http://localhost:5000/api/communities/search/enhanced?${params.toString()}`;
+          const baseUrl = process.env.NODE_ENV === 'production' 
+            ? 'https://www.myseniorvalet.com'
+            : 'http://localhost:5000';
+          const enhancedSearchUrl = `${baseUrl}/api/communities/search/enhanced?${params.toString()}`;
           console.log(`🔄 Recommendations calling enhanced search: ${enhancedSearchUrl}`);
           const response = await fetch(enhancedSearchUrl);
           
