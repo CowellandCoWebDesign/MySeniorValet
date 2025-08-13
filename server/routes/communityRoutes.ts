@@ -721,6 +721,73 @@ export function registerCommunityRoutes(app: Express) {
         }
       );
 
+      // SAVE AI-ENRICHED DATA BACK TO DATABASE
+      try {
+        const updateData: any = {};
+        
+        // Extract enriched description from AI insights
+        if (verificationReport.aiInsights) {
+          const aiDescription = [];
+          
+          // Build comprehensive description from AI insights
+          if (verificationReport.aiInsights.claude) {
+            aiDescription.push(verificationReport.aiInsights.claude.overview || '');
+          }
+          if (verificationReport.aiInsights.chatgpt) {
+            aiDescription.push(verificationReport.aiInsights.chatgpt.overview || '');
+          }
+          if (verificationReport.aiInsights.perplexity) {
+            aiDescription.push(verificationReport.aiInsights.perplexity.overview || '');
+          }
+          
+          // Combine and deduplicate descriptions
+          const combinedDescription = aiDescription
+            .filter(desc => desc && desc.length > 0)
+            .join('\n\n')
+            .substring(0, 2000); // Limit to 2000 chars
+          
+          if (combinedDescription && combinedDescription.length > 100) {
+            updateData.description = combinedDescription;
+          }
+        }
+        
+        // Extract pricing information if available
+        if (verificationReport.pricing && verificationReport.pricing.verified) {
+          if (verificationReport.pricing.monthlyFrom) {
+            updateData.price_range_min = verificationReport.pricing.monthlyFrom;
+          }
+          if (verificationReport.pricing.monthlyTo) {
+            updateData.price_range_max = verificationReport.pricing.monthlyTo;
+          }
+        }
+        
+        // Extract care types if available
+        if (verificationReport.careTypes && verificationReport.careTypes.length > 0) {
+          updateData.careTypes = verificationReport.careTypes;
+        }
+        
+        // Extract amenities if available
+        if (verificationReport.amenities && verificationReport.amenities.length > 0) {
+          updateData.amenities = verificationReport.amenities;
+        }
+        
+        // Only update if we have data to save
+        if (Object.keys(updateData).length > 0) {
+          updateData.ai_enrichment_date = new Date();
+          updateData.ai_enrichment_version = 'v2.0';
+          
+          await db
+            .update(communities)
+            .set(updateData)
+            .where(eq(communities.id, communityId));
+          
+          console.log(`✅ Saved AI-enriched data for ${community.name} (${Object.keys(updateData).length} fields updated)`);
+        }
+      } catch (saveError) {
+        console.error('Error saving AI-enriched data:', saveError);
+        // Continue even if save fails - don't break the user experience
+      }
+
       res.json(verificationReport);
     } catch (error) {
       console.error("Multi-AI verification error:", error);
