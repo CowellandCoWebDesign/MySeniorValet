@@ -179,12 +179,24 @@ class DualMarketExpander {
         line.toLowerCase().includes(chain.toLowerCase())
       );
       
-      if (chainFound || line.match(/^\d+\.|^-|^•/)) {
-        // Extract name
-        const nameMatch = line.match(/^[\d\-•\*]+\.?\s*([^:,\(]+)/);
-        if (nameMatch) {
-          const name = nameMatch[1].trim();
-          
+      if (chainFound) {
+        // Extract the facility name more carefully
+        let facilityName = '';
+        
+        // Pattern 1: **Name** format
+        const boldMatch = line.match(/\*\*([^*]+)\*\*/);
+        if (boldMatch) {
+          facilityName = boldMatch[1].trim();
+        } else {
+          // Pattern 2: Chain name with location
+          const locationMatch = line.match(new RegExp(`(${chainFound}[^,\\.\\(]*?)(?:[,\\.]|\\(|$)`, 'i'));
+          if (locationMatch) {
+            facilityName = locationMatch[1].trim();
+          }
+        }
+        
+        // Skip if name is too long (likely a sentence) or empty
+        if (facilityName && facilityName.length < 60 && !facilityName.includes(' is ') && !facilityName.includes(' are ')) {
           // Extract pricing
           const priceMatches = line.match(/\$[\d,]+/g);
           const pricing = priceMatches ? priceMatches[0] : undefined;
@@ -199,15 +211,15 @@ class DualMarketExpander {
           const phoneMatch = line.match(/\d{3}[-.]?\d{3}[-.]?\d{4}/);
           
           chains.push({
-            name,
+            name: facilityName,
             city,
             state,
             pricing,
-            careTypes,
+            careTypes: careTypes.length > 0 ? careTypes : ['Assisted Living'],
             phone: phoneMatch ? phoneMatch[0] : undefined,
             chainAffiliation: chainFound,
             source: 'city_search',
-            description: `Part of ${chainFound || 'commercial'} senior living network in ${city}, ${state}`
+            description: `Part of ${chainFound} senior living network in ${city}, ${state}`
           });
         }
       }
@@ -359,7 +371,8 @@ class DualMarketExpander {
           ai_enrichment_date: new Date(),
           ai_enrichment_version: 'dual_market_v1',
           status: 'Active',
-          listing_type: 'Premium' // Commercial chains likely to be premium
+          listing_type: 'Premium', // Commercial chains likely to be premium
+          subscription_tier: 'verified' // Default tier (commercial chains get verified status)
         });
         added++;
         console.log(`  ✅ Added: ${chain.name} (${chain.city}, ${chain.state})`);
