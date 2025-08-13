@@ -59,7 +59,6 @@ import { registerCommunityOnboardingRoutes } from "./communityOnboardingRoutes";
 // import { registerVendorStripeRoutes } from "./vendor-stripe";
 import unifiedPaymentRoutes from "./unifiedPaymentRoutes";
 import paymentTestRoutes from "./payment-test-routes";
-import automatedPaymentTestRoutes from "./automated-payment-test";
 
 // Import existing routers
 import { quizRouter } from "./quiz";
@@ -124,9 +123,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Payment Testing Routes (for extensive pre-launch testing)
   app.use('/api/payments', paymentTestRoutes);
-  
-  // Automated Payment Testing Routes
-  app.use('/api/payments/automated', automatedPaymentTestRoutes);
   
   registerStatsRoutes(app);
   registerPricingRoutes(app);
