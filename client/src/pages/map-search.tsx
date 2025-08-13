@@ -2420,8 +2420,7 @@ export default function MapSearch() {
           onComplete={handleTutorialComplete}
         />
       )} */}
-      </div>
-      </div>
-    </div> {/* Close Main h-screen Container */}
+    </div>
+    </div>
   );
 }
