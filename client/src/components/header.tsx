@@ -60,13 +60,13 @@ export function Header() {
           <div className="flex items-center space-x-3">
             <ThemeToggle />
             <NotificationCenter />
-            <Link to="/community-portal" className="hidden lg:block">
+            <Link href="/community-portal" className="hidden lg:block">
               <Button variant="ghost" className="text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700 font-medium">
                 <Building2 className="h-4 w-4 mr-2" />
                 Community Portal
               </Button>
             </Link>
-            <Link to="/login">
+            <Link href="/login">
               <Button className="shadow-sm hover:shadow-md transition-shadow" aria-label="Sign in to MySeniorValet">
                 Sign In
               </Button>
@@ -112,13 +112,13 @@ export function Header() {
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Theme</span>
                       <ThemeToggle />
                     </div>
-                    <Link to="/community-portal">
+                    <Link href="/community-portal">
                       <Button variant="outline" className="w-full justify-start">
                         <Building2 className="h-4 w-4 mr-2" />
                         Community Portal
                       </Button>
                     </Link>
-                    <Link to="/login">
+                    <Link href="/login">
                       <Button className="w-full shadow-sm">
                         Sign In
                       </Button>

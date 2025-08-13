@@ -280,10 +280,13 @@ export function corsPolicy(req: Request, res: Response, next: NextFunction) {
   const isAllowedOrigin = origin && (
     origin.includes('.replit.dev') ||
     origin.includes('.repl.co') ||
+    origin.includes('.replit.app') || // Added support for Replit app domains
     origin.includes('localhost') ||
     origin.includes('127.0.0.1') ||
     origin === 'https://myseniorvalet.com' || 
-    origin === 'https://www.myseniorvalet.com'
+    origin === 'https://www.myseniorvalet.com' ||
+    origin === 'https://myseniorvalet.replit.app' || // Explicitly allow production domain
+    origin === 'https://MySeniorValet.replit.app' // Case-sensitive variant
   );
   
   if (isAllowedOrigin) {
