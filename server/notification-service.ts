@@ -107,7 +107,10 @@ export class NotificationService {
     try {
       // Get super admin user
       const [superAdmin] = await db
-        .select()
+        .select({
+          id: users.id,
+          email: users.email
+        })
         .from(users)
         .where(eq(users.email, NOTIFICATION_EMAIL_CONFIG.superAdmin.primary))
         .limit(1);
@@ -193,7 +196,10 @@ export class NotificationService {
   static async queueEmailNotification(notificationId: number, userId: string) {
     try {
       const [user] = await db
-        .select()
+        .select({
+          id: users.id,
+          email: users.email
+        })
         .from(users)
         .where(eq(users.id, userId))
         .limit(1);
