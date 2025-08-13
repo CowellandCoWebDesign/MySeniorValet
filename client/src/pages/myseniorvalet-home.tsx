@@ -284,19 +284,19 @@ export default function MySeniorValetHome() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Header - Reduced height */}
-      <header className="absolute top-0 left-0 right-0 z-40 bg-black/10 dark:bg-black/30 backdrop-blur-md border-b border-white/10 dark:border-white/20">
+      <header className="absolute top-0 left-0 right-0 z-40 bg-white/80 dark:bg-black/30 backdrop-blur-md border-b border-gray-200 dark:border-white/20">
         <div className="px-4 py-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Sheet>
                 <SheetTrigger asChild>
-                  <button className="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm shadow-lg hover:bg-white/30 transition-colors">
+                  <button className="p-1.5 bg-gray-200 dark:bg-white/20 rounded-lg shadow-lg hover:bg-gray-300 dark:hover:bg-white/30 transition-colors">
                     <div className="flex flex-col space-y-1">
-                      <div className="w-4 h-0.5 bg-white rounded-full"></div>
-                      <div className="w-4 h-0.5 bg-white rounded-full"></div>
-                      <div className="w-4 h-0.5 bg-white rounded-full"></div>
+                      <div className="w-4 h-0.5 bg-gray-700 dark:bg-white rounded-full"></div>
+                      <div className="w-4 h-0.5 bg-gray-700 dark:bg-white rounded-full"></div>
+                      <div className="w-4 h-0.5 bg-gray-700 dark:bg-white rounded-full"></div>
                     </div>
                   </button>
                 </SheetTrigger>
@@ -424,7 +424,7 @@ export default function MySeniorValetHome() {
                         {/* High Contrast */}
                         <div className="flex items-center justify-between py-2">
                           <div className="flex items-center space-x-3">
-                            <Eye className="h-4 w-4 text-purple-500" />
+                            <Eye className="h-4 w-4 text-blue-600" />
                             <Label htmlFor="high-contrast" className="text-sm font-medium cursor-pointer">
                               High Contrast
                             </Label>
@@ -480,19 +480,19 @@ export default function MySeniorValetHome() {
                 </SheetContent>
               </Sheet>
               <div className="flex items-center space-x-1.5">
-                <div className="w-6 h-6 gradient-primary rounded-md flex items-center justify-center">
+                <div className="w-6 h-6 bg-gradient-to-r from-blue-600 to-blue-700 rounded-md flex items-center justify-center">
                   <Home className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-lg font-bold text-gradient dark:text-white">MySeniorValet</span>
+                <span className="text-lg font-bold text-gray-800 dark:text-white">MySeniorValet</span>
               </div>
             </div>
             <div className="flex items-center space-x-3">
               <LanguageSwitcher />
               <ThemeToggle />
-              <Link href="/login" className="text-white hover:text-amber-200 dark:text-gray-300 dark:hover:text-amber-300 transition-colors font-medium text-sm">
+              <Link href="/login" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-amber-300 transition-colors font-medium text-sm">
                 Sign In
               </Link>
-              <Link href="/signup" className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-xl hover:bg-white/30 dark:bg-white/10 dark:hover:bg-white/20 transition-all duration-200 font-medium shadow-lg hover:shadow-xl text-sm">
+              <Link href="/signup" className="bg-blue-600 text-white px-3 py-1.5 rounded-xl hover:bg-blue-700 dark:bg-white/10 dark:hover:bg-white/20 transition-all duration-200 font-medium shadow-lg hover:shadow-xl text-sm">
                 Sign Up
               </Link>
             </div>
@@ -660,15 +660,15 @@ export default function MySeniorValetHome() {
       </section>
 
       {/* Personalized Banner */}
-      <div className="px-4 py-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+      <div className="px-4 py-6 bg-gradient-to-r from-blue-50 to-gray-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
           <PersonalizedBanner />
         </div>
       </div>
 
       {/* TODAY, EVERYTHING CHANGES - Historic Launch Message */}
-      <section className="px-4 py-16 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10"></div>
+      <section className="px-4 py-16 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-blue-600/10"></div>
         <div className="max-w-6xl mx-auto text-center relative">
           <div className="mb-8">
             <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-base font-bold shadow-2xl mb-6 animate-pulse">
