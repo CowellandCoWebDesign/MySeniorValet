@@ -8,6 +8,8 @@ import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import MemoryStore from "memorystore";
 import { storage } from "./storage";
+import { db } from "./db";
+import { sql } from "drizzle-orm";
 
 if (!process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
@@ -338,62 +340,82 @@ export async function setupAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  // Check for demo mode in development
-  const sessionId = (req as any).cookies?.sessionId;
+  // PRODUCTION FIX: Check both cookie parsing methods
+  const cookies = (req as any).cookies || {};
+  const sessionId = cookies.sessionId || req.cookies?.sessionId;
   
-  if (!sessionId && process.env.NODE_ENV === 'development') {
-    // Demo super admin user for testing
-    (req as any).user = {
-      id: 'test-user-123',
-      email: 'William.cowell01@gmail.com',
-      username: 'William Cowell',
-      role: 'super_admin',
-      isDemo: true,
-      expires_at: Math.floor(Date.now() / 1000) + 3600
-    };
-    (req as any).isAuthenticated = () => true;
-    return next();
+  // Priority 1: Check for standard auth session (works everywhere)
+  if (sessionId) {
+    // Check in-memory sessions
+    if (global.activeSessions?.[sessionId]) {
+      const session = global.activeSessions[sessionId];
+      (req as any).user = {
+        claims: {
+          sub: session.userId,
+          email: session.email
+        },
+        id: session.userId,
+        email: session.email,
+        role: session.role,
+        expires_at: Math.floor(Date.now() / 1000) + 3600
+      };
+      (req as any).isAuthenticated = () => true;
+      return next();
+    }
+    
+    // Check database sessions
+    try {
+      const result = await db.execute(sql`
+        SELECT u.* FROM user_sessions us
+        JOIN users u ON u.id = us.user_id
+        WHERE us.id = ${sessionId} AND us.expires_at > NOW()
+        LIMIT 1
+      `);
+      
+      if (result.rows.length > 0) {
+        const user = result.rows[0];
+        (req as any).user = {
+          claims: {
+            sub: user.id,
+            email: user.email
+          },
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          expires_at: Math.floor(Date.now() / 1000) + 3600
+        };
+        (req as any).isAuthenticated = () => true;
+        return next();
+      }
+    } catch (error) {
+      console.error('Session lookup error:', error);
+    }
   }
   
-  // Check for active session
-  if (sessionId && global.activeSessions?.[sessionId]) {
-    const session = global.activeSessions[sessionId];
-    (req as any).user = {
-      id: session.userId,
-      email: session.email,
-      role: session.role,
-      expires_at: Math.floor(Date.now() / 1000) + 3600
-    };
-    (req as any).isAuthenticated = () => true;
-    return next();
-  }
-  
+  // Priority 2: Check Replit OAuth (production deployment)
   const user = req.user as any;
-
-  if (!req.isAuthenticated() || !user?.expires_at) {
-    return res.status(401).json({ message: "Unauthorized" });
+  if (req.isAuthenticated() && user?.expires_at) {
+    const now = Math.floor(Date.now() / 1000);
+    if (now <= user.expires_at) {
+      return next();
+    }
+    
+    // Try to refresh token
+    const refreshToken = user.refresh_token;
+    if (refreshToken) {
+      try {
+        const config = await getOidcConfig();
+        const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
+        updateUserSession(user, tokenResponse);
+        return next();
+      } catch (error) {
+        console.error('Token refresh failed:', error);
+      }
+    }
   }
-
-  const now = Math.floor(Date.now() / 1000);
-  if (now <= user.expires_at) {
-    return next();
-  }
-
-  const refreshToken = user.refresh_token;
-  if (!refreshToken) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  try {
-    const config = await getOidcConfig();
-    const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
-    updateUserSession(user, tokenResponse);
-    return next();
-  } catch (error) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
+  
+  // No valid authentication found
+  return res.status(401).json({ message: "Unauthorized" });
 };
 
 // Admin-only middleware
