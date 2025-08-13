@@ -233,8 +233,9 @@ export async function setupAuth(app: Express) {
     console.log(`Login attempt for hostname: ${req.hostname}`);
     
     // Use standard passport authenticate without custom callback for login
+    // CRITICAL: Don't use "consent" in prompt - it forces consent screen every time!
     passport.authenticate(strategyName, {
-      prompt: "login consent",
+      prompt: "login", // Only prompt for login, not consent
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
   });
