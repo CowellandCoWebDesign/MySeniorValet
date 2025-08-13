@@ -135,12 +135,13 @@ export default function SignupPage() {
               </Button>
               
               <Button
-                onClick={() => window.location.href = "/api/auth/facebook"}
-                className="w-full h-12 bg-[#1877F2] hover:bg-[#166FE5] text-white font-medium flex items-center justify-center gap-3"
+                disabled
+                className="w-full h-12 bg-gray-200 hover:bg-gray-200 text-gray-500 font-medium flex items-center justify-center gap-3 cursor-not-allowed"
                 type="button"
+                title="Facebook login coming soon"
               >
                 <FaFacebook className="h-5 w-5" />
-                Sign up with Facebook
+                Facebook (Coming Soon)
               </Button>
               
               <Button
