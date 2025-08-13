@@ -274,18 +274,6 @@ export default function MapSearch() {
     }
   }, [isDragging, handleDragMove, handleDragEnd]);
 
-  // Handle legend close event
-  useEffect(() => {
-    const handleCloseLegend = () => {
-      setShowLegend(false);
-    };
-    
-    window.addEventListener('closeLegend', handleCloseLegend);
-    return () => {
-      window.removeEventListener('closeLegend', handleCloseLegend);
-    };
-  }, []);
-
   // Debug log
   console.log('Map Search Component - showBottomPanel:', showBottomPanel, 'viewMode:', viewMode);
   console.log('Tutorial state - hasSeenTutorial:', hasSeenTutorial, 'showTutorial:', showTutorial);
@@ -2420,7 +2408,6 @@ export default function MapSearch() {
           onComplete={handleTutorialComplete}
         />
       )} */}
-    </div>
-    </div>
+    </div> {/* Close Main h-screen Container */}
   );
 }

@@ -1744,25 +1744,8 @@ export default function Map({
 
       {/* Legend Overlay - Display when showLegend is true */}
       {showLegend && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-xl text-gray-900 dark:text-white">Map Legend</h3>
-                <button
-                  onClick={() => {
-                    // This will need to be handled by the parent component
-                    const event = new CustomEvent('closeLegend');
-                    window.dispatchEvent(event);
-                  }}
-                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl font-bold"
-                  aria-label="Close legend"
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-            <div className="p-4 space-y-4">
+        <div className="absolute top-4 right-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 z-[1001] shadow-xl max-w-sm">
+          <h3 className="font-semibold text-lg mb-3 text-gray-900 dark:text-white">Map Legend</h3>
           
           {/* HUD & Data Availability */}
           <div className="mb-3 pb-3 border-b border-gray-200 dark:border-gray-700">
@@ -1839,7 +1822,6 @@ export default function Map({
                 <div className="w-6 h-6 bg-gradient-to-r from-orange-500 to-red-500 rounded"></div>
                 <span className="text-gray-600 dark:text-gray-400">Low Availability</span>
               </div>
-            </div>
             </div>
           </div>
         </div>
