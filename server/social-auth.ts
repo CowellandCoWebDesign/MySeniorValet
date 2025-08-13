@@ -15,21 +15,23 @@ const router = Router();
 // Google OAuth Configuration
 const googleClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.NODE_ENV === 'production' 
-    ? 'https://www.myseniorvalet.com/api/auth/google/callback'
-    : 'https://myseniorvalet.replit.app/api/auth/google/callback'
+  process.env.GOOGLE_CLIENT_SECRET
 );
 
 export function setupSocialAuth(app: any) {
   // Google OAuth Login Endpoint
   router.get('/api/auth/google', (req, res) => {
+    // Get the current host from the request
+    const protocol = req.protocol;
+    const host = req.get('host');
+    const redirectUri = `${protocol}://${host}/api/auth/google/callback`;
+    
+    console.log('Google OAuth redirect URI:', redirectUri);
+    
     const authUrl = googleClient.generateAuthUrl({
       access_type: 'offline',
       scope: ['email', 'profile'],
-      redirect_uri: process.env.NODE_ENV === 'production'
-        ? 'https://www.myseniorvalet.com/api/auth/google/callback'
-        : 'https://myseniorvalet.replit.app/api/auth/google/callback'
+      redirect_uri: redirectUri
     });
     res.redirect(authUrl);
   });
@@ -43,12 +45,17 @@ export function setupSocialAuth(app: any) {
         return res.redirect('/login?error=no_code');
       }
 
+      // Get the current host from the request
+      const protocol = req.protocol;
+      const host = req.get('host');
+      const redirectUri = `${protocol}://${host}/api/auth/google/callback`;
+      
+      console.log('Google OAuth callback redirect URI:', redirectUri);
+
       // Exchange code for tokens
       const { tokens } = await googleClient.getToken({
         code: code as string,
-        redirect_uri: process.env.NODE_ENV === 'production'
-          ? 'https://www.myseniorvalet.com/api/auth/google/callback'
-          : 'https://myseniorvalet.replit.app/api/auth/google/callback'
+        redirect_uri: redirectUri
       });
 
       // Get user info from Google
