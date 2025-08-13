@@ -220,24 +220,54 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/callback", (req, res, next) => {
     const strategyName = `replitauth:${req.hostname}`;
-    console.log(`Callback for hostname: ${req.hostname}`);
+    console.log(`🔍 OAuth Callback Debug:`, {
+      hostname: req.hostname,
+      query: req.query,
+      hasSession: !!req.session,
+      sessionID: req.sessionID,
+      headers: {
+        referer: req.headers.referer,
+        cookie: req.headers.cookie ? 'exists' : 'missing'
+      }
+    });
     
     passport.authenticate(strategyName, (err: any, user: any, info: any) => {
+      console.log(`🔍 Passport authenticate result:`, {
+        hasError: !!err,
+        hasUser: !!user,
+        info: info,
+        error: err?.message || err
+      });
+      
       if (err || !user) {
-        console.error("Authentication failed:", err || info);
-        return res.redirect("/api/login?error=auth_failed");
+        console.error("❌ Authentication failed:", err || info);
+        return res.redirect("/login?error=auth_failed");
       }
+      
+      console.log('✅ User authenticated, logging in...', {
+        userEmail: user.claims?.email,
+        userId: user.claims?.sub
+      });
       
       req.logIn(user, (loginErr) => {
         if (loginErr) {
-          console.error("Login failed:", loginErr);
-          return res.redirect("/api/login?error=login_failed");
+          console.error("❌ Session login failed:", loginErr);
+          return res.redirect("/login?error=login_failed");
         }
         
+        console.log('✅ User logged in, saving session...');
+        
         // Save session and redirect
-        req.session.save(() => {
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.error("❌ Session save failed:", saveErr);
+            return res.redirect("/login?error=session_failed");
+          }
+          
           const returnTo = (req.session as any).returnTo || "/";
           delete (req.session as any).returnTo;
+          
+          console.log('✅ Session saved, redirecting to:', returnTo);
           res.redirect(returnTo);
         });
       });
