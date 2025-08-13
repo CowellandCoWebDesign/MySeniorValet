@@ -87,7 +87,7 @@ async function runAllTests() {
   console.log('\n📈 Generating Coverage Report...');
   const coverage = spawn('npx', ['jest', '--coverage', '--watchAll=false'], {
     stdio: 'inherit',
-    shell: true
+    shell: false
   });
   
   coverage.on('close', (code) => {
