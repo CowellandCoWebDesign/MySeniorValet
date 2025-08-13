@@ -19,6 +19,19 @@ export default function CommunityPage() {
   const [, params] = useRoute("/community/:id");
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   
+  // Redirect to search if no ID is provided
+  if (!params?.id) {
+    window.location.href = '/search';
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Redirecting to search...</h2>
+          <p className="text-gray-600">No community ID provided</p>
+        </div>
+      </div>
+    );
+  }
+  
   // Get the back URL - either from referrer or localStorage search state
   const getBackUrl = () => {
     // Check if we have stored search state
@@ -84,6 +97,7 @@ export default function CommunityPage() {
   
   const { data: community, isLoading } = useQuery<Community>({
     queryKey: [`/api/communities/${params?.id}`],
+    enabled: !!params?.id && params.id !== 'undefined',
   });
 
   // Scroll to top immediately when page loads and when community data loads
@@ -136,6 +150,7 @@ export default function CommunityPage() {
 
   const { data: similarCommunities } = useQuery<Community[]>({
     queryKey: ["/api/communities/similar", params?.id],
+    enabled: !!params?.id && params.id !== 'undefined',
   });
 
   if (isLoading) {

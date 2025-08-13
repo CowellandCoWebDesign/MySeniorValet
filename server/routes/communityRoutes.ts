@@ -3,7 +3,7 @@ import { db } from "../db";
 import { communities, reviews, communityClaims, claimedCommunities, pendingCommunities, auditLogs } from "@shared/schema";
 import { eq, and, or, desc, inArray, sql, between, gte, lte, isNotNull } from "drizzle-orm";
 import { insertCommunitySchema } from "@shared/schema";
-import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../replitAuth";
+import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../auth-middleware";
 import { storage } from "../storage";
 import { enhancedSearchService } from "../enhanced-search-service";
 import { dataQualityEnhancement } from "../data-quality-enhancement";
@@ -19,7 +19,6 @@ import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
 import { PerplexityAIService } from "../perplexity-ai-service";
 import { multiAIVerificationService } from "../multi-ai-verification-service";
-import { intelligentPricingService } from "../intelligent-pricing-service";
 
 export function registerCommunityRoutes(app: Express) {
   // IMPORTANT: Specific routes must come BEFORE the /:id route
