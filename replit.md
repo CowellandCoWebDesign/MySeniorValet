@@ -9,7 +9,9 @@ MySeniorValet is a technology platform connecting families with publicly availab
 - Spatial search PostGIS queries optimized and working (300-500ms response times)
 - Fixed query key mismatches and timeout issues preventing community data from loading
 - Authentication system fixed with dual support (Standard login + Replit OAuth)
-- Production deployment configured for MySeniorValet.replit.app and www.myseniorvalet.com
+- Production deployment configured for:
+  - Primary: https://www.myseniorvalet.com
+  - Replit Domain: https://MySeniorValet.replit.app
 - Database sessions persistent with PostgreSQL backend
 - All navigation links converted to real pages with dedicated routes
 - Featured sections implemented across Healthcare Directory, Senior Marketplace, and Senior Resources Center
