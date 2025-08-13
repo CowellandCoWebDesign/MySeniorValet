@@ -8,7 +8,10 @@ MySeniorValet is a technology platform connecting families with publicly availab
 - Map search functionality fully restored - successfully loading 69 communities in San Francisco area
 - Spatial search PostGIS queries optimized and working (300-500ms response times)
 - Fixed query key mismatches and timeout issues preventing community data from loading
-- Authentication system fixed with dual support (Standard login + Replit OAuth)
+- Authentication system fixed with dual support:
+  - Standard email/password login for super admins (no Replit account required)
+  - Replit OAuth for users with Replit accounts
+  - Super admin bypass credentials configured for William.cowell01@gmail.com and admin@myseniorvalet.com
 - Production deployment configured for:
   - Primary: https://www.myseniorvalet.com
   - Replit Domain: https://MySeniorValet.replit.app

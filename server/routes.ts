@@ -27,6 +27,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Initialize Replit Auth before other routes
   await setupAuth(app);
+  
+  // Setup auth bypass for production deployment
+  const { setupAuthBypass } = await import('./auth-bypass');
+  await setupAuthBypass(app);
 
   // Initialize community stats cache on startup (non-blocking)
   communityStatsCache.initialize().catch(error => {
