@@ -32,7 +32,7 @@ export default function SeniorHealthcareDirectory() {
   const [, setLocation] = useLocation();
 
   // Fetch care services data
-  const { data: careServicesData } = useQuery({
+  const { data: careServicesData, isLoading: servicesLoading } = useQuery({
     queryKey: ['/api/care-services/analytics'],
   });
 
@@ -40,7 +40,13 @@ export default function SeniorHealthcareDirectory() {
     queryKey: ['/api/care-services/analytics/summary'],
   });
 
+  // Fetch hospitals data
+  const { data: hospitalsData, isLoading: hospitalsLoading } = useQuery({
+    queryKey: ['/api/hospitals'],
+  });
+
   const services = (careServicesData as any)?.services || [];
+  const hospitals = (hospitalsData as any)?.hospitals || [];
 
   const healthcareServices: HealthcareService[] = [
     {

@@ -29,10 +29,16 @@ interface VendorService {
 
 export default function SeniorMarketplace() {
   const [, setLocation] = useLocation();
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
   // Fetch marketplace vendors
-  const { data: marketplaceVendors } = useQuery({
+  const { data: marketplaceVendors, isLoading: vendorsLoading } = useQuery({
     queryKey: ['/api/marketplace/vendors'],
+  });
+
+  // Fetch marketplace categories
+  const { data: marketplaceCategories } = useQuery({
+    queryKey: ['/api/marketplace/categories'],
   });
 
   const commercialServices: VendorService[] = [
@@ -248,6 +254,142 @@ export default function SeniorMarketplace() {
             </p>
           </div>
 
+          {/* Category Filter */}
+          {marketplaceCategories && marketplaceCategories.length > 0 && (
+            <div className="mb-8">
+              <div className="flex flex-wrap gap-2 justify-center">
+                <Button
+                  variant={selectedCategory === "All" ? "default" : "outline"}
+                  onClick={() => setSelectedCategory("All")}
+                  className="mb-2"
+                >
+                  All Categories
+                </Button>
+                {marketplaceCategories.map((category: any) => (
+                  <Button
+                    key={category.id}
+                    variant={selectedCategory === category.name ? "default" : "outline"}
+                    onClick={() => setSelectedCategory(category.name)}
+                    className="mb-2"
+                  >
+                    {category.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {vendorsLoading && (
+            <div className="text-center py-8">
+              <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto"></div>
+              <p className="text-gray-600 dark:text-gray-400 mt-4">Loading marketplace vendors...</p>
+            </div>
+          )}
+
+          {/* Vendor Cards from Database */}
+          {!vendorsLoading && marketplaceVendors && marketplaceVendors.length > 0 && (
+            <>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+                {selectedCategory === "All" ? "All Vendors" : selectedCategory} ({
+                  selectedCategory === "All" 
+                    ? marketplaceVendors.length 
+                    : marketplaceVendors.filter((v: any) => marketplaceCategories?.find((c: any) => c.id === v.categoryId)?.name === selectedCategory).length
+                })
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {marketplaceVendors
+                  .filter((vendor: any) => {
+                    if (selectedCategory === "All") return true;
+                    const category = marketplaceCategories?.find((c: any) => c.id === vendor.categoryId);
+                    return category?.name === selectedCategory;
+                  })
+                  .map((vendor: any, index: number) => (
+                    <motion.div
+                      key={vendor.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                    >
+                      <Link href={`/vendor/${vendor.id}`}>
+                        <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-blue-400 relative overflow-hidden group">
+                          <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-500 opacity-5 group-hover:opacity-10 transition-opacity"></div>
+                          <CardHeader className="relative z-10">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="p-3 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 text-white">
+                                <ShoppingCart className="h-6 w-6" />
+                              </div>
+                              <div className="flex flex-col items-end gap-1">
+                                {vendor.verified && (
+                                  <Badge className="bg-green-500 text-white">
+                                    <CheckCircle className="mr-1 h-3 w-3" />
+                                    VERIFIED
+                                  </Badge>
+                                )}
+                                {vendor.tier && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {vendor.tier.toUpperCase()}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            <CardTitle className="text-xl">{vendor.name}</CardTitle>
+                            <CardDescription className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                              {marketplaceCategories?.find((c: any) => c.id === vendor.categoryId)?.name || 'Services'}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="relative z-10">
+                            <p className="text-gray-700 dark:text-gray-300 mb-3">
+                              {vendor.description || 'Professional services for seniors'}
+                            </p>
+                            {vendor.rating && (
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="flex">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`h-4 w-4 ${
+                                        i < Math.floor(vendor.rating)
+                                          ? 'text-yellow-500 fill-yellow-500'
+                                          : 'text-gray-300'
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-sm text-gray-600 dark:text-gray-400">
+                                  {vendor.rating}
+                                </span>
+                              </div>
+                            )}
+                            {vendor.phone && (
+                              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                <Phone className="h-4 w-4" />
+                                {vendor.phone}
+                              </div>
+                            )}
+                            {vendor.location && (
+                              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                <MapPin className="h-4 w-4" />
+                                {vendor.location}
+                              </div>
+                            )}
+                            <div className="mt-4 flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:text-blue-700 dark:group-hover:text-blue-300">
+                              View Details
+                              <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    </motion.div>
+                  ))}
+              </div>
+            </>
+          )}
+
+          {/* Hardcoded Services Section */}
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 mt-12">
+            Featured Service Categories
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {commercialServices.map((service) => (
               <motion.div

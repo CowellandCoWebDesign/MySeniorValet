@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { 
   Book, Users, Shield, Calculator, Phone, Heart, Brain, GraduationCap,
   FileText, HelpCircle, ChevronRight, Star, Building, DollarSign,
   Info, Calendar, Award, Lightbulb, UserPlus, Home, HandHeart,
-  Briefcase, CheckCircle, ArrowRight, Zap
+  Briefcase, CheckCircle, ArrowRight, Zap, MapPin, Globe
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -24,6 +26,18 @@ interface ResourceCategory {
 
 export default function SeniorResourcesCenter() {
   const [, setLocation] = useLocation();
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+
+  // Fetch resources data from the database
+  const { data: resourcesData, isLoading: resourcesLoading } = useQuery({
+    queryKey: ['/api/resources'],
+  });
+
+  const { data: resourceCategories } = useQuery({
+    queryKey: ['/api/resources/categories'],
+  });
+
+  const resources = (resourcesData as any)?.resources || [];
 
   const educationalResources: ResourceCategory[] = [
     {
@@ -247,6 +261,118 @@ export default function SeniorResourcesCenter() {
           </motion.div>
         </div>
       </section>
+
+      {/* Database Resources Section */}
+      {resources && resources.length > 0 && (
+        <section className="px-4 py-12 bg-gray-50 dark:bg-gray-900">
+          <div className="max-w-6xl mx-auto">
+            <div className="mb-8 text-center">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                Available Resources
+              </h2>
+              <p className="text-lg text-gray-600 dark:text-gray-400">
+                {resources.length}+ resources available for seniors and families
+              </p>
+            </div>
+
+            {/* Category Filter */}
+            {resourceCategories && resourceCategories.length > 0 && (
+              <div className="mb-8">
+                <div className="flex flex-wrap gap-2 justify-center">
+                  <Button
+                    variant={selectedCategory === "All" ? "default" : "outline"}
+                    onClick={() => setSelectedCategory("All")}
+                    className="mb-2"
+                  >
+                    All Resources
+                  </Button>
+                  {resourceCategories.map((category: any) => (
+                    <Button
+                      key={category}
+                      variant={selectedCategory === category ? "default" : "outline"}
+                      onClick={() => setSelectedCategory(category)}
+                      className="mb-2"
+                    >
+                      {category}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Loading State */}
+            {resourcesLoading && (
+              <div className="text-center py-8">
+                <div className="animate-spin w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full mx-auto"></div>
+                <p className="text-gray-600 dark:text-gray-400 mt-4">Loading resources...</p>
+              </div>
+            )}
+
+            {/* Resources Grid */}
+            {!resourcesLoading && resources.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {resources
+                  .filter((resource: any) => {
+                    if (selectedCategory === "All") return true;
+                    return resource.category === selectedCategory;
+                  })
+                  .slice(0, 12)
+                  .map((resource: any, index: number) => (
+                    <motion.div
+                      key={resource.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                    >
+                      <Link href={resource.url || `/resource/${resource.id}`}>
+                        <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-purple-400 relative overflow-hidden group">
+                          <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 opacity-5 group-hover:opacity-10 transition-opacity"></div>
+                          <CardHeader className="relative z-10">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="p-3 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+                                <Book className="h-6 w-6" />
+                              </div>
+                              {resource.type && (
+                                <Badge variant="secondary" className="text-xs">
+                                  {resource.type}
+                                </Badge>
+                              )}
+                            </div>
+                            <CardTitle className="text-xl">{resource.name}</CardTitle>
+                            <CardDescription className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                              {resource.category || 'Resource'}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="relative z-10">
+                            <p className="text-gray-700 dark:text-gray-300 mb-3 line-clamp-2">
+                              {resource.description || 'Helpful resource for seniors and families'}
+                            </p>
+                            {resource.contact && (
+                              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                <Phone className="h-4 w-4" />
+                                {resource.contact}
+                              </div>
+                            )}
+                            {resource.website && (
+                              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                <Globe className="h-4 w-4" />
+                                Website Available
+                              </div>
+                            )}
+                            <div className="mt-4 flex items-center text-purple-600 dark:text-purple-400 font-semibold group-hover:text-purple-700 dark:group-hover:text-purple-300">
+                              Learn More
+                              <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    </motion.div>
+                  ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Educational Resources Section */}
       <section className="px-4 py-12">
