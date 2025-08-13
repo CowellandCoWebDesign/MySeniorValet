@@ -667,7 +667,7 @@ export default function MySeniorValetHome() {
       </div>
 
       {/* TODAY, EVERYTHING CHANGES - Historic Launch Message */}
-      <section className="px-4 py-16 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black relative overflow-hidden">
+      <section className="px-4 py-16 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-blue-600/10"></div>
         <div className="max-w-6xl mx-auto text-center relative">
           <div className="mb-8">
@@ -839,22 +839,22 @@ export default function MySeniorValetHome() {
                   {/* Ultra-Compact Care Spectrum */}
                   <div className="text-center mb-6 px-4">
                     <div className="text-lg md:text-xl text-gray-700 dark:text-gray-200">
-                      <span className="text-gray-700 dark:text-purple-400 font-bold">🏛️ HUD</span> → 
-                      <span className="text-gray-700 dark:text-purple-400 font-bold"> 🎖️ VA</span> → 
-                      <span className="text-gray-700 dark:text-purple-400 font-bold"> 🚐 Mobile</span> → 
-                      <span className="text-gray-700 dark:text-purple-400 font-bold"> ⛳ 55+</span> → 
-                      <span className="text-gray-700 dark:text-purple-400 font-bold"> 🏠 Independent</span> → 
-                      <span className="text-gray-700 dark:text-purple-400 font-bold"> 🏡 Board & Care</span> → 
-                      <span className="text-gray-700 dark:text-purple-400 font-bold"> 🤝 Assisted</span> → 
-                      <span className="text-gray-700 dark:text-purple-400 font-bold"> 🧠 Memory</span> → 
-                      <span className="text-gray-700 dark:text-purple-400 font-bold"> ♾️ CCRC</span> → 
-                      <span className="text-gray-700 dark:text-purple-400 font-bold"> 🏥 Skilled</span>
+                      <span className="text-purple-600 dark:text-purple-400 font-bold">🏛️ HUD</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🎖️ VA</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🚐 Mobile</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> ⛳ 55+</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🏠 Independent</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🏡 Board & Care</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🤝 Assisted</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🧠 Memory</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> ♾️ CCRC</span> → 
+                      <span className="text-purple-600 dark:text-purple-400 font-bold"> 🏥 Skilled</span>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Complete care continuum from independent to full medical support</p>
                   </div>
 
                   <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-200">
-                    Finally understand every option, every transition, every cost - <strong className="text-gray-800 dark:text-purple-400">complete transparency</strong> across the entire care journey.
+                    Finally understand every option, every transition, every cost - <strong className="text-purple-600 dark:text-purple-400">complete transparency</strong> across the entire care journey.
                   </p>
                   
                   {/* Beta Notice */}
@@ -879,7 +879,7 @@ export default function MySeniorValetHome() {
                 </div>
 
                 <div className="pt-6">
-                  <p className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-600 dark:from-blue-400 dark:to-green-400">
+                  <p className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
                     To every family searching in the dark: The lights are on now.
                   </p>
                   <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mt-4">
