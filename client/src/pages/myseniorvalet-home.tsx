@@ -3327,8 +3327,8 @@ export default function MySeniorValetHome() {
         entityType="vendor"
       />
       
-      {/* Onboarding Wizard */}
-      <OnboardingWrapper />
+      {/* Onboarding Wizard - DISABLED: Prototype for future development */}
+      {/* <OnboardingWrapper /> */}
     </div>
   );
 }
