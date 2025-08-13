@@ -13,6 +13,7 @@ import axios from 'axios';
 const router = Router();
 
 // Google OAuth Configuration
+console.log('Google OAuth Client ID:', process.env.GOOGLE_CLIENT_ID?.substring(0, 30) + '...');
 const googleClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET
