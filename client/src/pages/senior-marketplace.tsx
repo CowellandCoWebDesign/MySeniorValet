@@ -30,6 +30,8 @@ interface VendorService {
 export default function SeniorMarketplace() {
   const [, setLocation] = useLocation();
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [expandedVendor, setExpandedVendor] = useState<number | null>(null);
+  const [expandedService, setExpandedService] = useState<number | null>(null);
 
   // Fetch marketplace vendors
   const { data: marketplaceVendors, isLoading: vendorsLoading } = useQuery({
@@ -311,75 +313,126 @@ export default function SeniorMarketplace() {
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.3, delay: index * 0.05 }}
                     >
-                      <Link href={`/vendor/${vendor.id}`}>
-                        <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-blue-400 relative overflow-hidden group">
-                          <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-500 opacity-5 group-hover:opacity-10 transition-opacity"></div>
-                          <CardHeader className="relative z-10">
-                            <div className="flex justify-between items-start mb-2">
-                              <div className="p-3 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 text-white">
-                                <ShoppingCart className="h-6 w-6" />
-                              </div>
-                              <div className="flex flex-col items-end gap-1">
-                                {vendor.verified && (
-                                  <Badge className="bg-green-500 text-white">
-                                    <CheckCircle className="mr-1 h-3 w-3" />
-                                    VERIFIED
-                                  </Badge>
-                                )}
-                                {vendor.tier && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    {vendor.tier.toUpperCase()}
-                                  </Badge>
-                                )}
-                              </div>
+                      <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 hover:border-blue-400 relative overflow-hidden group">
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-500 opacity-5 group-hover:opacity-10 transition-opacity"></div>
+                        <CardHeader className="relative z-10">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="p-3 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 text-white">
+                              <ShoppingCart className="h-6 w-6" />
                             </div>
-                            <CardTitle className="text-xl">{vendor.name}</CardTitle>
-                            <CardDescription className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                              {marketplaceCategories?.find((c: any) => c.id === vendor.categoryId)?.name || 'Services'}
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="relative z-10">
-                            <p className="text-gray-700 dark:text-gray-300 mb-3">
-                              {vendor.description || 'Professional services for seniors'}
-                            </p>
-                            {vendor.rating && (
-                              <div className="flex items-center gap-2 mb-2">
-                                <div className="flex">
-                                  {[...Array(5)].map((_, i) => (
-                                    <Star
-                                      key={i}
-                                      className={`h-4 w-4 ${
-                                        i < Math.floor(vendor.rating)
-                                          ? 'text-yellow-500 fill-yellow-500'
-                                          : 'text-gray-300'
-                                      }`}
-                                    />
-                                  ))}
-                                </div>
-                                <span className="text-sm text-gray-600 dark:text-gray-400">
-                                  {vendor.rating}
-                                </span>
-                              </div>
-                            )}
-                            {vendor.phone && (
-                              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-                                <Phone className="h-4 w-4" />
-                                {vendor.phone}
-                              </div>
-                            )}
-                            {vendor.location && (
-                              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                <MapPin className="h-4 w-4" />
-                                {vendor.location}
-                              </div>
-                            )}
-                            <div className="mt-4 flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:text-blue-700 dark:group-hover:text-blue-300">
-                              View Details
-                              <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                            <div className="flex flex-col items-end gap-1">
+                              {vendor.verified && (
+                                <Badge className="bg-green-500 text-white">
+                                  <CheckCircle className="mr-1 h-3 w-3" />
+                                  VERIFIED
+                                </Badge>
+                              )}
+                              {vendor.tier && (
+                                <Badge variant="secondary" className="text-xs">
+                                  {vendor.tier.toUpperCase()}
+                                </Badge>
+                              )}
                             </div>
-                          </CardContent>
-                        </Card>
-                      </Link>
+                          </div>
+                          <CardTitle className="text-xl">{vendor.name}</CardTitle>
+                          <CardDescription className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                            {marketplaceCategories?.find((c: any) => c.id === vendor.categoryId)?.name || 'Services'}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="relative z-10">
+                          <p className="text-gray-700 dark:text-gray-300 mb-3">
+                            {vendor.description || 'Professional services for seniors'}
+                          </p>
+                          {vendor.rating && (
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="flex">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className={`h-4 w-4 ${
+                                      i < Math.floor(vendor.rating)
+                                        ? 'text-yellow-500 fill-yellow-500'
+                                        : 'text-gray-300'
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                              <span className="text-sm text-gray-600 dark:text-gray-400">
+                                {vendor.rating}
+                              </span>
+                            </div>
+                          )}
+                          {vendor.phone && (
+                            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
+                              <Phone className="h-4 w-4" />
+                              {vendor.phone}
+                            </div>
+                          )}
+                          {vendor.location && (
+                            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                              <MapPin className="h-4 w-4" />
+                              {vendor.location}
+                            </div>
+                          )}
+                          
+                          {/* Expandable Details Section */}
+                          <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setExpandedVendor(expandedVendor === vendor.id ? null : vendor.id)}
+                              className="w-full justify-between text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold"
+                            >
+                              {expandedVendor === vendor.id ? 'Hide Details' : 'View Details'}
+                              <ChevronRight className={`ml-1 h-4 w-4 transition-transform ${expandedVendor === vendor.id ? 'rotate-90' : ''}`} />
+                            </Button>
+                            
+                            {expandedVendor === vendor.id && (
+                              <div className="mt-3 pt-3 space-y-3 text-sm">
+                                {vendor.email && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="font-medium text-gray-700 dark:text-gray-300">Email:</span>
+                                    <a href={`mailto:${vendor.email}`} className="text-blue-600 hover:underline">
+                                      {vendor.email}
+                                    </a>
+                                  </div>
+                                )}
+                                {vendor.website && (
+                                  <div className="flex items-start gap-2">
+                                    <span className="font-medium text-gray-700 dark:text-gray-300">Website:</span>
+                                    <a 
+                                      href={vendor.website}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-blue-600 hover:underline"
+                                    >
+                                      Visit Website →
+                                    </a>
+                                  </div>
+                                )}
+                                {vendor.services && vendor.services.length > 0 && (
+                                  <div>
+                                    <span className="font-medium text-gray-700 dark:text-gray-300">Services:</span>
+                                    <ul className="mt-1 list-disc list-inside text-gray-600 dark:text-gray-400">
+                                      {vendor.services.map((service: string, idx: number) => (
+                                        <li key={idx}>{service}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  className="w-full mt-3"
+                                  onClick={() => vendor.website && window.open(vendor.website, '_blank')}
+                                >
+                                  Contact Vendor
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
                     </motion.div>
                   ))}
               </div>
@@ -398,71 +451,113 @@ export default function SeniorMarketplace() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: service.id * 0.05 }}
               >
-                <Link href={service.link}>
-                  <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-blue-400 relative overflow-hidden group">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
-                    <CardHeader className="relative z-10">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className={`p-3 rounded-lg bg-gradient-to-br ${service.color} text-white`}>
-                          <service.icon className="h-6 w-6" />
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                          {service.verified && (
-                            <Badge className="bg-green-500 text-white">
-                              <CheckCircle className="mr-1 h-3 w-3" />
-                              VERIFIED
-                            </Badge>
-                          )}
-                          {service.status === "NEW" && (
-                            <Badge className="bg-orange-500 text-white">NEW</Badge>
-                          )}
-                          {service.badge && (
-                            <Badge variant="secondary" className="text-xs">
-                              {service.badge}
-                            </Badge>
-                          )}
-                        </div>
+                <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 hover:border-blue-400 relative overflow-hidden group">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
+                  <CardHeader className="relative z-10">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className={`p-3 rounded-lg bg-gradient-to-br ${service.color} text-white`}>
+                        <service.icon className="h-6 w-6" />
                       </div>
-                      <CardTitle className="text-xl">{service.name}</CardTitle>
-                      <CardDescription className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                        {service.category}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                      <p className="text-gray-700 dark:text-gray-300 mb-3">
-                        {service.description}
+                      <div className="flex flex-col items-end gap-1">
+                        {service.verified && (
+                          <Badge className="bg-green-500 text-white">
+                            <CheckCircle className="mr-1 h-3 w-3" />
+                            VERIFIED
+                          </Badge>
+                        )}
+                        {service.status === "NEW" && (
+                          <Badge className="bg-orange-500 text-white">NEW</Badge>
+                        )}
+                        {service.badge && (
+                          <Badge variant="secondary" className="text-xs">
+                            {service.badge}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <CardTitle className="text-xl">{service.name}</CardTitle>
+                    <CardDescription className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      {service.category}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="relative z-10">
+                    <p className="text-gray-700 dark:text-gray-300 mb-3">
+                      {service.description}
+                    </p>
+                    {service.rating && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-4 w-4 ${
+                                i < Math.floor(service.rating!)
+                                  ? 'text-yellow-500 fill-yellow-500'
+                                  : 'text-gray-300'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {service.rating}
+                        </span>
+                      </div>
+                    )}
+                    {service.price && (
+                      <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                        {service.price}
                       </p>
-                      {service.rating && (
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4 w-4 ${
-                                  i < Math.floor(service.rating!)
-                                    ? 'text-yellow-500 fill-yellow-500'
-                                    : 'text-gray-300'
-                                }`}
-                              />
-                            ))}
+                    )}
+                    
+                    {/* Expandable Service Details */}
+                    <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setExpandedService(expandedService === service.id ? null : service.id)}
+                        className="w-full justify-between text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold"
+                      >
+                        {expandedService === service.id ? 'Hide Details' : 'Learn More'}
+                        <ChevronRight className={`ml-1 h-4 w-4 transition-transform ${expandedService === service.id ? 'rotate-90' : ''}`} />
+                      </Button>
+                      
+                      {expandedService === service.id && (
+                        <div className="mt-3 pt-3 space-y-3 text-sm">
+                          <div className="text-gray-700 dark:text-gray-300">
+                            <p className="font-medium mb-2">About {service.name}:</p>
+                            <p className="text-gray-600 dark:text-gray-400 mb-3">
+                              We partner with trusted {service.category.toLowerCase()} providers nationwide to help seniors and families access quality services.
+                            </p>
+                            <ul className="list-disc list-inside text-gray-600 dark:text-gray-400 space-y-1 mb-3">
+                              <li>Verified and licensed providers</li>
+                              <li>Competitive pricing options</li>
+                              <li>Local service availability</li>
+                              <li>Quality assurance monitoring</li>
+                            </ul>
                           </div>
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
-                            {service.rating}
-                          </span>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => setLocation('/search')}
+                              className="flex-1"
+                            >
+                              Search Providers
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setLocation('/vendor-signup')}
+                              className="flex-1"
+                            >
+                              Become a Partner
+                            </Button>
+                          </div>
                         </div>
                       )}
-                      {service.price && (
-                        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                          {service.price}
-                        </p>
-                      )}
-                      <div className="mt-4 flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:text-blue-700 dark:group-hover:text-blue-300">
-                        Learn More
-                        <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                    </div>
+                  </CardContent>
+                </Card>
               </motion.div>
             ))}
           </div>

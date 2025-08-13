@@ -29,11 +29,12 @@ interface HealthcareService {
 
 export default function SeniorHealthcareDirectory() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [, setLocation] = useLocation();
 
   // Fetch care services data
   const { data: careServicesData, isLoading: servicesLoading } = useQuery({
-    queryKey: ['/api/care-services/analytics'],
+    queryKey: ['/api/care-services'],
   });
 
   const { data: careServicesAnalytics } = useQuery({
@@ -238,47 +239,108 @@ export default function SeniorHealthcareDirectory() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: service.id * 0.05 }}
               >
-                <Link href={service.link}>
-                  <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-teal-400 relative overflow-hidden group">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
-                    <CardHeader className="relative z-10">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className={`p-3 rounded-lg bg-gradient-to-br ${service.color} text-white`}>
-                          <service.icon className="h-6 w-6" />
-                        </div>
-                        <div className="flex flex-col items-end gap-1">
-                          <Badge className="bg-green-500 text-white">
-                            <CheckCircle className="mr-1 h-3 w-3" />
-                            VERIFIED
+                <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 hover:border-teal-400 relative overflow-hidden group">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
+                  <CardHeader className="relative z-10">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className={`p-3 rounded-lg bg-gradient-to-br ${service.color} text-white`}>
+                        <service.icon className="h-6 w-6" />
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <Badge className="bg-green-500 text-white">
+                          <CheckCircle className="mr-1 h-3 w-3" />
+                          VERIFIED
+                        </Badge>
+                        {service.badge && (
+                          <Badge variant="secondary" className="text-xs">
+                            {service.badge}
                           </Badge>
-                          {service.badge && (
-                            <Badge variant="secondary" className="text-xs">
-                              {service.badge}
-                            </Badge>
-                          )}
-                        </div>
+                        )}
                       </div>
-                      <CardTitle className="text-xl">{service.name}</CardTitle>
-                      <CardDescription className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                        {service.category}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                      <p className="text-gray-700 dark:text-gray-300 mb-3">
-                        {service.description}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">
-                          {service.providerCount.toLocaleString()} providers
-                        </span>
-                        <div className="flex items-center text-teal-600 dark:text-teal-400 font-semibold group-hover:text-teal-700 dark:group-hover:text-teal-300">
-                          View All
-                          <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                        </div>
+                    </div>
+                    <CardTitle className="text-xl">{service.name}</CardTitle>
+                    <CardDescription className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      {service.category}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="relative z-10">
+                    <p className="text-gray-700 dark:text-gray-300 mb-3">
+                      {service.description}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+                        {service.providerCount.toLocaleString()} providers
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setExpandedCategory(expandedCategory === service.name ? null : service.name)}
+                        className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 font-semibold"
+                      >
+                        {expandedCategory === service.name ? 'Hide' : 'View All'}
+                        <ChevronRight className={`ml-1 h-4 w-4 transition-transform ${expandedCategory === service.name ? 'rotate-90' : ''}`} />
+                      </Button>
+                    </div>
+                    
+                    {/* Expanded Provider List */}
+                    {expandedCategory === service.name && (
+                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        {servicesLoading ? (
+                          <div className="text-center py-4">
+                            <div className="animate-spin w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full mx-auto"></div>
+                          </div>
+                        ) : (
+                          <div className="space-y-2 max-h-60 overflow-y-auto">
+                            {service.name === "Hospital Services" && hospitals.length > 0 ? (
+                              hospitals.slice(0, 5).map((hospital: any) => (
+                                <div key={hospital.id} className="p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                  <div className="font-medium text-sm">{hospital.name}</div>
+                                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                                    {hospital.city}, {hospital.state} • {hospital.phone}
+                                  </div>
+                                  {hospital.cms_rating && (
+                                    <div className="flex items-center gap-1 mt-1">
+                                      {[...Array(hospital.cms_rating)].map((_, i) => (
+                                        <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              ))
+                            ) : services.filter((s: any) => s.serviceCategory === service.category).slice(0, 5).map((provider: any) => (
+                              <div key={provider.id} className="p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <div className="font-medium text-sm">{provider.providerName || provider.name}</div>
+                                <div className="text-xs text-gray-600 dark:text-gray-400">
+                                  {provider.phone} • {provider.city || 'Multiple Locations'}
+                                </div>
+                                {provider.website && (
+                                  <a 
+                                    href={provider.website}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-teal-600 hover:underline"
+                                  >
+                                    Visit Website →
+                                  </a>
+                                )}
+                              </div>
+                            ))}
+                            {(service.name === "Hospital Services" ? hospitals : services.filter((s: any) => s.serviceCategory === service.category)).length > 5 && (
+                              <Button
+                                variant="link"
+                                size="sm"
+                                onClick={() => setLocation('/search')}
+                                className="w-full text-xs"
+                              >
+                                See all {service.providerCount.toLocaleString()} providers →
+                              </Button>
+                            )}
+                          </div>
+                        )}
                       </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                    )}
+                  </CardContent>
+                </Card>
               </motion.div>
             ))}
           </div>

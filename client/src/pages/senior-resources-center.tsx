@@ -27,6 +27,10 @@ interface ResourceCategory {
 export default function SeniorResourcesCenter() {
   const [, setLocation] = useLocation();
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [expandedResource, setExpandedResource] = useState<number | null>(null);
+  const [expandedEducational, setExpandedEducational] = useState<number | null>(null);
+  const [expandedSupport, setExpandedSupport] = useState<number | null>(null);
+  const [expandedProgram, setExpandedProgram] = useState<number | null>(null);
 
   // Fetch resources data from the database
   const { data: resourcesData, isLoading: resourcesLoading } = useQuery({
@@ -253,7 +257,10 @@ export default function SeniorResourcesCenter() {
             <Button 
               size="lg"
               className="bg-white text-purple-600 hover:bg-gray-100 font-semibold shadow-xl"
-              onClick={() => setLocation('/care-guide')}
+              onClick={() => {
+                document.getElementById('educational-resources')?.scrollIntoView({ behavior: 'smooth' });
+                setExpandedEducational(1); // Expand the Care Guide
+              }}
             >
               <Zap className="mr-2 h-5 w-5" />
               Start with Care Guide
@@ -375,7 +382,7 @@ export default function SeniorResourcesCenter() {
       )}
 
       {/* Educational Resources Section */}
-      <section className="px-4 py-12">
+      <section id="educational-resources" className="px-4 py-12">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
@@ -394,41 +401,77 @@ export default function SeniorResourcesCenter() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: resource.id * 0.05 }}
               >
-                <Link href={resource.link}>
-                  <Card className="h-full hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-purple-400 relative overflow-hidden group">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${resource.color} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
-                    <CardHeader className="relative z-10">
-                      <div className="flex justify-between items-start">
-                        <div className={`p-3 rounded-lg bg-gradient-to-br ${resource.color} text-white`}>
-                          <resource.icon className="h-6 w-6" />
-                        </div>
-                        {resource.badge && (
-                          <Badge className="bg-purple-500 text-white">
-                            {resource.badge}
-                          </Badge>
-                        )}
+                <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 hover:border-purple-400 relative overflow-hidden group">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${resource.color} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
+                  <CardHeader className="relative z-10">
+                    <div className="flex justify-between items-start">
+                      <div className={`p-3 rounded-lg bg-gradient-to-br ${resource.color} text-white`}>
+                        <resource.icon className="h-6 w-6" />
                       </div>
-                      <CardTitle className="text-xl mt-4">{resource.name}</CardTitle>
-                      <CardDescription>{resource.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                      {resource.items && (
-                        <ul className="space-y-1 mb-4">
-                          {resource.items.map((item, idx) => (
-                            <li key={idx} className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                              <CheckCircle className="h-3 w-3 text-green-500 mr-2 flex-shrink-0" />
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
+                      {resource.badge && (
+                        <Badge className="bg-purple-500 text-white">
+                          {resource.badge}
+                        </Badge>
                       )}
-                      <div className="flex items-center text-purple-600 dark:text-purple-400 font-semibold group-hover:text-purple-700">
-                        Learn More
-                        <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                    </div>
+                    <CardTitle className="text-xl mt-4">{resource.name}</CardTitle>
+                    <CardDescription>{resource.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="relative z-10">
+                    {resource.items && !expandedEducational && (
+                      <ul className="space-y-1 mb-4">
+                        {resource.items.slice(0, 2).map((item, idx) => (
+                          <li key={idx} className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <CheckCircle className="h-3 w-3 text-green-500 mr-2 flex-shrink-0" />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    
+                    {/* Expandable Content */}
+                    <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setExpandedEducational(expandedEducational === resource.id ? null : resource.id)}
+                        className="w-full justify-between text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-semibold"
+                      >
+                        {expandedEducational === resource.id ? 'Hide Details' : 'Learn More'}
+                        <ChevronRight className={`ml-1 h-4 w-4 transition-transform ${expandedEducational === resource.id ? 'rotate-90' : ''}`} />
+                      </Button>
+                      
+                      {expandedEducational === resource.id && (
+                        <div className="mt-3 pt-3 space-y-3">
+                          {resource.items && (
+                            <ul className="space-y-1">
+                              {resource.items.map((item, idx) => (
+                                <li key={idx} className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                  <CheckCircle className="h-3 w-3 text-green-500 mr-2 flex-shrink-0" />
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                          <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Get Started</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                              This resource provides comprehensive information to help you make informed decisions about senior care.
+                            </p>
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => setLocation('/search')}
+                              className="w-full"
+                            >
+                              Search Communities
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               </motion.div>
             ))}
           </div>
@@ -455,10 +498,9 @@ export default function SeniorResourcesCenter() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: (service.id - 4) * 0.05 }}
               >
-                <Link href={service.link}>
-                  <Card className="h-full hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-pink-400 relative overflow-hidden group">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
-                    <CardHeader className="relative z-10">
+                <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 hover:border-pink-400 relative overflow-hidden group">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
+                  <CardHeader className="relative z-10">
                       <div className="flex justify-between items-start">
                         <div className={`p-3 rounded-lg bg-gradient-to-br ${service.color} text-white`}>
                           <service.icon className="h-6 w-6" />
@@ -483,13 +525,49 @@ export default function SeniorResourcesCenter() {
                           ))}
                         </ul>
                       )}
-                      <div className="flex items-center text-pink-600 dark:text-pink-400 font-semibold group-hover:text-pink-700">
-                        Access Now
-                        <ChevronRight className="ml-1 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                      {/* Expandable Content */}
+                      <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setExpandedSupport(expandedSupport === service.id ? null : service.id)}
+                          className="w-full justify-between text-pink-600 hover:text-pink-700 dark:text-pink-400 dark:hover:text-pink-300 font-semibold"
+                        >
+                          {expandedSupport === service.id ? 'Hide Details' : 'Access Now'}
+                          <ChevronRight className={`ml-1 h-4 w-4 transition-transform ${expandedSupport === service.id ? 'rotate-90' : ''}`} />
+                        </Button>
+                        
+                        {expandedSupport === service.id && (
+                          <div className="mt-3 pt-3 space-y-3">
+                            {service.items && (
+                              <ul className="space-y-1">
+                                {service.items.map((item, idx) => (
+                                  <li key={idx} className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                    <Star className="h-3 w-3 text-yellow-500 mr-2 flex-shrink-0" />
+                                    {item}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                            <div className="mt-4 p-4 bg-pink-50 dark:bg-gray-900 rounded-lg">
+                              <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Get Support</h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                Connect with support services and resources tailored to your needs.
+                              </p>
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={() => setLocation('/search')}
+                                className="w-full"
+                              >
+                                Find Support Services
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
-                </Link>
               </motion.div>
             ))}
           </div>
@@ -516,10 +594,9 @@ export default function SeniorResourcesCenter() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: (program.id - 8) * 0.05 }}
               >
-                <Link href={program.link}>
-                  <Card className="h-full hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-blue-400 relative overflow-hidden group">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${program.color} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
-                    <CardHeader className="relative z-10 pb-3">
+                <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 hover:border-blue-400 relative overflow-hidden group">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${program.color} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
+                  <CardHeader className="relative z-10 pb-3">
                       <div className="flex justify-between items-start mb-2">
                         <div className={`p-2 rounded-lg bg-gradient-to-br ${program.color} text-white`}>
                           <program.icon className="h-5 w-5" />
@@ -545,13 +622,40 @@ export default function SeniorResourcesCenter() {
                           ))}
                         </div>
                       )}
-                      <div className="flex items-center text-blue-600 dark:text-blue-400 font-semibold text-sm group-hover:text-blue-700">
-                        Learn More
-                        <ArrowRight className="ml-1 h-3 w-3 group-hover:translate-x-1 transition-transform" />
-                      </div>
+                      {/* Expandable Content */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setExpandedProgram(expandedProgram === program.id ? null : program.id)}
+                        className="w-full justify-between text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold text-sm"
+                      >
+                        {expandedProgram === program.id ? 'Hide Details' : 'Learn More'}
+                        <ArrowRight className={`ml-1 h-3 w-3 transition-transform ${expandedProgram === program.id ? 'rotate-90' : ''}`} />
+                      </Button>
+                      
+                      {expandedProgram === program.id && (
+                        <div className="mt-2 pt-2 space-y-2 border-t border-gray-200 dark:border-gray-700">
+                          {program.items && (
+                            <div className="grid grid-cols-1 gap-1">
+                              {program.items.map((item, idx) => (
+                                <span key={idx} className="text-xs text-gray-600 dark:text-gray-400">
+                                  • {item}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setLocation('/search')}
+                            className="w-full mt-2 text-xs"
+                          >
+                            Find Communities
+                          </Button>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
-                </Link>
               </motion.div>
             ))}
           </div>
@@ -571,17 +675,27 @@ export default function SeniorResourcesCenter() {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {quickTools.map((tool) => (
-                  <Link key={tool.id} href={tool.link}>
-                    <Button 
-                      variant="outline"
-                      className="h-full flex flex-col items-center gap-2 py-4 hover:shadow-lg transition-all hover:border-indigo-400"
-                    >
-                      <div className={`p-2 rounded-lg bg-gradient-to-br ${tool.color} text-white`}>
-                        <tool.icon className="h-5 w-5" />
-                      </div>
-                      <span className="text-xs font-semibold text-center">{tool.name}</span>
-                    </Button>
-                  </Link>
+                  <Button 
+                    key={tool.id}
+                    variant="outline"
+                    className="h-full flex flex-col items-center gap-2 py-4 hover:shadow-lg transition-all hover:border-indigo-400"
+                    onClick={() => {
+                      if (tool.link === '/search') {
+                        setLocation('/search');
+                      } else if (tool.link === '/saved') {
+                        setLocation('/saved');
+                      } else if (tool.link === '/contact') {
+                        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                      } else if (tool.link === '/faq') {
+                        setLocation('/faq');
+                      }
+                    }}
+                  >
+                    <div className={`p-2 rounded-lg bg-gradient-to-br ${tool.color} text-white`}>
+                      <tool.icon className="h-5 w-5" />
+                    </div>
+                    <span className="text-xs font-semibold text-center">{tool.name}</span>
+                  </Button>
                 ))}
               </div>
             </CardContent>
