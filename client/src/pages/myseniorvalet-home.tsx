@@ -823,9 +823,16 @@ export default function MySeniorValetHome() {
                   </div>
                 </div>
 
-                {/* The Promise - 10 Levels of Care */}
+                {/* The Promise - 10 Levels of Care - ACTIVE BETA */}
                 <div className="my-8 py-8 border-y-2 border-purple-400 dark:border-purple-600">
                   <Globe className="w-16 h-16 text-purple-600 dark:text-purple-400 mx-auto mb-6" />
+                  
+                  {/* Beta Launch Badge */}
+                  <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full text-sm font-bold shadow-lg mb-4 animate-pulse">
+                    <span className="mr-2">🚀</span>
+                    <span>ACTIVE BETA - LIVE NOW</span>
+                  </div>
+                  
                   <p className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-4">
                     Master the Full 10-Level Care Spectrum
                   </p>
@@ -850,8 +857,25 @@ export default function MySeniorValetHome() {
                   <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-200">
                     Finally understand every option, every transition, every cost - <strong className="text-purple-600 dark:text-purple-400">complete transparency</strong> across the entire care journey.
                   </p>
+                  
+                  {/* Beta Notice */}
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-400 dark:border-blue-600 rounded-lg p-4 mt-6">
+                    <p className="text-lg text-blue-800 dark:text-blue-300 font-semibold mb-2">
+                      🌟 Welcome to Our Active Beta Launch!
+                    </p>
+                    <p className="text-gray-700 dark:text-gray-300 mb-3">
+                      This platform is being released immediately for public access to rapidly deliver transparency and benefit society through immediate access to information powered by AI. We apologize for any malfunctions you may experience during this beta phase.
+                    </p>
+                    <p className="text-gray-700 dark:text-gray-300 mb-3">
+                      <strong>Quick Fix for Most Issues:</strong> Navigate to the top navbar, return home, and refresh your browser. This resolves most beta-related glitches.
+                    </p>
+                    <p className="text-gray-700 dark:text-gray-300 font-semibold">
+                      Thank you for your patience and support in joining this movement for transparency in senior living. Together, we're bringing light to an industry that has operated in darkness for too long.
+                    </p>
+                  </div>
+                  
                   <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mt-4">
-                    We're not just launching a platform. We're launching a movement to bring light to an industry that has operated in darkness for too long.
+                    We're not just launching a platform. We're launching a movement - and you're part of it.
                   </p>
                 </div>
 
