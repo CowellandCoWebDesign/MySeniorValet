@@ -3,6 +3,7 @@ import { useLocation } from 'wouter';
 import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Flame, Layers, DollarSign, Sparkles } from 'lucide-react';
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
+import { AutocompleteSearch } from '@/components/AutocompleteSearch';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -1235,32 +1236,20 @@ export default function MapSearch() {
   ).length;
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col bg-gray-50 dark:bg-gray-800">
-      {/* Header */}
-      <div className={"shadow-sm border-b flex-shrink-0 " + (isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700')}>
-        <div className="px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setLocation('/')}
-                className={isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-white'}
-              >
-                ← Back
-              </Button>
-              <div 
-                className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => setLocation('/')}
-              >
-                <Home className="w-5 h-5 text-blue-600" />
-                <span className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  MySeniorValet
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
+    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-800">
+      {/* NavigationHeader - Now properly sticky */}
+      <NavigationHeader 
+        title="Senior Living Map Search" 
+        subtitle="Find communities near you"
+      />
+      
+      {/* Main Content Container */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Custom Header Controls */}
+        <div className={"shadow-sm border-b flex-shrink-0 " + (isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700')}>
+          <div className="px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
               {/* Tutorial Help Button - Only show in map mode */}
               {viewMode === 'map' && (
                 <Button
@@ -1334,12 +1323,9 @@ export default function MapSearch() {
             </div>
           </div>
         </div>
-      </div>
-
-
-
-      {/* Fixed Search and Filter Container */}
-      <div className="flex-shrink-0">
+        
+        {/* Fixed Search and Filter Container */}
+        <div className="flex-shrink-0">
         {/* Search Bar */}
         <div className={"border-b p-4 " + (isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700')}>
           <form onSubmit={(e) => {
@@ -1348,55 +1334,23 @@ export default function MapSearch() {
             setShowSuggestions(false);
           }} className="flex gap-2">
             <div className="relative flex-1" ref={searchRef}>
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              type="text"
-              placeholder="Search city, state or ZIP code"
+            <AutocompleteSearch
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
+              onChange={(value) => {
+                setSearchQuery(value);
                 setSelectedSuggestionIndex(-1);
               }}
-              onKeyDown={handleKeyDown}
-              onFocus={() => {
-                if (suggestions.length > 0) {
-                  setShowSuggestions(true);
-                }
+              onSubmit={(value) => {
+                handleLocationSearch(value);
+                setShowSuggestions(false);
               }}
-              className={"pl-10 " + (isDarkMode 
+              placeholder="Search city, state, ZIP, or community name..."
+              hideSearchButton={true}
+              inputClassName={"w-full " + (isDarkMode 
                 ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500' 
                 : 'bg-white dark:bg-gray-800 border-gray-300 text-gray-900 dark:text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500'
               )}
             />
-            
-            {/* Autocomplete Suggestions Dropdown */}
-            {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
-                {loadingSuggestions && (
-                  <div className="px-4 py-2 text-gray-500 dark:text-gray-400 text-sm">
-                    Loading suggestions...
-                  </div>
-                )}
-                {!loadingSuggestions && suggestions.map((suggestion, index) => (
-                  <div
-                    key={index}
-                    className={`px-4 py-2.5 cursor-pointer transition-colors ${
-                      index === selectedSuggestionIndex
-                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                        : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100'
-                    } ${index !== suggestions.length - 1 ? 'border-b border-gray-100 dark:border-gray-700' : ''}`}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    onMouseEnter={() => setSelectedSuggestionIndex(index)}
-                  >
-                    <div className="flex items-center">
-                      <MapPin className="w-4 h-4 mr-2 text-gray-400" />
-                      <span className="text-sm">{typeof suggestion === 'string' ? suggestion : suggestion.label}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {/* Removed duplicate autocomplete suggestions - using the one above */}
           </div>
           <Button 
             type="submit"
@@ -2384,7 +2338,7 @@ export default function MapSearch() {
             </div>
           )}
         </div>
-      </div>
+      </div> {/* End of Bottom Slide Panel and Main Content Container */}
 
       {/* Map Loading Indicator */}
       {viewMode === 'map' && (isMapMoving || isFetchingCommunities) && (
@@ -2454,6 +2408,6 @@ export default function MapSearch() {
           onComplete={handleTutorialComplete}
         />
       )} */}
-    </div>
+    </div> {/* Close Main h-screen Container */}
   );
 }
