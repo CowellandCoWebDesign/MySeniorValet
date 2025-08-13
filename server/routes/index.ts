@@ -58,6 +58,7 @@ import { registerCommunityOnboardingRoutes } from "./communityOnboardingRoutes";
 // import { registerCommunityStripeRoutes } from "./community-stripe";
 // import { registerVendorStripeRoutes } from "./vendor-stripe";
 import unifiedPaymentRoutes from "./unifiedPaymentRoutes";
+import paymentTestRoutes from "./payment-test-routes";
 
 // Import existing routers
 import { quizRouter } from "./quiz";
@@ -119,6 +120,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Unified Payment System (handles all tiers with Stripe Elements & Webhooks)
   app.use('/api/payments', unifiedPaymentRoutes);
+  
+  // Payment Testing Routes (for extensive pre-launch testing)
+  app.use('/api/payments', paymentTestRoutes);
   
   registerStatsRoutes(app);
   registerPricingRoutes(app);

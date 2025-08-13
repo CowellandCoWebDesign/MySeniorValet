@@ -115,6 +115,7 @@ import PaymentCancel from "@/pages/payment-cancel";
 import CommunityMobilePayment from "@/pages/community-mobile-payment";
 import PaymentTestDashboard from "@/pages/payment-test-dashboard";
 import PaymentDiagnostics from "@/pages/payment-diagnostics";
+import PaymentTestSuite from "@/pages/payment-test-suite";
 import AdminDashboard from "@/pages/admin-dashboard";
 import TermsOfService from "@/pages/terms-of-service";
 import PrivacyPolicy from "@/pages/privacy-policy";
@@ -287,6 +288,7 @@ function Router() {
       <Route path="/payment/cancel" component={PaymentCancel} />
       <Route path="/payment-test-dashboard" component={PaymentTestDashboard} />
       <Route path="/payment-diagnostics" component={PaymentDiagnostics} />
+      <Route path="/payment-test-suite" component={PaymentTestSuite} />
       <Route path="/admin-dashboard" component={SuperAdminAnalytics} />
       <Route path="/payment-recovery" component={PaymentRecovery} />
       <Route path="/community-onboarding/:communityId" component={CommunityOnboarding} />
