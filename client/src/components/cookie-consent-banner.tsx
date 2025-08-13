@@ -67,8 +67,8 @@ export function CookieConsentBanner() {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-black/50 backdrop-blur-sm">
-      <Card className="max-w-4xl mx-auto bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-2xl">
+    <div className="fixed bottom-0 left-0 right-0 z-40 p-2 md:p-4 bg-black/50 backdrop-blur-sm pointer-events-none">
+      <Card className="max-w-4xl mx-auto bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 shadow-2xl pointer-events-auto">
         <div className="p-6">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">

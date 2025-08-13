@@ -4,6 +4,10 @@
 MySeniorValet is a technology platform connecting families with publicly available information about over 34,000 senior living communities in the U.S. and Canada. It leverages advanced AI orchestration to gather, organize, and present public information, including verified HUD pricing. The platform's vision is to empower families with authentic, verified data for informed decision-making in senior living, bringing much-needed transparency to the market. It aims to be "The Dawn of Transparency in Senior Living" by providing a complete care spectrum education, real pricing, zero paywalls, and tools for saving and sharing research. Features the fully operational TourMate™ tour scheduling system with confirmation codes, email notifications, and comprehensive tour tracking capabilities. Includes One-Touch Emergency Contact Shortcut with 911 access, personal contacts management, crisis hotlines integration, and admin email alerts for safety monitoring.
 
 ## Recent Architectural Changes (January 2025)
+- **MOBILE UX FIXES** (January 13, 2025): Resolved critical mobile accessibility issues:
+  - Temporarily disabled Cookie Consent Banner that was overlapping search bar on mobile devices
+  - Removed onboarding popup that was blocking immediate home page access
+  - Both features preserved as code comments for future development when mobile-optimized versions are ready
 - **LIGHT MODE CONTRAST FIXES COMPLETED** (January 13, 2025): Fixed critical accessibility issues in light mode:
   - Replaced purple-50 backgrounds with neutral white/gray-50 to eliminate purple-on-purple contrast issues
   - Fixed header from black/10 overlay to white/80 background for better text visibility

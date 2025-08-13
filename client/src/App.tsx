@@ -325,7 +325,8 @@ function AppContent() {
               <MascotProvider>
                 <Toaster />
                 <Router />
-                <CookieConsentBanner />
+                {/* Cookie Banner temporarily disabled - was blocking search on mobile */}
+                {/* <CookieConsentBanner /> */}
                 <DisclaimerBanner />
                 <DevModeIndicator />
                 {user && preferences.emergencyButton && <EmergencyButton userId={user.id} />}
