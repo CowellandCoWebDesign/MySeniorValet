@@ -34,11 +34,31 @@ export function getSession() {
     environment: process.env.NODE_ENV,
     isReplit,
     secureCookies: isReplit || isProduction,
-    domain: process.env.REPLIT_DOMAINS?.split(',')[0]
+    domain: process.env.REPLIT_DOMAINS?.split(',')[0],
+    hasDatabase: !!process.env.DATABASE_URL
   });
   
+  // Critical: Ensure SESSION_SECRET is available
+  const sessionSecret = process.env.SESSION_SECRET;
+  if (!sessionSecret) {
+    console.error('⚠️ WARNING: SESSION_SECRET not found! Sessions will not persist across restarts!');
+    console.log('Available env vars:', Object.keys(process.env).filter(k => k.includes('SESSION')));
+  }
+  
+  // CRITICAL: Use PostgreSQL session store for persistence
+  const pgStore = connectPg(session);
+  const sessionStore = new pgStore({
+    conString: process.env.DATABASE_URL,
+    createTableIfMissing: true, // Automatically create sessions table if missing
+    ttl: sessionTtl,
+    tableName: "sessions",
+  });
+  
+  console.log('✅ Using PostgreSQL session store for persistent authentication');
+  
   return session({
-    secret: process.env.SESSION_SECRET || 'development-secret-key-change-in-production',
+    secret: sessionSecret || 'development-secret-key-' + Date.now(), // Make it obvious when using fallback
+    store: sessionStore, // CRITICAL: Use database store for session persistence
     resave: false,
     saveUninitialized: false,
     cookie: {
