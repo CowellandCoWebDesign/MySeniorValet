@@ -26,7 +26,16 @@ const getOidcConfig = memoize(
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   
-  console.log('✅ Using simplified session configuration for development');
+  // Replit ALWAYS uses HTTPS, even in development
+  const isReplit = !!process.env.REPL_ID;
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  console.log('🔐 Session configuration:', {
+    environment: process.env.NODE_ENV,
+    isReplit,
+    secureCookies: isReplit || isProduction,
+    domain: process.env.REPLIT_DOMAINS?.split(',')[0]
+  });
   
   return session({
     secret: process.env.SESSION_SECRET || 'development-secret-key-change-in-production',
@@ -34,9 +43,10 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false, // Disable secure for development
+      secure: isReplit || isProduction, // CRITICAL: Replit always needs secure cookies
       sameSite: 'lax',
       maxAge: sessionTtl,
+      // Don't set domain - let browser handle it automatically
     },
   });
 }
