@@ -380,11 +380,9 @@ export default function MapSearch() {
             ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
           });
           
-          // Add selected care types as multiple parameters
+          // Add selected care types as comma-separated string
           if (filters.selectedCareTypes.length > 0) {
-            filters.selectedCareTypes.forEach(type => {
-              params.append('careTypes', type);
-            });
+            params.append('careTypes', filters.selectedCareTypes.join(','));
           }
           console.log('📍 BOUNDS SEARCH MODE:', {
             sw: { lat: sw.lat, lng: sw.lng },
@@ -1160,7 +1158,7 @@ export default function MapSearch() {
 
       // Force query invalidation to ensure fresh data
       if (showBottomPanel) {
-        queryClient.invalidateQueries({ queryKey: ['communities-spatial'] });
+        queryClient.invalidateQueries({ queryKey: ['communities-map-bounds'] });
       }
 
       setTimeout(() => setIsMapMoving(false), 800); // Shorter timeout for better UX
@@ -1191,7 +1189,7 @@ export default function MapSearch() {
           'null',
         timestamp: Date.now()
       });
-      queryClient.invalidateQueries({ queryKey: ['communities-spatial'] });
+      queryClient.invalidateQueries({ queryKey: ['communities-map-bounds'] });
     }
   }, [showBottomPanel, mapBounds, mapCommunities.length, queryClient]);
 
