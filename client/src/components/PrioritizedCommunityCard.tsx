@@ -82,6 +82,9 @@ function CommunityCard({
   isFavorite = false 
 }: CommunityCardProps) {
   
+  // State for handling broken images
+  const [imageError, setImageError] = useState(false);
+  
   // State for market pricing intelligence
   const [marketPricing, setMarketPricing] = useState<{
     display: string;
@@ -368,42 +371,16 @@ function CommunityCard({
         )}
 
         {/* Community Image or Quality Placeholder - Full Container */}
-        {community.photos && community.photos.length > 0 && community.photos[0] && community.photos[0].trim() !== '' ? (
-          <>
-            <img 
-              src={community.photos[0]} 
-              alt={community.name}
-              className="absolute inset-0 w-full h-full object-cover"
-              onError={(e) => {
-                // Hide broken images and show placeholder instead
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-            {/* Fallback placeholder that shows when image fails to load */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center -z-10">
-              <div className="text-5xl mb-2">
-                {community.communitySubtype === 'memory_care' ? '🧠' :
-                 community.communitySubtype === 'skilled_nursing' ? '🏥' :
-                 community.communitySubtype === 'independent_living' ? '🏡' :
-                 community.communitySubtype === 'hud_senior_housing' ? '🏛️' :
-                 community.communitySubtype === 'active_adult_55plus' ? '🎾' :
-                 community.communitySubtype === 'mobile_home_park' ? '🚐' :
-                 '🏢'}
-              </div>
-              <div className="text-sm text-white/80 text-center font-medium">
-                {community.communitySubtype === 'memory_care' ? 'Memory Care' :
-                 community.communitySubtype === 'skilled_nursing' ? 'Skilled Nursing' :
-                 community.communitySubtype === 'independent_living' ? 'Independent Living' :
-                 community.communitySubtype === 'hud_senior_housing' ? 'HUD Housing' :
-                 community.communitySubtype === 'active_adult_55plus' ? '55+ Active' :
-                 community.communitySubtype === 'mobile_home_park' ? 'Mobile Park' :
-                 'Senior Living'}
-              </div>
-              <div className="text-xs text-white/50 mt-1">
-                Photos coming soon
-              </div>
-            </div>
-          </>
+        {community.photos && community.photos.length > 0 && community.photos[0] && community.photos[0].trim() !== '' && !imageError ? (
+          <img 
+            src={community.photos[0]} 
+            alt={community.name}
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={() => {
+              // Set state to show placeholder instead
+              setImageError(true);
+            }}
+          />
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <div className="text-5xl mb-2">
