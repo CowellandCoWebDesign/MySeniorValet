@@ -300,7 +300,10 @@ export default function MapSearch() {
 
   const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities, error: communitiesError } = useQuery<Community[]>({
     queryKey: ['communities-map-bounds', boundsKey, showBottomPanel, filters.selectedCareTypes, filters.minRating],
-    queryFn: async () => {
+    gcTime: 5 * 60 * 1000, // Keep data in cache for 5 minutes
+    staleTime: 30 * 1000, // Consider data fresh for 30 seconds
+    retry: 2, // Retry failed requests twice
+    queryFn: async ({ signal }) => {
       // If we're showing the bottom panel but no bounds yet, fetch default San Francisco area
       if (!mapBounds && showBottomPanel) {
         console.log('No bounds yet, fetching default San Francisco area communities...');
@@ -318,7 +321,8 @@ export default function MapSearch() {
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
-          }
+          },
+          signal: signal
         });
 
         if (!response.ok) {
@@ -404,7 +408,7 @@ export default function MapSearch() {
           headers: {
             'Content-Type': 'application/json',
           },
-          signal: AbortSignal.timeout(7000) // 7 second timeout for individual requests
+          signal: signal
         });
 
         const fetchEndTime = Date.now();
@@ -457,7 +461,7 @@ export default function MapSearch() {
         throw error; // Re-throw to trigger React Query error handling
       }
     },
-    enabled: (showBottomPanel && !!mapBounds) || (!!mapBounds && !showBottomPanel), // Always fetch when we have bounds
+    enabled: showBottomPanel, // Enable whenever bottom panel is shown
     staleTime: 5000, // Cache for 5 seconds to prevent excessive requests
     gcTime: 15000, // Keep in cache for 15 seconds
     retry: 1, // Only retry once on failure - faster timeout
