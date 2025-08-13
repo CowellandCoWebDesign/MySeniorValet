@@ -462,9 +462,6 @@ export default function MapSearch() {
       }
     },
     enabled: showBottomPanel, // Enable whenever bottom panel is shown
-    staleTime: 5000, // Cache for 5 seconds to prevent excessive requests
-    gcTime: 15000, // Keep in cache for 15 seconds
-    retry: 1, // Only retry once on failure - faster timeout
     refetchOnMount: false, // Don't always refetch on mount
     refetchOnWindowFocus: false,
     // timeout: 8000, // 8 second timeout for queries - not supported in React Query
