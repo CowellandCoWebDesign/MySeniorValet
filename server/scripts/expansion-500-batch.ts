@@ -17,39 +17,14 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 // Initialize AI service
 const aiService = new PerplexityAIService(process.env.PERPLEXITY_API_KEY!);
 
-// Define major cities for expansion (20+ cities)
+// Define major cities for expansion - TEST BATCH (5 cities)
 const TARGET_CITIES = [
-  // California
-  { city: 'San Francisco', state: 'CA' },
-  { city: 'Los Angeles', state: 'CA' },
-  { city: 'San Diego', state: 'CA' },
-  { city: 'San Jose', state: 'CA' },
-  { city: 'Sacramento', state: 'CA' },
-  
-  // Texas
-  { city: 'Houston', state: 'TX' },
-  { city: 'Dallas', state: 'TX' },
-  { city: 'Austin', state: 'TX' },
-  { city: 'San Antonio', state: 'TX' },
-  
-  // Florida
-  { city: 'Miami', state: 'FL' },
-  { city: 'Orlando', state: 'FL' },
-  { city: 'Tampa', state: 'FL' },
-  { city: 'Jacksonville', state: 'FL' },
-  
-  // Other Major Markets
+  // Test with 5 cities first
   { city: 'Phoenix', state: 'AZ' },
-  { city: 'Las Vegas', state: 'NV' },
-  { city: 'Seattle', state: 'WA' },
-  { city: 'Portland', state: 'OR' },
   { city: 'Denver', state: 'CO' },
   { city: 'Atlanta', state: 'GA' },
-  { city: 'Chicago', state: 'IL' },
-  { city: 'Boston', state: 'MA' },
-  { city: 'New York', state: 'NY' },
-  { city: 'Philadelphia', state: 'PA' },
-  { city: 'Washington', state: 'DC' }
+  { city: 'Seattle', state: 'WA' },
+  { city: 'Boston', state: 'MA' }
 ];
 
 // Commercial chains to specifically target
@@ -97,27 +72,43 @@ async function findCommercialChains(city: string, state: string) {
     let foundAny = false;
     
     for (const line of lines) {
+      // Skip lines that indicate no results
+      if (line.toLowerCase().includes('not found') || 
+          line.toLowerCase().includes('no specific') ||
+          line.toLowerCase().includes('no presence') ||
+          line.toLowerCase().includes('not listed')) {
+        continue;
+      }
+      
       // Check if line mentions a commercial chain
-      const hasChain = COMMERCIAL_CHAINS.some(chain => 
-        line.toLowerCase().includes(chain.toLowerCase())
-      );
-      
-      if (!hasChain) continue;
-      
-      foundAny = true;
-      
-      // Extract community name (usually at start of line)
-      let communityName = '';
+      let matchedChain = '';
       for (const chain of COMMERCIAL_CHAINS) {
-        const regex = new RegExp(`(${chain}[^,.-]*?)(?:[,.-]|$)`, 'i');
-        const match = line.match(regex);
-        if (match) {
-          communityName = match[1].trim();
+        if (line.toLowerCase().includes(chain.toLowerCase())) {
+          matchedChain = chain;
           break;
         }
       }
       
-      if (!communityName) continue;
+      if (!matchedChain) continue;
+      
+      // Look for specific location mentions (like "Brookdale Stone Oak in San Antonio")
+      const locationPattern = new RegExp(`(${matchedChain}[\\s\\w]+?)(?:in ${city}|,|\\.|$)`, 'i');
+      const locationMatch = line.match(locationPattern);
+      
+      let communityName = '';
+      if (locationMatch && locationMatch[1].length < 100) {
+        communityName = locationMatch[1].trim();
+      } else {
+        // Generic name if no specific location found
+        communityName = `${matchedChain} ${city}`;
+      }
+      
+      // Skip if name is too generic or contains unwanted text
+      if (communityName.includes('|') || communityName.includes('**')) {
+        continue;
+      }
+      
+      foundAny = true;
       
       // Extract pricing if available
       const priceMatch = line.match(/\$?([\d,]+)\s*(?:-|to)\s*\$?([\d,]+)/);
@@ -126,12 +117,22 @@ async function findCommercialChains(city: string, state: string) {
       if (priceMatch) {
         priceMin = parseInt(priceMatch[1].replace(/,/g, ''));
         priceMax = parseInt(priceMatch[2].replace(/,/g, ''));
-        stats.pricingFound++;
+        // Validate reasonable pricing (between $1000 and $15000)
+        if (priceMin < 1000 || priceMin > 15000) {
+          priceMin = null;
+          priceMax = null;
+        } else {
+          stats.pricingFound++;
+        }
       }
       
       // Extract phone if available  
       const phoneMatch = line.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
       const phone = phoneMatch ? phoneMatch[0] : null;
+      
+      // Extract address if available
+      const addressMatch = line.match(/\d+\s+[\w\s]+(?:street|st|avenue|ave|road|rd|drive|dr|lane|ln|boulevard|blvd)/i);
+      const address = addressMatch ? addressMatch[0] : `${city}, ${state}`;
       
       stats.commercialChainsFound++;
       stats.commercialChainsList.push(communityName);
@@ -142,7 +143,7 @@ async function findCommercialChains(city: string, state: string) {
         .from(communities)
         .where(
           and(
-            sql`LOWER(${communities.name}) LIKE LOWER(${`%${communityName}%`})`,
+            sql`LOWER(${communities.name}) = LOWER(${communityName})`,
             eq(communities.city, city),
             eq(communities.state, state)
           )
@@ -153,20 +154,19 @@ async function findCommercialChains(city: string, state: string) {
         // New commercial chain - save it!
         const communityData = {
           name: communityName,
-          address: `${city}, ${state}`,
+          address: address,
           city: city,
           state: state,
           zipCode: '00000',
           phone: phone,
           website: null,
-          description: `${communityName} is a commercial senior living community in ${city}, ${state} offering assisted living and memory care services.`,
+          description: `${communityName} is a premium senior living community in ${city}, ${state} offering assisted living and memory care services.`,
           careTypes: ['Assisted Living', 'Memory Care'],
           price_range_min: priceMin,
           price_range_max: priceMax,
           ai_enrichment_date: new Date(),
           ai_enrichment_version: 'expansion-batch-v1',
           communitySubtype: 'traditional_assisted_living' as const,
-          subscriptionTier: 'verified' as const, // Commercial chains get verified status
           latitude: null,
           longitude: null
         };
@@ -206,7 +206,7 @@ async function findCommercialChains(city: string, state: string) {
     }
     
     if (!foundAny) {
-      console.log(`  ⚠️ No commercial chains found in ${city}, ${state}`);
+      console.log(`  ⚠️ No verified commercial chains found in ${city}, ${state}`);
     }
     
     stats.citiesProcessed.push(`${city}, ${state}`);
