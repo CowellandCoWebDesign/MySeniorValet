@@ -117,8 +117,22 @@ export function registerAuthRoutes(app: Express) {
       }
 
       // Get user from database using Replit user ID as string
+      // Only select columns that exist in the database
       const [user] = await db
-        .select()
+        .select({
+          id: users.id,
+          email: users.email,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          phone: users.phone,
+          role: users.role,
+          relationshipToCare: users.relationshipToCare,
+          careNeeds: users.careNeeds,
+          searchPreferences: users.searchPreferences,
+          notifications: users.notifications,
+          dashboardPreferences: users.dashboardPreferences,
+          createdAt: users.createdAt
+        })
         .from(users)
         .where(eq(users.id, String(replitUserId)))
         .limit(1);
@@ -135,14 +149,11 @@ export function registerAuthRoutes(app: Express) {
         lastName: user.lastName,
         phone: user.phone,
         role: user.role,
-        dateOfBirth: user.dateOfBirth,
         relationshipToCare: user.relationshipToCare,
         careNeeds: user.careNeeds,
         searchPreferences: user.searchPreferences,
         notifications: user.notifications,
         dashboardPreferences: user.dashboardPreferences,
-        emailVerified: user.emailVerified,
-        isActive: user.isActive,
         createdAt: user.createdAt
       });
     } catch (error) {
