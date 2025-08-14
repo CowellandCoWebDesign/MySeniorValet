@@ -177,14 +177,14 @@ class ImprovedDualMarketExpander {
           or(
             isNull(communities.description),
             sql`${communities.description} = ''`,
-            sql`${communities.price_range_min} IS NULL`
+            isNull(communities.price_range_min)
           )
         )
       )
       .orderBy(
-        desc(communities.subscription_tier), // Paid first
-        desc(communities.is_claimed),        // Claimed second
-        desc(communities.city)                // Major cities third
+        sql`${communities.subscription_tier} DESC NULLS LAST`, // Paid first
+        desc(communities.is_claimed),                         // Claimed second
+        desc(communities.city)                                // Major cities third
       )
       .limit(limit);
     
@@ -745,8 +745,14 @@ async function main() {
   }
 }
 
-// Run if executed directly
-if (require.main === module) {
+// Run if executed directly (ES module compatible)
+import { fileURLToPath } from 'url';
+import * as path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const isMainModule = process.argv[1] === __filename;
+
+if (isMainModule) {
   main();
 }
 

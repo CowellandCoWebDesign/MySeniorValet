@@ -54,21 +54,90 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
 
 // Super admin notification specifically
 export async function notifySuperAdmin(title: string, message: string, data?: any) {
+  // Send to both William and admin@myseniorvalet.com
+  const recipients = ['William.cowell01@gmail.com', 'admin@myseniorvalet.com'];
+  
+  for (const recipient of recipients) {
+    await sendEmail({
+      to: recipient,
+      from: 'hello@myseniorvalet.com',
+      subject: `MySeniorValet Alert: ${title}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #1f2937;">${title}</h2>
+          <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p>${message}</p>
+            ${data ? `<pre style="background: #f3f4f6; padding: 10px; border-radius: 4px; font-size: 12px;">${JSON.stringify(data, null, 2)}</pre>` : ''}
+          </div>
+          <p style="color: #6b7280; font-size: 12px;">MySeniorValet System - ${new Date().toLocaleString()}</p>
+        </div>
+      `,
+      text: `${title}\n\n${message}\n\n${data ? JSON.stringify(data, null, 2) : ''}`
+    });
+  }
+  return true;
+}
+
+// New customer notification
+export async function notifyNewCustomer(customerType: 'community' | 'vendor', customerData: any) {
+  const title = customerType === 'community' 
+    ? '🎉 New Community Registration!'
+    : '🎉 New Vendor Registration!';
+  
+  const message = customerType === 'community'
+    ? `A new community has registered on MySeniorValet!`
+    : `A new vendor has registered on MySeniorValet!`;
+  
   return await sendEmail({
-    to: 'William.cowell01@gmail.com',
+    to: 'admin@myseniorvalet.com',
     from: 'hello@myseniorvalet.com',
-    subject: `MySeniorValet Alert: ${title}`,
+    subject: title,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #1f2937;">${title}</h2>
-        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <p>${message}</p>
-          ${data ? `<pre style="background: #f3f4f6; padding: 10px; border-radius: 4px; font-size: 12px;">${JSON.stringify(data, null, 2)}</pre>` : ''}
+        <h2 style="color: #10b981;">${title}</h2>
+        <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #86efac;">
+          <p style="font-size: 16px; color: #1f2937;">${message}</p>
+          
+          <div style="margin-top: 20px;">
+            <h3 style="color: #065f46;">Customer Details:</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #d1d5db;"><strong>Name:</strong></td>
+                <td style="padding: 8px; border-bottom: 1px solid #d1d5db;">${customerData.name || customerData.business_name}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #d1d5db;"><strong>Email:</strong></td>
+                <td style="padding: 8px; border-bottom: 1px solid #d1d5db;">${customerData.email || customerData.primary_contact_email}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #d1d5db;"><strong>Location:</strong></td>
+                <td style="padding: 8px; border-bottom: 1px solid #d1d5db;">${customerData.city}, ${customerData.state}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #d1d5db;"><strong>Subscription:</strong></td>
+                <td style="padding: 8px; border-bottom: 1px solid #d1d5db;">${customerData.subscription_tier || 'Unclaimed'}</td>
+              </tr>
+            </table>
+          </div>
+          
+          <div style="margin-top: 20px; padding: 15px; background: #ecfdf5; border-radius: 6px;">
+            <p style="margin: 0; font-weight: bold; color: #065f46;">Next Steps:</p>
+            <ul style="margin: 10px 0; color: #374151;">
+              <li>Review the new registration</li>
+              <li>Reach out to welcome them</li>
+              <li>Help them claim and upgrade their listing</li>
+            </ul>
+          </div>
         </div>
-        <p style="color: #6b7280; font-size: 12px;">MySeniorValet System - ${new Date().toLocaleString()}</p>
+        
+        <p style="color: #6b7280; font-size: 12px;">
+          MySeniorValet Platform<br/>
+          ${new Date().toLocaleString()}<br/>
+          Customer ID: ${customerData.id}
+        </p>
       </div>
     `,
-    text: `${title}\n\n${message}\n\n${data ? JSON.stringify(data, null, 2) : ''}`
+    text: `${title}\n\n${message}\n\nCustomer: ${customerData.name || customerData.business_name}\nEmail: ${customerData.email || customerData.primary_contact_email}\nLocation: ${customerData.city}, ${customerData.state}`
   });
 }
 
