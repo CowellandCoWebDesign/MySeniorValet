@@ -76,81 +76,92 @@ class SuperclusterService {
   }
 
   private getClusterConfig(zoom: number): Supercluster.Options {
-    // Smart clustering: NO clustering when zoomed IN to cities, HEAVY clustering when zoomed OUT
+    // STRICT PERFORMANCE: Maximum 125 markers - aggressive clustering at all levels
     
-    if (zoom >= 14) {
-      // City/street level - NO CLUSTERING - show ALL communities
+    if (zoom >= 16) {
+      // Ultra-close street level - still cluster for performance
       return {
-        radius: 0,         // ZERO radius = no clustering at all
+        radius: 40,        // Cluster even at closest zoom
         maxZoom: 20,       
         minZoom: 0,
-        minPoints: 999999, // Impossible threshold - never cluster
+        minPoints: 3,      // Cluster if 3+ nearby
+        generateId: true,
+        extent: 512,
+        nodeSize: 64,
+      };
+    } else if (zoom >= 14) {
+      // Neighborhood level - moderate clustering
+      return {
+        radius: 60,        // Increased to reduce marker count
+        maxZoom: 20,
+        minZoom: 0,
+        minPoints: 2,      // Cluster any 2+ communities
         generateId: true,
         extent: 512,
         nodeSize: 64,
       };
     } else if (zoom >= 12) {
-      // City edges - very minimal clustering only for overlapping markers
+      // City view - aggressive clustering (MUST STAY UNDER 125)
       return {
-        radius: 15,        // Tiny radius - only cluster if markers overlap
+        radius: 110,       // Tuned to keep total markers under 125
         maxZoom: 20,
         minZoom: 0,
-        minPoints: 15,     // Only cluster if 15+ communities in same spot
+        minPoints: 2,      // Cluster any 2+ communities
         generateId: true,
         extent: 512,
         nodeSize: 64,
       };
     } else if (zoom >= 10) {
-      // County view - light clustering to start managing density
+      // County view - very strong clustering
       return {
-        radius: 40,        // Small clustering radius
+        radius: 120,       // Extra large for county view
         maxZoom: 20,
         minZoom: 0,
-        minPoints: 5,      // Cluster groups of 5+
+        minPoints: 2,      // Cluster everything
         generateId: true,
         extent: 512,
         nodeSize: 64,
       };
     } else if (zoom >= 8) {
-      // Multi-county/metro area - moderate clustering (CRITICAL TRANSITION)
+      // Regional view - heavy clustering
       return {
-        radius: 80,        // Medium radius - this is where we prevent 800+ markers
+        radius: 130,       // Very large radius
         maxZoom: 20,
         minZoom: 0,
-        minPoints: 3,      // Cluster any 3+ communities
+        minPoints: 2,      // Cluster all pairs
         generateId: true,
         extent: 512,
         nodeSize: 64,
       };
     } else if (zoom >= 6) {
-      // State view - heavy clustering (PERFORMANCE CRITICAL)
+      // State view - maximum clustering
       return {
-        radius: 120,       // Large radius for state-level grouping
+        radius: 160,       // Huge radius for state view
         maxZoom: 20,
         minZoom: 0,
-        minPoints: 2,      // Cluster any 2+ communities
+        minPoints: 2,      // Cluster everything
         generateId: true,
         extent: 512,
         nodeSize: 64,
       };
     } else if (zoom >= 4) {
-      // Multi-state region - aggressive clustering
+      // Multi-state - near maximum
       return {
-        radius: 160,       // Very large radius
+        radius: 200,       // Near maximum radius
         maxZoom: 20,
         minZoom: 0,
-        minPoints: 2,      // Cluster any 2+ communities
+        minPoints: 2,      // Cluster all
         generateId: true,
         extent: 512,
         nodeSize: 64,
       };
     } else {
-      // Country/continent view - MAXIMUM clustering to handle 34,000+ communities
+      // Country view - ABSOLUTE MAXIMUM
       return {
-        radius: 200,       // Maximum radius - must prevent showing thousands of markers
+        radius: 250,       // Maximum possible radius
         maxZoom: 20,
         minZoom: 0,
-        minPoints: 2,      // Cluster everything possible
+        minPoints: 2,      // Cluster everything
         generateId: true,
         extent: 512,
         nodeSize: 64,
