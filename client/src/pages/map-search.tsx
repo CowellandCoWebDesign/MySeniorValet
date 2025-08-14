@@ -2414,7 +2414,7 @@ export default function MapSearch() {
             onClick={() => {
               console.log('Floating button clicked! ' + (showBottomPanel ? 'Closing' : 'Opening') + ' list view...');
               if (!showBottomPanel) {
-                setPanelHeight(70); // Set to 70% when opening
+                setPanelHeight(90); // Set to 90% when opening - goes just under navbar
                 setShowBottomPanel(true);
                 // Force refresh communities when list is opened - SYNCHRONIZE WITH TOP BUTTON
                 console.log('Floating list clicked, refreshing communities...');
