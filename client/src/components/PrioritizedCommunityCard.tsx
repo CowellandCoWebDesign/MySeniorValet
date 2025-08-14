@@ -200,9 +200,9 @@ function CommunityCard({
        (typeof community.occupancyRateHud === 'string' && community.occupancyRateHud !== ''));
     
     if (!hasRealOccupancyData) {
-      // No real data available - show contact for availability
+      // No real data available - show unconfirmed
       return {
-        status: 'Contact for Availability',
+        status: 'Unconfirmed',
         detail: '',
         bgColor: 'bg-gray-700',
         lightColor: 'text-gray-300',
@@ -269,7 +269,7 @@ function CommunityCard({
     
     // No occupancy data available
     return {
-      status: 'Contact for Availability',
+      status: 'Unconfirmed',
       detail: '',
       bgColor: 'bg-gray-700',
       lightColor: 'text-gray-300',
@@ -447,52 +447,7 @@ function CommunityCard({
           </div>
         </div>
 
-        {/* Critical Information Panel - Pricing and Availability */}
-        <div className="bg-gray-800 rounded-lg p-3 mb-3">
-          {/* Pricing Section */}
-          <div className="mb-3">
-            {priceDisplay ? (
-              <>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm text-gray-400">Average Price:</span>
-                  <span className="text-lg font-bold text-white">{priceDisplay}</span>
-                </div>
-                {community.priceRange?.min && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-400">Starting Price:</span>
-                    <span className="text-lg font-bold text-green-400">
-                      ${community.priceRange.min.toLocaleString()}/Month
-                    </span>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="text-center py-2">
-                <span className="text-gray-400">Contact for Pricing</span>
-              </div>
-            )}
-          </div>
 
-          {/* Availability Section */}
-          <div className="border-t border-gray-700 pt-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-400">Availability:</span>
-              <span className={`text-lg font-bold ${
-                availability.status === 'Available Now' ? 'text-green-400' :
-                availability.status === 'Limited Availability' ? 'text-yellow-400' :
-                availability.status === 'Wait List' ? 'text-red-400' :
-                'text-gray-400'
-              }`}>
-                {availability.status}
-              </span>
-            </div>
-            {availability.detail && (
-              <div className="text-xs text-gray-500 text-right mt-1">
-                {availability.detail}
-              </div>
-            )}
-          </div>
-        </div>
 
         {/* Key Services Section - Always show these 4 standard services */}
         <div className="bg-gray-800 rounded-lg p-3 mb-3">
@@ -545,6 +500,26 @@ function CommunityCard({
           {(!community.amenities || community.amenities.length === 0) && (
             <div className="text-xs text-gray-500 mt-2">
               Contact for service details
+            </div>
+          )}
+        </div>
+
+        {/* Availability Section */}
+        <div className="bg-gray-800 rounded-lg p-3 mb-3">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-400">Availability:</span>
+            <span className={`text-lg font-bold ${
+              availability.status === 'Available Now' ? 'text-green-400' :
+              availability.status === 'Limited Availability' ? 'text-yellow-400' :
+              availability.status === 'Wait List' ? 'text-red-400' :
+              'text-gray-400'
+            }`}>
+              {availability.status}
+            </span>
+          </div>
+          {availability.detail && (
+            <div className="text-xs text-gray-500 text-right mt-1">
+              {availability.detail}
             </div>
           )}
         </div>
