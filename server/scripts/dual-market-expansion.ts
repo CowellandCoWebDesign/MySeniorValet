@@ -357,7 +357,7 @@ class DualMarketExpander {
         .limit(1);
       
       if (existing.length === 0) {
-        // Add new community
+        // Add new community as UNCLAIMED (no subscription_tier until they register)
         await db.insert(communities).values({
           name: chain.name,
           city: chain.city,
@@ -367,12 +367,12 @@ class DualMarketExpander {
           description: chain.description,
           phone: chain.phone,
           care_type: chain.careTypes[0] || 'Assisted Living',
-          source: 'AI City Search Expansion',
           ai_enrichment_date: new Date(),
           ai_enrichment_version: 'dual_market_v1',
           status: 'Active',
           listing_type: 'Premium', // Commercial chains likely to be premium
-          subscription_tier: 'verified' // Default tier (commercial chains get verified status)
+          is_claimed: false, // Explicitly mark as unclaimed
+          // NO subscription_tier - stays NULL until claimed
         });
         added++;
         console.log(`  ✅ Added: ${chain.name} (${chain.city}, ${chain.state})`);
