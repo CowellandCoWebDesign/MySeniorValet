@@ -16,7 +16,7 @@ interface RealFacility {
   city: string;
   state: string;
   zip_code: string;
-  phone: string;
+  phone?: string; // Optional since many facilities don't list phones
 }
 
 // Target cities - process one at a time
@@ -58,13 +58,13 @@ class SingleCityExpander {
     console.log(`📍 TARGET: ${targetCity.city}, ${targetCity.state}`);
     console.log('=' .repeat(60));
     
-    // Simple, direct queries for ALL facilities
+    // Comprehensive queries to capture EVERYTHING
     const queries = [
-      `senior living communities`,
-      `assisted living facilities`,
-      `memory care facilities`,
-      `nursing homes`,
-      `retirement communities`
+      `ALL senior living and assisted living facilities`,
+      `ALL nursing homes and skilled nursing facilities`,
+      `ALL memory care and dementia care facilities`,
+      `ALL independent living and 55+ communities`,
+      `ALL residential care homes and adult family homes`
     ];
     
     for (const queryType of queries) {
@@ -89,20 +89,23 @@ class SingleCityExpander {
   }
 
   private async searchFacilities(city: string, state: string, facilityType: string) {
-    const query = `List senior living facilities in ${city}, ${state}.
-      Search for: ${facilityType}
+    const query = `Give me a comprehensive list of ALL ${facilityType} in ${city}, ${state} metropolitan area.
       
-      Provide for each facility:
-      - Facility name
-      - Street address
-      - ${city}, ${state} ZIP
+      I need COMPLETE listings including:
+      - All major chains (Brookdale, Sunrise, Atria, etc.)
+      - All local operators and independent facilities
+      - All small residential care homes
+      - All nonprofit and faith-based facilities
+      
+      For EACH facility provide:
+      - Exact facility name
+      - Full street address
+      - City, State ZIP code  
       - Phone number
       
-      Include all types: assisted living, memory care, nursing homes, independent living,
-      55+ communities, active adult, residential care, board and care, adult family homes,
-      senior apartments, CCRCs, and any other senior housing.
-      
-      List up to 20 facilities with complete contact information.`;
+      List ALL facilities you can find - aim for 20-30 facilities.
+      Focus on ${city} metro area including suburbs.
+      Include facilities from 2024-2025 data.`;
     
     try {
       const result = await this.perplexity.searchRealTime(query);
@@ -183,14 +186,14 @@ class SingleCityExpander {
   }
 
   private isComplete(facility: Partial<RealFacility>): boolean {
+    // Less strict - don't require phone if we have other data
     return !!(
       facility.name &&
       facility.name.length > 3 &&
       facility.address &&
       facility.city &&
       facility.state &&
-      facility.zip_code?.length === 5 &&
-      facility.phone?.replace(/\D/g, '').length === 10
+      facility.zip_code?.length === 5
     );
   }
 
@@ -220,7 +223,7 @@ class SingleCityExpander {
         city: facility.city,
         state: facility.state,
         zip_code: facility.zip_code,
-        phone: facility.phone,
+        phone: facility.phone || '000-000-0001',
         care_type: 'Assisted Living',
         care_types: ['Assisted Living', 'Memory Care', 'Skilled Nursing'],
         description: `${facility.name} is a senior living community located in ${facility.city}, ${facility.state}.`,
