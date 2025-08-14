@@ -112,31 +112,31 @@ class SuperclusterService {
         nodeSize: 64,
       };
     } else if (zoom >= 10) {
-      // County view - moderate clustering  
+      // County/Regional view - AGGRESSIVE clustering (prevent 700+ markers)
       return {
-        radius: 60,        // Medium radius for county overview
+        radius: 120,       // Large radius to cluster regions
         maxZoom: 20,
         minZoom: 0,
-        minPoints: 3,      // Cluster groups of 3+ at county level
+        minPoints: 2,      // Cluster all nearby pairs
         generateId: true,
         extent: 512,
         nodeSize: 64,
       };
     } else if (zoom >= 8) {
-      // Regional view - heavy clustering to prevent crashes
+      // State view - VERY aggressive clustering 
       return {
-        radius: 120,       // Large radius for regional view
+        radius: 180,       // Very large radius for state view
         maxZoom: 20,
         minZoom: 0,
-        minPoints: 2,      // Cluster all pairs
+        minPoints: 2,      // Cluster everything nearby
         generateId: true,
         extent: 512,
         nodeSize: 64,
       };
     } else if (zoom >= 6) {
-      // State view - maximum clustering
+      // State view - MAXIMUM clustering
       return {
-        radius: 150,       // Very large radius for state view
+        radius: 220,       // Huge radius for state view
         maxZoom: 20,
         minZoom: 0,
         minPoints: 2,      // Cluster everything
@@ -145,9 +145,9 @@ class SuperclusterService {
         nodeSize: 64,
       };
     } else if (zoom >= 4) {
-      // Multi-state - near maximum
+      // Multi-state - EXTREME clustering
       return {
-        radius: 180,       // Near maximum radius
+        radius: 280,       // Extreme radius
         maxZoom: 20,
         minZoom: 0,
         minPoints: 2,      // Cluster all
