@@ -379,6 +379,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
             <div className="flex items-center text-gray-600 dark:text-gray-400 text-sm mb-3 hover:text-gray-800 dark:text-gray-200 transition-colors duration-200">
               <MapPin className="h-4 w-4 mr-1 hover:text-blue-500 transition-colors duration-200" />
               {community.address}, {community.city}, {community.state}
+              {community.zip_code && community.zip_code !== '00000' && ` ${community.zip_code}`}
             </div>
           </div>
           
@@ -409,12 +410,19 @@ export function CommunityCard({ community }: CommunityCardProps) {
             <span className="font-bold text-blue-900 text-lg">Contact Information</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {community.phone && (
+            {community.phone ? (
               <div className="flex items-center space-x-2 hover:bg-blue-200 p-2 rounded transition-colors duration-200">
                 <Phone className="h-4 w-4 text-blue-600 hover:text-blue-700 transition-colors duration-200" />
                 <a href={`tel:${community.phone}`} className="text-blue-700 hover:text-blue-900 font-medium transition-colors duration-200">
                   {community.phone}
                 </a>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2 p-2">
+                <Phone className="h-4 w-4 text-gray-400" />
+                <span className="text-gray-500 italic text-sm">
+                  Waiting for community to update contact information
+                </span>
               </div>
             )}
             {community.email && (

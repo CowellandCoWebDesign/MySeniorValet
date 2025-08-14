@@ -404,8 +404,8 @@ class SmartCityExpander {
   }
 
   private async addEnrichedFacility(facility: EnrichedFacility): Promise<boolean> {
-    // CRITICAL VALIDATION: NO FAKE DATA
-    // Reject entries with invalid phone numbers
+    // CRITICAL VALIDATION: NO FAKE DATA (but missing data is OK)
+    // Reject entries with FAKE phone numbers (missing is OK)
     if (facility.phone && (
       facility.phone.startsWith('000-000-') ||
       facility.phone === '000-000-0000' ||
@@ -415,12 +415,13 @@ class SmartCityExpander {
       return false;
     }
     
-    // Reject entries with invalid zip codes
-    if (!facility.zip_code || 
-        facility.zip_code === '00000' || 
-        facility.zip_code.length !== 5 ||
-        !/^\d{5}$/.test(facility.zip_code)) {
-      console.error('      ❌ REJECTED: Invalid zip code:', facility.zip_code);
+    // Handle zip codes - convert fake "00000" to null (missing is OK)
+    let validZipCode: string | null = facility.zip_code;
+    if (facility.zip_code === '00000' || facility.zip_code === '') {
+      validZipCode = null; // Missing zip is OK per user
+      console.log('      ⚠️ Missing zip code - will proceed without it');
+    } else if (facility.zip_code && !/^\d{5}$/.test(facility.zip_code)) {
+      console.error('      ❌ REJECTED: Invalid zip code format:', facility.zip_code);
       return false;
     }
     
@@ -448,8 +449,8 @@ class SmartCityExpander {
         address: facility.address,
         city: facility.city,
         state: facility.state,
-        zip_code: facility.zip_code,
-        phone: facility.phone,
+        zip_code: validZipCode, // Use validated zip (null if missing)
+        phone: facility.phone || null, // Allow null phone
         website: facility.website,
         care_type: facility.care_types?.[0] || 'Assisted Living',
         care_types: facility.care_types || ['Assisted Living'],

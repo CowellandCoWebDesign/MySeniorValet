@@ -8,6 +8,7 @@ MySeniorValet is a technology platform connecting families with publicly availab
 2. **NO HERO/LOGO CHANGES** - Never modify hero section or logo without explicit permission
 3. **REAL DATA ONLY** - All community entries must have legitimate, verifiable information
 4. **TWO-STAGE EXPANSION** - Always use Discovery → Enrichment approach for new cities (proven 10-20x more effective)
+5. **MISSING DATA HANDLING** - Missing zip codes acceptable (hide in UI), missing phone numbers acceptable (show "waiting for community to update contact information" message)
 
 ## Launch Status (August 14, 2025)
 ✅ **SYSTEMATIC CATCH-UP: CLOSING ALL COVERAGE GAPS**
