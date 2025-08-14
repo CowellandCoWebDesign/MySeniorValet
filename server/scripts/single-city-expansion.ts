@@ -58,13 +58,13 @@ class SingleCityExpander {
     console.log(`📍 TARGET: ${targetCity.city}, ${targetCity.state}`);
     console.log('=' .repeat(60));
     
-    // Get comprehensive list of ALL facility types
+    // Simple, direct queries for ALL facilities
     const queries = [
-      `senior living facilities`,
-      `assisted living and memory care`,
-      `nursing homes and skilled nursing`,
-      `independent living and 55+ communities`,
-      `retirement homes and senior housing`
+      `senior living communities`,
+      `assisted living facilities`,
+      `memory care facilities`,
+      `nursing homes`,
+      `retirement communities`
     ];
     
     for (const queryType of queries) {
