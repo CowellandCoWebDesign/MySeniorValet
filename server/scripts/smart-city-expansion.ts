@@ -24,7 +24,7 @@ interface EnrichedFacility {
   city: string;
   state: string;
   zip_code: string;
-  phone: string | null;  // Allow null for missing phone numbers
+  phone: string;
   website?: string;
   pricing?: string;
   care_types?: string[];
@@ -404,25 +404,23 @@ class SmartCityExpander {
   }
 
   private async addEnrichedFacility(facility: EnrichedFacility): Promise<boolean> {
-    // CRITICAL VALIDATION: NO FAKE DATA (but missing data is OK)
-    // Handle fake phone numbers - convert to null instead of rejecting
+    // CRITICAL VALIDATION: NO FAKE DATA
+    // Reject entries with invalid phone numbers
     if (facility.phone && (
       facility.phone.startsWith('000-000-') ||
       facility.phone === '000-000-0000' ||
-      facility.phone === '000-000-0001' ||
-      facility.phone.startsWith('000-')
+      facility.phone === '000-000-0001'
     )) {
-      console.log('      ⚠️ Fake phone detected, converting to null:', facility.phone);
-      facility.phone = null; // Convert fake to missing - OK per user
+      console.error('      ❌ REJECTED: Fake phone number detected:', facility.phone);
+      return false;
     }
     
-    // Handle zip codes - convert fake "00000" to null (missing is OK)
-    let validZipCode: string | null = facility.zip_code;
-    if (facility.zip_code === '00000' || facility.zip_code === '') {
-      validZipCode = null; // Missing zip is OK per user
-      console.log('      ⚠️ Missing zip code - will proceed without it');
-    } else if (facility.zip_code && !/^\d{5}$/.test(facility.zip_code)) {
-      console.error('      ❌ REJECTED: Invalid zip code format:', facility.zip_code);
+    // Reject entries with invalid zip codes
+    if (!facility.zip_code || 
+        facility.zip_code === '00000' || 
+        facility.zip_code.length !== 5 ||
+        !/^\d{5}$/.test(facility.zip_code)) {
+      console.error('      ❌ REJECTED: Invalid zip code:', facility.zip_code);
       return false;
     }
     
@@ -450,8 +448,8 @@ class SmartCityExpander {
         address: facility.address,
         city: facility.city,
         state: facility.state,
-        zip_code: validZipCode, // Use validated zip (null if missing)
-        phone: facility.phone || null, // Allow null phone
+        zip_code: facility.zip_code,
+        phone: facility.phone,
         website: facility.website,
         care_type: facility.care_types?.[0] || 'Assisted Living',
         care_types: facility.care_types || ['Assisted Living'],
