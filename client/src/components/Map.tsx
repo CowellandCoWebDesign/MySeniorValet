@@ -540,7 +540,8 @@ function MapBoundsHandler({
   const handleZoomChange = useCallback(() => {
     try {
       if (map) {
-        onZoomChange(map.getZoom());
+        const newZoom = map.getZoom();
+        onZoomChange(newZoom);
       }
     } catch (error) {
       console.warn('Error getting map zoom:', error);
@@ -556,7 +557,7 @@ function MapBoundsHandler({
       map.on('zoomend', () => {
         const newZoom = map.getZoom();
         console.log('📍 Map zoom changed to:', newZoom);
-        handleZoomChange(newZoom);
+        handleZoomChange();
         handleBoundsChange(); // Also trigger bounds update on zoom
       });
       map.on('dragend', handleBoundsChange); // Update after drag completes
@@ -695,11 +696,12 @@ export default function Map({
   const [currentZoom, setCurrentZoom] = useState(zoom);
   
   const handleZoomChange = useCallback((zoomLevel?: number) => {
-    if (zoomLevel !== undefined) {
-      console.log('🔍 ZOOM CHANGED:', {
+    if (zoomLevel !== undefined && Math.abs(zoomLevel - currentZoom) > 0.1) {
+      console.log('🔍 ZOOM CHANGED - FORCING CLUSTER UPDATE:', {
         oldZoom: currentZoom,
         newZoom: zoomLevel,
-        rounded: Math.floor(zoomLevel)
+        rounded: Math.round(zoomLevel),
+        willRefetch: true
       });
       setCurrentZoom(zoomLevel);
     }
@@ -902,7 +904,7 @@ export default function Map({
         south: mapBounds.getSouth().toFixed(4),
         north: mapBounds.getNorth().toFixed(4)
       } : 'default',
-      Math.floor(currentZoom), 
+      Math.round(currentZoom), // Changed from Math.floor to Math.round for better zoom sensitivity
       searchFilters
     ],
     queryFn: async () => {
@@ -967,9 +969,9 @@ export default function Map({
       return data;
     },
     enabled: !!mapBounds && currentZoom >= 0,
-    staleTime: 5000, // Keep data fresh for 5 seconds
+    staleTime: 1000, // Reduced to 1 second for faster zoom response
     refetchOnWindowFocus: false,
-    gcTime: 60000, // Keep data in cache for 1 minute to prevent flashing
+    gcTime: 30000, // Reduced cache time for quicker updates
     refetchOnMount: 'always',
     refetchInterval: false, // No auto-refresh
     retry: 1 // Only retry once on failure
@@ -1328,16 +1330,17 @@ export default function Map({
           </div>
         )}
 
-        {/* Supercluster-powered markers and clusters */}
+        {/* Supercluster-powered markers and clusters - with zoom-based key for proper re-rendering */}
         {!isLoading && !error && clusterData?.clusters && (() => {
-          console.log('🎨 RENDERING MAP FEATURES:', {
+          console.log('🎨 RENDERING MAP FEATURES AT ZOOM', Math.round(currentZoom), ':', {
             totalFeatures: clusterData.clusters.length,
             currentZoom: currentZoom,
-            roundedZoom: Math.floor(currentZoom),
+            roundedZoom: Math.round(currentZoom),
             isLoading,
             error,
             clusters: clusterData.clusters.filter((f: any) => f.properties?.cluster).length,
-            markers: clusterData.clusters.filter((f: any) => !f.properties?.cluster).length
+            markers: clusterData.clusters.filter((f: any) => !f.properties?.cluster).length,
+            timestamp: Date.now()
           });
           return true;
         })() && clusterData.clusters.map((feature: any, index: number) => {
@@ -1374,7 +1377,7 @@ export default function Map({
 
             return (
               <Marker
-                key={`cluster-${properties.cluster_id}`}
+                key={`cluster-${properties.cluster_id}-zoom-${Math.round(currentZoom)}`}
                 position={[lat, lng]}
                 icon={clusterIcon}
                 eventHandlers={{
@@ -1499,7 +1502,7 @@ export default function Map({
 
           return (
             <Marker
-              key={`community-${properties.id}-${lat}-${lng}-${index}`}
+              key={`community-${properties.id}-zoom-${Math.round(currentZoom)}`}
               position={[lat, lng]}
               icon={communityIcon}
               eventHandlers={{
