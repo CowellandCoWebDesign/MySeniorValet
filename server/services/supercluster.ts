@@ -60,162 +60,28 @@ interface ClusterFeature {
 }
 
 class SuperclusterService {
-  private indexes: Map<string, Supercluster> = new Map();
+  private index: Supercluster | null = null; // SINGLE index for all zoom levels
   private isInitialized = false;
   private lastInitTime = 0;
-  private readonly CACHE_DURATION = 60 * 60 * 1000; // 1 hour - longer cache for better performance
+  private readonly CACHE_DURATION = 60 * 60 * 1000; // 1 hour cache
   private featuresCache: GeoJSONFeature[] | null = null;
   private initializationPromise: Promise<void> | null = null;
-  private readonly MAX_INDEXES = 3; // Limit zoom indexes to prevent memory overload
-  private lastAccessTime: Map<string, number> = new Map(); // Track last access time for cleanup
 
   constructor() {
-    // We'll create indexes on demand based on zoom level
-    // Set up periodic cleanup to free memory
-    setInterval(() => this.cleanupOldIndexes(), 5 * 60 * 1000); // Clean up every 5 minutes
+    // Initialize with enterprise-grade clustering configuration
+    // Based on Google Maps MarkerClusterer and Airbnb's approach
+    this.index = new Supercluster({
+      radius: 60,         // 60px clustering radius (industry standard)
+      maxZoom: 16,        // Stop clustering at zoom 16 (street level)
+      minZoom: 0,         // Start clustering from zoom 0
+      minPoints: 2,       // Minimum 2 points to form a cluster
+      extent: 512,        // Tile extent (standard)
+      nodeSize: 64,       // KD-tree node size for performance
+      generateId: true,   // Generate cluster IDs for tracking
+    });
   }
 
-  private getClusterConfig(zoom: number): Supercluster.Options {
-    // PROFESSIONAL CLUSTERING: Based on Airbnb, Google Maps, and Leaflet best practices
-    // Research from 20+ open source implementations shows these optimal values
-    
-    if (zoom >= 16) {
-      // Street level - minimal clustering
-      return {
-        radius: 20,        // Small radius for street view
-        maxZoom: 18,       // Stop clustering at zoom 18
-        minZoom: 0,
-        minPoints: 5,      // Only cluster if 5+ in same location
-        generateId: true,
-        extent: 512,
-        nodeSize: 128,     // Larger nodeSize for better performance
-      };
-    } else if (zoom >= 14) {
-      // Neighborhood level - light clustering
-      return {
-        radius: 40,        // Standard radius for neighborhood
-        maxZoom: 18,
-        minZoom: 0,
-        minPoints: 3,      // Cluster groups of 3+
-        generateId: true,
-        extent: 512,
-        nodeSize: 128,
-      };
-    } else if (zoom >= 12) {
-      // City view - moderate clustering
-      return {
-        radius: 60,        // Medium radius for city overview
-        maxZoom: 18,
-        minZoom: 0,
-        minPoints: 2,      // Cluster all pairs
-        generateId: true,
-        extent: 512,
-        nodeSize: 128,
-      };
-    } else if (zoom >= 10) {
-      // Regional/County view - HEAVY clustering (based on Google Maps 60px grid)
-      return {
-        radius: 150,       // Large radius like Google Maps MarkerClusterer
-        maxZoom: 18,
-        minZoom: 0,
-        minPoints: 2,      // Cluster everything
-        generateId: true,
-        extent: 512,
-        nodeSize: 256,     // Optimized for performance with large datasets
-      };
-    } else if (zoom >= 8) {
-      // State view - MAXIMUM clustering (Airbnb approach)
-      return {
-        radius: 250,       // Very large radius for state overview
-        maxZoom: 18,
-        minZoom: 0,
-        minPoints: 2,      // Cluster all nearby markers
-        generateId: true,
-        extent: 512,
-        nodeSize: 256,
-      };
-    } else if (zoom >= 6) {
-      // Multi-state view - EXTREME clustering
-      return {
-        radius: 350,       // Huge radius to prevent overload
-        maxZoom: 18,
-        minZoom: 0,
-        minPoints: 2,      // Cluster everything
-        generateId: true,
-        extent: 512,
-        nodeSize: 256,
-      };
-    } else if (zoom >= 4) {
-      // National view - MAXIMUM clustering
-      return {
-        radius: 450,       // Maximum radius for national view
-        maxZoom: 18,
-        minZoom: 0,
-        minPoints: 2,      // Cluster all
-        generateId: true,
-        extent: 512,
-        nodeSize: 256,     // Consistent nodeSize for performance
-      };
-    } else {
-      // Country view - ABSOLUTE MAXIMUM clustering
-      return {
-        radius: 500,       // Ultra radius for country overview
-        maxZoom: 18,
-        minZoom: 0,
-        minPoints: 2,      // Cluster everything
-        generateId: true,
-        extent: 512,
-        nodeSize: 256,     // Consistent nodeSize for performance
-      };
-    }
-  }
-
-  private getOrCreateIndex(zoom: number): Supercluster {
-    const zoomKey = `zoom_${zoom}`;
-    
-    if (!this.indexes.has(zoomKey)) {
-      // Check if we need to clean up before creating new index
-      if (this.indexes.size >= this.MAX_INDEXES) {
-        this.cleanupOldIndexes();
-      }
-      
-      const config = this.getClusterConfig(zoom);
-      const index = new Supercluster(config);
-      
-      // Load features if we have them cached
-      if (this.featuresCache) {
-        index.load(this.featuresCache);
-      }
-      
-      this.indexes.set(zoomKey, index);
-      this.lastAccessTime.set(zoomKey, Date.now());
-      
-      console.log(`Created new ${zoomKey} index with radius=${config.radius}, maxZoom=${config.maxZoom}`);
-      console.log(`Total indexes in memory: ${this.indexes.size}`);
-    } else {
-      // Update last access time
-      this.lastAccessTime.set(zoomKey, Date.now());
-    }
-    
-    return this.indexes.get(zoomKey)!;
-  }
-  
-  private cleanupOldIndexes(): void {
-    const now = Date.now();
-    const CLEANUP_THRESHOLD = 5 * 60 * 1000; // 5 minutes
-    
-    // Find least recently used indexes
-    const sortedIndexes = Array.from(this.lastAccessTime.entries())
-      .sort((a, b) => a[1] - b[1]);
-    
-    // Remove oldest indexes
-    while (this.indexes.size > this.MAX_INDEXES - 1 && sortedIndexes.length > 0) {
-      const [oldestKey, lastAccess] = sortedIndexes.shift()!;
-      this.indexes.delete(oldestKey);
-      this.lastAccessTime.delete(oldestKey);
-      console.log(`Cleaned up old index: ${oldestKey} (last accessed ${Math.round((now - lastAccess) / 1000)}s ago)`);
-    }
-  }
+  // Removed getClusterConfig and getOrCreateIndex methods - using single index now
 
   async initialize(): Promise<void> {
     const now = Date.now();
@@ -239,7 +105,7 @@ class SuperclusterService {
     
     try {
       // Use cached features if available
-      if (this.featuresCache) {
+      if (this.featuresCache && this.index) {
         this.index.load(this.featuresCache);
         this.isInitialized = true;
         this.lastInitTime = Date.now();
@@ -284,8 +150,10 @@ class SuperclusterService {
       // Cache features for future use
       this.featuresCache = features;
       
-      // Clear existing indexes to reload with new data
-      this.indexes.clear();
+      // Load features into the single index
+      if (this.index) {
+        this.index.load(features);
+      }
       
       this.isInitialized = true;
       this.lastInitTime = Date.now();
@@ -304,7 +172,7 @@ class SuperclusterService {
     // Ensure supercluster is initialized
     await this.initialize();
 
-    if (!this.isInitialized) {
+    if (!this.isInitialized || !this.index) {
       throw new Error('Supercluster not initialized');
     }
 
@@ -312,29 +180,23 @@ class SuperclusterService {
       const startTime = Date.now();
       const [west, south, east, north] = bbox;
       
-      // Get the appropriate index for this zoom level
-      const index = this.getOrCreateIndex(zoom);
-      
-      // Get clusters from the zoom-specific index
-      const clusters = index.getClusters(bbox, zoom);
+      // Get clusters from the SINGLE index (SuperCluster handles zoom internally)
+      const clusters = this.index.getClusters(bbox, zoom);
       const processingTime = Date.now() - startTime;
       
-      // Log clustering behavior with updated configuration
-      const config = this.getClusterConfig(zoom);
-      if (zoom >= 14) {
-        console.log(`Street level (zoom ${zoom}): NO clustering (radius ${config.radius}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+      // Log clustering behavior
+      if (zoom >= 16) {
+        console.log(`Street level (zoom ${zoom}): returned ${clusters.length} markers/clusters in ${processingTime}ms`);
+      } else if (zoom >= 14) {
+        console.log(`Neighborhood (zoom ${zoom}): returned ${clusters.length} markers/clusters in ${processingTime}ms`);
       } else if (zoom >= 12) {
-        console.log(`City view (zoom ${zoom}): MINIMAL clustering (radius ${config.radius}, minPoints ${config.minPoints}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+        console.log(`City view (zoom ${zoom}): returned ${clusters.length} markers/clusters in ${processingTime}ms`);
       } else if (zoom >= 10) {
-        console.log(`County view (zoom ${zoom}): LIGHT clustering (radius ${config.radius}, minPoints ${config.minPoints}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+        console.log(`County view (zoom ${zoom}): returned ${clusters.length} markers/clusters in ${processingTime}ms`);
       } else if (zoom >= 8) {
-        console.log(`Regional view (zoom ${zoom}): MODERATE clustering (radius ${config.radius}, minPoints ${config.minPoints}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
-      } else if (zoom >= 6) {
-        console.log(`State view (zoom ${zoom}): HEAVY clustering (radius ${config.radius}, minPoints ${config.minPoints}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
-      } else if (zoom >= 4) {
-        console.log(`Multi-state view (zoom ${zoom}): AGGRESSIVE clustering (radius ${config.radius}, minPoints ${config.minPoints}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+        console.log(`State view (zoom ${zoom}): returned ${clusters.length} markers/clusters in ${processingTime}ms`);
       } else {
-        console.log(`Country view (zoom ${zoom}): MAXIMUM clustering (radius ${config.radius}, minPoints ${config.minPoints}) - returned ${clusters.length} clusters/points in ${processingTime}ms`);
+        console.log(`Country view (zoom ${zoom}): returned ${clusters.length} markers/clusters in ${processingTime}ms`);
       }
       
       console.log(`Bounds: [${west.toFixed(4)}, ${south.toFixed(4)}, ${east.toFixed(4)}, ${north.toFixed(4)}]`);
