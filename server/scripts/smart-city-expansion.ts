@@ -330,9 +330,9 @@ class SmartCityExpander {
     const addressMatch = text.match(/(\d+\s+[A-Za-z0-9\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Way|Lane|Ln|Court|Ct|Circle|Cir|Parkway|Pkwy|Place|Pl)\.?)/i);
     if (!addressMatch) return null;
     
-    // Extract ZIP
+    // Extract ZIP (optional - use "Not available yet" if not found)
     const zipMatch = text.match(/\b(\d{5})(?:-\d{4})?\b/);
-    if (!zipMatch) return null;
+    const zipCode = zipMatch ? zipMatch[1] : null; // Will note as "Not updated by community yet"
     
     // Extract phone (optional - we'll use placeholder if not found)
     let phone = '000-000-0001';
@@ -378,7 +378,7 @@ class SmartCityExpander {
       address: addressMatch[1].trim(),
       city: original.city,
       state: original.state,
-      zip_code: zipMatch[1],
+      zip_code: zipCode || 'Not updated by community yet',
       phone,
       website,
       pricing,
