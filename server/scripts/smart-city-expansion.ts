@@ -41,7 +41,35 @@ const TARGET_CITIES = [
   { city: 'Seattle', state: 'WA' },
   { city: 'Portland', state: 'OR' },
   { city: 'Denver', state: 'CO' },
-  { city: 'Boston', state: 'MA' }
+  { city: 'Boston', state: 'MA' },
+  // Major metros with poor coverage
+  { city: 'Dallas', state: 'TX' },
+  { city: 'Fort Worth', state: 'TX' },
+  { city: 'Houston', state: 'TX' },
+  { city: 'New York', state: 'NY' },
+  { city: 'Brooklyn', state: 'NY' },
+  { city: 'Queens', state: 'NY' },
+  { city: 'Atlanta', state: 'GA' },
+  { city: 'Charlotte', state: 'NC' },
+  { city: 'Nashville', state: 'TN' },
+  { city: 'Austin', state: 'TX' },
+  { city: 'San Antonio', state: 'TX' },
+  { city: 'Las Vegas', state: 'NV' },
+  { city: 'Orlando', state: 'FL' },
+  { city: 'Tampa', state: 'FL' },
+  { city: 'Jacksonville', state: 'FL' },
+  { city: 'Columbus', state: 'OH' },
+  { city: 'Indianapolis', state: 'IN' },
+  { city: 'Detroit', state: 'MI' },
+  { city: 'Memphis', state: 'TN' },
+  { city: 'Baltimore', state: 'MD' },
+  { city: 'Milwaukee', state: 'WI' },
+  { city: 'Kansas City', state: 'MO' },
+  { city: 'St. Louis', state: 'MO' },
+  { city: 'Minneapolis', state: 'MN' },
+  { city: 'Pittsburgh', state: 'PA' },
+  { city: 'Cincinnati', state: 'OH' },
+  { city: 'Cleveland', state: 'OH' }
 ];
 
 class SmartCityExpander {
