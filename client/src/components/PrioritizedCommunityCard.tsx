@@ -423,15 +423,23 @@ function CommunityCard({
 
       {/* Bottom Section - Dark Theme */}
       <CardContent className="p-4 bg-gray-900 text-white">
-        {/* Community Name and Location */}
+        {/* Community Name and Contact Info */}
         <div className="mb-3">
           <h3 className="text-xl font-bold text-white mb-1">
             {community.name}
           </h3>
-          <div className="flex items-center text-sm text-gray-400">
+          <div className="flex items-center text-sm text-gray-400 mb-1">
             <MapPin className="h-4 w-4 mr-1" />
-            <span>{community.city}, {community.state}</span>
+            <span>{community.address || `${community.city}, ${community.state}`}</span>
           </div>
+          {community.phone && (
+            <div className="flex items-center text-sm text-gray-400 mb-1">
+              <Phone className="h-4 w-4 mr-1" />
+              <a href={`tel:${community.phone}`} className="hover:text-white transition-colors">
+                {community.phone}
+              </a>
+            </div>
+          )}
           <div className="mt-1">
             <Badge className="bg-blue-600 text-white text-xs px-2 py-0.5">
               {community.careLevel || community.careTypes?.[0] || 'Assisted Living'}
@@ -475,7 +483,7 @@ function CommunityCard({
                 availability.status === 'Wait List' ? 'text-red-400' :
                 'text-gray-400'
               }`}>
-                {availability.status === 'Contact for Availability' ? 'Contact Us' : 'Yes'}
+                {availability.status}
               </span>
             </div>
             {availability.detail && (
@@ -543,41 +551,7 @@ function CommunityCard({
 
 
 
-        {/* Contact Information Bar */}
-        <div className="flex justify-between items-center p-2 bg-gray-800 rounded-lg mb-3">
-          <div className="flex items-center gap-3">
-            {community.phone && (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-xs text-gray-400 hover:text-white p-1"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.location.href = `tel:${community.phone}`;
-                }}
-              >
-                <Phone className="h-4 w-4 mr-1" />
-                Call
-              </Button>
-            )}
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-xs text-gray-400 hover:text-white p-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                // Message functionality
-              }}
-            >
-              <MessageCircle className="h-4 w-4 mr-1" />
-              Message
-            </Button>
-          </div>
-          <div className="flex items-center text-gray-400">
-            <Building className="h-3 w-3 mr-1" />
-            <span className="text-xs">{community.totalUnits || community.totalUnitsHud || 'Contact'} units</span>
-          </div>
-        </div>
+
 
         {/* Reviews & Inspections Section - Simplified */}
         <div className="p-3 bg-gray-800 rounded-lg">
