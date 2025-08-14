@@ -1,0 +1,101 @@
+{
+  "timestamp": "2025-08-14T00:00:50.017Z",
+  "expansion": {
+    "commercialChainsFound": 36,
+    "byChain": [
+      {
+        "chain": "Brookdale",
+        "count": 5
+      },
+      {
+        "chain": "Sunrise",
+        "count": 5
+      },
+      {
+        "chain": "Aegis Living",
+        "count": 2
+      },
+      {
+        "chain": "Atria",
+        "count": 4
+      },
+      {
+        "chain": "Holiday Retirement",
+        "count": 2
+      },
+      {
+        "chain": "Five Star",
+        "count": 2
+      },
+      {
+        "chain": "Capital Senior Living",
+        "count": 2
+      },
+      {
+        "chain": "Silverado",
+        "count": 2
+      },
+      {
+        "chain": "Belmont Village",
+        "count": 2
+      },
+      {
+        "chain": "Watermark",
+        "count": 4
+      },
+      {
+        "chain": "MBK Senior Living",
+        "count": 2
+      },
+      {
+        "chain": "Discovery Senior Living",
+        "count": 1
+      },
+      {
+        "chain": "Integral Senior Living",
+        "count": 1
+      },
+      {
+        "chain": "Senior Lifestyle",
+        "count": 1
+      },
+      {
+        "chain": "Enlivant",
+        "count": 1
+      }
+    ],
+    "topCities": [
+      {
+        "city": "San Francisco, CA",
+        "count": 19
+      },
+      {
+        "city": "Los Angeles, CA",
+        "count": 1
+      },
+      {
+        "city": "San Diego, CA",
+        "count": 16
+      },
+      {
+        "city": "Seattle, WA",
+        "count": 0
+      },
+      {
+        "city": "Portland, OR",
+        "count": 0
+      }
+    ]
+  },
+  "enrichment": {
+    "communitiesEnriched": 10,
+    "averageQuality": 58,
+    "withPricing": 0,
+    "highQuality": 0
+  },
+  "businessValue": {
+    "potentialPayingCustomers": 36,
+    "marketCoverage": "Both government-sourced AND commercial chains",
+    "expansionOpportunity": "15 major chains identified for targeting"
+  }
+}
