@@ -404,6 +404,43 @@ class SmartCityExpander {
   }
 
   private async addEnrichedFacility(facility: EnrichedFacility): Promise<boolean> {
+    // CRITICAL VALIDATION: NO FAKE DATA
+    // Reject entries with invalid phone numbers
+    if (facility.phone && (
+      facility.phone.startsWith('000-000-') ||
+      facility.phone === '000-000-0000' ||
+      facility.phone === '000-000-0001'
+    )) {
+      console.error('      ❌ REJECTED: Fake phone number detected:', facility.phone);
+      return false;
+    }
+    
+    // Reject entries with invalid zip codes
+    if (!facility.zip_code || 
+        facility.zip_code === '00000' || 
+        facility.zip_code.length !== 5 ||
+        !/^\d{5}$/.test(facility.zip_code)) {
+      console.error('      ❌ REJECTED: Invalid zip code:', facility.zip_code);
+      return false;
+    }
+    
+    // Reject entries with malformed names
+    if (facility.name.toLowerCase().includes('here is a comprehensive list') ||
+        facility.name.toLowerCase() === 'names' ||
+        facility.name.length < 3 ||
+        facility.name.length > 100) {
+      console.error('      ❌ REJECTED: Invalid facility name:', facility.name);
+      return false;
+    }
+    
+    // Reject entries with invalid addresses
+    if (!facility.address || 
+        facility.address.length < 5 ||
+        facility.address.toLowerCase().includes('contact')) {
+      console.error('      ❌ REJECTED: Invalid address:', facility.address);
+      return false;
+    }
+    
     try {
       await db.insert(communities).values({
         name: facility.name,
