@@ -1829,7 +1829,7 @@ export default function MapSearch() {
         style={{ 
           height: showBottomPanel ? panelHeight + 'vh' : '0vh',
           minHeight: showBottomPanel ? '300px' : '0px',
-          maxHeight: 'calc(100vh - 60px)' // Full height minus navbar height (60px is approximate navbar height)
+          maxHeight: '100vh' // Allow full height - panel can extend all the way up
         }}
       >
         {/* Drag Handle - Combined and enhanced */}
