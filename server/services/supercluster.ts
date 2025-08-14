@@ -69,9 +69,9 @@ class SuperclusterService {
 
   constructor() {
     // Initialize with enterprise-grade clustering configuration
-    // Based on Google Maps MarkerClusterer and Airbnb's approach
+    // Optimized for 35,000+ points across North America
     this.index = new Supercluster({
-      radius: 60,         // 60px clustering radius (industry standard)
+      radius: 120,        // Large radius for aggressive clustering at country level
       maxZoom: 16,        // Stop clustering at zoom 16 (street level)
       minZoom: 0,         // Start clustering from zoom 0
       minPoints: 2,       // Minimum 2 points to form a cluster

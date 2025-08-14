@@ -3,81 +3,6 @@
 ## Overview
 MySeniorValet is a technology platform connecting families with publicly available information about over 34,000 senior living communities in the U.S. and Canada. It leverages advanced AI orchestration to gather, organize, and present public information, including verified HUD pricing. The platform's vision is to empower families with authentic, verified data for informed decision-making in senior living, bringing much-needed transparency to the market. It aims to be "The Dawn of Transparency in Senior Living" by providing a complete care spectrum education, real pricing, zero paywalls, and tools for saving and sharing research. It features the fully operational TourMate™ tour scheduling system and includes a One-Touch Emergency Contact Shortcut.
 
-## CRITICAL PLATFORM RULES
-1. **NO FAKE DATA** - Never add placeholder, mock, or synthetic data (e.g., "000-000-0000" phones, "00000" zips)
-2. **NO HERO/LOGO CHANGES** - Never modify hero section or logo without explicit permission
-3. **REAL DATA ONLY** - All community entries must have legitimate, verifiable information
-4. **TWO-STAGE EXPANSION** - Always use Discovery → Enrichment approach for new cities (proven 10-20x more effective)
-
-## Launch Status (August 14, 2025)
-✅ **BALANCED CLUSTERING DEPLOYED - OPTIMAL UX + PERFORMANCE**
-
-### Optimal Clustering Achieved (August 14, 2025 - 8:38 PM):
-- **REGIONAL VIEW FIXED**: Zoom 10 now shows ~100 markers (was 703!) with aggressive clustering
-- **PROGRESSIVE DETAIL**: State (11) → County (104) → City (771) markers as you zoom
-- **PERFECT BALANCE**: Aggressive clustering for large areas, detailed view for cities
-- **DATABASE STABLE**: 34,922 communities maintained with all processors on manual control
-
-### Systematic Gap Closure Results:
-- **UNDERSERVED STATES EXPANDING**: 
-  - North Dakota: Fargo (76), Bismarck (122) discovered
-  - South Dakota: Sioux Falls (100) discovered
-  - Wyoming: Cheyenne (69) discovered
-  - Hawaii: Honolulu (91) discovered
-  - Montana: Billings (51) discovered
-  - Alaska: Anchorage (99) discovered
-- **MAJOR METROS FIXED**:
-  - New York: 161 facilities discovered (was missing!)
-  - Atlanta: 167 facilities discovered (was missing!)
-  - Houston: 152 facilities discovered (was only 97)
-  - Dallas: 131 facilities discovered (was only 39)
-- **NO FAKE DATA**: All facilities verified with real addresses and contact info
-
-### Technical Issues Resolved:
-- Map search functionality fully restored - successfully loading 69 communities in San Francisco area
-- Spatial search PostGIS queries optimized and working (300-500ms response times)
-- Fixed query key mismatches and timeout issues preventing community data from loading
-- Fixed broken photo display issue - all missing/broken images now show proper fallback placeholders with community type icons
-- **LOCALHOST CLEANUP COMPLETE** - Fixed all production-breaking localhost references in aiRoutes.ts and seniorResourcesRoutes.ts to use dynamic host detection
-- **Authentication System - CUSTOM IMPLEMENTATION WITH SOCIAL LOGIN OPTIONS**:
-  - ✅ Custom authentication system implemented - users create accounts with email/password directly
-  - ✅ NO Replit account required for ANY users (confirmed: Replit Auth requires Replit accounts)
-  - ✅ Full registration flow with first name, last name, email, and password
-  - ✅ PostgreSQL session storage for persistent authentication
-  - ✅ Super admin bypass maintained for William.cowell01@gmail.com and admin@myseniorvalet.com
-  - ✅ Social login options added: Google and Facebook OAuth (Apple coming soon)
-  - ✅ All route files updated to use custom auth-middleware.ts instead of replitAuth
-  - ✅ Fixed authentication crash by replacing all replitAuth imports across 19+ route files
-  - Note: Social login requires OAuth credentials (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET)
-- **Community Payment Flow - CRITICAL BUSINESS FIX COMPLETE**:
-  - ✅ Redesigned payment process to require account setup as first step
-  - ✅ Prevents lost purchases by tying all payments to user accounts
-  - ✅ Payment flow: Account Setup → Tier Selection → Payment → Activation
-  - ✅ Tier selection preserved in sessionStorage during authentication
-  - ✅ Login/signup pages redirect back to payment after authentication
-  - ✅ All payments now include userId in metadata for proper tracking
-- Production deployment configured for:
-  - Primary: https://www.myseniorvalet.com
-  - Replit Domain: https://MySeniorValet.replit.app
-- Database sessions persistent with PostgreSQL backend
-- All navigation links converted to real pages with dedicated routes
-- Featured sections implemented across Healthcare Directory, Senior Marketplace, and Senior Resources Center
-- Professional pages created for Mayo Clinic, Cleveland Clinic, Walgreens, CVS Pharmacy, and Medicare Guide
-- Platform fully functional with clean production interface and working map search
-
-### SEO Improvements (August 13, 2025)
-✅ **Comprehensive SEO Implementation**
-- Enhanced meta tags with keyword-rich descriptions targeting "senior living near me" searches
-- Added structured data (JSON-LD) for WebSite and LocalBusiness schemas
-- Created XML sitemap with all major pages and proper priorities
-- Implemented robots.txt with crawler instructions and sitemap reference
-- Added Open Graph and Twitter Card meta tags for social sharing
-- Created custom useSEO hook for dynamic page-specific titles and descriptions
-- Optimized title tags: "34,494+ Verified Locations with Real Pricing"
-- Added geo-targeting meta tags for US market
-- Implemented canonical URLs to prevent duplicate content issues
-- Set up proper googlebot and search engine directives
-
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
 - **Notification Email Configuration**:
@@ -103,9 +28,9 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - **Backend**: Express.js with TypeScript.
 - **Database**: PostgreSQL, managed with Drizzle ORM, supporting multiple senior living types and a robust services management system. Database includes tables for pricing history, price change alerts, community claims, verified community profiles, and verification activity logs.
 - **Build System**: Vite for the frontend and esbuild for the backend.
-- **Authentication**: Replit Auth with role-based access control.
-- **Key Features**: Interactive Map System with AI analysis, AI-Powered Search with multi-AI verification, Semantic Search capabilities, Transparent Pricing (HUD-verified data and AI-verified market rates), Comprehensive Community Profiles, Unified Admin Dashboard, Family Collaboration tools, Senior Vendor Marketplace, comprehensive notification and in-app messaging, an onboarding wizard with AI character guidance, and a robust photo handling system. Full bilingual functionality (French/English) is supported. **TourMate™ Tour Scheduling System** enables seamless tour coordination with confirmation codes, email notifications, and feedback collection.
-- **UI/UX Decisions**: Emphasizes a clean, modern aesthetic with cosmic imagery. Dark mode is default. Consistent design elements include horizontal sliders and AI-generated product imagery. Search results are displayed in a vertical scrolling "rolodex" style with regional theme styling. Content is organized with distinct visual theming for communities, hospitals, vendors, and resources. Senior Living Command Center displays ecosystem options on separate lines with emojis for better emphasis (🏘️ 34,181+ Communities, 🛍️ 1,500+ Vendor Services, 🏥 6,800+ Healthcare Providers, 📚 100+ Educational Resources).
+- **Authentication**: Custom authentication system implemented, with email/password and social login options (Google, Facebook). Replit Auth integration is configured for production.
+- **Key Features**: Interactive Map System with AI analysis, AI-Powered Search with multi-AI verification, Semantic Search capabilities, Transparent Pricing (HUD-verified data and AI-verified market rates), Comprehensive Community Profiles, Unified Admin Dashboard, Family Collaboration tools, Senior Vendor Marketplace, comprehensive notification and in-app messaging, an onboarding wizard with AI character guidance, and a robust photo handling system. Full bilingual functionality (French/English) is supported. TourMate™ Tour Scheduling System enables seamless tour coordination with confirmation codes, email notifications, and feedback collection.
+- **UI/UX Decisions**: Emphasizes a clean, modern aesthetic with cosmic imagery. Dark mode is default. Consistent design elements include horizontal sliders and AI-generated product imagery. Search results are displayed in a vertical scrolling "rolodex" style with regional theme styling. Content is organized with distinct visual theming for communities, hospitals, vendors, and resources. Senior Living Command Center displays ecosystem options on separate lines with emojis for better emphasis.
 - **System Design**: Supports dual subscription tier systems for communities and vendors. Dashboard separation includes user analytics, contextual business features, and a unified super admin analytics center with RBAC. Dual pricing display shows government pricing alongside AI-verified market rates with clear notifications for discrepancies. Dynamic scaling cost controls are implemented for API calls with regional caching and batch processing.
 - **Payment System**: Integrated dual payment system supporting Stripe Checkout Sessions and Payment Element.
 - **Search & Navigation**: Simplified AI-powered search with semantic understanding and natural language queries. Live Market Intelligence section integrates a 10-level care spectrum. Healthcare search includes enhanced map filtering and color-coded hospital cards. AI Search Interface maintains a 3-row layout for amenities/care services, distance/price sliders, and Complete Care Spectrum types.
@@ -121,10 +46,10 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - **Routing**: `wouter`
 - **UI Libraries**: `@radix-ui/*`, `tailwindcss`, `lucide-react`
 - **Mapping**: `react-leaflet`
-- **AI Integrations**: Priority-based multi-AI orchestration:
-  - **Perplexity (Primary)**: Real-time web search, verification of alternative sources, current pricing, market data.
-  - **Claude (Secondary)**: `@anthropic-ai/sdk` - Advanced reasoning, complex analysis, care planning, contract analysis.
-  - **ChatGPT (Backup)**: `openai` - General purpose fallback and validation.
+- **AI Integrations**:
+  - **Perplexity (Primary)**: For real-time web search, verification, and market data.
+  - **Claude (Secondary)**: For advanced reasoning, complex analysis, and care planning.
+  - **ChatGPT (Backup)**: For general purpose fallback and validation.
 - **Email Service**: SendGrid
 - **Payment Processing**: Stripe
-- **Document Signing**: Documenso (open-source, self-hosted)
+- **Document Signing**: Documenso
