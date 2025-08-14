@@ -76,48 +76,48 @@ class SuperclusterService {
   }
 
   private getClusterConfig(zoom: number): Supercluster.Options {
-    // BALANCED CLUSTERING: Show detail at city level, prevent crashes at county/state
+    // LIGHTER CLUSTERING: Much more detail at city/neighborhood levels
     
     if (zoom >= 16) {
-      // Street level - minimal clustering
+      // Street level - almost no clustering
       return {
-        radius: 20,        // Very small radius - show most markers
+        radius: 15,        // Tiny radius - show individual markers
         maxZoom: 20,       
         minZoom: 0,
-        minPoints: 5,      // Only cluster if 5+ very close together
+        minPoints: 8,      // Only cluster if 8+ in same building
         generateId: true,
         extent: 512,
         nodeSize: 64,
       };
     } else if (zoom >= 14) {
-      // Neighborhood level - light clustering
+      // Neighborhood level - very light clustering
       return {
-        radius: 35,        // Small radius for good detail
+        radius: 25,        // Small radius - show most individual locations
         maxZoom: 20,
         minZoom: 0,
-        minPoints: 3,      // Cluster if 3+ nearby
+        minPoints: 5,      // Only cluster if 5+ very close
         generateId: true,
         extent: 512,
         nodeSize: 64,
       };
     } else if (zoom >= 12) {
-      // City view - moderate clustering (allow ~200 markers for good city detail)
+      // City view - light clustering (show neighborhood detail)
       return {
-        radius: 50,        // Moderate radius - show neighborhood clusters
+        radius: 30,        // Small radius - show individual neighborhoods
         maxZoom: 20,
         minZoom: 0,
-        minPoints: 3,      // Cluster if 3+ communities nearby
+        minPoints: 4,      // Only cluster if 4+ communities very close
         generateId: true,
         extent: 512,
         nodeSize: 64,
       };
     } else if (zoom >= 10) {
-      // County view - stronger clustering  
+      // County view - moderate clustering  
       return {
-        radius: 80,        // Larger radius for county overview
+        radius: 60,        // Medium radius for county overview
         maxZoom: 20,
         minZoom: 0,
-        minPoints: 2,      // Cluster pairs at county level
+        minPoints: 3,      // Cluster groups of 3+ at county level
         generateId: true,
         extent: 512,
         nodeSize: 64,
