@@ -24,7 +24,7 @@ interface EnrichedFacility {
   city: string;
   state: string;
   zip_code: string;
-  phone: string;
+  phone: string | null;  // Allow null for missing phone numbers
   website?: string;
   pricing?: string;
   care_types?: string[];
@@ -405,14 +405,15 @@ class SmartCityExpander {
 
   private async addEnrichedFacility(facility: EnrichedFacility): Promise<boolean> {
     // CRITICAL VALIDATION: NO FAKE DATA (but missing data is OK)
-    // Reject entries with FAKE phone numbers (missing is OK)
+    // Handle fake phone numbers - convert to null instead of rejecting
     if (facility.phone && (
       facility.phone.startsWith('000-000-') ||
       facility.phone === '000-000-0000' ||
-      facility.phone === '000-000-0001'
+      facility.phone === '000-000-0001' ||
+      facility.phone.startsWith('000-')
     )) {
-      console.error('      ❌ REJECTED: Fake phone number detected:', facility.phone);
-      return false;
+      console.log('      ⚠️ Fake phone detected, converting to null:', facility.phone);
+      facility.phone = null; // Convert fake to missing - OK per user
     }
     
     // Handle zip codes - convert fake "00000" to null (missing is OK)
