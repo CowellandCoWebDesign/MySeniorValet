@@ -486,38 +486,60 @@ function CommunityCard({
           </div>
         </div>
 
-        {/* Key Services Section - Only show if we have real data */}
-        {community.amenities && community.amenities.length > 0 && (
-          <div className="bg-gray-800 rounded-lg p-3 mb-3">
-            <div className="text-sm text-gray-400 mb-2">Key Services:</div>
-            <div className="space-y-1">
-              {community.amenities.slice(0, 4).map((amenity, index) => (
-                <div key={index} className="flex items-center text-sm text-white">
-                  <span className="text-green-400 mr-2">✓</span>
-                  <span>{amenity.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
-                </div>
-              ))}
+        {/* Key Services Section - Always show these 4 standard services */}
+        <div className="bg-gray-800 rounded-lg p-3 mb-3">
+          <div className="text-sm text-gray-400 mb-2">Key Services:</div>
+          <div className="space-y-1">
+            {/* Check if amenities data confirms each service */}
+            <div className="flex items-center text-sm text-white">
+              {(community.amenities?.includes('24_7_staff') || 
+                community.amenities?.includes('nursing_staff') ||
+                community.amenities?.includes('medical_staff')) ? (
+                <span className="text-green-400 mr-2">✓</span>
+              ) : (
+                <span className="text-gray-600 mr-2">○</span>
+              )}
+              <span>24/7 Medical Staff</span>
+            </div>
+            
+            <div className="flex items-center text-sm text-white">
+              {(community.amenities?.includes('medication_management') || 
+                community.amenities?.includes('medication_assistance')) ? (
+                <span className="text-green-400 mr-2">✓</span>
+              ) : (
+                <span className="text-gray-600 mr-2">○</span>
+              )}
+              <span>Medication Management</span>
+            </div>
+            
+            <div className="flex items-center text-sm text-white">
+              {(community.amenities?.includes('housekeeping') || 
+                community.amenities?.includes('cleaning') ||
+                community.amenities?.includes('housekeeping_included')) ? (
+                <span className="text-green-400 mr-2">✓</span>
+              ) : (
+                <span className="text-gray-600 mr-2">○</span>
+              )}
+              <span>Housekeeping Included</span>
+            </div>
+            
+            <div className="flex items-center text-sm text-white">
+              {(community.amenities?.includes('transportation') || 
+                community.amenities?.includes('shuttle') ||
+                community.amenities?.includes('transportation_services')) ? (
+                <span className="text-green-400 mr-2">✓</span>
+              ) : (
+                <span className="text-gray-600 mr-2">○</span>
+              )}
+              <span>Transportation Included</span>
             </div>
           </div>
-        )}
-        
-        {/* If no service data, show care type info instead */}
-        {(!community.amenities || community.amenities.length === 0) && (
-          <div className="bg-gray-800 rounded-lg p-3 mb-3">
-            <div className="text-sm text-gray-400 mb-1">Care Type:</div>
-            <div className="text-sm text-white font-medium">
-              {community.careLevel || community.careTypes?.[0] || 
-               (community.communitySubtype === 'memory_care' ? 'Memory Care' :
-                community.communitySubtype === 'skilled_nursing' ? 'Skilled Nursing' :
-                community.communitySubtype === 'independent_living' ? 'Independent Living' :
-                community.communitySubtype === 'assisted_living' ? 'Assisted Living' :
-                'Senior Living')}
-            </div>
+          {(!community.amenities || community.amenities.length === 0) && (
             <div className="text-xs text-gray-500 mt-2">
-              Contact for specific services available
+              Contact for service details
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
 
 
