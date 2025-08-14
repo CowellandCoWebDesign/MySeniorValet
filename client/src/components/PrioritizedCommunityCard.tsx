@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2, Home, Info } from "lucide-react";
+import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2, Home, Info, Sparkles, DollarSign, Activity } from "lucide-react";
 import { MarketIntelligenceModal } from "./MarketIntelligenceModal";
 
 interface CommunityCardProps {
@@ -504,24 +504,73 @@ function CommunityCard({
           )}
         </div>
 
-        {/* Availability Section */}
-        <div className="bg-gray-800 rounded-lg p-3 mb-3">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-400">Availability:</span>
-            <span className={`text-lg font-bold ${
-              availability.status === 'Available Now' ? 'text-green-400' :
-              availability.status === 'Limited Availability' ? 'text-yellow-400' :
-              availability.status === 'Wait List' ? 'text-red-400' :
-              'text-gray-400'
-            }`}>
-              {availability.status}
-            </span>
-          </div>
-          {availability.detail && (
-            <div className="text-xs text-gray-500 text-right mt-1">
-              {availability.detail}
+        {/* Live Intelligence Report - Compact Version */}
+        <div className="bg-gradient-to-br from-blue-900/50 to-purple-900/50 rounded-lg p-3 mb-3 border border-blue-700/30">
+          {/* Header with AI Status */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center">
+              <Sparkles className="w-4 h-4 mr-1 text-blue-400" />
+              <span className="text-xs font-semibold text-blue-300">Live Intelligence</span>
             </div>
-          )}
+            <div className="flex items-center space-x-1">
+              <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-xs text-green-400">Active</span>
+            </div>
+          </div>
+          
+          {/* AI Verification Badges - Mini Version */}
+          <div className="flex space-x-1 mb-2">
+            <div className="bg-blue-800/50 rounded px-1.5 py-0.5 text-xs text-blue-300 flex items-center">
+              <div className="w-1 h-1 bg-blue-400 rounded-full mr-1"></div>
+              <span>Perplexity</span>
+            </div>
+            <div className="bg-purple-800/50 rounded px-1.5 py-0.5 text-xs text-purple-300 flex items-center">
+              <div className="w-1 h-1 bg-purple-400 rounded-full mr-1"></div>
+              <span>Claude</span>
+            </div>
+            <div className="bg-green-800/50 rounded px-1.5 py-0.5 text-xs text-green-300 flex items-center">
+              <div className="w-1 h-1 bg-green-400 rounded-full mr-1"></div>
+              <span>ChatGPT</span>
+            </div>
+          </div>
+          
+          {/* Current Availability & Pricing - Compact */}
+          <div className="bg-gradient-to-r from-green-900/30 to-blue-900/30 rounded p-2">
+            <div className="text-xs text-gray-400 mb-1">Current Availability & Pricing</div>
+            
+            {/* Pricing Display */}
+            <div className="flex items-center mb-1">
+              <DollarSign className="w-3 h-3 mr-1 text-green-400" />
+              {priceDisplay ? (
+                <>
+                  <span className="text-xs text-green-400">Live Pricing Found:</span>
+                  <span className="text-sm font-bold text-white ml-1">{priceDisplay}</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-xs text-gray-400">Pricing:</span>
+                  <span className="text-sm text-gray-500 ml-1">Contact for Details</span>
+                </>
+              )}
+            </div>
+            
+            {/* Availability Status */}
+            <div className="flex items-center">
+              <Activity className="w-3 h-3 mr-1 text-blue-400" />
+              <span className="text-xs text-blue-400">Status:</span>
+              <span className={`text-sm font-medium ml-1 ${
+                availability.status === 'Available Now' ? 'text-green-400' :
+                availability.status === 'Limited Availability' ? 'text-yellow-400' :
+                availability.status === 'Wait List' ? 'text-red-400' :
+                'text-gray-400'
+              }`}>
+                {availability.status}
+              </span>
+              {availability.detail && (
+                <span className="text-xs text-gray-500 ml-2">({availability.detail})</span>
+              )}
+            </div>
+          </div>
         </div>
 
 
