@@ -212,12 +212,14 @@ function CommunityCard({
     
     const occupancy = typeof community.occupancyRateHud === 'string' 
       ? parseFloat(community.occupancyRateHud) 
-      : community.occupancyRateHud;
+      : typeof community.occupancyRateHud === 'number' 
+        ? community.occupancyRateHud 
+        : undefined;
     
     const totalUnits = community.totalUnitsHud || community.totalUnits;
     const availableUnits = community.availableUnits;
     
-    if (!totalUnits) {
+    if (occupancy !== undefined && !totalUnits) {
       // Have occupancy rate but no unit count
       return {
         status: `${Math.round(occupancy)}% Occupied`,
@@ -228,7 +230,7 @@ function CommunityCard({
       };
     }
     
-    if (occupancy >= 100) {
+    if (occupancy !== undefined && occupancy >= 100) {
       return {
         status: 'Wait List',
         detail: community.waitListLength ? `${community.waitListLength} waiting` : 'Full',
@@ -237,7 +239,7 @@ function CommunityCard({
         dotColor: 'bg-red-400'
       };
     }
-    if (occupancy >= 95) {
+    if (occupancy !== undefined && occupancy >= 95) {
       return {
         status: 'Limited Availability',
         detail: availableUnits ? `${availableUnits} Available` : '',
@@ -246,7 +248,7 @@ function CommunityCard({
         dotColor: 'bg-orange-400'
       };
     }
-    if (occupancy >= 85) {
+    if (occupancy !== undefined && occupancy >= 85) {
       return {
         status: 'Available Soon',
         detail: availableUnits ? `${availableUnits} Available` : '',
@@ -255,12 +257,23 @@ function CommunityCard({
         dotColor: 'bg-yellow-400'
       };
     }
+    if (occupancy !== undefined) {
+      return {
+        status: 'Available Now',
+        detail: availableUnits ? `${availableUnits} Available` : '',
+        bgColor: 'bg-green-700',
+        lightColor: 'text-green-200',
+        dotColor: 'bg-green-400'
+      };
+    }
+    
+    // No occupancy data available
     return {
-      status: 'Available Now',
-      detail: availableUnits ? `${availableUnits} Available` : '',
-      bgColor: 'bg-green-700',
-      lightColor: 'text-green-200',
-      dotColor: 'bg-green-400'
+      status: 'Contact for Availability',
+      detail: '',
+      bgColor: 'bg-gray-700',
+      lightColor: 'text-gray-300',
+      dotColor: 'bg-gray-400'
     };
   };
 
@@ -410,182 +423,144 @@ function CommunityCard({
 
       {/* Bottom Section - Dark Theme */}
       <CardContent className="p-4 bg-gray-900 text-white">
-        {/* Top Row: Community Info on Left, Pricing on Right */}
-        <div className="flex items-start justify-between mb-3">
-          {/* Left Side: Badge and Name */}
-          <div className="flex-1 mr-4">
-            {/* Care Type Badge */}
-            <div className="mb-2">
-              <Badge className="bg-blue-600 text-white text-sm px-3 py-1 inline-block">
-                {community.careLevel || 'Assisted Living'}
-              </Badge>
-            </div>
-            
-            <h3 className="text-xl font-bold text-white mb-1">
-              {community.name}
-            </h3>
-            <div className="flex items-center text-sm text-gray-400">
-              <MapPin className="h-4 w-4 mr-1" />
-              <span>{community.address}, {community.city}, {community.state} {community.zipCode}</span>
-            </div>
+        {/* Community Name and Location */}
+        <div className="mb-3">
+          <h3 className="text-xl font-bold text-white mb-1">
+            {community.name}
+          </h3>
+          <div className="flex items-center text-sm text-gray-400">
+            <MapPin className="h-4 w-4 mr-1" />
+            <span>{community.city}, {community.state}</span>
           </div>
-          
-          {/* Right Side: Pricing Stack */}
-          <div className="text-right">
-            {/* Pricing Display */}
-            <div className="text-sm font-bold text-white">
-              {priceDisplay}
-            </div>
-            
-            {/* Market Intelligence Insights */}
-            {marketPricing?.insights && (
-              <div className="mt-1 space-y-1">
-                {/* Market Trend Indicator */}
-                {marketPricing.insights.trend && (
-                  <div className="flex items-center justify-end text-xs">
-                    <span className={`px-1.5 py-0.5 rounded ${
-                      marketPricing.insights.trend.direction === 'rising' ? 'bg-red-900/50 text-red-400' :
-                      marketPricing.insights.trend.direction === 'falling' ? 'bg-green-900/50 text-green-400' :
-                      'bg-gray-700 text-gray-400'
-                    }`}>
-                      {marketPricing.insights.trend.direction === 'rising' ? '📈' :
-                       marketPricing.insights.trend.direction === 'falling' ? '📉' : '➡️'}
-                      {' '}{marketPricing.insights.trend.yearOverYear} YoY
+          <div className="mt-1">
+            <Badge className="bg-blue-600 text-white text-xs px-2 py-0.5">
+              {community.careLevel || community.careTypes?.[0] || 'Assisted Living'}
+            </Badge>
+          </div>
+        </div>
+
+        {/* Critical Information Panel - Pricing and Availability */}
+        <div className="bg-gray-800 rounded-lg p-3 mb-3">
+          {/* Pricing Section */}
+          <div className="mb-3">
+            {priceDisplay ? (
+              <>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm text-gray-400">Average Price:</span>
+                  <span className="text-lg font-bold text-white">{priceDisplay}</span>
+                </div>
+                {community.priceRange?.min && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-400">Starting Price:</span>
+                    <span className="text-lg font-bold text-green-400">
+                      ${community.priceRange.min.toLocaleString()}/Month
                     </span>
                   </div>
                 )}
-                
-                {/* State Comparison */}
-                {marketPricing.insights.comparison && (
-                  <div className="text-xs text-gray-400">
-                    <span className={marketPricing.insights.comparison.position.includes('Above') ? 'text-yellow-400' : 'text-green-400'}>
-                      {marketPricing.insights.comparison.position}
-                    </span>
-                  </div>
-                )}
-                
-                {/* Local Market Ranking */}
-                {marketPricing.insights.localMarket && (
-                  <div className="text-xs text-gray-400">
-                    {marketPricing.insights.localMarket.ranking}
-                  </div>
-                )}
+              </>
+            ) : (
+              <div className="text-center py-2">
+                <span className="text-gray-400">Contact for Pricing</span>
               </div>
             )}
-            
-            {/* Pricing Source Citation */}
-            <div className="text-xs text-gray-400 italic mt-0.5">
-              {isHudProperty ? (
-                <span>HUD Verified Data</span>
-              ) : community.verified ? (
-                <span>Community Verified</span>
-              ) : priceDisplay === 'Contact for pricing' ? (
-                <span>Contact for pricing</span>
-              ) : (
-                <span>Market Intelligence</span>
-              )}
+          </div>
+
+          {/* Availability Section */}
+          <div className="border-t border-gray-700 pt-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-400">Availability:</span>
+              <span className={`text-lg font-bold ${
+                availability.status === 'Available Now' ? 'text-green-400' :
+                availability.status === 'Limited Availability' ? 'text-yellow-400' :
+                availability.status === 'Wait List' ? 'text-red-400' :
+                'text-gray-400'
+              }`}>
+                {availability.status === 'Contact for Availability' ? 'Contact Us' : 'Yes'}
+              </span>
             </div>
-            
-            {/* Pricing Verification Badge - Full Names */}
-            <div className="mt-0.5">
-              {isHudProperty ? (
-                <Badge className="bg-blue-600 text-white text-xs px-2 py-0.5">
-                  <span className="mr-0.5 text-xs">🏛️</span> HUD VERIFIED
-                </Badge>
-              ) : community.verified ? (
-                <Badge className="bg-green-600 text-white text-xs px-2 py-0.5">
-                  <span className="mr-0.5 text-xs">✓</span> COMMUNITY VERIFIED
-                </Badge>
-              ) : marketPricing ? (
-                <Badge className={`text-white text-xs px-2 py-0.5 ${
-                  marketPricing.confidence === 'high' ? 'bg-purple-600' :
-                  marketPricing.confidence === 'medium' ? 'bg-purple-700' :
-                  'bg-purple-800'
-                }`}>
-                  <span className="mr-0.5 text-xs">📊</span> {marketPricing.confidence.toUpperCase()} CONFIDENCE
-                </Badge>
-              ) : priceDisplay !== 'Contact for pricing' ? (
-                <Badge className="bg-yellow-600 text-white text-xs px-2 py-0.5">
-                  <span className="mr-0.5 text-xs">📊</span> MARKET INTELLIGENCE
-                </Badge>
-              ) : null}
-            </div>
-            
-            {/* View Details Button - Only show if market pricing exists */}
-            {marketPricing && (
-              <button
+            {availability.detail && (
+              <div className="text-xs text-gray-500 text-right mt-1">
+                {availability.detail}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Key Services Section */}
+        <div className="bg-gray-800 rounded-lg p-3 mb-3">
+          <div className="text-sm text-gray-400 mb-2">Key Services:</div>
+          <div className="space-y-1">
+            {/* Show actual amenities if available, otherwise show common services */}
+            {(community.amenities && community.amenities.length > 0) ? (
+              community.amenities.slice(0, 4).map((amenity, index) => (
+                <div key={index} className="flex items-center text-sm text-white">
+                  <span className="text-green-400 mr-2">✓</span>
+                  <span>{amenity.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                </div>
+              ))
+            ) : (
+              <>
+                <div className="flex items-center text-sm text-white">
+                  <span className="text-green-400 mr-2">✓</span>
+                  <span>Medication Management</span>
+                </div>
+                <div className="flex items-center text-sm text-white">
+                  <span className="text-green-400 mr-2">✓</span>
+                  <span>24/7 Nursing Staff</span>
+                </div>
+                <div className="flex items-center text-sm text-white">
+                  <span className="text-green-400 mr-2">✓</span>
+                  <span>Physical Therapy Services</span>
+                </div>
+                <div className="flex items-center text-sm text-white">
+                  <span className="text-green-400 mr-2">✓</span>
+                  <span>Dressing Assistance</span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+
+
+        {/* Contact Information Bar */}
+        <div className="flex justify-between items-center p-2 bg-gray-800 rounded-lg mb-3">
+          <div className="flex items-center gap-3">
+            {community.phone && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-xs text-gray-400 hover:text-white p-1"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setShowMarketModal(true);
+                  window.location.href = `tel:${community.phone}`;
                 }}
-                className="mt-1 text-xs text-purple-400 hover:text-purple-300 flex items-center justify-end gap-1 ml-auto"
               >
-                <Info className="h-3 w-3" />
-                View Details
-              </button>
+                <Phone className="h-4 w-4 mr-1" />
+                Call
+              </Button>
             )}
-            
-            {/* Units Info */}
-            <div className="flex items-center justify-end text-gray-300 mt-1">
-              <Building className="h-3 w-3 mr-0.5" />
-              <span className="text-xs">{community.totalUnits || community.totalUnitsHud || '100'} units</span>
-            </div>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-xs text-gray-400 hover:text-white p-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                // Message functionality
+              }}
+            >
+              <MessageCircle className="h-4 w-4 mr-1" />
+              Message
+            </Button>
+          </div>
+          <div className="flex items-center text-gray-400">
+            <Building className="h-3 w-3 mr-1" />
+            <span className="text-xs">{community.totalUnits || community.totalUnitsHud || 'Contact'} units</span>
           </div>
         </div>
 
-
-
-        {/* Policy & License Badges - First Line */}
-        <div className="mb-1 flex flex-wrap gap-2">
-          {/* Pet Policy */}
-          {community.petFriendly !== undefined && (
-            <span className={`text-xs px-2 py-1 rounded-full ${
-              community.petFriendly ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'
-            }`}>
-              {community.petFriendly ? '🐕 Pet Friendly' : '🚫 No Pets'}
-            </span>
-          )}
-          
-          {/* License Status */}
-          {community.licenseStatus && (
-            <span className={`text-xs px-2 py-1 rounded-full ${
-              community.licenseStatus === 'Licensed' ? 
-                'bg-green-900/50 text-green-400' : 
-                'bg-yellow-900/50 text-yellow-400'
-            }`}>
-              {community.licenseStatus === 'Licensed' ? '✓ Licensed' : community.licenseStatus}
-            </span>
-          )}
-        </div>
-        
-        {/* Amenities Badges - Second Line */}
-        {community.amenities && community.amenities.length > 0 && (
-          <div className="mb-2 flex flex-wrap gap-2">
-            {community.amenities.includes('wheelchair_accessible') && (
-              <span className="text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
-                ♿ Wheelchair Access
-              </span>
-            )}
-            {community.amenities.includes('wifi') && (
-              <span className="text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
-                📶 WiFi
-              </span>
-            )}
-            {community.amenities.includes('parking') && (
-              <span className="text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
-                🅿️ Parking
-              </span>
-            )}
-            {community.amenities.includes('dining') && (
-              <span className="text-xs px-2 py-1 rounded-full bg-blue-900/50 text-blue-400">
-                🍽️ Dining
-              </span>
-            )}
-          </div>
-        )}
-
-        {/* Reviews & Inspections Section */}
-        <div className="mb-3 p-3 bg-gray-800 rounded-lg">
+        {/* Reviews & Inspections Section - Simplified */}
+        <div className="p-3 bg-gray-800 rounded-lg">
           <div className="flex gap-4">
             {/* Reviews Section - Left Side */}
             <div className="flex-1">
