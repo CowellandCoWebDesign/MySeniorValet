@@ -136,13 +136,11 @@ async function processSimple() {
   console.log('✅ Processing cycle complete');
 }
 
-// Run continuously
+// Run once
 async function main() {
-  while (true) {
-    await processSimple();
-    console.log('\n⏰ Waiting 2 minutes before next cycle...\n');
-    await new Promise(r => setTimeout(r, 120000)); // Wait 2 minutes
-  }
+  await processSimple();
+  console.log('\n✅ Processing complete\n');
+  process.exit(0);
 }
 
 main();
