@@ -486,40 +486,38 @@ function CommunityCard({
           </div>
         </div>
 
-        {/* Key Services Section */}
-        <div className="bg-gray-800 rounded-lg p-3 mb-3">
-          <div className="text-sm text-gray-400 mb-2">Key Services:</div>
-          <div className="space-y-1">
-            {/* Show actual amenities if available, otherwise show common services */}
-            {(community.amenities && community.amenities.length > 0) ? (
-              community.amenities.slice(0, 4).map((amenity, index) => (
+        {/* Key Services Section - Only show if we have real data */}
+        {community.amenities && community.amenities.length > 0 && (
+          <div className="bg-gray-800 rounded-lg p-3 mb-3">
+            <div className="text-sm text-gray-400 mb-2">Key Services:</div>
+            <div className="space-y-1">
+              {community.amenities.slice(0, 4).map((amenity, index) => (
                 <div key={index} className="flex items-center text-sm text-white">
                   <span className="text-green-400 mr-2">✓</span>
                   <span>{amenity.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
                 </div>
-              ))
-            ) : (
-              <>
-                <div className="flex items-center text-sm text-white">
-                  <span className="text-green-400 mr-2">✓</span>
-                  <span>Medication Management</span>
-                </div>
-                <div className="flex items-center text-sm text-white">
-                  <span className="text-green-400 mr-2">✓</span>
-                  <span>24/7 Nursing Staff</span>
-                </div>
-                <div className="flex items-center text-sm text-white">
-                  <span className="text-green-400 mr-2">✓</span>
-                  <span>Physical Therapy Services</span>
-                </div>
-                <div className="flex items-center text-sm text-white">
-                  <span className="text-green-400 mr-2">✓</span>
-                  <span>Dressing Assistance</span>
-                </div>
-              </>
-            )}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+        
+        {/* If no service data, show care type info instead */}
+        {(!community.amenities || community.amenities.length === 0) && (
+          <div className="bg-gray-800 rounded-lg p-3 mb-3">
+            <div className="text-sm text-gray-400 mb-1">Care Type:</div>
+            <div className="text-sm text-white font-medium">
+              {community.careLevel || community.careTypes?.[0] || 
+               (community.communitySubtype === 'memory_care' ? 'Memory Care' :
+                community.communitySubtype === 'skilled_nursing' ? 'Skilled Nursing' :
+                community.communitySubtype === 'independent_living' ? 'Independent Living' :
+                community.communitySubtype === 'assisted_living' ? 'Assisted Living' :
+                'Senior Living')}
+            </div>
+            <div className="text-xs text-gray-500 mt-2">
+              Contact for specific services available
+            </div>
+          </div>
+        )}
 
 
 
