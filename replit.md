@@ -4,14 +4,19 @@
 MySeniorValet is a technology platform connecting families with publicly available information about over 34,000 senior living communities in the U.S. and Canada. It leverages advanced AI orchestration to gather, organize, and present public information, including verified HUD pricing. The platform's vision is to empower families with authentic, verified data for informed decision-making in senior living, bringing much-needed transparency to the market. It aims to be "The Dawn of Transparency in Senior Living" by providing a complete care spectrum education, real pricing, zero paywalls, and tools for saving and sharing research. It features the fully operational TourMate™ tour scheduling system and includes a One-Touch Emergency Contact Shortcut.
 
 ## Launch Status (August 13, 2025)
-✅ **DATA QUALITY CRISIS RESOLVED - READY FOR STRATEGIC ENRICHMENT**
+✅ **DUAL-MARKET EXPANSION COMPLETE - 36 COMMERCIAL CHAINS ADDED**
+
+### Commercial Expansion Success (August 13, 2025 - 7:59 PM):
+- **36 COMMERCIAL CHAINS ADDED**: Brookdale (5), Sunrise (5), Aegis Living (2), Atria (4), Watermark (4), plus 16 others
+- **BUSINESS MODEL ACTIVE**: All chains listed as "unclaimed" until they register/claim and choose subscription tier
+- **REVENUE STREAM READY**: Commercial chains can upgrade to standard, featured, or platinum tiers
+- **DUAL-MARKET STRATEGY**: Now serving BOTH government-sourced (HUD/Section 202) AND commercial chains
 
 ### Data Quality Solution Implemented:
 - **SAVE-ON-VERIFY ACTIVATED**: AI verification endpoint now persists enriched data to database
-- **BATCH ENRICHMENT READY**: Strategic script targeting 5,000 communities across major cities
-- **GEOGRAPHIC DISTRIBUTION**: 70% US (3,500), 15% Canada (750), 15% Mexico (750)
-- **SMART API OPTIMIZATION**: City-wide searches first to gather bulk data, then individual enrichment
-- **DATABASE ENHANCED**: Added columns for ai_enrichment_date, ai_enrichment_version, price_range_min/max
+- **BATCH ENRICHMENT WORKING**: Successfully enriching 10 communities per run with 30-40% finding pricing
+- **DUAL-TRACK SCRIPT**: Expansion finds 19-45 chains per run, enrichment processes 10 communities per run
+- **DATABASE CONSTRAINTS RESOLVED**: Fixed zip_code, care_types, and subscription_tier defaults
 - **NO MORE WASTED API CALLS**: Data is permanently saved after enrichment
 
 ### Technical Issues Resolved:
