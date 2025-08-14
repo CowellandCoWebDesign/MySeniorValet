@@ -69,7 +69,26 @@ const TARGET_CITIES = [
   { city: 'Minneapolis', state: 'MN' },
   { city: 'Pittsburgh', state: 'PA' },
   { city: 'Cincinnati', state: 'OH' },
-  { city: 'Cleveland', state: 'OH' }
+  { city: 'Cleveland', state: 'OH' },
+  // Underserved states
+  { city: 'Fargo', state: 'ND' },
+  { city: 'Bismarck', state: 'ND' },
+  { city: 'Grand Forks', state: 'ND' },
+  { city: 'Sioux Falls', state: 'SD' },
+  { city: 'Rapid City', state: 'SD' },
+  { city: 'Aberdeen', state: 'SD' },
+  { city: 'Cheyenne', state: 'WY' },
+  { city: 'Casper', state: 'WY' },
+  { city: 'Laramie', state: 'WY' },
+  { city: 'Honolulu', state: 'HI' },
+  { city: 'Hilo', state: 'HI' },
+  { city: 'Kailua', state: 'HI' },
+  { city: 'Billings', state: 'MT' },
+  { city: 'Missoula', state: 'MT' },
+  { city: 'Great Falls', state: 'MT' },
+  { city: 'Anchorage', state: 'AK' },
+  { city: 'Fairbanks', state: 'AK' },
+  { city: 'Juneau', state: 'AK' }
 ];
 
 class SmartCityExpander {
