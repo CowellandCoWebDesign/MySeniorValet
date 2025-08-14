@@ -3,176 +3,146 @@ import { communities } from '../../shared/schema';
 import { PerplexityAIService } from '../perplexity-ai-service';
 import { eq, and, sql } from 'drizzle-orm';
 
-// Simple, direct processor - no fancy features, just get facilities into database
-class SimpleProcessor {
-  private perplexity: PerplexityAIService;
-  private processedCount = 0;
-  private skippedCount = 0;
+// Simple continuous processor
+async function processSimple() {
+  const perplexity = new PerplexityAIService();
   
-  constructor() {
-    this.perplexity = new PerplexityAIService();
-  }
-
-  async processCity(city: string, state: string) {
-    console.log(`\n🎯 SIMPLE PROCESSOR FOR ${city}, ${state}`);
-    console.log(`==================================`);
-    
-    // Get a list of facilities
-    const facilities = await this.discoverFacilities(city, state);
-    console.log(`📋 Found ${facilities.length} facilities to process\n`);
-    
-    // Process each one
-    for (let i = 0; i < facilities.length; i++) {
-      const name = facilities[i];
-      
-      // Check if exists
-      const exists = await this.checkExists(name, city, state);
-      if (exists) {
-        this.skippedCount++;
-        console.log(`[${i+1}/${facilities.length}] ⏭️ ${name} (exists)`);
-        continue;
-      }
-      
-      // Get details and add
-      console.log(`[${i+1}/${facilities.length}] 📍 Processing ${name}...`);
-      const added = await this.processOne(name, city, state);
-      if (added) {
-        this.processedCount++;
-        console.log(`   ✅ Added`);
-      } else {
-        console.log(`   ❌ Failed`);
-      }
-      
-      // Rate limit
-      await new Promise(r => setTimeout(r, 1500));
-    }
-    
-    console.log(`\n✅ COMPLETE!`);
-    console.log(`   Added: ${this.processedCount}`);
-    console.log(`   Skipped: ${this.skippedCount}`);
-  }
-
-  private async discoverFacilities(city: string, state: string): Promise<string[]> {
-    const query = `List ALL senior living, assisted living, nursing home, and memory care facilities in ${city}, ${state}.
-    Give me just the facility names, one per line. Include ALL facilities you know about.`;
-    
-    try {
-      const result = await this.perplexity.searchRealTime(query);
-      const text = result.summary || '';
-      
-      // Parse names
-      const names: string[] = [];
-      const lines = text.split('\n');
-      
-      for (const line of lines) {
-        const cleaned = line
-          .replace(/^\d+[\.)]\s*/, '')
-          .replace(/^[-•*]\s*/, '')
-          .replace(/\*\*/g, '')
-          .trim();
-        
-        if (cleaned && 
-            cleaned.length > 3 && 
-            cleaned.length < 100 &&
-            !cleaned.match(/^(here|these|the following|list of)/i)) {
-          names.push(cleaned);
-        }
-      }
-      
-      return [...new Set(names)]; // unique only
-    } catch (error) {
-      console.error('Discovery error:', error);
-      return [];
-    }
-  }
-
-  private async checkExists(name: string, city: string, state: string): Promise<boolean> {
-    const existing = await db
-      .select()
+  // Cities with known gaps
+  const targetCities = [
+    { city: 'Atlanta', state: 'GA', expected: 167 },
+    { city: 'New York', state: 'NY', expected: 161 },
+    { city: 'Grand Forks', state: 'ND', expected: 149 },
+    { city: 'Casper', state: 'WY', expected: 148 },
+    { city: 'Fargo', state: 'ND', expected: 145 },
+    { city: 'Bismarck', state: 'ND', expected: 122 },
+    { city: 'Dallas', state: 'TX', expected: 131 },
+    { city: 'Houston', state: 'TX', expected: 152 },
+    { city: 'Cheyenne', state: 'WY', expected: 69 },
+    { city: 'Sioux Falls', state: 'SD', expected: 100 },
+    { city: 'Billings', state: 'MT', expected: 51 },
+    { city: 'Anchorage', state: 'AK', expected: 99 },
+    { city: 'Honolulu', state: 'HI', expected: 91 }
+  ];
+  
+  console.log('🔄 SIMPLE CONTINUOUS PROCESSOR');
+  console.log('================================\n');
+  
+  for (const target of targetCities) {
+    // Check current count
+    const result = await db
+      .select({ count: sql<number>`COUNT(*)` })
       .from(communities)
       .where(
         and(
-          sql`LOWER(${communities.name}) = LOWER(${name})`,
-          eq(communities.city, city),
-          eq(communities.state, state)
+          eq(communities.city, target.city),
+          eq(communities.state, target.state)
         )
-      )
-      .limit(1);
+      );
     
-    return existing.length > 0;
-  }
-
-  private async processOne(name: string, city: string, state: string): Promise<boolean> {
-    const query = `Find the exact address and phone number for "${name}" in ${city}, ${state}.
-    This is a real senior living facility. Provide the actual street address and phone.`;
+    const current = Number(result[0]?.count || 0);
+    const needed = target.expected - current;
     
-    try {
-      const result = await this.perplexity.searchRealTime(query);
-      const text = result.summary || '';
+    if (needed > 0) {
+      console.log(`📍 ${target.city}, ${target.state}: Has ${current}, needs ${needed} more`);
       
-      // Extract address
-      const addressMatch = text.match(/(\d+\s+[A-Za-z0-9\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Way|Lane|Ln|Court|Ct)\.?)/i);
-      if (!addressMatch) return false;
+      // Discover facilities
+      const query = `List ${needed} more senior living facilities in ${target.city}, ${target.state} that I haven't mentioned yet. Include facility names only.`;
       
-      // Extract phone (optional)
-      let phone = 'Call for details';
-      const phoneMatch = text.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
-      if (phoneMatch) {
-        const digits = phoneMatch[0].replace(/\D/g, '');
-        if (digits.length === 10) {
-          phone = `${digits.slice(0,3)}-${digits.slice(3,6)}-${digits.slice(6)}`;
+      try {
+        const searchResult = await perplexity.searchRealTime(query);
+        const text = searchResult.summary || '';
+        
+        // Parse names
+        const names: string[] = [];
+        const lines = text.split('\n');
+        
+        for (const line of lines) {
+          const cleaned = line
+            .replace(/^\d+[\.)]\s*/, '')
+            .replace(/^[-•*]\s*/, '')
+            .replace(/\*\*/g, '')
+            .trim();
+          
+          if (cleaned && cleaned.length > 3 && cleaned.length < 100) {
+            names.push(cleaned);
+          }
         }
+        
+        // Process each facility
+        let added = 0;
+        for (const name of names.slice(0, 5)) { // Process up to 5 at a time
+          // Check if exists
+          const exists = await db
+            .select()
+            .from(communities)
+            .where(
+              and(
+                sql`LOWER(${communities.name}) = LOWER(${name})`,
+                eq(communities.city, target.city),
+                eq(communities.state, target.state)
+              )
+            )
+            .limit(1);
+          
+          if (exists.length === 0) {
+            // Get address
+            const detailQuery = `What is the street address for "${name}" in ${target.city}, ${target.state}?`;
+            const detailResult = await perplexity.searchRealTime(detailQuery);
+            const detailText = detailResult.summary || '';
+            
+            // Extract address
+            const addressMatch = detailText.match(/(\d+\s+[A-Za-z0-9\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Way)\.?)/i);
+            
+            if (addressMatch) {
+              await db.insert(communities).values({
+                name: name,
+                slug: `${name}-${target.city}`.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                address: addressMatch[1].trim(),
+                city: target.city,
+                state: target.state,
+                zip_code: 'Contact for details',
+                phone: 'Call for details',
+                care_type: 'Assisted Living',
+                care_types: ['Assisted Living'],
+                description: `${name} is a senior care facility in ${target.city}, ${target.state}.`,
+                verified: false,
+                is_active: true,
+                metadata: {
+                  source: 'simple_processor',
+                  date: new Date().toISOString()
+                }
+              });
+              
+              added++;
+              console.log(`   ✅ Added: ${name}`);
+            }
+          }
+          
+          await new Promise(r => setTimeout(r, 1500)); // Rate limit
+        }
+        
+        if (added > 0) {
+          console.log(`   Total added: ${added}\n`);
+        }
+        
+      } catch (error) {
+        console.error(`   Error: ${error}\n`);
       }
       
-      // Extract ZIP (optional)
-      const zipMatch = text.match(/\b(\d{5})\b/);
-      const zip = zipMatch ? zipMatch[1] : 'Contact for details';
-      
-      // Determine care type
-      let careType = 'Assisted Living';
-      if (text.match(/memory care/i)) careType = 'Memory Care';
-      else if (text.match(/nursing home/i)) careType = 'Nursing Home';
-      else if (text.match(/independent living/i)) careType = 'Independent Living';
-      
-      // Add to database
-      await db.insert(communities).values({
-        name,
-        slug: `${name}-${city}`.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-        address: addressMatch[1].trim(),
-        city,
-        state,
-        zip_code: zip,
-        phone,
-        care_type: careType,
-        care_types: [careType],
-        description: `${name} is a ${careType} community in ${city}, ${state}.`,
-        verified: false,
-        is_active: true,
-        metadata: {
-          source: 'simple_processor',
-          date: new Date().toISOString()
-        }
-      });
-      
-      return true;
-    } catch (error) {
-      return false;
+      await new Promise(r => setTimeout(r, 3000)); // Pause between cities
     }
   }
+  
+  console.log('✅ Processing cycle complete');
 }
 
-// Run it
+// Run continuously
 async function main() {
-  const [city, state] = process.argv.slice(2);
-  
-  if (!city || !state) {
-    console.log('Usage: tsx simple-processor.ts "City" "ST"');
-    process.exit(1);
+  while (true) {
+    await processSimple();
+    console.log('\n⏰ Waiting 2 minutes before next cycle...\n');
+    await new Promise(r => setTimeout(r, 120000)); // Wait 2 minutes
   }
-  
-  const processor = new SimpleProcessor();
-  await processor.processCity(city, state);
-  process.exit(0);
 }
 
 main();
