@@ -76,45 +76,34 @@ class SuperclusterService {
   }
 
   private getClusterConfig(zoom: number): Supercluster.Options {
-    // Smart clustering based on zoom level
+    // AGGRESSIVE clustering to prevent performance issues with 34,000+ communities
     
-    if (zoom >= 14) {
-      // Street/building level - NO clustering
+    if (zoom >= 15) {
+      // Street/building level - minimal clustering
       return {
-        radius: 0,         // Zero radius = no clustering at all
+        radius: 30,        // Small clustering even at street level
         maxZoom: 20,       // Support ultra high zoom
         minZoom: 0,
-        minPoints: 999999, // Impossibly high threshold
+        minPoints: 8,      // Cluster if 8+ communities overlap
         generateId: true,
         extent: 512,
         nodeSize: 64,
       };
-    } else if (zoom >= 12) {
-      // City level - minimal clustering only for very dense areas
+    } else if (zoom >= 13) {
+      // Neighborhood level - light clustering
       return {
-        radius: 20,        // Small radius for minimal clustering
+        radius: 50,        // Increased radius for neighborhood view
         maxZoom: 20,
         minZoom: 0,
-        minPoints: 10,     // Only cluster if 10+ communities overlap
+        minPoints: 5,      // Cluster if 5+ communities nearby
         generateId: true,
         extent: 512,
         nodeSize: 64,
       };
-    } else if (zoom >= 10) {
-      // County level - light clustering
+    } else if (zoom >= 11) {
+      // City level - moderate clustering (CRITICAL FOR PERFORMANCE)
       return {
-        radius: 40,        // Medium radius
-        maxZoom: 20,
-        minZoom: 0,
-        minPoints: 5,      // Cluster 5+ communities
-        generateId: true,
-        extent: 512,
-        nodeSize: 64,
-      };
-    } else if (zoom >= 8) {
-      // Multi-county/regional view - moderate clustering
-      return {
-        radius: 60,        // Larger radius for regional grouping
+        radius: 80,        // MUCH larger radius to prevent 800+ individual markers
         maxZoom: 20,
         minZoom: 0,
         minPoints: 3,      // Cluster any 3+ communities
@@ -122,10 +111,10 @@ class SuperclusterService {
         extent: 512,
         nodeSize: 64,
       };
-    } else if (zoom >= 6) {
-      // State view - heavy clustering
+    } else if (zoom >= 9) {
+      // County level - strong clustering
       return {
-        radius: 80,        // Large radius for state-level view
+        radius: 100,       // Large radius for county view
         maxZoom: 20,
         minZoom: 0,
         minPoints: 2,      // Cluster any 2+ communities
@@ -133,10 +122,21 @@ class SuperclusterService {
         extent: 512,
         nodeSize: 64,
       };
-    } else if (zoom >= 4) {
-      // Multi-state view - aggressive clustering
+    } else if (zoom >= 7) {
+      // Regional view - heavy clustering
       return {
-        radius: 100,       // Very large radius
+        radius: 120,       // Very large radius for regional grouping
+        maxZoom: 20,
+        minZoom: 0,
+        minPoints: 2,      // Cluster any 2+ communities
+        generateId: true,
+        extent: 512,
+        nodeSize: 64,
+      };
+    } else if (zoom >= 5) {
+      // State view - aggressive clustering
+      return {
+        radius: 150,       // Huge radius for state-level view
         maxZoom: 20,
         minZoom: 0,
         minPoints: 2,      // Cluster any 2+ communities
@@ -147,7 +147,7 @@ class SuperclusterService {
     } else {
       // Country/world view - maximum clustering
       return {
-        radius: 120,       // Maximum radius for country-level view
+        radius: 200,       // Maximum radius for country-level view
         maxZoom: 20,
         minZoom: 0,
         minPoints: 2,      // Cluster any 2+ communities
