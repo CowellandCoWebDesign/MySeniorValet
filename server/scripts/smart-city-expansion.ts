@@ -294,11 +294,7 @@ class SmartCityExpander {
       // Save progress after each batch
       console.log(`\n📊 Batch ${batch + 1} complete: ${this.enrichedCount} enriched, ${this.failedCount} failed, ${this.skippedCount} skipped`);
       
-      // Process up to 3 batches to get good coverage
-      if (batch === 2) {
-        console.log('\n⚠️ Stopping after 3 batches to avoid timeout. Run again for more.');
-        break;
-      }
+      // Continue processing all batches
     }
   }
 
