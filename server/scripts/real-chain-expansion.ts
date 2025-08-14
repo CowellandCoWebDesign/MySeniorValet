@@ -21,7 +21,7 @@ interface RealFacility {
   chain?: string;
 }
 
-// Major chains to search for REAL locations
+// Major chains to search for REAL locations - EXPANDED LIST
 const TARGET_CHAINS = [
   'Brookdale Senior Living',
   'Sunrise Senior Living', 
@@ -32,7 +32,18 @@ const TARGET_CHAINS = [
   'Belmont Village',
   'Watermark Retirement',
   'MBK Senior Living',
-  'Discovery Senior Living'
+  'Discovery Senior Living',
+  // Adding more major chains
+  'Assisted Living Concepts',
+  'Capital Senior Living',
+  'Enlivant',
+  'Life Care Services',
+  'Integral Senior Living',
+  'Silverado Memory Care',
+  'Benchmark Senior Living',
+  'Senior Lifestyle Corporation',
+  'Kindred Healthcare',
+  'Genesis HealthCare'
 ];
 
 // Major metros to search in (bigger areas = more results)
@@ -74,7 +85,7 @@ class RealChainExpander {
       // Search multiple metros in parallel for each chain
       const searchPromises = [];
       for (const chain of batch) {
-        for (const metro of TARGET_METROS.slice(0, 4)) { // 4 metros per chain
+        for (const metro of TARGET_METROS.slice(0, 5)) { // 5 metros per chain for more coverage
           searchPromises.push(this.findRealFacilitiesEfficient(chain, metro.metro, metro.state));
         }
       }
