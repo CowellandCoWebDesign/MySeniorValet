@@ -58,16 +58,13 @@ class SingleCityExpander {
     console.log(`📍 TARGET: ${targetCity.city}, ${targetCity.state}`);
     console.log('=' .repeat(60));
     
-    // Comprehensive queries to get ALL facilities - not just big chains
+    // Get comprehensive list of ALL facility types
     const queries = [
-      `ALL assisted living facilities including local and independent`,
-      `ALL nursing homes including small local facilities`,
-      `ALL memory care centers including specialty and boutique`,
-      `ALL independent living communities including affordable housing`,
-      `ALL retirement communities including small local operators`,
-      `ALL continuing care retirement communities`,
-      `ALL senior apartments and senior housing`,
-      `ALL adult family homes and board and care homes`
+      `senior living facilities`,
+      `assisted living and memory care`,
+      `nursing homes and skilled nursing`,
+      `independent living and 55+ communities`,
+      `retirement homes and senior housing`
     ];
     
     for (const queryType of queries) {
@@ -92,19 +89,20 @@ class SingleCityExpander {
   }
 
   private async searchFacilities(city: string, state: string, facilityType: string) {
-    const query = `List all ${facilityType} in ${city}, ${state}.
-      Provide EXACTLY this format for each facility:
+    const query = `List senior living facilities in ${city}, ${state}.
+      Search for: ${facilityType}
+      
+      Provide for each facility:
       - Facility name
-      - Street address (number and street)
+      - Street address
       - ${city}, ${state} ZIP
-      - Phone: xxx-xxx-xxxx
+      - Phone number
       
-      Include ONLY facilities that are:
-      1. Currently operating
-      2. Have a physical location in ${city}
-      3. Have complete contact information
+      Include all types: assisted living, memory care, nursing homes, independent living,
+      55+ communities, active adult, residential care, board and care, adult family homes,
+      senior apartments, CCRCs, and any other senior housing.
       
-      List up to 15 facilities.`;
+      List up to 20 facilities with complete contact information.`;
     
     try {
       const result = await this.perplexity.searchRealTime(query);
