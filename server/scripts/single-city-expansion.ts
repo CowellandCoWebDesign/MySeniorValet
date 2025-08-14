@@ -58,14 +58,16 @@ class SingleCityExpander {
     console.log(`📍 TARGET: ${targetCity.city}, ${targetCity.state}`);
     console.log('=' .repeat(60));
     
-    // Make multiple specific queries for better results
+    // Comprehensive queries to get ALL facilities - not just big chains
     const queries = [
-      `Brookdale, Sunrise, and Atria facilities`,
-      `nursing homes and skilled nursing facilities`,
-      `memory care and Alzheimer's facilities`,
-      `independent living and retirement communities`,
-      `assisted living facilities`,
-      `continuing care retirement communities (CCRC)`
+      `ALL assisted living facilities including local and independent`,
+      `ALL nursing homes including small local facilities`,
+      `ALL memory care centers including specialty and boutique`,
+      `ALL independent living communities including affordable housing`,
+      `ALL retirement communities including small local operators`,
+      `ALL continuing care retirement communities`,
+      `ALL senior apartments and senior housing`,
+      `ALL adult family homes and board and care homes`
     ];
     
     for (const queryType of queries) {
