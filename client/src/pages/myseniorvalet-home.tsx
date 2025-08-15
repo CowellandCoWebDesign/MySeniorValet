@@ -631,25 +631,25 @@ export default function MySeniorValetHome() {
               {/* Government Sources Badge */}
               <span className="inline-flex items-center space-x-1 bg-gray-800/80 backdrop-blur-md px-2 py-0.5 rounded-full shadow-md whitespace-nowrap">
                 <Building2 className="h-2.5 w-2.5 text-blue-300 flex-shrink-0" />
-                <span className="text-[9px] font-semibold text-white">HUD+Gov</span>
+                <span className="text-[9px] font-semibold text-white">Real HUD Pricing</span>
               </span>
               
               {/* Community Reported Badge */}
               <span className="inline-flex items-center space-x-1 bg-gray-800/80 backdrop-blur-md px-2 py-0.5 rounded-full shadow-md whitespace-nowrap">
                 <Users2 className="h-2.5 w-2.5 text-green-300 flex-shrink-0" />
-                <span className="text-[9px] font-semibold text-white">Community</span>
+                <span className="text-[9px] font-semibold text-white">Family Reviews</span>
               </span>
               
               {/* AI Orchestration Badge */}
               <span className="inline-flex items-center space-x-1 bg-gray-800/80 backdrop-blur-md px-2 py-0.5 rounded-full shadow-md whitespace-nowrap">
                 <Brain className="h-2.5 w-2.5 text-purple-300 animate-pulse flex-shrink-0" />
-                <span className="text-[9px] font-semibold text-white">AI Live</span>
+                <span className="text-[9px] font-semibold text-white">Live Availability</span>
               </span>
               
               {/* AI Orchestra Badge - Attribution to the 3 AIs */}
               <span className="inline-flex items-center space-x-1 bg-gradient-to-r from-purple-800/80 to-indigo-800/80 backdrop-blur-md px-2 py-0.5 rounded-full shadow-md whitespace-nowrap border border-purple-400/30">
                 <Music className="h-2.5 w-2.5 text-yellow-300 animate-pulse flex-shrink-0" />
-                <span className="text-[9px] font-semibold text-white">AI Orchestra</span>
+                <span className="text-[9px] font-semibold text-white">AI Triple-Verified</span>
               </span>
             </div>
           </div>
