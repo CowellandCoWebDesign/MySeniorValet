@@ -83,13 +83,14 @@ const assistedLivingIcon = createSimpleIcon('#3b82f6'); // Blue
 const memoryCareIcon = createSimpleIcon('#8b5cf6'); // Purple
 const independentIcon = createSimpleIcon('#10b981'); // Green
 
-// Hospital icons with distinct medical cross symbol - circular with bold borders
+// Hospital icons with distinct medical cross symbol - clean design with status light
 const createHospitalIcon = (bgColor: string, isEmergency: boolean = false) => {
   const size = 35; // Size of circular hospital marker
   const uniqueId = `hospital_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const statusLightSize = size * 0.25; // Small status light
   
-  // Color-coded borders for hospitals
-  const borderColor = isEmergency ? '#dc2626' : '#f97316'; // Red for emergency, orange for urgent care
+  // Status light color for hospitals
+  const statusColor = isEmergency ? '#dc2626' : '#f97316'; // Red for emergency, orange for urgent care
   
   const svgString = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
@@ -105,20 +106,37 @@ const createHospitalIcon = (bgColor: string, isEmergency: boolean = false) => {
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
+        <!-- Glow effect for status light -->
+        <filter id="glow_${uniqueId}">
+          <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
       </defs>
       
-      <!-- Main circle with bold colored border -->
+      <!-- Main circle without bold border -->
       <circle cx="${size/2}" cy="${size/2}" r="${size/2-2}" 
               fill="white" 
-              stroke="${borderColor}" 
-              stroke-width="4" 
+              stroke="#e5e7eb" 
+              stroke-width="1" 
               filter="url(#shadow_${uniqueId})"/>
       
       <!-- Medical cross symbol -->
       <g transform="translate(${size/2}, ${size/2})">
-        <rect x="-3" y="-9" width="6" height="18" fill="${borderColor}" rx="1"/>
-        <rect x="-9" y="-3" width="18" height="6" fill="${borderColor}" rx="1"/>
+        <rect x="-3" y="-9" width="6" height="18" fill="#6b7280" rx="1"/>
+        <rect x="-9" y="-3" width="18" height="6" fill="#6b7280" rx="1"/>
       </g>
+      
+      <!-- Status light at bottom-right -->
+      <circle cx="${size - statusLightSize/2 - 2}" 
+              cy="${size - statusLightSize/2 - 2}" 
+              r="${statusLightSize/2}" 
+              fill="${statusColor}"
+              stroke="white"
+              stroke-width="1"
+              filter="url(#glow_${uniqueId})"/>
     </svg>
   `;
   
@@ -1054,22 +1072,23 @@ export default function Map({
   const getIconForCommunity = (community: Community, isHovered = false, isPulsing = false) => {
     const emoji = getCareEmoji(community);
     
-    // Check for live data to determine pin color
+    // Check for live data to determine status light color
     const hasLiveData = (community.rentPerMonth && community.rentPerMonth > 0) || 
                         (community.priceRange && typeof community.priceRange === 'string' && !community.priceRange.includes('Contact')) || 
                         (community.availability && community.availability !== 'Contact for availability') || 
                         community.hudPropertyId || 
                         community.dataSource === 'HUD';
 
-    // Color-coded border based on data availability
-    const borderColor = hasLiveData 
+    // Status light color based on data availability
+    const statusColor = hasLiveData 
       ? (isHovered ? '#22c55e' : '#16a34a') // Green for live data
       : (isHovered ? '#f87171' : '#ef4444'); // Red for no data
 
     const size = isHovered ? 36 : 32;
     const uniqueId = `pin_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const statusLightSize = size * 0.25; // Small status light
 
-    // Create circular pin with bold border (no pointing portion)
+    // Create clean icon with status light overlay
     const svgString = `
       <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
         <defs>
@@ -1084,19 +1103,36 @@ export default function Map({
               <feMergeNode in="SourceGraphic"/>
             </feMerge>
           </filter>
+          <!-- Glow effect for status light -->
+          <filter id="glow_${uniqueId}">
+            <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
         </defs>
         
-        <!-- Main circle with bold colored border -->
+        <!-- Main circle without border -->
         <circle cx="${size/2}" cy="${size/2}" r="${size/2-2}" 
                 fill="white" 
-                stroke="${borderColor}" 
-                stroke-width="4" 
+                stroke="#e5e7eb" 
+                stroke-width="1" 
                 filter="url(#shadow_${uniqueId})"/>
         
         <!-- Emoji -->
         <text x="${size/2}" y="${size/2 + 4}" text-anchor="middle" font-size="${size * 0.45}" font-family="Arial, sans-serif">
           ${emoji}
         </text>
+        
+        <!-- Status light at bottom-right -->
+        <circle cx="${size - statusLightSize/2 - 2}" 
+                cy="${size - statusLightSize/2 - 2}" 
+                r="${statusLightSize/2}" 
+                fill="${statusColor}"
+                stroke="white"
+                stroke-width="1"
+                filter="url(#glow_${uniqueId})"/>
       </svg>
     `;
 
