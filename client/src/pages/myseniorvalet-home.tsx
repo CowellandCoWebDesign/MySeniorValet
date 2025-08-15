@@ -524,21 +524,23 @@ export default function MySeniorValetHome() {
         
 
         
-        <div className="relative flex flex-col items-start justify-center hero-content min-h-screen px-6 py-12 md:py-16 mobile-keyboard-safe md:pl-16 lg:pl-24">
-          {/* Left-Aligned Headlines - Positioned to avoid gentleman on right */}
-          <div className="text-left mb-6 md:mb-8 max-w-3xl">
-            <div className="space-y-4">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl tracking-tight">
-                <span className="block mb-2 hero-text-main">Empowering Families to Find Transparent, Affordable Senior Living and Care</span>
-              </h1>
-              <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg animate-space-warp max-w-2xl font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
-                Explore trusted senior living communities and connect with services that make life easier. Transparent pricing, real-time availability, and seamless service integration, all in one place.
-              </h2>
+        <div className="relative flex flex-col items-start justify-center hero-content min-h-screen px-4 sm:px-6 py-8 md:py-12 mobile-keyboard-safe md:pl-12 lg:pl-16 xl:pl-20">
+          {/* Constrained Container for all hero content */}
+          <div className="w-full max-w-[55%] lg:max-w-[50%] xl:max-w-[45%]">
+            {/* Left-Aligned Headlines - Reduced sizes for boundary constraint */}
+            <div className="text-left mb-4 md:mb-6">
+              <div className="space-y-3">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl tracking-tight">
+                  <span className="block mb-2 hero-text-main">Empowering Families to Find Transparent, Affordable Senior Living and Care</span>
+                </h1>
+                <h2 className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg animate-space-warp font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
+                  Explore trusted senior living communities and connect with services that make life easier. Transparent pricing, real-time availability, and seamless service integration, all in one place.
+                </h2>
+              </div>
             </div>
-          </div>
 
-          {/* Search Bar - Half width and left-aligned */}
-          <div className="w-full max-w-2xl mb-4 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
+            {/* Search Bar - Constrained width */}
+            <div className="w-full mb-3 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
             <form onSubmit={(e) => {
               e.preventDefault();
               if (searchQuery) {
@@ -577,91 +579,90 @@ export default function MySeniorValetHome() {
             </form>
           </div>
 
-          {/* Premium Search Experience - Left-aligned to avoid gentleman */}
-          <div className="flex flex-col items-start space-y-3 mb-5 w-full max-w-2xl">
-            {/* Search Method Selector - Compact horizontal layout */}
-            <div className="flex flex-row gap-3 w-full animate-fade-in-up animation-delay-700">
-              {/* Traditional Search - Compact Design */}
-              <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="flex-1">
-                <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-4 py-2 rounded-full font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
-                  <div className="flex items-center justify-center space-x-2">
-                    <Search className="h-4 w-4" />
-                    <div className="flex flex-col items-start">
-                      <span className="text-xs font-bold leading-tight">Traditional Search</span>
-                      <span className="text-[9px] text-gray-500 dark:text-gray-400 font-normal leading-tight">
-                        Browse • Filter
-                      </span>
+            {/* Premium Search Experience - Compact for boundary constraint */}
+            <div className="flex flex-col items-start space-y-2 mb-3 w-full">
+              {/* Search Method Selector - More compact */}
+              <div className="flex flex-row gap-2 w-full animate-fade-in-up animation-delay-700">
+                {/* Traditional Search - Extra Compact */}
+                <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="flex-1">
+                  <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-3 py-1.5 rounded-full font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
+                    <div className="flex items-center justify-center space-x-1">
+                      <Search className="h-3 w-3" />
+                      <div className="flex flex-col items-start">
+                        <span className="text-[11px] font-bold leading-tight">Traditional Search</span>
+                        <span className="text-[8px] text-gray-500 dark:text-gray-400 font-normal leading-tight">
+                          Browse • Filter
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </Button>
-              </Link>
+                  </Button>
+                </Link>
 
-              {/* AI Intelligence - Compact Design */}
-              <Link href="/ai-search-intelligence" className="flex-1">
-                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="relative flex items-center justify-center space-x-2">
-                    <Sparkles className="h-4 w-4" />
-                    <div className="flex flex-col items-start">
-                      <span className="text-xs font-bold leading-tight">AI Intelligence</span>
-                      <span className="text-[9px] text-white/80 font-normal leading-tight">
-                        Ask Anything
+                {/* AI Intelligence - Extra Compact */}
+                <Link href="/ai-search-intelligence" className="flex-1">
+                  <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-3 py-1.5 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative flex items-center justify-center space-x-1">
+                      <Sparkles className="h-3 w-3" />
+                      <div className="flex flex-col items-start">
+                        <span className="text-[11px] font-bold leading-tight">AI Intelligence</span>
+                        <span className="text-[8px] text-white/80 font-normal leading-tight">
+                          Ask Anything
+                        </span>
+                      </div>
+                      <span className="absolute -top-0.5 -right-0.5">
+                        <span className="relative flex h-1.5 w-1.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+                        </span>
                       </span>
                     </div>
-                    <span className="absolute -top-0.5 -right-0.5">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                      </span>
-                    </span>
-                  </div>
-                </Button>
-              </Link>
+                  </Button>
+                </Link>
             </div>
             
-            {/* NEW: Live Availability Heatmap Button - Premium Feature */}
-            <Link href="/availability-heatmap" className="w-full">
-              <Button className="w-full bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 text-sm md:text-base px-4 md:px-6 py-2.5 md:py-3 rounded-xl transform hover:scale-105 animate-pulse-glow">
-                <Flame className="mr-2 h-4 w-4 animate-fire-wiggle" />
-                🔥 Live Availability Heatmap - See What's Open NOW!
-              </Button>
-            </Link>
+              {/* Live Availability Heatmap Button - Compact */}
+              <Link href="/availability-heatmap" className="w-full">
+                <Button className="w-full bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 text-xs md:text-sm px-3 md:px-4 py-2 md:py-2.5 rounded-lg transform hover:scale-105 animate-pulse-glow">
+                  <Flame className="mr-1 h-3 w-3 animate-fire-wiggle" />
+                  🔥 Live Availability Heatmap - See What's Open NOW!
+                </Button>
+              </Link>
 
-            {/* AI Matching Assistant Button */}
-            <Link href="/ai-matching" className="w-full">
-              <Button className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 text-sm md:text-base px-4 md:px-6 py-2.5 md:py-3 rounded-xl transform hover:scale-105">
-                <Brain className="mr-2 h-4 w-4" />
-                ✨ AI Matching Assistant - Find Your Perfect Community
-              </Button>
-            </Link>
-          </div>
-          
-
-          
-          {/* Trust Indicators with 26,306+ Communities - Left-aligned */}
-          <div className="mb-3 animate-fade-in-up animation-delay-800 w-full max-w-2xl">
-            <div className="flex flex-wrap items-start gap-3">
-
-              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full shadow-lg">
-                <Building2 className="h-4 w-4 text-blue-300" />
-                <span className="text-sm md:text-base font-semibold text-white">HUD + Government Sources</span>
-              </div>
-
+              {/* AI Matching Assistant Button - Compact */}
+              <Link href="/ai-matching" className="w-full">
+                <Button className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 text-xs md:text-sm px-3 md:px-4 py-2 md:py-2.5 rounded-lg transform hover:scale-105">
+                  <Brain className="mr-1 h-3 w-3" />
+                  ✨ AI Matching Assistant - Find Your Perfect Community
+                </Button>
+              </Link>
             </div>
-          </div>
           
-          {/* Community Count Text - Left-aligned */}
-          <div className="mb-2 animate-fade-in-up animation-delay-850 w-full max-w-2xl">
-            <p className="text-white/90 dark:text-gray-300 text-base md:text-lg lg:text-xl drop-shadow-md text-left font-medium">
-              Serving families across <strong className="text-amber-200">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} verified senior living communities</strong>
-            </p>
-          </div>
+
           
-          {/* Verification Badge - Left-aligned */}
-          <div className="mb-4 animate-fade-in-up animation-delay-900 w-full max-w-2xl">
-            <div className="inline-flex items-center px-4 py-2 bg-white/20 dark:bg-white/10 backdrop-blur-sm rounded-full text-white dark:text-gray-200 text-sm md:text-base font-medium shadow-lg">
-              <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
-              Verified Pricing • Real Availability • No Pressure
+            {/* Trust Indicators - Extra compact */}
+            <div className="mb-2 animate-fade-in-up animation-delay-800 w-full">
+              <div className="flex flex-wrap items-start gap-2">
+                <div className="flex items-center space-x-1 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full shadow-lg">
+                  <Building2 className="h-3 w-3 text-blue-300" />
+                  <span className="text-xs md:text-sm font-semibold text-white">HUD + Government Sources</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Community Count Text - Compact */}
+            <div className="mb-2 animate-fade-in-up animation-delay-850 w-full">
+              <p className="text-white/90 dark:text-gray-300 text-sm md:text-base lg:text-lg drop-shadow-md text-left font-medium">
+                Serving families across <strong className="text-amber-200">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '34,922+'} verified senior living communities</strong>
+              </p>
+            </div>
+            
+            {/* Verification Badge - Compact */}
+            <div className="mb-3 animate-fade-in-up animation-delay-900 w-full">
+              <div className="inline-flex items-center px-3 py-1 bg-white/20 dark:bg-white/10 backdrop-blur-sm rounded-full text-white dark:text-gray-200 text-xs md:text-sm font-medium shadow-lg">
+                <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                Verified Pricing • Real Availability • No Pressure
+              </div>
             </div>
           </div>
           
