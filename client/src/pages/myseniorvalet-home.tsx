@@ -642,6 +642,12 @@ export default function MySeniorValetHome() {
                 <span className="block text-red-500 text-sm sm:text-base">With Real HUD Pricing • Zero Paywalls</span>
               </h1>
               
+              {/* Verification Badge - Positioned near valet hand (above checkmarks) */}
+              <div className="flex items-center justify-start gap-1.5 text-green-400 mt-4 mb-3">
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-sm font-bold">Verified Pricing • Real Availability • No Pressure</span>
+              </div>
+              
               {/* Capability Checkmarks - Vertical list to stay within boundaries */}
               <div className="flex flex-col gap-1.5 text-white/90 text-xs">
                 <div className="flex items-center gap-1.5">
@@ -660,12 +666,6 @@ export default function MySeniorValetHome() {
                   <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                   <span>Connect with senior services marketplace</span>
                 </div>
-              </div>
-              
-              {/* Verification Badge */}
-              <div className="flex items-center justify-center sm:justify-start gap-1.5 text-green-400">
-                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-xs font-medium">Verified Pricing • Real Availability • No Pressure</span>
               </div>
             </div>
             
