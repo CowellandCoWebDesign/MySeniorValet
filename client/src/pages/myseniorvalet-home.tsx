@@ -526,73 +526,68 @@ export default function MySeniorValetHome() {
 
         
         <div className="relative hero-content min-h-screen px-4 sm:px-6 py-4 md:py-6 mobile-keyboard-safe">
-          {/* Main Container - Vertical Stack */}
-          <div className="flex flex-col items-center max-w-4xl mx-auto">
+          {/* Main Container - Wider Layout */}
+          <div className="flex flex-col items-center max-w-6xl mx-auto">
             
-            {/* Top Section - Compact Layout */}
-            <div className="w-full max-w-2xl mb-3 space-y-2">
+            {/* Top Section - Using Full Width */}
+            <div className="w-full mb-3 space-y-2">
 
-            {/* Search Method Buttons - Moved to Top */}
-            <div className="flex flex-row gap-2 w-full animate-fade-in-up animation-delay-200">
+            {/* All 4 Action Buttons in a Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full animate-fade-in-up animation-delay-200">
               {/* Traditional Search */}
-              <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="flex-1">
-                <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-3 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
-                  <div className="flex items-center justify-center space-x-1.5">
-                    <Search className="h-3.5 w-3.5" />
-                    <div className="flex flex-col items-start">
-                      <span className="text-xs font-bold leading-tight">Traditional Search</span>
-                      <span className="text-[10px] text-gray-500 dark:text-gray-400 font-normal leading-tight">
-                        Browse • Filter
-                      </span>
-                    </div>
+              <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="w-full">
+                <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-2 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
+                  <div className="flex flex-col items-center">
+                    <Search className="h-4 w-4 mb-0.5" />
+                    <span className="text-xs font-bold">Traditional</span>
+                    <span className="text-[9px] text-gray-500 dark:text-gray-400">Browse • Filter</span>
                   </div>
                 </Button>
               </Link>
 
               {/* AI Intelligence */}
-              <Link href="/ai-search-intelligence" className="flex-1">
-                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-3 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden">
-                  <div className="relative flex items-center justify-center space-x-1.5">
-                    <Sparkles className="h-3.5 w-3.5" />
-                    <div className="flex flex-col items-start">
-                      <span className="text-xs font-bold leading-tight">AI Intelligence</span>
-                      <span className="text-[10px] text-white/80 font-normal leading-tight">
-                        Ask Anything
-                      </span>
-                    </div>
+              <Link href="/ai-search-intelligence" className="w-full">
+                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden">
+                  <div className="flex flex-col items-center">
+                    <Sparkles className="h-4 w-4 mb-0.5" />
+                    <span className="text-xs font-bold">AI Intelligence</span>
+                    <span className="text-[9px] text-white/80">Ask Anything</span>
                   </div>
                 </Button>
               </Link>
-            </div>
-            
-            {/* Action Buttons - Smaller */}
-            <div className="flex flex-col gap-2 w-full animate-fade-in-up animation-delay-300">
+
               {/* Live Availability Heatmap Button */}
               <Link href="/availability-heatmap" className="w-full">
-                <Button className="w-full bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 text-xs px-3 py-2 rounded-lg transform hover:scale-105">
-                  <Flame className="mr-1.5 h-3.5 w-3.5" />
-                  🔥 Live Availability Heatmap - See What's Open NOW!
+                <Button className="w-full h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 px-2 py-2 rounded-lg transform hover:scale-[1.01]">
+                  <div className="flex flex-col items-center">
+                    <Flame className="h-4 w-4 mb-0.5 animate-pulse" />
+                    <span className="text-xs font-bold">Live Heatmap</span>
+                    <span className="text-[9px]">What's Open NOW</span>
+                  </div>
                 </Button>
               </Link>
 
               {/* AI Matching Assistant Button */}
               <Link href="/ai-matching" className="w-full">
-                <Button className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 text-xs px-3 py-2 rounded-lg transform hover:scale-105">
-                  <Brain className="mr-1.5 h-3.5 w-3.5" />
-                  ✨ AI Matching Assistant - Find Your Perfect Community
+                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 px-2 py-2 rounded-lg transform hover:scale-[1.01]">
+                  <div className="flex flex-col items-center">
+                    <Brain className="h-4 w-4 mb-0.5" />
+                    <span className="text-xs font-bold">AI Matching</span>
+                    <span className="text-[9px]">Perfect Community</span>
+                  </div>
                 </Button>
               </Link>
             </div>
 
-            {/* Search Bar - Moved Here (where HUD badge was) */}
-            <div className="w-full mt-3 mb-2 animate-fade-in-up animation-delay-400" style={{ position: 'relative', zIndex: 99999 }}>
+            {/* Search Bar - Full Width */}
+            <div className="w-full mt-3 mb-2 animate-fade-in-up animation-delay-300" style={{ position: 'relative', zIndex: 99999 }}>
               <form onSubmit={(e) => {
                 e.preventDefault();
                 if (searchQuery) {
                   window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
                 }
               }}>
-                <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg" style={{ overflow: 'visible' }}>
+                <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg" style={{ overflow: 'visible' }}>
                   <div className="flex items-center">
                     <div className="flex-1 relative">
                       <AutocompleteSearch
@@ -605,30 +600,30 @@ export default function MySeniorValetHome() {
                         }}
                         placeholder={t('hero.searchPlaceholder')}
                         hideSearchButton={true}
-                        inputClassName="w-full pl-10 pr-3 py-2.5 text-sm border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                        inputClassName="w-full pl-10 pr-3 py-3 text-sm md:text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                       />
                     </div>
                     <div className="flex items-center mr-1.5">
-                      <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-[10px] px-2 py-1 font-semibold">
+                      <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs px-3 py-1 font-semibold">
                         AI-Powered
                       </Badge>
                     </div>
                     <button
                       type="submit"
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-2 m-1.5 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-2 m-2 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
                     >
-                      <Search className="w-4 h-4" />
+                      <Search className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
               </form>
             </div>
 
-            {/* Trust Indicators - Smaller and below search */}
-            <div className="animate-fade-in-up animation-delay-500 mb-3">
-              <div className="flex items-center space-x-1.5 bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md w-fit mx-auto">
-                <Building2 className="h-3 w-3 text-blue-300" />
-                <span className="text-[10px] font-semibold text-white">HUD + Government Sources</span>
+            {/* Trust Indicators - Below search */}
+            <div className="animate-fade-in-up animation-delay-400 mb-4">
+              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full shadow-md w-fit mx-auto">
+                <Building2 className="h-3.5 w-3.5 text-blue-300" />
+                <span className="text-xs font-semibold text-white">HUD + Government Sources</span>
               </div>
             </div>
           </div>
