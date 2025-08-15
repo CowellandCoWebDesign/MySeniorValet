@@ -526,11 +526,11 @@ export default function MySeniorValetHome() {
 
         
         <div className="relative hero-content min-h-screen px-3 sm:px-4 py-3 md:py-4 mobile-keyboard-safe">
-          {/* Main Container - Maximum Width */}
-          <div className="flex flex-col items-center w-full max-w-full px-2">
+          {/* Main Container - Constrained to Left 70% to avoid mascot */}
+          <div className="flex flex-col items-start w-full max-w-full px-2" style={{ paddingRight: '30%' }}>
             
-            {/* Top Section - Full Screen Width */}
-            <div className="w-full mb-2 space-y-2" style={{ maxWidth: '100%' }}>
+            {/* Top Section - Constrained Width */}
+            <div className="w-full mb-2 space-y-2">
 
             {/* Top Row - Traditional & AI Intelligence (50/50 split) */}
             <div className="grid grid-cols-2 gap-2 w-full animate-fade-in-up animation-delay-200">
@@ -633,41 +633,42 @@ export default function MySeniorValetHome() {
             </div>
           </div>
             
-            {/* Hero Text Section - Below Search Tools */}
-            <div className="w-full text-center space-y-3">
-              {/* Headlines - Compact */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black leading-tight tracking-tight">
-                <span className="block text-white drop-shadow-2xl mb-2">Search 34,000+ Senior Living Communities</span>
-                <span className="block text-red-500 text-base sm:text-lg md:text-xl">With Real HUD Pricing • Zero Paywalls</span>
+            {/* Hero Text Section - Constrained to Left Side */}
+            <div className="w-full mr-auto ml-0 text-center sm:text-left space-y-3 px-2">
+              {/* Headlines - Kept within boundaries */}
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black leading-tight tracking-tight">
+                <span className="block text-white drop-shadow-2xl">Search 34,000+ Senior Living</span>
+                <span className="block text-white drop-shadow-2xl mb-1">Communities</span>
+                <span className="block text-red-500 text-sm sm:text-base">With Real HUD Pricing • Zero Paywalls</span>
               </h1>
               
-              {/* Capability Checkmarks - Two columns on mobile, row on desktop */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-white/90 text-xs max-w-4xl mx-auto">
-                <div className="flex items-center gap-1.5 justify-center sm:justify-start">
+              {/* Capability Checkmarks - Vertical list to stay within boundaries */}
+              <div className="flex flex-col gap-1.5 text-white/90 text-xs">
+                <div className="flex items-center gap-1.5">
                   <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                   <span>Compare verified government pricing & availability</span>
                 </div>
-                <div className="flex items-center gap-1.5 justify-center sm:justify-start">
+                <div className="flex items-center gap-1.5">
                   <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                   <span>Schedule tours with TourMate™ instant booking</span>
                 </div>
-                <div className="flex items-center gap-1.5 justify-center sm:justify-start">
+                <div className="flex items-center gap-1.5">
                   <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                   <span>Save favorites & share with family members</span>
                 </div>
-                <div className="flex items-center gap-1.5 justify-center sm:justify-start">
+                <div className="flex items-center gap-1.5">
                   <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                   <span>Connect with senior services marketplace</span>
                 </div>
               </div>
               
               {/* Stats */}
-              <p className="text-blue-100 text-sm">
+              <p className="text-blue-100 text-xs sm:text-sm">
                 Serving families across <span className="font-bold text-white">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '34,922+'}</span> verified senior living communities
               </p>
               
               {/* Verification Badge */}
-              <div className="flex items-center justify-center gap-1.5 text-green-400">
+              <div className="flex items-center justify-center sm:justify-start gap-1.5 text-green-400">
                 <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
                 <span className="text-xs font-medium">Verified Pricing • Real Availability • No Pressure</span>
               </div>
