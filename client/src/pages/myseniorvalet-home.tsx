@@ -567,60 +567,60 @@ export default function MySeniorValetHome() {
             </form>
           </div>
 
+          {/* All Action Buttons - 4 Column Grid - Full Screen Width */}
+          <div className="w-full px-2 sm:px-3 md:px-4 mb-3 animate-fade-in-up animation-delay-200">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+              {/* Traditional Search */}
+              <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="w-full">
+                <Button className="w-full h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 border border-gray-600">
+                  <div className="flex flex-col items-center justify-center">
+                    <Search className="h-3.5 w-3.5 mb-0.5" />
+                    <div className="text-[9px] font-bold">Traditional</div>
+                    <div className="text-[7px] text-gray-300">Browse</div>
+                  </div>
+                </Button>
+              </Link>
+
+              {/* AI Intelligence */}
+              <Link href="/ai-search-intelligence" className="w-full">
+                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200">
+                  <div className="flex flex-col items-center justify-center">
+                    <Sparkles className="h-3.5 w-3.5 mb-0.5" />
+                    <div className="text-[9px] font-bold">AI Search</div>
+                    <div className="text-[7px] text-white/90">Ask</div>
+                  </div>
+                </Button>
+              </Link>
+
+              {/* Live Availability Heatmap */}
+              <Link href="/availability-heatmap" className="w-full">
+                <Button className="w-full h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 px-2 py-2 rounded-lg transform hover:scale-[1.01]">
+                  <div className="flex flex-col items-center justify-center">
+                    <Flame className="h-3.5 w-3.5 mb-0.5 animate-pulse" />
+                    <div className="text-[9px] font-bold">Live Heat</div>
+                    <div className="text-[7px] text-white/90">Map</div>
+                  </div>
+                </Button>
+              </Link>
+
+              {/* AI Matching Assistant */}
+              <Link href="/ai-matching" className="w-full">
+                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 px-2 py-2 rounded-lg transform hover:scale-[1.01]">
+                  <div className="flex flex-col items-center justify-center">
+                    <Brain className="h-3.5 w-3.5 mb-0.5" />
+                    <div className="text-[9px] font-bold">AI Match</div>
+                    <div className="text-[7px] text-white/90">Smart</div>
+                  </div>
+                </Button>
+              </Link>
+            </div>
+          </div>
+
           {/* Main Container - Constrained to Left 55% on mobile to avoid mascot */}
           <div className="flex flex-col items-start w-full max-w-full px-2 sm:px-3 md:px-4" style={{ paddingRight: '45%' }}>
             
-            {/* Buttons Section */}
+            {/* Content Section */}
             <div className="w-full mb-2 space-y-2">
-
-            {/* All Action Buttons - 4 Column Grid */}
-            <div className="w-full mb-2 animate-fade-in-up animation-delay-200">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                {/* Traditional Search */}
-                <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="w-full">
-                  <Button className="w-full h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 border border-gray-600">
-                    <div className="flex flex-col items-center justify-center">
-                      <Search className="h-3.5 w-3.5 mb-0.5" />
-                      <div className="text-[9px] font-bold">Traditional</div>
-                      <div className="text-[7px] text-gray-300">Browse</div>
-                    </div>
-                  </Button>
-                </Link>
-
-                {/* AI Intelligence */}
-                <Link href="/ai-search-intelligence" className="w-full">
-                  <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200">
-                    <div className="flex flex-col items-center justify-center">
-                      <Sparkles className="h-3.5 w-3.5 mb-0.5" />
-                      <div className="text-[9px] font-bold">AI Search</div>
-                      <div className="text-[7px] text-white/90">Ask</div>
-                    </div>
-                  </Button>
-                </Link>
-
-                {/* Live Availability Heatmap */}
-                <Link href="/availability-heatmap" className="w-full">
-                  <Button className="w-full h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 px-2 py-2 rounded-lg transform hover:scale-[1.01]">
-                    <div className="flex flex-col items-center justify-center">
-                      <Flame className="h-3.5 w-3.5 mb-0.5 animate-pulse" />
-                      <div className="text-[9px] font-bold">Live Heat</div>
-                      <div className="text-[7px] text-white/90">Map</div>
-                    </div>
-                  </Button>
-                </Link>
-
-                {/* AI Matching Assistant */}
-                <Link href="/ai-matching" className="w-full">
-                  <Button className="w-full h-auto bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 px-2 py-2 rounded-lg transform hover:scale-[1.01]">
-                    <div className="flex flex-col items-center justify-center">
-                      <Brain className="h-3.5 w-3.5 mb-0.5" />
-                      <div className="text-[9px] font-bold">AI Match</div>
-                      <div className="text-[7px] text-white/90">Smart</div>
-                    </div>
-                  </Button>
-                </Link>
-              </div>
-            </div>
 
             {/* Trust Indicators - Below buttons */}
             <div className="animate-fade-in-up animation-delay-500 mb-3">
