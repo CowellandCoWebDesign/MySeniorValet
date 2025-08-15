@@ -134,7 +134,7 @@ export function Footer() {
                 Data sourced from authentic, verified state licensing agencies and Google Places.
               </p>
               <p className="text-gray-500 text-xs mt-1">
-                Version 2.1
+                Version 2.0
               </p>
             </div>
             <div className="flex flex-wrap justify-center md:justify-end space-x-6">
