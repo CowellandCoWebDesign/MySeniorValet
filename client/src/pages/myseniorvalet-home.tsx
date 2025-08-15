@@ -511,7 +511,7 @@ export default function MySeniorValetHome() {
       </header>
 
       {/* Hero Section with Search */}
-      <section className="relative min-h-screen bg-gradient-to-br from-slate-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
+      <section className="relative min-h-screen bg-black">
         <div className="absolute inset-0">
           <img
             src="/hero-gentleman-stars.jpg"
@@ -519,7 +519,7 @@ export default function MySeniorValetHome() {
             className="w-full h-full object-cover"
             loading="eager"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/50 dark:from-black/50 dark:via-black/60 dark:to-black/70"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-66% to-black"></div>
         </div>
         
 
