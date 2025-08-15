@@ -30,6 +30,7 @@ export function NavigationHeader({
   const { user, isAuthenticated } = useAuth();
   const { preferences, togglePreference } = useAccessibilityPreferences();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  // Force transparent navbar on home page - v2
   const isHomePage = location === "/" || location === "/myseniorvalet-home";
   
   // Query for unread messages count

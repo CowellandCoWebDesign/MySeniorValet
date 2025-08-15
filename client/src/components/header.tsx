@@ -7,6 +7,7 @@ import { NotificationCenter } from "@/components/NotificationCenter";
 
 export function Header() {
   const [location] = useLocation();
+  // Force transparent navbar on home page - v2
   const isHomePage = location === "/" || location === "/myseniorvalet-home";
 
   const navigation = [
