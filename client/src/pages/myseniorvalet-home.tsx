@@ -35,7 +35,7 @@ import HospitalCarousel from "@/components/HospitalCarousel";
 import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
-import mascotHeroImage from '@assets/file_000000002fe4622fba61c1379a0194ad_1755240251702.png';
+import mascotHeroImage from '@assets/file_00000000715861f6ba1d823cc2455100 (1)_1755239404283.png';
 
 
 
