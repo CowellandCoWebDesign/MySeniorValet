@@ -36,6 +36,7 @@ import HospitalCarousel from "@/components/HospitalCarousel";
 import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
+import heroBackgroundImage from '@assets/file_00000000715861f6ba1d823cc2455100 (1)_1755292957645.png';
 
 
 
@@ -515,7 +516,7 @@ export default function MySeniorValetHome() {
       <section className="relative min-h-screen bg-black">
         <div className="absolute inset-0">
           <img
-            src="/hero-gentleman-stars.jpg"
+            src={heroBackgroundImage}
             alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
             className="w-full h-full object-cover object-right"
             loading="eager"
