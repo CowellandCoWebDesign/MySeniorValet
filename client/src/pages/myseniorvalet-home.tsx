@@ -35,7 +35,7 @@ import HospitalCarousel from "@/components/HospitalCarousel";
 import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
-import mascotHeroImage from '@assets/file_00000000715861f6ba1d823cc2455100 (1)_1755239404283.png';
+import mascotHeroImage from '@assets/Screenshot_20250815_001203_Gallery_1755241934808.jpg';
 
 
 
@@ -513,12 +513,13 @@ export default function MySeniorValetHome() {
 
       {/* Hero Section with Search - Mascot Background with Optimized Content Positioning */}
       <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-        {/* Mascot image - stable sizing and positioning */}
-        <div className="absolute right-10 bottom-0 h-[500px] w-[400px] flex items-end justify-end">
+        {/* Mascot image - improved visibility and sizing */}
+        <div className="absolute right-0 bottom-0 w-1/2 h-full flex items-end justify-end pr-8">
           <img
             src={mascotHeroImage}
             alt="MySeniorValet mascot"
-            className="max-w-full max-h-full object-contain object-bottom opacity-90"
+            className="h-3/4 w-auto object-contain object-bottom"
+            style={{ maxHeight: '600px' }}
           />
         </div>
         
