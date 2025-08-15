@@ -3,21 +3,20 @@
 ## Overview
 MySeniorValet is a technology platform connecting families with publicly available information about over 34,000 senior living communities in the U.S. and Canada. It leverages advanced AI orchestration to gather, organize, and present public information, including verified HUD pricing. The platform's vision is to empower families with authentic, verified data for informed decision-making in senior living, bringing much-needed transparency to the market. It aims to be "The Dawn of Transparency in Senior Living" by providing a complete care spectrum education, real pricing, zero paywalls, and tools for saving and sharing research. It features the fully operational TourMate™ tour scheduling system and includes a One-Touch Emergency Contact Shortcut.
 
-## Version 2.4 - Hero Layout Reorganization (August 15, 2025)
-- **Layout Rearrangement**: Major repositioning of hero elements for better visual hierarchy:
-  - Search tools (search bar, AI Intelligence button, action buttons) moved to top center position
-  - Hero text and capabilities moved to left side, positioned above valet's hand
-  - HUD badge remains centered with search tools
-- **Left-Side Text Content**: 
-  - Headlines positioned absolutely at left-8 bottom-48
-  - Maintains black/white/red color scheme
-  - Capability statements with checkmarks aligned left
-  - Community count stats and availability indicator below
-- **Top-Center Search Tools**:
-  - Full-width search bar with AI-Powered badge
-  - Dual search method buttons (Traditional & AI Intelligence)
-  - Action buttons for Availability Heatmap and AI Matching Assistant
-  - HUD + Government Sources badge centered below
+## Version 2.5 - Compact Hero Layout (August 15, 2025)
+- **Compact Design**: Significantly reduced sizes of all elements based on user feedback:
+  - All font sizes reduced (headlines from 7xl to 5xl max, buttons from base to xs)
+  - Button heights reduced (from h-14 to compact py-2)
+  - Spacing between elements minimized (mb-8 to mb-3, gap-3 to gap-2)
+  - Max width reduced from 7xl to 4xl for tighter layout
+- **New Layout Order**:
+  1. Traditional Search & AI Intelligence buttons at top (side by side)
+  2. Live Availability Heatmap button below
+  3. AI Matching Assistant button
+  4. Search bar (moved to position indicated by user - where HUD badge was)
+  5. HUD + Government Sources badge (now smaller, below search)
+  6. Hero headlines and capability checkmarks (all reduced in size)
+- **Search Bar Relocation**: Moved from top position to below the 4 action buttons per user's specific screenshot guidance
 - **Preserved Version 2.3 Features**: Hero text "Search 34,000+ Senior Living Communities with Real HUD Pricing • Zero Paywalls" and four capability checkmarks
 - **Background**: Space image with 66% fade to black maintained
 

@@ -525,163 +525,151 @@ export default function MySeniorValetHome() {
         
 
         
-        <div className="relative hero-content min-h-screen px-4 sm:px-6 py-8 md:py-12 mobile-keyboard-safe">
+        <div className="relative hero-content min-h-screen px-4 sm:px-6 py-4 md:py-6 mobile-keyboard-safe">
           {/* Main Container - Vertical Stack */}
-          <div className="flex flex-col items-center max-w-7xl mx-auto">
+          <div className="flex flex-col items-center max-w-4xl mx-auto">
             
-            {/* Top Section - Search Tools */}
-            <div className="w-full max-w-4xl mb-8 space-y-4">
+            {/* Top Section - Compact Layout */}
+            <div className="w-full max-w-2xl mb-3 space-y-2">
 
-            {/* Search Bar */}
-            <div className="w-full mb-3 animate-fade-in-up animation-delay-600 mx-auto" style={{ position: 'relative', zIndex: 99999 }}>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              if (searchQuery) {
-                window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
-              }
-            }}>
-              <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl" style={{ overflow: 'visible' }}>
-                <div className="flex items-center">
-                  <div className="flex-1 relative">
-                    <AutocompleteSearch
-                      value={searchQuery}
-                      onChange={setSearchQuery}
-                      onSubmit={(value) => {
-                        if (value) {
-                          window.location.href = `/map-search?q=${encodeURIComponent(value)}`;
-                        }
-                      }}
-                      placeholder={t('hero.searchPlaceholder')}
-                      hideSearchButton={true}
-                      inputClassName="w-full pl-12 pr-4 py-4 text-base md:text-lg border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                    />
-                  </div>
-                  <div className="flex items-center mr-2">
-                    <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs md:text-sm px-3 py-1.5 font-semibold">
-                      AI-Powered
-                    </Badge>
-                  </div>
-                  <button
-                    type="submit"
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-3 m-2 rounded-xl transition-all flex items-center justify-center shadow-lg hover:shadow-xl"
-                  >
-                    <Search className="w-6 h-6" />
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-
-            {/* Premium Search Experience */}
-            <div className="flex flex-col items-center space-y-3 mb-4 w-full">
-              {/* Search Method Selector */}
-              <div className="flex flex-row gap-3 w-full max-w-3xl animate-fade-in-up animation-delay-700">
-                {/* Traditional Search */}
-                <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="flex-1">
-                  <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-4 py-2.5 rounded-full font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
-                    <div className="flex items-center justify-center space-x-2">
-                      <Search className="h-4 w-4" />
-                      <div className="flex flex-col items-start">
-                        <span className="text-sm font-bold leading-tight">Traditional Search</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 font-normal leading-tight">
-                          Browse • Filter
-                        </span>
-                      </div>
-                    </div>
-                  </Button>
-                </Link>
-
-                {/* AI Intelligence */}
-                <Link href="/ai-search-intelligence" className="flex-1">
-                  <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2.5 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="relative flex items-center justify-center space-x-2">
-                      <Sparkles className="h-4 w-4" />
-                      <div className="flex flex-col items-start">
-                        <span className="text-sm font-bold leading-tight">AI Intelligence</span>
-                        <span className="text-xs text-white/80 font-normal leading-tight">
-                          Ask Anything
-                        </span>
-                      </div>
-                      <span className="absolute -top-0.5 -right-0.5">
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                        </span>
+            {/* Search Method Buttons - Moved to Top */}
+            <div className="flex flex-row gap-2 w-full animate-fade-in-up animation-delay-200">
+              {/* Traditional Search */}
+              <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="flex-1">
+                <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-3 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
+                  <div className="flex items-center justify-center space-x-1.5">
+                    <Search className="h-3.5 w-3.5" />
+                    <div className="flex flex-col items-start">
+                      <span className="text-xs font-bold leading-tight">Traditional Search</span>
+                      <span className="text-[10px] text-gray-500 dark:text-gray-400 font-normal leading-tight">
+                        Browse • Filter
                       </span>
                     </div>
-                  </Button>
-                </Link>
+                  </div>
+                </Button>
+              </Link>
+
+              {/* AI Intelligence */}
+              <Link href="/ai-search-intelligence" className="flex-1">
+                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-3 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden">
+                  <div className="relative flex items-center justify-center space-x-1.5">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    <div className="flex flex-col items-start">
+                      <span className="text-xs font-bold leading-tight">AI Intelligence</span>
+                      <span className="text-[10px] text-white/80 font-normal leading-tight">
+                        Ask Anything
+                      </span>
+                    </div>
+                  </div>
+                </Button>
+              </Link>
             </div>
             
-              {/* Action Buttons */}
-              <div className="flex flex-col gap-3 w-full max-w-3xl">
-                {/* Live Availability Heatmap Button */}
-                <Link href="/availability-heatmap" className="w-full">
-                  <Button className="w-full bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 text-sm md:text-base px-4 py-2.5 rounded-xl transform hover:scale-105 animate-pulse-glow">
-                    <Flame className="mr-2 h-4 w-4 animate-fire-wiggle" />
-                    🔥 Live Availability Heatmap - See What's Open NOW!
-                  </Button>
-                </Link>
+            {/* Action Buttons - Smaller */}
+            <div className="flex flex-col gap-2 w-full animate-fade-in-up animation-delay-300">
+              {/* Live Availability Heatmap Button */}
+              <Link href="/availability-heatmap" className="w-full">
+                <Button className="w-full bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 text-xs px-3 py-2 rounded-lg transform hover:scale-105">
+                  <Flame className="mr-1.5 h-3.5 w-3.5" />
+                  🔥 Live Availability Heatmap - See What's Open NOW!
+                </Button>
+              </Link>
 
-                {/* AI Matching Assistant Button */}
-                <Link href="/ai-matching" className="w-full">
-                  <Button className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 text-sm md:text-base px-4 py-2.5 rounded-xl transform hover:scale-105">
-                    <Brain className="mr-2 h-4 w-4" />
-                    ✨ AI Matching Assistant - Find Your Perfect Community
-                  </Button>
-                </Link>
-              </div>
+              {/* AI Matching Assistant Button */}
+              <Link href="/ai-matching" className="w-full">
+                <Button className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 text-xs px-3 py-2 rounded-lg transform hover:scale-105">
+                  <Brain className="mr-1.5 h-3.5 w-3.5" />
+                  ✨ AI Matching Assistant - Find Your Perfect Community
+                </Button>
+              </Link>
             </div>
-          
 
-          
-              {/* Trust Indicators */}
-              <div className="animate-fade-in-up animation-delay-800 mb-6">
-                <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full shadow-lg w-fit mx-auto">
-                  <Building2 className="h-4 w-4 text-blue-300" />
-                  <span className="text-sm md:text-base font-semibold text-white">HUD + Government Sources</span>
+            {/* Search Bar - Moved Here (where HUD badge was) */}
+            <div className="w-full mt-3 mb-2 animate-fade-in-up animation-delay-400" style={{ position: 'relative', zIndex: 99999 }}>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                if (searchQuery) {
+                  window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
+                }
+              }}>
+                <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg" style={{ overflow: 'visible' }}>
+                  <div className="flex items-center">
+                    <div className="flex-1 relative">
+                      <AutocompleteSearch
+                        value={searchQuery}
+                        onChange={setSearchQuery}
+                        onSubmit={(value) => {
+                          if (value) {
+                            window.location.href = `/map-search?q=${encodeURIComponent(value)}`;
+                          }
+                        }}
+                        placeholder={t('hero.searchPlaceholder')}
+                        hideSearchButton={true}
+                        inputClassName="w-full pl-10 pr-3 py-2.5 text-sm border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                      />
+                    </div>
+                    <div className="flex items-center mr-1.5">
+                      <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-[10px] px-2 py-1 font-semibold">
+                        AI-Powered
+                      </Badge>
+                    </div>
+                    <button
+                      type="submit"
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-2 m-1.5 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
+                    >
+                      <Search className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
+              </form>
+            </div>
+
+            {/* Trust Indicators - Smaller and below search */}
+            <div className="animate-fade-in-up animation-delay-500 mb-3">
+              <div className="flex items-center space-x-1.5 bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md w-fit mx-auto">
+                <Building2 className="h-3 w-3 text-blue-300" />
+                <span className="text-[10px] font-semibold text-white">HUD + Government Sources</span>
               </div>
             </div>
+          </div>
             
             {/* Hero Text Section - Below Search Tools */}
-            <div className="w-full max-w-6xl text-center space-y-6">
-              {/* Headlines */}
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight">
-                <span className="block text-white drop-shadow-2xl mb-3">Search 34,000+ Senior Living Communities</span>
-                <span className="block text-red-500 text-2xl sm:text-3xl md:text-4xl">With Real HUD Pricing • Zero Paywalls</span>
+            <div className="w-full max-w-4xl text-center space-y-3">
+              {/* Headlines - Much Smaller */}
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight">
+                <span className="block text-white drop-shadow-2xl mb-2">Search 34,000+ Senior Living Communities</span>
+                <span className="block text-red-500 text-base sm:text-lg md:text-xl">With Real HUD Pricing • Zero Paywalls</span>
               </h1>
               
-              {/* Capability Checkmarks */}
-              <div className="flex flex-col md:flex-row md:flex-wrap justify-center gap-4 text-white/90 text-base md:text-lg">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+              {/* Capability Checkmarks - Smaller */}
+              <div className="flex flex-col md:flex-row md:flex-wrap justify-center gap-2 text-white/90 text-xs md:text-sm">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                   <span>Compare verified government pricing & availability</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                   <span>Schedule tours with TourMate™ instant booking</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                   <span>Save favorites & share with family members</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                   <span>Connect with senior services marketplace</span>
                 </div>
               </div>
               
-              {/* Stats */}
-              <p className="text-blue-100 text-lg md:text-xl">
+              {/* Stats - Smaller */}
+              <p className="text-blue-100 text-sm md:text-base">
                 Serving families across <span className="font-bold text-white">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '34,922+'}</span> verified senior living communities
               </p>
               
-              {/* Verification Badge */}
-              <div className="flex items-center justify-center gap-2 text-green-400">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-sm md:text-base font-medium">Verified Pricing • Real Availability • No Pressure</span>
+              {/* Verification Badge - Smaller */}
+              <div className="flex items-center justify-center gap-1.5 text-green-400">
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-xs font-medium">Verified Pricing • Real Availability • No Pressure</span>
               </div>
             </div>
             
