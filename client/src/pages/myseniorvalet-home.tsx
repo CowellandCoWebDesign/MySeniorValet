@@ -517,7 +517,7 @@ export default function MySeniorValetHome() {
           <img
             src="/hero-gentleman-stars.jpg"
             alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-right"
             loading="eager"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-66% to-black"></div>
@@ -525,9 +525,9 @@ export default function MySeniorValetHome() {
         
 
         
-        <div className="relative hero-content min-h-screen px-2 sm:px-3 md:px-4 pt-0 pb-3 md:pb-4 mobile-keyboard-safe -mt-[5vh] sm:-mt-[10vh]">
-          {/* Main Container - Constrained to Left 70% to avoid mascot */}
-          <div className="flex flex-col items-start w-full max-w-full px-1 sm:px-2" style={{ paddingRight: '30%' }}>
+        <div className="relative hero-content min-h-screen px-2 sm:px-3 md:px-4 pt-12 sm:pt-16 md:pt-20 pb-3 md:pb-4 mobile-keyboard-safe">
+          {/* Main Container - Constrained to Left 60% to avoid mascot */}
+          <div className="flex flex-col items-start w-full max-w-full px-1 sm:px-2" style={{ paddingRight: '40%' }}>
             
             {/* Top Section - Constrained Width */}
             <div className="w-full mb-2 space-y-2">
