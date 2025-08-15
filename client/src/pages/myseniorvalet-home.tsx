@@ -513,12 +513,13 @@ export default function MySeniorValetHome() {
 
       {/* Hero Section with Search - Exact background display */}
       <section className="relative min-h-screen">
-        {/* Exact background image with no overlays */}
+        {/* Exact background image with no overlays - positioned higher to trim top */}
         <div className="absolute inset-0">
           <img
             src={mascotHeroImage}
             alt="MySeniorValet mascot - your trusted guide in senior living journey"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover"
+            style={{ objectPosition: 'center 15%' }}
             loading="eager"
           />
         </div>
