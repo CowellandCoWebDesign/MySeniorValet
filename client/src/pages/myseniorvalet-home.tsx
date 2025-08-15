@@ -514,31 +514,31 @@ export default function MySeniorValetHome() {
       <section className="relative min-h-screen bg-gradient-to-br from-slate-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
         <div className="absolute inset-0">
           <img
-            src="https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg"
-            alt="Beautiful cosmic space imagery symbolizing infinite possibilities in senior living"
+            src="/hero-gentleman-stars.jpg"
+            alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
             className="w-full h-full object-cover"
             loading="eager"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60 dark:from-black/60 dark:via-black/70 dark:to-black/80"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/50 dark:from-black/50 dark:via-black/60 dark:to-black/70"></div>
         </div>
         
 
         
-        <div className="relative flex flex-col items-center justify-center hero-content min-h-screen px-6 py-12 md:py-16 mobile-keyboard-safe">
-          {/* Centered Headlines - Optimized for Desktop with Better Spacing */}
-          <div className="text-center mb-6 md:mb-8 max-w-6xl">
+        <div className="relative flex flex-col items-start justify-center hero-content min-h-screen px-6 py-12 md:py-16 mobile-keyboard-safe md:pl-16 lg:pl-24">
+          {/* Left-Aligned Headlines - Positioned to avoid gentleman on right */}
+          <div className="text-left mb-6 md:mb-8 max-w-3xl">
             <div className="space-y-4">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl tracking-tight">
                 <span className="block mb-2 hero-text-main">Empowering Families to Find Transparent, Affordable Senior Living and Care</span>
               </h1>
-              <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-space-warp max-w-4xl mx-auto font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
+              <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg animate-space-warp max-w-2xl font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
                 Explore trusted senior living communities and connect with services that make life easier. Transparent pricing, real-time availability, and seamless service integration, all in one place.
               </h2>
             </div>
           </div>
 
-          {/* Search Bar - Enhanced with AutocompleteSearch Component */}
-          <div className="w-full max-w-4xl mb-4 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
+          {/* Search Bar - Half width and left-aligned */}
+          <div className="w-full max-w-2xl mb-4 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
             <form onSubmit={(e) => {
               e.preventDefault();
               if (searchQuery) {
@@ -577,35 +577,35 @@ export default function MySeniorValetHome() {
             </form>
           </div>
 
-          {/* Premium Search Experience - Professional Google-Style Design */}
-          <div className="flex flex-col items-center space-y-3 mb-5 w-full px-4">
-            {/* Search Method Selector - Modern Professional Design with Animation */}
-            <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xl animate-fade-in-up animation-delay-700">
-              {/* Traditional Search - Google-Style Clean Design */}
+          {/* Premium Search Experience - Left-aligned to avoid gentleman */}
+          <div className="flex flex-col items-start space-y-3 mb-5 w-full max-w-2xl">
+            {/* Search Method Selector - Compact horizontal layout */}
+            <div className="flex flex-row gap-3 w-full animate-fade-in-up animation-delay-700">
+              {/* Traditional Search - Compact Design */}
               <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="flex-1">
-                <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-5 py-2 rounded-full font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
+                <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-4 py-2 rounded-full font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
                   <div className="flex items-center justify-center space-x-2">
                     <Search className="h-4 w-4" />
                     <div className="flex flex-col items-start">
-                      <span className="text-sm font-bold leading-tight">Traditional Search</span>
-                      <span className="text-[10px] text-gray-500 dark:text-gray-400 font-normal leading-tight">
-                        Browse • Filter • Compare
+                      <span className="text-xs font-bold leading-tight">Traditional Search</span>
+                      <span className="text-[9px] text-gray-500 dark:text-gray-400 font-normal leading-tight">
+                        Browse • Filter
                       </span>
                     </div>
                   </div>
                 </Button>
               </Link>
 
-              {/* AI Intelligence - Premium Gradient Design */}
+              {/* AI Intelligence - Compact Design */}
               <Link href="/ai-search-intelligence" className="flex-1">
-                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-5 py-2 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden">
+                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative flex items-center justify-center space-x-2">
                     <Sparkles className="h-4 w-4" />
                     <div className="flex flex-col items-start">
-                      <span className="text-sm font-bold leading-tight">AI Intelligence</span>
-                      <span className="text-[10px] text-white/80 font-normal leading-tight">
-                        Ask Anything • Get Insights
+                      <span className="text-xs font-bold leading-tight">AI Intelligence</span>
+                      <span className="text-[9px] text-white/80 font-normal leading-tight">
+                        Ask Anything
                       </span>
                     </div>
                     <span className="absolute -top-0.5 -right-0.5">
@@ -620,17 +620,17 @@ export default function MySeniorValetHome() {
             </div>
             
             {/* NEW: Live Availability Heatmap Button - Premium Feature */}
-            <Link href="/availability-heatmap" className="w-full max-w-xl">
-              <Button className="w-full bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 text-sm md:text-lg px-6 md:px-8 py-3 md:py-4 rounded-xl transform hover:scale-105 animate-pulse-glow">
-                <Flame className="mr-2 h-5 w-5 animate-fire-wiggle" />
+            <Link href="/availability-heatmap" className="w-full">
+              <Button className="w-full bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 text-sm md:text-base px-4 md:px-6 py-2.5 md:py-3 rounded-xl transform hover:scale-105 animate-pulse-glow">
+                <Flame className="mr-2 h-4 w-4 animate-fire-wiggle" />
                 🔥 Live Availability Heatmap - See What's Open NOW!
               </Button>
             </Link>
 
             {/* AI Matching Assistant Button */}
-            <Link href="/ai-matching" className="w-full max-w-xl">
-              <Button className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 text-sm md:text-lg px-6 md:px-8 py-3 md:py-4 rounded-xl transform hover:scale-105">
-                <Brain className="mr-2 h-5 w-5" />
+            <Link href="/ai-matching" className="w-full">
+              <Button className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 text-sm md:text-base px-4 md:px-6 py-2.5 md:py-3 rounded-xl transform hover:scale-105">
+                <Brain className="mr-2 h-4 w-4" />
                 ✨ AI Matching Assistant - Find Your Perfect Community
               </Button>
             </Link>
@@ -638,27 +638,27 @@ export default function MySeniorValetHome() {
           
 
           
-          {/* Trust Indicators with 26,306+ Communities */}
-          <div className="mb-3 animate-fade-in-up animation-delay-800">
-            <div className="flex flex-wrap items-center justify-center gap-3">
+          {/* Trust Indicators with 26,306+ Communities - Left-aligned */}
+          <div className="mb-3 animate-fade-in-up animation-delay-800 w-full max-w-2xl">
+            <div className="flex flex-wrap items-start gap-3">
 
-              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full shadow-lg">
-                <Building2 className="h-5 w-5 text-blue-300" />
-                <span className="text-base md:text-lg font-semibold text-white">HUD + Government Sources</span>
+              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full shadow-lg">
+                <Building2 className="h-4 w-4 text-blue-300" />
+                <span className="text-sm md:text-base font-semibold text-white">HUD + Government Sources</span>
               </div>
 
             </div>
           </div>
           
-          {/* Community Count Text - Updated */}
-          <div className="mb-2 animate-fade-in-up animation-delay-850">
-            <p className="text-white/90 dark:text-gray-300 text-base md:text-lg lg:text-xl drop-shadow-md text-center font-medium">
+          {/* Community Count Text - Left-aligned */}
+          <div className="mb-2 animate-fade-in-up animation-delay-850 w-full max-w-2xl">
+            <p className="text-white/90 dark:text-gray-300 text-base md:text-lg lg:text-xl drop-shadow-md text-left font-medium">
               Serving families across <strong className="text-amber-200">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} verified senior living communities</strong>
             </p>
           </div>
           
-          {/* Verification Badge - Larger */}
-          <div className="mb-4 animate-fade-in-up animation-delay-900">
+          {/* Verification Badge - Left-aligned */}
+          <div className="mb-4 animate-fade-in-up animation-delay-900 w-full max-w-2xl">
             <div className="inline-flex items-center px-4 py-2 bg-white/20 dark:bg-white/10 backdrop-blur-sm rounded-full text-white dark:text-gray-200 text-sm md:text-base font-medium shadow-lg">
               <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
               Verified Pricing • Real Availability • No Pressure
