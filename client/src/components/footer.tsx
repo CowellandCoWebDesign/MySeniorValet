@@ -133,6 +133,9 @@ export function Footer() {
               <p className="text-gray-400 text-xs mt-1">
                 Data sourced from authentic, verified state licensing agencies and Google Places.
               </p>
+              <p className="text-gray-500 text-xs mt-1">
+                Version 2.0
+              </p>
             </div>
             <div className="flex flex-wrap justify-center md:justify-end space-x-6">
               <Link href="/veterans" className="text-gray-400 hover:text-blue-400 text-sm transition-colors font-medium">Veterans Housing</Link>
