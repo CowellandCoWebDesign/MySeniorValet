@@ -834,6 +834,11 @@ export function registerCommunityRoutes(app: Express) {
   // Get single community by ID with Perplexity real-time enrichment - MUST BE LAST
   app.get("/api/communities/:id", async (req, res) => {
     try {
+      // Skip if this is actually a named route like "markers" or "stats"
+      if (['markers', 'stats', 'count', 'trending', 'hud-featured', 'coastal'].includes(req.params.id)) {
+        return res.status(404).json({ error: "Route not found" });
+      }
+      
       const communityId = parseInt(req.params.id);
       
       if (isNaN(communityId)) {

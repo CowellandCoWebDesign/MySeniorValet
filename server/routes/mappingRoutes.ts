@@ -1,14 +1,81 @@
 import { type Express } from "express";
 import { db } from "../db";
 import { communities } from "@shared/schema";
-import { eq, and, or, desc, sql, between, isNotNull } from "drizzle-orm";
+import { and, sql, between, isNotNull } from "drizzle-orm";
 import { superclusterService } from "../services/supercluster";
 
 export function registerMappingRoutes(app: Express) {
   
   // Search endpoint moved to unifiedSearchRoutes.ts for better map and text search integration
 
-  // FIXED: Supercluster-powered clustering endpoint
+  // NEW: Raw markers endpoint for frontend clustering with react-leaflet-cluster
+  app.get("/api/communities/markers", async (req, res) => {
+    try {
+      const { west, south, east, north, limit = 10000 } = req.query;
+      
+      if (!west || !south || !east || !north) {
+        return res.status(400).json({ 
+          error: "Missing bounding box parameters. Required: west, south, east, north" 
+        });
+      }
+      
+      const westFloat = parseFloat(west as string);
+      const southFloat = parseFloat(south as string);
+      const eastFloat = parseFloat(east as string);
+      const northFloat = parseFloat(north as string);
+      
+      console.log(`Fetching raw markers for bounds=[${westFloat},${southFloat},${eastFloat},${northFloat}]`);
+      
+      // Fetch all communities in bounds from database using raw SQL for stability
+      const result = await db.execute(sql`
+        SELECT 
+          id, name, address, city, state, zip_code as "zipCode", 
+          latitude, longitude, care_types as "careTypes", rating, 
+          review_count as "reviewCount", phone, website, price_range as "priceRange", 
+          photos, description, 
+          hud_property_id as "hudPropertyId", rent_per_month as "rentPerMonth", 
+          data_source as "dataSource"
+        FROM communities
+        WHERE latitude IS NOT NULL 
+          AND longitude IS NOT NULL
+          AND latitude BETWEEN ${southFloat} AND ${northFloat}
+          AND longitude BETWEEN ${westFloat} AND ${eastFloat}
+        LIMIT ${parseInt(limit as string)}
+      `);
+      
+      console.log(`Found ${result.rows.length} communities in viewport`);
+      
+      // Convert to GeoJSON format for consistency
+      const markers = result.rows.map((community: any) => ({
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [community.longitude, community.latitude]
+        },
+        properties: {
+          ...community,
+          cluster: false // Always individual markers for frontend clustering
+        }
+      }));
+      
+      res.json({
+        markers,
+        count: markers.length,
+        bounds: { west: westFloat, south: southFloat, east: eastFloat, north: northFloat },
+        _version: "markers_v1",
+        _timestamp: Date.now()
+      });
+      
+    } catch (error) {
+      console.error("Markers fetch error:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch markers",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // FIXED: Supercluster-powered clustering endpoint (kept for backward compatibility)
   app.get("/api/communities/clusters", async (req, res) => {
     try {
       const { west, south, east, north, zoom = 10, limit = 5000 } = req.query;

@@ -896,16 +896,15 @@ export default function Map({
     };
   }, []);
 
-  // Enterprise-level cluster data fetching with optimized performance
-  const { data: clusterData, isLoading, error, refetch } = useQuery({
-    queryKey: ['communities-clusters', 
+  // Fetch ALL markers for frontend clustering with react-leaflet-cluster
+  const { data: markerData, isLoading, error, refetch } = useQuery({
+    queryKey: ['communities-markers', 
       mapBounds ? {
         west: mapBounds.getWest().toFixed(4),
         east: mapBounds.getEast().toFixed(4),
         south: mapBounds.getSouth().toFixed(4),
         north: mapBounds.getNorth().toFixed(4)
       } : 'default',
-      Math.round(currentZoom), // Changed from Math.floor to Math.round for better zoom sensitivity
       searchFilters
     ],
     queryFn: async () => {
@@ -917,7 +916,7 @@ export default function Map({
         south: bounds.south.toString(),
         east: bounds.east.toString(),
         north: bounds.north.toString(),
-        zoom: Math.round(currentZoom).toString()
+        limit: '5000' // Get all markers in viewport up to a reasonable limit
       });
 
       // Add search filters to the API request
@@ -939,30 +938,27 @@ export default function Map({
         }
       }
 
-      console.log('Fetching communities for bounds:', bounds, 'zoom:', Math.round(currentZoom));
+      console.log('Fetching ALL markers for bounds:', bounds);
 
-      const response = await fetch(`/api/communities/clusters?${params}`);
+      const response = await fetch(`/api/communities/markers?${params}`);
 
       if (!response.ok) {
-        throw new Error('Failed to fetch clusters');
+        throw new Error('Failed to fetch markers');
       }
 
       const data = await response.json();
       const renderTime = performance.now() - renderStart;
 
-      console.log('🎯 CLUSTER API RESPONSE:', {
-        featureCount: data.clusters?.length || 0,
+      console.log('🎯 MARKERS API RESPONSE:', {
+        totalMarkers: data.markers?.length || 0,
         bounds: bounds,
-        requestedZoom: Math.round(currentZoom),
-        clusters: data.clusters?.filter((f: any) => f.properties?.cluster).length || 0,
-        markers: data.clusters?.filter((f: any) => !f.properties?.cluster).length || 0,
-        firstFeature: data.clusters?.[0]
+        timestamp: data._timestamp
       });
 
       // Update performance metrics
       setPerformanceMetrics(prev => ({
         renderTime: Math.round(renderTime),
-        markerCount: data.clusters?.length || 0,
+        markerCount: data.markers?.length || 0,
         memoryUsage: (performance as any).memory?.usedJSHeapSize || 0,
         lastUpdate: Date.now()
       }));
@@ -1332,7 +1328,7 @@ export default function Map({
         )}
 
         {/* MarkerClusterGroup with proper disableClusteringAtZoom setting */}
-        {!isLoading && !error && clusterData?.clusters && (
+        {!isLoading && !error && markerData?.markers && (
           <MarkerClusterGroup
             chunkedLoading
             disableClusteringAtZoom={12} // NO CLUSTERING at city view (zoom 12+)
@@ -1365,7 +1361,7 @@ export default function Map({
               });
             }}
           >
-            {clusterData.clusters.map((feature: any, index: number) => {
+            {markerData.markers.map((feature: any, index: number) => {
               const [lng, lat] = feature.geometry.coordinates;
               const { properties } = feature;
 
