@@ -525,8 +525,8 @@ export default function MySeniorValetHome() {
 
         
         <div className="relative flex flex-col items-start justify-center hero-content min-h-screen px-4 sm:px-6 py-8 md:py-12 mobile-keyboard-safe md:pl-12 lg:pl-16 xl:pl-20">
-          {/* Container maximized to fill available space */}
-          <div className="w-full max-w-[85%] md:max-w-[80%] lg:max-w-[75%] xl:max-w-[70%]">
+          {/* Container maximized to use entire horizontal space */}
+          <div className="w-full max-w-[95%] md:max-w-[90%] lg:max-w-[85%] xl:max-w-[80%]">
             {/* Left-Aligned Headlines - Expanded to fill available space */}
             <div className="text-left mb-4 md:mb-6">
               <div className="space-y-3">
@@ -540,8 +540,8 @@ export default function MySeniorValetHome() {
               </div>
             </div>
 
-            {/* Search Bar - Expanded width */}
-            <div className="w-full mb-5 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
+            {/* Search Bar - Compact to avoid mascot */}
+            <div className="w-full max-w-2xl mb-3 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
             <form onSubmit={(e) => {
               e.preventDefault();
               if (searchQuery) {
@@ -580,18 +580,18 @@ export default function MySeniorValetHome() {
             </form>
           </div>
 
-            {/* Premium Search Experience - Maximized for full width */}
-            <div className="flex flex-col items-start space-y-4 mb-5 w-full">
-              {/* Search Method Selector - Larger buttons */}
-              <div className="flex flex-row gap-4 w-full animate-fade-in-up animation-delay-700">
+            {/* Premium Search Experience - Compact to avoid mascot */}
+            <div className="flex flex-col items-start space-y-3 mb-4 w-full max-w-2xl">
+              {/* Search Method Selector - Compact buttons */}
+              <div className="flex flex-row gap-3 w-full animate-fade-in-up animation-delay-700">
                 {/* Traditional Search */}
                 <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="flex-1">
-                  <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-6 py-3 rounded-full font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
-                    <div className="flex items-center justify-center space-x-3">
-                      <Search className="h-5 w-5" />
+                  <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-4 py-2.5 rounded-full font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
+                    <div className="flex items-center justify-center space-x-2">
+                      <Search className="h-4 w-4" />
                       <div className="flex flex-col items-start">
-                        <span className="text-base font-bold leading-tight">Traditional Search</span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400 font-normal leading-tight">
+                        <span className="text-sm font-bold leading-tight">Traditional Search</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 font-normal leading-tight">
                           Browse • Filter
                         </span>
                       </div>
@@ -601,13 +601,13 @@ export default function MySeniorValetHome() {
 
                 {/* AI Intelligence */}
                 <Link href="/ai-search-intelligence" className="flex-1">
-                  <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-3 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden">
+                  <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2.5 rounded-full font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="relative flex items-center justify-center space-x-3">
-                      <Sparkles className="h-5 w-5" />
+                    <div className="relative flex items-center justify-center space-x-2">
+                      <Sparkles className="h-4 w-4" />
                       <div className="flex flex-col items-start">
-                        <span className="text-base font-bold leading-tight">AI Intelligence</span>
-                        <span className="text-sm text-white/80 font-normal leading-tight">
+                        <span className="text-sm font-bold leading-tight">AI Intelligence</span>
+                        <span className="text-xs text-white/80 font-normal leading-tight">
                           Ask Anything
                         </span>
                       </div>
@@ -622,20 +622,20 @@ export default function MySeniorValetHome() {
                 </Link>
             </div>
             
-              {/* Action Buttons - Side by side layout */}
-              <div className="flex flex-col md:flex-row gap-4 w-full">
+              {/* Action Buttons - Compact vertical layout */}
+              <div className="flex flex-col gap-3 w-full">
                 {/* Live Availability Heatmap Button */}
-                <Link href="/availability-heatmap" className="flex-1">
-                  <Button className="w-full bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 text-base md:text-lg px-5 py-3 rounded-xl transform hover:scale-105 animate-pulse-glow">
-                    <Flame className="mr-2 h-5 w-5 animate-fire-wiggle" />
+                <Link href="/availability-heatmap" className="w-full">
+                  <Button className="w-full bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 text-sm md:text-base px-4 py-2.5 rounded-xl transform hover:scale-105 animate-pulse-glow">
+                    <Flame className="mr-2 h-4 w-4 animate-fire-wiggle" />
                     🔥 Live Availability Heatmap - See What's Open NOW!
                   </Button>
                 </Link>
 
                 {/* AI Matching Assistant Button */}
-                <Link href="/ai-matching" className="flex-1">
-                  <Button className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 text-base md:text-lg px-5 py-3 rounded-xl transform hover:scale-105">
-                    <Brain className="mr-2 h-5 w-5" />
+                <Link href="/ai-matching" className="w-full">
+                  <Button className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 text-sm md:text-base px-4 py-2.5 rounded-xl transform hover:scale-105">
+                    <Brain className="mr-2 h-4 w-4" />
                     ✨ AI Matching Assistant - Find Your Perfect Community
                   </Button>
                 </Link>
@@ -644,27 +644,27 @@ export default function MySeniorValetHome() {
           
 
           
-            {/* Trust Indicators - Maximized */}
-            <div className="mb-5 animate-fade-in-up animation-delay-800 w-full">
-              <div className="flex flex-wrap items-start gap-4">
-                <div className="flex items-center space-x-3 bg-white/25 backdrop-blur-md px-6 py-3 rounded-full shadow-xl">
-                  <Building2 className="h-6 w-6 text-blue-300" />
-                  <span className="text-base md:text-lg lg:text-xl font-bold text-white">HUD + Government Sources</span>
+            {/* Trust Indicators - Compact */}
+            <div className="mb-4 animate-fade-in-up animation-delay-800 w-fit">
+              <div className="flex flex-wrap items-start gap-3">
+                <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full shadow-lg">
+                  <Building2 className="h-4 w-4 text-blue-300" />
+                  <span className="text-sm md:text-base font-semibold text-white">HUD + Government Sources</span>
                 </div>
               </div>
             </div>
             
-            {/* Community Count Text - Expanded */}
-            <div className="mb-4 animate-fade-in-up animation-delay-850 w-full">
-              <p className="text-white/90 dark:text-gray-300 text-base md:text-lg lg:text-xl drop-shadow-md text-left font-medium">
+            {/* Community Count Text - Compact */}
+            <div className="mb-3 animate-fade-in-up animation-delay-850 w-fit">
+              <p className="text-white/90 dark:text-gray-300 text-sm md:text-base drop-shadow-md text-left font-medium">
                 Serving families across <strong className="text-amber-200">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '34,922+'} verified senior living communities</strong>
               </p>
             </div>
             
-            {/* Verification Badge - Expanded */}
-            <div className="mb-5 animate-fade-in-up animation-delay-900 w-full">
-              <div className="inline-flex items-center px-4 py-2 bg-white/20 dark:bg-white/10 backdrop-blur-sm rounded-full text-white dark:text-gray-200 text-sm md:text-base font-medium shadow-lg">
-                <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
+            {/* Verification Badge - Compact */}
+            <div className="mb-4 animate-fade-in-up animation-delay-900 w-fit">
+              <div className="inline-flex items-center px-3 py-1.5 bg-white/20 dark:bg-white/10 backdrop-blur-sm rounded-full text-white dark:text-gray-200 text-xs md:text-sm font-medium shadow-lg">
+                <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
                 Verified Pricing • Real Availability • No Pressure
               </div>
             </div>
