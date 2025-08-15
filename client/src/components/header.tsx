@@ -7,6 +7,7 @@ import { NotificationCenter } from "@/components/NotificationCenter";
 
 export function Header() {
   const [location] = useLocation();
+  const isHomePage = location === "/" || location === "/myseniorvalet-home";
 
   const navigation = [
     { name: "Search", href: "/search", icon: Search },
@@ -16,11 +17,19 @@ export function Header() {
   ];
 
   return (
-    <header className="bg-white dark:bg-gray-800/95 backdrop-blur-md shadow-lg border-b border-gray-200 dark:border-gray-700/60 sticky top-0 z-50 relative overflow-hidden">
-      {/* Subtle animated background - contained within header */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-50/30 via-purple-50/30 to-cyan-50/30 opacity-60"></div>
-      <div className="absolute top-0 left-1/4 w-32 h-16 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute top-0 right-1/4 w-24 h-16 bg-gradient-to-r from-cyan-400/10 to-teal-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+    <header className={`${
+      isHomePage 
+        ? "bg-transparent" 
+        : "bg-white dark:bg-gray-800/95 shadow-lg border-b border-gray-200 dark:border-gray-700/60"
+    } backdrop-blur-md sticky top-0 z-50 relative overflow-hidden transition-all duration-300`}>
+      {/* Subtle animated background - contained within header - only show when not on home page */}
+      {!isHomePage && (
+        <>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-50/30 via-purple-50/30 to-cyan-50/30 opacity-60"></div>
+          <div className="absolute top-0 left-1/4 w-32 h-16 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute top-0 right-1/4 w-24 h-16 bg-gradient-to-r from-cyan-400/10 to-teal-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </>
+      )}
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-12">
@@ -32,8 +41,16 @@ export function Header() {
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-display font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transform transition-all duration-300">MySeniorValet</span>
-                <span className="text-xs text-gray-500 font-medium -mt-1 group-hover:text-gray-600 dark:text-gray-400 transition-colors duration-300">Your Personal Senior Living Concierge</span>
+                <span className={`text-xl font-display font-bold ${
+                  isHomePage 
+                    ? "bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300" 
+                    : "bg-gradient-to-r from-blue-600 to-purple-600"
+                } bg-clip-text text-transparent group-hover:scale-105 transform transition-all duration-300`}>MySeniorValet</span>
+                <span className={`text-xs font-medium -mt-1 transition-colors duration-300 ${
+                  isHomePage 
+                    ? "text-gray-200 group-hover:text-white" 
+                    : "text-gray-500 group-hover:text-gray-600 dark:text-gray-400"
+                }`}>Your Personal Senior Living Concierge</span>
               </div>
             </Link>
             <nav className="hidden lg:flex space-x-1">
@@ -45,8 +62,12 @@ export function Header() {
                     href={item.href}
                     className={`relative flex items-center space-x-2 px-3 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 group ${
                       location === item.href
-                        ? "text-primary bg-primary/10 shadow-sm"
-                        : "text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50"
+                        ? isHomePage 
+                          ? "text-white bg-white/20 shadow-sm"
+                          : "text-primary bg-primary/10 shadow-sm"
+                        : isHomePage
+                          ? "text-gray-200 hover:text-white hover:bg-white/10"
+                          : "text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50"
                     }`}
                   >
                     <Icon className="h-4 w-4 group-hover:scale-110 transition-transform duration-300" />
@@ -61,13 +82,21 @@ export function Header() {
             <ThemeToggle />
             <NotificationCenter />
             <Link href="/community-portal" className="hidden lg:block">
-              <Button variant="ghost" className="text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700 font-medium">
+              <Button variant="ghost" className={`font-medium ${
+                isHomePage 
+                  ? "text-gray-200 hover:text-white hover:bg-white/10" 
+                  : "text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700"
+              }`}>
                 <Building2 className="h-4 w-4 mr-2" />
                 Community Portal
               </Button>
             </Link>
             <Link href="/login">
-              <Button className="shadow-sm hover:shadow-md transition-shadow" aria-label="Sign in to MySeniorValet">
+              <Button className={`shadow-sm hover:shadow-md transition-shadow ${
+                isHomePage 
+                  ? "bg-white/20 text-white hover:bg-white/30 border border-white/30" 
+                  : ""
+              }`} aria-label="Sign in to MySeniorValet">
                 Sign In
               </Button>
             </Link>

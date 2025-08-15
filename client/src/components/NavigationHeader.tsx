@@ -30,6 +30,7 @@ export function NavigationHeader({
   const { user, isAuthenticated } = useAuth();
   const { preferences, togglePreference } = useAccessibilityPreferences();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const isHomePage = location === "/" || location === "/myseniorvalet-home";
   
   // Query for unread messages count
   const { data: unreadCount } = useQuery({
@@ -48,7 +49,11 @@ export function NavigationHeader({
   };
 
   return (
-    <div className="sticky top-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b-2 border-gray-200 dark:border-gray-700 shadow-lg z-50">
+    <div className={`sticky top-0 ${
+      isHomePage 
+        ? "bg-transparent" 
+        : "bg-white/95 dark:bg-gray-900/95 border-b-2 border-gray-200 dark:border-gray-700 shadow-lg"
+    } backdrop-blur-md z-50 transition-all duration-300`}>
       <div className="px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
