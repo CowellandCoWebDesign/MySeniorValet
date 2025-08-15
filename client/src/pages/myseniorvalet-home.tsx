@@ -518,7 +518,7 @@ export default function MySeniorValetHome() {
           <img
             src={heroBackgroundImage}
             alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
-            className="w-full h-full object-cover object-right"
+            className="w-full h-full object-contain sm:object-cover object-center sm:object-right"
             loading="eager"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-66% to-black"></div>
