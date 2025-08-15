@@ -632,8 +632,8 @@ export default function MySeniorValetHome() {
             <div className="w-full mb-2 space-y-2">
 
             {/* Trust Indicators - Below buttons */}
-            <div className="animate-fade-in-up animation-delay-500 mb-3 overflow-x-auto">
-              <div className="flex items-center justify-center gap-1.5 min-w-fit">
+            <div className="animate-fade-in-up animation-delay-500 mb-3 w-full flex justify-center">
+              <div className="flex items-center gap-1.5">
                 {/* Government Sources Badge */}
                 <div className="flex items-center space-x-1.5 bg-gray-800/80 backdrop-blur-md px-2.5 py-1 rounded-full shadow-md whitespace-nowrap">
                   <Building2 className="h-3 w-3 text-blue-300 flex-shrink-0" />
