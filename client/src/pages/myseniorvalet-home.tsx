@@ -655,28 +655,23 @@ export default function MySeniorValetHome() {
             </div>
           </div>
 
-          {/* Hero Headlines - FULL WIDTH CENTERED */}
-          <div className="w-full px-2 sm:px-3 md:px-4 mb-4 animate-fade-in-up animation-delay-400">
-            <div className="text-center space-y-1">
-              <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-black leading-tight tracking-tight">
+          {/* Main Container - Constrained to Left 55% on mobile to avoid mascot */}
+          <div className="flex flex-col items-start w-full max-w-full px-2 sm:px-3 md:px-4" style={{ paddingRight: '45%' }}>
+            
+            {/* Hero Text Section - Constrained to Left Side */}
+            <div className="w-full mr-auto ml-0 text-center sm:text-left space-y-2 sm:space-y-3 px-1 sm:px-2">
+              {/* Headlines - Further reduced text sizes */}
+              <h1 className="text-sm sm:text-lg md:text-xl lg:text-2xl font-black leading-tight tracking-tight">
                 <span className="block text-white drop-shadow-2xl">Search 34,000+ Senior Living</span>
-                <span className="block text-white drop-shadow-2xl mb-1">Communities</span>
-                <span className="block text-red-500 text-xs sm:text-sm md:text-base font-bold">With Real HUD Pricing • Zero Paywalls</span>
+                <span className="block text-white drop-shadow-2xl mb-0.5 sm:mb-1">Communities</span>
+                <span className="block text-red-500 text-[10px] sm:text-xs md:text-sm font-bold">With Real HUD Pricing • Zero Paywalls</span>
               </h1>
+              
               {/* Verification Badge - Smaller on mobile */}
-              <div className="flex items-center justify-center gap-1 sm:gap-1.5 text-green-400 mt-2 mb-2">
+              <div className="flex items-center justify-start gap-1 sm:gap-1.5 text-green-400 mt-1.5 sm:mt-2 mb-1.5 sm:mb-2">
                 <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-green-400 rounded-full animate-pulse"></div>
                 <span className="text-[10px] sm:text-xs font-bold">Verified Pricing • Real Availability • No Pressure</span>
               </div>
-            </div>
-          </div>
-
-          {/* Spacer to push content to bottom */}
-          <div className="flex-grow"></div>
-
-          {/* Bottom Content - Constrained to Left 55% on mobile to avoid mascot */}
-          <div className="flex flex-col items-start w-full max-w-full px-2 sm:px-3 md:px-4 pb-4" style={{ paddingRight: '45%' }}>
-            <div className="w-full mr-auto ml-0 text-center sm:text-left space-y-2 px-1 sm:px-2">
               
               {/* Capability Checkmarks - Enhanced differentiation with backgrounds */}
               <div className="flex flex-col gap-1 sm:gap-1.5">
