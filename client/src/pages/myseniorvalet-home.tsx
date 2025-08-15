@@ -512,17 +512,13 @@ export default function MySeniorValetHome() {
       </header>
 
       {/* Hero Section with Search - Mascot Background with Optimized Content Positioning */}
-      <section className="relative min-h-screen overflow-hidden">
-        {/* Full mascot background image */}
-        <div className="absolute inset-0">
-          <img
-            src={mascotHeroImage}
-            alt="MySeniorValet mascot - your trusted guide in senior living journey"
-            className="w-full h-full object-cover"
-            style={{ objectPosition: 'center top' }}
-            loading="eager"
-          />
-        </div>
+      <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+        {/* Mascot image - very small to ensure full visibility */}
+        <img
+          src={mascotHeroImage}
+          alt="MySeniorValet mascot"
+          className="absolute right-5 bottom-5 w-[80px] h-auto opacity-90"
+        />
         
         {/* Content container - optimized positioning over mascot */}
         <div className="relative min-h-screen flex items-center">
