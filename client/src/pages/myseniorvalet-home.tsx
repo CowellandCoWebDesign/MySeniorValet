@@ -632,24 +632,24 @@ export default function MySeniorValetHome() {
             <div className="w-full mb-2 space-y-2">
 
             {/* Trust Indicators - Below buttons */}
-            <div className="animate-fade-in-up animation-delay-500 mb-3">
-              <div className="flex flex-wrap items-center justify-center gap-2">
+            <div className="animate-fade-in-up animation-delay-500 mb-3 overflow-x-auto">
+              <div className="flex items-center justify-center gap-1.5 min-w-fit">
                 {/* Government Sources Badge */}
-                <div className="flex items-center space-x-2 bg-gray-800/80 backdrop-blur-md px-4 py-1.5 rounded-full shadow-md">
-                  <Building2 className="h-3.5 w-3.5 text-blue-300" />
-                  <span className="text-xs font-semibold text-white">HUD + Government Sources</span>
+                <div className="flex items-center space-x-1.5 bg-gray-800/80 backdrop-blur-md px-2.5 py-1 rounded-full shadow-md whitespace-nowrap">
+                  <Building2 className="h-3 w-3 text-blue-300 flex-shrink-0" />
+                  <span className="text-[10px] font-semibold text-white">HUD + Gov</span>
                 </div>
                 
                 {/* Community Reported Badge */}
-                <div className="flex items-center space-x-2 bg-gray-800/80 backdrop-blur-md px-4 py-1.5 rounded-full shadow-md">
-                  <Users2 className="h-3.5 w-3.5 text-green-300" />
-                  <span className="text-xs font-semibold text-white">Community Reported</span>
+                <div className="flex items-center space-x-1.5 bg-gray-800/80 backdrop-blur-md px-2.5 py-1 rounded-full shadow-md whitespace-nowrap">
+                  <Users2 className="h-3 w-3 text-green-300 flex-shrink-0" />
+                  <span className="text-[10px] font-semibold text-white">Community</span>
                 </div>
                 
                 {/* AI Orchestration Badge */}
-                <div className="flex items-center space-x-2 bg-gray-800/80 backdrop-blur-md px-4 py-1.5 rounded-full shadow-md">
-                  <Brain className="h-3.5 w-3.5 text-purple-300 animate-pulse" />
-                  <span className="text-xs font-semibold text-white">AI-Powered Real-Time Updates</span>
+                <div className="flex items-center space-x-1.5 bg-gray-800/80 backdrop-blur-md px-2.5 py-1 rounded-full shadow-md whitespace-nowrap">
+                  <Brain className="h-3 w-3 text-purple-300 animate-pulse flex-shrink-0" />
+                  <span className="text-[10px] font-semibold text-white">AI Real-Time</span>
                 </div>
               </div>
             </div>
