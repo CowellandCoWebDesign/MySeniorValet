@@ -531,13 +531,14 @@ export default function MySeniorValetHome() {
             <div className="mb-6">
               <div className="space-y-4">
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black leading-tight tracking-tight">
-                  <span className="block text-white drop-shadow-2xl mb-2">Families Deserve</span>
-                  <span className="block text-white drop-shadow-2xl mb-4">the Truth.</span>
-                  <span className="block text-red-500 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl">No Spam.</span>
-                  <span className="block text-red-500 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl">No Hidden Pricing.</span>
+                  <span className="block text-white drop-shadow-2xl mb-2">Search 34,000+ Senior Living Communities</span>
+                  <span className="block text-red-500 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl mb-4">With Real HUD Pricing • Zero Paywalls</span>
                 </h1>
                 <h2 className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-blue-100 dark:text-blue-200 opacity-95 drop-shadow-lg font-medium leading-relaxed max-w-3xl mx-auto mt-6">
-                  Explore trusted senior living communities and connect with services that make life easier. Transparent pricing, real-time availability, and seamless service integration, all in one place.
+                  <span className="block mb-2">✓ Compare verified government pricing & availability</span>
+                  <span className="block mb-2">✓ Schedule tours with TourMate™ instant booking</span>
+                  <span className="block mb-2">✓ Save favorites & share with family members</span>
+                  <span className="block">✓ Connect with senior services marketplace</span>
                 </h2>
               </div>
             </div>
