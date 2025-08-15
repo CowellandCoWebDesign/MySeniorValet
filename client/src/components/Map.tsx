@@ -1139,17 +1139,17 @@ export default function Map({
     console.log('Cluster data state:', { 
       isLoading, 
       error, 
-      hasData: !!clusterData,
-      featureCount: clusterData?.features?.length || 0 
+      hasData: !!markerData,
+      featureCount: markerData?.markers?.length || 0 
     });
-  }, [isLoading, error, clusterData]);
+  }, [isLoading, error, markerData]);
 
   const formatPrice = (priceRange: string) => {
     if (!priceRange) return 'Contact for pricing';
     return priceRange;
   };
 
-  console.log('Map render - isLoading:', isLoading, 'error:', error, 'clusterData:', !!clusterData);
+  console.log('Map render - isLoading:', isLoading, 'error:', error, 'markerData:', !!markerData);
 
   // Force minimum height if percentage height
   const mapHeight = height === '100%' ? '600px' : height;
@@ -1733,20 +1733,7 @@ export default function Map({
       {/* Minimal Map Stats Overlay - Moved to bottom-left corner to avoid blocking controls */}
       <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg p-2 z-10 shadow-sm">
         <p className="text-xs text-gray-600 font-medium">
-          {(() => {
-            // Calculate total communities including those in clusters
-            let total = 0;
-            clusterData?.clusters?.forEach((feature: any) => {
-              if (feature.properties?.cluster) {
-                // Add point count from cluster
-                total += feature.properties.point_count || 0;
-              } else {
-                // Add single community
-                total += 1;
-              }
-            });
-            return total;
-          })()} communities
+          {markerData?.count || 0} communities
         </p>
       </div>
     </div>
