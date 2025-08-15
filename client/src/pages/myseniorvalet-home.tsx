@@ -500,10 +500,10 @@ export default function MySeniorValetHome() {
             <div className="flex items-center space-x-3">
               <LanguageSwitcher />
               <ThemeToggle />
-              <Link href="/login" className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-amber-300 transition-colors font-medium text-sm">
+              <Link href="/login" className="text-gray-700 hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400 transition-colors font-medium text-sm">
                 Sign In
               </Link>
-              <Link href="/signup" className="bg-blue-600 text-white px-3 py-1.5 rounded-xl hover:bg-blue-700 dark:bg-white/10 dark:hover:bg-white/20 transition-all duration-200 font-medium shadow-lg hover:shadow-xl text-sm">
+              <Link href="/signup" className="bg-blue-600 text-white px-3 py-1.5 rounded-xl hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl text-sm">
                 Sign Up
               </Link>
             </div>
