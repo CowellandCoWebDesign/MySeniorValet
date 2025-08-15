@@ -526,8 +526,8 @@ export default function MySeniorValetHome() {
 
         
         <div className="relative hero-content min-h-screen px-2 sm:px-3 md:px-4 pt-12 sm:pt-16 md:pt-20 pb-3 md:pb-4 mobile-keyboard-safe">
-          {/* Main Container - Constrained to Left 60% to avoid mascot */}
-          <div className="flex flex-col items-start w-full max-w-full px-1 sm:px-2" style={{ paddingRight: '40%' }}>
+          {/* Main Container - Constrained to Left 55% on mobile to avoid mascot */}
+          <div className="flex flex-col items-start w-full max-w-full px-1 sm:px-2" style={{ paddingRight: '45%' }}>
             
             {/* Top Section - Constrained Width */}
             <div className="w-full mb-2 space-y-2">
@@ -648,23 +648,23 @@ export default function MySeniorValetHome() {
                 <span className="text-xs sm:text-sm font-bold">Verified Pricing • Real Availability • No Pressure</span>
               </div>
               
-              {/* Capability Checkmarks - Smaller text on mobile */}
-              <div className="flex flex-col gap-1 sm:gap-1.5 text-white/90 text-[10px] sm:text-xs">
+              {/* Capability Checkmarks - Ultra compact for mobile */}
+              <div className="flex flex-col gap-0.5 sm:gap-1.5 text-white/90 text-[9px] sm:text-xs leading-tight">
                 <div className="flex items-center gap-1 sm:gap-1.5">
-                  <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
-                  <span>Compare verified government pricing & availability</span>
+                  <CheckCircle className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
+                  <span className="line-clamp-1">Compare verified government pricing & availability</span>
                 </div>
                 <div className="flex items-center gap-1 sm:gap-1.5">
-                  <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
-                  <span>Schedule tours with TourMate™ instant booking</span>
+                  <CheckCircle className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
+                  <span className="line-clamp-1">Schedule tours with TourMate™ instant booking</span>
                 </div>
                 <div className="flex items-center gap-1 sm:gap-1.5">
-                  <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
-                  <span>Save favorites & share with family members</span>
+                  <CheckCircle className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
+                  <span className="line-clamp-1">Save favorites & share with family members</span>
                 </div>
                 <div className="flex items-center gap-1 sm:gap-1.5">
-                  <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
-                  <span>Connect with senior services marketplace</span>
+                  <CheckCircle className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
+                  <span className="line-clamp-1">Connect with senior services marketplace</span>
                 </div>
               </div>
             </div>
