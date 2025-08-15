@@ -529,48 +529,8 @@ export default function MySeniorValetHome() {
         
         <div className="relative hero-content min-h-screen pt-12 sm:pt-16 md:pt-20 pb-3 md:pb-4 mobile-keyboard-safe">
           
-          {/* Search Bar - Full Screen Width */}
-          <div className="w-full px-2 sm:px-3 md:px-4 mb-3 animate-fade-in-up animation-delay-100" style={{ position: 'relative', zIndex: 99999 }}>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              if (searchQuery) {
-                window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
-              }
-            }}>
-              <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg" style={{ overflow: 'visible' }}>
-                <div className="flex items-center">
-                  <div className="flex-1 relative">
-                    <AutocompleteSearch
-                      value={searchQuery}
-                      onChange={setSearchQuery}
-                      onSubmit={(value) => {
-                        if (value) {
-                          window.location.href = `/map-search?q=${encodeURIComponent(value)}`;
-                        }
-                      }}
-                      placeholder={t('hero.searchPlaceholder')}
-                      hideSearchButton={true}
-                      inputClassName="w-full pl-10 pr-3 py-3 text-sm border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                    />
-                  </div>
-                  <div className="flex items-center mr-1.5">
-                    <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs px-3 py-1 font-semibold">
-                      AI-Powered
-                    </Badge>
-                  </div>
-                  <button
-                    type="submit"
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-2 m-2 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
-                  >
-                    <Search className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-
           {/* All Action Buttons - Compact Horizontal Layout - Full Screen Width */}
-          <div className="w-full px-2 sm:px-3 md:px-4 mb-3 animate-fade-in-up animation-delay-200">
+          <div className="w-full px-2 sm:px-3 md:px-4 mb-2 animate-fade-in-up animation-delay-100">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
               {/* Traditional Search */}
               <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="w-full">
@@ -626,8 +586,48 @@ export default function MySeniorValetHome() {
             </div>
           </div>
 
+          {/* Search Bar - Full Screen Width - Slimmer Design */}
+          <div className="w-full px-2 sm:px-3 md:px-4 mb-2 animate-fade-in-up animation-delay-200" style={{ position: 'relative', zIndex: 99999 }}>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (searchQuery) {
+                window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
+              }
+            }}>
+              <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg" style={{ overflow: 'visible' }}>
+                <div className="flex items-center">
+                  <div className="flex-1 relative">
+                    <AutocompleteSearch
+                      value={searchQuery}
+                      onChange={setSearchQuery}
+                      onSubmit={(value) => {
+                        if (value) {
+                          window.location.href = `/map-search?q=${encodeURIComponent(value)}`;
+                        }
+                      }}
+                      placeholder={t('hero.searchPlaceholder')}
+                      hideSearchButton={true}
+                      inputClassName="w-full pl-10 pr-3 py-2 text-sm border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                    />
+                  </div>
+                  <div className="flex items-center mr-1.5">
+                    <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs px-2 py-0.5 font-semibold">
+                      AI-Powered
+                    </Badge>
+                  </div>
+                  <button
+                    type="submit"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-1.5 m-1.5 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
+                  >
+                    <Search className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
           {/* Trust Indicators - Below buttons, FULL WIDTH for proper centering */}
-          <div className="animate-fade-in-up animation-delay-500 mb-3 w-full flex justify-center items-center px-2">
+          <div className="animate-fade-in-up animation-delay-300 mb-3 w-full flex justify-center items-center px-2">
             <div className="flex flex-wrap justify-center items-center gap-1">
               {/* Government Sources Badge */}
               <span className="inline-flex items-center space-x-1 bg-gray-800/80 backdrop-blur-md px-2 py-0.5 rounded-full shadow-md whitespace-nowrap">
