@@ -1,14 +1,19 @@
-# MySeniorValet - Senior Living Community Transparency Platform (Version 2.0)
+# MySeniorValet - Senior Living Community Transparency Platform (Version 2.1)
 
 ## Overview
 MySeniorValet is a technology platform connecting families with publicly available information about over 34,000 senior living communities in the U.S. and Canada. It leverages advanced AI orchestration to gather, organize, and present public information, including verified HUD pricing. The platform's vision is to empower families with authentic, verified data for informed decision-making in senior living, bringing much-needed transparency to the market. It aims to be "The Dawn of Transparency in Senior Living" by providing a complete care spectrum education, real pricing, zero paywalls, and tools for saving and sharing research. It features the fully operational TourMate™ tour scheduling system and includes a One-Touch Emergency Contact Shortcut.
 
-## Version 2.0 - Recent Changes (August 15, 2025)
+## Version 2.1 - Recent Changes (August 15, 2025)
+- **Hero Section Revolution**: Replaced generic space image with custom MySeniorValet mascot on starry background
+- **Brand Identity**: Introduced friendly mascot character in professional attire with red tie, establishing warm, trustworthy brand presence
+- **Visual Consistency**: Mascot hero maintains cosmic theme while adding personalized touch to platform
+
+## Version 2.0 - Previous Updates (August 15, 2025)
 - **Map Visual Enhancements**: Replaced bold colored circle borders with subtle gray borders and small status light indicators
 - **Status Light System**: Green light = has live pricing/data, Red light = contact for pricing  
 - **Clean Marker Design**: Applied consistent clean design to both community and hospital markers for better visual differentiation
 - **Visual Clarity**: Icons now display cleanly without overpowering borders, with status lights positioned at bottom-right corner
-- **Footer Version Tracking**: Added version number (2.0) to footer for deployment reference
+- **Footer Version Tracking**: Added version number to footer for deployment reference
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
