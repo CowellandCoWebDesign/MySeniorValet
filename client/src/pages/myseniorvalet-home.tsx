@@ -662,11 +662,6 @@ export default function MySeniorValetHome() {
                 </div>
               </div>
               
-              {/* Stats */}
-              <p className="text-blue-100 text-xs sm:text-sm">
-                Serving families across <span className="font-bold text-white">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '34,922+'}</span> verified senior living communities
-              </p>
-              
               {/* Verification Badge */}
               <div className="flex items-center justify-center sm:justify-start gap-1.5 text-green-400">
                 <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
