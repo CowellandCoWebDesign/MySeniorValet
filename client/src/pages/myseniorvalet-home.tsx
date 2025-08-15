@@ -35,7 +35,7 @@ import HospitalCarousel from "@/components/HospitalCarousel";
 import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
-import mascotHeroImage from '@assets/file_000000002524622f87eedb0f5d4620f9_1755238931023.png';
+import mascotHeroImage from '@assets/file_00000000715861f6ba1d823cc2455100 (1)_1755239404283.png';
 
 
 
@@ -511,77 +511,79 @@ export default function MySeniorValetHome() {
         </div>
       </header>
 
-      {/* Hero Section with Search */}
-      <section className="relative min-h-screen bg-gradient-to-br from-slate-50 to-amber-50 dark:from-gray-900 dark:to-gray-800">
+      {/* Hero Section with Search - Exact background display */}
+      <section className="relative min-h-screen">
+        {/* Exact background image with no overlays */}
         <div className="absolute inset-0">
           <img
             src={mascotHeroImage}
             alt="MySeniorValet mascot - your trusted guide in senior living journey"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center"
             loading="eager"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60 dark:from-black/60 dark:via-black/70 dark:to-black/80"></div>
         </div>
         
 
         
-        <div className="relative flex flex-col items-center justify-center hero-content min-h-screen px-6 py-12 md:py-16 mobile-keyboard-safe">
-          {/* Centered Headlines - Optimized for Desktop with Better Spacing */}
-          <div className="text-center mb-6 md:mb-8 max-w-6xl">
-            <div className="space-y-4">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl tracking-tight">
-                <span className="block mb-2 hero-text-main">Empowering Families to Find Transparent, Affordable Senior Living and Care</span>
-              </h1>
-              <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg px-4 animate-space-warp max-w-4xl mx-auto font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
-                Explore trusted senior living communities and connect with services that make life easier. Transparent pricing, real-time availability, and seamless service integration, all in one place.
-              </h2>
-            </div>
-          </div>
-
-          {/* Search Bar - Enhanced with AutocompleteSearch Component */}
-          <div className="w-full max-w-4xl mb-4 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              if (searchQuery) {
-                window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
-              }
-            }}>
-              <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl" style={{ overflow: 'visible' }}>
-                <div className="flex items-center">
-                  <div className="flex-1 relative">
-                    <AutocompleteSearch
-                      value={searchQuery}
-                      onChange={setSearchQuery}
-                      onSubmit={(value) => {
-                        if (value) {
-                          window.location.href = `/map-search?q=${encodeURIComponent(value)}`;
-                        }
-                      }}
-                      placeholder={t('hero.searchPlaceholder')}
-                      hideSearchButton={true}
-                      inputClassName="w-full pl-12 pr-4 py-4 text-base md:text-lg border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                    />
-                  </div>
-                  <div className="flex items-center mr-2">
-                    <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs md:text-sm px-3 py-1.5 font-semibold">
-                      AI-Powered
-                    </Badge>
-                  </div>
-                  <button
-                    type="submit"
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-3 m-2 rounded-xl transition-all flex items-center justify-center shadow-lg hover:shadow-xl"
-                  >
-                    <Search className="w-6 h-6" />
-                  </button>
-                </div>
+        {/* Content positioned to left side to avoid mascot */}
+        <div className="relative flex min-h-screen px-6 py-12 md:py-16 mobile-keyboard-safe">
+          <div className="w-full lg:w-3/5 flex flex-col justify-center">
+            {/* Headlines positioned on left side */}
+            <div className="mb-6 md:mb-8 max-w-3xl">
+              <div className="space-y-4">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] tracking-tight">
+                  <span className="block mb-2 hero-text-main">Empowering Families to Find Transparent, Affordable Senior Living</span>
+                </h1>
+                <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-white opacity-95 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
+                  Explore trusted communities with transparent pricing, real-time availability, and seamless service integration.
+                </h2>
               </div>
-            </form>
-          </div>
+            </div>
 
-          {/* Premium Search Experience - Professional Google-Style Design */}
-          <div className="flex flex-col items-center space-y-3 mb-5 w-full px-4">
-            {/* Search Method Selector - Modern Professional Design with Animation */}
-            <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xl animate-fade-in-up animation-delay-700">
+            {/* Search Bar - Positioned on left side */}
+            <div className="max-w-2xl mb-4 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                if (searchQuery) {
+                  window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
+                }
+              }}>
+                <div className="relative bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl" style={{ overflow: 'visible' }}>
+                  <div className="flex items-center">
+                    <div className="flex-1 relative">
+                      <AutocompleteSearch
+                        value={searchQuery}
+                        onChange={setSearchQuery}
+                        onSubmit={(value) => {
+                          if (value) {
+                            window.location.href = `/map-search?q=${encodeURIComponent(value)}`;
+                          }
+                        }}
+                        placeholder={t('hero.searchPlaceholder')}
+                        hideSearchButton={true}
+                        inputClassName="w-full pl-12 pr-4 py-4 text-base md:text-lg border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-500"
+                      />
+                    </div>
+                    <div className="flex items-center mr-2">
+                      <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs md:text-sm px-3 py-1.5 font-semibold">
+                        AI-Powered
+                      </Badge>
+                    </div>
+                    <button
+                      type="submit"
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-3 m-2 rounded-xl transition-all flex items-center justify-center shadow-lg hover:shadow-xl"
+                    >
+                      <Search className="w-6 h-6" />
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            {/* Premium Search Experience - Buttons positioned on left */}
+            <div className="flex flex-col space-y-3 mb-5 max-w-2xl">
+              {/* Search Method Selector - Modern Professional Design with Animation */}
+              <div className="flex flex-col sm:flex-row gap-3 w-full animate-fade-in-up animation-delay-700">
               {/* Traditional Search - Google-Style Clean Design */}
               <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="flex-1">
                 <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-5 py-2 rounded-full font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
@@ -635,12 +637,10 @@ export default function MySeniorValetHome() {
                 ✨ AI Matching Assistant - Find Your Perfect Community
               </Button>
             </Link>
-          </div>
-          
+            </div>
 
-          
-          {/* Trust Indicators with 26,306+ Communities */}
-          <div className="mb-3 animate-fade-in-up animation-delay-800">
+            {/* Trust Indicators with 26,306+ Communities */}
+            <div className="mb-3 animate-fade-in-up animation-delay-800">
             <div className="flex flex-wrap items-center justify-center gap-3">
 
               <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full shadow-lg">
@@ -650,23 +650,22 @@ export default function MySeniorValetHome() {
 
             </div>
           </div>
-          
-          {/* Community Count Text - Updated */}
-          <div className="mb-2 animate-fade-in-up animation-delay-850">
-            <p className="text-white/90 dark:text-gray-300 text-base md:text-lg lg:text-xl drop-shadow-md text-center font-medium">
-              Serving families across <strong className="text-amber-200">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} verified senior living communities</strong>
-            </p>
-          </div>
-          
-          {/* Verification Badge - Larger */}
-          <div className="mb-4 animate-fade-in-up animation-delay-900">
-            <div className="inline-flex items-center px-4 py-2 bg-white/20 dark:bg-white/10 backdrop-blur-sm rounded-full text-white dark:text-gray-200 text-sm md:text-base font-medium shadow-lg">
-              <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
-              Verified Pricing • Real Availability • No Pressure
+            
+            {/* Community Count Text - Updated */}
+            <div className="mb-2 animate-fade-in-up animation-delay-850">
+              <p className="text-white/90 text-base md:text-lg lg:text-xl drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] font-medium">
+                Serving families across <strong className="text-amber-200">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '26,306+'} verified senior living communities</strong>
+              </p>
+            </div>
+            
+            {/* Verification Badge - Larger */}
+            <div className="mb-4 animate-fade-in-up animation-delay-900">
+              <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm md:text-base font-medium shadow-lg">
+                <div className="w-3 h-3 bg-green-400 rounded-full mr-3 animate-pulse"></div>
+                Verified Pricing • Real Availability • No Pressure
+              </div>
             </div>
           </div>
-          
-
         </div>
       </section>
 
