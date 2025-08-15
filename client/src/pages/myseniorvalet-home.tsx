@@ -525,52 +525,53 @@ export default function MySeniorValetHome() {
         
 
         
-        <div className="relative hero-content min-h-screen px-2 sm:px-3 md:px-4 pt-12 sm:pt-16 md:pt-20 pb-3 md:pb-4 mobile-keyboard-safe">
-          {/* Main Container - Constrained to Left 55% on mobile to avoid mascot */}
-          <div className="flex flex-col items-start w-full max-w-full px-1 sm:px-2" style={{ paddingRight: '45%' }}>
-            
-            {/* Top Section - Constrained Width */}
-            <div className="w-full mb-2 space-y-2">
-
-            {/* Search Bar - Full Width at Top */}
-            <div className="w-full mb-2 animate-fade-in-up animation-delay-100" style={{ position: 'relative', zIndex: 99999 }}>
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                if (searchQuery) {
-                  window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
-                }
-              }}>
-                <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg" style={{ overflow: 'visible' }}>
-                  <div className="flex items-center">
-                    <div className="flex-1 relative">
-                      <AutocompleteSearch
-                        value={searchQuery}
-                        onChange={setSearchQuery}
-                        onSubmit={(value) => {
-                          if (value) {
-                            window.location.href = `/map-search?q=${encodeURIComponent(value)}`;
-                          }
-                        }}
-                        placeholder={t('hero.searchPlaceholder')}
-                        hideSearchButton={true}
-                        inputClassName="w-full pl-10 pr-3 py-3 text-sm border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                      />
-                    </div>
-                    <div className="flex items-center mr-1.5">
-                      <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs px-3 py-1 font-semibold">
-                        AI-Powered
-                      </Badge>
-                    </div>
-                    <button
-                      type="submit"
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-2 m-2 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
-                    >
-                      <Search className="w-5 h-5" />
-                    </button>
+        <div className="relative hero-content min-h-screen pt-12 sm:pt-16 md:pt-20 pb-3 md:pb-4 mobile-keyboard-safe">
+          
+          {/* Search Bar - Full Screen Width */}
+          <div className="w-full px-2 sm:px-3 md:px-4 mb-3 animate-fade-in-up animation-delay-100" style={{ position: 'relative', zIndex: 99999 }}>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (searchQuery) {
+                window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
+              }
+            }}>
+              <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg" style={{ overflow: 'visible' }}>
+                <div className="flex items-center">
+                  <div className="flex-1 relative">
+                    <AutocompleteSearch
+                      value={searchQuery}
+                      onChange={setSearchQuery}
+                      onSubmit={(value) => {
+                        if (value) {
+                          window.location.href = `/map-search?q=${encodeURIComponent(value)}`;
+                        }
+                      }}
+                      placeholder={t('hero.searchPlaceholder')}
+                      hideSearchButton={true}
+                      inputClassName="w-full pl-10 pr-3 py-3 text-sm border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                    />
                   </div>
+                  <div className="flex items-center mr-1.5">
+                    <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs px-3 py-1 font-semibold">
+                      AI-Powered
+                    </Badge>
+                  </div>
+                  <button
+                    type="submit"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-2 m-2 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
+                  >
+                    <Search className="w-5 h-5" />
+                  </button>
                 </div>
-              </form>
-            </div>
+              </div>
+            </form>
+          </div>
+
+          {/* Main Container - Constrained to Left 55% on mobile to avoid mascot */}
+          <div className="flex flex-col items-start w-full max-w-full px-2 sm:px-3 md:px-4" style={{ paddingRight: '45%' }}>
+            
+            {/* Buttons Section */}
+            <div className="w-full mb-2 space-y-2">
 
             {/* Traditional & AI Intelligence Buttons - 3/4 Width */}
             <div className="w-full mb-2 animate-fade-in-up animation-delay-200">
