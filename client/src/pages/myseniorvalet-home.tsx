@@ -297,7 +297,7 @@ export default function MySeniorValetHome() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Header - Reduced height */}
-      <header className="absolute top-0 left-0 right-0 z-40 bg-white/80 dark:bg-black/30 backdrop-blur-md border-b border-gray-200 dark:border-white/20">
+      <header className="absolute top-0 left-0 right-0 z-40 bg-transparent backdrop-blur-sm border-b border-white/10">
         <div className="px-4 py-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -494,7 +494,7 @@ export default function MySeniorValetHome() {
                 <div className="w-6 h-6 bg-gradient-to-r from-blue-600 to-blue-700 rounded-md flex items-center justify-center">
                   <Home className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-lg font-bold text-gray-800 dark:text-white">MySeniorValet</span>
+                <span className="text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">MySeniorValet</span>
               </div>
             </div>
             <div className="flex items-center space-x-3">
