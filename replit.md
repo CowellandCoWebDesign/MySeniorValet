@@ -35,10 +35,11 @@ MySeniorValet is a technology platform connecting families with publicly availab
   - All pages now have proper navigation headers rendered
 - **Preserved Version 2.3 Features**: Hero text "Search 34,000+ Senior Living Communities with Real HUD Pricing • Zero Paywalls" and four capability checkmarks
 - **Background**: New space-themed image with updated mascot stance (file_00000000715861f6ba1d823cc2455100) - August 15, 9:24 PM
-- **Trust Indicators** (August 15, 9:39 PM): Added three trust badges showcasing diverse data sources:
+- **Trust Indicators** (August 15, 9:48 PM): Enhanced trust badges showcasing diverse data sources:
   - HUD + Government Sources (blue icon) - Official government data
   - Community Reported (green icon) - Real-time community contributions
   - AI-Powered Real-Time Updates (purple pulsing icon) - AI orchestration for continuous updates
+  - AI Orchestra Attribution (music icon with gradient) - Credits Perplexity + Claude + ChatGPT as the 3 AIs powering the platform
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
