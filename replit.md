@@ -4,8 +4,10 @@
 MySeniorValet is a technology platform connecting families with publicly available information about over 34,000 senior living communities in the U.S. and Canada. It leverages advanced AI orchestration to gather, organize, and present public information, including verified HUD pricing. The platform's vision is to empower families with authentic, verified data for informed decision-making in senior living, bringing much-needed transparency to the market. It aims to be "The Dawn of Transparency in Senior Living" by providing a complete care spectrum education, real pricing, zero paywalls, and tools for saving and sharing research. It features the fully operational TourMate™ tour scheduling system and includes a One-Touch Emergency Contact Shortcut.
 
 ## Version 2.3 - Selective Width Optimization (August 15, 2025)
-- **Container Width Maximization**: Expanded to 80-95% on XL screens to use entire horizontal space
-- **Selective Element Sizing**: Hero and sub-hero text remain large (up to 7xl/4xl) to fill width, while buttons/badges stay compact
+- **Container Width Maximization**: Expanded to 90% on XL screens, 92% on LG, 95% on MD to use maximum horizontal space
+- **Hero Text Restored**: Using original text "Empowering Families to Find Transparent, Affordable Senior Living and Care"
+- **Sub-Hero Restored**: Using full description "Explore trusted senior living communities and connect with services that make life easier. Transparent pricing, real-time availability, and seamless service integration, all in one place."
+- **Selective Element Sizing**: Hero and sub-hero text remain large (up to 7xl/3xl) to fill width, while buttons/badges stay compact
 - **Mascot Avoidance Strategy**: All interactive elements (search, buttons, indicators) constrained to max-w-2xl to avoid overlapping gentleman mascot on right
 - **Compact Layout Elements**: Reverted buttons to vertical stack, reduced padding/text sizes on non-hero elements
 - **Hero Text Priority**: Only headlines and sub-headlines utilize full container width

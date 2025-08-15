@@ -526,7 +526,7 @@ export default function MySeniorValetHome() {
         
         <div className="relative flex flex-col items-start justify-center hero-content min-h-screen px-4 sm:px-6 py-8 md:py-12 mobile-keyboard-safe md:pl-12 lg:pl-16 xl:pl-20">
           {/* Container maximized to use entire horizontal space */}
-          <div className="w-full max-w-[95%] md:max-w-[90%] lg:max-w-[85%] xl:max-w-[80%]">
+          <div className="w-full max-w-[98%] md:max-w-[95%] lg:max-w-[92%] xl:max-w-[90%]">
             {/* Left-Aligned Headlines - Expanded to fill available space */}
             <div className="text-left mb-4 md:mb-6">
               <div className="space-y-3">
