@@ -567,49 +567,57 @@ export default function MySeniorValetHome() {
             </form>
           </div>
 
-          {/* All Action Buttons - 4 Column Grid - Full Screen Width */}
+          {/* All Action Buttons - Compact Horizontal Layout - Full Screen Width */}
           <div className="w-full px-2 sm:px-3 md:px-4 mb-3 animate-fade-in-up animation-delay-200">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
               {/* Traditional Search */}
               <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="w-full">
-                <Button className="w-full h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 border border-gray-600">
-                  <div className="flex flex-col items-center justify-center">
-                    <Search className="h-3.5 w-3.5 mb-0.5" />
-                    <div className="text-[9px] font-bold">Traditional</div>
-                    <div className="text-[7px] text-gray-300">Browse</div>
+                <Button className="w-full h-auto bg-gray-800 hover:bg-gray-700 text-white px-1.5 py-1.5 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-600">
+                  <div className="flex items-center justify-start space-x-1">
+                    <Search className="h-3 w-3 flex-shrink-0" />
+                    <div className="text-left">
+                      <div className="text-[8px] font-semibold leading-tight">Traditional Browse</div>
+                      <div className="text-[7px] text-gray-400 leading-tight">Filter & Sort</div>
+                    </div>
                   </div>
                 </Button>
               </Link>
 
               {/* AI Intelligence */}
               <Link href="/ai-search-intelligence" className="w-full">
-                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200">
-                  <div className="flex flex-col items-center justify-center">
-                    <Sparkles className="h-3.5 w-3.5 mb-0.5" />
-                    <div className="text-[9px] font-bold">AI Search</div>
-                    <div className="text-[7px] text-white/90">Ask</div>
+                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-1.5 py-1.5 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200">
+                  <div className="flex items-center justify-start space-x-1">
+                    <Sparkles className="h-3 w-3 flex-shrink-0" />
+                    <div className="text-left">
+                      <div className="text-[8px] font-semibold leading-tight">AI Assistant</div>
+                      <div className="text-[7px] text-white/80 leading-tight">Ask Questions</div>
+                    </div>
                   </div>
                 </Button>
               </Link>
 
               {/* Live Availability Heatmap */}
               <Link href="/availability-heatmap" className="w-full">
-                <Button className="w-full h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 px-2 py-2 rounded-lg transform hover:scale-[1.01]">
-                  <div className="flex flex-col items-center justify-center">
-                    <Flame className="h-3.5 w-3.5 mb-0.5 animate-pulse" />
-                    <div className="text-[9px] font-bold">Live Heat</div>
-                    <div className="text-[7px] text-white/90">Map</div>
+                <Button className="w-full h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 px-1.5 py-1.5 rounded-md transform hover:scale-[1.01]">
+                  <div className="flex items-center justify-start space-x-1">
+                    <Flame className="h-3 w-3 flex-shrink-0 animate-pulse" />
+                    <div className="text-left">
+                      <div className="text-[8px] font-semibold leading-tight">Live Heatmap</div>
+                      <div className="text-[7px] text-white/80 leading-tight">Availability Now</div>
+                    </div>
                   </div>
                 </Button>
               </Link>
 
               {/* AI Matching Assistant */}
               <Link href="/ai-matching" className="w-full">
-                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 px-2 py-2 rounded-lg transform hover:scale-[1.01]">
-                  <div className="flex flex-col items-center justify-center">
-                    <Brain className="h-3.5 w-3.5 mb-0.5" />
-                    <div className="text-[9px] font-bold">AI Match</div>
-                    <div className="text-[7px] text-white/90">Smart</div>
+                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 px-1.5 py-1.5 rounded-md transform hover:scale-[1.01]">
+                  <div className="flex items-center justify-start space-x-1">
+                    <Brain className="h-3 w-3 flex-shrink-0" />
+                    <div className="text-left">
+                      <div className="text-[8px] font-semibold leading-tight">Smart Match</div>
+                      <div className="text-[7px] text-white/80 leading-tight">Personalized</div>
+                    </div>
                   </div>
                 </Button>
               </Link>

@@ -18,7 +18,8 @@ MySeniorValet is a technology platform connecting families with publicly availab
   - Search bar and button row: Full screen width for maximum visibility
   - Text content: Right padding 45% to prevent mascot overlap
   - Checkmarks ultra-compact (9px text, 2.5x2.5 icons, gap-0.5)
-  - Buttons and text constrained to left 55% of screen
+  - Buttons: Compact horizontal layout with icons + descriptive text (8px/7px fonts)
+  - Text constrained to left 55% of screen
 - **Preserved Version 2.3 Features**: Hero text "Search 34,000+ Senior Living Communities with Real HUD Pricing • Zero Paywalls" and four capability checkmarks
 - **Background**: Space image with 66% fade to black maintained
 
