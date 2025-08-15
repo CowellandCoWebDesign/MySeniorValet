@@ -525,7 +525,7 @@ export default function MySeniorValetHome() {
         
 
         
-        <div className="relative hero-content min-h-screen px-3 sm:px-4 py-3 md:py-4 mobile-keyboard-safe">
+        <div className="relative hero-content min-h-screen px-3 sm:px-4 pt-0 pb-3 md:pb-4 mobile-keyboard-safe" style={{ marginTop: '-10vh' }}>
           {/* Main Container - Constrained to Left 70% to avoid mascot */}
           <div className="flex flex-col items-start w-full max-w-full px-2" style={{ paddingRight: '30%' }}>
             
