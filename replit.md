@@ -3,7 +3,7 @@
 ## Overview
 MySeniorValet is a technology platform connecting families with publicly available information about over 34,000 senior living communities in the U.S. and Canada. It leverages advanced AI orchestration to gather, organize, and present public information, including verified HUD pricing. The platform's vision is to empower families with authentic, verified data for informed decision-making in senior living, bringing much-needed transparency to the market. It aims to be "The Dawn of Transparency in Senior Living" by providing a complete care spectrum education, real pricing, zero paywalls, and tools for saving and sharing research. It features the fully operational TourMate™ tour scheduling system and includes a One-Touch Emergency Contact Shortcut.
 
-## Version 2.5 - Compact Hero Layout (August 15, 2025 - 7:56 PM)
+## Version 2.5 - Compact Hero Layout with Enhanced Trust Indicators (August 15, 2025 - 9:39 PM)
 - **Compact Design**: Significantly reduced sizes of all elements based on user feedback:
   - All font sizes reduced (headlines now text-sm on mobile, text-2xl max on desktop)
   - Button heights reduced (from h-14 to compact py-2)
@@ -35,6 +35,10 @@ MySeniorValet is a technology platform connecting families with publicly availab
   - All pages now have proper navigation headers rendered
 - **Preserved Version 2.3 Features**: Hero text "Search 34,000+ Senior Living Communities with Real HUD Pricing • Zero Paywalls" and four capability checkmarks
 - **Background**: New space-themed image with updated mascot stance (file_00000000715861f6ba1d823cc2455100) - August 15, 9:24 PM
+- **Trust Indicators** (August 15, 9:39 PM): Added three trust badges showcasing diverse data sources:
+  - HUD + Government Sources (blue icon) - Official government data
+  - Community Reported (green icon) - Real-time community contributions
+  - AI-Powered Real-Time Updates (purple pulsing icon) - AI orchestration for continuous updates
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.

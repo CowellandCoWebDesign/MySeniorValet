@@ -633,9 +633,24 @@ export default function MySeniorValetHome() {
 
             {/* Trust Indicators - Below buttons */}
             <div className="animate-fade-in-up animation-delay-500 mb-3">
-              <div className="flex items-center space-x-2 bg-gray-800/80 backdrop-blur-md px-4 py-1.5 rounded-full shadow-md w-fit mx-auto">
-                <Building2 className="h-3.5 w-3.5 text-blue-300" />
-                <span className="text-xs font-semibold text-white">HUD + Government Sources</span>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {/* Government Sources Badge */}
+                <div className="flex items-center space-x-2 bg-gray-800/80 backdrop-blur-md px-4 py-1.5 rounded-full shadow-md">
+                  <Building2 className="h-3.5 w-3.5 text-blue-300" />
+                  <span className="text-xs font-semibold text-white">HUD + Government Sources</span>
+                </div>
+                
+                {/* Community Reported Badge */}
+                <div className="flex items-center space-x-2 bg-gray-800/80 backdrop-blur-md px-4 py-1.5 rounded-full shadow-md">
+                  <Users2 className="h-3.5 w-3.5 text-green-300" />
+                  <span className="text-xs font-semibold text-white">Community Reported</span>
+                </div>
+                
+                {/* AI Orchestration Badge */}
+                <div className="flex items-center space-x-2 bg-gray-800/80 backdrop-blur-md px-4 py-1.5 rounded-full shadow-md">
+                  <Brain className="h-3.5 w-3.5 text-purple-300 animate-pulse" />
+                  <span className="text-xs font-semibold text-white">AI-Powered Real-Time Updates</span>
+                </div>
               </div>
             </div>
           </div>
