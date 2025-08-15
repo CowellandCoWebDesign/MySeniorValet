@@ -527,7 +527,7 @@ export default function MySeniorValetHome() {
         
 
         
-        <div className="relative hero-content min-h-screen pt-12 sm:pt-16 md:pt-20 pb-3 md:pb-4 mobile-keyboard-safe">
+        <div className="relative hero-content min-h-screen pt-12 sm:pt-16 md:pt-20 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col">
           
           {/* All Action Buttons - Compact Horizontal Layout - Full Screen Width */}
           <div className="w-full px-2 sm:px-3 md:px-4 mb-2 animate-fade-in-up animation-delay-100">
@@ -655,8 +655,11 @@ export default function MySeniorValetHome() {
             </div>
           </div>
 
-          {/* Main Container - Constrained to Left 55% on mobile to avoid mascot */}
-          <div className="flex flex-col items-start w-full max-w-full px-2 sm:px-3 md:px-4" style={{ paddingRight: '45%' }}>
+          {/* Spacer to push content to bottom */}
+          <div className="flex-grow"></div>
+          
+          {/* Main Container - Constrained to Left 55% on mobile to avoid mascot - Bottom Aligned */}
+          <div className="flex flex-col items-start w-full max-w-full px-2 sm:px-3 md:px-4 mt-auto pb-8 sm:pb-12 md:pb-16" style={{ paddingRight: '45%' }}>
             
             {/* Hero Text Section - Constrained to Left Side */}
             <div className="w-full mr-auto ml-0 text-center sm:text-left space-y-2 sm:space-y-3 px-1 sm:px-2">
