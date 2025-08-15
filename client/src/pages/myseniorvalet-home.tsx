@@ -641,36 +641,43 @@ export default function MySeniorValetHome() {
             
             {/* Hero Text Section - Constrained to Left Side */}
             <div className="w-full mr-auto ml-0 text-center sm:text-left space-y-2 sm:space-y-3 px-1 sm:px-2">
-              {/* Headlines - Mobile optimized with smaller text */}
-              <h1 className="text-base sm:text-xl md:text-2xl lg:text-3xl font-black leading-tight tracking-tight">
+              {/* Headlines - Further reduced text sizes */}
+              <h1 className="text-sm sm:text-lg md:text-xl lg:text-2xl font-black leading-tight tracking-tight">
                 <span className="block text-white drop-shadow-2xl">Search 34,000+ Senior Living</span>
                 <span className="block text-white drop-shadow-2xl mb-0.5 sm:mb-1">Communities</span>
-                <span className="block text-red-500 text-xs sm:text-sm md:text-base">With Real HUD Pricing • Zero Paywalls</span>
+                <span className="block text-red-500 text-[10px] sm:text-xs md:text-sm font-bold">With Real HUD Pricing • Zero Paywalls</span>
               </h1>
               
               {/* Verification Badge - Smaller on mobile */}
-              <div className="flex items-center justify-start gap-1 sm:gap-1.5 text-green-400 mt-2 sm:mt-4 mb-2 sm:mb-3">
+              <div className="flex items-center justify-start gap-1 sm:gap-1.5 text-green-400 mt-1.5 sm:mt-2 mb-1.5 sm:mb-2">
                 <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-xs sm:text-sm font-bold">Verified Pricing • Real Availability • No Pressure</span>
+                <span className="text-[10px] sm:text-xs font-bold">Verified Pricing • Real Availability • No Pressure</span>
               </div>
               
-              {/* Capability Checkmarks - Ultra compact for mobile */}
-              <div className="flex flex-col gap-0.5 sm:gap-1.5 text-white/90 text-[9px] sm:text-xs leading-tight">
-                <div className="flex items-center gap-1 sm:gap-1.5">
-                  <CheckCircle className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
-                  <span className="line-clamp-1">Compare verified government pricing & availability</span>
+              {/* Capability Checkmarks - Enhanced differentiation with backgrounds */}
+              <div className="flex flex-col gap-1 sm:gap-1.5">
+                {/* Government Pricing Feature - Premium highlight */}
+                <div className="flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-400/30 rounded-md px-1.5 py-0.5 sm:px-2 sm:py-1">
+                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-400 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs text-white font-semibold">Compare verified government pricing & availability</span>
                 </div>
-                <div className="flex items-center gap-1 sm:gap-1.5">
-                  <CheckCircle className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
-                  <span className="line-clamp-1">Schedule tours with TourMate™ instant booking</span>
+                
+                {/* TourMate Feature - Secondary highlight */}
+                <div className="flex items-center gap-1.5 sm:gap-2 bg-blue-500/15 border border-blue-400/20 rounded-md px-1.5 py-0.5 sm:px-2 sm:py-1">
+                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs text-white/95">Schedule tours with TourMate™ instant booking</span>
                 </div>
-                <div className="flex items-center gap-1 sm:gap-1.5">
-                  <CheckCircle className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
-                  <span className="line-clamp-1">Save favorites & share with family members</span>
+                
+                {/* Family Sharing Feature */}
+                <div className="flex items-center gap-1.5 sm:gap-2 bg-purple-500/10 border border-purple-400/15 rounded-md px-1.5 py-0.5 sm:px-2 sm:py-1">
+                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs text-white/90">Save favorites & share with family members</span>
                 </div>
-                <div className="flex items-center gap-1 sm:gap-1.5">
-                  <CheckCircle className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-green-400 flex-shrink-0" />
-                  <span className="line-clamp-1">Connect with senior services marketplace</span>
+                
+                {/* Marketplace Feature */}
+                <div className="flex items-center gap-1.5 sm:gap-2 bg-orange-500/10 border border-orange-400/15 rounded-md px-1.5 py-0.5 sm:px-2 sm:py-1">
+                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-orange-400 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs text-white/90">Connect with senior services marketplace</span>
                 </div>
               </div>
             </div>
