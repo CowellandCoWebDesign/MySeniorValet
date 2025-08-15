@@ -8,6 +8,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TourFeedbackModal } from "@/components/TourFeedbackModal";
+import { Header } from "@/components/header";
 import {
   Dialog,
   DialogContent,
@@ -200,11 +201,13 @@ export default function ToursPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Your Tours</h1>
-        <p className="text-gray-600">Manage your scheduled tours and view past visits</p>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Header />
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Your Tours</h1>
+          <p className="text-gray-600 dark:text-gray-400">Manage your scheduled tours and view past visits</p>
+        </div>
 
       <Tabs defaultValue="upcoming" className="mb-8">
         <TabsList>
@@ -415,6 +418,7 @@ export default function ToursPage() {
           }}
         />
       )}
+      </div>
     </div>
   );
 }
