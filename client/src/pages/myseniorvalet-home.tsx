@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { motion } from "framer-motion";
 import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -524,27 +525,12 @@ export default function MySeniorValetHome() {
         
 
         
-        <div className="relative flex flex-col items-center justify-center hero-content min-h-screen px-4 sm:px-6 py-8 md:py-12 mobile-keyboard-safe">
-          {/* Container centered with controlled width */}
-          <div className="w-full max-w-4xl text-center">
-            {/* Centered Headlines with black/white/red color scheme */}
-            <div className="mb-6">
-              <div className="space-y-4">
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black leading-tight tracking-tight">
-                  <span className="block text-white drop-shadow-2xl mb-2">Search 34,000+ Senior Living Communities</span>
-                  <span className="block text-red-500 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl mb-4">With Real HUD Pricing • Zero Paywalls</span>
-                </h1>
-                <h2 className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-blue-100 dark:text-blue-200 opacity-95 drop-shadow-lg font-medium leading-relaxed max-w-3xl mx-auto mt-6">
-                  <span className="block mb-2">✓ Compare verified government pricing & availability</span>
-                  <span className="block mb-2">✓ Schedule tours with TourMate™ instant booking</span>
-                  <span className="block mb-2">✓ Save favorites & share with family members</span>
-                  <span className="block">✓ Connect with senior services marketplace</span>
-                </h2>
-              </div>
-            </div>
+        <div className="relative flex flex-col items-start justify-start hero-content min-h-screen px-4 sm:px-6 py-8 md:py-12 mobile-keyboard-safe">
+          {/* Top Center - Search Tools */}
+          <div className="w-full max-w-4xl mx-auto text-center mt-8">
 
-            {/* Search Bar - Compact to avoid mascot */}
-            <div className="w-full max-w-2xl mb-3 animate-fade-in-up animation-delay-600" style={{ position: 'relative', zIndex: 99999 }}>
+            {/* Search Bar */}
+            <div className="w-full mb-3 animate-fade-in-up animation-delay-600 mx-auto" style={{ position: 'relative', zIndex: 99999 }}>
             <form onSubmit={(e) => {
               e.preventDefault();
               if (searchQuery) {
@@ -583,10 +569,10 @@ export default function MySeniorValetHome() {
             </form>
           </div>
 
-            {/* Premium Search Experience - Compact to avoid mascot */}
-            <div className="flex flex-col items-start space-y-3 mb-4 w-full max-w-2xl">
-              {/* Search Method Selector - Compact buttons */}
-              <div className="flex flex-row gap-3 w-full animate-fade-in-up animation-delay-700">
+            {/* Premium Search Experience */}
+            <div className="flex flex-col items-center space-y-3 mb-4 w-full">
+              {/* Search Method Selector */}
+              <div className="flex flex-row gap-3 w-full max-w-3xl animate-fade-in-up animation-delay-700">
                 {/* Traditional Search */}
                 <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="flex-1">
                   <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-4 py-2.5 rounded-full font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
@@ -625,8 +611,8 @@ export default function MySeniorValetHome() {
                 </Link>
             </div>
             
-              {/* Action Buttons - Compact vertical layout */}
-              <div className="flex flex-col gap-3 w-full">
+              {/* Action Buttons */}
+              <div className="flex flex-col gap-3 w-full max-w-3xl">
                 {/* Live Availability Heatmap Button */}
                 <Link href="/availability-heatmap" className="w-full">
                   <Button className="w-full bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-bold shadow-xl hover:shadow-2xl transition-all duration-300 text-sm md:text-base px-4 py-2.5 rounded-xl transform hover:scale-105 animate-pulse-glow">
@@ -647,9 +633,9 @@ export default function MySeniorValetHome() {
           
 
           
-            {/* Trust Indicators - Compact */}
-            <div className="mb-4 animate-fade-in-up animation-delay-800 w-fit">
-              <div className="flex flex-wrap items-start gap-3">
+            {/* Trust Indicators */}
+            <div className="mb-4 animate-fade-in-up animation-delay-800 mx-auto">
+              <div className="flex flex-wrap items-center justify-center gap-3">
                 <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full shadow-lg">
                   <Building2 className="h-4 w-4 text-blue-300" />
                   <span className="text-sm md:text-base font-semibold text-white">HUD + Government Sources</span>
@@ -672,7 +658,45 @@ export default function MySeniorValetHome() {
               </div>
             </div>
           </div>
-          
+
+          {/* Left Side - Text Content (positioned above valet's hand) */}
+          <div className="absolute left-8 bottom-48 max-w-xl">
+            {/* Headlines with black/white/red color scheme */}
+            <div className="mb-6">
+              <div className="space-y-4 text-left">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight">
+                  <span className="block text-white drop-shadow-2xl mb-2">Search 34,000+ Senior Living Communities</span>
+                  <span className="block text-red-500 text-lg sm:text-xl md:text-2xl lg:text-3xl mb-4">With Real HUD Pricing • Zero Paywalls</span>
+                </h1>
+                <h2 className="text-sm sm:text-base md:text-lg lg:text-xl text-blue-100 dark:text-blue-200 opacity-95 drop-shadow-lg font-medium leading-relaxed">
+                  <span className="block mb-2">✓ Compare verified government pricing & availability</span>
+                  <span className="block mb-2">✓ Schedule tours with TourMate™ instant booking</span>
+                  <span className="block mb-2">✓ Save favorites & share with family members</span>
+                  <span className="block">✓ Connect with senior services marketplace</span>
+                </h2>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-blue-100 dark:text-blue-200 text-base drop-shadow-lg mb-3"
+            >
+              Serving families across <span className="font-bold text-white">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '34,922+'}</span> verified senior living communities
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="flex items-center gap-2 text-green-400"
+            >
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium">Verified Pricing • Real Availability • No Pressure</span>
+            </motion.div>
+          </div>
 
         </div>
       </section>

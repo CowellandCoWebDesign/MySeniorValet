@@ -3,20 +3,23 @@
 ## Overview
 MySeniorValet is a technology platform connecting families with publicly available information about over 34,000 senior living communities in the U.S. and Canada. It leverages advanced AI orchestration to gather, organize, and present public information, including verified HUD pricing. The platform's vision is to empower families with authentic, verified data for informed decision-making in senior living, bringing much-needed transparency to the market. It aims to be "The Dawn of Transparency in Senior Living" by providing a complete care spectrum education, real pricing, zero paywalls, and tools for saving and sharing research. It features the fully operational TourMate™ tour scheduling system and includes a One-Touch Emergency Contact Shortcut.
 
-## Version 2.3 - Hero Text Enhancement & Capability Communication (August 15, 2025)
-- **New Hero Text**: "Search 34,000+ Senior Living Communities with Real HUD Pricing • Zero Paywalls" - directly communicates platform scale and transparency
-- **Capability-Focused Sub-Hero**: Four clear value propositions with checkmarks:
-  - Compare verified government pricing & availability
-  - Schedule tours with TourMate™ instant booking
-  - Save favorites & share with family members
-  - Connect with senior services marketplace
-- **Center-Aligned Layout**: All hero content centered with max-w-4xl container for optimal readability
-- **Color Scheme**: Black background with space theme, white main text, red accent text for emphasis
-- **Background Gradient**: Space image fades to black at 66% down from top for seamless transition
-- **Compact Text Sizing**: Reduced from 7xl to 6xl max for better mobile experience
-- **Previous Version 2.2**: Initial attempt at full-width expansion that overlapped mascot
-- **Previous Version 2.1 Updates**: Hero background with gentleman presenter, left-aligned layout to avoid character overlap
-- **Previous Version 2.0 Updates**: Map visual enhancements with subtle gray borders and status lights, footer version tracking
+## Version 2.4 - Hero Layout Reorganization (August 15, 2025)
+- **Layout Rearrangement**: Major repositioning of hero elements for better visual hierarchy:
+  - Search tools (search bar, AI Intelligence button, action buttons) moved to top center position
+  - Hero text and capabilities moved to left side, positioned above valet's hand
+  - HUD badge remains centered with search tools
+- **Left-Side Text Content**: 
+  - Headlines positioned absolutely at left-8 bottom-48
+  - Maintains black/white/red color scheme
+  - Capability statements with checkmarks aligned left
+  - Community count stats and availability indicator below
+- **Top-Center Search Tools**:
+  - Full-width search bar with AI-Powered badge
+  - Dual search method buttons (Traditional & AI Intelligence)
+  - Action buttons for Availability Heatmap and AI Matching Assistant
+  - HUD + Government Sources badge centered below
+- **Preserved Version 2.3 Features**: Hero text "Search 34,000+ Senior Living Communities with Real HUD Pricing • Zero Paywalls" and four capability checkmarks
+- **Background**: Space image with 66% fade to black maintained
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
