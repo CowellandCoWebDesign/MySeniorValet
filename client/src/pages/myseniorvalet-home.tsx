@@ -524,18 +524,20 @@ export default function MySeniorValetHome() {
         
 
         
-        <div className="relative flex flex-col items-start justify-center hero-content min-h-screen px-4 sm:px-6 py-8 md:py-12 mobile-keyboard-safe md:pl-12 lg:pl-16 xl:pl-20">
-          {/* Container maximized to use entire horizontal space */}
-          <div className="w-full max-w-[98%] md:max-w-[95%] lg:max-w-[92%] xl:max-w-[90%]">
-            {/* Left-Aligned Headlines - Expanded to fill available space */}
-            <div className="text-left mb-4 md:mb-6">
-              <div className="space-y-3">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white dark:text-gray-100 leading-tight drop-shadow-2xl tracking-tight">
-                  <span className="block mb-3 hero-text-main">Empowering Families to Find Transparent, Affordable Senior Living and Care</span>
+        <div className="relative flex flex-col items-center justify-center hero-content min-h-screen px-4 sm:px-6 py-8 md:py-12 mobile-keyboard-safe">
+          {/* Container centered with controlled width */}
+          <div className="w-full max-w-4xl text-center">
+            {/* Centered Headlines with black/white/red color scheme */}
+            <div className="mb-6">
+              <div className="space-y-4">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-black leading-tight tracking-tight">
+                  <span className="block text-white drop-shadow-2xl mb-2">Families Deserve</span>
+                  <span className="block text-white drop-shadow-2xl mb-4">the Truth.</span>
+                  <span className="block text-red-500 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl">No Spam.</span>
+                  <span className="block text-red-500 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl">No Hidden Pricing.</span>
                 </h1>
-                <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-white dark:text-gray-200 opacity-95 drop-shadow-lg animate-space-warp font-medium leading-relaxed" style={{ animationDelay: '0.8s' }}>
-                  <span className="block mb-3">Explore trusted senior living communities and connect with services that make life easier.</span>
-                  <span className="block">Transparent pricing, real-time availability, and seamless service integration, all in one place.</span>
+                <h2 className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-blue-100 dark:text-blue-200 opacity-95 drop-shadow-lg font-medium leading-relaxed max-w-3xl mx-auto mt-6">
+                  Explore trusted senior living communities and connect with services that make life easier. Transparent pricing, real-time availability, and seamless service integration, all in one place.
                 </h2>
               </div>
             </div>
