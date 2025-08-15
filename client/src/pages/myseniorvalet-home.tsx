@@ -525,62 +525,67 @@ export default function MySeniorValetHome() {
         
 
         
-        <div className="relative hero-content min-h-screen px-4 sm:px-6 py-4 md:py-6 mobile-keyboard-safe">
-          {/* Main Container - Wider Layout */}
-          <div className="flex flex-col items-center max-w-6xl mx-auto">
+        <div className="relative hero-content min-h-screen px-3 sm:px-4 py-3 md:py-4 mobile-keyboard-safe">
+          {/* Main Container - Maximum Width */}
+          <div className="flex flex-col items-center w-full max-w-full px-2">
             
-            {/* Top Section - Using Full Width */}
-            <div className="w-full mb-3 space-y-2">
+            {/* Top Section - Full Screen Width */}
+            <div className="w-full mb-2 space-y-2" style={{ maxWidth: '100%' }}>
 
-            {/* All 4 Action Buttons in a Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full animate-fade-in-up animation-delay-200">
+            {/* Top Row - Traditional & AI Intelligence (50/50 split) */}
+            <div className="grid grid-cols-2 gap-2 w-full animate-fade-in-up animation-delay-200">
               {/* Traditional Search */}
               <Link href={`/search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="w-full">
-                <Button className="w-full h-auto bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-blue-600 dark:text-blue-400 px-2 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-200 dark:border-gray-600 group">
-                  <div className="flex flex-col items-center">
-                    <Search className="h-4 w-4 mb-0.5" />
-                    <span className="text-xs font-bold">Traditional</span>
-                    <span className="text-[9px] text-gray-500 dark:text-gray-400">Browse • Filter</span>
+                <Button className="w-full h-auto bg-gray-800 hover:bg-gray-700 text-white px-3 py-2.5 rounded-xl font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 border border-gray-600">
+                  <div className="flex items-center justify-center space-x-2">
+                    <Search className="h-4 w-4" />
+                    <div className="text-left">
+                      <div className="text-xs font-bold">Traditional Search</div>
+                      <div className="text-[9px] text-gray-300">Browse • Filter</div>
+                    </div>
                   </div>
                 </Button>
               </Link>
 
               {/* AI Intelligence */}
               <Link href="/ai-search-intelligence" className="w-full">
-                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200 group relative overflow-hidden">
-                  <div className="flex flex-col items-center">
-                    <Sparkles className="h-4 w-4 mb-0.5" />
-                    <span className="text-xs font-bold">AI Intelligence</span>
-                    <span className="text-[9px] text-white/80">Ask Anything</span>
+                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-3 py-2.5 rounded-xl font-medium shadow-lg hover:shadow-xl transform hover:scale-[1.01] transition-all duration-200">
+                  <div className="flex items-center justify-center space-x-2">
+                    <Sparkles className="h-4 w-4" />
+                    <div className="text-left">
+                      <div className="text-xs font-bold">AI Intelligence</div>
+                      <div className="text-[9px] text-white/90">Ask Anything</div>
+                    </div>
                   </div>
                 </Button>
               </Link>
+            </div>
 
+            {/* Bottom Row - Heatmap & AI Matching (full width each) */}
+            <div className="flex flex-col gap-2 w-full animate-fade-in-up animation-delay-300">
               {/* Live Availability Heatmap Button */}
               <Link href="/availability-heatmap" className="w-full">
-                <Button className="w-full h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 px-2 py-2 rounded-lg transform hover:scale-[1.01]">
-                  <div className="flex flex-col items-center">
-                    <Flame className="h-4 w-4 mb-0.5 animate-pulse" />
-                    <span className="text-xs font-bold">Live Heatmap</span>
-                    <span className="text-[9px]">What's Open NOW</span>
+                <Button className="w-full bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 px-3 py-2 rounded-xl transform hover:scale-[1.01]">
+                  <div className="flex items-center justify-center space-x-2">
+                    <Flame className="h-4 w-4 animate-pulse" />
+                    <span className="text-xs">🔥 Live Availability Heatmap - See What's Open NOW!</span>
                   </div>
                 </Button>
               </Link>
 
               {/* AI Matching Assistant Button */}
               <Link href="/ai-matching" className="w-full">
-                <Button className="w-full h-auto bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 px-2 py-2 rounded-lg transform hover:scale-[1.01]">
-                  <div className="flex flex-col items-center">
-                    <Brain className="h-4 w-4 mb-0.5" />
-                    <span className="text-xs font-bold">AI Matching</span>
-                    <span className="text-[9px]">Perfect Community</span>
+                <Button className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-300 px-3 py-2 rounded-xl transform hover:scale-[1.01]">
+                  <div className="flex items-center justify-center space-x-2">
+                    <Brain className="h-4 w-4" />
+                    <span className="text-xs">✨ AI Matching Assistant - Find Your Perfect Community</span>
                   </div>
                 </Button>
               </Link>
             </div>
 
             {/* Search Bar - Full Width */}
-            <div className="w-full mt-3 mb-2 animate-fade-in-up animation-delay-300" style={{ position: 'relative', zIndex: 99999 }}>
+            <div className="w-full mt-2 mb-2 animate-fade-in-up animation-delay-400" style={{ position: 'relative', zIndex: 99999 }}>
               <form onSubmit={(e) => {
                 e.preventDefault();
                 if (searchQuery) {
@@ -600,7 +605,7 @@ export default function MySeniorValetHome() {
                         }}
                         placeholder={t('hero.searchPlaceholder')}
                         hideSearchButton={true}
-                        inputClassName="w-full pl-10 pr-3 py-3 text-sm md:text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                        inputClassName="w-full pl-10 pr-3 py-3 text-sm border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                       />
                     </div>
                     <div className="flex items-center mr-1.5">
@@ -620,8 +625,8 @@ export default function MySeniorValetHome() {
             </div>
 
             {/* Trust Indicators - Below search */}
-            <div className="animate-fade-in-up animation-delay-400 mb-4">
-              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full shadow-md w-fit mx-auto">
+            <div className="animate-fade-in-up animation-delay-500 mb-3">
+              <div className="flex items-center space-x-2 bg-gray-800/80 backdrop-blur-md px-4 py-1.5 rounded-full shadow-md w-fit mx-auto">
                 <Building2 className="h-3.5 w-3.5 text-blue-300" />
                 <span className="text-xs font-semibold text-white">HUD + Government Sources</span>
               </div>
@@ -629,39 +634,39 @@ export default function MySeniorValetHome() {
           </div>
             
             {/* Hero Text Section - Below Search Tools */}
-            <div className="w-full max-w-4xl text-center space-y-3">
-              {/* Headlines - Much Smaller */}
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-tight tracking-tight">
+            <div className="w-full text-center space-y-3">
+              {/* Headlines - Compact */}
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black leading-tight tracking-tight">
                 <span className="block text-white drop-shadow-2xl mb-2">Search 34,000+ Senior Living Communities</span>
                 <span className="block text-red-500 text-base sm:text-lg md:text-xl">With Real HUD Pricing • Zero Paywalls</span>
               </h1>
               
-              {/* Capability Checkmarks - Smaller */}
-              <div className="flex flex-col md:flex-row md:flex-wrap justify-center gap-2 text-white/90 text-xs md:text-sm">
-                <div className="flex items-center gap-1.5">
+              {/* Capability Checkmarks - Two columns on mobile, row on desktop */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-white/90 text-xs max-w-4xl mx-auto">
+                <div className="flex items-center gap-1.5 justify-center sm:justify-start">
                   <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                   <span>Compare verified government pricing & availability</span>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 justify-center sm:justify-start">
                   <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                   <span>Schedule tours with TourMate™ instant booking</span>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 justify-center sm:justify-start">
                   <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                   <span>Save favorites & share with family members</span>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 justify-center sm:justify-start">
                   <CheckCircle className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
                   <span>Connect with senior services marketplace</span>
                 </div>
               </div>
               
-              {/* Stats - Smaller */}
-              <p className="text-blue-100 text-sm md:text-base">
+              {/* Stats */}
+              <p className="text-blue-100 text-sm">
                 Serving families across <span className="font-bold text-white">{(communityStats as any)?.count ? `${(communityStats as any).count.toLocaleString()}+` : '34,922+'}</span> verified senior living communities
               </p>
               
-              {/* Verification Badge - Smaller */}
+              {/* Verification Badge */}
               <div className="flex items-center justify-center gap-1.5 text-green-400">
                 <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
                 <span className="text-xs font-medium">Verified Pricing • Real Availability • No Pressure</span>
