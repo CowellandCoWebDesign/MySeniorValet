@@ -631,32 +631,32 @@ export default function MySeniorValetHome() {
             {/* Content Section */}
             <div className="w-full mb-2 space-y-2">
 
-            {/* Trust Indicators - Below buttons */}
-            <div className="animate-fade-in-up animation-delay-500 mb-3 w-full text-center">
-              <div className="inline-flex flex-wrap items-center justify-center gap-1">
+            {/* Trust Indicators - Below buttons, centered properly */}
+            <div className="animate-fade-in-up animation-delay-500 mb-3 flex justify-center items-center w-full">
+              <div className="flex flex-wrap justify-center items-center gap-1">
                 {/* Government Sources Badge */}
-                <div className="flex items-center space-x-1 bg-gray-800/80 backdrop-blur-md px-2 py-0.5 rounded-full shadow-md whitespace-nowrap">
+                <span className="inline-flex items-center space-x-1 bg-gray-800/80 backdrop-blur-md px-2 py-0.5 rounded-full shadow-md whitespace-nowrap">
                   <Building2 className="h-2.5 w-2.5 text-blue-300 flex-shrink-0" />
                   <span className="text-[9px] font-semibold text-white">HUD+Gov</span>
-                </div>
+                </span>
                 
                 {/* Community Reported Badge */}
-                <div className="flex items-center space-x-1 bg-gray-800/80 backdrop-blur-md px-2 py-0.5 rounded-full shadow-md whitespace-nowrap">
+                <span className="inline-flex items-center space-x-1 bg-gray-800/80 backdrop-blur-md px-2 py-0.5 rounded-full shadow-md whitespace-nowrap">
                   <Users2 className="h-2.5 w-2.5 text-green-300 flex-shrink-0" />
                   <span className="text-[9px] font-semibold text-white">Community</span>
-                </div>
+                </span>
                 
                 {/* AI Orchestration Badge */}
-                <div className="flex items-center space-x-1 bg-gray-800/80 backdrop-blur-md px-2 py-0.5 rounded-full shadow-md whitespace-nowrap">
+                <span className="inline-flex items-center space-x-1 bg-gray-800/80 backdrop-blur-md px-2 py-0.5 rounded-full shadow-md whitespace-nowrap">
                   <Brain className="h-2.5 w-2.5 text-purple-300 animate-pulse flex-shrink-0" />
                   <span className="text-[9px] font-semibold text-white">AI Live</span>
-                </div>
+                </span>
                 
                 {/* AI Orchestra Badge - Attribution to the 3 AIs */}
-                <div className="flex items-center space-x-1 bg-gradient-to-r from-purple-800/80 to-indigo-800/80 backdrop-blur-md px-2 py-0.5 rounded-full shadow-md whitespace-nowrap border border-purple-400/30">
+                <span className="inline-flex items-center space-x-1 bg-gradient-to-r from-purple-800/80 to-indigo-800/80 backdrop-blur-md px-2 py-0.5 rounded-full shadow-md whitespace-nowrap border border-purple-400/30">
                   <Music className="h-2.5 w-2.5 text-yellow-300 animate-pulse flex-shrink-0" />
                   <span className="text-[9px] font-semibold text-white">AI Orchestra</span>
-                </div>
+                </span>
               </div>
             </div>
           </div>
