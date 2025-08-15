@@ -34,6 +34,7 @@ import { AidAndAttendance } from "@/components/AidAndAttendance";
 import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import HospitalCarousel from "@/components/HospitalCarousel";
 import { Footer } from "@/components/footer";
+import { Header } from "@/components/header";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
 import heroBackgroundImage from '@assets/file_00000000715861f6ba1d823cc2455100 (1)_1755292957645.png';
@@ -297,12 +298,12 @@ export default function MySeniorValetHome() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {/* Header - Reduced height */}
-      <header className="absolute top-0 left-0 right-0 z-40 bg-transparent backdrop-blur-sm border-b border-white/10">
-        <div className="px-4 py-2.5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Sheet>
+      {/* Transparent Header Component */}
+      <Header />
+      
+      {/* Removed custom header implementation - using Header component instead */}
+      <div style={{ display: 'none' }}>
+        <Sheet>
                 <SheetTrigger asChild>
                   <button className="p-1.5 bg-gray-200 dark:bg-white/20 rounded-lg shadow-lg hover:bg-gray-300 dark:hover:bg-white/30 transition-colors">
                     <div className="flex flex-col space-y-1">
@@ -510,7 +511,7 @@ export default function MySeniorValetHome() {
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Hero Section with Search */}
       <section className="relative min-h-screen bg-black">
