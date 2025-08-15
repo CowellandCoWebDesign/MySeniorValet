@@ -4,10 +4,12 @@
 MySeniorValet is a technology platform connecting families with publicly available information about over 34,000 senior living communities in the U.S. and Canada. It leverages advanced AI orchestration to gather, organize, and present public information, including verified HUD pricing. The platform's vision is to empower families with authentic, verified data for informed decision-making in senior living, bringing much-needed transparency to the market. It aims to be "The Dawn of Transparency in Senior Living" by providing a complete care spectrum education, real pricing, zero paywalls, and tools for saving and sharing research. It features the fully operational TourMate™ tour scheduling system and includes a One-Touch Emergency Contact Shortcut.
 
 ## Version 2.2 - Recent Changes (August 15, 2025)
+- **Container Width Maximization**: Expanded from 45-55% to 70-85% to fully utilize valuable screen space
 - **Hero Text Expansion**: Increased headline font sizes (up to 7xl) to better utilize available space within boundary
-- **Sub-Hero Enhancement**: Expanded sub-hero text to 2-3xl with full information displayed in separate lines
-- **Button Size Optimization**: Increased button padding and text sizes for better visibility
-- **Trust Indicators Expansion**: Made badges and community count more prominent with larger text
+- **Sub-Hero Enhancement**: Expanded sub-hero text to 4xl maximum with full information displayed in separate lines
+- **Button Layout Redesign**: Horizontal side-by-side layout for action buttons, larger sizes (text-lg) for better visibility
+- **Search Button Enhancement**: Increased padding (px-6 py-3) and icon sizes for Traditional and AI Intelligence buttons
+- **Trust Indicators Expansion**: Made badges significantly larger (text-xl) with increased padding and shadow effects
 - **Previous Version 2.1 Updates**: Hero background with gentleman presenter, left-aligned layout to avoid character overlap
 - **Previous Version 2.0 Updates**: Map visual enhancements with subtle gray borders and status lights, footer version tracking
 
