@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, LayersControl,
 import { Icon, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-providers';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 // Import enhanced Leaflet plugins for senior-friendly features
 import 'leaflet.fullscreen/Control.FullScreen.css';
 import 'leaflet.fullscreen';
@@ -1330,151 +1331,52 @@ export default function Map({
           </div>
         )}
 
-        {/* Supercluster-powered markers and clusters - with zoom-based key for proper re-rendering */}
-        {!isLoading && !error && clusterData?.clusters && (() => {
-          console.log('🎨 RENDERING MAP FEATURES AT ZOOM', Math.round(currentZoom), ':', {
-            totalFeatures: clusterData.clusters.length,
-            currentZoom: currentZoom,
-            roundedZoom: Math.round(currentZoom),
-            isLoading,
-            error,
-            clusters: clusterData.clusters.filter((f: any) => f.properties?.cluster).length,
-            markers: clusterData.clusters.filter((f: any) => !f.properties?.cluster).length,
-            timestamp: Date.now()
-          });
-          return true;
-        })() && clusterData.clusters.map((feature: any, index: number) => {
-          const [lng, lat] = feature.geometry.coordinates;
-          const { properties } = feature;
+        {/* MarkerClusterGroup with proper disableClusteringAtZoom setting */}
+        {!isLoading && !error && clusterData?.clusters && (
+          <MarkerClusterGroup
+            chunkedLoading
+            disableClusteringAtZoom={12} // NO CLUSTERING at city view (zoom 12+)
+            maxClusterRadius={80}
+            spiderfyOnMaxZoom={false}
+            showCoverageOnHover={false}
+            zoomToBoundsOnClick={true}
+            iconCreateFunction={(cluster) => {
+              const count = cluster.getChildCount();
+              const size = Math.min(50 + Math.log10(count) * 10, 80);
+              
+              return new Icon({
+                iconUrl: `data:image/svg+xml;base64,${btoa(`
+                  <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+                    <defs>
+                      <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="1" dy="1.5" stdDeviation="2" flood-color="rgba(0,0,0,0.35)"/>
+                      </filter>
+                    </defs>
+                    <circle cx="${size/2}" cy="${size/2}" r="${size/2 - 4}" fill="#1e40af" stroke="#1e3a8a" stroke-width="5" filter="url(#shadow)"/>
+                    <text x="${size/2}" y="${size/2 + 5}" text-anchor="middle" fill="#fff" font-size="${Math.min(18, size/2.8)}" font-weight="bold" font-family="Arial, sans-serif">
+                      ${count}
+                    </text>
+                  </svg>
+                `)}`,
+                iconSize: [size, size],
+                iconAnchor: [size/2, size/2],
+                popupAnchor: [0, -size/2],
+                className: 'cluster-marker'
+              });
+            }}
+          >
+            {clusterData.clusters.map((feature: any, index: number) => {
+              const [lng, lat] = feature.geometry.coordinates;
+              const { properties } = feature;
 
-          // Handle cluster markers (multiple communities)
-          if (properties.cluster) {
-            // Enhanced cluster icon with better styling
-            const size = Math.min(50 + Math.log10(properties.point_count || 1) * 10, 80);
-            const isHovered = hoveredCluster === properties.cluster_id;
-            const clusterColor = isHovered ? '#3b82f6' : '#1e40af';
-            const strokeColor = isHovered ? '#1d4ed8' : '#1e3a8a';
+              // Skip clusters that backend sends - we're handling clustering on frontend now
+              if (properties.cluster) {
+                return null;
+              }
 
-            const clusterIcon = new Icon({
-              iconUrl: `data:image/svg+xml;base64,${btoa(`
-                <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-                  <defs>
-                    <filter id="shadow${Date.now()}" x="-20%" y="-20%" width="140%" height="140%">
-                      <feDropShadow dx="1" dy="1.5" stdDeviation="2" flood-color="rgba(0,0,0,0.35)"/>
-                    </filter>
-                  </defs>
-                  <circle cx="${size/2}" cy="${size/2}" r="${size/2 - 4}" fill="${clusterColor}" stroke="${strokeColor}" stroke-width="5" filter="url(#shadow${Date.now()})"/>
-                  <text x="${size/2}" y="${size/2 + 5}" text-anchor="middle" fill="#fff" font-size="${Math.min(18, size/2.8)}" font-weight="bold" font-family="Arial, sans-serif">
-                    ${properties.point_count_abbreviated}
-                  </text>
-                </svg>
-              `)}`,
-              iconSize: [size, size],
-              iconAnchor: [size/2, size/2],
-              popupAnchor: [0, -size/2],
-              className: `cluster-marker cluster-marker-${properties.cluster_id}`
-            });
-
-            return (
-              <Marker
-                key={`cluster-${properties.cluster_id}-zoom-${Math.round(currentZoom)}`}
-                position={[lat, lng]}
-                icon={clusterIcon}
-                eventHandlers={{
-                  mouseover: (e) => {
-                    try {
-                      if (e && e.target && e.target._icon) {
-                        setHoveredCluster(properties.cluster_id);
-                      }
-                    } catch (error) {
-                      console.warn('Cluster mouseover error:', error);
-                    }
-                  },
-                  mouseout: (e) => {
-                    try {
-                      if (e && e.target && e.target._icon) {
-                        setHoveredCluster(null);
-                      }
-                    } catch (error) {
-                      console.warn('Cluster mouseout error:', error);
-                    }
-                  },
-                  click: (e) => {
-                    try {
-                      if (e && e.originalEvent) {
-                        e.originalEvent.stopPropagation();
-                        e.originalEvent.preventDefault();
-                      }
-
-                      if (!mapInstance || !e.target || !e.target._icon) {
-                        console.warn('Map instance or marker not available');
-                        return;
-                      }
-
-                      console.log('🎯 Cluster clicked:', {
-                        clusterId: properties.cluster_id,
-                        pointCount: properties.point_count,
-                        currentZoom,
-                        coordinates: [lat, lng]
-                      });
-
-                      // More aggressive zoom for better expansion
-                      const zoomIncrement = properties.point_count > 1000 ? 3 : 
-                                          properties.point_count > 100 ? 4 : 
-                                          properties.point_count > 50 ? 5 : 6;
-                      const newZoom = Math.min(currentZoom + zoomIncrement, 18);
-
-                      console.log('🔍 Zooming from', currentZoom, 'to', newZoom);
-
-                      // Update state immediately for responsiveness
-                      setCurrentZoom(newZoom);
-                      
-                      // Smooth fly animation
-                      mapInstance.flyTo([lat, lng], newZoom, {
-                        animate: true,
-                        duration: 0.6,
-                        easeLinearity: 0.1
-                      });
-
-                      // Force bounds update after animation
-                      setTimeout(() => {
-                        if (mapInstance && mapInstance.getBounds) {
-                          const newBounds = mapInstance.getBounds();
-                          console.log('🗺️ Updating bounds after cluster expansion');
-                          handleBoundsChange(newBounds);
-                        }
-                      }, 700);
-
-                      // Call cluster click handler if provided
-                      if (onClusterClick) {
-                        onClusterClick(properties.cluster_id, lat, lng, newZoom);
-                      }
-                    } catch (error) {
-                      console.warn('Cluster click error:', error);
-                    }
-                  }
-                }}
-              >
-                {/* Enhanced cluster tooltip */}
-                {isHovered && (
-                  <Tooltip permanent direction="top" offset={[0, -10]} className="cluster-tooltip">
-                    <div className="bg-blue-900/95 backdrop-blur-sm rounded-lg p-2 shadow-lg border border-blue-400">
-                      <div className="font-semibold text-sm text-white">
-                        {properties.point_count} Communities
-                      </div>
-                      <div className="text-xs text-blue-200">
-                        Click to expand
-                      </div>
-                    </div>
-                  </Tooltip>
-                )}
-              </Marker>
-            );
-          }
-
-          // Handle individual community markers with enhanced styling
-          const community: Community = {
-            id: properties.id,
+              // Handle individual community markers with enhanced styling
+              const community: Community = {
+                id: properties.id,
             name: properties.name,
             address: properties.address,
             city: properties.city,
@@ -1497,11 +1399,11 @@ export default function Map({
             rentPerMonth: properties.rentPerMonth
           };
 
-          const isHovered = hoveredCommunity === community.id;
-          const communityIcon = getIconForCommunity(community, isHovered, false);
+              const isHovered = hoveredCommunity === community.id;
+              const communityIcon = getIconForCommunity(community, isHovered, false);
 
-          return (
-            <Marker
+              return (
+                <Marker
               key={`community-${properties.id}-zoom-${Math.round(currentZoom)}`}
               position={[lat, lng]}
               icon={communityIcon}
@@ -1602,10 +1504,12 @@ export default function Map({
                     isFavorite={favorites.has(community.id)}
                   />
                 </div>
-              </Popup>
-            </Marker>
-          );
-        }) || []}
+                  </Popup>
+                </Marker>
+              );
+            })}
+          </MarkerClusterGroup>
+        )}
 
         {/* Hospital markers - show alongside communities */}
         {!isLoading && hospitalsData?.hospitals && currentZoom >= 8 && hospitalsData.hospitals.map((hospital: any, index: number) => {
