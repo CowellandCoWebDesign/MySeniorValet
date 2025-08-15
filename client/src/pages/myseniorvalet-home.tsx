@@ -521,7 +521,8 @@ export default function MySeniorValetHome() {
             className="w-full h-full object-contain sm:object-cover object-center sm:object-right"
             loading="eager"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-66% to-black"></div>
+          {/* Minimal darkening only at the very bottom for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-90% to-black/30"></div>
         </div>
         
 
