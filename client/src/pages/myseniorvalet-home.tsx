@@ -669,13 +669,6 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Personalized Banner */}
-      <div className="px-4 py-6 bg-gradient-to-r from-blue-50 to-gray-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <PersonalizedBanner />
-        </div>
-      </div>
-
       {/* TODAY, EVERYTHING CHANGES - Historic Launch Message */}
       <section className="px-4 py-16 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-blue-600/10"></div>
@@ -927,6 +920,13 @@ export default function MySeniorValetHome() {
           </Card>
         </div>
       </section>
+
+      {/* Personalized Banner */}
+      <div className="px-4 py-6 bg-gradient-to-r from-blue-50 to-gray-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <PersonalizedBanner />
+        </div>
+      </div>
 
       {/* Senior Living Command Center with Integrated Marketplace */}
       <section className="relative overflow-hidden">
