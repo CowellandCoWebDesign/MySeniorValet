@@ -14,15 +14,15 @@ interface GeoJSONFeature {
     city: string;
     state: string;
     zipCode: string;
-    phone: string;
-    website: string;
-    priceRange: string;
-    availability: string;
-    rating: number;
+    phone: string | null;
+    website: string | null;
+    priceRange: string | null;
+    availability?: string;
+    rating: number | null;
     reviewCount: number;
     careTypes: string[];
     photos: string[];
-    description: string;
+    description: string | null;
   };
 }
 
@@ -72,7 +72,7 @@ class SuperclusterService {
     // Optimized for 35,000+ points across North America
     this.index = new Supercluster({
       radius: 120,        // Large radius for aggressive clustering at country level
-      maxZoom: 16,        // Stop clustering at zoom 16 (street level)
+      maxZoom: 11,        // Stop clustering at zoom 11 - NO CLUSTERING at city view (zoom 12+)
       minZoom: 0,         // Start clustering from zoom 0
       minPoints: 2,       // Minimum 2 points to form a cluster
       extent: 512,        // Tile extent (standard)
