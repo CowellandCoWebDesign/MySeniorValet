@@ -37,7 +37,7 @@ const languages = [
     name: 'Español', 
     flag: '🇲🇽',
     regions: ['México', 'Latin America'],
-    coverage: '832 comunidades'
+    coverage: '1,155 comunidades'
   }
 ];
 
