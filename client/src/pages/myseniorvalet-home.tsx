@@ -759,44 +759,26 @@ export default function MySeniorValetHome() {
       <section className="px-4 py-16 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-blue-600/10"></div>
         <div className="max-w-6xl mx-auto text-center relative">
-          {/* Animated Lamp Illumination */}
-          <div className="mb-8 relative">
-            {/* Light Rays Animation */}
-            <div className="absolute inset-0 flex justify-center items-start -top-10">
-              <div className="relative">
-                {/* Light beams emanating from lamp */}
-                <div className="absolute inset-0 flex justify-center">
-                  <div className="w-96 h-96 animate-pulse-glow">
-                    <div className="absolute inset-0 bg-gradient-to-t from-yellow-400/30 via-yellow-300/20 to-transparent blur-3xl transform scale-150"></div>
+          {/* Elegant Lamp Animation */}
+          <div className="mb-12 relative">
+            {/* Beautiful light source */}
+            <div className="absolute inset-0 flex justify-center items-start -top-20">
+              <div className="lamp-container">
+                {/* Radiant light effect */}
+                <div className="lamp-light-rays"></div>
+                
+                {/* Professional lamp design */}
+                <div className="lamp-fixture">
+                  <div className="lamp-shade"></div>
+                  <div className="lamp-bulb">
+                    <div className="lamp-filament"></div>
                   </div>
-                </div>
-                {/* Additional light rays */}
-                <div className="absolute inset-0 flex justify-center">
-                  <div className="w-64 h-64 animate-spin-slow">
-                    <div className="absolute top-0 left-1/2 w-1 h-32 bg-gradient-to-t from-yellow-400/40 to-transparent -translate-x-1/2 blur-sm"></div>
-                    <div className="absolute top-0 left-1/2 w-1 h-32 bg-gradient-to-t from-yellow-400/40 to-transparent -translate-x-1/2 rotate-45 blur-sm"></div>
-                    <div className="absolute top-0 left-1/2 w-1 h-32 bg-gradient-to-t from-yellow-400/40 to-transparent -translate-x-1/2 rotate-90 blur-sm"></div>
-                    <div className="absolute top-0 left-1/2 w-1 h-32 bg-gradient-to-t from-yellow-400/40 to-transparent -translate-x-1/2 -rotate-45 blur-sm"></div>
-                  </div>
-                </div>
-                {/* Lamp Icon */}
-                <div className="relative z-10 inline-flex items-center justify-center">
-                  <div className="relative">
-                    {/* Lamp glow effect */}
-                    <div className="absolute inset-0 bg-yellow-400 rounded-full blur-xl animate-pulse-bright opacity-70"></div>
-                    {/* Lamp bulb */}
-                    <div className="relative bg-gradient-to-b from-yellow-300 to-yellow-500 rounded-t-full rounded-b-lg w-20 h-24 flex items-center justify-center shadow-2xl animate-flicker">
-                      {/* Inner filament */}
-                      <div className="w-2 h-8 bg-orange-400 rounded-full opacity-80"></div>
-                      {/* Lamp base */}
-                      <div className="absolute -bottom-2 w-16 h-4 bg-gray-700 rounded-b-lg"></div>
-                    </div>
-                  </div>
+                  <div className="lamp-base"></div>
                 </div>
               </div>
             </div>
             
-            <div className="relative z-20 pt-32">
+            <div className="relative z-20 pt-40">
               <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-base font-bold shadow-2xl mb-6 animate-pulse">
                 <Sparkles className="w-5 h-5 mr-2" />
                 NOW LIVE ACROSS 🇺🇸 USA • 🇲🇽 MEXICO • 🇨🇦 CANADA
