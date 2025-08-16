@@ -90,145 +90,186 @@ export function NavigationHeader({
                   <Accessibility className="w-6 h-6 text-gray-700 dark:text-gray-300" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[400px] sm:w-[540px]">
-                <SheetHeader>
-                  <SheetTitle className="flex items-center gap-2">
-                    <Accessibility className="w-5 h-5" />
-                    Accessibility Options
+              <SheetContent side="left" className="w-[400px] sm:w-[540px] overflow-y-auto">
+                <SheetHeader className="sticky top-0 bg-white dark:bg-gray-900 pb-4 border-b">
+                  <SheetTitle className="flex items-center gap-3 text-xl">
+                    <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+                      <Accessibility className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <span className="font-bold">Accessibility Settings</span>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 font-normal mt-1">
+                        Customize your viewing experience
+                      </p>
+                    </div>
                   </SheetTitle>
                 </SheetHeader>
                 
-                <div className="mt-6 space-y-6">
+                <div className="mt-6 space-y-4 pb-6">
                   {/* Emergency Button Toggle */}
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="emergency-toggle" className="text-base font-medium">
-                        <Phone className="inline w-4 h-4 mr-2" />
-                        Emergency Button
-                      </Label>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Show floating emergency contact button
-                      </p>
+                  <div className="group p-4 rounded-xl bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20 border border-red-200 dark:border-red-800 hover:shadow-md transition-all">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <Label htmlFor="emergency-toggle" className="text-base font-semibold flex items-center">
+                          <div className="p-1.5 bg-red-500 rounded-lg mr-3">
+                            <Phone className="w-4 h-4 text-white" />
+                          </div>
+                          Emergency Button
+                        </Label>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 ml-10">
+                          Quick access to emergency contacts
+                        </p>
+                      </div>
+                      <Switch
+                        id="emergency-toggle"
+                        checked={preferences.emergencyButton}
+                        onCheckedChange={() => togglePreference('emergencyButton')}
+                        className="data-[state=checked]:bg-red-500"
+                      />
                     </div>
-                    <Switch
-                      id="emergency-toggle"
-                      checked={preferences.emergencyButton}
-                      onCheckedChange={() => togglePreference('emergencyButton')}
-                    />
                   </div>
-                  
-                  <Separator />
                   
                   {/* Voice Guidance Toggle */}
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="voice-toggle" className="text-base font-medium">
-                        <Volume2 className="inline w-4 h-4 mr-2" />
-                        Voice Guidance
-                      </Label>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Enable screen reader and voice commands
-                      </p>
+                  <div className="group p-4 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border border-blue-200 dark:border-blue-800 hover:shadow-md transition-all">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <Label htmlFor="voice-toggle" className="text-base font-semibold flex items-center">
+                          <div className="p-1.5 bg-blue-500 rounded-lg mr-3">
+                            <Volume2 className="w-4 h-4 text-white" />
+                          </div>
+                          Voice Guidance
+                        </Label>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 ml-10">
+                          Screen reader and voice commands
+                        </p>
+                      </div>
+                      <Switch
+                        id="voice-toggle"
+                        checked={preferences.voiceGuidance}
+                        onCheckedChange={() => {
+                          togglePreference('voiceGuidance');
+                          // Toggle the voice guidance context if available
+                          const voiceButton = document.querySelector('[aria-label*="voice guidance"]');
+                          if (voiceButton && voiceButton instanceof HTMLElement) {
+                            voiceButton.click();
+                          }
+                        }}
+                        className="data-[state=checked]:bg-blue-500"
+                      />
                     </div>
-                    <Switch
-                      id="voice-toggle"
-                      checked={preferences.voiceGuidance}
-                      onCheckedChange={() => {
-                        togglePreference('voiceGuidance');
-                        // Toggle the voice guidance context if available
-                        const voiceButton = document.querySelector('[aria-label*="voice guidance"]');
-                        if (voiceButton && voiceButton instanceof HTMLElement) {
-                          voiceButton.click();
-                        }
-                      }}
-                    />
                   </div>
-                  
-                  <Separator />
                   
                   {/* High Contrast Toggle */}
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="contrast-toggle" className="text-base font-medium">
-                        <Contrast className="inline w-4 h-4 mr-2" />
-                        High Contrast
-                      </Label>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Increase color contrast for better visibility
-                      </p>
+                  <div className="group p-4 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border border-purple-200 dark:border-purple-800 hover:shadow-md transition-all">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <Label htmlFor="contrast-toggle" className="text-base font-semibold flex items-center">
+                          <div className="p-1.5 bg-purple-500 rounded-lg mr-3">
+                            <Contrast className="w-4 h-4 text-white" />
+                          </div>
+                          High Contrast
+                        </Label>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 ml-10">
+                          Enhanced visibility for better reading
+                        </p>
+                      </div>
+                      <Switch
+                        id="contrast-toggle"
+                        checked={preferences.highContrast}
+                        onCheckedChange={() => togglePreference('highContrast')}
+                        className="data-[state=checked]:bg-purple-500"
+                      />
                     </div>
-                    <Switch
-                      id="contrast-toggle"
-                      checked={preferences.highContrast}
-                      onCheckedChange={() => togglePreference('highContrast')}
-                    />
                   </div>
-                  
-                  <Separator />
                   
                   {/* Large Text Toggle */}
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="text-toggle" className="text-base font-medium">
-                        <ZoomIn className="inline w-4 h-4 mr-2" />
-                        Large Text
-                      </Label>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Increase text size for easier reading
-                      </p>
+                  <div className="group p-4 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-200 dark:border-green-800 hover:shadow-md transition-all">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <Label htmlFor="text-toggle" className="text-base font-semibold flex items-center">
+                          <div className="p-1.5 bg-green-500 rounded-lg mr-3">
+                            <ZoomIn className="w-4 h-4 text-white" />
+                          </div>
+                          Large Text
+                        </Label>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 ml-10">
+                          Bigger text for easier reading
+                        </p>
+                      </div>
+                      <Switch
+                        id="text-toggle"
+                        checked={preferences.largeText}
+                        onCheckedChange={() => togglePreference('largeText')}
+                        className="data-[state=checked]:bg-green-500"
+                      />
                     </div>
-                    <Switch
-                      id="text-toggle"
-                      checked={preferences.largeText}
-                      onCheckedChange={() => togglePreference('largeText')}
-                    />
                   </div>
-                  
-                  <Separator />
                   
                   {/* Reduced Motion Toggle */}
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="motion-toggle" className="text-base font-medium">
-                        <Move className="inline w-4 h-4 mr-2" />
-                        Reduced Motion
-                      </Label>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Minimize animations and transitions
-                      </p>
+                  <div className="group p-4 rounded-xl bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 border border-amber-200 dark:border-amber-800 hover:shadow-md transition-all">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <Label htmlFor="motion-toggle" className="text-base font-semibold flex items-center">
+                          <div className="p-1.5 bg-amber-500 rounded-lg mr-3">
+                            <Move className="w-4 h-4 text-white" />
+                          </div>
+                          Reduced Motion
+                        </Label>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 ml-10">
+                          Minimize animations for comfort
+                        </p>
+                      </div>
+                      <Switch
+                        id="motion-toggle"
+                        checked={preferences.reducedMotion}
+                        onCheckedChange={() => togglePreference('reducedMotion')}
+                        className="data-[state=checked]:bg-amber-500"
+                      />
                     </div>
-                    <Switch
-                      id="motion-toggle"
-                      checked={preferences.reducedMotion}
-                      onCheckedChange={() => togglePreference('reducedMotion')}
-                    />
                   </div>
                   
-                  <Separator />
-                  
                   {/* Keyboard Shortcuts Info */}
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                    <h3 className="font-medium mb-2">Keyboard Shortcuts</h3>
-                    <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                      <li>• <kbd>Alt</kbd> + <kbd>V</kbd> - Toggle voice guidance</li>
-                      <li>• <kbd>Alt</kbd> + <kbd>R</kbd> - Read page content</li>
-                      <li>• <kbd>Alt</kbd> + <kbd>S</kbd> - Stop speaking</li>
-                      <li>• <kbd>Alt</kbd> + <kbd>L</kbd> - Voice commands</li>
-                      <li>• <kbd>Alt</kbd> + <kbd>H</kbd> - Help</li>
-                      <li>• <kbd>Tab</kbd> - Navigate through elements</li>
-                      <li>• <kbd>Enter</kbd> - Activate buttons/links</li>
-                    </ul>
+                  <div className="bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-900 dark:to-slate-900 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+                    <h3 className="font-semibold text-lg mb-3 flex items-center">
+                      <div className="p-1.5 bg-gray-600 rounded-lg mr-2">
+                        <Settings className="w-4 h-4 text-white" />
+                      </div>
+                      Keyboard Shortcuts
+                    </h3>
+                    <div className="grid grid-cols-1 gap-2">
+                      {[
+                        ['Alt + V', 'Toggle voice guidance'],
+                        ['Alt + R', 'Read page content'],
+                        ['Alt + S', 'Stop speaking'],
+                        ['Alt + L', 'Voice commands'],
+                        ['Alt + H', 'Help'],
+                        ['Tab', 'Navigate elements'],
+                        ['Enter', 'Activate selection']
+                      ].map(([keys, desc]) => (
+                        <div key={keys} className="flex items-center justify-between py-1">
+                          <kbd className="px-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-xs font-mono">
+                            {keys}
+                          </kbd>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">{desc}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   
                   {/* Help Section */}
-                  <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-4">
-                    <h3 className="font-medium mb-2">Need Help?</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      Our platform is designed to be accessible for all users. If you need assistance:
+                  <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl p-5 text-white">
+                    <h3 className="font-semibold text-lg mb-2 flex items-center">
+                      <div className="p-1.5 bg-white/20 rounded-lg mr-2">
+                        <Phone className="w-4 h-4" />
+                      </div>
+                      Need Assistance?
+                    </h3>
+                    <p className="text-sm text-blue-50 mb-4">
+                      Our support team is ready to help you with any accessibility needs.
                     </p>
                     <Button 
-                      variant="outline" 
-                      className="w-full"
+                      variant="secondary" 
+                      className="w-full bg-white text-blue-600 hover:bg-blue-50 font-semibold"
                       onClick={() => window.open('tel:1-800-222-1222', '_blank')}
                     >
                       <Phone className="w-4 h-4 mr-2" />
