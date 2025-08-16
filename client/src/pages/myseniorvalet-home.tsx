@@ -524,7 +524,8 @@ export default function MySeniorValetHome() {
           <img
             src={heroBackgroundImage}
             alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
-            className="w-full h-full object-contain sm:object-cover object-center sm:object-right"
+            className="w-full h-full object-contain"
+            style={{ transform: 'scale(0.6)' }}
             loading="eager"
           />
           {/* Minimal darkening only at the very bottom for text readability */}
