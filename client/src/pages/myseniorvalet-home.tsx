@@ -37,7 +37,7 @@ import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
 import heroBackgroundImage from '@assets/file_00000000715861f6ba1d823cc2455100 (1)_1755292957645.png';
-import lighthouseBackground from '@assets/lighthouse-background.png';
+import lighthouseBackground from '@assets/file_00000000f554622f979774949c6d60bd_1755365135902.png';
 import { EmergencyButton } from "@/components/EmergencyButton";
 
 
