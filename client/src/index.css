@@ -1994,8 +1994,8 @@ body {
 /* Lighthouse Beacon Animation - 3D Effect */
 .lighthouse-beacon {
   position: absolute;
-  top: 24%;  /* Position at lighthouse lantern */
-  left: 26%;  /* Align with lantern center */
+  top: 38%;  /* Position at lighthouse lantern for smaller image */
+  left: 48%;  /* Center for smaller lighthouse */
   width: 1px;
   height: 1px;
   pointer-events: none;
@@ -2115,76 +2115,5 @@ body {
       0 0 30px white,
       0 0 60px rgba(255, 255, 200, 0.9),
       0 0 100px rgba(255, 255, 200, 0.7);
-  }
-}
-
-/* 3D Lighthouse Video Container */
-.lighthouse-3d-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.lighthouse-3d-video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-}
-
-/* Overlay beacon effects */
-.beacon-overlay {
-  position: absolute;
-  top: 30%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 200px;
-  height: 200px;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.beacon-glow {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 200, 0.3) 0%,
-    rgba(255, 255, 200, 0.1) 40%,
-    transparent 70%
-  );
-  animation: glow-pulse 3s ease-in-out infinite;
-}
-
-.beacon-pulse {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60px;
-  height: 60px;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 200, 0.8) 0%,
-    rgba(255, 255, 200, 0.4) 50%,
-    transparent 100%
-  );
-  border-radius: 50%;
-  animation: beacon-pulse 2s ease-in-out infinite;
-}
-
-@keyframes glow-pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 1;
   }
 }
