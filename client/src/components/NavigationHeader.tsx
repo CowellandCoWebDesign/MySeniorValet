@@ -90,8 +90,8 @@ export function NavigationHeader({
                   <Accessibility className="w-6 h-6 text-gray-700 dark:text-gray-300" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[400px] sm:w-[540px] overflow-y-auto">
-                <SheetHeader className="sticky top-0 bg-white dark:bg-gray-900 pb-4 border-b">
+              <SheetContent side="left" className="w-[400px] sm:w-[540px] flex flex-col h-full">
+                <SheetHeader className="flex-shrink-0 pb-4 border-b">
                   <SheetTitle className="flex items-center gap-3 text-xl">
                     <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
                       <Accessibility className="w-6 h-6 text-white" />
@@ -105,7 +105,7 @@ export function NavigationHeader({
                   </SheetTitle>
                 </SheetHeader>
                 
-                <div className="mt-6 space-y-4 pb-6">
+                <div className="sheet-scroll-container flex-1 overflow-y-auto mt-6 space-y-4 pb-6 px-4" style={{ maxHeight: 'calc(100vh - 150px)' }}>
                   {/* Emergency Button Toggle */}
                   <div className="group p-4 rounded-xl bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20 border border-red-200 dark:border-red-800 hover:shadow-md transition-all">
                     <div className="flex items-center justify-between">
