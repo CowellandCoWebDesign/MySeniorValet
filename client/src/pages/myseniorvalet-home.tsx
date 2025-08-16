@@ -529,22 +529,6 @@ export default function MySeniorValetHome() {
         
         <div className="relative hero-content min-h-screen pt-12 sm:pt-16 md:pt-20 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col">
           
-          {/* Hero Text Section - Full Width Above Buttons */}
-          <div className="w-full px-2 sm:px-3 md:px-4 mb-3 animate-fade-in-up text-center">
-            {/* Headlines */}
-            <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-black leading-tight tracking-tight mb-2">
-              <span className="block text-white drop-shadow-2xl text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2">Welcome Home! 🏡</span>
-              <span className="block text-white drop-shadow-2xl text-lg sm:text-xl md:text-2xl lg:text-3xl mb-1">Your Journey to Perfect Senior Living Starts Here</span>
-              <span className="block text-red-500 text-xs sm:text-sm md:text-base font-bold">34,000+ Communities • Real HUD Pricing • Zero Paywalls</span>
-            </h1>
-            
-            {/* Verification Badge */}
-            <div className="flex items-center justify-center gap-1.5 text-green-400 mb-3">
-              <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-xs sm:text-sm font-bold">Trusted by Thousands of Families • Government Data • Complete Transparency</span>
-            </div>
-          </div>
-          
           {/* All Action Buttons - Compact Horizontal Layout - Full Screen Width */}
           <div className="w-full px-2 sm:px-3 md:px-4 mb-2 animate-fade-in-up animation-delay-100">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
@@ -677,8 +661,20 @@ export default function MySeniorValetHome() {
           {/* Main Container - Constrained to Left 55% on mobile to avoid mascot - Bottom Aligned */}
           <div className="flex flex-col items-start w-full max-w-full px-2 sm:px-3 md:px-4 mt-auto pb-8 sm:pb-12 md:pb-16" style={{ paddingRight: '45%' }}>
             
-            {/* Capability Checkmarks Section - Constrained to Left Side */}
+            {/* Hero Text Section - Constrained to Left Side */}
             <div className="w-full mr-auto ml-0 text-center sm:text-left space-y-2 sm:space-y-3 px-1 sm:px-2">
+              {/* Headlines - Further reduced text sizes */}
+              <h1 className="text-sm sm:text-lg md:text-xl lg:text-2xl font-black leading-tight tracking-tight">
+                <span className="block text-white drop-shadow-2xl">Search 34,000+ Senior Living</span>
+                <span className="block text-white drop-shadow-2xl mb-0.5 sm:mb-1">Communities</span>
+                <span className="block text-red-500 text-[10px] sm:text-xs md:text-sm font-bold">With Real HUD Pricing • Zero Paywalls</span>
+              </h1>
+              
+              {/* Verification Badge - Smaller on mobile */}
+              <div className="flex items-center justify-start gap-1 sm:gap-1.5 text-green-400 mt-1.5 sm:mt-2 mb-1.5 sm:mb-2">
+                <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-[10px] sm:text-xs font-bold">Verified Pricing • Real Availability • No Pressure</span>
+              </div>
               
               {/* Capability Checkmarks - Enhanced differentiation with backgrounds */}
               <div className="flex flex-col gap-1 sm:gap-1.5">
