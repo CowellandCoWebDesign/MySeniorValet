@@ -524,8 +524,7 @@ export default function MySeniorValetHome() {
           <img
             src={heroBackgroundImage}
             alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
-            className="w-full h-full object-contain"
-            style={{ transform: 'scale(0.6)' }}
+            className="w-full h-full object-contain sm:object-cover object-center sm:object-right"
             loading="eager"
           />
           {/* Minimal darkening only at the very bottom for text readability */}
@@ -763,8 +762,8 @@ export default function MySeniorValetHome() {
         style={{
           backgroundImage: `url('/lighthouse-image.png?v=2')`,
           backgroundColor: '#1a2332',
-          backgroundSize: '40% auto',
-          backgroundPosition: 'center center',
+          backgroundSize: '100% auto',
+          backgroundPosition: 'center bottom',
           backgroundRepeat: 'no-repeat'
         }}
       >
