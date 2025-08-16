@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
 import { useState, useEffect } from "react";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 interface NavigationHeaderProps {
   title?: string;
@@ -309,6 +310,7 @@ export function NavigationHeader({
           </div>
 
           <div className="flex items-center space-x-2">
+            <LanguageSwitcher variant="dropdown" />
             <VoiceGuidanceButton />
             {isAuthenticated && (
               <Link href="/dashboard?tab=messages">
