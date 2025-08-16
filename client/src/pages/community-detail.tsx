@@ -1224,6 +1224,17 @@ export default function CommunityDetail() {
                       <Phone className="w-4 h-4 mr-1" />
                       <span className="font-medium">{community.phone || generatePhoneNumber(community.state, community.id)}</span>
                     </div>
+                    {/* Data Source Badge - Prominent display */}
+                    {(community as any).data_source && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline" className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+                          <CheckCircle className="w-3 h-3 mr-1 text-green-600 dark:text-green-400" />
+                          <span className="text-xs font-medium text-green-700 dark:text-green-300">
+                            Data Source: {(community as any).data_source}
+                          </span>
+                        </Badge>
+                      </div>
+                    )}
                     <div className="flex items-center gap-4 mb-4">
                       <div className="flex items-center">
                         <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
@@ -1505,9 +1516,16 @@ export default function CommunityDetail() {
                         </span>
                       </div>
 
-                      {/* Data Source */}
+                      {/* Data Source - Display actual verified data_source field */}
                       <div className="flex items-center gap-2">
-                        {community.hudPropertyId ? (
+                        {(community as any).data_source ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">Verified Source:</span> {(community as any).data_source}
+                            </span>
+                          </>
+                        ) : community.hudPropertyId ? (
                           <>
                             <CheckCircle className="w-4 h-4 text-green-500" />
                             <span className="text-sm text-gray-700 dark:text-gray-300">
