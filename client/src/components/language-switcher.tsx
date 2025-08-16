@@ -23,21 +23,21 @@ const languages = [
     name: 'English', 
     flag: '🇺🇸',
     regions: ['USA', 'Canada (EN)'],
-    coverage: '35,022 communities'
+    coverage: '42,407 communities'
   },
   { 
     code: 'fr', 
     name: 'Français', 
     flag: '🇨🇦',
     regions: ['Québec', 'Canada (FR)'],
-    coverage: '1,528 communautés'
+    coverage: '7,875 communautés'
   },
   { 
     code: 'es', 
     name: 'Español', 
     flag: '🇲🇽',
     regions: ['México', 'Latin America'],
-    coverage: '313 comunidades'
+    coverage: '453 comunidades'
   }
 ];
 
