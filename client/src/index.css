@@ -428,6 +428,55 @@ body {
   box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
 }
 
+/* Accessibility Styles */
+.high-contrast {
+  filter: contrast(1.5) !important;
+}
+
+.high-contrast * {
+  border-width: 2px !important;
+}
+
+.large-text {
+  font-size: 125% !important;
+}
+
+.large-text h1 {
+  font-size: 2.5rem !important;
+}
+
+.large-text h2 {
+  font-size: 2rem !important;
+}
+
+.large-text h3 {
+  font-size: 1.75rem !important;
+}
+
+.large-text p,
+.large-text span,
+.large-text li {
+  font-size: 1.125rem !important;
+}
+
+.reduced-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+.reduced-motion .animate-pulse {
+  animation: none !important;
+}
+
+.reduced-motion .animate-bounce {
+  animation: none !important;
+}
+
+.reduced-motion .animate-spin {
+  animation: none !important;
+}
+
 :root {
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(222, 47%, 11%);

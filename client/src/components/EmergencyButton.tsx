@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
 
 interface EmergencyContact {
   id: number;
@@ -41,6 +42,12 @@ export function EmergencyButton({ userId }: { userId?: string }) {
   const [loading, setLoading] = useState(false);
   const [pulseAnimation, setPulseAnimation] = useState(true);
   const { toast } = useToast();
+  const { preferences } = useAccessibilityPreferences();
+  
+  // Don't render if emergency button is disabled in accessibility preferences
+  if (!preferences.emergencyButton) {
+    return null;
+  }
 
   const fetchQuickDialData = async () => {
     // Allow opening even without userId to show emergency numbers
