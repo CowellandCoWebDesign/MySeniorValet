@@ -317,8 +317,8 @@ export default function MySeniorValetHome() {
                     </div>
                   </button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-80">
-                  <div className="flex flex-col space-y-6 mt-8">
+                <SheetContent side="left" className="w-80 h-full flex flex-col">
+                  <div className="flex flex-col space-y-6 mt-8 overflow-y-auto pb-6" style={{ maxHeight: 'calc(100vh - 80px)' }}>
                     <div className="flex items-center space-x-3 pb-4 border-b border-gray-200 dark:border-gray-700">
                       <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                         <Home className="text-white h-5 w-5" />
