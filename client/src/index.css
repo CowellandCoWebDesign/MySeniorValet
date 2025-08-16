@@ -1995,7 +1995,7 @@ body {
 .lighthouse-beacon {
   position: absolute;
   top: 10%;
-  left: 22%;
+  left: 30%;
   transform: translateX(-50%);
   width: 400px;
   height: 400px;
