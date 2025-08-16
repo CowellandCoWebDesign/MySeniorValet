@@ -717,6 +717,44 @@ export default function MySeniorValetHome() {
         
       </section>
 
+      {/* Beta Launch Announcement - Prominent placement under hero */}
+      <section className="px-4 py-8 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-600/20"></div>
+        <div className="max-w-5xl mx-auto relative z-10">
+          <Card className="bg-blue-900/80 backdrop-blur-sm border-2 border-blue-400/50 shadow-2xl">
+            <CardContent className="p-8 md:p-10 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 flex items-center justify-center gap-3">
+                <Sparkles className="w-8 h-8 text-yellow-400 animate-pulse" />
+                Welcome to Our Active Beta Launch!
+              </h2>
+              
+              <div className="space-y-4 text-white max-w-4xl mx-auto">
+                <p className="text-lg md:text-xl leading-relaxed">
+                  This platform is being released immediately for public access to rapidly deliver transparency and benefit society through immediate access to information powered by AI. We apologize for any malfunctions you may experience during this beta phase.
+                </p>
+                
+                <div className="bg-blue-800/50 rounded-lg p-4 border border-blue-400/30">
+                  <p className="text-lg font-semibold mb-2">
+                    <strong className="text-yellow-400">Quick Fix for Most Issues:</strong>
+                  </p>
+                  <p className="text-base">
+                    Navigate to the top navbar, return home, and refresh your browser. This resolves most beta-related glitches.
+                  </p>
+                </div>
+                
+                <p className="text-lg md:text-xl font-semibold pt-4">
+                  Thank you for your patience and support in joining this movement for transparency in senior living. Together, we're bringing light to an industry that has operated in darkness for too long.
+                </p>
+                
+                <p className="text-2xl md:text-3xl font-bold text-yellow-400 pt-4">
+                  We're not just launching a platform. We're launching a movement.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* TODAY, EVERYTHING CHANGES - Historic Launch Message */}
       <section className="px-4 py-16 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-blue-600/10"></div>
@@ -914,21 +952,6 @@ export default function MySeniorValetHome() {
                     Finally understand every option, every transition, every cost - <strong className="text-amber-300 dark:text-purple-400">complete transparency</strong> across the entire care journey.
                   </p>
                   
-                  {/* Beta Notice */}
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-400 dark:border-blue-600 rounded-lg p-4 mt-6">
-                    <p className="text-lg text-blue-800 dark:text-blue-300 font-semibold mb-2">
-                      🌟 Welcome to Our Active Beta Launch!
-                    </p>
-                    <p className="text-gray-700 dark:text-gray-300 mb-3">
-                      This platform is being released immediately for public access to rapidly deliver transparency and benefit society through immediate access to information powered by AI. We apologize for any malfunctions you may experience during this beta phase.
-                    </p>
-                    <p className="text-gray-700 dark:text-gray-300 mb-3">
-                      <strong>Quick Fix for Most Issues:</strong> Navigate to the top navbar, return home, and refresh your browser. This resolves most beta-related glitches.
-                    </p>
-                    <p className="text-gray-700 dark:text-gray-300 font-semibold">
-                      Thank you for your patience and support in joining this movement for transparency in senior living. Together, we're bringing light to an industry that has operated in darkness for too long.
-                    </p>
-                  </div>
                   
                   <p className="text-lg md:text-xl text-gray-100 dark:text-gray-300 mt-4">
                     We're not just launching a platform. We're launching a movement - and you're part of it.
