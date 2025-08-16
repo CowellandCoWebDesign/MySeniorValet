@@ -760,15 +760,24 @@ export default function MySeniorValetHome() {
       <section 
         className="relative overflow-hidden min-h-[600px]"
         style={{
-          backgroundImage: `url('/lighthouse-image.png?v=2')`,
-          backgroundColor: '#1a2332',
-          backgroundSize: '85% auto',
-          backgroundPosition: 'center bottom',
-          backgroundRepeat: 'no-repeat'
+          backgroundColor: '#1a2332'
         }}
       >
+        {/* 3D Lighthouse Video Background */}
+        <video 
+          className="absolute inset-0 w-full h-full object-cover"
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{ zIndex: 1 }}
+        >
+          <source src="/lighthouse-loop.mp4" type="video/mp4" />
+          {/* Fallback to static image if video doesn't load */}
+          <img src="/lighthouse-image.png?v=2" alt="Lighthouse" className="w-full h-full object-cover" />
+        </video>
         
-        {/* 3D Rotating Lighthouse Beacon */}
+        {/* Overlay for beacon glow effect */}
         <div className="lighthouse-beacon">
           <div className="beacon-container">
             <div className="beacon-light"></div>
