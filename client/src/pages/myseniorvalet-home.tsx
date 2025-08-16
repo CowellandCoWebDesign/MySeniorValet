@@ -757,18 +757,17 @@ export default function MySeniorValetHome() {
       </section>
 
       {/* TODAY, EVERYTHING CHANGES - Historic Launch Message */}
-      <section className="relative overflow-hidden">
-        {/* Lighthouse Background Image */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url(${lighthouseBackground})`,
-            filter: 'brightness(0.7)'
-          }}
-        />
-        
+      <section 
+        className="relative overflow-hidden bg-cover bg-center bg-no-repeat min-h-[600px]"
+        style={{
+          backgroundImage: `url('/lighthouse-image.png')`,
+          backgroundColor: '#1a2332',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
         {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/50" />
         
         {/* Rotating Lighthouse Beacon */}
         <div className="lighthouse-beacon">
