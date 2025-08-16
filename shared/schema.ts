@@ -826,6 +826,9 @@ export const communities = pgTable("communities", {
   transportationServices: text("transportation_services").array().default([]), // ['Medical Appointments', 'Shopping Trips', 'Airport Shuttle', 'Local Errands']
   socialServices: text("social_services").array().default([]), // ['Activity Director', 'Support Groups', 'Family Counseling', 'Spiritual Care']
   
+  // Data source tracking for Golden Rule compliance
+  data_source: text("data_source").default("Government Database"), // Source of community data for transparency
+  
   // New fields for expanded senior living types
   communitySubtype: text("community_subtype", { 
     enum: [
