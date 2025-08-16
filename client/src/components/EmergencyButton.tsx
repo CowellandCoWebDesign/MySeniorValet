@@ -39,10 +39,22 @@ export function EmergencyButton({ userId }: { userId?: string }) {
   const [showDialog, setShowDialog] = useState(false);
   const [quickDialData, setQuickDialData] = useState<QuickDialData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [pulseAnimation, setPulseAnimation] = useState(true);
   const { toast } = useToast();
 
   const fetchQuickDialData = async () => {
-    if (!userId) return;
+    // Allow opening even without userId to show emergency numbers
+    if (!userId) {
+      // Set default emergency data when no user
+      setQuickDialData({
+        emergency: { number: "911", label: "Emergency Services", type: "emergency" },
+        primaryContact: null,
+        otherContacts: [],
+        poison: { number: "1-800-222-1222", label: "Poison Control", type: "crisis" },
+        suicide: { number: "988", label: "Suicide & Crisis Lifeline", type: "crisis" }
+      });
+      return;
+    }
     
     setLoading(true);
     try {
@@ -60,7 +72,16 @@ export function EmergencyButton({ userId }: { userId?: string }) {
     }
   };
 
+  // Stop pulsing animation after first interaction
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPulseAnimation(false);
+    }, 10000); // Stop pulsing after 10 seconds
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleEmergencyClick = async () => {
+    setPulseAnimation(false); // Stop pulsing when clicked
     setShowDialog(true);
     fetchQuickDialData();
     
@@ -100,46 +121,63 @@ export function EmergencyButton({ userId }: { userId?: string }) {
 
   return (
     <>
-      {/* Floating Emergency Button */}
-      <div className="fixed bottom-6 right-6 z-50">
+      {/* Floating Emergency Button - Enhanced visibility */}
+      <div className="fixed bottom-6 right-6 z-50 group">
+        {/* Pulsing background effect */}
+        {pulseAnimation && (
+          <div className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75"></div>
+        )}
+        
+        {/* Main button */}
         <Button
           onClick={handleEmergencyClick}
           size="lg"
-          className="h-16 w-16 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-2xl animate-pulse"
-          aria-label="Emergency Contacts"
+          className="relative h-16 w-16 rounded-full bg-red-600 hover:bg-red-700 text-white shadow-2xl transition-all hover:scale-110"
+          aria-label="Emergency Contacts - Press for quick access"
         >
           <Phone className="h-8 w-8" />
         </Button>
+        
+        {/* Tooltip on hover */}
+        <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          <div className="bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
+            Emergency Contacts
+          </div>
+        </div>
       </div>
 
-      {/* Emergency Contacts Dialog */}
+      {/* Emergency Contacts Dialog - Enhanced */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-600">
-              <AlertTriangle className="h-6 w-6" />
-              Emergency Contacts
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900">
+          <DialogHeader className="bg-red-50 dark:bg-red-950 -m-6 mb-4 p-6 rounded-t-lg">
+            <DialogTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+              <AlertTriangle className="h-6 w-6 animate-pulse" />
+              <span className="text-xl font-bold">Emergency Contacts</span>
             </DialogTitle>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              Tap any contact to call immediately
+            </p>
           </DialogHeader>
 
           <div className="space-y-4 mt-4">
-            {/* 911 Emergency */}
+            {/* 911 Emergency - PRIMARY */}
             <Card 
-              className="border-red-500 bg-red-50 dark:bg-red-950 cursor-pointer hover:shadow-lg transition-shadow"
+              className="border-2 border-red-500 bg-red-50 dark:bg-red-950 cursor-pointer hover:shadow-xl transition-all transform hover:scale-[1.02]"
               onClick={() => makeCall("911", "Emergency Services")}
             >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-red-600 flex items-center justify-center">
-                      <AlertTriangle className="h-6 w-6 text-white" />
+                    <div className="h-14 w-14 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
+                      <AlertTriangle className="h-7 w-7 text-white animate-pulse" />
                     </div>
                     <div>
-                      <p className="font-bold text-lg">Emergency Services</p>
-                      <p className="text-2xl font-mono text-red-600">911</p>
+                      <p className="font-bold text-xl">Emergency Services</p>
+                      <p className="text-3xl font-mono text-red-600 dark:text-red-400 font-bold">911</p>
+                      <p className="text-xs text-green-600 dark:text-green-400 font-semibold animate-pulse">Tap to call immediately</p>
                     </div>
                   </div>
-                  <Phone className="h-6 w-6 text-red-600" />
+                  <Phone className="h-8 w-8 text-red-600 animate-bounce" />
                 </div>
               </CardContent>
             </Card>
