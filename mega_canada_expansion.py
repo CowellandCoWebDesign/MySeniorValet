@@ -852,11 +852,11 @@ def insert_communities_batch(cur, communities_data):
                 INSERT INTO communities (
                     name, address, city, state, zip_code, country,
                     phone, website, care_types, amenities,
-                    rating, description, data_source
+                    description
                 ) VALUES (
                     %s, %s, %s, %s, %s, %s,
                     %s, %s, %s, %s,
-                    %s, %s, %s
+                    %s
                 )
             """, (
                 community['name'],
@@ -869,9 +869,7 @@ def insert_communities_batch(cur, communities_data):
                 community.get('website'),
                 [community['type']],  # care_types is an array
                 community['amenities'],
-                community['rating'],
-                community['description'],
-                community['data_source']
+                community['description']
             ))
         except Exception as e:
             print(f"    Error inserting {community['name']}: {e}")
