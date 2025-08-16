@@ -717,78 +717,6 @@ export default function MySeniorValetHome() {
         
       </section>
 
-      {/* Emergency Quick Access Section - NEW */}
-      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950 dark:to-orange-950 border-y-2 border-red-200 dark:border-red-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            {/* Left side - Emergency Information */}
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="h-12 w-12 rounded-full bg-red-600 flex items-center justify-center animate-pulse">
-                  <Phone className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-red-900 dark:text-red-100">
-                    One-Touch Emergency Access
-                  </h2>
-                  <p className="text-sm text-red-700 dark:text-red-300">
-                    Quick access to 911 and your personal emergency contacts
-                  </p>
-                </div>
-              </div>
-              <p className="text-gray-700 dark:text-gray-300 mb-4">
-                Our emergency contact system provides instant access to critical phone numbers when you need them most. 
-                Save your family contacts, medical providers, and facility numbers for one-touch dialing.
-              </p>
-            </div>
-            
-            {/* Right side - Quick Access Numbers */}
-            <div className="flex gap-4">
-              {/* 911 Button */}
-              <a 
-                href="tel:911"
-                className="flex flex-col items-center justify-center p-4 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
-              >
-                <AlertCircle className="h-8 w-8 mb-2" />
-                <span className="text-2xl font-bold">911</span>
-                <span className="text-xs">Emergency</span>
-              </a>
-              
-              {/* Poison Control */}
-              <a 
-                href="tel:18002221222"
-                className="flex flex-col items-center justify-center p-4 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
-              >
-                <Pill className="h-8 w-8 mb-2" />
-                <span className="text-lg font-bold">Poison</span>
-                <span className="text-xs">1-800-222-1222</span>
-              </a>
-              
-              {/* Crisis Hotline */}
-              <a 
-                href="tel:988"
-                className="flex flex-col items-center justify-center p-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
-              >
-                <Heart className="h-8 w-8 mb-2" />
-                <span className="text-2xl font-bold">988</span>
-                <span className="text-xs">Crisis Line</span>
-              </a>
-            </div>
-          </div>
-          
-          {/* Notice */}
-          <div className="mt-6 p-3 bg-yellow-50 dark:bg-yellow-950 rounded-lg border border-yellow-200 dark:border-yellow-800">
-            <div className="flex items-start gap-2">
-              <Info className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
-              <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                <strong>Important:</strong> Look for the red emergency button in the bottom-right corner of your screen for instant access to all emergency contacts. 
-                Create an account to save your personal emergency contacts for quick dialing.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* TODAY, EVERYTHING CHANGES - Historic Launch Message */}
       <section className="px-4 py-16 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-blue-600/10"></div>
@@ -3416,6 +3344,78 @@ export default function MySeniorValetHome() {
                 </div>
               </div>
             </details>
+          </div>
+        </div>
+      </section>
+
+      {/* Emergency Quick Access Section - Moved above mission for better flow */}
+      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950 dark:to-orange-950 border-y-2 border-red-200 dark:border-red-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            {/* Left side - Emergency Information */}
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-12 w-12 rounded-full bg-red-600 flex items-center justify-center animate-pulse">
+                  <Phone className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-red-900 dark:text-red-100">
+                    One-Touch Emergency Access
+                  </h2>
+                  <p className="text-sm text-red-700 dark:text-red-300">
+                    Quick access to 911 and your personal emergency contacts
+                  </p>
+                </div>
+              </div>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                Our emergency contact system provides instant access to critical phone numbers when you need them most. 
+                Save your family contacts, medical providers, and facility numbers for one-touch dialing.
+              </p>
+            </div>
+            
+            {/* Right side - Quick Access Numbers */}
+            <div className="flex gap-4">
+              {/* 911 Button */}
+              <a 
+                href="tel:911"
+                className="flex flex-col items-center justify-center p-4 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
+              >
+                <AlertCircle className="h-8 w-8 mb-2" />
+                <span className="text-2xl font-bold">911</span>
+                <span className="text-xs">Emergency</span>
+              </a>
+              
+              {/* Poison Control */}
+              <a 
+                href="tel:18002221222"
+                className="flex flex-col items-center justify-center p-4 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
+              >
+                <Pill className="h-8 w-8 mb-2" />
+                <span className="text-lg font-bold">Poison</span>
+                <span className="text-xs">1-800-222-1222</span>
+              </a>
+              
+              {/* Crisis Hotline */}
+              <a 
+                href="tel:988"
+                className="flex flex-col items-center justify-center p-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
+              >
+                <Heart className="h-8 w-8 mb-2" />
+                <span className="text-2xl font-bold">988</span>
+                <span className="text-xs">Crisis Line</span>
+              </a>
+            </div>
+          </div>
+          
+          {/* Notice */}
+          <div className="mt-6 p-3 bg-yellow-50 dark:bg-yellow-950 rounded-lg border border-yellow-200 dark:border-yellow-800">
+            <div className="flex items-start gap-2">
+              <Info className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
+              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                <strong>Important:</strong> Look for the red emergency button in the bottom-right corner of your screen for instant access to all emergency contacts. 
+                Create an account to save your personal emergency contacts for quick dialing.
+              </p>
+            </div>
           </div>
         </div>
       </section>
