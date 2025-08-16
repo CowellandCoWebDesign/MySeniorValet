@@ -769,10 +769,13 @@ export default function MySeniorValetHome() {
         {/* Lighter overlay for better image visibility */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/30" />
         
-        {/* Rotating Lighthouse Beacon */}
+        {/* 3D Rotating Lighthouse Beacon */}
         <div className="lighthouse-beacon">
+          <div className="beacon-container">
+            <div className="beacon-light"></div>
+            <div className="beacon-light-secondary"></div>
+          </div>
           <div className="beacon-source"></div>
-          <div className="beacon-light"></div>
         </div>
         
         {/* Content Container */}
