@@ -37,6 +37,7 @@ import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
 import heroBackgroundImage from '@assets/file_00000000715861f6ba1d823cc2455100 (1)_1755292957645.png';
+import lighthouseBackground from '@assets/lighthouse-background.png';
 import { EmergencyButton } from "@/components/EmergencyButton";
 
 
@@ -761,7 +762,7 @@ export default function MySeniorValetHome() {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: `url('/attached_assets/lighthouse-background.png')`,
+            backgroundImage: `url(${lighthouseBackground})`,
             filter: 'brightness(0.7)'
           }}
         />
