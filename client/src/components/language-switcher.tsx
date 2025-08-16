@@ -23,7 +23,7 @@ const languages = [
     name: 'English', 
     flag: '🇺🇸',
     regions: ['USA', 'Canada (EN)'],
-    coverage: '42,407 communities'
+    coverage: '40,879 communities'
   },
   { 
     code: 'fr', 
@@ -37,7 +37,7 @@ const languages = [
     name: 'Español', 
     flag: '🇲🇽',
     regions: ['México', 'Latin America'],
-    coverage: '453 comunidades'
+    coverage: '832 comunidades'
   }
 ];
 
