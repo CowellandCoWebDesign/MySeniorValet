@@ -115,11 +115,12 @@ export default function MySeniorValetHome() {
 
 
 
-  // Real-time market data
+  // Real-time market data - disabled for performance
   const { data: marketData } = useQuery({
     queryKey: ["/api/market/overview"],
     retry: false,
     staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    enabled: false, // Disabled to improve initial load time
   });
 
   // Mobile performance optimization - lazy load sections
@@ -143,12 +144,13 @@ export default function MySeniorValetHome() {
     enabled: sectionsLoaded.hud,
   });
 
-  // HUD count query - load immediately for stats
+  // HUD count query - deferred for performance
   const { data: hudCount } = useQuery({
     queryKey: ["/api/communities/hud-count"],
     retry: false,
     staleTime: 60 * 60 * 1000, // Cache for 1 hour - rarely changes
     gcTime: 120 * 60 * 1000,
+    enabled: false, // Disabled to improve initial load time
   });
 
   // Hawaii communities - load on demand
@@ -178,12 +180,12 @@ export default function MySeniorValetHome() {
     enabled: sectionsLoaded.texas,
   });
 
-  // Keep trending for other sections that may need it
+  // Keep trending for other sections that may need it - deferred for performance
   const { data: trendingCommunities, isLoading: trendingLoading } = useQuery({
     queryKey: ["/api/communities/trending"],
     retry: false,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
+    enabled: false, // Disabled to improve initial load time
   });
 
   // Location-specific queries for horizontal sections (cached and deferred)
@@ -213,11 +215,12 @@ export default function MySeniorValetHome() {
     enabled: sectionsLoaded.california,
   });
 
-  // Care services analytics for accurate totals
+  // Care services analytics for accurate totals - deferred for performance
   const { data: careServicesAnalytics } = useQuery({
     queryKey: ["/api/care-services/analytics"],
     retry: false,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    enabled: false, // Disabled to improve initial load time
   });
   
   // Fetch real care services from database - load on demand
@@ -229,11 +232,12 @@ export default function MySeniorValetHome() {
     enabled: sectionsLoaded.careServices,
   });
 
-  // Fetch VA resources data
+  // Fetch VA resources data - deferred for performance
   const { data: vaResourcesData, isLoading: vaResourcesLoading } = useQuery({
     queryKey: ["/api/va-resources/facilities"],
     retry: false,
     staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    enabled: false, // Disabled to improve initial load time
   });
 
   const vaFacilities = (vaResourcesData as any)?.facilities || {};
