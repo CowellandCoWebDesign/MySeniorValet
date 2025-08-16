@@ -1994,11 +1994,10 @@ body {
 /* Lighthouse Beacon Animation - 3D Effect */
 .lighthouse-beacon {
   position: absolute;
-  top: 23%;  /* Position at lighthouse lantern */
-  left: 25%;  /* Align with lantern center */
-  transform: translate(-50%, -50%);
-  width: 100px;
-  height: 100px;
+  top: 24%;  /* Position at lighthouse lantern */
+  left: 26%;  /* Align with lantern center */
+  width: 1px;
+  height: 1px;
   pointer-events: none;
   z-index: 5;
   perspective: 1200px;
@@ -2008,11 +2007,10 @@ body {
 /* Container for 3D rotation */
 .beacon-container {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  transform: translate(-50%, -50%);
   transform-style: preserve-3d;
   animation: lighthouse-3d-sweep 8s linear infinite;
 }
@@ -2020,8 +2018,8 @@ body {
 /* Main light beam with 3D perspective */
 .beacon-light {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 0;
+  left: 0;
   width: 1200px;
   height: 180px;
   background: linear-gradient(
@@ -2035,7 +2033,7 @@ body {
     transparent 100%
   );
   transform-origin: 0 50%;
-  transform: translateY(-50%);
+  transform: translateY(-90px);
   clip-path: polygon(0 45%, 100% 20%, 100% 80%, 0 55%);
   filter: blur(0.5px);
   mix-blend-mode: screen;
@@ -2047,8 +2045,8 @@ body {
 /* Second beam for depth */
 .beacon-light-secondary {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 0;
+  left: 0;
   width: 1200px;
   height: 200px;
   background: linear-gradient(
@@ -2061,7 +2059,7 @@ body {
     transparent 100%
   );
   transform-origin: 0 50%;
-  transform: rotateY(180deg) translateY(-50%);
+  transform: rotateY(180deg) translateY(-100px);
   clip-path: polygon(0 40%, 100% 15%, 100% 85%, 0 60%);
   filter: blur(2px);
   opacity: 0.6;
@@ -2071,8 +2069,8 @@ body {
 /* Light source at center */
 .beacon-source {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 0;
+  left: 0;
   width: 40px;
   height: 40px;
   background: radial-gradient(
