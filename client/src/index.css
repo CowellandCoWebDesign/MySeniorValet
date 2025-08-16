@@ -1994,82 +1994,81 @@ body {
 /* Lighthouse Beacon Animation - 3D Effect */
 .lighthouse-beacon {
   position: absolute;
-  top: -22%;
-  left: 29%;
+  top: 18%;  /* Position at lighthouse lantern */
+  left: 27%;  /* Align with lantern position */
   transform: translateX(-50%);
-  width: 400px;
-  height: 400px;
+  width: 600px;
+  height: 600px;
   pointer-events: none;
   z-index: 5;
-  perspective: 800px;
+  perspective: 1000px;
   transform-style: preserve-3d;
 }
 
 /* Container for 3D rotation */
 .beacon-container {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  transform: translate(-50%, -50%);
   transform-style: preserve-3d;
-  animation: lighthouse-3d-sweep 10s linear infinite;
+  animation: lighthouse-3d-sweep 8s linear infinite;
 }
 
 /* Main light beam with 3D perspective */
 .beacon-light {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 600px;
-  height: 80px;
+  top: 0;
+  left: 0;
+  width: 800px;
+  height: 120px;
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 200, 0) 0%,
-    rgba(255, 255, 200, 0.2) 20%,
-    rgba(255, 255, 200, 0.6) 40%,
-    rgba(255, 255, 200, 0.8) 60%,
-    rgba(255, 255, 255, 0.9) 80%,
-    rgba(255, 255, 255, 0.3) 100%
+    rgba(255, 255, 200, 0.9) 0%,
+    rgba(255, 255, 200, 0.7) 10%,
+    rgba(255, 255, 200, 0.5) 30%,
+    rgba(255, 255, 200, 0.3) 60%,
+    rgba(255, 255, 200, 0.1) 80%,
+    transparent 100%
   );
   transform-origin: 0 50%;
-  transform: rotateY(0deg) translateZ(0);
-  clip-path: polygon(0 35%, 100% 0%, 100% 100%, 0 65%);
-  filter: blur(2px);
+  transform: translateY(-60px);
+  clip-path: polygon(0 40%, 100% 0%, 100% 100%, 0 60%);
+  filter: blur(1px);
   mix-blend-mode: screen;
 }
 
 /* Second beam for depth */
 .beacon-light-secondary {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 600px;
-  height: 100px;
+  top: 0;
+  left: 0;
+  width: 800px;
+  height: 140px;
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 200, 0) 0%,
-    rgba(255, 255, 200, 0.1) 30%,
-    rgba(255, 255, 200, 0.3) 50%,
-    rgba(255, 255, 200, 0.1) 70%,
+    rgba(255, 255, 200, 0.6) 0%,
+    rgba(255, 255, 200, 0.4) 20%,
+    rgba(255, 255, 200, 0.2) 50%,
+    rgba(255, 255, 200, 0.05) 80%,
     transparent 100%
   );
   transform-origin: 0 50%;
-  transform: rotateY(180deg) translateZ(0);
-  clip-path: polygon(0 30%, 100% 0%, 100% 100%, 0 70%);
-  filter: blur(4px);
-  opacity: 0.6;
+  transform: rotateY(180deg) translateY(-70px);
+  clip-path: polygon(0 35%, 100% 0%, 100% 100%, 0 65%);
+  filter: blur(3px);
+  opacity: 0.5;
   mix-blend-mode: screen;
 }
 
 /* Light source at center */
 .beacon-source {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 30px;
-  height: 30px;
+  top: 0;
+  left: 0;
+  width: 25px;
+  height: 25px;
   background: radial-gradient(
     circle,
     rgba(255, 255, 255, 1) 0%,
@@ -2090,10 +2089,10 @@ body {
 /* 3D rotation animation */
 @keyframes lighthouse-3d-sweep {
   from {
-    transform: translate(-50%, -50%) rotateY(0deg);
+    transform: rotateY(0deg);
   }
   to {
-    transform: translate(-50%, -50%) rotateY(360deg);
+    transform: rotateY(360deg);
   }
 }
 
