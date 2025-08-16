@@ -302,8 +302,8 @@ export default function MySeniorValetHome() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {/* Header - Reduced height */}
-      <header className="absolute top-0 left-0 right-0 z-40 bg-transparent backdrop-blur-sm border-b border-white/10">
+      {/* Header - Fixed to top */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="px-4 py-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -518,7 +518,7 @@ export default function MySeniorValetHome() {
       </header>
 
       {/* Hero Section with Search */}
-      <section className="relative min-h-screen bg-black">
+      <section className="relative min-h-screen bg-black pt-14">
         <div className="absolute inset-0">
           <img
             src={heroBackgroundImage}
