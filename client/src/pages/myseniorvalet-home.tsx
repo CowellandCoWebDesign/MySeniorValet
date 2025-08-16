@@ -759,60 +759,26 @@ export default function MySeniorValetHome() {
       <section className="px-4 py-16 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-blue-600/10"></div>
         <div className="max-w-6xl mx-auto text-center relative">
-          {/* Lighthouse on Rocky Ocean Point */}
-          <div className="mb-12 relative h-80">
-            {/* Ocean Scene Container */}
-            <div className="absolute inset-0 flex justify-center items-end overflow-hidden">
-              <div className="lighthouse-scene">
-                {/* Misty atmosphere layers */}
-                <div className="mist-layer mist-back"></div>
-                <div className="mist-layer mist-middle"></div>
+          {/* Elegant Lamp Animation */}
+          <div className="mb-12 relative">
+            {/* Beautiful light source */}
+            <div className="absolute inset-0 flex justify-center items-start -top-20">
+              <div className="lamp-container">
+                {/* Radiant light effect */}
+                <div className="lamp-light-rays"></div>
                 
-                {/* Rocky coastline */}
-                <div className="rocky-coast">
-                  <div className="rock rock-1"></div>
-                  <div className="rock rock-2"></div>
-                  <div className="rock rock-3"></div>
-                </div>
-                
-                {/* Lighthouse structure */}
-                <div className="lighthouse">
-                  {/* Lighthouse tower */}
-                  <div className="lighthouse-tower">
-                    <div className="lighthouse-stripes"></div>
-                    <div className="lighthouse-windows">
-                      <div className="window"></div>
-                      <div className="window"></div>
-                    </div>
+                {/* Professional lamp design */}
+                <div className="lamp-fixture">
+                  <div className="lamp-shade"></div>
+                  <div className="lamp-bulb">
+                    <div className="lamp-filament"></div>
                   </div>
-                  
-                  {/* Light room at top */}
-                  <div className="light-room">
-                    <div className="light-room-base"></div>
-                    <div className="light-room-glass">
-                      {/* Rotating beacon */}
-                      <div className="beacon-container">
-                        <div className="beacon-light"></div>
-                        <div className="beacon-beam"></div>
-                      </div>
-                    </div>
-                    <div className="light-room-roof"></div>
-                  </div>
+                  <div className="lamp-base"></div>
                 </div>
-                
-                {/* Ocean waves */}
-                <div className="ocean">
-                  <div className="wave wave-1"></div>
-                  <div className="wave wave-2"></div>
-                  <div className="wave wave-3"></div>
-                </div>
-                
-                {/* Foreground mist */}
-                <div className="mist-layer mist-front"></div>
               </div>
             </div>
             
-            <div className="relative z-20 pt-64">
+            <div className="relative z-20 pt-40">
               <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-base font-bold shadow-2xl mb-6 animate-pulse">
                 <Sparkles className="w-5 h-5 mr-2" />
                 NOW LIVE ACROSS 🇺🇸 USA • 🇲🇽 MEXICO • 🇨🇦 CANADA

@@ -1773,286 +1773,168 @@ body {
   animation: fire-wiggle 1.5s ease-in-out infinite;
 }
 
-/* Lighthouse Scene Styles */
-.lighthouse-scene {
+/* Professional Lamp Animation Styles */
+.lamp-container {
   position: relative;
-  width: 600px;
-  height: 320px;
-  perspective: 1000px;
+  width: 120px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Lighthouse Structure */
-.lighthouse {
+/* Light rays emanating from lamp */
+.lamp-light-rays {
   position: absolute;
-  bottom: 60px;
+  width: 400px;
+  height: 400px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-}
-
-.lighthouse-tower {
-  width: 60px;
-  height: 160px;
-  position: relative;
-  background: linear-gradient(
-    to bottom,
-    #ffffff 0%, #ffffff 12.5%,
-    #dc2626 12.5%, #dc2626 25%,
-    #ffffff 25%, #ffffff 37.5%,
-    #dc2626 37.5%, #dc2626 50%,
-    #ffffff 50%, #ffffff 62.5%,
-    #dc2626 62.5%, #dc2626 75%,
-    #ffffff 75%, #ffffff 87.5%,
-    #dc2626 87.5%, #dc2626 100%
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 220, 100, 0.3) 0%,
+    rgba(255, 200, 50, 0.2) 20%,
+    rgba(255, 180, 30, 0.1) 40%,
+    transparent 70%
   );
-  border-radius: 4px 4px 0 0;
-  box-shadow: 
-    0 0 20px rgba(0, 0, 0, 0.3),
-    inset -3px 0 10px rgba(0, 0, 0, 0.2);
+  filter: blur(40px);
+  animation: lamp-glow 3s ease-in-out infinite;
 }
 
-.lighthouse-windows {
-  position: absolute;
-  top: 30%;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.window {
-  width: 8px;
-  height: 12px;
-  background: #ffd700;
-  margin: 20px 0;
-  border-radius: 50% 50% 0 0;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
-}
-
-/* Light Room */
-.light-room {
-  position: absolute;
-  bottom: 160px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 70px;
-  height: 50px;
-}
-
-.light-room-base {
-  position: absolute;
-  bottom: 0;
-  width: 70px;
-  height: 10px;
-  background: #4a4a4a;
-  border-radius: 2px;
-}
-
-.light-room-glass {
-  position: absolute;
-  bottom: 10px;
-  width: 70px;
-  height: 30px;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0.2),
-    rgba(255, 255, 255, 0.4),
-    rgba(255, 255, 255, 0.2)
-  );
-  border: 2px solid #4a4a4a;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.light-room-roof {
-  position: absolute;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 40px solid transparent;
-  border-right: 40px solid transparent;
-  border-bottom: 25px solid #dc2626;
-}
-
-/* Beacon Light */
-.beacon-container {
+.lamp-light-rays::before {
+  content: '';
   position: absolute;
   width: 100%;
   height: 100%;
-  animation: beacon-rotate 6s linear infinite;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    rgba(255, 220, 100, 0.1) 10deg,
+    transparent 20deg,
+    transparent 40deg,
+    rgba(255, 200, 50, 0.1) 50deg,
+    transparent 60deg,
+    transparent 80deg,
+    rgba(255, 180, 30, 0.1) 90deg,
+    transparent 100deg,
+    transparent 360deg
+  );
+  animation: rotate-rays 20s linear infinite;
 }
 
-.beacon-light {
+/* Lamp fixture */
+.lamp-fixture {
+  position: relative;
+  z-index: 2;
+}
+
+/* Lamp shade */
+.lamp-shade {
+  width: 100px;
+  height: 60px;
+  background: linear-gradient(
+    to bottom,
+    #2a2a2a 0%,
+    #3a3a3a 50%,
+    #2a2a2a 100%
+  );
+  border-radius: 50% 50% 20% 20% / 60% 60% 40% 40%;
+  position: relative;
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.5),
+    inset 0 -5px 10px rgba(0, 0, 0, 0.3);
+}
+
+.lamp-shade::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+}
+
+/* Lamp bulb */
+.lamp-bulb {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 60px;
+  background: radial-gradient(
+    ellipse at center,
+    #fff8e0 0%,
+    #ffeb99 30%,
+    #ffd633 60%,
+    #ffcc00 100%
+  );
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  box-shadow: 
+    0 0 60px rgba(255, 220, 100, 0.8),
+    0 0 100px rgba(255, 200, 50, 0.6),
+    0 0 140px rgba(255, 180, 30, 0.4),
+    inset 0 -10px 20px rgba(255, 150, 0, 0.3);
+  animation: bulb-flicker 4s ease-in-out infinite;
+}
+
+/* Filament inside bulb */
+.lamp-filament {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 20px;
-  height: 20px;
-  background: radial-gradient(
-    circle,
-    #ffffff 0%,
-    #fffacd 30%,
-    rgba(255, 250, 205, 0.6) 60%,
-    transparent 100%
+  height: 30px;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 150, 0, 0.8) 2px,
+    rgba(255, 150, 0, 0.8) 3px
   );
-  border-radius: 50%;
-  box-shadow: 
-    0 0 30px rgba(255, 255, 255, 0.9),
-    0 0 60px rgba(255, 250, 205, 0.7);
+  filter: blur(0.5px);
+  animation: filament-glow 2s ease-in-out infinite;
 }
 
-.beacon-beam {
+/* Lamp base */
+.lamp-base {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 400px;
-  height: 40px;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0.8),
-    rgba(255, 250, 205, 0.4) 30%,
-    transparent 100%
-  );
-  transform-origin: 0 50%;
-  transform: translateY(-50%);
-  filter: blur(2px);
-}
-
-/* Rocky Coast */
-.rocky-coast {
-  position: absolute;
-  bottom: 0;
+  bottom: -50px;
   left: 50%;
   transform: translateX(-50%);
-  width: 400px;
-  height: 80px;
-  z-index: 8;
-}
-
-.rock {
-  position: absolute;
-  background: linear-gradient(
-    135deg,
-    #4a5568,
-    #2d3748,
-    #1a202c
-  );
-  border-radius: 30% 70% 70% 30% / 60% 40% 60% 40%;
-  box-shadow: 
-    0 10px 20px rgba(0, 0, 0, 0.4),
-    inset -5px -5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.rock-1 {
-  width: 150px;
-  height: 70px;
-  bottom: 0;
-  left: 30%;
-}
-
-.rock-2 {
-  width: 100px;
-  height: 50px;
-  bottom: 0;
-  right: 25%;
-  transform: rotate(-15deg);
-}
-
-.rock-3 {
-  width: 80px;
-  height: 40px;
-  bottom: 10px;
-  left: 20%;
-  transform: rotate(10deg);
-}
-
-/* Ocean */
-.ocean {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 60px;
+  width: 30px;
+  height: 10px;
   background: linear-gradient(
     to bottom,
-    rgba(30, 58, 95, 0.8),
-    rgba(15, 35, 60, 0.9)
+    #1a1a1a,
+    #0a0a0a
   );
-  overflow: hidden;
-  z-index: 5;
-}
-
-.wave {
-  position: absolute;
-  width: 200%;
-  height: 100%;
-  background: repeating-linear-gradient(
-    90deg,
-    transparent,
-    transparent 10px,
-    rgba(255, 255, 255, 0.1) 10px,
-    rgba(255, 255, 255, 0.1) 20px
-  );
-}
-
-.wave-1 {
-  animation: wave-motion 8s linear infinite;
-  opacity: 0.5;
-}
-
-.wave-2 {
-  animation: wave-motion 10s linear infinite reverse;
-  opacity: 0.3;
-  animation-delay: -2s;
-}
-
-.wave-3 {
-  animation: wave-motion 12s linear infinite;
-  opacity: 0.2;
-  animation-delay: -4s;
-}
-
-/* Mist Layers */
-.mist-layer {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.mist-back {
-  background: linear-gradient(
-    to top,
-    rgba(200, 210, 220, 0.4) 0%,
-    transparent 50%
-  );
-  z-index: 2;
-  animation: mist-drift 20s ease-in-out infinite;
-}
-
-.mist-middle {
-  background: radial-gradient(
-    ellipse at center bottom,
-    rgba(180, 190, 200, 0.3) 0%,
-    transparent 60%
-  );
-  z-index: 7;
-  animation: mist-drift 15s ease-in-out infinite reverse;
-}
-
-.mist-front {
-  background: linear-gradient(
-    to top,
-    rgba(220, 225, 230, 0.2) 0%,
-    transparent 30%
-  );
-  z-index: 15;
-  animation: mist-drift 25s ease-in-out infinite;
+  border-radius: 2px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 /* Animations */
-@keyframes beacon-rotate {
+@keyframes lamp-glow {
+  0%, 100% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+@keyframes rotate-rays {
   from {
     transform: rotate(0deg);
   }
@@ -2061,49 +1943,50 @@ body {
   }
 }
 
-@keyframes wave-motion {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes mist-drift {
+@keyframes bulb-flicker {
   0%, 100% {
-    opacity: 0.3;
-    transform: translateX(0) scale(1);
+    filter: brightness(1);
+    box-shadow: 
+      0 0 60px rgba(255, 220, 100, 0.8),
+      0 0 100px rgba(255, 200, 50, 0.6),
+      0 0 140px rgba(255, 180, 30, 0.4),
+      inset 0 -10px 20px rgba(255, 150, 0, 0.3);
+  }
+  10% {
+    filter: brightness(0.95);
+  }
+  20% {
+    filter: brightness(1.05);
+  }
+  30% {
+    filter: brightness(0.98);
+  }
+  40% {
+    filter: brightness(1.02);
   }
   50% {
-    opacity: 0.5;
-    transform: translateX(20px) scale(1.05);
+    filter: brightness(1.1);
+    box-shadow: 
+      0 0 80px rgba(255, 220, 100, 1),
+      0 0 120px rgba(255, 200, 50, 0.8),
+      0 0 160px rgba(255, 180, 30, 0.6),
+      inset 0 -10px 20px rgba(255, 150, 0, 0.4);
+  }
+  70% {
+    filter: brightness(1.02);
+  }
+  90% {
+    filter: brightness(0.98);
   }
 }
 
-/* Mobile Responsive Adjustments */
-@media (max-width: 640px) {
-  .lighthouse-scene {
-    width: 100%;
-    max-width: 400px;
-    height: 280px;
+@keyframes filament-glow {
+  0%, 100% {
+    opacity: 0.8;
+    filter: blur(0.5px) brightness(1);
   }
-  
-  .lighthouse-tower {
-    width: 50px;
-    height: 140px;
-  }
-  
-  .light-room {
-    width: 60px;
-    bottom: 140px;
-  }
-  
-  .beacon-beam {
-    width: 300px;
-  }
-  
-  .rocky-coast {
-    width: 90%;
+  50% {
+    opacity: 1;
+    filter: blur(0.3px) brightness(1.2);
   }
 }
