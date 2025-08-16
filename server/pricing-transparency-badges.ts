@@ -247,22 +247,6 @@ export class PricingTransparencyService {
       };
     });
   }
-  
-  /**
-   * Get all communities with their transparency badges
-   */
-  async enrichCommunitiesWithBadges(communities: any[]): Promise<any[]> {
-    return communities.map(community => {
-      const badges = this.evaluateCommunityBadges(community);
-      const transparencyScore = this.getTransparencyScore(community);
-      
-      return {
-        ...community,
-        transparencyBadges: badges,
-        transparencyScore
-      };
-    });
-  }
 }
 
 export const pricingTransparencyService = new PricingTransparencyService();

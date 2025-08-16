@@ -228,7 +228,7 @@ export const US_CITIES: Record<string, [number, number]> = {
   'medford': [42.3265, -122.8756],
   'springfield': [44.0462, -123.0220],
   'corvallis': [44.5646, -123.2620],
-  'albany': [44.6365, -123.1059],
+  'albany or': [44.6365, -123.1059],
   'grants pass': [42.4390, -123.3284],
   'roseburg': [43.2165, -123.3417],
   'klamath falls': [42.2249, -121.7817],
@@ -236,7 +236,7 @@ export const US_CITIES: Record<string, [number, number]> = {
   'the dalles': [45.5946, -121.1787],
   'pendleton': [45.6721, -118.7886],
   'baker city': [44.7749, -117.8344],
-  'ontario': [44.0266, -116.9626],
+  'ontario or': [44.0266, -116.9626],
   'la grande': [45.3246, -118.0879],
   'astoria': [46.1879, -123.8313],
   'newport': [44.6368, -124.0534],
@@ -271,7 +271,7 @@ export const US_CITIES: Record<string, [number, number]> = {
   'rockford': [42.2711, -89.0940],
   'joliet': [41.5250, -88.0817],
   'naperville': [41.7508, -88.1535],
-  'springfield': [39.7817, -89.6501],
+  'springfield il': [39.7817, -89.6501],
   'peoria': [40.6936, -89.5890],
   
   // === PENNSYLVANIA CITIES ===
@@ -289,7 +289,7 @@ export const US_CITIES: Record<string, [number, number]> = {
   'mesa': [33.4152, -111.8315],
   'chandler': [33.3062, -111.8413],
   'scottsdale': [33.4942, -111.9261],
-  'glendale': [33.5387, -112.1860],
+  'glendale az': [33.5387, -112.1860],
   'tempe': [33.4255, -111.9400],
   'flagstaff': [35.1983, -111.6513],
   
@@ -329,7 +329,6 @@ export const US_CITIES: Record<string, [number, number]> = {
   'boston': [42.3601, -71.0589], // Massachusetts
   'denver': [39.7392, -104.9903], // Colorado
   'las vegas': [36.1699, -115.1398], // Nevada
-  'portland': [45.5152, -122.6784], // Oregon
   'minneapolis': [44.9778, -93.2650], // Minnesota
   'milwaukee': [43.0389, -87.9065], // Wisconsin
   'salt lake city': [40.7608, -111.8910], // Utah

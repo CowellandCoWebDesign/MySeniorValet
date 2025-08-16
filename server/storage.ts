@@ -563,24 +563,12 @@ export class MemStorage implements IStorage {
     return undefined;
   }
 
-  async upsertUser(user: UpsertUser): Promise<User> {
-    const existing = await this.getUserByEmail(user.email || '');
-    if (existing) {
-      return await this.updateUser(existing.id, user) || existing;
-    }
-    return await this.createUser(user as InsertUser);
-  }
-
   async createConversation(data: InsertChatConversation, participantIds: string[]): Promise<ChatConversation> {
     return { ...data, id: Date.now() } as ChatConversation;
   }
 
   async getConversations(userId: string): Promise<ChatConversation[]> {
     return [];
-  }
-
-  async getConversation(id: number): Promise<ChatConversation | undefined> {
-    return undefined;
   }
 
   async createMessage(message: InsertChatMessage): Promise<ChatMessage> {
@@ -592,28 +580,6 @@ export class MemStorage implements IStorage {
   }
 
   async updateMessageReadStatus(messageId: number, readByUserId: string): Promise<void> {}
-
-  async createSession(userId: string): Promise<UserSession> {
-    return {
-      id: `session_${Date.now()}`,
-      userId,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      ipAddress: null,
-      userAgent: null,
-      createdAt: new Date(),
-      lastAccessedAt: new Date()
-    };
-  }
-
-  async getSessionById(sessionId: string): Promise<UserSession | undefined> {
-    return undefined;
-  }
-
-  async deleteSession(sessionId: string): Promise<boolean> {
-    return true;
-  }
-
-  async cleanupExpiredSessions(): Promise<void> {}
 
   async getSuperAdminCount(): Promise<number> {
     return Array.from(this.users.values()).filter(u => u.role === 'super_admin').length;
@@ -665,20 +631,8 @@ export class MemStorage implements IStorage {
     return undefined;
   }
 
-  async getAllCommunities(): Promise<Community[]> {
-    return Array.from(this.communities.values());
-  }
-
-  async getTrendingCommunities(limit?: number): Promise<Community[]> {
-    return Array.from(this.communities.values()).slice(0, limit || 8);
-  }
-
   async getCommunityPhotoUrls(communityId: number): Promise<string[]> {
     return [];
-  }
-
-  async searchCommunities(params: any): Promise<any> {
-    return { communities: [], total: 0 };
   }
 
   async searchCommunitiesWithCoordinates(params: any): Promise<any> {
@@ -697,15 +651,7 @@ export class MemStorage implements IStorage {
     return [];
   }
 
-  async createTour(tour: InsertTour): Promise<Tour> {
-    return { ...tour, id: Date.now() } as Tour;
-  }
-
   async getTourById(id: number): Promise<Tour | undefined> {
-    return undefined;
-  }
-
-  async updateTour(id: number, updates: Partial<InsertTour>): Promise<Tour | undefined> {
     return undefined;
   }
 
@@ -2136,13 +2082,6 @@ export class DatabaseStorage implements IStorage {
   // These methods are already defined above, removed duplicates
 
   // Stub implementations for missing methods to prevent interface errors
-  async upsertUser(user: UpsertUser): Promise<User> {
-    const existing = await this.getUserByEmail(user.email || '');
-    if (existing) {
-      return await this.updateUser(existing.id, user) || existing;
-    }
-    return await this.createUser(user as InsertUser);
-  }
 
   async createConversation(data: InsertChatConversation, participantIds: string[]): Promise<ChatConversation> {
     const [conversation] = await db.insert(chatConversations).values(data).returning();
