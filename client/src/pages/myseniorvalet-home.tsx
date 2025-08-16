@@ -533,15 +533,15 @@ export default function MySeniorValetHome() {
           <div className="w-full px-2 sm:px-3 md:px-4 mb-3 animate-fade-in-up text-center">
             {/* Headlines */}
             <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-black leading-tight tracking-tight mb-2">
-              <span className="block text-white drop-shadow-2xl">Search 34,000+ Senior Living</span>
-              <span className="block text-white drop-shadow-2xl mb-1">Communities</span>
-              <span className="block text-red-500 text-xs sm:text-sm md:text-base font-bold">With Real HUD Pricing • Zero Paywalls</span>
+              <span className="block text-white drop-shadow-2xl text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-2">Welcome Home! 🏡</span>
+              <span className="block text-white drop-shadow-2xl text-lg sm:text-xl md:text-2xl lg:text-3xl mb-1">Your Journey to Perfect Senior Living Starts Here</span>
+              <span className="block text-red-500 text-xs sm:text-sm md:text-base font-bold">34,000+ Communities • Real HUD Pricing • Zero Paywalls</span>
             </h1>
             
             {/* Verification Badge */}
             <div className="flex items-center justify-center gap-1.5 text-green-400 mb-3">
               <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-xs sm:text-sm font-bold">Verified Pricing • Real Availability • No Pressure</span>
+              <span className="text-xs sm:text-sm font-bold">Trusted by Thousands of Families • Government Data • Complete Transparency</span>
             </div>
           </div>
           
