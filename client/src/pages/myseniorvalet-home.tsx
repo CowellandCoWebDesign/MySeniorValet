@@ -762,8 +762,8 @@ export default function MySeniorValetHome() {
         style={{
           backgroundImage: `url('/lighthouse-image.png?v=2')`,
           backgroundColor: '#1a2332',
-          backgroundSize: '100% auto',
-          backgroundPosition: 'center bottom',
+          backgroundSize: '40% auto',
+          backgroundPosition: 'center center',
           backgroundRepeat: 'no-repeat'
         }}
       >
