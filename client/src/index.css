@@ -1994,8 +1994,8 @@ body {
 /* Lighthouse Beacon Animation */
 .lighthouse-beacon {
   position: absolute;
-  top: -8%;
-  left: 28.5%;
+  top: -15%;
+  left: 28%;
   transform: translateX(-50%);
   width: 400px;
   height: 400px;
