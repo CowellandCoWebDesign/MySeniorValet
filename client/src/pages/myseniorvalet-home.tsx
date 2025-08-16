@@ -766,8 +766,8 @@ export default function MySeniorValetHome() {
           backgroundPosition: 'center'
         }}
       >
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/50" />
+        {/* Lighter overlay for better image visibility */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/30" />
         
         {/* Rotating Lighthouse Beacon */}
         <div className="lighthouse-beacon">
