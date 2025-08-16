@@ -717,75 +717,85 @@ export default function MySeniorValetHome() {
         
       </section>
 
-      {/* Emergency Quick Access Section - NEW */}
-      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950 dark:to-orange-950 border-y-2 border-red-200 dark:border-red-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            {/* Left side - Emergency Information */}
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="h-12 w-12 rounded-full bg-red-600 flex items-center justify-center animate-pulse">
-                  <Phone className="h-6 w-6 text-white" />
+      {/* Beta Launch Section - Moved to under hero */}
+      <section className="py-12 px-4 bg-gradient-to-b from-black via-gray-900 to-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <Card className="bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 border-purple-600 shadow-xl">
+            <CardContent className="p-8">
+              <div className="text-center">
+                {/* Beta Launch Badge */}
+                <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full text-sm font-bold shadow-lg mb-4 animate-pulse">
+                  <span className="mr-2">🚀</span>
+                  <span>ACTIVE BETA - LIVE NOW</span>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-red-900 dark:text-red-100">
-                    One-Touch Emergency Access
-                  </h2>
-                  <p className="text-sm text-red-700 dark:text-red-300">
-                    Quick access to 911 and your personal emergency contacts
+                
+                <p className="text-2xl md:text-3xl font-bold text-white dark:text-gray-100 mb-4">
+                  Master the Full 10-Level Care Spectrum
+                </p>
+                
+                {/* Ultra-Compact Care Spectrum */}
+                <div className="text-center mb-6 px-4">
+                  <div className="text-lg md:text-xl text-gray-100 dark:text-gray-200">
+                    <span className="text-amber-300 dark:text-purple-400 font-bold">🏛️ HUD</span> → 
+                    <span className="text-amber-300 dark:text-purple-400 font-bold"> 🎖️ VA</span> → 
+                    <span className="text-amber-300 dark:text-purple-400 font-bold"> 🚐 Mobile</span> → 
+                    <span className="text-amber-300 dark:text-purple-400 font-bold"> ⛳ 55+</span> → 
+                    <span className="text-amber-300 dark:text-purple-400 font-bold"> 🏠 Independent</span> → 
+                    <span className="text-amber-300 dark:text-purple-400 font-bold"> 🏡 Board & Care</span> → 
+                    <span className="text-amber-300 dark:text-purple-400 font-bold"> 🤝 Assisted</span> → 
+                    <span className="text-amber-300 dark:text-purple-400 font-bold"> 🧠 Memory</span> → 
+                    <span className="text-amber-300 dark:text-purple-400 font-bold"> ♾️ CCRC</span> → 
+                    <span className="text-amber-300 dark:text-purple-400 font-bold"> 🏥 Skilled</span>
+                  </div>
+                  <p className="text-sm text-gray-200 dark:text-gray-400 mt-2">Complete care continuum from independent to full medical support</p>
+                </div>
+
+                <p className="text-xl md:text-2xl text-gray-100 dark:text-gray-200">
+                  Finally understand every option, every transition, every cost - <strong className="text-amber-300 dark:text-purple-400">complete transparency</strong> across the entire care journey.
+                </p>
+                
+                {/* Beta Notice */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-400 dark:border-blue-600 rounded-lg p-4 mt-6">
+                  <p className="text-lg text-blue-800 dark:text-blue-300 font-semibold mb-2">
+                    🌟 Welcome to Our Active Beta Launch!
+                  </p>
+                  <p className="text-gray-700 dark:text-gray-300 mb-3">
+                    This platform is being released immediately for public access to rapidly deliver transparency and benefit society through immediate access to information powered by AI. We apologize for any malfunctions you may experience during this beta phase.
+                  </p>
+                  <p className="text-gray-700 dark:text-gray-300 mb-3">
+                    <strong>Quick Fix for Most Issues:</strong> Navigate to the top navbar, return home, and refresh your browser. This resolves most beta-related glitches.
+                  </p>
+                  <p className="text-gray-700 dark:text-gray-300 font-semibold">
+                    Thank you for your patience and support in joining this movement for transparency in senior living. Together, we're bringing light to an industry that has operated in darkness for too long.
                   </p>
                 </div>
+                
+                <p className="text-lg md:text-xl text-gray-100 dark:text-gray-300 mt-4">
+                  We're not just launching a platform. We're launching a movement - and you're part of it.
+                </p>
               </div>
-              <p className="text-gray-700 dark:text-gray-300 mb-4">
-                Our emergency contact system provides instant access to critical phone numbers when you need them most. 
-                Save your family contacts, medical providers, and facility numbers for one-touch dialing.
-              </p>
-            </div>
-            
-            {/* Right side - Quick Access Numbers */}
-            <div className="flex gap-4">
-              {/* 911 Button */}
-              <a 
-                href="tel:911"
-                className="flex flex-col items-center justify-center p-4 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
-              >
-                <AlertCircle className="h-8 w-8 mb-2" />
-                <span className="text-2xl font-bold">911</span>
-                <span className="text-xs">Emergency</span>
-              </a>
-              
-              {/* Poison Control */}
-              <a 
-                href="tel:18002221222"
-                className="flex flex-col items-center justify-center p-4 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
-              >
-                <Pill className="h-8 w-8 mb-2" />
-                <span className="text-lg font-bold">Poison</span>
-                <span className="text-xs">1-800-222-1222</span>
-              </a>
-              
-              {/* Crisis Hotline */}
-              <a 
-                href="tel:988"
-                className="flex flex-col items-center justify-center p-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
-              >
-                <Heart className="h-8 w-8 mb-2" />
-                <span className="text-2xl font-bold">988</span>
-                <span className="text-xs">Crisis Line</span>
-              </a>
-            </div>
-          </div>
-          
-          {/* Notice */}
-          <div className="mt-6 p-3 bg-yellow-50 dark:bg-yellow-950 rounded-lg border border-yellow-200 dark:border-yellow-800">
-            <div className="flex items-start gap-2">
-              <Info className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
-              <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                <strong>Important:</strong> Look for the red emergency button in the bottom-right corner of your screen for instant access to all emergency contacts. 
-                Create an account to save your personal emergency contacts for quick dialing.
-              </p>
-            </div>
-          </div>
+
+              <div className="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-base md:text-lg text-white dark:text-gray-200 mb-6 font-bold">
+                  Welcome to the Dawn of Transparency in Senior Living - All 10 Care Levels
+                </p>
+                <div className="flex flex-wrap justify-center gap-4">
+                  <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
+                    <Flag className="w-4 h-4 mr-2" />
+                    🇺🇸 USA • 🇲🇽 MEXICO • 🇨🇦 CANADA
+                  </Badge>
+                  <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
+                    <Building className="w-4 h-4 mr-2" />
+                    34,000+ Communities
+                  </Badge>
+                  <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
+                    <Unlock className="w-4 h-4 mr-2" />
+                    Zero Paywalls
+                  </Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
@@ -949,62 +959,6 @@ export default function MySeniorValetHome() {
                       </div>
                     </div>
                   </div>
-                </div>
-
-                {/* The Promise - 10 Levels of Care - ACTIVE BETA */}
-                <div className="my-8 py-8 border-y-2 border-purple-400 dark:border-purple-600">
-                  <Globe className="w-16 h-16 text-purple-600 dark:text-purple-400 mx-auto mb-6" />
-                  
-                  {/* Beta Launch Badge */}
-                  <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full text-sm font-bold shadow-lg mb-4 animate-pulse">
-                    <span className="mr-2">🚀</span>
-                    <span>ACTIVE BETA - LIVE NOW</span>
-                  </div>
-                  
-                  <p className="text-2xl md:text-3xl font-bold text-white dark:text-gray-100 mb-4">
-                    Master the Full 10-Level Care Spectrum
-                  </p>
-                  
-                  {/* Ultra-Compact Care Spectrum */}
-                  <div className="text-center mb-6 px-4">
-                    <div className="text-lg md:text-xl text-gray-100 dark:text-gray-200">
-                      <span className="text-amber-300 dark:text-purple-400 font-bold">🏛️ HUD</span> → 
-                      <span className="text-amber-300 dark:text-purple-400 font-bold"> 🎖️ VA</span> → 
-                      <span className="text-amber-300 dark:text-purple-400 font-bold"> 🚐 Mobile</span> → 
-                      <span className="text-amber-300 dark:text-purple-400 font-bold"> ⛳ 55+</span> → 
-                      <span className="text-amber-300 dark:text-purple-400 font-bold"> 🏠 Independent</span> → 
-                      <span className="text-amber-300 dark:text-purple-400 font-bold"> 🏡 Board & Care</span> → 
-                      <span className="text-amber-300 dark:text-purple-400 font-bold"> 🤝 Assisted</span> → 
-                      <span className="text-amber-300 dark:text-purple-400 font-bold"> 🧠 Memory</span> → 
-                      <span className="text-amber-300 dark:text-purple-400 font-bold"> ♾️ CCRC</span> → 
-                      <span className="text-amber-300 dark:text-purple-400 font-bold"> 🏥 Skilled</span>
-                    </div>
-                    <p className="text-sm text-gray-200 dark:text-gray-400 mt-2">Complete care continuum from independent to full medical support</p>
-                  </div>
-
-                  <p className="text-xl md:text-2xl text-gray-100 dark:text-gray-200">
-                    Finally understand every option, every transition, every cost - <strong className="text-amber-300 dark:text-purple-400">complete transparency</strong> across the entire care journey.
-                  </p>
-                  
-                  {/* Beta Notice */}
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-400 dark:border-blue-600 rounded-lg p-4 mt-6">
-                    <p className="text-lg text-blue-800 dark:text-blue-300 font-semibold mb-2">
-                      🌟 Welcome to Our Active Beta Launch!
-                    </p>
-                    <p className="text-gray-700 dark:text-gray-300 mb-3">
-                      This platform is being released immediately for public access to rapidly deliver transparency and benefit society through immediate access to information powered by AI. We apologize for any malfunctions you may experience during this beta phase.
-                    </p>
-                    <p className="text-gray-700 dark:text-gray-300 mb-3">
-                      <strong>Quick Fix for Most Issues:</strong> Navigate to the top navbar, return home, and refresh your browser. This resolves most beta-related glitches.
-                    </p>
-                    <p className="text-gray-700 dark:text-gray-300 font-semibold">
-                      Thank you for your patience and support in joining this movement for transparency in senior living. Together, we're bringing light to an industry that has operated in darkness for too long.
-                    </p>
-                  </div>
-                  
-                  <p className="text-lg md:text-xl text-gray-100 dark:text-gray-300 mt-4">
-                    We're not just launching a platform. We're launching a movement - and you're part of it.
-                  </p>
                 </div>
 
                 <div className="pt-6">
@@ -1386,6 +1340,78 @@ export default function MySeniorValetHome() {
                 </CardContent>
               </Card>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Emergency Quick Access Section - Moved to Resources area */}
+      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950 dark:to-orange-950 border-y-2 border-red-200 dark:border-red-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            {/* Left side - Emergency Information */}
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-12 w-12 rounded-full bg-red-600 flex items-center justify-center animate-pulse">
+                  <Phone className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-red-900 dark:text-red-100">
+                    One-Touch Emergency Access
+                  </h2>
+                  <p className="text-sm text-red-700 dark:text-red-300">
+                    Quick access to 911 and your personal emergency contacts
+                  </p>
+                </div>
+              </div>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                Our emergency contact system provides instant access to critical phone numbers when you need them most. 
+                Save your family contacts, medical providers, and facility numbers for one-touch dialing.
+              </p>
+            </div>
+            
+            {/* Right side - Quick Access Numbers */}
+            <div className="flex gap-4">
+              {/* 911 Button */}
+              <a 
+                href="tel:911"
+                className="flex flex-col items-center justify-center p-4 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
+              >
+                <AlertCircle className="h-8 w-8 mb-2" />
+                <span className="text-2xl font-bold">911</span>
+                <span className="text-xs">Emergency</span>
+              </a>
+              
+              {/* Poison Control */}
+              <a 
+                href="tel:18002221222"
+                className="flex flex-col items-center justify-center p-4 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
+              >
+                <Pill className="h-8 w-8 mb-2" />
+                <span className="text-lg font-bold">Poison</span>
+                <span className="text-xs">1-800-222-1222</span>
+              </a>
+              
+              {/* Crisis Hotline */}
+              <a 
+                href="tel:988"
+                className="flex flex-col items-center justify-center p-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
+              >
+                <Heart className="h-8 w-8 mb-2" />
+                <span className="text-2xl font-bold">988</span>
+                <span className="text-xs">Crisis Line</span>
+              </a>
+            </div>
+          </div>
+          
+          {/* Notice */}
+          <div className="mt-6 p-3 bg-yellow-50 dark:bg-yellow-950 rounded-lg border border-yellow-200 dark:border-yellow-800">
+            <div className="flex items-start gap-2">
+              <Info className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
+              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                <strong>Important:</strong> Look for the red emergency button in the bottom-right corner of your screen for instant access to all emergency contacts. 
+                Create an account to save your personal emergency contacts for quick dialing.
+              </p>
+            </div>
           </div>
         </div>
       </section>
