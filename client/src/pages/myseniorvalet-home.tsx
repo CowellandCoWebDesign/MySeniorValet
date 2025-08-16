@@ -756,43 +756,50 @@ export default function MySeniorValetHome() {
       </section>
 
       {/* TODAY, EVERYTHING CHANGES - Historic Launch Message */}
-      <section className="px-4 py-16 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 dark:from-black dark:via-purple-950 dark:to-black relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-blue-600/10"></div>
-        <div className="max-w-6xl mx-auto text-center relative">
-          {/* Elegant Lamp Animation */}
-          <div className="mb-12 relative">
-            {/* Beautiful light source */}
-            <div className="absolute inset-0 flex justify-center items-start -top-20">
-              <div className="lamp-container">
-                {/* Radiant light effect */}
-                <div className="lamp-light-rays"></div>
-                
-                {/* Professional lamp design */}
-                <div className="lamp-fixture">
-                  <div className="lamp-shade"></div>
-                  <div className="lamp-bulb">
-                    <div className="lamp-filament"></div>
-                  </div>
-                  <div className="lamp-base"></div>
+      <section className="relative overflow-hidden">
+        {/* Lighthouse Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url('/attached_assets/lighthouse-background.png')`,
+            filter: 'brightness(0.7)'
+          }}
+        />
+        
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60" />
+        
+        {/* Rotating Lighthouse Beacon */}
+        <div className="lighthouse-beacon">
+          <div className="beacon-source"></div>
+          <div className="beacon-light"></div>
+        </div>
+        
+        {/* Content Container */}
+        <div className="relative z-10 px-4 py-20">
+          <div className="max-w-6xl mx-auto text-center">
+            <div className="mb-12 relative">
+              <div className="relative z-20">
+                <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-base font-bold shadow-2xl mb-6 animate-pulse">
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  NOW LIVE ACROSS 🇺🇸 USA • 🇲🇽 MEXICO • 🇨🇦 CANADA
+                  <Sparkles className="w-5 h-5 ml-2" />
                 </div>
+                <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-4 drop-shadow-2xl">
+                  TODAY, EVERYTHING CHANGES
+                </h2>
+                <p className="text-2xl md:text-3xl text-gray-200 font-bold drop-shadow-lg">
+                  The Darkness in Senior Living Ends Now
+                </p>
               </div>
-            </div>
-            
-            <div className="relative z-20 pt-40">
-              <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-base font-bold shadow-2xl mb-6 animate-pulse">
-                <Sparkles className="w-5 h-5 mr-2" />
-                NOW LIVE ACROSS 🇺🇸 USA • 🇲🇽 MEXICO • 🇨🇦 CANADA
-                <Sparkles className="w-5 h-5 ml-2" />
-              </div>
-              <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-4 drop-shadow-2xl">
-                TODAY, EVERYTHING CHANGES
-              </h2>
-              <p className="text-2xl md:text-3xl text-gray-200 font-bold">
-                The Darkness in Senior Living Ends Now
-              </p>
             </div>
           </div>
-          
+        </div>
+      </section>
+
+      {/* Platform Content Section */}
+      <section className="px-4 py-16">
+        <div className="max-w-6xl mx-auto">
           <Card className="bg-white/98 dark:bg-gray-900/98 backdrop-blur-sm shadow-2xl border-0">
             <CardContent className="p-10 md:p-14">
               <div className="space-y-8">
