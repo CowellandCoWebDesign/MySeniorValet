@@ -780,17 +780,17 @@ export default function MySeniorValetHome() {
           <div className="max-w-6xl mx-auto text-center">
             <div className="mb-12 relative">
               <div className="relative z-20">
-                <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-base font-bold shadow-2xl mb-6 animate-pulse">
+                <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-4 drop-shadow-2xl">
+                  TODAY, EVERYTHING CHANGES
+                </h2>
+                <p className="text-2xl md:text-3xl text-gray-200 font-bold drop-shadow-lg mb-8">
+                  The Darkness in Senior Living Ends Now
+                </p>
+                <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-base font-bold shadow-2xl animate-pulse">
                   <Sparkles className="w-5 h-5 mr-2" />
                   NOW LIVE ACROSS 🇺🇸 USA • 🇲🇽 MEXICO • 🇨🇦 CANADA
                   <Sparkles className="w-5 h-5 ml-2" />
                 </div>
-                <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-4 drop-shadow-2xl">
-                  TODAY, EVERYTHING CHANGES
-                </h2>
-                <p className="text-2xl md:text-3xl text-gray-200 font-bold drop-shadow-lg">
-                  The Darkness in Senior Living Ends Now
-                </p>
               </div>
             </div>
           </div>
