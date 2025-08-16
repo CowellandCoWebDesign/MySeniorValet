@@ -758,16 +758,15 @@ export default function MySeniorValetHome() {
 
       {/* TODAY, EVERYTHING CHANGES - Historic Launch Message */}
       <section 
-        className="relative overflow-hidden bg-cover bg-center bg-no-repeat min-h-[600px]"
+        className="relative overflow-hidden min-h-[600px]"
         style={{
           backgroundImage: `url('/lighthouse-image.png?v=2')`,
           backgroundColor: '#1a2332',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
+          backgroundSize: '100% auto',
+          backgroundPosition: 'center bottom',
+          backgroundRepeat: 'no-repeat'
         }}
       >
-        {/* Lighter overlay for better image visibility */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/30" />
         
         {/* 3D Rotating Lighthouse Beacon */}
         <div className="lighthouse-beacon">
@@ -803,7 +802,7 @@ export default function MySeniorValetHome() {
       {/* Platform Content Section */}
       <section className="px-4 py-16">
         <div className="max-w-6xl mx-auto">
-          <Card className="bg-white/98 dark:bg-gray-900/98 backdrop-blur-sm shadow-2xl border-0">
+          <Card className="bg-white/98 backdrop-blur-sm shadow-2xl border-0">
             <CardContent className="p-10 md:p-14">
               <div className="space-y-8">
                 {/* The Darkness Section */}
@@ -862,7 +861,7 @@ export default function MySeniorValetHome() {
                 </div>
 
                 {/* The Light Section */}
-                <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-8 border-2 border-green-400">
+                <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-xl p-8 border-2 border-green-400">
                   <div className="mb-6">
                     {/* Country Coverage Badge */}
                     <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-gradient-to-r from-emerald-500/90 to-blue-500/90 backdrop-blur-sm text-white rounded-full text-sm sm:text-lg font-bold shadow-2xl mb-4 animate-bounce-slow">
