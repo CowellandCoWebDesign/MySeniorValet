@@ -2058,7 +2058,7 @@ body {
 .beacon-container::before {
   content: '';
   position: absolute;
-  top: -110px;  /* Raised to align with lighthouse lantern */
+  top: -350px;  /* Raised to actual lighthouse lantern position */
   left: -50px;
   width: 1600px;
   height: 320px;
@@ -2073,7 +2073,7 @@ body {
     transparent 2deg,
     transparent 360deg
   );
-  transform-origin: 50px 160px;  /* Adjusted origin to match lantern position */
+  transform-origin: 50px 400px;  /* Origin at actual lighthouse lantern */
   filter: blur(2px);
   mix-blend-mode: screen;
   pointer-events: none;
@@ -2084,7 +2084,7 @@ body {
 .beacon-container::after {
   content: '';
   position: absolute;
-  top: -160px;  /* Raised to align with lighthouse lantern */
+  top: -400px;  /* Raised to actual lighthouse lantern position */
   left: -100px;
   width: 2000px;
   height: 420px;
@@ -2096,7 +2096,7 @@ body {
     rgba(255, 180, 20, 0.015) 50%,
     transparent 80%
   );
-  transform-origin: 100px 210px;  /* Adjusted origin to match lantern position */
+  transform-origin: 100px 450px;  /* Origin at actual lighthouse lantern */
   filter: blur(5px);
   mix-blend-mode: screen;
   pointer-events: none;
@@ -2107,10 +2107,10 @@ body {
 .lighthouse-beacon::before {
   content: '';
   position: absolute;
-  top: -20px;  /* Raised significantly to center on lighthouse lantern */
+  top: -260px;  /* Raised to actual lighthouse lantern level */
   left: -150px;
   width: 2200px;
-  height: 300px;  /* Reduced height to concentrate effect at lantern level */
+  height: 300px;  /* Concentrated at lantern level */
   background-image: 
     radial-gradient(circle at 10% 50%, rgba(255, 220, 100, 0.3) 0%, transparent 2%),
     radial-gradient(circle at 15% 45%, rgba(255, 210, 80, 0.2) 0%, transparent 1.5%),
