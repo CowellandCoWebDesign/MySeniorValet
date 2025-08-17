@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { HealthcareProviderCard } from "@/components/HealthcareProviderCard";
 import { 
   Stethoscope, Home, Activity, Users, Heart, Brain, Shield, Monitor,
   ChevronDown, ChevronUp, ChevronRight, ChevronLeft, CheckCircle, MapPin, Clock, Phone, Star,
@@ -235,7 +236,7 @@ export default function SeniorHealthcareDirectory() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-slate-900">
       <NavigationHeader />
       
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -364,55 +365,25 @@ export default function SeniorHealthcareDirectory() {
                               style={{ scrollSnapType: 'x mandatory' }}
                             >
                               {providers.map((provider) => (
-                                <Card 
-                                  key={provider.id} 
-                                  className="flex-shrink-0 w-[280px] hover:shadow-lg transition-shadow cursor-pointer"
-                                  style={{ scrollSnapAlign: 'start' }}
-                                >
-                                  <CardContent className="p-4">
-                                    <div className="flex items-start justify-between mb-2">
-                                      <h4 className="font-semibold text-sm line-clamp-2">
-                                        {provider.name}
-                                      </h4>
-                                      {provider.verified && (
-                                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 ml-2" />
-                                      )}
-                                    </div>
-                                    <div className="space-y-2 text-xs text-muted-foreground">
-                                      <div className="flex items-center gap-1">
-                                        <MapPin className="h-3 w-3" />
-                                        <span>{provider.city}, {provider.state}</span>
-                                      </div>
-                                      {(provider.rating || provider.cmsRating) && (
-                                        <div className="flex items-center gap-1">
-                                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                          <span>{provider.rating || provider.cmsRating}/5</span>
-                                        </div>
-                                      )}
-                                      {provider.phone && (
-                                        <div className="flex items-center gap-1">
-                                          <Phone className="h-3 w-3" />
-                                          <span>{provider.phone}</span>
-                                        </div>
-                                      )}
-                                      {provider.emergencyServices && (
-                                        <Badge variant="destructive" className="text-xs">
-                                          Emergency Services
-                                        </Badge>
-                                      )}
-                                    </div>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm" 
-                                      className="w-full mt-3 text-xs"
-                                      onClick={() => setLocation(`/${service.link}/${provider.id}`)}
-                                    >
-                                      View Details
-                                      <ExternalLink className="h-3 w-3 ml-1" />
-                                    </Button>
-                                  </CardContent>
-                                </Card>
-                              ))}
+                                <HealthcareProviderCard
+                                  key={provider.id}
+                                  provider={{
+                                    id: provider.id,
+                                    name: provider.name,
+                                    address: `${provider.city}, ${provider.state}`,
+                                    city: provider.city,
+                                    state: provider.state,
+                                    phone: provider.phone,
+                                    services: ['Continuing Care', service.category, 'Personal Care'],
+                                    tags: provider.verified ? ['Website Verified'] : [],
+                                    verified: true,
+                                    licensed: true,
+                                    category: service.name,
+                                    color: service.color
+                                  }}
+                                  onContact={() => setLocation(`/${service.link}/${provider.id}`)}
+                                  onVisitWebsite={() => window.open(`https://example.com/${provider.id}`, '_blank')}
+                                />
                             </div>
                           </div>
                         ) : (
