@@ -9,7 +9,8 @@ import { CareServiceCard } from "@/components/CareServiceCard";
 import { 
   Stethoscope, Home, Activity, Users, Heart, Brain, Shield, Monitor,
   Pill, ChevronRight, CheckCircle, MapPin, Clock, Phone, Star,
-  Zap, HeartHandshake, UserCheck, Calendar, AlertCircle
+  Zap, HeartHandshake, UserCheck, Calendar, AlertCircle,
+  Users2, Car, ShoppingCart, Layers
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -44,6 +45,11 @@ export default function SeniorHealthcareDirectory() {
   // Fetch hospitals data
   const { data: hospitalsData, isLoading: hospitalsLoading } = useQuery({
     queryKey: ['/api/hospitals'],
+  });
+
+  // Fetch featured hospitals for slider
+  const { data: featuredHospitals, isLoading: featuredHospitalsLoading } = useQuery({
+    queryKey: ['/api/hospitals/featured'],
   });
 
   const services = (careServicesData as any)?.services || [];
@@ -517,6 +523,188 @@ export default function SeniorHealthcareDirectory() {
               </div>
             </CardContent>
           </Card>
+        </div>
+      </section>
+
+      {/* Comprehensive Care Services Directory Section */}
+      <section className="px-4 py-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-8">
+            <Card className="group bg-white dark:bg-gray-800 border-2 border-orange-200 dark:border-orange-400 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-red-50/50 dark:from-orange-900/20 dark:to-red-900/20"></div>
+              <CardContent className="p-8 relative z-10">
+                <div className="text-center mb-6">
+                  <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 rounded-full text-white text-sm font-semibold mb-4 shadow-lg">
+                    <span className="mr-2">🚀</span>
+                    Now Available!
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Healthcare and Care Services Directory</h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-lg max-w-3xl mx-auto mb-4">
+                    Connect with {(careServicesAnalytics as any)?.totalServices?.toLocaleString() || '4,210'}+ verified healthcare and caregiving services in your area
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Care Services Grid - 3x4 Layout */}
+          <div className="grid grid-cols-3 gap-3 md:gap-4 mb-8 max-w-4xl mx-auto">
+            <Link href="/hospitals">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 relative overflow-hidden h-full">
+                <CardContent className="p-2 sm:p-3 text-center">
+                  <div className="absolute top-1 right-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  </div>
+                  <Stethoscope className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500 mx-auto mb-1.5" />
+                  <h4 className="font-semibold text-xs sm:text-sm text-blue-700 dark:text-blue-300 line-clamp-2">Hospital Services</h4>
+                  <p className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 mt-0.5 line-clamp-2">6,000+ CMS verified</p>
+                  <div className="flex flex-col gap-0.5 mt-1">
+                    <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
+                    <Badge className="bg-blue-500 text-white text-[10px] px-1.5 py-0.5">CMS RATED</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+            
+            <Link href="/home-care">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 relative overflow-hidden h-full">
+                <CardContent className="p-2 sm:p-3 text-center">
+                  <div className="absolute top-1 right-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  </div>
+                  <Home className="w-6 h-6 sm:w-8 sm:h-8 text-green-500 mx-auto mb-1.5" />
+                  <h4 className="font-semibold text-xs sm:text-sm text-green-700 dark:text-green-300 line-clamp-2">Home Care Services</h4>
+                  <p className="text-[10px] sm:text-xs text-green-600 dark:text-green-400 mt-0.5 line-clamp-2">Licensed caregivers</p>
+                  <div className="flex flex-col gap-0.5 mt-1">
+                    <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
+                    <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">24/7</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+            
+            {/* Therapy Services - REAL DATA */}
+            {(() => {
+              const services = (careServicesData as any)?.services || [];
+              const therapyCount = services.filter((s: any) => s.serviceCategory === 'Therapy Services').length;
+              
+              return (
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 relative overflow-hidden h-full">
+                  <CardContent className="p-2 sm:p-3 text-center">
+                    <div className="absolute top-1 right-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    </div>
+                    <Activity className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 mx-auto mb-1.5" />
+                    <h4 className="font-semibold text-xs sm:text-sm text-purple-700 dark:text-purple-300 line-clamp-2">Therapy Services</h4>
+                    <p className="text-[10px] sm:text-xs text-purple-600 dark:text-purple-400 mt-0.5 line-clamp-2">{therapyCount} providers</p>
+                    <div className="flex flex-col gap-0.5 mt-1">
+                      <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
+                      <Badge className="bg-purple-500 text-white text-[10px] px-1.5 py-0.5">PT/OT/SPEECH</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+            
+            {/* Adult Day Care - REAL DATA */}
+            {(() => {
+              const services = (careServicesData as any)?.services || [];
+              const adultDayCareCount = services.filter((s: any) => s.serviceCategory === 'Adult Day Care').length;
+              
+              return (
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-teal-200 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 relative overflow-hidden h-full">
+                  <CardContent className="p-2 sm:p-3 text-center">
+                    <div className="absolute top-1 right-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    </div>
+                    <Users className="w-6 h-6 sm:w-8 sm:h-8 text-teal-500 mx-auto mb-1.5" />
+                    <h4 className="font-semibold text-xs sm:text-sm text-teal-700 dark:text-teal-300 line-clamp-2">Adult Day Programs</h4>
+                    <p className="text-[10px] sm:text-xs text-teal-600 dark:text-teal-400 mt-0.5 line-clamp-2">{adultDayCareCount} programs</p>
+                    <div className="flex flex-col gap-0.5 mt-1">
+                      <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
+                      <Badge className="bg-teal-500 text-white text-[10px] px-1.5 py-0.5">MEALS + TRANSPORT</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+            
+            {/* Personal Care Services - REAL DATA */}
+            {(() => {
+              const services = (careServicesData as any)?.services || [];
+              const personalCareCount = services.filter((s: any) => s.serviceCategory === 'Personal Care Services').length;
+              
+              return (
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 relative overflow-hidden h-full">
+                  <CardContent className="p-2 sm:p-3 text-center">
+                    <div className="absolute top-1 right-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    </div>
+                    <Users2 className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500 mx-auto mb-1.5" />
+                    <h4 className="font-semibold text-xs sm:text-sm text-orange-700 dark:text-orange-300 line-clamp-2">Personal Care</h4>
+                    <p className="text-[10px] sm:text-xs text-orange-600 dark:text-orange-400 mt-0.5 line-clamp-2">{personalCareCount} providers</p>
+                    <div className="flex flex-col gap-0.5 mt-1">
+                      <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
+                      <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0.5">DAILY LIVING</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+              <CardContent className="p-2 sm:p-3 text-center">
+                <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 mx-auto mb-1.5" />
+                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Telemedicine</h4>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Virtual consultations</p>
+                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+              <CardContent className="p-2 sm:p-3 text-center">
+                <Pill className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500 mx-auto mb-1.5" />
+                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Pharmacy Services</h4>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Medication delivery</p>
+                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+              <CardContent className="p-2 sm:p-3 text-center">
+                <Car className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500 mx-auto mb-1.5" />
+                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Medical Transport</h4>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Wheelchair accessible</p>
+                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+              <CardContent className="p-2 sm:p-3 text-center">
+                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-500 mx-auto mb-1.5" />
+                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Mental Health</h4>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Counseling & therapy</p>
+                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+            
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 h-full">
+              <CardContent className="p-2 sm:p-3 text-center">
+                <ShoppingCart className="w-6 h-6 sm:w-8 sm:h-8 text-amber-500 mx-auto mb-1.5" />
+                <h4 className="font-semibold text-xs sm:text-sm line-clamp-2">Medical Equipment</h4>
+                <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">Mobility aids & devices</p>
+                <Badge className="bg-gray-400 text-white text-[10px] px-1.5 py-0.5 mt-1">Example Service</Badge>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center mb-8">
+            <Link href="/care-services">
+              <Button className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                Browse All Care Services →
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
