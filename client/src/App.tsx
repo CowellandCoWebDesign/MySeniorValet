@@ -338,7 +338,7 @@ function AppContent() {
                 {/* Cookie Banner temporarily disabled - was blocking search on mobile */}
                 {/* <CookieConsentBanner /> */}
                 <DisclaimerBanner />
-                {user && preferences.emergencyButton && <EmergencyButton userId={user.id} />}
+                {user && <EmergencyButton userId={user.id} />}
                 </MascotProvider>
               </TooltipProvider>
             </VoiceGuidanceProvider>

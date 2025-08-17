@@ -424,21 +424,7 @@ export default function MySeniorValetHome() {
                           />
                         </div>
                         
-                        {/* Voice Guidance */}
-                        <div className="flex items-center justify-between py-2">
-                          <div className="flex items-center space-x-3">
-                            <Users2 className="h-4 w-4 text-blue-500" />
-                            <Label htmlFor="voice-guidance" className="text-sm font-medium cursor-pointer">
-                              Voice Guidance
-                            </Label>
-                          </div>
-                          <Switch
-                            id="voice-guidance"
-                            checked={preferences.voiceGuidance}
-                            onCheckedChange={() => togglePreference('voiceGuidance')}
-                          />
-                        </div>
-                        
+
                         {/* High Contrast */}
                         <div className="flex items-center justify-between py-2">
                           <div className="flex items-center space-x-3">

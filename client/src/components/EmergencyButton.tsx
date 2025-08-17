@@ -43,11 +43,6 @@ export function EmergencyButton({ userId }: { userId?: string }) {
   const [pulseAnimation, setPulseAnimation] = useState(true);
   const { toast } = useToast();
   const { preferences } = useAccessibilityPreferences();
-  
-  // Don't render if emergency button is disabled in accessibility preferences
-  if (!preferences.emergencyButton) {
-    return null;
-  }
 
   const fetchQuickDialData = async () => {
     // Allow opening even without userId to show emergency numbers
@@ -126,6 +121,11 @@ export function EmergencyButton({ userId }: { userId?: string }) {
       description: `Initiating call to ${label}`,
     });
   };
+
+  // Don't render if emergency button is disabled in accessibility preferences
+  if (!preferences.emergencyButton) {
+    return null;
+  }
 
   return (
     <>
