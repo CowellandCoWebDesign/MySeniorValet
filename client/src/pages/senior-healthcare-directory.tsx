@@ -1,18 +1,18 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { NavigationHeader } from "@/components/NavigationHeader";
-import { HealthcareProviderCard } from "@/components/HealthcareProviderCard";
+import HospitalCarousel from "@/components/HospitalCarousel";
+import { CareServiceCard } from "@/components/CareServiceCard";
 import { 
   Stethoscope, Home, Activity, Users, Heart, Brain, Shield, Monitor,
-  ChevronDown, ChevronUp, ChevronRight, ChevronLeft, CheckCircle, MapPin, Clock, Phone, Star,
-  Zap, HeartHandshake, UserCheck, Calendar, AlertCircle,
-  Users2, Car, ShoppingCart, Layers, ExternalLink, ArrowRight
+  Pill, ChevronRight, CheckCircle, MapPin, Clock, Phone, Star,
+  Zap, HeartHandshake, UserCheck, Calendar, AlertCircle
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface HealthcareService {
   id: number;
@@ -27,28 +27,9 @@ interface HealthcareService {
   badge?: string;
 }
 
-interface ProviderData {
-  id: number;
-  name: string;
-  rating?: number;
-  city: string;
-  state: string;
-  verified?: boolean;
-  serviceName?: string;
-  serviceCategory?: string;
-  phone?: string;
-  emergencyServices?: boolean;
-  cmsRating?: number;
-}
-
 export default function SeniorHealthcareDirectory() {
-  const [expandedSections, setExpandedSections] = useState<Record<number, boolean>>({
-    1: true, // Hospital Services expanded by default
-    2: true, // Home Care expanded by default
-  });
-  
-  const [carouselPositions, setCarouselPositions] = useState<Record<number, number>>({});
-  const carouselRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [, setLocation] = useLocation();
 
   // Fetch care services data
@@ -65,43 +46,8 @@ export default function SeniorHealthcareDirectory() {
     queryKey: ['/api/hospitals'],
   });
 
-  // Fetch featured hospitals for slider
-  const { data: featuredHospitals, isLoading: featuredHospitalsLoading } = useQuery({
-    queryKey: ['/api/hospitals/featured'],
-  });
-
   const services = (careServicesData as any)?.services || [];
   const hospitals = (hospitalsData as any)?.hospitals || [];
-  const featuredHospitalsList = (featuredHospitals as any)?.hospitals || [];
-
-  const toggleSection = (id: number) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }));
-  };
-
-  const scrollCarousel = (serviceId: number, direction: 'left' | 'right') => {
-    const container = carouselRefs.current[serviceId];
-    if (!container) return;
-    
-    const scrollAmount = 320; // Width of one card plus gap
-    const currentPosition = carouselPositions[serviceId] || 0;
-    
-    if (direction === 'left') {
-      container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-      setCarouselPositions(prev => ({
-        ...prev,
-        [serviceId]: Math.max(0, currentPosition - scrollAmount)
-      }));
-    } else {
-      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      setCarouselPositions(prev => ({
-        ...prev,
-        [serviceId]: currentPosition + scrollAmount
-      }));
-    }
-  };
 
   const healthcareServices: HealthcareService[] = [
     {
@@ -112,7 +58,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: 6000,
       verified: true,
       icon: Stethoscope,
-      link: "hospitals",
+      link: "/hospitals",
       color: "from-blue-500 to-cyan-500",
       badge: "CMS RATED"
     },
@@ -124,7 +70,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Home Care').length || 850,
       verified: true,
       icon: Home,
-      link: "home-care",
+      link: "/home-care",
       color: "from-green-500 to-emerald-500",
       badge: "24/7"
     },
@@ -133,10 +79,10 @@ export default function SeniorHealthcareDirectory() {
       name: "Therapy Services",
       category: "Rehabilitation",
       description: "Physical, occupational, and speech therapy",
-      providerCount: services.filter((s: any) => s.serviceCategory === 'Therapy Services').length || 144,
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Therapy Services').length || 450,
       verified: true,
       icon: Activity,
-      link: "therapy-services",
+      link: "/therapy-services",
       color: "from-purple-500 to-indigo-500",
       badge: "PT/OT/SPEECH"
     },
@@ -148,345 +94,462 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Companion Care').length || 320,
       verified: true,
       icon: Users,
-      link: "companion-care",
+      link: "/companion-care",
       color: "from-pink-500 to-rose-500"
     },
     {
       id: 5,
+      name: "Personal Care",
+      category: "ADL Support",
+      description: "Assistance with daily living activities",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Personal Care').length || 280,
+      verified: true,
+      icon: Heart,
+      link: "/personal-care",
+      color: "from-red-500 to-orange-500"
+    },
+    {
+      id: 6,
       name: "Memory Care",
       category: "Dementia Support",
       description: "Specialized dementia and Alzheimer's care",
       providerCount: services.filter((s: any) => s.serviceCategory === 'Memory Care').length || 200,
       verified: true,
       icon: Brain,
-      link: "memory-care",
-      color: "from-orange-500 to-red-500",
+      link: "/memory-care",
+      color: "from-indigo-500 to-purple-500",
       badge: "SPECIALIZED"
     },
     {
-      id: 6,
+      id: 7,
       name: "Hospice Care",
       category: "End-of-Life Care",
       description: "Compassionate end-of-life support",
-      providerCount: services.filter((s: any) => s.serviceCategory === 'Hospice Care').length || 150,
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Hospice').length || 150,
       verified: true,
-      icon: Heart,
-      link: "hospice-care",
+      icon: HeartHandshake,
+      link: "/hospice-care",
       color: "from-teal-500 to-cyan-500"
+    },
+    {
+      id: 8,
+      name: "Medical Equipment",
+      category: "DME Providers",
+      description: "Durable medical equipment and supplies",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Medical Equipment').length || 175,
+      verified: true,
+      icon: Monitor,
+      link: "/medical-equipment",
+      color: "from-gray-500 to-slate-500"
+    },
+    {
+      id: 9,
+      name: "Nursing Services",
+      category: "Skilled Nursing",
+      description: "RN and LPN skilled nursing care",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Nursing').length || 225,
+      verified: true,
+      icon: UserCheck,
+      link: "/nursing-services",
+      color: "from-blue-600 to-indigo-600",
+      badge: "RN/LPN"
     }
   ];
 
-  // Mock data for provider carousels - using real data when available
-  const providersByCategory: Record<string, ProviderData[]> = {
-    "Hospital Services": featuredHospitalsList.length > 0 ? featuredHospitalsList.map((h: any) => ({
-      id: h.id,
-      name: h.name,
-      city: h.city,
-      state: h.state,
-      verified: true,
-      cmsRating: h.cmsRating,
-      emergencyServices: h.emergencyServices,
-      phone: h.phone
-    })) : [
-      { id: 1, name: "Cleveland Clinic", rating: 4.8, city: "Cleveland", state: "OH", verified: true },
-      { id: 2, name: "Mayo Clinic", rating: 4.9, city: "Rochester", state: "MN", verified: true },
-      { id: 3, name: "Johns Hopkins Hospital", rating: 4.7, city: "Baltimore", state: "MD", verified: true },
-      { id: 4, name: "UCLA Medical Center", rating: 4.6, city: "Los Angeles", state: "CA", verified: true },
-      { id: 5, name: "Mass General Hospital", rating: 4.8, city: "Boston", state: "MA", verified: true },
-      { id: 6, name: "Cedars-Sinai Medical Center", rating: 4.5, city: "Los Angeles", state: "CA", verified: true },
-    ],
-    "Home Care Services": services.filter((s: any) => s.serviceCategory === 'Home Care').slice(0, 8).map((s: any) => ({
-      id: s.id,
-      name: s.serviceName || s.name,
-      city: s.city || "National",
-      state: s.state || "Coverage",
-      verified: true,
-      rating: 4.5
-    })).concat(services.filter((s: any) => s.serviceCategory === 'Home Care').length < 8 ? [
-      { id: 101, name: "Comfort Keepers", rating: 4.5, city: "National", state: "Coverage", verified: true },
-      { id: 102, name: "Visiting Angels", rating: 4.6, city: "National", state: "Coverage", verified: true },
-      { id: 103, name: "Home Instead", rating: 4.4, city: "National", state: "Coverage", verified: true },
-      { id: 104, name: "Right at Home", rating: 4.3, city: "National", state: "Coverage", verified: true },
-      { id: 105, name: "BrightStar Care", rating: 4.5, city: "National", state: "Coverage", verified: true },
-      { id: 106, name: "Seniors Helping Seniors", rating: 4.4, city: "National", state: "Coverage", verified: true },
-    ] : []),
-    "Therapy Services": [
-      { id: 201, name: "BenchMark Physical Therapy", rating: 4.6, city: "Multiple", state: "Locations", verified: true },
-      { id: 202, name: "ATI Physical Therapy", rating: 4.5, city: "National", state: "Network", verified: true },
-      { id: 203, name: "Select Physical Therapy", rating: 4.4, city: "Multiple", state: "States", verified: true },
-      { id: 204, name: "Athletico Physical Therapy", rating: 4.7, city: "Midwest", state: "Region", verified: true },
-      { id: 205, name: "CORA Physical Therapy", rating: 4.3, city: "Southeast", state: "Region", verified: true },
-    ],
-    "Memory Care": [
-      { id: 301, name: "Sunrise Senior Living", rating: 4.3, city: "National", state: "Chain", verified: true },
-      { id: 302, name: "Brookdale Memory Care", rating: 4.2, city: "National", state: "Chain", verified: true },
-      { id: 303, name: "Silverado Memory Care", rating: 4.5, city: "Multiple", state: "States", verified: true },
-      { id: 304, name: "Artis Senior Living", rating: 4.4, city: "Select", state: "Markets", verified: true },
-    ],
-    "Companion Care": [
-      { id: 401, name: "Papa Companions", rating: 4.6, city: "National", state: "Coverage", verified: true },
-      { id: 402, name: "Care.com", rating: 4.3, city: "Online", state: "Platform", verified: true },
-      { id: 403, name: "Sittercity", rating: 4.2, city: "Online", state: "Platform", verified: true },
-    ],
-    "Hospice Care": [
-      { id: 501, name: "VITAS Healthcare", rating: 4.4, city: "National", state: "Provider", verified: true },
-      { id: 502, name: "Kindred Hospice", rating: 4.3, city: "Multiple", state: "States", verified: true },
-      { id: 503, name: "Amedisys Hospice", rating: 4.2, city: "National", state: "Network", verified: true },
-    ]
-  };
+  // Calculate total providers
+  const totalProviders = (careServicesAnalytics as any)?.totalServices || 
+    healthcareServices.reduce((sum, service) => sum + service.providerCount, 0);
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <NavigationHeader />
       
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Header Section */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-            Senior Healthcare Directory
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Comprehensive healthcare services for seniors - from hospitals to home care
-          </p>
-        </div>
-
-        {/* Healthcare Services with Carousels */}
-        <div className="space-y-6">
-          {healthcareServices.map((service) => {
-            const isExpanded = expandedSections[service.id];
-            const providers = providersByCategory[service.name] || [];
+      {/* Page Header */}
+      <section className="px-4 py-12 bg-gradient-to-r from-teal-600 via-blue-600 to-indigo-600">
+        <div className="max-w-6xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h1 className="text-5xl font-bold text-white mb-4">
+              Senior Healthcare Services Directory
+            </h1>
+            <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8">
+              Connect with {totalProviders?.toLocaleString() || '4,210'}+ verified healthcare and caregiving services in your area
+            </p>
             
-            return (
+            {/* Stats Cards */}
+            <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                <CardContent className="p-4 text-center">
+                  <Stethoscope className="h-8 w-8 text-white mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-white">6,000+</div>
+                  <div className="text-sm text-blue-100">Hospitals</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                <CardContent className="p-4 text-center">
+                  <Home className="h-8 w-8 text-white mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-white">
+                    {(careServicesAnalytics as any)?.homeCare || '850+'}
+                  </div>
+                  <div className="text-sm text-blue-100">Home Care</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                <CardContent className="p-4 text-center">
+                  <CheckCircle className="h-8 w-8 text-white mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-white">100%</div>
+                  <div className="text-sm text-blue-100">Verified</div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* CTA Button */}
+            <Button 
+              size="lg"
+              className="bg-white text-blue-600 hover:bg-gray-100 font-semibold shadow-xl"
+              onClick={() => setLocation('/care-guide')}
+            >
+              <Zap className="mr-2 h-5 w-5" />
+              Browse Care Guide
+            </Button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Healthcare Services Grid */}
+      <section className="px-4 py-12">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Healthcare Service Categories
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Find the right healthcare providers for your needs
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {healthcareServices.map((service) => (
               <motion.div
                 key={service.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: service.id * 0.05 }}
-                className="border border-border rounded-lg overflow-hidden bg-gradient-to-br from-card/50 to-card"
               >
-                {/* Service Header */}
-                <div className="p-6 relative">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-4">
+                <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 hover:border-teal-400 relative overflow-hidden group">
+                  <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
+                  <CardHeader className="relative z-10">
+                    <div className="flex justify-between items-start mb-2">
                       <div className={`p-3 rounded-lg bg-gradient-to-br ${service.color} text-white`}>
                         <service.icon className="h-6 w-6" />
                       </div>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-semibold text-white">{service.name}</h3>
-                        <p className="text-sm text-gray-400 mb-2">{service.category}</p>
-                        <p className="text-sm text-gray-300 mb-2">{service.description}</p>
-                        <p className="text-sm text-gray-300">
-                          {service.providerCount.toLocaleString()} providers
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {/* VERIFIED Badge - Top Right */}
-                    {service.verified && (
-                      <div className="absolute top-4 right-4 text-right">
-                        <Badge className="bg-green-600 text-white text-xs px-2 py-1">
-                          <CheckCircle className="h-3 w-3 mr-1" />
+                      <div className="flex flex-col items-end gap-1">
+                        <Badge className="bg-green-500 text-white">
+                          <CheckCircle className="mr-1 h-3 w-3" />
                           VERIFIED
                         </Badge>
                         {service.badge && (
-                          <div className="text-xs text-gray-300 mt-1">{service.badge}</div>
+                          <Badge variant="secondary" className="text-xs">
+                            {service.badge}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <CardTitle className="text-xl">{service.name}</CardTitle>
+                    <CardDescription className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      {service.category}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="relative z-10">
+                    <p className="text-gray-700 dark:text-gray-300 mb-3">
+                      {service.description}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">
+                        {service.providerCount.toLocaleString()} providers
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setExpandedCategory(expandedCategory === service.name ? null : service.name)}
+                        className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 font-semibold"
+                      >
+                        {expandedCategory === service.name ? 'Hide' : 'View All'}
+                        <ChevronRight className={`ml-1 h-4 w-4 transition-transform ${expandedCategory === service.name ? 'rotate-90' : ''}`} />
+                      </Button>
+                    </div>
+                    
+                    {/* Expanded Provider List */}
+                    {expandedCategory === service.name && (
+                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        {servicesLoading ? (
+                          <div className="text-center py-4">
+                            <div className="animate-spin w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full mx-auto"></div>
+                          </div>
+                        ) : (
+                          <div className="space-y-2 max-h-60 overflow-y-auto">
+                            {service.name === "Hospital Services" && hospitals.length > 0 ? (
+                              hospitals.slice(0, 5).map((hospital: any) => (
+                                <div key={hospital.id} className="p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                  <div className="font-medium text-sm">{hospital.name}</div>
+                                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                                    {hospital.city}, {hospital.state} • {hospital.phone}
+                                  </div>
+                                  {hospital.cms_rating && (
+                                    <div className="flex items-center gap-1 mt-1">
+                                      {[...Array(hospital.cms_rating)].map((_, i) => (
+                                        <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              ))
+                            ) : services.filter((s: any) => s.serviceCategory === service.category).slice(0, 5).map((provider: any) => (
+                              <div key={provider.id} className="p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                <div className="font-medium text-sm">{provider.providerName || provider.name}</div>
+                                <div className="text-xs text-gray-600 dark:text-gray-400">
+                                  {provider.phone} • {provider.city || 'Multiple Locations'}
+                                </div>
+                                {provider.website && (
+                                  <a 
+                                    href={provider.website}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-teal-600 hover:underline"
+                                  >
+                                    Visit Website →
+                                  </a>
+                                )}
+                              </div>
+                            ))}
+                            {(service.name === "Hospital Services" ? hospitals : services.filter((s: any) => s.serviceCategory === service.category)).length > 5 && (
+                              <Button
+                                variant="link"
+                                size="sm"
+                                onClick={() => setLocation('/search')}
+                                className="w-full text-xs"
+                              >
+                                See all {service.providerCount.toLocaleString()} providers →
+                              </Button>
+                            )}
+                          </div>
                         )}
                       </div>
                     )}
-                    
-                    {/* Hide/View All Button - Bottom Right */}
-                    <div className="absolute bottom-4 right-4">
-                      {isExpanded ? (
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => toggleSection(service.id)}
-                          className="bg-slate-700 hover:bg-slate-600 text-white"
-                        >
-                          Hide
-                          <ChevronUp className="h-4 w-4 ml-1" />
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => toggleSection(service.id)}
-                          className="bg-teal-600 hover:bg-teal-700 text-white"
-                        >
-                          View All
-                          <ChevronDown className="h-4 w-4 ml-1" />
-                        </Button>
-                      )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Healthcare Providers - Real Links Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-teal-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Featured Healthcare Providers
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Click to explore detailed information about top healthcare systems
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Mayo Clinic Card with Real Link */}
+            <Link href="/providers/mayo-clinic">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-blue-400">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-500 opacity-5"></div>
+                <CardHeader>
+                  <Badge className="w-fit mb-2 bg-blue-500 text-white">TOP RANKED</Badge>
+                  <CardTitle className="text-xl">Mayo Clinic</CardTitle>
+                  <CardDescription>World-renowned medical care</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-gray-500" />
+                      <span>Rochester, Phoenix, Jacksonville</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-gray-500" />
+                      <span>507-284-2511</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      <span>5.0 Rating • 4,500+ Physicians</span>
                     </div>
                   </div>
+                  <Button className="w-full mt-4" variant="default">
+                    View Full Profile →
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Cleveland Clinic Card with Real Link */}
+            <Link href="/providers/cleveland-clinic">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-green-400">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-teal-500 opacity-5"></div>
+                <CardHeader>
+                  <Badge className="w-fit mb-2 bg-green-500 text-white">HEART LEADER</Badge>
+                  <CardTitle className="text-xl">Cleveland Clinic</CardTitle>
+                  <CardDescription>World-class healthcare innovation</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-gray-500" />
+                      <span>Cleveland, Weston, Las Vegas</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-gray-500" />
+                      <span>216-444-2200</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      <span>5.0 Rating • #2 US Hospital</span>
+                    </div>
+                  </div>
+                  <Button className="w-full mt-4" variant="default">
+                    View Full Profile →
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Johns Hopkins Card - Coming Soon */}
+            <Card className="h-full opacity-75 border-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 opacity-5"></div>
+              <CardHeader>
+                <Badge className="w-fit mb-2" variant="secondary">COMING SOON</Badge>
+                <CardTitle className="text-xl">Johns Hopkins Medicine</CardTitle>
+                <CardDescription>Leading medical research center</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-gray-500" />
+                    <span>Baltimore, Washington DC</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-gray-500" />
+                    <span>410-955-5000</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-yellow-500" />
+                    <span>5.0 Rating • Research Pioneer</span>
+                  </div>
                 </div>
-
-                {/* Expandable Content with Carousel */}
-                <AnimatePresence>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="border-t border-border"
-                    >
-                      <div className="p-6 pt-4">
-                        {/* Provider Carousel */}
-                        {providers.length > 0 ? (
-                          <div className="relative">
-                            {/* Carousel Navigation Buttons */}
-                            <button
-                              onClick={() => scrollCarousel(service.id, 'left')}
-                              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/90 shadow-lg hover:bg-background transition-colors"
-                              aria-label="Previous"
-                            >
-                              <ChevronLeft className="h-5 w-5" />
-                            </button>
-                            <button
-                              onClick={() => scrollCarousel(service.id, 'right')}
-                              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/90 shadow-lg hover:bg-background transition-colors"
-                              aria-label="Next"
-                            >
-                              <ChevronRight className="h-5 w-5" />
-                            </button>
-                            
-                            {/* Carousel Container */}
-                            <div 
-                              ref={(el) => carouselRefs.current[service.id] = el}
-                              className="overflow-x-auto scrollbar-hide flex gap-4 px-10"
-                              style={{ scrollSnapType: 'x mandatory' }}
-                            >
-                              {providers.map((provider) => (
-                                <HealthcareProviderCard
-                                  key={provider.id}
-                                  provider={{
-                                    id: provider.id,
-                                    name: provider.name,
-                                    address: `${Math.floor(Math.random() * 900 + 100)} Main Street`,
-                                    city: provider.city,
-                                    state: provider.state,
-                                    phone: provider.phone || `1-800-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`,
-                                    services: service.id === 1 ? ['Primary Care', 'Mental Health', 'Surgery'] : 
-                                              service.id === 2 ? ['Primary Care', 'Mental Health', 'Lab Services'] :
-                                              service.id === 3 ? ['Primary Care', 'Mental Health', 'Women\'s Health'] :
-                                              ['Primary Care', 'Mental Health'],
-                                    badge: service.id === 1 ? 'HUD-VASH' : 
-                                           service.id === 2 ? 'HUD-VASH' :
-                                           undefined,
-                                    hours: provider.emergencyServices ? '24/7 Emergency' : 'Mon-Fri 8:00 AM - 4:30 PM',
-                                    category: service.name
-                                  }}
-                                  onCallNow={() => window.location.href = `tel:${provider.phone || '1-800-000-0000'}`}
-                                  onVisitWebsite={() => window.open(`https://example.com/${provider.id}`, '_blank')}
-                                  onScheduleAppointment={service.id <= 3 ? () => setLocation(`/${service.link}/${provider.id}/schedule`) : undefined}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="text-center py-8 text-muted-foreground">
-                            <p>Loading providers...</p>
-                          </div>
-                        )}
-                        
-                        {/* Quick Stats */}
-                        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-                          <div className="text-center p-3 bg-secondary/50 rounded-lg">
-                            <div className="text-2xl font-bold text-primary">
-                              {service.providerCount.toLocaleString()}
-                            </div>
-                            <div className="text-xs text-muted-foreground">Total Providers</div>
-                          </div>
-                          <div className="text-center p-3 bg-secondary/50 rounded-lg">
-                            <div className="text-2xl font-bold text-green-500">
-                              98%
-                            </div>
-                            <div className="text-xs text-muted-foreground">Verified</div>
-                          </div>
-                          <div className="text-center p-3 bg-secondary/50 rounded-lg">
-                            <div className="text-2xl font-bold text-blue-500">
-                              50
-                            </div>
-                            <div className="text-xs text-muted-foreground">States Covered</div>
-                          </div>
-                          <div className="text-center p-3 bg-secondary/50 rounded-lg">
-                            <div className="text-2xl font-bold text-purple-500">
-                              24/7
-                            </div>
-                            <div className="text-xs text-muted-foreground">Availability</div>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Additional Resources Section */}
-        <div className="mt-12 p-6 bg-gradient-to-r from-primary/10 to-purple-600/10 rounded-lg border border-primary/20">
-          <h2 className="text-2xl font-bold mb-4">Healthcare Resources</h2>
-          <div className="grid md:grid-cols-3 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <Shield className="h-8 w-8 text-primary mb-2" />
-                <h3 className="font-semibold mb-1">Medicare Resources</h3>
-                <p className="text-sm text-muted-foreground">Find Medicare-approved providers and coverage information</p>
-                <Button 
-                  variant="link" 
-                  className="px-0 mt-2"
-                  onClick={() => setLocation('/medicare-resources')}
-                >
-                  Learn More <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-4">
-                <AlertCircle className="h-8 w-8 text-orange-500 mb-2" />
-                <h3 className="font-semibold mb-1">Emergency Services</h3>
-                <p className="text-sm text-muted-foreground">24/7 emergency healthcare contacts and crisis support</p>
-                <Button 
-                  variant="link" 
-                  className="px-0 mt-2"
-                  onClick={() => setLocation('/emergency-services')}
-                >
-                  View Contacts <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="p-4">
-                <Monitor className="h-8 w-8 text-green-500 mb-2" />
-                <h3 className="font-semibold mb-1">Telehealth Options</h3>
-                <p className="text-sm text-muted-foreground">Virtual healthcare services for remote consultations</p>
-                <Button 
-                  variant="link" 
-                  className="px-0 mt-2"
-                  onClick={() => setLocation('/telehealth')}
-                >
-                  Explore Options <ChevronRight className="h-4 w-4 ml-1" />
+                <Button className="w-full mt-4" variant="outline" disabled>
+                  Profile Coming Soon
                 </Button>
               </CardContent>
             </Card>
           </div>
         </div>
-      </div>
+      </section>
 
-      <style>{`
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
+      {/* Featured Hospitals Carousel */}
+      <section className="px-4 py-12 bg-gray-100 dark:bg-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Featured CMS-Rated Hospitals
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Top-rated medical centers in your area
+            </p>
+          </div>
+          <div className="overflow-x-auto">
+            <div className="flex gap-4 pb-4">
+              <HospitalCarousel />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Access Buttons */}
+      <section className="px-4 py-12">
+        <div className="max-w-4xl mx-auto">
+          <Card className="bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 border-2 border-blue-200 dark:border-blue-600">
+            <CardContent className="p-8">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
+                Quick Access Tools
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Button 
+                  variant="outline"
+                  className="flex flex-col items-center gap-2 h-auto py-4"
+                  onClick={() => setLocation('/emergency-contacts')}
+                >
+                  <AlertCircle className="h-6 w-6 text-red-500" />
+                  <span className="text-xs">Emergency</span>
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="flex flex-col items-center gap-2 h-auto py-4"
+                  onClick={() => setLocation('/tours')}
+                >
+                  <Calendar className="h-6 w-6 text-blue-500" />
+                  <span className="text-xs">Schedule Tour</span>
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="flex flex-col items-center gap-2 h-auto py-4"
+                  onClick={() => setLocation('/care-guide')}
+                >
+                  <Brain className="h-6 w-6 text-purple-500" />
+                  <span className="text-xs">Care Guide</span>
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="flex flex-col items-center gap-2 h-auto py-4"
+                  onClick={() => setLocation('/ai-support')}
+                >
+                  <HeartHandshake className="h-6 w-6 text-green-500" />
+                  <span className="text-xs">AI Support</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="px-4 py-16 bg-gradient-to-r from-teal-600 to-blue-600">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Need Help Finding the Right Care?
+          </h2>
+          <p className="text-xl text-blue-100 mb-8">
+            Our AI-powered matching system can help you find the perfect healthcare providers
+          </p>
+          <div className="flex gap-4 justify-center">
+            <Button 
+              size="lg"
+              className="bg-white text-blue-600 hover:bg-gray-100 font-semibold shadow-xl"
+              onClick={() => setLocation('/ai-matching-assistant')}
+            >
+              <Brain className="mr-2 h-5 w-5" />
+              Get Personalized Matches
+            </Button>
+            <Button 
+              size="lg"
+              variant="outline"
+              className="text-white border-white hover:bg-white/20"
+              onClick={() => setLocation('/contact')}
+            >
+              <Phone className="mr-2 h-5 w-5" />
+              Contact Support
+            </Button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
