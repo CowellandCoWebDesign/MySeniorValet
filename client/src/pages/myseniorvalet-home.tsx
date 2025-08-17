@@ -9,8 +9,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useDebounce } from "@/hooks/use-debounce";
-// Accessibility preferences disabled - causing rendering issues
-// import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
+import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
 import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music } from "lucide-react";
 import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
@@ -39,8 +38,7 @@ import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
 import heroBackgroundImage from '@assets/file_00000000715861f6ba1d823cc2455100 (1)_1755292957645.png';
 import lighthouseBackground from '@assets/file_00000000f554622f979774949c6d60bd_1755365135902.png';
-// Emergency button disabled - causing rendering issues
-// import { EmergencyButton } from "@/components/EmergencyButton";
+import { EmergencyButton } from "@/components/EmergencyButton";
 
 
 
@@ -62,8 +60,7 @@ export default function MySeniorValetHome() {
   const [showProtectionModal, setShowProtectionModal] = useState(false);
   const [protectionSearchQuery, setProtectionSearchQuery] = useState('');
   const [showRemovalModal, setShowRemovalModal] = useState(false);
-  // Accessibility preferences disabled - causing rendering issues
-  // const { preferences, togglePreference } = useAccessibilityPreferences();
+  const { preferences, togglePreference } = useAccessibilityPreferences();
 
 
   const [showIntegrationSpotlight, setShowIntegrationSpotlight] = useState(true);
@@ -423,10 +420,7 @@ export default function MySeniorValetHome() {
                           <Switch
                             id="emergency-button"
                             checked={preferences.emergencyButton}
-                            onCheckedChange={() => {
-                              console.log('Toggling emergency button, current state:', preferences.emergencyButton);
-                              togglePreference('emergencyButton');
-                            }}
+                            onCheckedChange={() => togglePreference('emergencyButton')}
                           />
                         </div>
                         
@@ -3516,7 +3510,7 @@ export default function MySeniorValetHome() {
       />
       
       {/* One-Touch Emergency Contact Shortcut - Always visible */}
-      {/* Emergency button disabled - causing rendering issues */}
+      <EmergencyButton userId={undefined} />
       
       {/* Onboarding Wizard - DISABLED: Prototype for future development */}
       {/* <OnboardingWrapper /> */}

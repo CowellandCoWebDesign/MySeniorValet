@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   Eye, 
@@ -10,18 +10,40 @@ import {
   Check
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAccessibilityPreferences } from '@/hooks/useAccessibilityPreferences';
+
+interface AccessibilityPreferences {
+  largeText: boolean;
+  highContrast: boolean;
+  screenReader: boolean;
+  reducedMotion: boolean;
+  emergencyButton: boolean;
+}
 
 export function AccessibilityOptions() {
   const { toast } = useToast();
-  const { preferences, togglePreference } = useAccessibilityPreferences();
+  const [preferences, setPreferences] = useState<AccessibilityPreferences>({
+    largeText: false,
+    highContrast: false,
+    screenReader: false,
+    reducedMotion: false,
+    emergencyButton: true,
+  });
 
-  // Apply preferences to DOM on change
+  // Load preferences from localStorage on mount
   useEffect(() => {
-    applyPreferences(preferences);
-  }, [preferences]);
+    const saved = localStorage.getItem('accessibilityPreferences');
+    if (saved) {
+      try {
+        const parsedPrefs = JSON.parse(saved);
+        setPreferences(parsedPrefs);
+        applyPreferences(parsedPrefs);
+      } catch (error) {
+        console.error('Error loading accessibility preferences:', error);
+      }
+    }
+  }, []);
 
-  const applyPreferences = (prefs: typeof preferences) => {
+  const applyPreferences = (prefs: AccessibilityPreferences) => {
     const html = document.documentElement;
     
     // Large text
@@ -46,9 +68,15 @@ export function AccessibilityOptions() {
     }
   };
 
-  const handleTogglePreference = (key: keyof typeof preferences) => {
-    console.log(`[AccessibilityOptions] Toggling ${key}: ${preferences[key]} -> ${!preferences[key]}`);
-    togglePreference(key);
+  const togglePreference = (key: keyof AccessibilityPreferences) => {
+    const newPreferences = {
+      ...preferences,
+      [key]: !preferences[key]
+    };
+    
+    setPreferences(newPreferences);
+    localStorage.setItem('accessibilityPreferences', JSON.stringify(newPreferences));
+    applyPreferences(newPreferences);
     
     toast({
       title: 'Accessibility Updated',
@@ -56,37 +84,37 @@ export function AccessibilityOptions() {
                      key === 'highContrast' ? 'High contrast' :
                      key === 'screenReader' ? 'Screen reader support' :
                      key === 'reducedMotion' ? 'Reduced motion' :
-                     'Emergency button'} ${!preferences[key] ? 'enabled' : 'disabled'}`,
+                     'Emergency button'} ${newPreferences[key] ? 'enabled' : 'disabled'}`,
     });
   };
 
   const options = [
     {
-      key: 'largeText' as keyof typeof preferences,
+      key: 'largeText' as keyof AccessibilityPreferences,
       icon: Type,
       label: 'Large Text',
       description: 'Increase text size for better readability',
     },
     {
-      key: 'highContrast' as keyof typeof preferences,
+      key: 'highContrast' as keyof AccessibilityPreferences,
       icon: Eye,
       label: 'High Contrast',
       description: 'Improve visibility with stronger colors',
     },
     {
-      key: 'screenReader' as keyof typeof preferences,
+      key: 'screenReader' as keyof AccessibilityPreferences,
       icon: Volume2,
       label: 'Screen Reader',
       description: 'Optimize for screen reading software',
     },
     {
-      key: 'reducedMotion' as keyof typeof preferences,
+      key: 'reducedMotion' as keyof AccessibilityPreferences,
       icon: MousePointer,
       label: 'Reduced Motion',
       description: 'Minimize animations and transitions',
     },
     {
-      key: 'emergencyButton' as keyof typeof preferences,
+      key: 'emergencyButton' as keyof AccessibilityPreferences,
       icon: AlertCircle,
       label: 'Emergency Button',
       description: 'Show quick access emergency contact button',
@@ -108,7 +136,7 @@ export function AccessibilityOptions() {
           return (
             <button
               key={option.key}
-              onClick={() => handleTogglePreference(option.key)}
+              onClick={() => togglePreference(option.key)}
               className={`w-full flex items-start space-x-3 p-3 rounded-lg transition-all duration-200 ${
                 isActive 
                   ? 'bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500' 
