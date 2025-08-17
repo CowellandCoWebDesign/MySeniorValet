@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
+import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,33 +15,30 @@ import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { PricingBreakdown } from "@/components/pricing-breakdown";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { CareServiceCard } from "@/components/CareServiceCard";
+
+import { VendorMarketplaceTabs } from "@/components/VendorMarketplaceTabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { CanadianStatsCard } from "@/components/canadian-stats-card";
+import { CareSpectrumSlider } from "@/components/CareSpectrumSlider";
+import { RemovalRequestModal } from "@/components/RemovalRequestModal";
+import { OnboardingWrapper } from "@/components/onboarding/OnboardingWrapper";
+import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
+import { MarketIntelligence } from "@/components/MarketIntelligence";
+import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
+import { RedTagDeals } from "@/components/RedTagDeals";
+import { AidAndAttendance } from "@/components/AidAndAttendance";
+import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
+import HospitalCarousel from "@/components/HospitalCarousel";
 import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
-
-// Lazy load heavy components to improve initial load speed
-const EnhancedCommunityCard = lazy(() => import("@/components/EnhancedCommunityCard").then(m => ({ default: m.EnhancedCommunityCard })));
-const CareServiceCard = lazy(() => import("@/components/CareServiceCard").then(m => ({ default: m.CareServiceCard })));
-const VendorMarketplaceTabs = lazy(() => import("@/components/VendorMarketplaceTabs").then(m => ({ default: m.VendorMarketplaceTabs })));
-const CanadianStatsCard = lazy(() => import("@/components/canadian-stats-card").then(m => ({ default: m.CanadianStatsCard })));
-const CareSpectrumSlider = lazy(() => import("@/components/CareSpectrumSlider").then(m => ({ default: m.CareSpectrumSlider })));
-const RemovalRequestModal = lazy(() => import("@/components/RemovalRequestModal").then(m => ({ default: m.RemovalRequestModal })));
-const OnboardingWrapper = lazy(() => import("@/components/onboarding/OnboardingWrapper").then(m => ({ default: m.OnboardingWrapper })));
-const PersonalizedBanner = lazy(() => import("@/components/onboarding/PersonalizedBanner").then(m => ({ default: m.PersonalizedBanner })));
-const MarketIntelligence = lazy(() => import("@/components/MarketIntelligence").then(m => ({ default: m.MarketIntelligence })));
-const MoveInCostCalculator = lazy(() => import("@/components/MoveInCostCalculator").then(m => ({ default: m.MoveInCostCalculator })));
-const RedTagDeals = lazy(() => import("@/components/RedTagDeals").then(m => ({ default: m.RedTagDeals })));
-const AidAndAttendance = lazy(() => import("@/components/AidAndAttendance").then(m => ({ default: m.AidAndAttendance })));
-const CostComparisonWorksheet = lazy(() => import("@/components/CostComparisonWorksheet").then(m => ({ default: m.CostComparisonWorksheet })));
-const HospitalCarousel = lazy(() => import("@/components/HospitalCarousel"));
-const PricingBreakdown = lazy(() => import("@/components/pricing-breakdown").then(m => ({ default: m.PricingBreakdown })));
-
-// Defer loading images
-const heroBackgroundImage = '/assets/file_00000000715861f6ba1d823cc2455100 (1)_1755292957645.png';
-const lighthouseBackground = '/assets/file_00000000f554622f979774949c6d60bd_1755365135902.png';
+import heroBackgroundImage from '@assets/file_00000000715861f6ba1d823cc2455100 (1)_1755292957645.png';
+import lighthouseBackground from '@assets/file_00000000f554622f979774949c6d60bd_1755365135902.png';
+import { EmergencyButton } from "@/components/EmergencyButton";
 
 
 
@@ -100,13 +98,12 @@ export default function MySeniorValetHome() {
     return () => observer.disconnect();
   }, []);
   
-  // Mobile-optimized queries with reduced memory footprint - deferred to improve initial load
+  // Mobile-optimized queries with reduced memory footprint
   const { data: communityStats, isLoading } = useQuery({
     queryKey: ["/api/communities/count"],
     retry: false,
     staleTime: 30 * 60 * 1000, // Cache for 30 minutes to reduce requests
     gcTime: 60 * 60 * 1000,   // Keep in cache for 1 hour
-    enabled: false, // Disabled for faster initial page load
   });
 
   // Lazy load platform stats only when needed
@@ -749,21 +746,13 @@ export default function MySeniorValetHome() {
       <section 
         className="relative overflow-hidden min-h-[600px]"
         style={{
-          background: 'radial-gradient(ellipse at center top, #1a2644 0%, #0a1628 50%, #030712 100%)',
-          backgroundColor: '#0a1628'
+          backgroundImage: `url('/lighthouse-night.png?v=1')`,
+          backgroundColor: '#0a1628',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center center',
+          backgroundRepeat: 'no-repeat'
         }}
       >
-        {/* Stars Background Effect */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-10 left-10 w-1 h-1 bg-white rounded-full animate-pulse"></div>
-          <div className="absolute top-20 left-1/4 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-          <div className="absolute top-32 right-1/4 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute top-16 right-20 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '1.5s' }}></div>
-          <div className="absolute top-40 left-1/3 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute top-8 left-2/3 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.8s' }}></div>
-          <div className="absolute top-24 right-1/3 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '1.3s' }}></div>
-          <div className="absolute top-48 left-1/2 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '1.8s' }}></div>
-        </div>
         
         {/* 3D Rotating Lighthouse Beacon */}
         <div className="lighthouse-beacon">
@@ -1027,9 +1016,7 @@ export default function MySeniorValetHome() {
       {/* Personalized Banner */}
       <div className="px-4 py-6 bg-gradient-to-r from-blue-50 to-gray-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
-          <Suspense fallback={<div className="h-20 animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg"></div>}>
-            <PersonalizedBanner />
-          </Suspense>
+          <PersonalizedBanner />
         </div>
       </div>
 
@@ -1426,9 +1413,7 @@ export default function MySeniorValetHome() {
       {/* Red Tag Deals Promotional Section */}
       <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
         <div className="max-w-7xl mx-auto">
-          <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg"></div>}>
-            <RedTagDeals />
-          </Suspense>
+          <RedTagDeals />
         </div>
       </section>
 
@@ -1587,9 +1572,7 @@ export default function MySeniorValetHome() {
       {/* Market Intelligence Section */}
       <section className="px-4 py-12 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
-          <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg"></div>}>
-            <MarketIntelligence />
-          </Suspense>
+          <MarketIntelligence />
         </div>
       </section>
 
@@ -1659,18 +1642,14 @@ export default function MySeniorValetHome() {
       {/* Move-In Cost Calculator Section */}
       <section className="px-4 py-12 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
-          <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg"></div>}>
-            <MoveInCostCalculator />
-          </Suspense>
+          <MoveInCostCalculator />
         </div>
       </section>
 
       {/* Cost Comparison Worksheet Section */}
       <section className="px-4 py-12 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
-          <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg"></div>}>
-            <CostComparisonWorksheet />
-          </Suspense>
+          <CostComparisonWorksheet />
         </div>
       </section>
 
@@ -2057,9 +2036,7 @@ export default function MySeniorValetHome() {
 
           {/* Vendor Marketplace Tabs */}
           <div className="mb-12">
-            <Suspense fallback={<div className="h-96 animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg"></div>}>
-              <VendorMarketplaceTabs />
-            </Suspense>
+            <VendorMarketplaceTabs />
           </div>
         </div>
       </section>
@@ -2308,9 +2285,7 @@ export default function MySeniorValetHome() {
 
             {/* Hospital Directory Slider */}
             <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-              <Suspense fallback={<div className="h-48 animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg"></div>}>
-                <HospitalCarousel />
-              </Suspense>
+              <HospitalCarousel />
             </div>
           </div>
 
@@ -3188,9 +3163,7 @@ export default function MySeniorValetHome() {
 
           {/* VA Aid & Attendance Benefits */}
           <div className="mb-12">
-            <Suspense fallback={<div className="h-64 animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg"></div>}>
-              <AidAndAttendance />
-            </Suspense>
+            <AidAndAttendance />
           </div>
         </div>
       </section>
