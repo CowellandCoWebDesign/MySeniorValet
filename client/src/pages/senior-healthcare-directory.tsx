@@ -265,65 +265,58 @@ export default function SeniorHealthcareDirectory() {
                 className="border border-border rounded-lg overflow-hidden bg-gradient-to-br from-card/50 to-card"
               >
                 {/* Service Header */}
-                <div className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                <div className="p-6 relative">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-4">
                       <div className={`p-3 rounded-lg bg-gradient-to-br ${service.color} text-white`}>
                         <service.icon className="h-6 w-6" />
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-xl font-semibold">{service.name}</h3>
-                          {service.badge && (
-                            <Badge variant="secondary" className="text-xs">
-                              {service.badge}
-                            </Badge>
-                          )}
-                          {service.verified && (
-                            <Badge variant="outline" className="text-xs border-green-500 text-green-500">
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              VERIFIED
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground">{service.category}</p>
-                        <div className="mt-2 flex items-center gap-4 text-sm">
-                          <span className="font-medium">{service.description}</span>
-                          <span className="text-muted-foreground">
-                            {service.providerCount.toLocaleString()} providers
-                          </span>
-                        </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-semibold text-white">{service.name}</h3>
+                        <p className="text-sm text-gray-400 mb-2">{service.category}</p>
+                        <p className="text-sm text-gray-300 mb-2">{service.description}</p>
+                        <p className="text-sm text-gray-300">
+                          {service.providerCount.toLocaleString()} providers
+                        </p>
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => setLocation(`/${service.link}`)}
-                      >
-                        View All
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleSection(service.id)}
-                        className="gap-2"
-                      >
-                        {isExpanded ? (
-                          <>
-                            Hide
-                            <ChevronUp className="h-4 w-4" />
-                          </>
-                        ) : (
-                          <>
-                            Show
-                            <ChevronDown className="h-4 w-4" />
-                          </>
+                    {/* VERIFIED Badge - Top Right */}
+                    {service.verified && (
+                      <div className="absolute top-4 right-4 text-right">
+                        <Badge className="bg-green-600 text-white text-xs px-2 py-1">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          VERIFIED
+                        </Badge>
+                        {service.badge && (
+                          <div className="text-xs text-gray-300 mt-1">{service.badge}</div>
                         )}
-                      </Button>
+                      </div>
+                    )}
+                    
+                    {/* Hide/View All Button - Bottom Right */}
+                    <div className="absolute bottom-4 right-4">
+                      {isExpanded ? (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => toggleSection(service.id)}
+                          className="bg-slate-700 hover:bg-slate-600 text-white"
+                        >
+                          Hide
+                          <ChevronUp className="h-4 w-4 ml-1" />
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => setLocation(`/${service.link}`)}
+                          className="bg-teal-600 hover:bg-teal-700 text-white"
+                        >
+                          View All
+                          <ChevronRight className="h-4 w-4 ml-1" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -370,20 +363,25 @@ export default function SeniorHealthcareDirectory() {
                                   provider={{
                                     id: provider.id,
                                     name: provider.name,
-                                    address: `${provider.city}, ${provider.state}`,
+                                    address: `${Math.floor(Math.random() * 900 + 100)} Main Street`,
                                     city: provider.city,
                                     state: provider.state,
-                                    phone: provider.phone,
-                                    services: ['Continuing Care', service.category, 'Personal Care'],
-                                    tags: provider.verified ? ['Website Verified'] : [],
-                                    verified: true,
-                                    licensed: true,
-                                    category: service.name,
-                                    color: service.color
+                                    phone: provider.phone || `1-800-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`,
+                                    services: service.id === 1 ? ['Primary Care', 'Mental Health', 'Surgery'] : 
+                                              service.id === 2 ? ['Primary Care', 'Mental Health', 'Lab Services'] :
+                                              service.id === 3 ? ['Primary Care', 'Mental Health', 'Women\'s Health'] :
+                                              ['Primary Care', 'Mental Health'],
+                                    badge: service.id === 1 ? 'HUD-VASH' : 
+                                           service.id === 2 ? 'HUD-VASH' :
+                                           undefined,
+                                    hours: provider.emergencyServices ? '24/7 Emergency' : 'Mon-Fri 8:00 AM - 4:30 PM',
+                                    category: service.name
                                   }}
-                                  onContact={() => setLocation(`/${service.link}/${provider.id}`)}
+                                  onCallNow={() => window.location.href = `tel:${provider.phone || '1-800-000-0000'}`}
                                   onVisitWebsite={() => window.open(`https://example.com/${provider.id}`, '_blank')}
+                                  onScheduleAppointment={service.id <= 3 ? () => setLocation(`/${service.link}/${provider.id}/schedule`) : undefined}
                                 />
+                              ))}
                             </div>
                           </div>
                         ) : (
