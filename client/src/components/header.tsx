@@ -73,8 +73,13 @@ export function Header() {
             </Link>
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden hover:bg-gray-50" aria-label="Open navigation menu">
-                  <Menu className="h-5 w-5" aria-hidden="true" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="lg:hidden hover:bg-gray-100 dark:hover:bg-gray-700 bg-transparent" 
+                  aria-label="Open navigation menu"
+                >
+                  <Menu className="h-5 w-5 text-gray-700 dark:text-gray-300" aria-hidden="true" />
                 </Button>
               </SheetTrigger>
               <SheetContent className="w-80">

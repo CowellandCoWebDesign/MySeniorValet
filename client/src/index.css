@@ -187,6 +187,21 @@
   .dark footer {
     @apply text-gray-300 !important;
   }
+  
+  /* Fix ghost buttons in dark mode */
+  .dark button[data-variant="ghost"] {
+    @apply bg-transparent hover:bg-gray-800 !important;
+  }
+  
+  /* Fix sheet/drawer backgrounds */
+  .dark [data-radix-portal] [role="dialog"] {
+    @apply bg-gray-900 !important;
+  }
+  
+  /* Fix mobile menu button */
+  .dark button.lg\:hidden {
+    @apply bg-transparent !important;
+  }
 }
 
 /* Voice Guidance Accessibility Styles */
