@@ -6,40 +6,57 @@
 @tailwind components;
 @tailwind utilities;
 
-/* CRITICAL DARK MODE TEXT FIXES - August 16, 2025 */
+/* CRITICAL TEXT CONTRAST FIXES - Platform Wide - August 17, 2025 */
 @layer base {
   /* Fix all text contrast in dark mode */
   .dark {
     color-scheme: dark;
   }
   
-  /* Primary text should be white in dark mode */
-  .dark body,
-  .dark .text-gray-900,
-  .dark .text-gray-800,
-  .dark .text-gray-700 {
+  /* Primary text - High contrast in both modes */
+  body {
+    color: rgb(17 24 39); /* text-gray-900 */
+  }
+  
+  .dark body {
     color: rgb(243 244 246) !important; /* text-gray-100 */
   }
   
-  /* Secondary text should be light gray */
-  .dark .text-gray-600,
-  .dark .text-gray-500 {
-    color: rgb(209 213 219) !important; /* text-gray-300 */
+  /* Text color utilities - Ensure proper contrast */
+  .text-gray-900 { color: rgb(17 24 39) !important; }
+  .dark .text-gray-900 { color: rgb(243 244 246) !important; }
+  
+  .text-gray-800 { color: rgb(31 41 55) !important; }
+  .dark .text-gray-800 { color: rgb(229 231 235) !important; }
+  
+  .text-gray-700 { color: rgb(55 65 81) !important; }
+  .dark .text-gray-700 { color: rgb(209 213 219) !important; }
+  
+  .text-gray-600 { color: rgb(75 85 99) !important; }
+  .dark .text-gray-600 { color: rgb(156 163 175) !important; }
+  
+  .text-gray-500 { color: rgb(107 114 128) !important; }
+  .dark .text-gray-500 { color: rgb(156 163 175) !important; }
+  
+  .text-gray-400 { color: rgb(156 163 175) !important; }
+  .dark .text-gray-400 { color: rgb(209 213 219) !important; }
+  
+  /* Headings - Maximum contrast */
+  h1, h2, h3, h4, h5, h6 {
+    color: rgb(17 24 39); /* text-gray-900 */
   }
   
-  /* Muted text */
-  .dark .text-gray-400 {
-    color: rgb(156 163 175) !important;
-  }
-  
-  /* Headings should be bright white */
   .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
-    color: rgb(255 255 255) !important; /* text-white */
+    color: rgb(255 255 255) !important; /* pure white */
   }
   
-  /* Paragraphs and descriptions */
-  .dark p, .dark span:not(.badge):not(.text-white) {
-    color: rgb(229 231 235); /* text-gray-200 */
+  /* Paragraphs and body text */
+  p {
+    color: rgb(31 41 55); /* text-gray-800 */
+  }
+  
+  .dark p {
+    color: rgb(229 231 235) !important; /* text-gray-200 */
   }
   
   /* Links should be visible */
@@ -50,13 +67,30 @@
     color: rgb(147 197 253);
   }
   
-  /* Cards and content areas */
+  /* Cards and content areas - Better contrast backgrounds */
+  .bg-white {
+    background-color: rgb(255 255 255);
+  }
+  
   .dark .bg-white {
-    background-color: rgb(31 41 55) !important;
+    background-color: rgb(31 41 55) !important; /* gray-800 */
+  }
+  
+  .bg-gray-50 {
+    background-color: rgb(249 250 251);
   }
   
   .dark .bg-gray-50 {
-    background-color: rgb(17 24 39) !important;
+    background-color: rgb(17 24 39) !important; /* gray-900 */
+  }
+  
+  /* Card backgrounds for better readability */
+  .dark .bg-white\/98 {
+    background-color: rgb(31 41 55) !important;
+  }
+  
+  .dark .bg-gray-100 {
+    background-color: rgb(31 41 55) !important;
   }
   
   /* Borders */

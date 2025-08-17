@@ -679,19 +679,19 @@ export default function MySeniorValetHome() {
                 {/* TourMate Feature - Secondary highlight */}
                 <div className="flex items-center gap-1.5 sm:gap-2 bg-blue-500/15 border border-blue-400/20 rounded-md px-1.5 py-0.5 sm:px-2 sm:py-1">
                   <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400 flex-shrink-0" />
-                  <span className="text-[10px] sm:text-xs text-white/95">Schedule tours with TourMate™ instant booking</span>
+                  <span className="text-[10px] sm:text-xs text-white">Schedule tours with TourMate™ instant booking</span>
                 </div>
                 
                 {/* Family Sharing Feature */}
                 <div className="flex items-center gap-1.5 sm:gap-2 bg-purple-500/10 border border-purple-400/15 rounded-md px-1.5 py-0.5 sm:px-2 sm:py-1">
                   <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400 flex-shrink-0" />
-                  <span className="text-[10px] sm:text-xs text-white/90">Save favorites & share with family members</span>
+                  <span className="text-[10px] sm:text-xs text-white">Save favorites & share with family members</span>
                 </div>
                 
                 {/* Marketplace Feature */}
                 <div className="flex items-center gap-1.5 sm:gap-2 bg-orange-500/10 border border-orange-400/15 rounded-md px-1.5 py-0.5 sm:px-2 sm:py-1">
                   <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-orange-400 flex-shrink-0" />
-                  <span className="text-[10px] sm:text-xs text-white/90">Connect with senior services marketplace</span>
+                  <span className="text-[10px] sm:text-xs text-white">Connect with senior services marketplace</span>
                 </div>
               </div>
             </div>
@@ -874,13 +874,11 @@ export default function MySeniorValetHome() {
                         <span>CANADA</span>
                       </span>
                     </div>
-                    <h3 className="text-2xl md:text-3xl font-bold text-green-600 dark:text-green-400">
-                      <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                        THIS STOPS NOW - COMPLETE CARE SPECTRUM FOR ALL
-                      </span>
+                    <h3 className="text-2xl md:text-3xl font-bold text-green-700 dark:text-green-300">
+                      THIS STOPS NOW - COMPLETE CARE SPECTRUM FOR ALL
                     </h3>
-                    <p className="text-lg text-gray-700 dark:text-gray-200 mt-2 font-medium">
-                      Master all 10+ levels of care. Real pricing, real availability. <span className="font-bold text-amber-600 dark:text-amber-400">No hidden fees, no referral markups, no communication floods.</span> Welcome to complete transparency.
+                    <p className="text-lg text-gray-900 dark:text-gray-100 mt-2 font-medium">
+                      Master all 10+ levels of care. Real pricing, real availability. <span className="font-bold text-amber-700 dark:text-amber-300">No hidden fees, no referral markups, no communication floods.</span> Welcome to complete transparency.
                     </p>
                   </div>
                   <div className="grid md:grid-cols-2 gap-6 text-left">
@@ -888,15 +886,15 @@ export default function MySeniorValetHome() {
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">Learn All 10 Levels of Care</p>
-                          <p className="text-gray-600 dark:text-gray-300 text-sm">From HUD Housing to Skilled Nursing - understand all 10 care levels, pricing ranges, and when each applies to your family's needs.</p>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100">Learn All 10 Levels of Care</p>
+                          <p className="text-gray-700 dark:text-gray-200 text-sm">From HUD Housing to Skilled Nursing - understand all 10 care levels, pricing ranges, and when each applies to your family's needs.</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">Real Pricing, Real Availability</p>
-                          <p className="text-gray-600 dark:text-gray-300 text-sm">Actual prices. Current availability. No more "contact us" gatekeeping.</p>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100">Real Pricing, Real Availability</p>
+                          <p className="text-gray-700 dark:text-gray-200 text-sm">Actual prices. Current availability. No more "contact us" gatekeeping.</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
