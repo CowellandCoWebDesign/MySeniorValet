@@ -23,7 +23,8 @@ import {
   CheckCircle,
   FileText,
   Users,
-  TrendingUp
+  TrendingUp,
+  Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -231,176 +232,82 @@ export default function SeniorMarketplace() {
         </div>
       </section>
 
-      {/* Join Vendor Marketplace Section - Comprehensive Version */}
-      <section className="py-16 px-4 bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="container mx-auto max-w-7xl">
+      {/* Join Vendor Marketplace Section - Condensed Version */}
+      <section className="py-12 px-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="container mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            {/* 3 Tiers Badge */}
-            <Badge className="bg-gradient-to-r from-orange-500 to-amber-600 text-white px-6 py-3 text-lg font-bold mb-6 shadow-lg">
-              3 TIERS AVAILABLE
-            </Badge>
-            
-            {/* Icon and Title */}
-            <div className="mb-8">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
-                <Briefcase className="w-10 h-10 text-white" />
-              </div>
-              <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-4">
+            {/* Compact Header with Badge */}
+            <div className="mb-6">
+              <Badge className="bg-gradient-to-r from-orange-500 to-amber-600 text-white px-4 py-2 text-sm font-bold mb-3">
+                3 TIERS AVAILABLE
+              </Badge>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                <Briefcase className="inline w-8 h-8 mr-2 text-purple-600" />
                 Vendor Marketplace
               </h2>
-              <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-200 font-semibold mb-2">
-                Join 1,500+ vendors reaching families nationwide with trusted senior care services
+              <p className="text-lg text-gray-600 dark:text-gray-300">
+                Join 1,500+ vendors reaching families nationwide • Nationwide coverage • Analytics & leads
               </p>
             </div>
             
-            {/* Key Benefits */}
-            <div className="grid md:grid-cols-4 gap-4 mb-12 max-w-4xl mx-auto">
-              <div className="text-center">
-                <div className="text-purple-600 dark:text-purple-400 mb-2">
-                  <Star className="w-8 h-8 mx-auto" />
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Nationwide Coverage Available</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Reach families across all markets</p>
-              </div>
-              <div className="text-center">
-                <div className="text-blue-600 dark:text-blue-400 mb-2">
-                  <Users className="w-8 h-8 mx-auto" />
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Reach 34,171 Communities</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Connect with families across North America</p>
-              </div>
-              <div className="text-center">
-                <div className="text-green-600 dark:text-green-400 mb-2">
-                  <TrendingUp className="w-8 h-8 mx-auto" />
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Premium Analytics & Leads</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Track performance & generate quality leads</p>
-              </div>
-              <div className="text-center">
-                <div className="text-indigo-600 dark:text-indigo-400 mb-2">
-                  <Shield className="w-8 h-8 mx-auto" />
-                </div>
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Verified Partner Badge</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Build trust with official verification</p>
-              </div>
+            {/* Compact Promotional Banner */}
+            <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg px-4 py-3 mb-6 max-w-2xl mx-auto inline-flex items-center gap-2">
+              <Sparkles className="w-5 h-5" />
+              <span className="font-semibold">50% OFF First Month • 20% OFF Annual Plans</span>
             </div>
             
-            {/* Promotional Offer */}
-            <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl p-6 mb-12 max-w-3xl mx-auto shadow-xl">
-              <div className="flex items-center justify-center gap-4">
-                <div className="text-3xl">🎉</div>
-                <div>
-                  <h3 className="text-2xl font-bold mb-1">50% OFF First Month • 20% OFF Annual Plans</h3>
+            {/* Simplified Tier Cards - Horizontal Layout */}
+            <div className="grid md:grid-cols-3 gap-4 max-w-4xl mx-auto mb-6">
+              {/* Basic */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">$99/mo</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Basic (1 State)</p>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  ✓ State coverage<br/>
+                  ✓ Lead generation
                 </div>
-                <div className="text-3xl">💰</div>
               </div>
-            </div>
-            
-            {/* Tier Cards */}
-            <div className="mb-8">
-              <p className="text-gray-600 dark:text-gray-400 mb-8">Professional tiers starting at:</p>
-              <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                {/* Basic Tier */}
-                <Card className="border-2 border-gray-200 dark:border-gray-700 hover:border-gray-400 transition-all duration-200">
-                  <CardContent className="p-6">
-                    <div className="text-center">
-                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">$99 Basic (1 State)</h3>
-                      <p className="text-gray-600 dark:text-gray-400 mb-4">Perfect for local providers</p>
-                      <ul className="text-left space-y-2 mb-6">
-                        <li className="flex items-start gap-2">
-                          <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                          <span className="text-sm">Full state coverage</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                          <span className="text-sm">Basic listing visibility</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                          <span className="text-sm">Lead generation</span>
-                        </li>
-                      </ul>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                {/* Featured Tier */}
-                <Card className="border-2 border-blue-500 dark:border-blue-400 shadow-lg transform scale-105 relative">
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-blue-500 text-white px-4 py-1">MOST POPULAR</Badge>
-                  </div>
-                  <CardContent className="p-6">
-                    <div className="text-center">
-                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">$249 Featured (3 States)</h3>
-                      <p className="text-gray-600 dark:text-gray-400 mb-4">Expand your regional reach</p>
-                      <ul className="text-left space-y-2 mb-6">
-                        <li className="flex items-start gap-2">
-                          <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                          <span className="text-sm">3-state coverage</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                          <span className="text-sm">Featured placement</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                          <span className="text-sm">Logo & branding</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                          <span className="text-sm">Analytics dashboard</span>
-                        </li>
-                      </ul>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                {/* National Tier */}
-                <Card className="border-2 border-purple-500 dark:border-purple-400 hover:border-purple-600 transition-all duration-200">
-                  <CardContent className="p-6">
-                    <div className="text-center">
-                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">$499 National Partner</h3>
-                      <p className="text-gray-600 dark:text-gray-400 mb-4">Complete nationwide presence</p>
-                      <ul className="text-left space-y-2 mb-6">
-                        <li className="flex items-start gap-2">
-                          <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                          <span className="text-sm">Nationwide coverage</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                          <span className="text-sm">Priority placement</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                          <span className="text-sm">Dedicated profile page</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                          <span className="text-sm">AI-powered insights</span>
-                        </li>
-                      </ul>
-                    </div>
-                  </CardContent>
-                </Card>
+              
+              {/* Featured */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border-2 border-blue-500 relative">
+                <Badge className="absolute -top-2 right-2 bg-blue-500 text-white text-xs px-2 py-0.5">POPULAR</Badge>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">$249/mo</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Featured (3 States)</p>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  ✓ Multi-state<br/>
+                  ✓ Priority placement<br/>
+                  ✓ Analytics
+                </div>
+              </div>
+              
+              {/* National */}
+              <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 border border-purple-300 dark:border-purple-700">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">$499/mo</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">National Partner</p>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  ✓ Nationwide<br/>
+                  ✓ Dedicated page<br/>
+                  ✓ AI insights
+                </div>
               </div>
             </div>
             
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link href="/vendor-marketplace-tiers">
-                <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
-                  <Star className="w-5 h-5 mr-2" />
-                  Explore Vendor Tiers
+                <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-2 rounded-lg font-semibold">
+                  <Star className="w-4 h-4 mr-2" />
+                  View All Tiers
                 </Button>
               </Link>
               <Link href="/vendor-signup">
-                <Button size="lg" variant="outline" className="border-2 border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 px-8 py-4 rounded-xl font-semibold transition-all duration-200">
-                  Get Started Today
+                <Button variant="outline" className="border border-gray-400 text-gray-700 dark:text-gray-200 px-6 py-2 rounded-lg">
+                  Get Started
                 </Button>
               </Link>
             </div>
