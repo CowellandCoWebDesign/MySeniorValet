@@ -310,11 +310,11 @@ export default function SeniorHealthcareDirectory() {
                         <Button
                           variant="secondary"
                           size="sm"
-                          onClick={() => setLocation(`/${service.link}`)}
+                          onClick={() => toggleSection(service.id)}
                           className="bg-teal-600 hover:bg-teal-700 text-white"
                         >
                           View All
-                          <ChevronRight className="h-4 w-4 ml-1" />
+                          <ChevronDown className="h-4 w-4 ml-1" />
                         </Button>
                       )}
                     </div>
@@ -478,7 +478,7 @@ export default function SeniorHealthcareDirectory() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
