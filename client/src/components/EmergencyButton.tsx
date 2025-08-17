@@ -43,8 +43,17 @@ export function EmergencyButton({ userId }: { userId?: string }) {
   const [pulseAnimation, setPulseAnimation] = useState(true);
   const { toast } = useToast();
   const { preferences } = useAccessibilityPreferences();
+
+  // Stop pulsing animation after first interaction (moved here to keep all hooks together)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPulseAnimation(false);
+    }, 10000); // Stop pulsing after 10 seconds
+    return () => clearTimeout(timer);
+  }, []);
   
   // Don't render if emergency button is disabled in accessibility preferences
+  // This must come AFTER all hooks are defined
   if (!preferences.emergencyButton) {
     return null;
   }
@@ -78,14 +87,6 @@ export function EmergencyButton({ userId }: { userId?: string }) {
       setLoading(false);
     }
   };
-
-  // Stop pulsing animation after first interaction
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setPulseAnimation(false);
-    }, 10000); // Stop pulsing after 10 seconds
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleEmergencyClick = async () => {
     setPulseAnimation(false); // Stop pulsing when clicked
