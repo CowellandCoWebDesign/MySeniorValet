@@ -3509,8 +3509,8 @@ export default function MySeniorValetHome() {
         entityType="vendor"
       />
       
-      {/* One-Touch Emergency Contact Shortcut - Always visible */}
-      <EmergencyButton userId={undefined} />
+      {/* One-Touch Emergency Contact Shortcut - DISABLED to prevent React rendering failure */}
+      {/* <EmergencyButton userId={undefined} /> */}
       
       {/* Onboarding Wizard - DISABLED: Prototype for future development */}
       {/* <OnboardingWrapper /> */}
