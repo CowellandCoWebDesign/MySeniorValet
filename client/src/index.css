@@ -2097,36 +2097,7 @@ body {
   filter: brightness(0.9) saturate(1.1);
 }
 
-/* VOLUMETRIC LIGHT SHAFT EFFECTS - Integrated into beacon light itself */
-
-/* Light shaft dust particles effect - Apply to beacon light only */
-.beacon-light::before {
-  content: '';
-  position: absolute;
-  top: -50px;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    radial-gradient(circle at 10% 20%, rgba(255, 220, 100, 0.15) 0%, transparent 1%),
-    radial-gradient(circle at 15% 30%, rgba(255, 210, 80, 0.1) 0%, transparent 0.8%),
-    radial-gradient(circle at 8% 40%, rgba(255, 200, 60, 0.12) 0%, transparent 0.9%),
-    radial-gradient(circle at 20% 25%, rgba(255, 215, 90, 0.08) 0%, transparent 0.5%),
-    radial-gradient(circle at 12% 35%, rgba(255, 205, 70, 0.1) 0%, transparent 0.6%);
-  animation: dust-particles 12s linear infinite;
-  mix-blend-mode: screen;
-  pointer-events: none;
-  opacity: 0.4;
-}
-
-@keyframes dust-particles {
-  0% {
-    transform: translateX(0) scale(1);
-  }
-  100% {
-    transform: translateX(50px) scale(1.1);
-  }
-}
+/* VOLUMETRIC EFFECTS REMOVED - Single beam only */
 
 /* 3D rotation animation */
 @keyframes lighthouse-3d-sweep {
