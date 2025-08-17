@@ -219,267 +219,168 @@ export default function SeniorHealthcareDirectory() {
         </div>
       </section>
 
-      {/* Healthcare Services Grid - Card Style */}
+      {/* Healthcare Services Tabs and Sliders - Moved to Top */}
       <section className="px-4 py-12">
-        <div className="max-w-6xl mx-auto">
-          {/* Grid of Healthcare Service Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            
-            {/* Hospital Services Card */}
-            <div className="bg-gray-900 border-2 border-blue-500 rounded-2xl p-6 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mb-3">
-                  <Stethoscope className="w-8 h-8 text-blue-400" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1">Hospital Services</h3>
-                <p className="text-sm text-gray-400 mb-3">6,000+ CMS verified</p>
-                <div className="flex gap-2 flex-wrap justify-center">
-                  <Badge className="bg-green-500 text-white text-xs px-2 py-1">✓ VERIFIED</Badge>
-                  <Badge className="bg-blue-500 text-white text-xs px-2 py-1">CMS RATED</Badge>
-                </div>
-              </div>
-            </div>
-
-            {/* Home Care Services Card */}
-            <div className="bg-gray-900 border-2 border-green-500 rounded-2xl p-6 hover:shadow-lg hover:shadow-green-500/20 transition-all duration-300 cursor-pointer">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-3">
-                  <Home className="w-8 h-8 text-green-400" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1">Home Care Services</h3>
-                <p className="text-sm text-gray-400 mb-3">Licensed caregivers</p>
-                <div className="flex gap-2 flex-wrap justify-center">
-                  <Badge className="bg-green-500 text-white text-xs px-2 py-1">✓ VERIFIED</Badge>
-                  <Badge className="bg-green-600 text-white text-xs px-2 py-1">24/7</Badge>
-                </div>
-              </div>
-            </div>
-
-            {/* Therapy Services Card */}
-            <div className="bg-gray-900 border-2 border-purple-500 rounded-2xl p-6 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mb-3">
-                  <Activity className="w-8 h-8 text-purple-400" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1">Therapy Services</h3>
-                <p className="text-sm text-gray-400 mb-3">144 providers</p>
-                <div className="flex gap-2 flex-wrap justify-center">
-                  <Badge className="bg-green-500 text-white text-xs px-2 py-1">✓ VERIFIED</Badge>
-                  <Badge className="bg-purple-500 text-white text-xs px-2 py-1">PT/OT/SPEECH</Badge>
-                </div>
-              </div>
-            </div>
-
-            {/* Adult Day Programs Card */}
-            <div className="bg-gray-900 border-2 border-teal-500 rounded-2xl p-6 hover:shadow-lg hover:shadow-teal-500/20 transition-all duration-300 cursor-pointer">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-teal-500/20 rounded-full flex items-center justify-center mb-3">
-                  <Users className="w-8 h-8 text-teal-400" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1">Adult Day Programs</h3>
-                <p className="text-sm text-gray-400 mb-3">707 programs</p>
-                <div className="flex gap-2 flex-wrap justify-center">
-                  <Badge className="bg-green-500 text-white text-xs px-2 py-1">✓ VERIFIED</Badge>
-                  <Badge className="bg-teal-500 text-white text-xs px-2 py-1">MEALS + TRANSPORT</Badge>
-                </div>
-              </div>
-            </div>
-
-            {/* Personal Care Card */}
-            <div className="bg-gray-900 border-2 border-orange-500 rounded-2xl p-6 hover:shadow-lg hover:shadow-orange-500/20 transition-all duration-300 cursor-pointer">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-orange-500/20 rounded-full flex items-center justify-center mb-3">
-                  <User className="w-8 h-8 text-orange-400" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1">Personal Care</h3>
-                <p className="text-sm text-gray-400 mb-3">470 providers</p>
-                <div className="flex gap-2 flex-wrap justify-center">
-                  <Badge className="bg-green-500 text-white text-xs px-2 py-1">✓ VERIFIED</Badge>
-                  <Badge className="bg-orange-500 text-white text-xs px-2 py-1">DAILY LIVING</Badge>
-                </div>
-              </div>
-            </div>
-
-            {/* Telemedicine Card */}
-            <div className="bg-gray-900 border-2 border-indigo-500 rounded-2xl p-6 hover:shadow-lg hover:shadow-indigo-500/20 transition-all duration-300 cursor-pointer">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-indigo-500/20 rounded-full flex items-center justify-center mb-3">
-                  <Phone className="w-8 h-8 text-indigo-400" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1">Telemedicine</h3>
-                <p className="text-sm text-gray-400 mb-3">Virtual consultations</p>
-                <div className="flex gap-2 flex-wrap justify-center">
-                  <Badge className="bg-gray-500 text-white text-xs px-2 py-1">Example Service</Badge>
-                </div>
-              </div>
-            </div>
-
-            {/* Pharmacy Services Card */}
-            <div className="bg-gray-900 border-2 border-red-500 rounded-2xl p-6 hover:shadow-lg hover:shadow-red-500/20 transition-all duration-300 cursor-pointer">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mb-3">
-                  <Pill className="w-8 h-8 text-red-400" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1">Pharmacy Services</h3>
-                <p className="text-sm text-gray-400 mb-3">Medication delivery</p>
-                <div className="flex gap-2 flex-wrap justify-center">
-                  <Badge className="bg-gray-500 text-white text-xs px-2 py-1">Example Service</Badge>
-                </div>
-              </div>
-            </div>
-
-            {/* Medical Transport Card */}
-            <div className="bg-gray-900 border-2 border-cyan-500 rounded-2xl p-6 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 cursor-pointer">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-cyan-500/20 rounded-full flex items-center justify-center mb-3">
-                  <Truck className="w-8 h-8 text-cyan-400" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1">Medical Transport</h3>
-                <p className="text-sm text-gray-400 mb-3">Wheelchair accessible</p>
-                <div className="flex gap-2 flex-wrap justify-center">
-                  <Badge className="bg-gray-500 text-white text-xs px-2 py-1">Example Service</Badge>
-                </div>
-              </div>
-            </div>
-
-            {/* Mental Health Card */}
-            <div className="bg-gray-900 border-2 border-pink-500 rounded-2xl p-6 hover:shadow-lg hover:shadow-pink-500/20 transition-all duration-300 cursor-pointer">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-pink-500/20 rounded-full flex items-center justify-center mb-3">
-                  <Brain className="w-8 h-8 text-pink-400" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1">Mental Health</h3>
-                <p className="text-sm text-gray-400 mb-3">Counseling & therapy</p>
-                <div className="flex gap-2 flex-wrap justify-center">
-                  <Badge className="bg-gray-500 text-white text-xs px-2 py-1">Example Service</Badge>
-                </div>
-              </div>
-            </div>
-
-            {/* Medical Equipment Card */}
-            <div className="bg-gray-900 border-2 border-amber-500 rounded-2xl p-6 hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-300 cursor-pointer col-span-1 md:col-span-2 lg:col-span-1">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mb-3">
-                  <ShoppingCart className="w-8 h-8 text-amber-400" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1">Medical Equipment</h3>
-                <p className="text-sm text-gray-400 mb-3">Mobility aids & devices</p>
-                <div className="flex gap-2 flex-wrap justify-center">
-                  <Badge className="bg-gray-500 text-white text-xs px-2 py-1">Example Service</Badge>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Browse All Button */}
-          <div className="flex justify-center mt-8">
-            <Button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg text-lg font-semibold">
-              Browse All Care Services →
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Healthcare Providers - Real Links Section */}
-      <section className="px-4 py-12 bg-gradient-to-br from-teal-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Featured Healthcare Providers
+              Healthcare Service Categories
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Click to explore detailed information about top healthcare systems
+              Find the right healthcare providers for your needs
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Mayo Clinic Card with Real Link */}
-            <Link href="https://www.mayoclinic.org" className="block" target="_blank" rel="noopener noreferrer">
-              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-blue-400">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-500 opacity-5"></div>
-                <CardHeader>
-                  <Badge className="w-fit mb-2 bg-blue-500 text-white">TOP RANKED</Badge>
-                  <CardTitle className="text-xl">Mayo Clinic</CardTitle>
-                  <CardDescription>World-renowned medical care</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-gray-500" />
-                      <span>Rochester, Phoenix, Jacksonville</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-gray-500" />
-                      <span>507-284-2511</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Star className="h-4 w-4 text-yellow-500" />
-                      <span>5.0 Rating • 4,500+ Physicians</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
 
-            {/* Cleveland Clinic Card with Real Link */}
-            <Link href="https://my.clevelandclinic.org" className="block" target="_blank" rel="noopener noreferrer">
-              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-green-400">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-500 opacity-5"></div>
-                <CardHeader>
-                  <Badge className="w-fit mb-2 bg-green-500 text-white">EXCELLENCE</Badge>
-                  <CardTitle className="text-xl">Cleveland Clinic</CardTitle>
-                  <CardDescription>Heart & vascular specialists</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
+          {/* 1. Hospitals Tab and Slider */}
+          <div className="mb-8">
+            {/* Hospital Tab */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Stethoscope className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Hospital Services</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">6,000+ CMS verified hospitals</p>
+                  </div>
+                </div>
+                <div className="hidden sm:block flex-1">
+                  <div className="grid grid-cols-2 gap-2">
                     <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-gray-500" />
-                      <span>Cleveland, OH • 18 Locations</span>
+                      <CheckCircle className="w-4 h-4 text-blue-700 dark:text-blue-300" />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Teaching hospitals</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-gray-500" />
-                      <span>216-444-2200</span>
+                      <CheckCircle className="w-4 h-4 text-blue-700 dark:text-blue-300" />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Trauma centers</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Star className="h-4 w-4 text-yellow-500" />
-                      <span>4.9 Rating • #1 in Cardiology</span>
+                      <CheckCircle className="w-4 h-4 text-blue-700 dark:text-blue-300" />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Emergency services</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-blue-700 dark:text-blue-300" />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Quality ratings</span>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </Link>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">6,000+</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Hospitals</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-blue-600 dark:text-blue-400">CMS</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Verified</div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            {/* Johns Hopkins Card with Real Link */}
-            <Link href="https://www.hopkinsmedicine.org" className="block" target="_blank" rel="noopener noreferrer">
-              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-purple-400">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-indigo-500 opacity-5"></div>
-                <CardHeader>
-                  <Badge className="w-fit mb-2 bg-purple-500 text-white">INNOVATION</Badge>
-                  <CardTitle className="text-xl">Johns Hopkins Medicine</CardTitle>
-                  <CardDescription>Leading medical research</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-gray-500" />
-                      <span>Baltimore, MD • 6 Hospitals</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-gray-500" />
-                      <span>410-955-5000</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Star className="h-4 w-4 text-yellow-500" />
-                      <span>4.8 Rating • Research Leader</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+            {/* Hospital Directory Slider */}
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+              <HospitalCarousel />
+            </div>
           </div>
-        </div>
-      </section>
+
+          {/* 2. Home Care Services Tab and Slider */}
+          {(() => {
+            const services = (careServicesData as any)?.services || [];
+            const homeCareCount = services.filter((s: any) => s.serviceCategory === 'Home Care Services').length;
+            
+            return (
+              <div className="mb-8">
+                {/* Home Care Tab */}
+                <div className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4">
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <Home className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Home Care Services</h4>
+                        <p className="text-sm text-green-700 dark:text-green-300 mt-1">Professional in-home support and care</p>
+                      </div>
+                    </div>
+                    <div className="hidden sm:block flex-1">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-700 dark:text-green-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">24/7 availability</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-700 dark:text-green-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Licensed caregivers</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-700 dark:text-green-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Personal care assistance</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-700 dark:text-green-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Medication management</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{homeCareCount}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                      </div>
+                      <ChevronRight className="w-6 h-6 text-green-700 dark:text-green-300" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Home Care Services Slider */}
+                {(() => {
+                  const homeCareServices = services.filter((s: any) => s.serviceCategory === 'Home Care Services');
+                  
+                  if (homeCareServices.length > 0 && (!selectedCategory || selectedCategory === 'Home Care Services')) {
+                    return (
+                      <section className="px-4 py-4 relative overflow-hidden">
+                        <div className="absolute inset-0 z-0">
+                          <div className="w-full h-full bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-green-100/30 via-emerald-100/20 to-teal-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
+                        </div>
+                        
+                        <div className="relative z-10">
+                          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Professional care in the comfort of your home • Licensed & insured providers</p>
+                          
+                          <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                            {homeCareServices.slice(0, 20).map((service: any, index: number) => {
+                              return (
+                                <CareServiceCard
+                                  key={service.id || index}
+                                  service={service}
+                                  index={index}
+                                  borderColor="border-green-200 dark:border-gray-700"
+                                  hoverBorderColor="hover:border-green-300 dark:hover:border-gray-600"
+                                  iconBgColor="bg-gradient-to-br from-green-500 to-green-600"
+                                  iconRingColor="ring-green-100 dark:ring-green-900"
+                                  icon={<Home className="w-8 h-8 text-white" />}
+                                  categoryBadgeColor="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900 dark:to-green-800"
+                                  categoryBadgeBorder="border-green-300 dark:border-green-600"
+                                  categoryLabel="Home Care"
+                                  buttonColor="bg-gradient-to-r from-green-500 to-green-600"
+                                  buttonHoverColor="hover:from-green-600 hover:to-green-700"
+                                />
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </section>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
+            );
+          })()}
+
+          {/* 3. Therapy Services Tab and Slider */}
+          {(() => {
             const services = (careServicesData as any)?.services || [];
             const therapyCount = services.filter((s: any) => s.serviceCategory === 'Therapy Services').length;
             
@@ -979,7 +880,24 @@ export default function SeniorHealthcareDirectory() {
         </div>
       </section>
 
-
+      {/* Featured Hospitals Carousel */}
+      <section className="px-4 py-12 bg-gray-100 dark:bg-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Featured CMS-Rated Hospitals
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Top-rated medical centers in your area
+            </p>
+          </div>
+          <div className="overflow-x-auto">
+            <div className="flex gap-4 pb-4">
+              <HospitalCarousel />
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Quick Access Buttons */}
       <section className="px-4 py-12">
