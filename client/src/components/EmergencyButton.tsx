@@ -44,6 +44,12 @@ export function EmergencyButton({ userId }: { userId?: string }) {
   const { toast } = useToast();
   const { preferences } = useAccessibilityPreferences();
 
+  // Debug logging
+  useEffect(() => {
+    console.log('EmergencyButton preferences updated:', preferences);
+    console.log('Emergency button enabled:', preferences.emergencyButton);
+  }, [preferences]);
+
   const fetchQuickDialData = async () => {
     // Allow opening even without userId to show emergency numbers
     if (!userId) {

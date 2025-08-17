@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface AccessibilityPreferences {
   largeText: boolean;
@@ -17,21 +17,21 @@ const defaultPreferences: AccessibilityPreferences = {
 };
 
 export function useAccessibilityPreferences() {
-  const [preferences, setPreferences] = useState<AccessibilityPreferences>(defaultPreferences);
-
-  useEffect(() => {
-    // Load preferences from localStorage
+  const [preferences, setPreferences] = useState<AccessibilityPreferences>(() => {
+    // Initialize from localStorage on first render
     const savedPrefs = localStorage.getItem('accessibilityPreferences');
     if (savedPrefs) {
       try {
-        const parsed = JSON.parse(savedPrefs);
-        setPreferences({ ...defaultPreferences, ...parsed });
-      } catch (error) {
-        console.error('Error loading accessibility preferences:', error);
+        return { ...defaultPreferences, ...JSON.parse(savedPrefs) };
+      } catch {
+        return defaultPreferences;
       }
     }
+    return defaultPreferences;
+  });
 
-    // Listen for storage changes (in case preferences are updated in another tab/window)
+  // Listen for storage changes from other tabs
+  useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'accessibilityPreferences' && e.newValue) {
         try {
@@ -47,17 +47,22 @@ export function useAccessibilityPreferences() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  const updatePreferences = (newPreferences: Partial<AccessibilityPreferences>) => {
-    const updated = { ...preferences, ...newPreferences };
-    setPreferences(updated);
-    localStorage.setItem('accessibilityPreferences', JSON.stringify(updated));
-  };
+  const updatePreferences = useCallback((newPreferences: Partial<AccessibilityPreferences>) => {
+    setPreferences(current => {
+      const updated = { ...current, ...newPreferences };
+      localStorage.setItem('accessibilityPreferences', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
-  const togglePreference = (key: keyof AccessibilityPreferences) => {
-    const updated = { ...preferences, [key]: !preferences[key] };
-    setPreferences(updated);
-    localStorage.setItem('accessibilityPreferences', JSON.stringify(updated));
-  };
+  const togglePreference = useCallback((key: keyof AccessibilityPreferences) => {
+    setPreferences(current => {
+      const updated = { ...current, [key]: !current[key] };
+      localStorage.setItem('accessibilityPreferences', JSON.stringify(updated));
+      console.log(`Toggled ${key}: ${current[key]} -> ${updated[key]}`);
+      return updated;
+    });
+  }, []);
 
   return {
     preferences,

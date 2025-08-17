@@ -420,7 +420,10 @@ export default function MySeniorValetHome() {
                           <Switch
                             id="emergency-button"
                             checked={preferences.emergencyButton}
-                            onCheckedChange={() => togglePreference('emergencyButton')}
+                            onCheckedChange={() => {
+                              console.log('Toggling emergency button, current state:', preferences.emergencyButton);
+                              togglePreference('emergencyButton');
+                            }}
                           />
                         </div>
                         
