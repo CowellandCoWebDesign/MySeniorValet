@@ -1,59 +1,60 @@
 import { useState, useEffect } from 'react';
 
 interface AccessibilityPreferences {
-  emergencyButton: boolean;
-  voiceGuidance: boolean;
-  highContrast: boolean;
   largeText: boolean;
+  highContrast: boolean;
+  screenReader: boolean;
   reducedMotion: boolean;
+  emergencyButton: boolean;
 }
 
-const DEFAULT_PREFERENCES: AccessibilityPreferences = {
-  emergencyButton: false, // Disabled by default
-  voiceGuidance: false,
-  highContrast: false,
+const defaultPreferences: AccessibilityPreferences = {
   largeText: false,
+  highContrast: false,
+  screenReader: false,
   reducedMotion: false,
+  emergencyButton: true,
 };
 
 export function useAccessibilityPreferences() {
-  const [preferences, setPreferences] = useState<AccessibilityPreferences>(DEFAULT_PREFERENCES);
+  const [preferences, setPreferences] = useState<AccessibilityPreferences>(defaultPreferences);
 
-  // Load preferences from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem('accessibility-preferences');
-    if (stored) {
+    // Load preferences from localStorage
+    const savedPrefs = localStorage.getItem('accessibilityPreferences');
+    if (savedPrefs) {
       try {
-        const parsed = JSON.parse(stored);
-        setPreferences({ ...DEFAULT_PREFERENCES, ...parsed });
+        const parsed = JSON.parse(savedPrefs);
+        setPreferences({ ...defaultPreferences, ...parsed });
       } catch (error) {
-        console.error('Failed to parse accessibility preferences:', error);
+        console.error('Error loading accessibility preferences:', error);
       }
     }
+
+    // Listen for storage changes (in case preferences are updated in another tab/window)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'accessibilityPreferences' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          setPreferences({ ...defaultPreferences, ...parsed });
+        } catch (error) {
+          console.error('Error updating accessibility preferences:', error);
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  // Save preferences to localStorage whenever they change
-  const updatePreferences = (updates: Partial<AccessibilityPreferences>) => {
-    const newPreferences = { ...preferences, ...updates };
-    setPreferences(newPreferences);
-    localStorage.setItem('accessibility-preferences', JSON.stringify(newPreferences));
-  };
-
-  // Toggle a specific preference
-  const togglePreference = (key: keyof AccessibilityPreferences) => {
-    updatePreferences({ [key]: !preferences[key] });
-  };
-
-  // Reset all preferences to defaults
-  const resetPreferences = () => {
-    setPreferences(DEFAULT_PREFERENCES);
-    localStorage.removeItem('accessibility-preferences');
+  const updatePreferences = (newPreferences: Partial<AccessibilityPreferences>) => {
+    const updated = { ...preferences, ...newPreferences };
+    setPreferences(updated);
+    localStorage.setItem('accessibilityPreferences', JSON.stringify(updated));
   };
 
   return {
     preferences,
     updatePreferences,
-    togglePreference,
-    resetPreferences,
   };
 }

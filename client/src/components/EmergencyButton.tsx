@@ -66,7 +66,8 @@ export function EmergencyButton({ userId }: { userId?: string }) {
     setLoading(true);
     try {
       const response = await apiRequest("GET", `/api/emergency/quick-dial/${userId}`);
-      setQuickDialData(response);
+      const data = await response.json();
+      setQuickDialData(data);
     } catch (error) {
       console.error("Error fetching emergency contacts:", error);
       toast({

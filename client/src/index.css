@@ -18,202 +18,235 @@
   .dark .text-gray-900,
   .dark .text-gray-800,
   .dark .text-gray-700 {
-    @apply text-gray-100 !important;
+    color: rgb(243 244 246) !important; /* text-gray-100 */
   }
   
   /* Secondary text should be light gray */
   .dark .text-gray-600,
   .dark .text-gray-500 {
-    @apply text-gray-300 !important;
+    color: rgb(209 213 219) !important; /* text-gray-300 */
   }
   
   /* Muted text */
   .dark .text-gray-400 {
-    @apply text-gray-400 !important;
+    color: rgb(156 163 175) !important;
   }
   
   /* Headings should be bright white */
   .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
-    @apply text-white !important;
+    color: rgb(255 255 255) !important; /* text-white */
   }
   
   /* Paragraphs and descriptions */
   .dark p, .dark span:not(.badge):not(.text-white) {
-    @apply text-gray-200;
+    color: rgb(229 231 235); /* text-gray-200 */
   }
   
   /* Links should be visible */
   .dark a:not(.btn):not(.button) {
-    @apply text-blue-400 hover:text-blue-300;
+    color: rgb(96 165 250);
+  }
+  .dark a:not(.btn):not(.button):hover {
+    color: rgb(147 197 253);
   }
   
   /* Cards and content areas */
   .dark .bg-white {
-    @apply bg-gray-800 !important;
+    background-color: rgb(31 41 55) !important;
   }
   
   .dark .bg-gray-50 {
-    @apply bg-gray-900 !important;
+    background-color: rgb(17 24 39) !important;
   }
   
   /* Borders */
   .dark .border-gray-200,
   .dark .border-gray-300 {
-    @apply border-gray-700 !important;
+    border-color: rgb(55 65 81) !important;
   }
   
   /* Input fields */
   .dark input, .dark textarea, .dark select {
-    @apply bg-gray-800 text-white border-gray-600 !important;
+    background-color: rgb(31 41 55) !important; color: rgb(255 255 255) !important; border-color: rgb(75 85 99) !important;
   }
   
   /* Buttons need readable text */
   .dark button {
-    @apply text-white;
+    color: rgb(255 255 255);
   }
   
   .dark button.text-gray-700 {
-    @apply text-gray-200 !important;
+    color: rgb(229 231 235) !important;
   }
   
   /* Fix Community Card text in dark mode */
   .dark .text-gray-900 {
-    @apply text-gray-100 !important;
+    color: rgb(243 244 246) !important;
   }
   
   .dark .text-gray-800 {
-    @apply text-gray-200 !important;
+    color: rgb(229 231 235) !important;
   }
   
   .dark .text-gray-700 {
-    @apply text-gray-300 !important;
+    color: rgb(209 213 219) !important;
   }
   
   .dark .text-gray-600 {
-    @apply text-gray-400 !important;
+    color: rgb(156 163 175) !important;
   }
   
   /* Fix badges in dark mode */
   .dark .bg-blue-100 {
-    @apply bg-blue-900/30 !important;
+    background-color: rgba(30, 58, 138, 0.3) !important;
   }
   
   .dark .text-blue-800 {
-    @apply text-blue-300 !important;
+    color: rgb(147 197 253) !important;
   }
   
   .dark .bg-green-100 {
-    @apply bg-green-900/30 !important;
+    background-color: rgba(20, 83, 45, 0.3) !important;
   }
   
   .dark .text-green-800 {
-    @apply text-green-300 !important;
+    color: rgb(134 239 172) !important;
   }
   
   .dark .bg-yellow-100 {
-    @apply bg-yellow-900/30 !important;
+    background-color: rgba(113, 63, 18, 0.3) !important;
   }
   
   .dark .text-yellow-800 {
-    @apply text-yellow-300 !important;
+    color: rgb(253 224 71) !important;
   }
   
   .dark .bg-red-100 {
-    @apply bg-red-900/30 !important;
+    background-color: rgba(127, 29, 29, 0.3) !important;
   }
   
   .dark .text-red-800 {
-    @apply text-red-300 !important;
+    color: rgb(252 165 165) !important;
   }
   
   /* Fix dropdown menus in dark mode */
   .dark [role="menu"] {
-    @apply bg-gray-800 border-gray-700 !important;
+    background-color: rgb(31 41 55) !important; border-color: rgb(55 65 81) !important;
   }
   
   .dark [role="menuitem"] {
-    @apply text-gray-100 hover:bg-gray-700 !important;
+    color: rgb(243 244 246) !important;
   }
   
   /* Fix modals and dialogs */
   .dark [role="dialog"] {
-    @apply bg-gray-800 text-gray-100 !important;
+    background-color: rgb(31 41 55) !important; color: rgb(243 244 246) !important;
   }
   
   /* Fix form labels */
   .dark label {
-    @apply text-gray-200 !important;
+    color: rgb(229 231 235) !important;
   }
   
   /* Fix placeholder text */
   .dark ::placeholder {
-    @apply text-gray-500 !important;
+    color: rgb(107 114 128) !important;
   }
   
   /* Fix disabled elements */
   .dark :disabled {
-    @apply opacity-50 !important;
+    opacity: 0.5 !important;
   }
   
   /* Fix tooltips */
   .dark [role="tooltip"] {
-    @apply bg-gray-900 text-gray-100 border-gray-700 !important;
+    background-color: rgb(17 24 39) !important; color: rgb(243 244 246) !important; border-color: rgb(55 65 81) !important;
   }
   
   /* Fix table text */
   .dark table {
-    @apply text-gray-200 !important;
+    color: rgb(229 231 235) !important;
   }
   
   .dark th {
-    @apply text-gray-100 border-gray-700 !important;
+    color: rgb(243 244 246) !important; border-color: rgb(55 65 81) !important;
   }
   
   .dark td {
-    @apply text-gray-300 border-gray-700 !important;
+    color: rgb(209 213 219) !important; border-color: rgb(55 65 81) !important;
   }
   
   /* Fix list items */
   .dark li {
-    @apply text-gray-200 !important;
+    color: rgb(229 231 235) !important;
   }
   
   /* Fix navigation links */
   .dark nav a {
-    @apply text-gray-200 hover:text-white !important;
+    color: rgb(229 231 235) !important;
   }
   
   /* Fix footer text */
   .dark footer {
-    @apply text-gray-300 !important;
+    color: rgb(209 213 219) !important;
   }
   
   /* Fix ghost buttons in dark mode */
   .dark button[data-variant="ghost"] {
-    @apply bg-transparent hover:bg-gray-800 !important;
+    background-color: transparent !important;
   }
   
   /* Fix sheet/drawer backgrounds */
   .dark [data-radix-portal] [role="dialog"] {
-    @apply bg-gray-900 !important;
+    background-color: rgb(17 24 39) !important;
   }
   
   /* Fix mobile menu button */
   .dark button.lg\:hidden {
-    @apply bg-transparent !important;
+    background-color: transparent !important;
   }
+}
+
+/* Accessibility Preferences Styles */
+.large-text {
+  font-size: 1.2em !important;
+}
+
+.large-text h1 {
+  font-size: 3rem !important;
+}
+
+.large-text h2 {
+  font-size: 2.5rem !important;
+}
+
+.large-text h3 {
+  font-size: 2rem !important;
+}
+
+.high-contrast {
+  filter: contrast(1.2) !important;
+}
+
+.high-contrast * {
+  border-width: 2px !important;
+}
+
+.reduced-motion * {
+  animation: none !important;
+  transition: none !important;
 }
 
 /* Voice Guidance Accessibility Styles */
 @layer components {
   /* High contrast mode for better visibility */
   .voice-guidance-active {
-    @apply ring-2 ring-blue-500 ring-offset-2;
+    box-shadow: 0 0 0 2px rgb(59 130 246), 0 0 0 4px white;
   }
 
   /* Focus visible states for keyboard navigation */
   .voice-guidance-focus:focus-visible {
-    @apply outline-none ring-2 ring-blue-600 ring-offset-2;
+    outline: none; box-shadow: 0 0 0 2px rgb(37 99 235), 0 0 0 4px white;
   }
 
   /* Animation for speaking indicator */
@@ -232,35 +265,35 @@
 
   /* Large touch targets for mobile accessibility */
   .voice-button-touch {
-    @apply min-h-[44px] min-w-[44px];
+    min-height: 44px; min-width: 44px;
   }
 
   /* High contrast tooltips */
   .voice-tooltip {
-    @apply bg-gray-900 text-white dark:bg-white dark:text-gray-900;
+    background-color: rgb(17 24 39); color: white;
   }
 
   /* Screen reader only text */
   .sr-only-focusable:focus {
-    @apply not-sr-only;
+    position: static; width: auto; height: auto; padding: 0; margin: 0; overflow: visible; clip: auto; white-space: normal;
   }
 }
 
 /* Fix Select dropdown text visibility in dark mode */
 [data-radix-select-content] {
-  @apply bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100;
+  background-color: white; color: rgb(17 24 39);
 }
 
 [data-radix-select-item] {
-  @apply text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700;
+  color: rgb(17 24 39);
 }
 
 [data-radix-select-item][data-state="checked"] {
-  @apply bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white;
+  background-color: rgb(243 244 246); color: rgb(17 24 39);
 }
 
 [data-radix-select-trigger] {
-  @apply bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100;
+  background-color: white; color: rgb(17 24 39);
 }
 
 /* Ensure onboarding dialog appears above all map elements */
@@ -1095,11 +1128,11 @@ body {
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
   
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background)); color: hsl(var(--foreground));
     font-family: 'Inter', system-ui, sans-serif;
   }
   

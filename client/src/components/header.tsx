@@ -4,6 +4,7 @@ import { Home, Menu, Search, MapPin, Building2, Shield, HelpCircle } from "lucid
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NotificationCenter } from "@/components/NotificationCenter";
+import { AccessibilityOptions } from "@/components/AccessibilityOptions";
 
 export function Header() {
   const [location] = useLocation();
@@ -129,6 +130,9 @@ export function Header() {
                         Sign In
                       </Button>
                     </Link>
+                  </div>
+                  <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <AccessibilityOptions />
                   </div>
                 </div>
               </SheetContent>
