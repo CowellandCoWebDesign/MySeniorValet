@@ -166,6 +166,7 @@ function Router() {
       <Route path="/communities/:id" component={CommunityDetail} />
       <Route path="/red-tag-example/:communitySlug" component={RedTagExample} />
       <Route path="/hospital/:slug" component={HospitalDetails} />
+      <Route path="/hospitals" component={SeniorHealthcareDirectory} />
       <Route path="/community/:id/contribute" component={CommunityContribute} />
       <Route path="/claim/:communityId" component={Claim} />
       <Route path="/community-claim" component={Claim} />

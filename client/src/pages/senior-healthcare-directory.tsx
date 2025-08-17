@@ -9,7 +9,7 @@ import { CareServiceCard } from "@/components/CareServiceCard";
 import { 
   Stethoscope, Home, Activity, Users, Heart, Brain, Shield, Monitor,
   Pill, ChevronRight, CheckCircle, MapPin, Clock, Phone, Star,
-  Zap, HeartHandshake, UserCheck, Calendar, AlertCircle
+  Zap, HeartHandshake, UserCheck, Calendar, AlertCircle, Search
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -31,6 +31,14 @@ export default function SeniorHealthcareDirectory() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [, setLocation] = useLocation();
+  
+  // Search and filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterLocation, setFilterLocation] = useState('');
+  const [filterRating, setFilterRating] = useState('');
+  const [filterType, setFilterType] = useState('');
+  const [filteredResultsCount, setFilteredResultsCount] = useState(0);
 
   // Fetch care services data
   const { data: careServicesData, isLoading: servicesLoading } = useQuery({
@@ -216,6 +224,174 @@ export default function SeniorHealthcareDirectory() {
               Browse Care Guide
             </Button>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Search and Filter Interface */}
+      <section className="px-4 py-8 bg-gradient-to-b from-blue-50 to-white dark:from-gray-800 dark:to-gray-900">
+        <div className="max-w-6xl mx-auto">
+          <Card className="shadow-lg border-2 border-blue-200 dark:border-blue-800">
+            <CardContent className="p-6">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                Search Healthcare Services
+              </h2>
+              
+              <div className="space-y-4">
+                {/* Search Bar */}
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search hospitals, care services, providers..."
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+                    />
+                  </div>
+                  <Button 
+                    onClick={() => setSearchQuery(searchQuery)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Search className="h-4 w-4 mr-2" />
+                    Search
+                  </Button>
+                </div>
+
+                {/* Filter Options */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <select
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">All Services</option>
+                    <option value="hospitals">Hospitals</option>
+                    <option value="home-care">Home Care Services</option>
+                    <option value="therapy">Therapy Services</option>
+                    <option value="adult-day">Adult Day Care</option>
+                    <option value="personal-care">Personal Care</option>
+                    <option value="hospice">Hospice Care</option>
+                  </select>
+
+                  <select
+                    value={filterLocation}
+                    onChange={(e) => setFilterLocation(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">All Locations</option>
+                    <option value="nearby">Near Me</option>
+                    <option value="city">By City</option>
+                    <option value="state">By State</option>
+                    <option value="zipcode">By ZIP Code</option>
+                  </select>
+
+                  <select
+                    value={filterRating}
+                    onChange={(e) => setFilterRating(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">All Ratings</option>
+                    <option value="5">5 Stars</option>
+                    <option value="4">4+ Stars</option>
+                    <option value="3">3+ Stars</option>
+                  </select>
+
+                  <select
+                    value={filterType}
+                    onChange={(e) => setFilterType(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  >
+                    <option value="">All Types</option>
+                    <option value="emergency">Emergency Services</option>
+                    <option value="24-7">24/7 Available</option>
+                    <option value="non-profit">Non-Profit</option>
+                    <option value="government">Government</option>
+                  </select>
+                </div>
+
+                {/* Active Filters Display */}
+                {(searchQuery || filterCategory || filterLocation || filterRating || filterType) && (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {searchQuery && (
+                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                        Search: {searchQuery}
+                        <button
+                          onClick={() => setSearchQuery('')}
+                          className="ml-2 text-blue-600 hover:text-blue-800"
+                        >
+                          ×
+                        </button>
+                      </Badge>
+                    )}
+                    {filterCategory && (
+                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        Category: {filterCategory}
+                        <button
+                          onClick={() => setFilterCategory('')}
+                          className="ml-2 text-green-600 hover:text-green-800"
+                        >
+                          ×
+                        </button>
+                      </Badge>
+                    )}
+                    {filterLocation && (
+                      <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                        Location: {filterLocation}
+                        <button
+                          onClick={() => setFilterLocation('')}
+                          className="ml-2 text-purple-600 hover:text-purple-800"
+                        >
+                          ×
+                        </button>
+                      </Badge>
+                    )}
+                    {filterRating && (
+                      <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                        Rating: {filterRating}+ Stars
+                        <button
+                          onClick={() => setFilterRating('')}
+                          className="ml-2 text-yellow-600 hover:text-yellow-800"
+                        >
+                          ×
+                        </button>
+                      </Badge>
+                    )}
+                    {filterType && (
+                      <Badge className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
+                        Type: {filterType}
+                        <button
+                          onClick={() => setFilterType('')}
+                          className="ml-2 text-indigo-600 hover:text-indigo-800"
+                        >
+                          ×
+                        </button>
+                      </Badge>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setFilterCategory('');
+                        setFilterLocation('');
+                        setFilterRating('');
+                        setFilterType('');
+                      }}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      Clear All
+                    </Button>
+                  </div>
+                )}
+
+                {/* Results Summary */}
+                <div className="text-sm text-gray-600 dark:text-gray-400 pt-2">
+                  Showing {filteredResultsCount || 'all'} results
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
