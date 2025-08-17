@@ -2058,7 +2058,7 @@ body {
 .beacon-container::before {
   content: '';
   position: absolute;
-  top: -350px;  /* Raised to actual lighthouse lantern position */
+  top: -80px;  /* Positioned to align with lighthouse lantern */
   left: -50px;
   width: 1600px;
   height: 320px;
@@ -2073,7 +2073,7 @@ body {
     transparent 2deg,
     transparent 360deg
   );
-  transform-origin: 50px 400px;  /* Origin at actual lighthouse lantern */
+  transform-origin: 50px 130px;  /* Origin at lighthouse lantern level */
   filter: blur(2px);
   mix-blend-mode: screen;
   pointer-events: none;
@@ -2084,7 +2084,7 @@ body {
 .beacon-container::after {
   content: '';
   position: absolute;
-  top: -400px;  /* Raised to actual lighthouse lantern position */
+  top: -130px;  /* Positioned to align with lighthouse lantern */
   left: -100px;
   width: 2000px;
   height: 420px;
@@ -2096,7 +2096,7 @@ body {
     rgba(255, 180, 20, 0.015) 50%,
     transparent 80%
   );
-  transform-origin: 100px 450px;  /* Origin at actual lighthouse lantern */
+  transform-origin: 100px 180px;  /* Origin at lighthouse lantern level */
   filter: blur(5px);
   mix-blend-mode: screen;
   pointer-events: none;
@@ -2107,7 +2107,7 @@ body {
 .lighthouse-beacon::before {
   content: '';
   position: absolute;
-  top: -260px;  /* Raised to actual lighthouse lantern level */
+  top: 10px;  /* Positioned at lighthouse lantern level */
   left: -150px;
   width: 2200px;
   height: 300px;  /* Concentrated at lantern level */
