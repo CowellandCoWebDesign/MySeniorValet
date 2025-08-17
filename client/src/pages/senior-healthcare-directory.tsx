@@ -219,7 +219,7 @@ export default function SeniorHealthcareDirectory() {
         </div>
       </section>
 
-      {/* Healthcare Services Grid */}
+      {/* Healthcare Services Tabs and Sliders */}
       <section className="px-4 py-12">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
@@ -231,119 +231,492 @@ export default function SeniorHealthcareDirectory() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {healthcareServices.map((service) => (
-              <motion.div
-                key={service.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: service.id * 0.05 }}
-              >
-                <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 hover:border-teal-400 relative overflow-hidden group">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
-                  <CardHeader className="relative z-10">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className={`p-3 rounded-lg bg-gradient-to-br ${service.color} text-white`}>
-                        <service.icon className="h-6 w-6" />
+          {/* 1. Home Care Services Tab and Slider */}
+          {(() => {
+            const services = (careServicesData as any)?.services || [];
+            const homeCareCount = services.filter((s: any) => s.serviceCategory === 'Home Care Services').length;
+            
+            return (
+              <div className="mb-8">
+                {/* Home Care Tab */}
+                <div className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4">
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <Home className="w-8 h-8 text-white" />
                       </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <Badge className="bg-green-500 text-white">
-                          <CheckCircle className="mr-1 h-3 w-3" />
-                          VERIFIED
-                        </Badge>
-                        {service.badge && (
-                          <Badge variant="secondary" className="text-xs">
-                            {service.badge}
-                          </Badge>
-                        )}
+                      <div>
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Home Care Services</h4>
+                        <p className="text-sm text-green-700 dark:text-green-300 mt-1">Professional in-home support and care</p>
                       </div>
                     </div>
-                    <CardTitle className="text-xl">{service.name}</CardTitle>
-                    <CardDescription className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                      {service.category}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="relative z-10">
-                    <p className="text-gray-700 dark:text-gray-300 mb-3">
-                      {service.description}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-600 dark:text-gray-400">
-                        {service.providerCount.toLocaleString()} providers
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setExpandedCategory(expandedCategory === service.name ? null : service.name)}
-                        className="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 font-semibold"
-                      >
-                        {expandedCategory === service.name ? 'Hide' : 'View All'}
-                        <ChevronRight className={`ml-1 h-4 w-4 transition-transform ${expandedCategory === service.name ? 'rotate-90' : ''}`} />
-                      </Button>
-                    </div>
-                    
-                    {/* Expanded Provider List */}
-                    {expandedCategory === service.name && (
-                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        {servicesLoading ? (
-                          <div className="text-center py-4">
-                            <div className="animate-spin w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full mx-auto"></div>
-                          </div>
-                        ) : (
-                          <div className="space-y-2 max-h-60 overflow-y-auto">
-                            {service.name === "Hospital Services" && hospitals.length > 0 ? (
-                              hospitals.slice(0, 5).map((hospital: any) => (
-                                <div key={hospital.id} className="p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                  <div className="font-medium text-sm">{hospital.name}</div>
-                                  <div className="text-xs text-gray-600 dark:text-gray-400">
-                                    {hospital.city}, {hospital.state} • {hospital.phone}
-                                  </div>
-                                  {hospital.cms_rating && (
-                                    <div className="flex items-center gap-1 mt-1">
-                                      {[...Array(hospital.cms_rating)].map((_, i) => (
-                                        <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              ))
-                            ) : services.filter((s: any) => s.serviceCategory === service.category).slice(0, 5).map((provider: any) => (
-                              <div key={provider.id} className="p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                <div className="font-medium text-sm">{provider.providerName || provider.name}</div>
-                                <div className="text-xs text-gray-600 dark:text-gray-400">
-                                  {provider.phone} • {provider.city || 'Multiple Locations'}
-                                </div>
-                                {provider.website && (
-                                  <a 
-                                    href={provider.website}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs text-teal-600 hover:underline"
-                                  >
-                                    Visit Website →
-                                  </a>
-                                )}
-                              </div>
-                            ))}
-                            {(service.name === "Hospital Services" ? hospitals : services.filter((s: any) => s.serviceCategory === service.category)).length > 5 && (
-                              <Button
-                                variant="link"
-                                size="sm"
-                                onClick={() => setLocation('/search')}
-                                className="w-full text-xs"
-                              >
-                                See all {service.providerCount.toLocaleString()} providers →
-                              </Button>
-                            )}
-                          </div>
-                        )}
+                    <div className="hidden sm:block flex-1">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-700 dark:text-green-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">24/7 availability</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-700 dark:text-green-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Licensed caregivers</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-700 dark:text-green-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Personal care assistance</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-700 dark:text-green-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Medication management</span>
+                        </div>
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{homeCareCount}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                      </div>
+                      <ChevronRight className="w-6 h-6 text-green-700 dark:text-green-300" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Home Care Services Slider */}
+                {(() => {
+                  const homeCareServices = services.filter((s: any) => s.serviceCategory === 'Home Care Services');
+                  
+                  if (homeCareServices.length > 0 && (!selectedCategory || selectedCategory === 'Home Care Services')) {
+                    return (
+                      <section className="px-4 py-4 relative overflow-hidden">
+                        <div className="absolute inset-0 z-0">
+                          <div className="w-full h-full bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-green-100/30 via-emerald-100/20 to-teal-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
+                        </div>
+                        
+                        <div className="relative z-10">
+                          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Professional care in the comfort of your home • Licensed & insured providers</p>
+                          
+                          <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                            {homeCareServices.slice(0, 20).map((service: any, index: number) => {
+                              return (
+                                <CareServiceCard
+                                  key={service.id || index}
+                                  service={service}
+                                  index={index}
+                                  borderColor="border-green-200 dark:border-gray-700"
+                                  hoverBorderColor="hover:border-green-300 dark:hover:border-gray-600"
+                                  iconBgColor="bg-gradient-to-br from-green-500 to-green-600"
+                                  iconRingColor="ring-green-100 dark:ring-green-900"
+                                  icon={<Home className="w-8 h-8 text-white" />}
+                                  categoryBadgeColor="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900 dark:to-green-800"
+                                  categoryBadgeBorder="border-green-300 dark:border-green-600"
+                                  categoryLabel="Home Care"
+                                  buttonColor="bg-gradient-to-r from-green-500 to-green-600"
+                                  buttonHoverColor="hover:from-green-600 hover:to-green-700"
+                                />
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </section>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
+            );
+          })()}
+
+          {/* 2. Therapy Services Tab and Slider */}
+          {(() => {
+            const services = (careServicesData as any)?.services || [];
+            const therapyCount = services.filter((s: any) => s.serviceCategory === 'Therapy Services').length;
+            
+            return (
+              <div className="mb-8">
+                {/* Therapy Tab */}
+                <div
+                  className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 border-2 rounded-xl p-6 cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4"
+                  onClick={() => setSelectedCategory('Therapy Services')}
+                >
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <Activity className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Therapy Services</h4>
+                        <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">Physical, occupational, and speech therapy</p>
+                      </div>
+                    </div>
+                    <div className="hidden sm:block flex-1">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-purple-700 dark:text-purple-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Physical therapy</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-purple-700 dark:text-purple-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Occupational therapy</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-purple-700 dark:text-purple-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Speech therapy</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-purple-700 dark:text-purple-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">In-home sessions available</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{therapyCount}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                      </div>
+                      <ChevronRight className="w-6 h-6 text-purple-700 dark:text-purple-300" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Therapy Services Slider */}
+                {(() => {
+                  const therapyServices = services.filter((s: any) => s.serviceCategory === 'Therapy Services');
+                  
+                  if (therapyServices.length > 0 && (!selectedCategory || selectedCategory === 'Therapy Services')) {
+                    return (
+                      <section className="px-4 py-4 relative overflow-hidden">
+                        <div className="absolute inset-0 z-0">
+                          <div className="w-full h-full bg-gradient-to-br from-purple-50 via-pink-50 to-fuchsia-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-purple-100/30 via-pink-100/20 to-fuchsia-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
+                        </div>
+                        
+                        <div className="relative z-10">
+                          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Specialized therapy services to improve mobility & independence • Medicare certified</p>
+                          
+                          <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                            {therapyServices.slice(0, 20).map((service: any, index: number) => {
+                              return (
+                                <CareServiceCard
+                                  key={service.id || index}
+                                  service={service}
+                                  index={index}
+                                  borderColor="border-purple-200 dark:border-gray-700"
+                                  hoverBorderColor="hover:border-purple-300 dark:hover:border-gray-600"
+                                  iconBgColor="bg-gradient-to-br from-purple-500 to-purple-600"
+                                  iconRingColor="ring-purple-100 dark:ring-purple-900"
+                                  icon={<Activity className="w-8 h-8 text-white" />}
+                                  categoryBadgeColor="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800"
+                                  categoryBadgeBorder="border-purple-300 dark:border-purple-600"
+                                  categoryLabel="Therapy Services"
+                                  buttonColor="bg-gradient-to-r from-purple-500 to-purple-600"
+                                  buttonHoverColor="hover:from-purple-600 hover:to-purple-700"
+                                />
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </section>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
+            );
+          })()}
+
+          {/* 3. Adult Day Care Tab and Slider */}
+          {(() => {
+            const services = (careServicesData as any)?.services || [];
+            const adultDayCareCount = services.filter((s: any) => s.serviceCategory === 'Adult Day Care').length;
+            
+            return (
+              <div className="mb-8">
+                {/* Adult Day Care Tab */}
+                <div
+                  className="bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800 border-2 rounded-xl p-6 cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4"
+                  onClick={() => setSelectedCategory('Adult Day Care')}
+                >
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <Users className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Adult Day Care</h4>
+                        <p className="text-sm text-teal-700 dark:text-teal-300 mt-1">Daytime programs for social engagement and activities</p>
+                      </div>
+                    </div>
+                    <div className="hidden sm:block flex-1">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-teal-700 dark:text-teal-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Social activities</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-teal-700 dark:text-teal-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Nutritious meals</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-teal-700 dark:text-teal-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Exercise programs</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-teal-700 dark:text-teal-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Transportation available</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{adultDayCareCount}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">Centers</div>
+                      </div>
+                      <ChevronRight className="w-6 h-6 text-teal-700 dark:text-teal-300" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Adult Day Care Slider */}
+                {(() => {
+                  const adultDayCareServices = services.filter((s: any) => s.serviceCategory === 'Adult Day Care');
+                  
+                  if (adultDayCareServices.length > 0 && (!selectedCategory || selectedCategory === 'Adult Day Care')) {
+                    return (
+                      <section className="px-4 py-4 relative overflow-hidden">
+                        <div className="absolute inset-0 z-0">
+                          <div className="w-full h-full bg-gradient-to-br from-teal-50 via-cyan-50 to-sky-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-teal-100/30 via-cyan-100/20 to-sky-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
+                        </div>
+                        
+                        <div className="relative z-10">
+                          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Safe daytime care with engaging activities • Respite for caregivers</p>
+                          
+                          <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                            {adultDayCareServices.slice(0, 20).map((service: any, index: number) => {
+                              return (
+                                <CareServiceCard
+                                  key={service.id || index}
+                                  service={service}
+                                  index={index}
+                                  borderColor="border-teal-200 dark:border-gray-700"
+                                  hoverBorderColor="hover:border-teal-300 dark:hover:border-gray-600"
+                                  iconBgColor="bg-gradient-to-br from-teal-500 to-teal-600"
+                                  iconRingColor="ring-teal-100 dark:ring-teal-900"
+                                  icon={<Users className="w-8 h-8 text-white" />}
+                                  categoryBadgeColor="bg-gradient-to-r from-teal-50 to-teal-100 dark:from-teal-900 dark:to-teal-800"
+                                  categoryBadgeBorder="border-teal-300 dark:border-teal-600"
+                                  categoryLabel="Adult Day Care"
+                                  buttonColor="bg-gradient-to-r from-teal-500 to-teal-600"
+                                  buttonHoverColor="hover:from-teal-600 hover:to-teal-700"
+                                />
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </section>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
+            );
+          })()}
+
+          {/* 4. Personal Care Services Tab and Slider */}
+          {(() => {
+            const services = (careServicesData as any)?.services || [];
+            const personalCareCount = services.filter((s: any) => s.serviceCategory === 'Personal Care Services').length;
+            
+            return (
+              <div className="mb-8">
+                {/* Personal Care Tab */}
+                <div
+                  className="bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800 border-2 rounded-xl p-6 cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4"
+                  onClick={() => setSelectedCategory('Personal Care Services')}
+                >
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="w-16 h-16 bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <Heart className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Personal Care Services</h4>
+                        <p className="text-sm text-rose-700 dark:text-rose-300 mt-1">Assistance with daily living activities</p>
+                      </div>
+                    </div>
+                    <div className="hidden sm:block flex-1">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-rose-700 dark:text-rose-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Bathing assistance</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-rose-700 dark:text-rose-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Dressing support</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-rose-700 dark:text-rose-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Grooming help</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-rose-700 dark:text-rose-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Mobility assistance</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{personalCareCount}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                      </div>
+                      <ChevronRight className="w-6 h-6 text-rose-700 dark:text-rose-300" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Personal Care Services Slider */}
+                {(() => {
+                  const personalCareServices = services.filter((s: any) => s.serviceCategory === 'Personal Care Services');
+                  
+                  if (personalCareServices.length > 0 && (!selectedCategory || selectedCategory === 'Personal Care Services')) {
+                    return (
+                      <section className="px-4 py-4 relative overflow-hidden">
+                        <div className="absolute inset-0 z-0">
+                          <div className="w-full h-full bg-gradient-to-br from-rose-50 via-pink-50 to-red-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-rose-100/30 via-pink-100/20 to-red-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
+                        </div>
+                        
+                        <div className="relative z-10">
+                          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Compassionate support for daily activities • Preserving dignity & independence</p>
+                          
+                          <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                            {personalCareServices.slice(0, 20).map((service: any, index: number) => {
+                              return (
+                                <CareServiceCard
+                                  key={service.id || index}
+                                  service={service}
+                                  index={index}
+                                  borderColor="border-rose-200 dark:border-gray-700"
+                                  hoverBorderColor="hover:border-rose-300 dark:hover:border-gray-600"
+                                  iconBgColor="bg-gradient-to-br from-rose-500 to-rose-600"
+                                  iconRingColor="ring-rose-100 dark:ring-rose-900"
+                                  icon={<Heart className="w-8 h-8 text-white" />}
+                                  categoryBadgeColor="bg-gradient-to-r from-rose-50 to-rose-100 dark:from-rose-900 dark:to-rose-800"
+                                  categoryBadgeBorder="border-rose-300 dark:border-rose-600"
+                                  categoryLabel="Personal Care"
+                                  buttonColor="bg-gradient-to-r from-rose-500 to-rose-600"
+                                  buttonHoverColor="hover:from-rose-600 hover:to-rose-700"
+                                />
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </section>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
+            );
+          })()}
+
+          {/* 5. Hospice Care Tab and Slider */}
+          {(() => {
+            const services = (careServicesData as any)?.services || [];
+            const hospiceCount = services.filter((s: any) => s.serviceCategory === 'Hospice Care').length;
+            
+            return (
+              <div className="mb-8">
+                {/* Hospice Care Tab */}
+                <div
+                  className="bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800 border-2 rounded-xl p-6 cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4"
+                  onClick={() => setSelectedCategory('Hospice Care')}
+                >
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <HeartHandshake className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Hospice Care</h4>
+                        <p className="text-sm text-indigo-700 dark:text-indigo-300 mt-1">Compassionate end-of-life support</p>
+                      </div>
+                    </div>
+                    <div className="hidden sm:block flex-1">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-indigo-700 dark:text-indigo-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">24/7 support</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-indigo-700 dark:text-indigo-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Pain management</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-indigo-700 dark:text-indigo-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Family counseling</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-indigo-700 dark:text-indigo-300" />
+                          <span className="text-xs text-gray-600 dark:text-gray-400">Spiritual support</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{hospiceCount}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                      </div>
+                      <ChevronRight className="w-6 h-6 text-indigo-700 dark:text-indigo-300" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hospice Care Slider */}
+                {(() => {
+                  const hospiceServices = services.filter((s: any) => s.serviceCategory === 'Hospice Care');
+                  
+                  if (hospiceServices.length > 0 && (!selectedCategory || selectedCategory === 'Hospice Care')) {
+                    return (
+                      <section className="px-4 py-4 relative overflow-hidden">
+                        <div className="absolute inset-0 z-0">
+                          <div className="w-full h-full bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-indigo-100/30 via-blue-100/20 to-purple-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
+                        </div>
+                        
+                        <div className="relative z-10">
+                          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Comprehensive comfort care with dignity • Medicare certified providers</p>
+                          
+                          <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                            {hospiceServices.slice(0, 20).map((service: any, index: number) => {
+                              return (
+                                <CareServiceCard
+                                  key={service.id || index}
+                                  service={service}
+                                  index={index}
+                                  borderColor="border-indigo-200 dark:border-gray-700"
+                                  hoverBorderColor="hover:border-indigo-300 dark:hover:border-gray-600"
+                                  iconBgColor="bg-gradient-to-br from-indigo-500 to-indigo-600"
+                                  iconRingColor="ring-indigo-100 dark:ring-indigo-900"
+                                  icon={<HeartHandshake className="w-8 h-8 text-white" />}
+                                  categoryBadgeColor="bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-indigo-900 dark:to-indigo-800"
+                                  categoryBadgeBorder="border-indigo-300 dark:border-indigo-600"
+                                  categoryLabel="Hospice Care"
+                                  buttonColor="bg-gradient-to-r from-indigo-500 to-indigo-600"
+                                  buttonHoverColor="hover:from-indigo-600 hover:to-indigo-700"
+                                />
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </section>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
+            );
+          })()}
         </div>
       </section>
 
