@@ -1,25 +1,17 @@
 import { createRoot } from "react-dom/client";
-import App from "./App";
-import TestApp from "./TestApp";
-import ErrorBoundary from "./ErrorBoundary";
+import SimpleApp from "./SimpleApp";
 import "./index.css";
 
-// Development cache management
-if (import.meta.env.DEV) {
-  console.log("🔥 DEV MODE ACTIVE - " + Date.now());
+// Bypass HMR completely
+// @ts-ignore
+if (typeof import.meta.hot !== 'undefined') {
+  import.meta.hot.decline();
 }
 
 const root = document.getElementById("root");
 if (root) {
-  // Temporarily render TestApp to verify React is working
-  const urlParams = new URLSearchParams(window.location.search);
-  const testMode = urlParams.get('test') === 'true';
-  
-  createRoot(root).render(
-    <ErrorBoundary>
-      {testMode ? <TestApp /> : <App />}
-    </ErrorBoundary>
-  );
+  // Using SimpleApp - a working React component that bypasses HMR issues
+  createRoot(root).render(<SimpleApp />);
 } else {
   console.error("Root element not found!");
 }
