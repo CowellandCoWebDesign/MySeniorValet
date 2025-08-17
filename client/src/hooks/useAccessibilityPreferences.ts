@@ -53,8 +53,15 @@ export function useAccessibilityPreferences() {
     localStorage.setItem('accessibilityPreferences', JSON.stringify(updated));
   };
 
+  const togglePreference = (key: keyof AccessibilityPreferences) => {
+    const updated = { ...preferences, [key]: !preferences[key] };
+    setPreferences(updated);
+    localStorage.setItem('accessibilityPreferences', JSON.stringify(updated));
+  };
+
   return {
     preferences,
     updatePreferences,
+    togglePreference,
   };
 }
