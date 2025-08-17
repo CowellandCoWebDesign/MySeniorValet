@@ -772,6 +772,7 @@ export default function MySeniorValetHome() {
         <div className="lighthouse-beacon">
           <div className="beacon-container">
             <div className="beacon-light"></div>
+            <div className="beacon-light-secondary"></div>
           </div>
           <div className="beacon-source"></div>
         </div>
