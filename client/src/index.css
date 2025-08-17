@@ -1994,7 +1994,7 @@ body {
 /* Lighthouse Beacon Animation - Enhanced 3D Effect */
 .lighthouse-beacon {
   position: absolute;
-  top: 23%;  /* Aligned with lighthouse lantern */
+  top: 22%;  /* Aligned with lighthouse lantern */
   left: 14.8%;  /* Positioned at lighthouse center */
   width: 1px;
   height: 1px;
@@ -2070,35 +2070,31 @@ body {
   mix-blend-mode: screen;
 }
 
-/* Enhanced foggy yellow light source at center */
+/* Subtle foggy yellow light source at center */
 .beacon-source {
   position: absolute;
   top: 0;
   left: 0;
-  width: 50px;
-  height: 50px;
+  width: 20px;
+  height: 20px;
   background: radial-gradient(
     circle,
-    rgba(255, 230, 120, 0.95) 0%,
-    rgba(255, 225, 100, 0.9) 15%,
-    rgba(255, 215, 80, 0.8) 30%,
-    rgba(255, 205, 60, 0.65) 45%,
-    rgba(255, 195, 40, 0.45) 60%,
-    rgba(255, 185, 20, 0.25) 75%,
-    rgba(255, 175, 10, 0.1) 85%,
+    rgba(255, 220, 100, 0.7) 0%,
+    rgba(255, 210, 80, 0.5) 20%,
+    rgba(255, 200, 60, 0.3) 40%,
+    rgba(255, 190, 40, 0.15) 60%,
+    rgba(255, 180, 20, 0.05) 80%,
     transparent 100%
   );
   border-radius: 50%;
   transform: translate(-50%, -50%);
   box-shadow: 
-    0 0 40px rgba(255, 220, 100, 0.9),
-    0 0 80px rgba(255, 210, 80, 0.7),
-    0 0 120px rgba(255, 200, 60, 0.5),
-    0 0 160px rgba(255, 190, 40, 0.3),
-    0 0 200px rgba(255, 180, 20, 0.15);
+    0 0 20px rgba(255, 210, 80, 0.5),
+    0 0 40px rgba(255, 200, 60, 0.3),
+    0 0 60px rgba(255, 190, 40, 0.15);
   animation: beacon-pulse 2s ease-in-out infinite;
   z-index: 10;
-  filter: brightness(1) saturate(1.2);
+  filter: brightness(0.9) saturate(1.1);
 }
 
 /* 3D rotation animation */
