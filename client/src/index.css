@@ -2058,7 +2058,7 @@ body {
 .beacon-container::before {
   content: '';
   position: absolute;
-  top: -50px;
+  top: -110px;  /* Raised to align with lighthouse lantern */
   left: -50px;
   width: 1600px;
   height: 320px;
@@ -2073,7 +2073,7 @@ body {
     transparent 2deg,
     transparent 360deg
   );
-  transform-origin: 50px 50%;
+  transform-origin: 50px 160px;  /* Adjusted origin to match lantern position */
   filter: blur(2px);
   mix-blend-mode: screen;
   pointer-events: none;
@@ -2084,7 +2084,7 @@ body {
 .beacon-container::after {
   content: '';
   position: absolute;
-  top: -100px;
+  top: -160px;  /* Raised to align with lighthouse lantern */
   left: -100px;
   width: 2000px;
   height: 420px;
@@ -2096,7 +2096,7 @@ body {
     rgba(255, 180, 20, 0.015) 50%,
     transparent 80%
   );
-  transform-origin: 100px 50%;
+  transform-origin: 100px 210px;  /* Adjusted origin to match lantern position */
   filter: blur(5px);
   mix-blend-mode: screen;
   pointer-events: none;
@@ -2107,16 +2107,16 @@ body {
 .lighthouse-beacon::before {
   content: '';
   position: absolute;
-  top: -150px;
+  top: -20px;  /* Raised significantly to center on lighthouse lantern */
   left: -150px;
   width: 2200px;
-  height: 500px;
+  height: 300px;  /* Reduced height to concentrate effect at lantern level */
   background-image: 
-    radial-gradient(circle at 10% 20%, rgba(255, 220, 100, 0.3) 0%, transparent 2%),
-    radial-gradient(circle at 15% 30%, rgba(255, 210, 80, 0.2) 0%, transparent 1.5%),
-    radial-gradient(circle at 8% 40%, rgba(255, 200, 60, 0.25) 0%, transparent 1.8%),
-    radial-gradient(circle at 20% 25%, rgba(255, 215, 90, 0.15) 0%, transparent 1%),
-    radial-gradient(circle at 12% 35%, rgba(255, 205, 70, 0.2) 0%, transparent 1.2%);
+    radial-gradient(circle at 10% 50%, rgba(255, 220, 100, 0.3) 0%, transparent 2%),
+    radial-gradient(circle at 15% 45%, rgba(255, 210, 80, 0.2) 0%, transparent 1.5%),
+    radial-gradient(circle at 8% 55%, rgba(255, 200, 60, 0.25) 0%, transparent 1.8%),
+    radial-gradient(circle at 20% 48%, rgba(255, 215, 90, 0.15) 0%, transparent 1%),
+    radial-gradient(circle at 12% 52%, rgba(255, 205, 70, 0.2) 0%, transparent 1.2%);
   animation: dust-particles 12s linear infinite;
   mix-blend-mode: screen;
   pointer-events: none;
