@@ -708,7 +708,7 @@ export default function MySeniorValetHome() {
       <section className="px-4 py-8 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-600/20"></div>
         <div className="max-w-5xl mx-auto relative z-10">
-          <Card className="bg-blue-900/80 backdrop-blur-sm border-2 border-blue-400/50 shadow-2xl">
+          <Card className="bg-blue-900 dark:bg-blue-900/90 border-2 border-blue-400/50 shadow-2xl">
             <CardContent className="p-8 md:p-10 text-center">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 flex items-center justify-center gap-3">
                 <Sparkles className="w-8 h-8 text-yellow-400 animate-pulse" />
@@ -716,20 +716,20 @@ export default function MySeniorValetHome() {
               </h2>
               
               <div className="space-y-4 text-white max-w-4xl mx-auto">
-                <p className="text-lg md:text-xl leading-relaxed">
+                <p className="text-lg md:text-xl leading-relaxed text-white">
                   This platform is being released immediately for public access to rapidly deliver transparency and benefit society through immediate access to information powered by AI. We apologize for any malfunctions you may experience during this beta phase.
                 </p>
                 
-                <div className="bg-blue-800/50 rounded-lg p-4 border border-blue-400/30">
-                  <p className="text-lg font-semibold mb-2">
+                <div className="bg-blue-800 dark:bg-blue-800/70 rounded-lg p-4 border border-blue-400/30">
+                  <p className="text-lg font-semibold mb-2 text-white">
                     <strong className="text-yellow-400">Quick Fix for Most Issues:</strong>
                   </p>
-                  <p className="text-base">
+                  <p className="text-base text-blue-100">
                     Navigate to the top navbar, return home, and refresh your browser. This resolves most beta-related glitches.
                   </p>
                 </div>
                 
-                <p className="text-lg md:text-xl font-semibold pt-4">
+                <p className="text-lg md:text-xl font-semibold pt-4 text-white">
                   Thank you for your patience and support in joining this movement for transparency in senior living. Together, we're bringing light to an industry that has operated in darkness for too long.
                 </p>
                 
@@ -900,15 +900,15 @@ export default function MySeniorValetHome() {
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">ALL Families Get PLATINUM Features Free</p>
-                          <p className="text-gray-600 dark:text-gray-300 text-sm">Every family gets our complete PLATINUM toolkit. No tiers. No upgrades. Always free, guaranteed forever.</p>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100">ALL Families Get PLATINUM Features Free</p>
+                          <p className="text-gray-700 dark:text-gray-200 text-sm">Every family gets our complete PLATINUM toolkit. No tiers. No upgrades. Always free, guaranteed forever.</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">Shareable Tour Tracker - Hyper Rich Reviews</p>
-                          <p className="text-gray-600 dark:text-gray-300 text-sm">Our transparency tool prevents high prices from hiding behind lagging online reviews. Share your real tour experiences to help others see the truth.</p>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100">Shareable Tour Tracker - Hyper Rich Reviews</p>
+                          <p className="text-gray-700 dark:text-gray-200 text-sm">Our transparency tool prevents high prices from hiding behind lagging online reviews. Share your real tour experiences to help others see the truth.</p>
                         </div>
                       </div>
                     </div>
@@ -916,22 +916,22 @@ export default function MySeniorValetHome() {
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">Tour Tracker with Family Sharing</p>
-                          <p className="text-gray-600 dark:text-gray-300 text-sm">Track every tour, save notes, build comparisons. Share instantly with family members for collaborative decisions.</p>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100">Tour Tracker with Family Sharing</p>
+                          <p className="text-gray-700 dark:text-gray-200 text-sm">Track every tour, save notes, build comparisons. Share instantly with family members for collaborative decisions.</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">Communities Shine Bright</p>
-                          <p className="text-gray-600 dark:text-gray-300 text-sm">Every facility can represent itself honestly. No more hiding great care in the shadows.</p>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100">Communities Shine Bright</p>
+                          <p className="text-gray-700 dark:text-gray-200 text-sm">Every facility can represent itself honestly. No more hiding great care in the shadows.</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-3">
                         <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">Discover Benefits You Qualify For</p>
-                          <p className="text-gray-600 dark:text-gray-300 text-sm">VA Aid & Attendance, Medicaid, state programs - we help you find and understand all available assistance.</p>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100">Discover Benefits You Qualify For</p>
+                          <p className="text-gray-700 dark:text-gray-200 text-sm">VA Aid & Attendance, Medicaid, state programs - we help you find and understand all available assistance.</p>
                         </div>
                       </div>
                     </div>
