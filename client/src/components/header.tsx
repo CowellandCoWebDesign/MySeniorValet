@@ -4,7 +4,6 @@ import { Home, Menu, Search, MapPin, Building2, Shield, HelpCircle } from "lucid
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NotificationCenter } from "@/components/NotificationCenter";
-import { EmergencyButtonToggle } from "@/components/EmergencyButtonToggle";
 
 export function Header() {
   const [location] = useLocation();
