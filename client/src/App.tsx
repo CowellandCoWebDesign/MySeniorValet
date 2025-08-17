@@ -109,6 +109,8 @@ import { EmergencyButton } from "@/components/EmergencyButton";
 import CanadaPage from "@/pages/canada";
 import RedTagExample from "@/pages/red-tag-example";
 import HospitalDetails from "@/pages/hospital-details";
+import HomeCareDetails from "@/pages/home-care-details";
+import TherapyServicesDetails from "@/pages/therapy-services-details";
 import PaymentSuccess from "@/pages/payment-success";
 import PaymentCancel from "@/pages/payment-cancel";
 import CommunityMobilePayment from "@/pages/community-mobile-payment";
@@ -252,6 +254,9 @@ function Router() {
       <Route path="/marketplace" component={Marketplace} />
       <Route path="/senior-marketplace" component={SeniorMarketplace} />
       <Route path="/senior-healthcare-directory" component={SeniorHealthcareDirectory} />
+      <Route path="/hospital/:slug" component={HospitalDetails} />
+      <Route path="/home-care/:slug" component={HomeCareDetails} />
+      <Route path="/therapy-services/:slug" component={TherapyServicesDetails} />
       <Route path="/senior-resources-center" component={SeniorResourcesCenter} />
       <Route path="/providers/mayo-clinic" component={MayoClinicPage} />
       <Route path="/providers/cleveland-clinic" component={ClevelandClinicPage} />
