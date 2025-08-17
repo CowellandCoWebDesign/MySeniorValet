@@ -1994,8 +1994,8 @@ body {
 /* Lighthouse Beacon Animation - 3D Effect */
 .lighthouse-beacon {
   position: absolute;
-  top: 18%;  /* Position at lighthouse lantern for new night image */
-  left: 23%;  /* Align with lantern position */
+  top: 19%;  /* Position at lighthouse lantern for new night image */
+  left: 19%;  /* Centered on lighthouse lantern */
   width: 1px;
   height: 1px;
   pointer-events: none;
