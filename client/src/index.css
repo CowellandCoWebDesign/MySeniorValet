@@ -1994,7 +1994,7 @@ body {
 /* Lighthouse Beacon Animation - Enhanced 3D Effect */
 .lighthouse-beacon {
   position: absolute;
-  top: 25.5%;  /* Aligned with lighthouse lantern */
+  top: 23%;  /* Aligned with lighthouse lantern */
   left: 14.8%;  /* Positioned at lighthouse center */
   width: 1px;
   height: 1px;
@@ -2015,7 +2015,7 @@ body {
   animation: lighthouse-3d-sweep 8s linear infinite;
 }
 
-/* Main light beam with enhanced 3D perspective */
+/* Main light beam with foggy yellow atmosphere */
 .beacon-light {
   position: absolute;
   top: 0;
@@ -2024,28 +2024,28 @@ body {
   height: 220px;
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 240, 1) 0%,
-    rgba(255, 255, 230, 0.95) 3%,
-    rgba(255, 255, 220, 0.85) 10%,
-    rgba(255, 255, 210, 0.7) 25%,
-    rgba(255, 255, 200, 0.5) 45%,
-    rgba(255, 255, 200, 0.3) 65%,
-    rgba(255, 255, 200, 0.15) 80%,
-    rgba(255, 255, 200, 0.05) 92%,
+    rgba(255, 220, 100, 0.85) 0%,
+    rgba(255, 215, 80, 0.75) 3%,
+    rgba(255, 210, 60, 0.65) 10%,
+    rgba(255, 200, 40, 0.5) 25%,
+    rgba(255, 195, 30, 0.35) 45%,
+    rgba(255, 190, 20, 0.2) 65%,
+    rgba(255, 185, 10, 0.1) 80%,
+    rgba(255, 180, 0, 0.03) 92%,
     transparent 100%
   );
   transform-origin: 0 50%;
   transform: translateY(-110px);
   clip-path: polygon(0 48%, 100% 25%, 100% 75%, 0 52%);
-  filter: blur(0.8px) brightness(1.2);
+  filter: blur(1.2px) brightness(1.1);
   mix-blend-mode: screen;
   box-shadow: 
-    0 0 60px rgba(255, 255, 220, 0.5),
-    0 0 120px rgba(255, 255, 200, 0.3),
-    0 0 180px rgba(255, 255, 200, 0.2);
+    0 0 60px rgba(255, 210, 80, 0.4),
+    0 0 120px rgba(255, 200, 60, 0.25),
+    0 0 180px rgba(255, 190, 40, 0.15);
 }
 
-/* Second beam for enhanced depth */
+/* Second beam for enhanced foggy depth */
 .beacon-light-secondary {
   position: absolute;
   top: 0;
@@ -2054,23 +2054,23 @@ body {
   height: 240px;
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 230, 0.8) 0%,
-    rgba(255, 255, 220, 0.6) 8%,
-    rgba(255, 255, 210, 0.4) 20%,
-    rgba(255, 255, 200, 0.25) 40%,
-    rgba(255, 255, 200, 0.12) 65%,
-    rgba(255, 255, 200, 0.05) 85%,
+    rgba(255, 215, 90, 0.6) 0%,
+    rgba(255, 210, 70, 0.45) 8%,
+    rgba(255, 200, 50, 0.3) 20%,
+    rgba(255, 195, 35, 0.18) 40%,
+    rgba(255, 190, 20, 0.08) 65%,
+    rgba(255, 185, 10, 0.03) 85%,
     transparent 100%
   );
   transform-origin: 0 50%;
   transform: rotateY(180deg) translateY(-120px);
   clip-path: polygon(0 42%, 100% 18%, 100% 82%, 0 58%);
-  filter: blur(1.5px) brightness(1.1);
-  opacity: 0.7;
+  filter: blur(2px) brightness(0.9);
+  opacity: 0.65;
   mix-blend-mode: screen;
 }
 
-/* Enhanced light source at center */
+/* Enhanced foggy yellow light source at center */
 .beacon-source {
   position: absolute;
   top: 0;
@@ -2079,26 +2079,26 @@ body {
   height: 50px;
   background: radial-gradient(
     circle,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 245, 1) 15%,
-    rgba(255, 255, 230, 0.95) 30%,
-    rgba(255, 255, 220, 0.85) 45%,
-    rgba(255, 255, 210, 0.65) 60%,
-    rgba(255, 255, 200, 0.4) 75%,
-    rgba(255, 255, 200, 0.2) 85%,
+    rgba(255, 230, 120, 0.95) 0%,
+    rgba(255, 225, 100, 0.9) 15%,
+    rgba(255, 215, 80, 0.8) 30%,
+    rgba(255, 205, 60, 0.65) 45%,
+    rgba(255, 195, 40, 0.45) 60%,
+    rgba(255, 185, 20, 0.25) 75%,
+    rgba(255, 175, 10, 0.1) 85%,
     transparent 100%
   );
   border-radius: 50%;
   transform: translate(-50%, -50%);
   box-shadow: 
-    0 0 50px rgba(255, 255, 255, 1),
-    0 0 100px rgba(255, 255, 240, 0.95),
-    0 0 150px rgba(255, 255, 220, 0.8),
-    0 0 200px rgba(255, 255, 200, 0.6),
-    0 0 250px rgba(255, 255, 200, 0.4);
+    0 0 40px rgba(255, 220, 100, 0.9),
+    0 0 80px rgba(255, 210, 80, 0.7),
+    0 0 120px rgba(255, 200, 60, 0.5),
+    0 0 160px rgba(255, 190, 40, 0.3),
+    0 0 200px rgba(255, 180, 20, 0.15);
   animation: beacon-pulse 2s ease-in-out infinite;
   z-index: 10;
-  filter: brightness(1.2);
+  filter: brightness(1) saturate(1.2);
 }
 
 /* 3D rotation animation */
