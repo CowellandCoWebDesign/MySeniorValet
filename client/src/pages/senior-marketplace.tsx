@@ -18,9 +18,6 @@ import {
   ChevronRight,
   ShoppingCart,
   Briefcase,
-  Building,
-  Users,
-  TrendingUp,
   AlertCircle,
   Info,
   CheckCircle,
@@ -232,62 +229,74 @@ export default function SeniorMarketplace() {
         </div>
       </section>
 
-      {/* Join Vendor Marketplace Section */}
-      <section className="py-16 px-4 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="container mx-auto max-w-4xl">
+      {/* Join Vendor Marketplace Section - Matches Home Page */}
+      <section className="py-16 px-4 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="container mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-12">
-              <Building className="w-16 h-16 mx-auto mb-6 text-purple-600 dark:text-purple-400" />
-              <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">
+            <div className="mb-6">
+              <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-400 dark:to-red-400 mb-2">
                 Join Our Vendor Marketplace
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-                Are you a service provider for seniors? Join MySeniorValet's trusted vendor network and connect with thousands of families searching for quality senior services.
-              </p>
-              
-              <div className="grid md:grid-cols-3 gap-6 mb-8">
-                <div className="text-center">
-                  <Users className="w-10 h-10 mx-auto mb-3 text-blue-600 dark:text-blue-400" />
-                  <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Reach More Families</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Connect with families actively searching for senior services
-                  </p>
-                </div>
-                <div className="text-center">
-                  <Shield className="w-10 h-10 mx-auto mb-3 text-green-600 dark:text-green-400" />
-                  <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Trusted Platform</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Join a platform dedicated to transparency and quality
-                  </p>
-                </div>
-                <div className="text-center">
-                  <TrendingUp className="w-10 h-10 mx-auto mb-3 text-purple-600 dark:text-purple-400" />
-                  <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Grow Your Business</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Increase your visibility and reach new customers
-                  </p>
-                </div>
+              <div className="h-1 w-32 bg-gradient-to-r from-orange-500 to-red-500 mx-auto rounded-full"></div>
+            </div>
+            
+            <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-200 font-semibold mb-4">
+              Beyond communities - everything seniors need for independent living
+            </p>
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+              Join 1,500+ trusted vendors reaching families nationwide • Starting FREE or from $99/month
+            </p>
+            
+            {/* Status Pills with Vendor Count */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
+              <div className="relative">
+                <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-bold flex items-center gap-2 sm:gap-3 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <div className="relative">
+                    <div className="absolute inset-0 w-2 sm:w-3 h-2 sm:h-3 bg-white rounded-full animate-ping"></div>
+                    <div className="relative w-2 sm:w-3 h-2 sm:h-3 bg-white rounded-full animate-pulse"></div>
+                  </div>
+                  <span className="tracking-wide">LIVE ONLINE</span>
+                </Badge>
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/vendor-partner">
-                  <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3">
-                    <Briefcase className="w-5 h-5 mr-2" />
-                    Become a Vendor Partner
-                  </Button>
-                </Link>
-                <Link href="/contact">
-                  <Button size="lg" variant="outline" className="border-2 px-8 py-3">
-                    <Phone className="w-5 h-5 mr-2" />
-                    Contact Our Team
-                  </Button>
-                </Link>
+              <div className="relative">
+                <Badge className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <span className="relative flex items-center gap-2">
+                    <Shield className="w-4 h-4" />
+                    <span>1,500+ VERIFIED VENDORS</span>
+                  </span>
+                </Badge>
               </div>
+              
+              <div className="relative">
+                <Badge className="bg-gradient-to-r from-orange-500 to-amber-600 text-white px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <span className="relative">
+                    <span className="absolute inset-0 animate-pulse">✨</span>
+                    <span className="relative">FREE TO START</span>
+                  </span>
+                </Badge>
+              </div>
+            </div>
+            
+            {/* Quick Vendor CTA - Matches Home Page Exactly */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/vendor-marketplace-tiers">
+                <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105">
+                  <Briefcase className="w-5 h-5 mr-2" />
+                  Become a Vendor Partner
+                </Button>
+              </Link>
+              <Link href="/vendor-dashboard">
+                <Button variant="outline" className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 px-6 py-3 rounded-xl font-semibold transition-all duration-200">
+                  <LogIn className="w-5 h-5 mr-2" />
+                  Vendor Login
+                </Button>
+              </Link>
             </div>
           </motion.div>
         </div>
