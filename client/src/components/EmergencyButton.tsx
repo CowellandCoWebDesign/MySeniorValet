@@ -122,8 +122,9 @@ export function EmergencyButton({ userId }: { userId?: string }) {
     });
   };
 
-  // Don't render if emergency button is disabled in accessibility preferences
-  if (!preferences.emergencyButton) {
+  // Don't render if emergency button is explicitly disabled in accessibility preferences
+  // Default to showing the button (emergencyButton defaults to true)
+  if (preferences.emergencyButton === false) {
     return null;
   }
 

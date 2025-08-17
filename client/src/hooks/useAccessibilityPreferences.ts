@@ -17,10 +17,24 @@ const defaultPreferences: AccessibilityPreferences = {
 };
 
 export function useAccessibilityPreferences() {
-  const [preferences, setPreferences] = useState<AccessibilityPreferences>(defaultPreferences);
+  const [preferences, setPreferences] = useState<AccessibilityPreferences>(() => {
+    // Initialize state with localStorage value if available
+    if (typeof window !== 'undefined') {
+      const savedPrefs = localStorage.getItem('accessibilityPreferences');
+      if (savedPrefs) {
+        try {
+          const parsed = JSON.parse(savedPrefs);
+          return { ...defaultPreferences, ...parsed };
+        } catch (error) {
+          console.error('Error loading accessibility preferences:', error);
+        }
+      }
+    }
+    return defaultPreferences;
+  });
 
   useEffect(() => {
-    // Load preferences from localStorage
+    // Re-sync with localStorage in case it wasn't available during SSR
     const savedPrefs = localStorage.getItem('accessibilityPreferences');
     if (savedPrefs) {
       try {
