@@ -760,9 +760,9 @@ export default function MySeniorValetHome() {
       <section 
         className="relative overflow-hidden min-h-[600px]"
         style={{
-          backgroundImage: `url('/lighthouse-image.png?v=2')`,
-          backgroundColor: '#1a2332',
-          backgroundSize: '40% auto',
+          backgroundImage: `url('/lighthouse-night.png?v=1')`,
+          backgroundColor: '#0a1628',
+          backgroundSize: 'cover',
           backgroundPosition: 'center center',
           backgroundRepeat: 'no-repeat'
         }}
