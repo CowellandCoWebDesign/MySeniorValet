@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import NavigationHeader from "@/components/NavigationHeader";
+import { NavigationHeader } from "@/components/NavigationHeader";
 import { 
   Home, Phone, MapPin, Clock, Star, CheckCircle, Calendar,
   Users, Heart, Shield, Activity, Award, FileText, DollarSign,

@@ -257,6 +257,8 @@ function Router() {
       <Route path="/hospital/:slug" component={HospitalDetails} />
       <Route path="/home-care/:slug" component={HomeCareDetails} />
       <Route path="/therapy-services/:slug" component={TherapyServicesDetails} />
+      <Route path="/adult-day-care/:slug" component={AdultDayCareDetails} />
+      <Route path="/personal-care/:slug" component={PersonalCareDetails} />
       <Route path="/senior-resources-center" component={SeniorResourcesCenter} />
       <Route path="/providers/mayo-clinic" component={MayoClinicPage} />
       <Route path="/providers/cleveland-clinic" component={ClevelandClinicPage} />

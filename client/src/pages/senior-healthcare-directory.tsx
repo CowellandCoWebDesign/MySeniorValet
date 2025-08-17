@@ -118,18 +118,6 @@ export default function SeniorHealthcareDirectory() {
     },
     {
       id: 6,
-      name: "Memory Care",
-      category: "Dementia Support",
-      description: "Specialized dementia and Alzheimer's care",
-      providerCount: services.filter((s: any) => s.serviceCategory === 'Memory Care').length || 200,
-      verified: true,
-      icon: Brain,
-      link: "/memory-care",
-      color: "from-indigo-500 to-purple-500",
-      badge: "SPECIALIZED"
-    },
-    {
-      id: 7,
       name: "Hospice Care",
       category: "End-of-Life Care",
       description: "Compassionate end-of-life support",
@@ -140,7 +128,7 @@ export default function SeniorHealthcareDirectory() {
       color: "from-teal-500 to-cyan-500"
     },
     {
-      id: 8,
+      id: 7,
       name: "Medical Equipment",
       category: "DME Providers",
       description: "Durable medical equipment and supplies",
@@ -151,7 +139,7 @@ export default function SeniorHealthcareDirectory() {
       color: "from-gray-500 to-slate-500"
     },
     {
-      id: 9,
+      id: 8,
       name: "Nursing Services",
       category: "Skilled Nursing",
       description: "RN and LPN skilled nursing care",
@@ -161,6 +149,18 @@ export default function SeniorHealthcareDirectory() {
       link: "/nursing-services",
       color: "from-blue-600 to-indigo-600",
       badge: "RN/LPN"
+    },
+    {
+      id: 9,
+      name: "Adult Day Care",
+      category: "Day Programs",
+      description: "Daytime care and social activities",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Adult Day Care').length || 165,
+      verified: true,
+      icon: Zap,
+      link: "/adult-day-care",
+      color: "from-yellow-500 to-orange-500",
+      badge: "DAY PROGRAMS"
     }
   ];
 
