@@ -164,8 +164,9 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
   }, [community.id, isHudProperty, community.rentPerMonth, community.livePricing, community.monthlyRentRangeStart, community.monthlyRentRangeEnd, marketPricing]);
   */
   
-  // Calculate occupancy data
-  const occupancyRate = community.occupancyRate || community.occupancyRateHud || 90; // Default to 90%
+  // Calculate occupancy data with proper type conversion
+  const occupancyRateRaw = community.occupancyRate || community.occupancyRateHud || 90;
+  const occupancyRate = typeof occupancyRateRaw === 'string' ? parseFloat(occupancyRateRaw) : occupancyRateRaw;
   const totalUnits = Number(community.totalUnits || community.totalUnitsHud || 100);
   const availableUnits = Math.round(totalUnits * (1 - occupancyRate / 100));
   const hasOccupancyData = totalUnits > 0;
@@ -757,17 +758,17 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
               {/* Additional Badges - Only show amenities since care level is at top */}
               <div className="flex flex-wrap gap-1.5">
                 {/* Amenities Badge */}
-                {community.amenities && community.amenities.length > 5 && (
+                {community.amenities && Array.isArray(community.amenities) && community.amenities.length > 5 && (
                   <Badge className="text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 border border-indigo-300 dark:border-indigo-700">
                     <Sparkles className="h-3 w-3 mr-1" />
-                    {community.amenities?.length || 0} Amenities
+                    {community.amenities.length} Amenities
                   </Badge>
                 )}
                 
                 {/* Care Types if no subtype */}
-                {!community.communitySubtype && community.careTypes && community.careTypes.length > 0 && (
+                {!community.communitySubtype && community.careTypes && Array.isArray(community.careTypes) && community.careTypes.length > 0 && (
                   <Badge className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 border-0">
-                    {community.careTypes?.[0] || ''}
+                    {community.careTypes[0]}
                   </Badge>
                 )}
               </div>
@@ -829,8 +830,9 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     const priceSource = community.displayPricing?.qualityBadge || 
       (community.hudPropertyId ? 'HUD.gov Database' : 'Market Intelligence (2025)');
     
-    // Get availability status
-    const occupancyRate = community.occupancyRate || community.occupancyRateHud || 85;
+    // Get availability status with proper type conversion
+    const occupancyRateRaw = community.occupancyRate || community.occupancyRateHud || 85;
+    const occupancyRate = typeof occupancyRateRaw === 'string' ? parseFloat(occupancyRateRaw) : occupancyRateRaw;
     const isAvailable = occupancyRate < 95;
     const hasWaitlist = occupancyRate >= 95;
     

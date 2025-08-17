@@ -6,6 +6,189 @@
 @tailwind components;
 @tailwind utilities;
 
+/* CRITICAL DARK MODE TEXT FIXES - August 16, 2025 */
+@layer base {
+  /* Fix all text contrast in dark mode */
+  .dark {
+    color-scheme: dark;
+  }
+  
+  /* Primary text should be white in dark mode */
+  .dark body,
+  .dark .text-gray-900,
+  .dark .text-gray-800,
+  .dark .text-gray-700 {
+    @apply text-gray-100 !important;
+  }
+  
+  /* Secondary text should be light gray */
+  .dark .text-gray-600,
+  .dark .text-gray-500 {
+    @apply text-gray-300 !important;
+  }
+  
+  /* Muted text */
+  .dark .text-gray-400 {
+    @apply text-gray-400 !important;
+  }
+  
+  /* Headings should be bright white */
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    @apply text-white !important;
+  }
+  
+  /* Paragraphs and descriptions */
+  .dark p, .dark span:not(.badge):not(.text-white) {
+    @apply text-gray-200;
+  }
+  
+  /* Links should be visible */
+  .dark a:not(.btn):not(.button) {
+    @apply text-blue-400 hover:text-blue-300;
+  }
+  
+  /* Cards and content areas */
+  .dark .bg-white {
+    @apply bg-gray-800 !important;
+  }
+  
+  .dark .bg-gray-50 {
+    @apply bg-gray-900 !important;
+  }
+  
+  /* Borders */
+  .dark .border-gray-200,
+  .dark .border-gray-300 {
+    @apply border-gray-700 !important;
+  }
+  
+  /* Input fields */
+  .dark input, .dark textarea, .dark select {
+    @apply bg-gray-800 text-white border-gray-600 !important;
+  }
+  
+  /* Buttons need readable text */
+  .dark button {
+    @apply text-white;
+  }
+  
+  .dark button.text-gray-700 {
+    @apply text-gray-200 !important;
+  }
+  
+  /* Fix Community Card text in dark mode */
+  .dark .text-gray-900 {
+    @apply text-gray-100 !important;
+  }
+  
+  .dark .text-gray-800 {
+    @apply text-gray-200 !important;
+  }
+  
+  .dark .text-gray-700 {
+    @apply text-gray-300 !important;
+  }
+  
+  .dark .text-gray-600 {
+    @apply text-gray-400 !important;
+  }
+  
+  /* Fix badges in dark mode */
+  .dark .bg-blue-100 {
+    @apply bg-blue-900/30 !important;
+  }
+  
+  .dark .text-blue-800 {
+    @apply text-blue-300 !important;
+  }
+  
+  .dark .bg-green-100 {
+    @apply bg-green-900/30 !important;
+  }
+  
+  .dark .text-green-800 {
+    @apply text-green-300 !important;
+  }
+  
+  .dark .bg-yellow-100 {
+    @apply bg-yellow-900/30 !important;
+  }
+  
+  .dark .text-yellow-800 {
+    @apply text-yellow-300 !important;
+  }
+  
+  .dark .bg-red-100 {
+    @apply bg-red-900/30 !important;
+  }
+  
+  .dark .text-red-800 {
+    @apply text-red-300 !important;
+  }
+  
+  /* Fix dropdown menus in dark mode */
+  .dark [role="menu"] {
+    @apply bg-gray-800 border-gray-700 !important;
+  }
+  
+  .dark [role="menuitem"] {
+    @apply text-gray-100 hover:bg-gray-700 !important;
+  }
+  
+  /* Fix modals and dialogs */
+  .dark [role="dialog"] {
+    @apply bg-gray-800 text-gray-100 !important;
+  }
+  
+  /* Fix form labels */
+  .dark label {
+    @apply text-gray-200 !important;
+  }
+  
+  /* Fix placeholder text */
+  .dark ::placeholder {
+    @apply text-gray-500 !important;
+  }
+  
+  /* Fix disabled elements */
+  .dark :disabled {
+    @apply opacity-50 !important;
+  }
+  
+  /* Fix tooltips */
+  .dark [role="tooltip"] {
+    @apply bg-gray-900 text-gray-100 border-gray-700 !important;
+  }
+  
+  /* Fix table text */
+  .dark table {
+    @apply text-gray-200 !important;
+  }
+  
+  .dark th {
+    @apply text-gray-100 border-gray-700 !important;
+  }
+  
+  .dark td {
+    @apply text-gray-300 border-gray-700 !important;
+  }
+  
+  /* Fix list items */
+  .dark li {
+    @apply text-gray-200 !important;
+  }
+  
+  /* Fix navigation links */
+  .dark nav a {
+    @apply text-gray-200 hover:text-white !important;
+  }
+  
+  /* Fix footer text */
+  .dark footer {
+    @apply text-gray-300 !important;
+  }
+}
+
 /* Voice Guidance Accessibility Styles */
 @layer components {
   /* High contrast mode for better visibility */
