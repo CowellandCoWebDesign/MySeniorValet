@@ -855,7 +855,7 @@ export default function MySeniorValetHome() {
                 </div>
 
                 {/* The Light Section */}
-                <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-xl p-8 border-2 border-green-400">
+                <div className="bg-white rounded-xl p-8 border-2 border-green-400">
                   <div className="mb-6">
                     {/* Country Coverage Badge */}
                     <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-gradient-to-r from-emerald-500/90 to-blue-500/90 backdrop-blur-sm text-white rounded-full text-sm sm:text-lg font-bold shadow-2xl mb-4 animate-bounce-slow">
