@@ -1,8 +1,8 @@
 import { createRoot } from "react-dom/client";
-import SimpleApp from "./SimpleApp";
+import App from "./App";
 import "./index.css";
 
-// Bypass HMR completely
+// Bypass HMR to prevent React rendering issues
 // @ts-ignore
 if (typeof import.meta.hot !== 'undefined') {
   import.meta.hot.decline();
@@ -10,8 +10,8 @@ if (typeof import.meta.hot !== 'undefined') {
 
 const root = document.getElementById("root");
 if (root) {
-  // Using SimpleApp - a working React component that bypasses HMR issues
-  createRoot(root).render(<SimpleApp />);
+  // Loading the REAL MySeniorValet application
+  createRoot(root).render(<App />);
 } else {
   console.error("Root element not found!");
 }

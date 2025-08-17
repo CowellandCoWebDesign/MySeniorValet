@@ -336,7 +336,8 @@ function AppContent() {
                 {/* Cookie Banner temporarily disabled - was blocking search on mobile */}
                 {/* <CookieConsentBanner /> */}
                 <DisclaimerBanner />
-                <EmergencyButton userId={user?.id} />
+                {/* Emergency Button disabled - causes React rendering failure */}
+                {/* <EmergencyButton userId={user?.id} /> */}
                 </MascotProvider>
               </TooltipProvider>
             </VoiceGuidanceProvider>
