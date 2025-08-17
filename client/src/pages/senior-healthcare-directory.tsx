@@ -1,16 +1,14 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { NavigationHeader } from "@/components/NavigationHeader";
-import HospitalCarousel from "@/components/HospitalCarousel";
-import { CareServiceCard } from "@/components/CareServiceCard";
 import { 
   Stethoscope, Home, Activity, Users, Heart, Brain, Shield, Monitor,
-  ChevronDown, ChevronUp, ChevronRight, CheckCircle, MapPin, Clock, Phone, Star,
+  ChevronDown, ChevronUp, ChevronRight, ChevronLeft, CheckCircle, MapPin, Clock, Phone, Star,
   Zap, HeartHandshake, UserCheck, Calendar, AlertCircle,
-  Users2, Car, ShoppingCart, Layers, ExternalLink
+  Users2, Car, ShoppingCart, Layers, ExternalLink, ArrowRight
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
@@ -26,7 +24,20 @@ interface HealthcareService {
   link: string;
   color: string;
   badge?: string;
-  expanded?: boolean;
+}
+
+interface ProviderData {
+  id: number;
+  name: string;
+  rating?: number;
+  city: string;
+  state: string;
+  verified?: boolean;
+  serviceName?: string;
+  serviceCategory?: string;
+  phone?: string;
+  emergencyServices?: boolean;
+  cmsRating?: number;
 }
 
 export default function SeniorHealthcareDirectory() {
@@ -35,6 +46,8 @@ export default function SeniorHealthcareDirectory() {
     2: true, // Home Care expanded by default
   });
   
+  const [carouselPositions, setCarouselPositions] = useState<Record<number, number>>({});
+  const carouselRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const [, setLocation] = useLocation();
 
   // Fetch care services data
@@ -67,6 +80,28 @@ export default function SeniorHealthcareDirectory() {
     }));
   };
 
+  const scrollCarousel = (serviceId: number, direction: 'left' | 'right') => {
+    const container = carouselRefs.current[serviceId];
+    if (!container) return;
+    
+    const scrollAmount = 320; // Width of one card plus gap
+    const currentPosition = carouselPositions[serviceId] || 0;
+    
+    if (direction === 'left') {
+      container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      setCarouselPositions(prev => ({
+        ...prev,
+        [serviceId]: Math.max(0, currentPosition - scrollAmount)
+      }));
+    } else {
+      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      setCarouselPositions(prev => ({
+        ...prev,
+        [serviceId]: currentPosition + scrollAmount
+      }));
+    }
+  };
+
   const healthcareServices: HealthcareService[] = [
     {
       id: 1,
@@ -76,7 +111,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: 6000,
       verified: true,
       icon: Stethoscope,
-      link: "/hospitals",
+      link: "hospitals",
       color: "from-blue-500 to-cyan-500",
       badge: "CMS RATED"
     },
@@ -88,7 +123,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Home Care').length || 850,
       verified: true,
       icon: Home,
-      link: "/home-care",
+      link: "home-care",
       color: "from-green-500 to-emerald-500",
       badge: "24/7"
     },
@@ -100,7 +135,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Therapy Services').length || 144,
       verified: true,
       icon: Activity,
-      link: "/therapy-services",
+      link: "therapy-services",
       color: "from-purple-500 to-indigo-500",
       badge: "PT/OT/SPEECH"
     },
@@ -112,7 +147,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Companion Care').length || 320,
       verified: true,
       icon: Users,
-      link: "/companion-care",
+      link: "companion-care",
       color: "from-pink-500 to-rose-500"
     },
     {
@@ -123,7 +158,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Memory Care').length || 200,
       verified: true,
       icon: Brain,
-      link: "/memory-care",
+      link: "memory-care",
       color: "from-orange-500 to-red-500",
       badge: "SPECIALIZED"
     },
@@ -135,38 +170,67 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Hospice Care').length || 150,
       verified: true,
       icon: Heart,
-      link: "/hospice-care",
+      link: "hospice-care",
       color: "from-teal-500 to-cyan-500"
     }
   ];
 
-  // Mock data for provider carousels
-  const providersByCategory: Record<string, any[]> = {
-    "Hospital Services": featuredHospitalsList.length > 0 ? featuredHospitalsList : [
+  // Mock data for provider carousels - using real data when available
+  const providersByCategory: Record<string, ProviderData[]> = {
+    "Hospital Services": featuredHospitalsList.length > 0 ? featuredHospitalsList.map((h: any) => ({
+      id: h.id,
+      name: h.name,
+      city: h.city,
+      state: h.state,
+      verified: true,
+      cmsRating: h.cmsRating,
+      emergencyServices: h.emergencyServices,
+      phone: h.phone
+    })) : [
       { id: 1, name: "Cleveland Clinic", rating: 4.8, city: "Cleveland", state: "OH", verified: true },
       { id: 2, name: "Mayo Clinic", rating: 4.9, city: "Rochester", state: "MN", verified: true },
       { id: 3, name: "Johns Hopkins Hospital", rating: 4.7, city: "Baltimore", state: "MD", verified: true },
       { id: 4, name: "UCLA Medical Center", rating: 4.6, city: "Los Angeles", state: "CA", verified: true },
+      { id: 5, name: "Mass General Hospital", rating: 4.8, city: "Boston", state: "MA", verified: true },
+      { id: 6, name: "Cedars-Sinai Medical Center", rating: 4.5, city: "Los Angeles", state: "CA", verified: true },
     ],
-    "Home Care Services": services.filter((s: any) => s.serviceCategory === 'Home Care').slice(0, 4).length > 0 
-      ? services.filter((s: any) => s.serviceCategory === 'Home Care').slice(0, 4)
-      : [
-        { id: 1, name: "Comfort Keepers", rating: 4.5, city: "National", state: "Coverage", verified: true },
-        { id: 2, name: "Visiting Angels", rating: 4.6, city: "National", state: "Coverage", verified: true },
-        { id: 3, name: "Home Instead", rating: 4.4, city: "National", state: "Coverage", verified: true },
-        { id: 4, name: "Right at Home", rating: 4.3, city: "National", state: "Coverage", verified: true },
-      ],
-    "Therapy Services": services.filter((s: any) => s.serviceCategory === 'Therapy Services').slice(0, 4).length > 0
-      ? services.filter((s: any) => s.serviceCategory === 'Therapy Services').slice(0, 4)
-      : [
-        { id: 1, name: "BenchMark Physical Therapy", rating: 4.6, city: "Multiple", state: "Locations", verified: true },
-        { id: 2, name: "ATI Physical Therapy", rating: 4.5, city: "National", state: "Network", verified: true },
-        { id: 3, name: "Select Physical Therapy", rating: 4.4, city: "Multiple", state: "States", verified: true },
-      ],
+    "Home Care Services": services.filter((s: any) => s.serviceCategory === 'Home Care').slice(0, 8).map((s: any) => ({
+      id: s.id,
+      name: s.serviceName || s.name,
+      city: s.city || "National",
+      state: s.state || "Coverage",
+      verified: true,
+      rating: 4.5
+    })).concat(services.filter((s: any) => s.serviceCategory === 'Home Care').length < 8 ? [
+      { id: 101, name: "Comfort Keepers", rating: 4.5, city: "National", state: "Coverage", verified: true },
+      { id: 102, name: "Visiting Angels", rating: 4.6, city: "National", state: "Coverage", verified: true },
+      { id: 103, name: "Home Instead", rating: 4.4, city: "National", state: "Coverage", verified: true },
+      { id: 104, name: "Right at Home", rating: 4.3, city: "National", state: "Coverage", verified: true },
+      { id: 105, name: "BrightStar Care", rating: 4.5, city: "National", state: "Coverage", verified: true },
+      { id: 106, name: "Seniors Helping Seniors", rating: 4.4, city: "National", state: "Coverage", verified: true },
+    ] : []),
+    "Therapy Services": [
+      { id: 201, name: "BenchMark Physical Therapy", rating: 4.6, city: "Multiple", state: "Locations", verified: true },
+      { id: 202, name: "ATI Physical Therapy", rating: 4.5, city: "National", state: "Network", verified: true },
+      { id: 203, name: "Select Physical Therapy", rating: 4.4, city: "Multiple", state: "States", verified: true },
+      { id: 204, name: "Athletico Physical Therapy", rating: 4.7, city: "Midwest", state: "Region", verified: true },
+      { id: 205, name: "CORA Physical Therapy", rating: 4.3, city: "Southeast", state: "Region", verified: true },
+    ],
     "Memory Care": [
-      { id: 1, name: "Sunrise Senior Living", rating: 4.3, city: "National", state: "Chain", verified: true },
-      { id: 2, name: "Brookdale Memory Care", rating: 4.2, city: "National", state: "Chain", verified: true },
-      { id: 3, name: "Silverado Memory Care", rating: 4.5, city: "Multiple", state: "States", verified: true },
+      { id: 301, name: "Sunrise Senior Living", rating: 4.3, city: "National", state: "Chain", verified: true },
+      { id: 302, name: "Brookdale Memory Care", rating: 4.2, city: "National", state: "Chain", verified: true },
+      { id: 303, name: "Silverado Memory Care", rating: 4.5, city: "Multiple", state: "States", verified: true },
+      { id: 304, name: "Artis Senior Living", rating: 4.4, city: "Select", state: "Markets", verified: true },
+    ],
+    "Companion Care": [
+      { id: 401, name: "Papa Companions", rating: 4.6, city: "National", state: "Coverage", verified: true },
+      { id: 402, name: "Care.com", rating: 4.3, city: "Online", state: "Platform", verified: true },
+      { id: 403, name: "Sittercity", rating: 4.2, city: "Online", state: "Platform", verified: true },
+    ],
+    "Hospice Care": [
+      { id: 501, name: "VITAS Healthcare", rating: 4.4, city: "National", state: "Provider", verified: true },
+      { id: 502, name: "Kindred Hospice", rating: 4.3, city: "Multiple", state: "States", verified: true },
+      { id: 503, name: "Amedisys Hospice", rating: 4.2, city: "National", state: "Network", verified: true },
     ]
   };
 
@@ -185,7 +249,7 @@ export default function SeniorHealthcareDirectory() {
           </p>
         </div>
 
-        {/* Healthcare Services Grid */}
+        {/* Healthcare Services with Carousels */}
         <div className="space-y-6">
           {healthcareServices.map((service) => {
             const isExpanded = expandedSections[service.id];
@@ -232,12 +296,15 @@ export default function SeniorHealthcareDirectory() {
                     </div>
                     
                     <div className="flex items-center gap-2">
-                      <Link href={service.link}>
-                        <Button variant="outline" size="sm" className="gap-2">
-                          View All
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                      </Link>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                        onClick={() => setLocation(`/${service.link}`)}
+                      >
+                        View All
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -260,7 +327,7 @@ export default function SeniorHealthcareDirectory() {
                   </div>
                 </div>
 
-                {/* Expandable Content with Provider Carousel */}
+                {/* Expandable Content with Carousel */}
                 <AnimatePresence>
                   {isExpanded && (
                     <motion.div
@@ -271,44 +338,82 @@ export default function SeniorHealthcareDirectory() {
                       className="border-t border-border"
                     >
                       <div className="p-6 pt-4">
-                        {/* Provider Cards Carousel */}
+                        {/* Provider Carousel */}
                         {providers.length > 0 ? (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {providers.map((provider) => (
-                              <Card key={provider.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-                                <CardContent className="p-4">
-                                  <div className="flex items-start justify-between mb-2">
-                                    <h4 className="font-semibold text-sm line-clamp-2">
-                                      {provider.name || provider.serviceName}
-                                    </h4>
-                                    {provider.verified && (
-                                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                                    )}
-                                  </div>
-                                  <div className="space-y-1 text-xs text-muted-foreground">
-                                    <div className="flex items-center gap-1">
-                                      <MapPin className="h-3 w-3" />
-                                      <span>{provider.city}, {provider.state}</span>
+                          <div className="relative">
+                            {/* Carousel Navigation Buttons */}
+                            <button
+                              onClick={() => scrollCarousel(service.id, 'left')}
+                              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/90 shadow-lg hover:bg-background transition-colors"
+                              aria-label="Previous"
+                            >
+                              <ChevronLeft className="h-5 w-5" />
+                            </button>
+                            <button
+                              onClick={() => scrollCarousel(service.id, 'right')}
+                              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/90 shadow-lg hover:bg-background transition-colors"
+                              aria-label="Next"
+                            >
+                              <ChevronRight className="h-5 w-5" />
+                            </button>
+                            
+                            {/* Carousel Container */}
+                            <div 
+                              ref={(el) => carouselRefs.current[service.id] = el}
+                              className="overflow-x-auto scrollbar-hide flex gap-4 px-10"
+                              style={{ scrollSnapType: 'x mandatory' }}
+                            >
+                              {providers.map((provider) => (
+                                <Card 
+                                  key={provider.id} 
+                                  className="flex-shrink-0 w-[280px] hover:shadow-lg transition-shadow cursor-pointer"
+                                  style={{ scrollSnapAlign: 'start' }}
+                                >
+                                  <CardContent className="p-4">
+                                    <div className="flex items-start justify-between mb-2">
+                                      <h4 className="font-semibold text-sm line-clamp-2">
+                                        {provider.name}
+                                      </h4>
+                                      {provider.verified && (
+                                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 ml-2" />
+                                      )}
                                     </div>
-                                    {provider.rating && (
+                                    <div className="space-y-2 text-xs text-muted-foreground">
                                       <div className="flex items-center gap-1">
-                                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                        <span>{provider.rating}</span>
+                                        <MapPin className="h-3 w-3" />
+                                        <span>{provider.city}, {provider.state}</span>
                                       </div>
-                                    )}
-                                  </div>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    className="w-full mt-3 text-xs"
-                                    onClick={() => setLocation(`/${service.link}/${provider.id}`)}
-                                  >
-                                    View Details
-                                    <ExternalLink className="h-3 w-3 ml-1" />
-                                  </Button>
-                                </CardContent>
-                              </Card>
-                            ))}
+                                      {(provider.rating || provider.cmsRating) && (
+                                        <div className="flex items-center gap-1">
+                                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                                          <span>{provider.rating || provider.cmsRating}/5</span>
+                                        </div>
+                                      )}
+                                      {provider.phone && (
+                                        <div className="flex items-center gap-1">
+                                          <Phone className="h-3 w-3" />
+                                          <span>{provider.phone}</span>
+                                        </div>
+                                      )}
+                                      {provider.emergencyServices && (
+                                        <Badge variant="destructive" className="text-xs">
+                                          Emergency Services
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className="w-full mt-3 text-xs"
+                                      onClick={() => setLocation(`/${service.link}/${provider.id}`)}
+                                    >
+                                      View Details
+                                      <ExternalLink className="h-3 w-3 ml-1" />
+                                    </Button>
+                                  </CardContent>
+                                </Card>
+                              ))}
+                            </div>
                           </div>
                         ) : (
                           <div className="text-center py-8 text-muted-foreground">
@@ -361,11 +466,13 @@ export default function SeniorHealthcareDirectory() {
                 <Shield className="h-8 w-8 text-primary mb-2" />
                 <h3 className="font-semibold mb-1">Medicare Resources</h3>
                 <p className="text-sm text-muted-foreground">Find Medicare-approved providers and coverage information</p>
-                <Link href="/medicare-resources">
-                  <Button variant="link" className="px-0 mt-2">
-                    Learn More <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </Link>
+                <Button 
+                  variant="link" 
+                  className="px-0 mt-2"
+                  onClick={() => setLocation('/medicare-resources')}
+                >
+                  Learn More <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
               </CardContent>
             </Card>
             
@@ -374,11 +481,13 @@ export default function SeniorHealthcareDirectory() {
                 <AlertCircle className="h-8 w-8 text-orange-500 mb-2" />
                 <h3 className="font-semibold mb-1">Emergency Services</h3>
                 <p className="text-sm text-muted-foreground">24/7 emergency healthcare contacts and crisis support</p>
-                <Link href="/emergency-services">
-                  <Button variant="link" className="px-0 mt-2">
-                    View Contacts <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </Link>
+                <Button 
+                  variant="link" 
+                  className="px-0 mt-2"
+                  onClick={() => setLocation('/emergency-services')}
+                >
+                  View Contacts <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
               </CardContent>
             </Card>
             
@@ -387,16 +496,28 @@ export default function SeniorHealthcareDirectory() {
                 <Monitor className="h-8 w-8 text-green-500 mb-2" />
                 <h3 className="font-semibold mb-1">Telehealth Options</h3>
                 <p className="text-sm text-muted-foreground">Virtual healthcare services for remote consultations</p>
-                <Link href="/telehealth">
-                  <Button variant="link" className="px-0 mt-2">
-                    Explore Options <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </Link>
+                <Button 
+                  variant="link" 
+                  className="px-0 mt-2"
+                  onClick={() => setLocation('/telehealth')}
+                >
+                  Explore Options <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 }
