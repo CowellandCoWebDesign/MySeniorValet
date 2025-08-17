@@ -251,6 +251,7 @@ function Router() {
       <Route path="/marketplace" component={Marketplace} />
       <Route path="/senior-marketplace" component={SeniorMarketplace} />
       <Route path="/senior-healthcare-directory" component={SeniorHealthcareDirectory} />
+      <Route path="/care-services" component={SeniorHealthcareDirectory} />
       <Route path="/senior-resources-center" component={SeniorResourcesCenter} />
       <Route path="/providers/mayo-clinic" component={MayoClinicPage} />
       <Route path="/providers/cleveland-clinic" component={ClevelandClinicPage} />
