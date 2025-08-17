@@ -2054,83 +2054,30 @@ body {
 
 /* VOLUMETRIC LIGHT SHAFT EFFECTS - These are the good ones to keep */
 
-/* Volumetric cone layer 1 - Main light shaft */
+/* Clean light beam - simplified without atmospheric effects */
 .beacon-container::before {
   content: '';
   position: absolute;
-  top: -160px;  /* Raised further to align perfectly with lighthouse lantern */
+  top: -160px;  /* Aligned with lighthouse lantern */
   left: -50px;
   width: 1600px;
   height: 320px;
-  background: conic-gradient(
-    from 88.5deg at 0% 50%,
-    transparent 0deg,
-    rgba(255, 220, 100, 0.02) 0.3deg,
-    rgba(255, 215, 80, 0.05) 0.6deg,
-    rgba(255, 210, 70, 0.08) 1deg,
-    rgba(255, 205, 60, 0.06) 1.3deg,
-    rgba(255, 200, 50, 0.03) 1.6deg,
-    transparent 2deg,
-    transparent 360deg
+  background: linear-gradient(
+    90deg,
+    rgba(255, 220, 100, 0.12) 0%,
+    rgba(255, 210, 80, 0.08) 20%,
+    rgba(255, 200, 60, 0.04) 50%,
+    transparent 100%
   );
-  transform-origin: 50px 210px;  /* Origin raised to match lighthouse top */
-  filter: blur(2px);
+  transform-origin: 50px 210px;
   mix-blend-mode: screen;
   pointer-events: none;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
-/* Volumetric cone layer 2 - Scattered atmosphere */
-.beacon-container::after {
-  content: '';
-  position: absolute;
-  top: -210px;  /* Raised further to align perfectly with lighthouse lantern */
-  left: -100px;
-  width: 2000px;
-  height: 420px;
-  background: radial-gradient(
-    ellipse 1000px 210px at 5% 50%,
-    rgba(255, 210, 70, 0.08) 0%,
-    rgba(255, 200, 50, 0.05) 15%,
-    rgba(255, 190, 30, 0.03) 30%,
-    rgba(255, 180, 20, 0.015) 50%,
-    transparent 80%
-  );
-  transform-origin: 100px 260px;  /* Origin raised to match lighthouse top */
-  filter: blur(5px);
-  mix-blend-mode: screen;
-  pointer-events: none;
-  opacity: 0.5;
-}
+/* Atmospheric effects removed - keeping only clean light beam */
 
-/* Light shaft dust particles effect */
-.lighthouse-beacon::before {
-  content: '';
-  position: absolute;
-  top: -70px;  /* Raised further to align perfectly with lighthouse lantern */
-  left: -150px;
-  width: 2200px;
-  height: 300px;  /* Concentrated at lantern level */
-  background-image: 
-    radial-gradient(circle at 10% 50%, rgba(255, 220, 100, 0.3) 0%, transparent 2%),
-    radial-gradient(circle at 15% 45%, rgba(255, 210, 80, 0.2) 0%, transparent 1.5%),
-    radial-gradient(circle at 8% 55%, rgba(255, 200, 60, 0.25) 0%, transparent 1.8%),
-    radial-gradient(circle at 20% 48%, rgba(255, 215, 90, 0.15) 0%, transparent 1%),
-    radial-gradient(circle at 12% 52%, rgba(255, 205, 70, 0.2) 0%, transparent 1.2%);
-  animation: dust-particles 12s linear infinite;
-  mix-blend-mode: screen;
-  pointer-events: none;
-  opacity: 0.3;
-}
-
-@keyframes dust-particles {
-  0% {
-    transform: translateX(0) scale(1);
-  }
-  100% {
-    transform: translateX(50px) scale(1.1);
-  }
-}
+/* Dust particles and atmospheric effects removed per user request */
 
 /* 3D rotation animation */
 @keyframes lighthouse-3d-sweep {
