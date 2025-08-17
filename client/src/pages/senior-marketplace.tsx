@@ -27,7 +27,7 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Footer } from '@/components/footer';
-import { BreadcrumbNavigation } from '@/components/BreadcrumbNavigation';
+
 import { useSEO } from '@/hooks/useSEO';
 
 export default function SeniorMarketplace() {
@@ -133,11 +133,6 @@ export default function SeniorMarketplace() {
           </nav>
         </div>
       </header>
-
-      {/* Breadcrumb Navigation */}
-      <div className="container mx-auto px-4 py-3">
-        <BreadcrumbNavigation />
-      </div>
       
       {/* Hero Section with Modern Gradient */}
       <section className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-700">
