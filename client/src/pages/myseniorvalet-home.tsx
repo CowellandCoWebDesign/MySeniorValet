@@ -777,23 +777,31 @@ export default function MySeniorValetHome() {
           <div className="beacon-source"></div>
         </div>
         
-        {/* Content Container */}
-        <div className="relative z-10 px-4 py-20">
+        {/* Content Container - Flexbox for vertical positioning */}
+        <div className="relative z-10 flex flex-col justify-between min-h-[600px] px-4 py-8">
+          
+          {/* Top spacer - takes up 2/3 of space */}
+          <div style={{ height: '40%' }}></div>
+          
+          {/* Main Content - positioned at 2/3 from top */}
           <div className="max-w-6xl mx-auto text-center">
-            <div className="mb-12 relative">
-              <div className="relative z-20">
-                <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-4 drop-shadow-2xl">
-                  TODAY, EVERYTHING CHANGES
-                </h2>
-                <p className="text-2xl md:text-3xl text-gray-200 font-bold drop-shadow-lg mb-8">
-                  The Darkness in Senior Living Ends Now
-                </p>
-                <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-base font-bold shadow-2xl animate-pulse">
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  NOW LIVE ACROSS 🇺🇸 USA • 🇲🇽 MEXICO • 🇨🇦 CANADA
-                  <Sparkles className="w-5 h-5 ml-2" />
-                </div>
-              </div>
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-4 drop-shadow-2xl">
+              TODAY, EVERYTHING CHANGES
+            </h2>
+            <p className="text-2xl md:text-3xl text-gray-200 font-bold drop-shadow-lg">
+              The Darkness in Senior Living Ends Now
+            </p>
+          </div>
+          
+          {/* Middle spacer */}
+          <div className="flex-grow"></div>
+          
+          {/* NOW LIVE badge - positioned at bottom */}
+          <div className="text-center pb-8">
+            <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-base font-bold shadow-2xl animate-pulse">
+              <Sparkles className="w-5 h-5 mr-2" />
+              NOW LIVE ACROSS 🇺🇸 USA • 🇲🇽 MEXICO • 🇨🇦 CANADA
+              <Sparkles className="w-5 h-5 ml-2" />
             </div>
           </div>
         </div>
