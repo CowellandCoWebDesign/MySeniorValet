@@ -749,13 +749,21 @@ export default function MySeniorValetHome() {
       <section 
         className="relative overflow-hidden min-h-[600px]"
         style={{
-          backgroundImage: `url('/lighthouse-night.png?v=1')`,
-          backgroundColor: '#0a1628',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center center',
-          backgroundRepeat: 'no-repeat'
+          background: 'radial-gradient(ellipse at center top, #1a2644 0%, #0a1628 50%, #030712 100%)',
+          backgroundColor: '#0a1628'
         }}
       >
+        {/* Stars Background Effect */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-10 left-10 w-1 h-1 bg-white rounded-full animate-pulse"></div>
+          <div className="absolute top-20 left-1/4 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+          <div className="absolute top-32 right-1/4 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute top-16 right-20 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+          <div className="absolute top-40 left-1/3 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-8 left-2/3 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.8s' }}></div>
+          <div className="absolute top-24 right-1/3 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '1.3s' }}></div>
+          <div className="absolute top-48 left-1/2 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '1.8s' }}></div>
+        </div>
         
         {/* 3D Rotating Lighthouse Beacon */}
         <div className="lighthouse-beacon">
