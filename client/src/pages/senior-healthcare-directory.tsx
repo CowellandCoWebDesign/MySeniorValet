@@ -880,25 +880,6 @@ export default function SeniorHealthcareDirectory() {
         </div>
       </section>
 
-      {/* Featured Hospitals Carousel */}
-      <section className="px-4 py-12 bg-gray-100 dark:bg-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Featured CMS-Rated Hospitals
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Top-rated medical centers in your area
-            </p>
-          </div>
-          <div className="overflow-x-auto">
-            <div className="flex gap-4 pb-4">
-              <HospitalCarousel />
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Quick Access Buttons */}
       <section className="px-4 py-12">
         <div className="max-w-4xl mx-auto">
