@@ -219,7 +219,7 @@ export default function SeniorHealthcareDirectory() {
         </div>
       </section>
 
-      {/* Healthcare Services Tabs and Sliders */}
+      {/* Healthcare Services Tabs and Sliders - Moved to Top */}
       <section className="px-4 py-12">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
@@ -231,7 +231,60 @@ export default function SeniorHealthcareDirectory() {
             </p>
           </div>
 
-          {/* 1. Home Care Services Tab and Slider */}
+          {/* 1. Hospitals Tab and Slider */}
+          <div className="mb-8">
+            {/* Hospital Tab */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Stethoscope className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Hospital Services</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">6,000+ CMS verified hospitals</p>
+                  </div>
+                </div>
+                <div className="hidden sm:block flex-1">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-blue-700 dark:text-blue-300" />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Teaching hospitals</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-blue-700 dark:text-blue-300" />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Trauma centers</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-blue-700 dark:text-blue-300" />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Emergency services</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-blue-700 dark:text-blue-300" />
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Quality ratings</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">6,000+</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Hospitals</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-blue-600 dark:text-blue-400">CMS</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Verified</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Hospital Directory Slider */}
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+              <HospitalCarousel />
+            </div>
+          </div>
+
+          {/* 2. Home Care Services Tab and Slider */}
           {(() => {
             const services = (careServicesData as any)?.services || [];
             const homeCareCount = services.filter((s: any) => s.serviceCategory === 'Home Care Services').length;
@@ -326,7 +379,7 @@ export default function SeniorHealthcareDirectory() {
             );
           })()}
 
-          {/* 2. Therapy Services Tab and Slider */}
+          {/* 3. Therapy Services Tab and Slider */}
           {(() => {
             const services = (careServicesData as any)?.services || [];
             const therapyCount = services.filter((s: any) => s.serviceCategory === 'Therapy Services').length;
@@ -424,7 +477,7 @@ export default function SeniorHealthcareDirectory() {
             );
           })()}
 
-          {/* 3. Adult Day Care Tab and Slider */}
+          {/* 4. Adult Day Care Tab and Slider */}
           {(() => {
             const services = (careServicesData as any)?.services || [];
             const adultDayCareCount = services.filter((s: any) => s.serviceCategory === 'Adult Day Care').length;
@@ -522,7 +575,7 @@ export default function SeniorHealthcareDirectory() {
             );
           })()}
 
-          {/* 4. Personal Care Services Tab and Slider */}
+          {/* 5. Personal Care Services Tab and Slider */}
           {(() => {
             const services = (careServicesData as any)?.services || [];
             const personalCareCount = services.filter((s: any) => s.serviceCategory === 'Personal Care Services').length;
@@ -620,7 +673,7 @@ export default function SeniorHealthcareDirectory() {
             );
           })()}
 
-          {/* 5. Hospice Care Tab and Slider */}
+          {/* 6. Hospice Care Tab and Slider */}
           {(() => {
             const services = (careServicesData as any)?.services || [];
             const hospiceCount = services.filter((s: any) => s.serviceCategory === 'Hospice Care').length;
