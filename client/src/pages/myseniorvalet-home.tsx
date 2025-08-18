@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music } from "lucide-react";
 import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
@@ -67,7 +67,7 @@ export default function MySeniorValetHome() {
   
   // 3D Carousel state
   const [currentRotation, setCurrentRotation] = useState(0);
-  const [selectedCareType, setSelectedCareType] = useState<string | null>(null);
+  const [selectedCareType, setSelectedCareType] = useState(2); // Start with 55+ selected
   const [isAutoRotating, setIsAutoRotating] = useState(true);
   
   const careTypes = [
@@ -85,18 +85,7 @@ export default function MySeniorValetHome() {
   
   const handleCareTypeClick = (index: number) => {
     setIsAutoRotating(false); // Stop auto-rotation on user interaction
-    const anglePerItem = 360 / careTypes.length;
-    // Calculate the shortest rotation path
-    const targetAngle = -index * anglePerItem;
-    setCurrentRotation(targetAngle);
-    setSelectedCareType(careTypes[index].id);
-    
-    // Auto-hide info panel after 5 seconds
-    setTimeout(() => {
-      if (selectedCareType === careTypes[index].id) {
-        setSelectedCareType(null);
-      }
-    }, 5000);
+    setSelectedCareType(index);
   };
   
   // Auto-rotation effect
@@ -104,11 +93,11 @@ export default function MySeniorValetHome() {
     if (!isAutoRotating) return;
     
     const interval = setInterval(() => {
-      setCurrentRotation(prev => prev - 36); // Rotate by one item every 3 seconds
+      setSelectedCareType(prev => (prev + 1) % careTypes.length);
     }, 3000);
     
     return () => clearInterval(interval);
-  }, [isAutoRotating]);
+  }, [isAutoRotating, careTypes.length]);
 
 
   const [showIntegrationSpotlight, setShowIntegrationSpotlight] = useState(true);
@@ -862,57 +851,55 @@ export default function MySeniorValetHome() {
               </p>
             </div>
             
-            <div className="care-evolution-circle">
-              
-              {/* 3D Carousel Container */}
-              <div 
-                className="care-carousel-container"
-                style={{ 
-                  transform: `rotateX(-30deg) rotateY(${currentRotation}deg)` 
-                }}
-              >
+            <div className="carousel-wrapper">
+              <div className="carousel-3d">
                 {careTypes.map((careType, index) => {
                   const Icon = careType.icon;
-                  const anglePerItem = 360 / careTypes.length;
-                  const angle = index * anglePerItem;
-                  const radius = 250; // Reduced from 350
-                  
-                  // Calculate total rotation for this item
-                  const totalRotation = angle + currentRotation;
-                  
-                  // Calculate if this item is in front (around 0 degrees)
-                  const normalizedAngle = ((totalRotation % 360) + 360) % 360;
-                  const isFront = normalizedAngle < 45 || normalizedAngle > 315;
+                  const offset = (selectedCareType - index) / 3;
+                  const absOffset = Math.abs(selectedCareType - index) / 3;
+                  const isActive = index === selectedCareType;
                   
                   return (
                     <div
                       key={careType.id}
-                      className={`care-carousel-item ${careType.color} rounded-xl flex flex-col items-center justify-center p-2 cursor-pointer ${isFront ? 'front' : ''}`}
+                      className="card-container-3d"
                       style={{
-                        transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
-                        opacity: isFront ? 1 : 0.8,
-                        pointerEvents: 'auto',
+                        '--offset': offset,
+                        '--abs-offset': absOffset,
+                        '--active': isActive ? 1 : 0,
+                        pointerEvents: isActive ? 'auto' : 'none',
+                        opacity: Math.abs(selectedCareType - index) >= 3 ? 0 : 1,
+                        display: Math.abs(selectedCareType - index) > 3 ? 'none' : 'block',
                       }}
                       onClick={() => handleCareTypeClick(index)}
                     >
-                      <Icon className="w-8 h-8 text-white mb-1" />
-                      <span className="text-white font-semibold text-center text-xs px-1 leading-tight">{careType.name}</span>
+                      <div className={`card-3d ${careType.color} rounded-xl flex flex-col items-center justify-center p-4`}>
+                        <Icon className="w-12 h-12 text-white mb-2" />
+                        <h3 className="text-white font-bold text-center text-sm mb-2">{careType.name}</h3>
+                        <p className="text-white/90 text-xs text-center" style={{ opacity: isActive ? 1 : 0 }}>
+                          {careType.description}
+                        </p>
+                      </div>
                     </div>
                   );
                 })}
-              </div>
-              
-              {/* Information Panel */}
-              <div className={`care-info-panel ${selectedCareType ? 'visible' : ''}`}>
-                {selectedCareType && (
-                  <>
-                    <h3 className="care-info-title">
-                      {careTypes.find(ct => ct.id === selectedCareType)?.name}
-                    </h3>
-                    <p className="care-info-description">
-                      {careTypes.find(ct => ct.id === selectedCareType)?.description}
-                    </p>
-                  </>
+                
+                {/* Navigation buttons */}
+                {selectedCareType > 0 && (
+                  <button 
+                    className="nav-3d left"
+                    onClick={() => setSelectedCareType(i => i - 1)}
+                  >
+                    <ChevronLeft className="w-8 h-8" />
+                  </button>
+                )}
+                {selectedCareType < careTypes.length - 1 && (
+                  <button 
+                    className="nav-3d right"
+                    onClick={() => setSelectedCareType(i => i + 1)}
+                  >
+                    <ChevronRight className="w-8 h-8" />
+                  </button>
                 )}
               </div>
             </div>
