@@ -746,15 +746,19 @@ body {
 /* Care Spectrum Evolution Circle */
 .care-evolution-circle {
   position: relative;
-  width: 450px;
-  height: 450px;
+  width: 90vw;
+  max-width: 700px;
+  height: 70vh;
+  max-height: 600px;
   margin: 0 auto;
 }
 
 @media (max-width: 768px) {
   .care-evolution-circle {
-    width: 320px;
-    height: 320px;
+    width: 85vw;
+    height: 60vh;
+    max-width: 400px;
+    max-height: 400px;
   }
 }
 

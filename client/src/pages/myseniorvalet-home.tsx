@@ -795,12 +795,12 @@ export default function MySeniorValetHome() {
 
       {/* TODAY, EVERYTHING CHANGES - Historic Launch Message with Care Spectrum */}
       <section 
-        className="relative overflow-hidden min-h-[800px]"
+        className="relative overflow-hidden min-h-[900px]"
         style={{
           backgroundImage: `url('/lighthouse-night.png?v=1')`,
           backgroundColor: '#0a1628',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center center',
+          backgroundSize: '120%',
+          backgroundPosition: 'left center',
           backgroundRepeat: 'no-repeat'
         }}
       >
@@ -815,7 +815,7 @@ export default function MySeniorValetHome() {
         </div>
         
         {/* Content Container */}
-        <div className="relative z-10 flex flex-col justify-between min-h-[800px] px-4 py-8">
+        <div className="relative z-10 flex flex-col justify-between min-h-[900px] px-4 py-8">
           
           {/* Top Header */}
           <div className="text-center pt-8">
@@ -831,8 +831,8 @@ export default function MySeniorValetHome() {
             </div>
           </div>
           
-          {/* Care Spectrum Evolution Circle - positioned on right side to avoid lighthouse */}
-          <div className="flex items-center justify-center md:justify-end md:pr-12 my-8">
+          {/* Care Spectrum Evolution Circle - full width */}
+          <div className="flex items-center justify-center px-4 my-8">
             <div className="care-evolution-circle">
               <div className="care-evolution-glow"></div>
               <div className="care-evolution-flow"></div>
@@ -844,53 +844,63 @@ export default function MySeniorValetHome() {
                 <p className="text-white font-bold text-lg">Spectrum</p>
               </div>
               
-              {/* Care Items positioned in circle */}
-              <div className="care-evolution-item" style={{ top: '5%', left: '50%', transform: 'translateX(-50%)' }}>
+              {/* Care Items positioned in circle - properly distributed */}
+              {/* Top */}
+              <div className="care-evolution-item" style={{ top: '0%', left: '50%', transform: 'translateX(-50%)' }}>
                 <span className="text-2xl mb-1">🏛️</span>
                 <span className="text-xs text-white font-bold">HUD</span>
               </div>
               
-              <div className="care-evolution-item" style={{ top: '15%', right: '15%' }}>
+              {/* Top Right */}
+              <div className="care-evolution-item" style={{ top: '10%', right: '20%' }}>
                 <span className="text-2xl mb-1">🎖️</span>
                 <span className="text-xs text-white font-bold">VA</span>
               </div>
               
-              <div className="care-evolution-item" style={{ top: '35%', right: '5%' }}>
+              {/* Right */}
+              <div className="care-evolution-item" style={{ top: '35%', right: '0%' }}>
                 <span className="text-2xl mb-1">🚐</span>
                 <span className="text-xs text-white font-bold">Mobile</span>
               </div>
               
-              <div className="care-evolution-item" style={{ top: '60%', right: '5%' }}>
+              {/* Bottom Right */}
+              <div className="care-evolution-item" style={{ bottom: '25%', right: '5%' }}>
                 <span className="text-2xl mb-1">⛳</span>
                 <span className="text-xs text-white font-bold">55+</span>
               </div>
               
-              <div className="care-evolution-item" style={{ bottom: '15%', right: '15%' }}>
+              {/* Bottom */}
+              <div className="care-evolution-item" style={{ bottom: '5%', right: '25%' }}>
                 <span className="text-2xl mb-1">🏠</span>
                 <span className="text-xs text-white font-bold">Independent</span>
               </div>
               
-              <div className="care-evolution-item" style={{ bottom: '5%', left: '50%', transform: 'translateX(-50%)' }}>
+              {/* Bottom Center */}
+              <div className="care-evolution-item" style={{ bottom: '0%', left: '50%', transform: 'translateX(-50%)' }}>
                 <span className="text-2xl mb-1">🏡</span>
                 <span className="text-xs text-white font-bold">Board & Care</span>
               </div>
               
-              <div className="care-evolution-item" style={{ bottom: '15%', left: '15%' }}>
+              {/* Bottom Left */}
+              <div className="care-evolution-item" style={{ bottom: '5%', left: '25%' }}>
                 <span className="text-2xl mb-1">🤝</span>
                 <span className="text-xs text-white font-bold">Assisted</span>
               </div>
               
-              <div className="care-evolution-item" style={{ top: '60%', left: '5%' }}>
+              {/* Left Bottom */}
+              <div className="care-evolution-item" style={{ bottom: '25%', left: '5%' }}>
                 <span className="text-2xl mb-1">🧠</span>
                 <span className="text-xs text-white font-bold">Memory</span>
               </div>
               
-              <div className="care-evolution-item" style={{ top: '35%', left: '5%' }}>
+              {/* Left */}
+              <div className="care-evolution-item" style={{ top: '35%', left: '0%' }}>
                 <span className="text-2xl mb-1">♾️</span>
                 <span className="text-xs text-white font-bold">CCRC</span>
               </div>
               
-              <div className="care-evolution-item" style={{ top: '15%', left: '15%' }}>
+              {/* Top Left */}
+              <div className="care-evolution-item" style={{ top: '10%', left: '20%' }}>
                 <span className="text-2xl mb-1">🏥</span>
                 <span className="text-xs text-white font-bold">Skilled</span>
               </div>
