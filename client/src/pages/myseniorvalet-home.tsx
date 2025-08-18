@@ -1408,9 +1408,57 @@ export default function MySeniorValetHome() {
                           <span className="text-xs">🏪</span>
                           <p className="text-xs text-gray-700 dark:text-gray-300">Meals on Wheels</p>
                         </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">💊</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Medicare Part D</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🦴</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Osteoporosis Resources</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🧠</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Memory Care Info</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🌡️</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Home Health Care</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏃</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Senior Fitness Programs</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🎨</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Adult Day Programs</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏡</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Aging in Place Guide</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">👥</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Caregiver Resources</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">💸</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">SSI Benefits</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">📋</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Long-Term Care Insurance</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏛️</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">State Aging Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🆘</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Emergency Alert Systems</p>
+                        </div>
                       </div>
                       <p className="text-xs text-center text-purple-600 dark:text-purple-400 mt-2 font-medium">
-                        +88 more resources
+                        +75 more resources
                       </p>
                     </div>
                   </div>
