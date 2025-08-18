@@ -2018,7 +2018,7 @@ export default function MySeniorValetHome() {
                   </div>
                   <Stethoscope className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500 mx-auto mb-1.5" />
                   <h4 className="font-semibold text-xs sm:text-sm text-blue-700 dark:text-blue-300 line-clamp-2">Hospital Services</h4>
-                  <p className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 mt-0.5 line-clamp-2">6,000+ CMS verified</p>
+                  <p className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400 mt-0.5 line-clamp-2">1,956 CMS verified</p>
                   <div className="flex flex-col gap-0.5 mt-1">
                     <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ VERIFIED</Badge>
                     <Badge className="bg-blue-500 text-white text-[10px] px-1.5 py-0.5">CMS RATED</Badge>
@@ -2203,7 +2203,7 @@ export default function MySeniorValetHome() {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">6,000+</div>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">1,956</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">Hospitals</div>
                   </div>
                   <div className="text-center">
