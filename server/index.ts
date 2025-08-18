@@ -278,6 +278,9 @@ if (process.env.NODE_ENV === 'development') {
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (app.get("env") === "development") {
+    // CRITICAL: Serve static files from public directory BEFORE Vite middleware
+    // This ensures images and other assets are served correctly
+    app.use(express.static('public'));
     await setupVite(app, server);
   } else {
     serveStatic(app);
