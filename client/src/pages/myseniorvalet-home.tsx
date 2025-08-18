@@ -793,9 +793,9 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* TODAY, EVERYTHING CHANGES - Historic Launch Message */}
+      {/* TODAY, EVERYTHING CHANGES - Historic Launch Message with Care Spectrum */}
       <section 
-        className="relative overflow-hidden min-h-[600px]"
+        className="relative overflow-hidden min-h-[800px]"
         style={{
           backgroundImage: `url('/lighthouse-night.png?v=1')`,
           backgroundColor: '#0a1628',
@@ -814,27 +814,97 @@ export default function MySeniorValetHome() {
           <div className="beacon-source"></div>
         </div>
         
-        {/* Content Container - Flexbox for vertical positioning */}
-        <div className="relative z-10 flex flex-col justify-between min-h-[600px] px-4 py-8">
+        {/* Content Container */}
+        <div className="relative z-10 flex flex-col justify-between min-h-[800px] px-4 py-8">
           
-          {/* Top spacer - takes up 2/3 of space */}
-          <div style={{ height: '40%' }}></div>
-          
-          {/* Main Content - positioned at 2/3 from top */}
-          <div className="max-w-6xl mx-auto text-center">
+          {/* Top Header */}
+          <div className="text-center pt-8">
             <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-4 drop-shadow-2xl">
               TODAY, EVERYTHING CHANGES
             </h2>
-            <p className="text-2xl md:text-3xl text-gray-200 font-bold drop-shadow-lg">
+            <p className="text-2xl md:text-3xl text-gray-200 font-bold drop-shadow-lg mb-2">
               The Darkness in Senior Living Ends Now
             </p>
+            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full text-sm font-bold shadow-lg animate-pulse">
+              <span className="mr-2">🚀</span>
+              <span>ACTIVE BETA - LIVE NOW</span>
+            </div>
           </div>
           
-          {/* Middle spacer */}
-          <div className="flex-grow"></div>
+          {/* Care Spectrum Evolution Circle - positioned on right side to avoid lighthouse */}
+          <div className="flex items-center justify-center md:justify-end md:pr-12 my-8">
+            <div className="care-evolution-circle">
+              <div className="care-evolution-glow"></div>
+              <div className="care-evolution-flow"></div>
+              
+              {/* Center Text */}
+              <div className="care-evolution-center">
+                <p className="text-white font-bold text-lg mb-1">10-Level</p>
+                <p className="text-white font-bold text-xl">Care</p>
+                <p className="text-white font-bold text-lg">Spectrum</p>
+              </div>
+              
+              {/* Care Items positioned in circle */}
+              <div className="care-evolution-item" style={{ top: '5%', left: '50%', transform: 'translateX(-50%)' }}>
+                <span className="text-2xl mb-1">🏛️</span>
+                <span className="text-xs text-white font-bold">HUD</span>
+              </div>
+              
+              <div className="care-evolution-item" style={{ top: '15%', right: '15%' }}>
+                <span className="text-2xl mb-1">🎖️</span>
+                <span className="text-xs text-white font-bold">VA</span>
+              </div>
+              
+              <div className="care-evolution-item" style={{ top: '35%', right: '5%' }}>
+                <span className="text-2xl mb-1">🚐</span>
+                <span className="text-xs text-white font-bold">Mobile</span>
+              </div>
+              
+              <div className="care-evolution-item" style={{ top: '60%', right: '5%' }}>
+                <span className="text-2xl mb-1">⛳</span>
+                <span className="text-xs text-white font-bold">55+</span>
+              </div>
+              
+              <div className="care-evolution-item" style={{ bottom: '15%', right: '15%' }}>
+                <span className="text-2xl mb-1">🏠</span>
+                <span className="text-xs text-white font-bold">Independent</span>
+              </div>
+              
+              <div className="care-evolution-item" style={{ bottom: '5%', left: '50%', transform: 'translateX(-50%)' }}>
+                <span className="text-2xl mb-1">🏡</span>
+                <span className="text-xs text-white font-bold">Board & Care</span>
+              </div>
+              
+              <div className="care-evolution-item" style={{ bottom: '15%', left: '15%' }}>
+                <span className="text-2xl mb-1">🤝</span>
+                <span className="text-xs text-white font-bold">Assisted</span>
+              </div>
+              
+              <div className="care-evolution-item" style={{ top: '60%', left: '5%' }}>
+                <span className="text-2xl mb-1">🧠</span>
+                <span className="text-xs text-white font-bold">Memory</span>
+              </div>
+              
+              <div className="care-evolution-item" style={{ top: '35%', left: '5%' }}>
+                <span className="text-2xl mb-1">♾️</span>
+                <span className="text-xs text-white font-bold">CCRC</span>
+              </div>
+              
+              <div className="care-evolution-item" style={{ top: '15%', left: '15%' }}>
+                <span className="text-2xl mb-1">🏥</span>
+                <span className="text-xs text-white font-bold">Skilled</span>
+              </div>
+            </div>
+          </div>
           
-          {/* NOW LIVE badge - positioned at bottom */}
+          {/* Bottom Text */}
           <div className="text-center pb-8">
+            <p className="text-xl md:text-2xl text-white mb-4">
+              Finally understand every option, every transition, every cost
+            </p>
+            <p className="text-lg text-gray-300 mb-6">
+              Complete care continuum from independent to full medical support
+            </p>
             <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-base font-bold shadow-2xl animate-pulse">
               <Sparkles className="w-5 h-5 mr-2" />
               NOW LIVE ACROSS 🇺🇸 USA • 🇲🇽 MEXICO • 🇨🇦 CANADA
@@ -934,46 +1004,7 @@ export default function MySeniorValetHome() {
                   </div>
                 </div>
 
-                {/* The Promise - 10 Levels of Care - ACTIVE BETA */}
-                <div className="my-8 py-8 border-y-2 border-purple-400 dark:border-purple-600">
-                  <Globe className="w-16 h-16 text-purple-600 dark:text-purple-400 mx-auto mb-6" />
-                  
-                  {/* Beta Launch Badge */}
-                  <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full text-sm font-bold shadow-lg mb-4 animate-pulse">
-                    <span className="mr-2">🚀</span>
-                    <span>ACTIVE BETA - LIVE NOW</span>
-                  </div>
-                  
-                  <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                    Master the Full 10-Level Care Spectrum
-                  </p>
-                  
-                  {/* Ultra-Compact Care Spectrum */}
-                  <div className="text-center mb-6 px-4">
-                    <div className="text-lg md:text-xl text-gray-900 dark:text-gray-200">
-                      <span className="text-amber-600 dark:text-purple-400 font-bold">🏛️ HUD</span> → 
-                      <span className="text-amber-600 dark:text-purple-400 font-bold"> 🎖️ VA</span> → 
-                      <span className="text-amber-600 dark:text-purple-400 font-bold"> 🚐 Mobile</span> → 
-                      <span className="text-amber-600 dark:text-purple-400 font-bold"> ⛳ 55+</span> → 
-                      <span className="text-amber-600 dark:text-purple-400 font-bold"> 🏠 Independent</span> → 
-                      <span className="text-amber-600 dark:text-purple-400 font-bold"> 🏡 Board & Care</span> → 
-                      <span className="text-amber-600 dark:text-purple-400 font-bold"> 🤝 Assisted</span> → 
-                      <span className="text-amber-600 dark:text-purple-400 font-bold"> 🧠 Memory</span> → 
-                      <span className="text-amber-600 dark:text-purple-400 font-bold"> ♾️ CCRC</span> → 
-                      <span className="text-amber-600 dark:text-purple-400 font-bold"> 🏥 Skilled</span>
-                    </div>
-                    <p className="text-sm text-gray-700 dark:text-gray-400 mt-2">Complete care continuum from independent to full medical support</p>
-                  </div>
 
-                  <p className="text-xl md:text-2xl text-gray-900 dark:text-gray-200">
-                    Finally understand every option, every transition, every cost - <strong className="text-amber-600 dark:text-purple-400">complete transparency</strong> across the entire care journey.
-                  </p>
-                  
-                  
-                  <p className="text-lg md:text-xl text-gray-900 dark:text-gray-300 mt-4">
-                    We're not just launching a platform. We're launching a movement - and you're part of it.
-                  </p>
-                </div>
 
                 <div className="pt-6">
                   <p className="text-2xl md:text-3xl font-black text-gray-900 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-blue-400 dark:to-purple-400">

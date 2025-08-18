@@ -743,6 +743,107 @@ body {
   animation: none !important;
 }
 
+/* Care Spectrum Evolution Circle */
+.care-evolution-circle {
+  position: relative;
+  width: 450px;
+  height: 450px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .care-evolution-circle {
+    width: 320px;
+    height: 320px;
+  }
+}
+
+.care-evolution-item {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 8px;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .care-evolution-item {
+    width: 70px;
+    height: 70px;
+    padding: 6px;
+  }
+  
+  .care-evolution-item .text-2xl {
+    font-size: 1.5rem !important;
+  }
+  
+  .care-evolution-item .text-xs {
+    font-size: 0.6rem !important;
+  }
+}
+
+.care-evolution-item:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+  z-index: 10;
+}
+
+.care-evolution-flow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  animation: rotate-circle 60s linear infinite;
+  pointer-events: none;
+}
+
+.care-evolution-flow::before {
+  content: '';
+  position: absolute;
+  inset: 20px;
+  border: 3px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  animation: rotate-reverse 60s linear infinite;
+}
+
+@keyframes rotate-circle {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rotate-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+.care-evolution-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 5;
+}
+
+.care-evolution-glow {
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  animation: pulse-glow 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
 /* Sheet Scrolling Fix */
 [data-radix-collection-item] {
   max-height: 100vh;
