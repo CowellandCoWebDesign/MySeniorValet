@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useLocation } from 'wouter';
-import NavigationHeader from '@/components/NavigationHeader';
+import { NavigationHeader } from '@/components/NavigationHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,7 +27,7 @@ import {
   Activity,
   BedDouble,
   Wind,
-  Wheelchair,
+  Accessibility,
   Stethoscope,
   AlertCircle
 } from 'lucide-react';
@@ -286,7 +286,7 @@ export default function MedicalEquipmentDetails() {
                   <Card className="h-full hover:shadow-xl transition-shadow duration-300">
                     <CardHeader className="bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-900/20 dark:to-slate-900/20">
                       <CardTitle className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                        {category.category === "Mobility Equipment" && <Wheelchair className="h-5 w-5" />}
+                        {category.category === "Mobility Equipment" && <Accessibility className="h-5 w-5" />}
                         {category.category === "Bedroom & Bathroom" && <BedDouble className="h-5 w-5" />}
                         {category.category === "Respiratory Equipment" && <Wind className="h-5 w-5" />}
                         {category.category === "Daily Living Aids" && <Heart className="h-5 w-5" />}
@@ -316,7 +316,7 @@ export default function MedicalEquipmentDetails() {
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg">
-                    <Wheelchair className="h-8 w-8 text-blue-500 mb-2" />
+                    <Accessibility className="h-8 w-8 text-blue-500 mb-2" />
                     <span className="text-sm font-medium text-center">Wheelchairs</span>
                   </div>
                   <div className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg">

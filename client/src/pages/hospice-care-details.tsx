@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useLocation } from 'wouter';
-import NavigationHeader from '@/components/NavigationHeader';
+import { NavigationHeader } from '@/components/NavigationHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -182,7 +182,7 @@ export default function HospiceCareDetails() {
       "Can be discontinued if condition improves"
     ],
 
-    coverage: {
+    insuranceCoverage: {
       medicare: "Fully covered under Medicare Part A",
       medicaid: "Covered in all 50 states",
       private: "Most insurance plans include hospice benefit",
@@ -575,7 +575,7 @@ export default function HospiceCareDetails() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-4">
-                  <p className="font-semibold text-green-600 mb-3">{serviceDetails.coverage.medicare}</p>
+                  <p className="font-semibold text-green-600 mb-3">{serviceDetails.insuranceCoverage.medicare}</p>
                   <ul className="space-y-2 text-sm">
                     <li>✓ All hospice services</li>
                     <li>✓ Medications for symptom control</li>
@@ -597,15 +597,15 @@ export default function HospiceCareDetails() {
                 <CardContent className="pt-4 space-y-3">
                   <div>
                     <p className="font-semibold text-blue-600">Medicaid</p>
-                    <p className="text-sm">{serviceDetails.coverage.medicaid}</p>
+                    <p className="text-sm">{serviceDetails.insuranceCoverage.medicaid}</p>
                   </div>
                   <div>
                     <p className="font-semibold text-blue-600">Private Insurance</p>
-                    <p className="text-sm">{serviceDetails.coverage.private}</p>
+                    <p className="text-sm">{serviceDetails.insuranceCoverage.private}</p>
                   </div>
                   <div>
                     <p className="font-semibold text-blue-600">Veterans Benefits</p>
-                    <p className="text-sm">{serviceDetails.coverage.veterans}</p>
+                    <p className="text-sm">{serviceDetails.insuranceCoverage.veterans}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -617,7 +617,7 @@ export default function HospiceCareDetails() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  {serviceDetails.coverage.note}
+                  {serviceDetails.insuranceCoverage.note}
                 </p>
                 <div className="grid md:grid-cols-3 gap-4">
                   <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">

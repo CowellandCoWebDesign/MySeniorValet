@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useLocation } from 'wouter';
-import NavigationHeader from '@/components/NavigationHeader';
+import { NavigationHeader } from '@/components/NavigationHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
