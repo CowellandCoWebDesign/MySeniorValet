@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
@@ -8,7 +8,8 @@ import {
   Book, Users, Shield, Calculator, Phone, Heart, Brain, GraduationCap,
   FileText, HelpCircle, ChevronRight, Star, Building, DollarSign,
   Info, Calendar, Award, Lightbulb, UserPlus, Home, HandHeart,
-  Briefcase, CheckCircle, ArrowRight, Zap, MapPin, Globe
+  Briefcase, CheckCircle, ArrowRight, Zap, MapPin, Globe, Activity,
+  Stethoscope, Car, ShoppingBasket, Utensils, Monitor, MessageSquare, Pill
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -42,6 +43,302 @@ export default function SeniorResourcesCenter() {
   });
 
   const resources = (resourcesData as any)?.resources || [];
+
+  // Essential Resources - All 32 senior resources
+  const governmentResources = [
+    // Government Programs
+    {
+      category: 'Healthcare',
+      name: 'Medicare',
+      description: 'Federal health insurance for people 65 or older',
+      phone: '1-800-MEDICARE (1-800-633-4227)',
+      website: 'https://www.medicare.gov',
+      icon: Stethoscope,
+      color: 'blue'
+    },
+    {
+      category: 'Financial',
+      name: 'Social Security',
+      description: 'Retirement, disability, and survivor benefits',
+      phone: '1-800-772-1213',
+      website: 'https://www.ssa.gov',
+      icon: DollarSign,
+      color: 'green'
+    },
+    {
+      category: 'Veterans',
+      name: 'VA Benefits',
+      description: 'Healthcare and benefits for military veterans',
+      phone: '1-800-827-1000',
+      website: 'https://www.va.gov',
+      icon: Shield,
+      color: 'red'
+    },
+    // Safety & Protection
+    {
+      category: 'Safety',
+      name: 'Adult Protective Services',
+      description: 'Report elder abuse and get protection services',
+      phone: '1-800-677-1116',
+      website: 'https://acl.gov/programs/elder-justice/adult-protective-services',
+      icon: Shield,
+      color: 'red'
+    },
+    {
+      category: 'Advocacy',
+      name: 'Long-Term Care Ombudsman',
+      description: 'Advocates for residents in nursing homes & assisted living',
+      phone: '1-800-252-2412',
+      website: 'https://theconsumervoice.org',
+      icon: Users,
+      color: 'purple'
+    },
+    // Support Groups & Organizations
+    {
+      category: 'Support',
+      name: 'AARP',
+      description: 'Resources, advocacy, and benefits for 50+ adults',
+      phone: '1-888-687-2277',
+      website: 'https://www.aarp.org',
+      icon: Users,
+      color: 'blue'
+    },
+    {
+      category: 'Support',
+      name: "Alzheimer's Association",
+      description: '24/7 helpline for dementia support and resources',
+      phone: '1-800-272-3900',
+      website: 'https://www.alz.org',
+      icon: Brain,
+      color: 'purple'
+    },
+    {
+      category: 'Support',
+      name: 'Parkinson\'s Foundation',
+      description: 'Support and resources for Parkinson\'s patients',
+      phone: '1-800-473-4636',
+      website: 'https://www.parkinson.org',
+      icon: Heart,
+      color: 'green'
+    },
+    {
+      category: 'Support',
+      name: 'American Cancer Society',
+      description: '24/7 cancer support, resources, and services',
+      phone: '1-800-227-2345',
+      website: 'https://www.cancer.org',
+      icon: Heart,
+      color: 'rose'
+    },
+    // Healthcare Programs
+    {
+      category: 'Healthcare',
+      name: 'PACE Programs',
+      description: 'All-inclusive care for the elderly',
+      phone: '1-855-435-7223',
+      website: 'https://www.medicare.gov/health-drug-plans/health-plans/your-health-plan-options/pace',
+      icon: Stethoscope,
+      color: 'blue'
+    },
+    {
+      category: 'Insurance',
+      name: 'MediGap/Supplemental',
+      description: 'Medicare supplement insurance information',
+      phone: '1-800-MEDICARE',
+      website: 'https://www.medicare.gov/supplements-other-insurance/whats-medicare-supplement-insurance-medigap',
+      icon: Shield,
+      color: 'cyan'
+    },
+    {
+      category: 'Prescription Help',
+      name: 'Extra Help/LIS',
+      description: 'Medicare prescription drug cost assistance',
+      phone: '1-800-772-1213',
+      website: 'https://www.ssa.gov/medicare/prescriptionhelp',
+      icon: Pill,
+      color: 'emerald'
+    },
+    // Community Resources
+    {
+      category: 'Community',
+      name: 'Senior Centers',
+      description: 'Local senior centers for activities and services',
+      phone: '1-800-677-1116',
+      website: 'https://eldercare.acl.gov',
+      icon: Home,
+      color: 'orange'
+    },
+    {
+      category: 'Accessibility',
+      name: 'Disability Action Centers',
+      description: 'Independent living support and advocacy',
+      phone: '1-800-514-0301',
+      website: 'https://www.ada.gov',
+      icon: Users,
+      color: 'purple'
+    },
+    // Nutrition Programs
+    {
+      category: 'Nutrition',
+      name: 'SNAP (Food Stamps)',
+      description: 'Supplemental Nutrition Assistance Program',
+      phone: '1-800-221-5689',
+      website: 'https://www.fns.usda.gov/snap',
+      icon: ShoppingBasket,
+      color: 'orange'
+    },
+    {
+      category: 'Nutrition',
+      name: 'Meals on Wheels',
+      description: 'Home-delivered meals for homebound seniors',
+      phone: '1-888-998-6325',
+      website: 'https://www.mealsonwheelsamerica.org',
+      icon: Utensils,
+      color: 'green'
+    },
+    {
+      category: 'Nutrition',
+      name: 'Food Banks & Assistance',
+      description: 'Senior-specific food programs with home delivery',
+      phone: '1-866-3-HUNGRY',
+      website: 'https://www.feedingamerica.org',
+      icon: Utensils,
+      color: 'green'
+    },
+    // Transportation & Mobility
+    {
+      category: 'Transportation',
+      name: 'Eldercare Locator',
+      description: 'Connect to local transportation services',
+      phone: '1-800-677-1116',
+      website: 'https://eldercare.acl.gov',
+      icon: Car,
+      color: 'yellow'
+    },
+    {
+      category: 'Transportation',
+      name: 'NEMT Services',
+      description: 'Non-emergency medical transportation',
+      phone: '1-800-MEDICARE',
+      website: 'https://www.cms.gov/medicare/health-plans/medicareadvtgspecratestats/ratebooks-and-supporting-data',
+      icon: Car,
+      color: 'yellow'
+    },
+    // Home & Living Support
+    {
+      category: 'Home Care',
+      name: 'IHSS (In-Home Support)',
+      description: 'Personal care, housekeeping & daily living assistance',
+      phone: '1-877-323-1165',
+      website: 'https://www.cdss.ca.gov/in-home-supportive-services',
+      icon: Home,
+      color: 'blue'
+    },
+    {
+      category: 'Independent Living',
+      name: 'SLS (Supported Living)',
+      description: '24/7 support for independent living & skills training',
+      phone: '1-800-677-1116',
+      website: 'https://www.dds.ca.gov/services/adult-services/supported-living-services/',
+      icon: Users,
+      color: 'purple'
+    },
+    {
+      category: 'Housing',
+      name: 'Area Agency on Aging',
+      description: 'Local aging services and support programs',
+      phone: '1-800-677-1116',
+      website: 'https://www.n4a.org',
+      icon: Home,
+      color: 'blue'
+    },
+    // Educational & Information
+    {
+      category: 'Education',
+      name: 'OLLI (Lifelong Learning)',
+      description: 'Educational programs for adults 50+',
+      phone: '1-800-677-1116',
+      website: 'https://www.osher.net',
+      icon: GraduationCap,
+      color: 'cyan'
+    },
+    {
+      category: 'Health Info',
+      name: 'NIH Senior Health',
+      description: 'Health information from National Institutes',
+      phone: '1-800-222-2225',
+      website: 'https://www.nia.nih.gov',
+      icon: Brain,
+      color: 'cyan'
+    },
+    {
+      category: 'Technology',
+      name: 'Senior Planet',
+      description: 'Technology training and digital literacy for seniors',
+      phone: '1-888-713-3495',
+      website: 'https://seniorplanet.org',
+      icon: Monitor,
+      color: 'purple'
+    },
+    // Emergency & Crisis Support
+    {
+      category: 'Emergency',
+      name: 'Crisis Support',
+      description: '24/7 mental health crisis support',
+      phone: '988',
+      website: 'https://988lifeline.org',
+      icon: Phone,
+      color: 'rose'
+    },
+    {
+      category: 'Emergency',
+      name: 'Elder Abuse Hotline',
+      description: 'Report suspected elder abuse 24/7',
+      phone: '1-800-252-8966',
+      website: 'https://www.justice.gov/elderjustice',
+      icon: Shield,
+      color: 'red'
+    },
+    // Communication Support
+    {
+      category: 'Communication',
+      name: 'Relay Services (711)',
+      description: 'Phone relay for deaf/hard of hearing',
+      phone: '711',
+      website: 'https://www.fcc.gov/consumers/guides/telecommunications-relay-service-trs',
+      icon: Phone,
+      color: 'blue'
+    },
+    {
+      category: 'Communication',
+      name: 'Language Line',
+      description: 'Interpretation services for non-English speakers',
+      phone: '1-866-874-3972',
+      website: 'https://www.languageline.com',
+      icon: MessageSquare,
+      color: 'purple'
+    },
+    // Veterans Specific
+    {
+      category: 'Veterans',
+      name: 'Veterans Crisis Line',
+      description: '24/7 confidential crisis support for veterans',
+      phone: '1-800-273-8255',
+      website: 'https://www.veteranscrisisline.net',
+      icon: Shield,
+      color: 'red'
+    },
+    // Insurance & Benefits
+    {
+      category: 'Insurance',
+      name: 'SHIP (Medicare Counseling)',
+      description: 'Free Medicare counseling and assistance',
+      phone: '1-877-839-2675',
+      website: 'https://www.shiphelp.org',
+      icon: Shield,
+      color: 'cyan'
+    }
+  ];
 
   const educationalResources: ResourceCategory[] = [
     {
