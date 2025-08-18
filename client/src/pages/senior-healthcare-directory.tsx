@@ -42,7 +42,7 @@ export default function SeniorHealthcareDirectory() {
   const [filterType, setFilterType] = useState('');
   const [filteredResultsCount, setFilteredResultsCount] = useState(0);
 
-  // Fetch care services data
+  // Fetch care services data - get ALL services without limit for proper categorization
   const { data: careServicesData, isLoading: servicesLoading } = useQuery({
     queryKey: ['/api/care-services'],
   });
@@ -58,6 +58,94 @@ export default function SeniorHealthcareDirectory() {
 
   const services = (careServicesData as any)?.services || [];
   const hospitals = (hospitalsData as any)?.hospitals || [];
+  
+  // Categorize real services for display
+  const homeHealthServices = services.filter((s: any) => 
+    s.serviceCategory === 'Home Care Services' || 
+    s.name?.toLowerCase().includes('home health') ||
+    s.name?.toLowerCase().includes('home care')
+  );
+  
+  const therapyServices = services.filter((s: any) => 
+    s.serviceCategory === 'Therapy Services' ||
+    s.name?.toLowerCase().includes('therapy') ||
+    s.name?.toLowerCase().includes('rehabilitation')
+  );
+  
+  const adultDayCareServices = services.filter((s: any) => 
+    s.serviceCategory === 'Adult Day Care' ||
+    s.name?.toLowerCase().includes('adult day')
+  );
+  
+  const hospiceServices = services.filter((s: any) => 
+    s.serviceCategory === 'Hospice Care' ||
+    s.name?.toLowerCase().includes('hospice')
+  );
+  
+  const respiteServices = services.filter((s: any) => 
+    s.serviceCategory === 'Respite Care' ||
+    s.name?.toLowerCase().includes('respite')
+  );
+  
+  const personalCareServices = services.filter((s: any) => 
+    s.serviceCategory === 'Personal Care Services' ||
+    s.name?.toLowerCase().includes('personal care')
+  );
+  
+  // Additional service categorization for all healthcare types
+  const companionCareServices = services.filter((s: any) => 
+    s.serviceCategory === 'Companion Care' ||
+    s.name?.toLowerCase().includes('companion')
+  );
+  
+  const palliativeCareServices = services.filter((s: any) => 
+    s.serviceCategory === 'Palliative Care' ||
+    s.name?.toLowerCase().includes('palliative')
+  );
+  
+  const skilledNursingServices = services.filter((s: any) => 
+    s.serviceCategory === 'Skilled Nursing' ||
+    s.name?.toLowerCase().includes('skilled nursing')
+  );
+  
+  const transportServices = services.filter((s: any) => 
+    s.serviceCategory === 'Transport Services' ||
+    s.name?.toLowerCase().includes('transport') ||
+    s.name?.toLowerCase().includes('shuttle')
+  );
+  
+  const nutritionServices = services.filter((s: any) => 
+    s.serviceCategory === 'Nutrition Services' ||
+    s.name?.toLowerCase().includes('nutrition') ||
+    s.name?.toLowerCase().includes('meal')
+  );
+  
+  const dentalServices = services.filter((s: any) => 
+    s.serviceCategory === 'Dental Services' ||
+    s.name?.toLowerCase().includes('dental')
+  );
+  
+  const visionServices = services.filter((s: any) => 
+    s.serviceCategory === 'Vision Services' ||
+    s.name?.toLowerCase().includes('vision') ||
+    s.name?.toLowerCase().includes('eye')
+  );
+  
+  const hearingServices = services.filter((s: any) => 
+    s.serviceCategory === 'Hearing Services' ||
+    s.name?.toLowerCase().includes('hearing')
+  );
+  
+  const podiatryServices = services.filter((s: any) => 
+    s.serviceCategory === 'Podiatry Services' ||
+    s.name?.toLowerCase().includes('podiatry') ||
+    s.name?.toLowerCase().includes('foot')
+  );
+  
+  const pharmacyServices = services.filter((s: any) => 
+    s.serviceCategory === 'Pharmacy Services' ||
+    s.name?.toLowerCase().includes('pharmacy')
+  );
 
   const healthcareServices: HealthcareService[] = [
     {
@@ -1118,35 +1206,44 @@ export default function SeniorHealthcareDirectory() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Compassionate companionship services • Social engagement & support</p>
                 
                 <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  {Array.from({ length: 10 }, (_, i) => ({
-                    id: `companion-${i}`,
-                    name: `Companion Care Provider ${i + 1}`,
-                    serviceCategory: 'Companion Care',
-                    description: 'Social support, errands, and companionship',
-                    rating: 4.5 + (Math.random() * 0.5),
-                    reviewCount: Math.floor(50 + Math.random() * 100),
-                    verified: true,
-                    location: ['New York, NY', 'Los Angeles, CA', 'Chicago, IL'][i % 3],
-                    availability: '24/7',
-                    medicare: i % 2 === 0,
-                    medicaid: i % 3 === 0
-                  })).map((service: any, index: number) => (
-                    <CareServiceCard
-                      key={service.id}
-                      service={service}
-                      index={index}
-                      borderColor="border-amber-200 dark:border-gray-700"
-                      hoverBorderColor="hover:border-amber-300 dark:hover:border-gray-600"
-                      iconBgColor="bg-gradient-to-br from-amber-500 to-amber-600"
-                      iconRingColor="ring-amber-100 dark:ring-amber-900"
-                      icon={<Users className="w-8 h-8 text-white" />}
-                      categoryBadgeColor="bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-900 dark:to-amber-800"
-                      categoryBadgeBorder="border-amber-300 dark:border-amber-600"
-                      categoryLabel="Companion Care"
-                      buttonColor="bg-gradient-to-r from-amber-500 to-amber-600"
-                      buttonHoverColor="hover:from-amber-600 hover:to-amber-700"
-                    />
-                  ))}
+                  {companionCareServices.length > 0 ? (
+                    companionCareServices.slice(0, 15).map((service: any, index: number) => (
+                      <CareServiceCard
+                        key={service.id}
+                        service={{
+                          ...service,
+                          serviceCategory: 'Companion Care',
+                          description: 'Social support, errands, and companionship',
+                          rating: 4.5,
+                          reviewCount: 0,
+                          verified: true,
+                          location: `${service.city}, ${service.state}`,
+                          availability: 'Contact for availability',
+                          medicare: false,
+                          medicaid: false
+                        }}
+                        index={index}
+                        borderColor="border-amber-200 dark:border-gray-700"
+                        hoverBorderColor="hover:border-amber-300 dark:hover:border-gray-600"
+                        iconBgColor="bg-gradient-to-br from-amber-500 to-amber-600"
+                        iconRingColor="ring-amber-100 dark:ring-amber-900"
+                        icon={<Users className="w-8 h-8 text-white" />}
+                        categoryBadgeColor="bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-900 dark:to-amber-800"
+                        categoryBadgeBorder="border-amber-300 dark:border-amber-600"
+                        categoryLabel="Companion Care"
+                        buttonColor="bg-gradient-to-r from-amber-500 to-amber-600"
+                        buttonHoverColor="hover:from-amber-600 hover:to-amber-700"
+                      />
+                    ))
+                  ) : (
+                    <div className="w-full text-center py-8">
+                      <div className="text-gray-500 dark:text-gray-400">
+                        <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                        <p className="text-lg font-medium">No companion care providers available</p>
+                        <p className="text-sm mt-2">Check back soon as we add more verified providers</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </section>
@@ -1995,35 +2092,44 @@ export default function SeniorHealthcareDirectory() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Medicare-certified agencies • Skilled nursing at home</p>
                 
                 <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  {Array.from({ length: 14 }, (_, i) => ({
-                    id: `homehealth-${i}`,
-                    name: `Home Health Agency ${i + 1}`,
-                    serviceCategory: 'Home Health',
-                    description: 'Medicare-certified comprehensive home care',
-                    rating: 4.3 + (Math.random() * 0.7),
-                    reviewCount: Math.floor(150 + Math.random() * 250),
-                    verified: true,
-                    location: ['Cleveland, OH', 'Las Vegas, NV', 'New Orleans, LA'][i % 3],
-                    availability: '24/7 Coverage',
-                    medicare: true,
-                    medicaid: true
-                  })).map((service: any, index: number) => (
-                    <CareServiceCard
-                      key={service.id}
-                      service={service}
-                      index={index}
-                      borderColor="border-teal-200 dark:border-gray-700"
-                      hoverBorderColor="hover:border-teal-300 dark:hover:border-gray-600"
-                      iconBgColor="bg-gradient-to-br from-teal-500 to-teal-600"
-                      iconRingColor="ring-teal-100 dark:ring-teal-900"
-                      icon={<Home className="w-8 h-8 text-white" />}
-                      categoryBadgeColor="bg-gradient-to-r from-teal-50 to-teal-100 dark:from-teal-900 dark:to-teal-800"
-                      categoryBadgeBorder="border-teal-300 dark:border-teal-600"
-                      categoryLabel="Home Health"
-                      buttonColor="bg-gradient-to-r from-teal-500 to-teal-600"
-                      buttonHoverColor="hover:from-teal-600 hover:to-teal-700"
-                    />
-                  ))}
+                  {homeHealthServices.length > 0 ? (
+                    homeHealthServices.slice(0, 20).map((service: any, index: number) => (
+                      <CareServiceCard
+                        key={service.id}
+                        service={{
+                          ...service,
+                          serviceCategory: 'Home Health',
+                          description: service.website ? 'Medicare-certified home care provider' : 'Licensed home healthcare services',
+                          rating: 4.3,
+                          reviewCount: 0,
+                          verified: true,
+                          location: `${service.city}, ${service.state}`,
+                          availability: 'Contact for availability',
+                          medicare: true,
+                          medicaid: false
+                        }}
+                        index={index}
+                        borderColor="border-teal-200 dark:border-gray-700"
+                        hoverBorderColor="hover:border-teal-300 dark:hover:border-gray-600"
+                        iconBgColor="bg-gradient-to-br from-teal-500 to-teal-600"
+                        iconRingColor="ring-teal-100 dark:ring-teal-900"
+                        icon={<Home className="w-8 h-8 text-white" />}
+                        categoryBadgeColor="bg-gradient-to-r from-teal-50 to-teal-100 dark:from-teal-900 dark:to-teal-800"
+                        categoryBadgeBorder="border-teal-300 dark:border-teal-600"
+                        categoryLabel="Home Health"
+                        buttonColor="bg-gradient-to-r from-teal-500 to-teal-600"
+                        buttonHoverColor="hover:from-teal-600 hover:to-teal-700"
+                      />
+                    ))
+                  ) : (
+                    <div className="w-full text-center py-8">
+                      <div className="text-gray-500 dark:text-gray-400">
+                        <Home className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                        <p className="text-lg font-medium">No home health providers available</p>
+                        <p className="text-sm mt-2">Check back soon as we add more verified providers</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </section>
@@ -2062,35 +2168,50 @@ export default function SeniorHealthcareDirectory() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Laboratory testing • X-ray • Ultrasound • MRI services</p>
                 
                 <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  {Array.from({ length: 10 }, (_, i) => ({
-                    id: `diagnostic-${i}`,
-                    name: `Diagnostic Center ${i + 1}`,
-                    serviceCategory: 'Diagnostic Services',
-                    description: 'Lab work, imaging, diagnostic testing',
-                    rating: 4.5 + (Math.random() * 0.5),
-                    reviewCount: Math.floor(100 + Math.random() * 150),
-                    verified: true,
-                    location: ['Raleigh, NC', 'Oklahoma City, OK', 'Tucson, AZ'][i % 3],
-                    availability: 'Walk-ins & appointments',
-                    medicare: true,
-                    medicaid: i % 2 === 0
-                  })).map((service: any, index: number) => (
-                    <CareServiceCard
-                      key={service.id}
-                      service={service}
-                      index={index}
-                      borderColor="border-gray-200 dark:border-gray-700"
-                      hoverBorderColor="hover:border-gray-300 dark:hover:border-gray-600"
-                      iconBgColor="bg-gradient-to-br from-gray-500 to-gray-600"
-                      iconRingColor="ring-gray-100 dark:ring-gray-900"
-                      icon={<TestTube className="w-8 h-8 text-white" />}
-                      categoryBadgeColor="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800"
-                      categoryBadgeBorder="border-gray-300 dark:border-gray-600"
-                      categoryLabel="Diagnostic Services"
-                      buttonColor="bg-gradient-to-r from-gray-500 to-gray-600"
-                      buttonHoverColor="hover:from-gray-600 hover:to-gray-700"
-                    />
-                  ))}
+                  {hospitals && hospitals.length > 0 && hospitals.some((h: any) => h.services?.includes('Diagnostic Imaging') || h.services?.includes('Laboratory Services')) ? (
+                    hospitals.filter((h: any) => h.services?.includes('Diagnostic Imaging') || h.services?.includes('Laboratory Services'))
+                      .slice(0, 10)
+                      .map((hospital: any, index: number) => (
+                        <CareServiceCard
+                          key={hospital.id}
+                          service={{
+                            id: hospital.id,
+                            name: hospital.name,
+                            serviceCategory: 'Diagnostic Services',
+                            description: 'Lab work, imaging, diagnostic testing',
+                            rating: hospital.cms_rating || 0,
+                            reviewCount: 0,
+                            verified: true,
+                            location: `${hospital.city}, ${hospital.state}`,
+                            availability: hospital.emergency_services ? '24/7 Emergency Lab' : 'By appointment',
+                            medicare: true,
+                            medicaid: true,
+                            phone: hospital.phone,
+                            address: hospital.address,
+                            website: hospital.website
+                          }}
+                          index={index}
+                          borderColor="border-gray-200 dark:border-gray-700"
+                          hoverBorderColor="hover:border-gray-300 dark:hover:border-gray-600"
+                          iconBgColor="bg-gradient-to-br from-gray-500 to-gray-600"
+                          iconRingColor="ring-gray-100 dark:ring-gray-900"
+                          icon={<TestTube className="w-8 h-8 text-white" />}
+                          categoryBadgeColor="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800"
+                          categoryBadgeBorder="border-gray-300 dark:border-gray-600"
+                          categoryLabel="Diagnostic Services"
+                          buttonColor="bg-gradient-to-r from-gray-500 to-gray-600"
+                          buttonHoverColor="hover:from-gray-600 hover:to-gray-700"
+                        />
+                      ))
+                  ) : (
+                    <div className="w-full text-center py-8">
+                      <div className="text-gray-500 dark:text-gray-400">
+                        <TestTube className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                        <p className="text-lg font-medium">No diagnostic centers available</p>
+                        <p className="text-sm mt-2">Check back soon as we add more verified providers</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </section>
