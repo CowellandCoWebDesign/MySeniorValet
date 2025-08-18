@@ -9,7 +9,9 @@ import { CareServiceCard } from "@/components/CareServiceCard";
 import { 
   Stethoscope, Home, Activity, Users, Heart, Brain, Shield, Monitor,
   Pill, ChevronRight, CheckCircle, MapPin, Clock, Phone, Star,
-  Zap, HeartHandshake, UserCheck, Calendar, AlertCircle, Search
+  Zap, HeartHandshake, UserCheck, Calendar, AlertCircle, Search,
+  Car, Apple, Eye, Ear, Footprints, TestTube, BedDouble, Palette,
+  Smile, Package, Filter
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -161,6 +163,140 @@ export default function SeniorHealthcareDirectory() {
       link: "/adult-day-care",
       color: "from-yellow-500 to-orange-500",
       badge: "DAY PROGRAMS"
+    },
+    {
+      id: 10,
+      name: "Respite Care",
+      category: "Temporary Relief",
+      description: "Short-term care for caregiver relief",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Respite Care').length || 125,
+      verified: true,
+      icon: BedDouble,
+      link: "/respite-care",
+      color: "from-indigo-500 to-purple-500"
+    },
+    {
+      id: 11,
+      name: "Palliative Care",
+      category: "Comfort Care",
+      description: "Specialized medical care for serious illness",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Palliative Care').length || 95,
+      verified: true,
+      icon: Palette,
+      link: "/palliative-care",
+      color: "from-purple-600 to-pink-600"
+    },
+    {
+      id: 12,
+      name: "Skilled Nursing",
+      category: "Medical Care",
+      description: "24/7 skilled nursing facilities",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Skilled Nursing').length || 310,
+      verified: true,
+      icon: Shield,
+      link: "/skilled-nursing",
+      color: "from-blue-700 to-teal-600",
+      badge: "24/7 CARE"
+    },
+    {
+      id: 13,
+      name: "Transport Services",
+      category: "Medical Transport",
+      description: "Non-emergency medical transportation",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Transport').length || 145,
+      verified: true,
+      icon: Car,
+      link: "/transport-services",
+      color: "from-green-600 to-teal-600"
+    },
+    {
+      id: 14,
+      name: "Nutrition Services",
+      category: "Dietary Support",
+      description: "Meal delivery and nutrition counseling",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Nutrition').length || 85,
+      verified: true,
+      icon: Apple,
+      link: "/nutrition-services",
+      color: "from-orange-500 to-red-500"
+    },
+    {
+      id: 15,
+      name: "Dental Services",
+      category: "Oral Health",
+      description: "Senior-focused dental care",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Dental').length || 210,
+      verified: true,
+      icon: Brain,
+      link: "/dental-services",
+      color: "from-cyan-500 to-blue-500"
+    },
+    {
+      id: 16,
+      name: "Vision Services",
+      category: "Eye Care",
+      description: "Eye exams and vision care",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Vision').length || 175,
+      verified: true,
+      icon: Eye,
+      link: "/vision-services",
+      color: "from-violet-500 to-purple-500"
+    },
+    {
+      id: 17,
+      name: "Hearing Services",
+      category: "Audiology",
+      description: "Hearing tests and hearing aids",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Hearing').length || 155,
+      verified: true,
+      icon: Ear,
+      link: "/hearing-services",
+      color: "from-pink-600 to-red-600"
+    },
+    {
+      id: 18,
+      name: "Podiatry Services",
+      category: "Foot Care",
+      description: "Specialized foot and ankle care",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Podiatry').length || 120,
+      verified: true,
+      icon: Footprints,
+      link: "/podiatry",
+      color: "from-emerald-500 to-green-600"
+    },
+    {
+      id: 19,
+      name: "Pharmacy Services",
+      category: "Medications",
+      description: "Medication management and delivery",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Pharmacy').length || 290,
+      verified: true,
+      icon: Pill,
+      link: "/pharmacy-services",
+      color: "from-red-600 to-pink-600"
+    },
+    {
+      id: 20,
+      name: "Home Health",
+      category: "Medical at Home",
+      description: "Medicare-certified home health agencies",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Home Health').length || 385,
+      verified: true,
+      icon: Home,
+      link: "/home-health",
+      color: "from-teal-600 to-cyan-600",
+      badge: "MEDICARE"
+    },
+    {
+      id: 21,
+      name: "Diagnostic Services",
+      category: "Testing & Labs",
+      description: "Lab tests and diagnostic imaging",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Diagnostic').length || 195,
+      verified: true,
+      icon: TestTube,
+      link: "/diagnostic-services",
+      color: "from-gray-600 to-blue-600"
     }
   ];
 
@@ -946,6 +1082,128 @@ export default function SeniorHealthcareDirectory() {
               </div>
             );
           })()}
+
+          {/* Remaining Healthcare Service Sections */}
+          {/* 7. Companion Care */}
+          <div className="mb-8">
+            <div className="bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Users className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Companion Care</h4>
+                    <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">Social support and companionship</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">132</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-amber-700 dark:text-amber-300" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 8. Medical Equipment */}
+          <div className="mb-8">
+            <div className="bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Package className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Medical Equipment</h4>
+                    <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">Medical supplies and equipment rental</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">85</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Suppliers</div>
+                  </div>
+                  <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">DME</Badge>
+                  <ChevronRight className="w-6 h-6 text-orange-700 dark:text-orange-300" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 9. Nursing Services */}
+          <div className="mb-8">
+            <div className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Stethoscope className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Nursing Services</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">Skilled nursing care at home</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">215</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Agencies</div>
+                  </div>
+                  <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">RN/LPN</Badge>
+                  <ChevronRight className="w-6 h-6 text-blue-700 dark:text-blue-300" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Additional service sections - dynamically rendered */}
+          {[
+            { name: "Respite Care", count: 125, icon: BedDouble, color: "indigo", description: "Short-term care for caregiver relief" },
+            { name: "Palliative Care", count: 95, icon: Palette, color: "purple", description: "Specialized medical care for serious illness" },
+            { name: "Skilled Nursing", count: 310, icon: Shield, color: "blue", description: "24/7 skilled nursing facilities", badge: "24/7 CARE" },
+            { name: "Transport Services", count: 145, icon: Car, color: "green", description: "Non-emergency medical transportation" },
+            { name: "Nutrition Services", count: 85, icon: Apple, color: "orange", description: "Meal delivery and nutrition counseling" },
+            { name: "Dental Services", count: 210, icon: Smile, color: "cyan", description: "Senior-focused dental care" },
+            { name: "Vision Services", count: 175, icon: Eye, color: "violet", description: "Eye exams and vision care" },
+            { name: "Hearing Services", count: 155, icon: Ear, color: "pink", description: "Hearing tests and hearing aids" },
+            { name: "Podiatry Services", count: 120, icon: Footprints, color: "emerald", description: "Specialized foot and ankle care" },
+            { name: "Pharmacy Services", count: 290, icon: Pill, color: "red", description: "Medication management and delivery" },
+            { name: "Home Health", count: 385, icon: Home, color: "teal", description: "Medicare-certified home health agencies", badge: "MEDICARE" },
+            { name: "Diagnostic Services", count: 195, icon: TestTube, color: "gray", description: "Lab tests and diagnostic imaging" }
+          ].map((service) => {
+            const Icon = service.icon;
+            return (
+              <div key={service.name} className="mb-8">
+                <div className={`bg-${service.color}-50 dark:bg-${service.color}-900/20 border-${service.color}-200 dark:border-${service.color}-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer`}>
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className={`w-16 h-16 bg-gradient-to-br from-${service.color}-500 to-${service.color}-600 rounded-2xl flex items-center justify-center shadow-lg`}>
+                        <Icon className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{service.name}</h4>
+                        <p className={`text-sm text-${service.color}-700 dark:text-${service.color}-300 mt-1`}>{service.description}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{service.count}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                      </div>
+                      {service.badge && (
+                        <Badge className={`bg-${service.color}-100 text-${service.color}-800 dark:bg-${service.color}-900 dark:text-${service.color}-200`}>
+                          {service.badge}
+                        </Badge>
+                      )}
+                      <ChevronRight className={`w-6 h-6 text-${service.color}-700 dark:text-${service.color}-300`} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
