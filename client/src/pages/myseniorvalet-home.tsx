@@ -704,41 +704,92 @@ export default function MySeniorValetHome() {
         
       </section>
 
-      {/* Beta Launch Announcement - Prominent placement under hero */}
-      <section className="px-4 py-8 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-600/20"></div>
-        <div className="max-w-5xl mx-auto relative z-10">
-          <Card className="bg-blue-900 dark:bg-blue-900/90 border-2 border-blue-400/50 shadow-2xl">
-            <CardContent className="p-8 md:p-10 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 flex items-center justify-center gap-3">
-                <Sparkles className="w-8 h-8 text-yellow-400 animate-pulse" />
-                Welcome to Our Active Beta Launch!
-              </h2>
-              
-              <div className="space-y-4 text-white max-w-4xl mx-auto">
-                <p className="text-lg md:text-xl leading-relaxed text-white">
-                  This platform is being released immediately for public access to rapidly deliver transparency and benefit society through immediate access to information powered by AI. We apologize for any malfunctions you may experience during this beta phase.
-                </p>
-                
-                <div className="bg-blue-800 dark:bg-blue-800/70 rounded-lg p-4 border border-blue-400/30">
-                  <p className="text-lg font-semibold mb-2 text-white">
-                    <strong className="text-yellow-400">Quick Fix for Most Issues:</strong>
-                  </p>
-                  <p className="text-base text-blue-100">
-                    Navigate to the top navbar, return home, and refresh your browser. This resolves most beta-related glitches.
-                  </p>
+      {/* Combined Beta Launch & Industry Darkness Section */}
+      <section className="px-4 py-8 bg-gradient-to-r from-gray-900 via-blue-900 to-gray-900 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-600/10"></div>
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="text-center mb-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 flex items-center justify-center gap-3">
+              <Sparkles className="w-8 h-8 text-yellow-400 animate-pulse" />
+              Welcome to Our Active Beta Launch
+              <Sparkles className="w-8 h-8 text-yellow-400 animate-pulse" />
+            </h2>
+            <p className="text-xl text-yellow-400 font-bold">
+              We're not just launching a platform. We're launching a movement.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Left side - The Darkness */}
+            <Card className="bg-gray-900/95 dark:bg-black/95 border-red-500/30">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold mb-4 text-red-400">
+                  For Too Long, Families Have Been Kept in the Dark
+                </h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-start gap-2">
+                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-red-300">Information Scattered & Paywalled</p>
+                      <p className="text-gray-400">Desperately searching across dozens of sites, most behind paywalls.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-red-300">Unaware of 10 Levels of Care</p>
+                      <p className="text-gray-400">Most don't know about HUD, VA, Memory Care, CCRC - 10 distinct levels!</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-red-300">"Contact for Pricing" Gatekeeping</p>
+                      <p className="text-gray-400">Hidden pricing everywhere adds stress to family crisis.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-red-300">Referral Services Raise Costs</p>
+                      <p className="text-gray-400">Aggregators charge up to one month's rent, passed to ALL families.</p>
+                    </div>
+                  </div>
                 </div>
-                
-                <p className="text-lg md:text-xl font-semibold pt-4 text-white">
-                  Thank you for your patience and support in joining this movement for transparency in senior living. Together, we're bringing light to an industry that has operated in darkness for too long.
-                </p>
-                
-                <p className="text-2xl md:text-3xl font-bold text-yellow-400 pt-4">
-                  We're not just launching a platform. We're launching a movement.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            {/* Right side - Beta Info */}
+            <Card className="bg-blue-900/95 dark:bg-blue-900/95 border-blue-400/30">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold mb-4 text-white">
+                  Bringing Light to Senior Living
+                </h3>
+                <div className="space-y-4">
+                  <p className="text-white/90">
+                    This platform is being released immediately to rapidly deliver transparency through AI-powered information access.
+                  </p>
+                  
+                  <div className="bg-blue-800/70 rounded-lg p-3 border border-blue-400/30">
+                    <p className="font-semibold text-yellow-400 text-sm">Quick Fix for Issues:</p>
+                    <p className="text-blue-100 text-sm">
+                      Navigate home and refresh browser to resolve most beta glitches.
+                    </p>
+                  </div>
+                  
+                  <p className="text-white/90 font-semibold">
+                    Thank you for joining this movement. Together, we're bringing transparency to an industry that has operated in darkness for too long.
+                  </p>
+                  
+                  <div className="pt-2">
+                    <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-sm font-bold animate-pulse">
+                      NOW LIVE: 🇺🇸 USA • 🇲🇽 MEXICO • 🇨🇦 CANADA
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
@@ -799,61 +850,6 @@ export default function MySeniorValetHome() {
           <Card className="bg-white/98 backdrop-blur-sm shadow-2xl border-0">
             <CardContent className="p-10 md:p-14">
               <div className="space-y-8">
-                {/* The Darkness Section */}
-                <div className="bg-gray-900 dark:bg-black rounded-xl p-8 text-white">
-                  <h3 className="text-2xl md:text-3xl font-bold mb-6 text-red-400">
-                    For Too Long, Families Have Been Kept in the Dark
-                  </h3>
-                  <div className="grid md:grid-cols-2 gap-6 text-left">
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-3">
-                        <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
-                        <div>
-                          <p className="font-semibold text-red-300">Information Scattered & Paywalled</p>
-                          <p className="text-gray-300 text-sm">When your parent falls or gets diagnosed, you search desperately. Some info exists, but it's scattered across dozens of sites, most behind paywalls.</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
-                        <div>
-                          <p className="font-semibold text-red-300">Unaware of 10 Levels of Care</p>
-                          <p className="text-gray-300 text-sm">Most think it's just "Assisted Living." They don't know about HUD Housing, VA Housing, Mobile & RV, 55+ Active, Independent Living, Board & Care, Memory Care, CCRC, or Skilled Nursing - 10 distinct levels!</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
-                        <div>
-                          <p className="font-semibold text-red-300">"Contact for Pricing" Gatekeeping</p>
-                          <p className="text-gray-300 text-sm">Every website. Every brochure. Hidden pricing everywhere. As if your family's crisis isn't stressful enough.</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-3">
-                        <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
-                        <div>
-                          <p className="font-semibold text-red-300">Referral Services Raise Everyone's Costs</p>
-                          <p className="text-gray-300 text-sm">Aggregators charge communities up to one full month's rent per move-in. These costs get passed to ALL families through higher prices.</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
-                        <div>
-                          <p className="font-semibold text-red-300">"White Glove" = Communication Flood</p>
-                          <p className="text-gray-300 text-sm">They promise personal assistance, then hand your info to sales teams. Your phone rings, inbox fills, texts pour in - non-stop aggressive pitches.</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <XCircle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" />
-                        <div>
-                          <p className="font-semibold text-red-300">Unaware of Benefits You Qualify For</p>
-                          <p className="text-gray-300 text-sm">VA Aid & Attendance, Medicaid waivers, state programs - families don't know what help exists or how to access it.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
                 {/* The Light Section */}
                 <div className="bg-white rounded-xl p-8 border-2 border-green-400">
                   <div className="mb-6">
