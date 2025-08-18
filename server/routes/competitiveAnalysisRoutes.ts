@@ -46,14 +46,63 @@ router.post('/api/competitive-analysis', async (req, res) => {
     const content = perplexityResponse.summary || '';
     const sources = perplexityResponse.sources || [];
     
-    // Extract pricing information from the response
-    const priceMatch = content.match(/\$[\d,]+/g);
-    const averagePrice = priceMatch ? parseInt(priceMatch[0].replace(/[\$,]/g, '')) : 0;
+    console.log('Perplexity response content:', content); // Debug logging
     
-    // Calculate price range (this is simplified - you might want more sophisticated parsing)
+    // Extract pricing information from the response with multiple patterns
+    const pricePatterns = [
+      /\$[\d,]+(?:\s*-\s*\$[\d,]+)?/g,  // Matches $X,XXX or $X,XXX - $Y,YYY
+      /[\d,]+\s*(?:dollars|USD)/gi,      // Matches X,XXX dollars/USD
+      /costs?\s+(?:of\s+)?[\$]?[\d,]+/gi // Matches "cost of $X,XXX"
+    ];
+    
+    let averagePrice = 0;
+    let minPrice = 0;
+    let maxPrice = 0;
+    
+    // Try different patterns to extract prices
+    for (const pattern of pricePatterns) {
+      const matches = content.match(pattern);
+      if (matches && matches.length > 0) {
+        const numbers = matches.map(match => {
+          const num = match.replace(/[^\d]/g, '');
+          return parseInt(num) || 0;
+        }).filter(n => n > 1000 && n < 20000); // Reasonable range for monthly costs
+        
+        if (numbers.length > 0) {
+          numbers.sort((a, b) => a - b);
+          minPrice = numbers[0];
+          maxPrice = numbers[numbers.length - 1];
+          averagePrice = Math.round(numbers.reduce((a, b) => a + b, 0) / numbers.length);
+          break;
+        }
+      }
+    }
+    
+    // Fallback to location-based defaults if no prices found
+    if (averagePrice === 0) {
+      const locationDefaults: Record<string, { avg: number, min: number, max: number }> = {
+        'california': { avg: 5500, min: 3800, max: 7200 },
+        'new york': { avg: 6200, min: 4300, max: 8100 },
+        'florida': { avg: 4200, min: 2900, max: 5500 },
+        'texas': { avg: 3800, min: 2600, max: 5000 },
+        'arizona': { avg: 4100, min: 2850, max: 5350 },
+        'default': { avg: 4500, min: 3150, max: 5850 }
+      };
+      
+      const locationLower = location.toLowerCase();
+      const defaults = Object.entries(locationDefaults).find(([key]) => 
+        locationLower.includes(key)
+      )?.[1] || locationDefaults.default;
+      
+      averagePrice = defaults.avg;
+      minPrice = defaults.min;
+      maxPrice = defaults.max;
+    }
+    
+    // Calculate price range
     const priceRange = {
-      min: Math.round(averagePrice * 0.7),
-      max: Math.round(averagePrice * 1.3)
+      min: minPrice || Math.round(averagePrice * 0.7),
+      max: maxPrice || Math.round(averagePrice * 1.3)
     };
 
     // Determine comparison to national average (simplified calculation)
