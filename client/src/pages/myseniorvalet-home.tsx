@@ -704,33 +704,6 @@ export default function MySeniorValetHome() {
                 <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-green-400 rounded-full animate-pulse"></div>
                 <span className="text-[10px] sm:text-xs font-bold">Verified Pricing • Real Availability • No Pressure</span>
               </div>
-              
-              {/* Capability Checkmarks - Enhanced differentiation with backgrounds */}
-              <div className="flex flex-col gap-1 sm:gap-1.5">
-                {/* Government Pricing Feature - Premium highlight */}
-                <div className="flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-400/30 rounded-md px-1.5 py-0.5 sm:px-2 sm:py-1">
-                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-400 flex-shrink-0" />
-                  <span className="text-[10px] sm:text-xs text-white font-semibold">Compare verified government pricing & availability</span>
-                </div>
-                
-                {/* TourMate Feature - Secondary highlight */}
-                <div className="flex items-center gap-1.5 sm:gap-2 bg-blue-500/15 border border-blue-400/20 rounded-md px-1.5 py-0.5 sm:px-2 sm:py-1">
-                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400 flex-shrink-0" />
-                  <span className="text-[10px] sm:text-xs text-white">Schedule tours with TourMate™ instant booking</span>
-                </div>
-                
-                {/* Family Sharing Feature */}
-                <div className="flex items-center gap-1.5 sm:gap-2 bg-purple-500/10 border border-purple-400/15 rounded-md px-1.5 py-0.5 sm:px-2 sm:py-1">
-                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400 flex-shrink-0" />
-                  <span className="text-[10px] sm:text-xs text-white">Save favorites & share with family members</span>
-                </div>
-                
-                {/* Marketplace Feature */}
-                <div className="flex items-center gap-1.5 sm:gap-2 bg-orange-500/10 border border-orange-400/15 rounded-md px-1.5 py-0.5 sm:px-2 sm:py-1">
-                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-orange-400 flex-shrink-0" />
-                  <span className="text-[10px] sm:text-xs text-white">Connect with senior services marketplace</span>
-                </div>
-              </div>
             </div>
             
           </div>
@@ -972,6 +945,34 @@ export default function MySeniorValetHome() {
                 <p className="text-base md:text-lg text-gray-900 dark:text-gray-200 mb-6 font-bold text-center">
                   Welcome to the Dawn of Transparency in Senior Living - All 10 Care Levels
                 </p>
+                
+                {/* Platform Features - Moved from hero */}
+                <div className="grid md:grid-cols-2 gap-3 mb-8 max-w-4xl mx-auto">
+                  {/* Government Pricing Feature */}
+                  <div className="flex items-center gap-2 bg-gradient-to-r from-green-500/10 to-emerald-500/10 dark:from-green-500/20 dark:to-emerald-500/20 border border-green-400/30 rounded-lg px-3 py-2">
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                    <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">Compare verified government pricing & availability</span>
+                  </div>
+                  
+                  {/* TourMate Feature */}
+                  <div className="flex items-center gap-2 bg-blue-500/10 dark:bg-blue-500/20 border border-blue-400/30 rounded-lg px-3 py-2">
+                    <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                    <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">Schedule tours with TourMate™ instant booking</span>
+                  </div>
+                  
+                  {/* Family Sharing Feature */}
+                  <div className="flex items-center gap-2 bg-purple-500/10 dark:bg-purple-500/20 border border-purple-400/30 rounded-lg px-3 py-2">
+                    <CheckCircle className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+                    <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">Save favorites & share with family members</span>
+                  </div>
+                  
+                  {/* Marketplace Feature */}
+                  <div className="flex items-center gap-2 bg-orange-500/10 dark:bg-orange-500/20 border border-orange-400/30 rounded-lg px-3 py-2">
+                    <CheckCircle className="w-5 h-5 text-orange-600 dark:text-orange-400 flex-shrink-0" />
+                    <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">Connect with senior services marketplace</span>
+                  </div>
+                </div>
+                
                 <div className="flex flex-wrap justify-center gap-4">
                   <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
                     <Flag className="w-4 h-4 mr-2" />
