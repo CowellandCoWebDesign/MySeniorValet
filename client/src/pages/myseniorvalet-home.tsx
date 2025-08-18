@@ -1326,16 +1326,15 @@ export default function MySeniorValetHome() {
                     Comprehensive guides, government programs, support groups, and educational resources
                   </p>
                   
-                  <div className="flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <TrendingUp className="h-5 w-5 text-green-500" />
-                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">100+</span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Resources</span>
-                  </div>
-
                   {/* Flex container for side-by-side layout */}
                   <div className="flex gap-3 mb-6">
-                    {/* Left side - Checkmarks */}
+                    {/* Left side - Resource count and Checkmarks */}
                     <div className="space-y-2 flex-shrink-0 min-w-fit">
+                      <div className="flex items-center gap-2 mb-3">
+                        <TrendingUp className="h-5 w-5 text-green-500" />
+                        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">100+</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Resources</span>
+                      </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
                         <span className="text-sm text-gray-700 dark:text-gray-300">Care Planning Guides</span>
