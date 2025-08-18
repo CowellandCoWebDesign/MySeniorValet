@@ -111,6 +111,12 @@ import RedTagExample from "@/pages/red-tag-example";
 import HospitalDetails from "@/pages/hospital-details";
 import HomeCareDetails from "@/pages/home-care-details";
 import TherapyServicesDetails from "@/pages/therapy-services-details";
+import AdultDayCareDetails from "@/pages/adult-day-care-details";
+import PersonalCareDetails from "@/pages/personal-care-details";
+import CompanionCareDetails from "@/pages/companion-care-details";
+import HospiceCareDetails from "@/pages/hospice-care-details";
+import MedicalEquipmentDetails from "@/pages/medical-equipment-details";
+import NursingServicesDetails from "@/pages/nursing-services-details";
 import PaymentSuccess from "@/pages/payment-success";
 import PaymentCancel from "@/pages/payment-cancel";
 import CommunityMobilePayment from "@/pages/community-mobile-payment";
@@ -259,6 +265,10 @@ function Router() {
       <Route path="/therapy-services/:slug" component={TherapyServicesDetails} />
       <Route path="/adult-day-care/:slug" component={AdultDayCareDetails} />
       <Route path="/personal-care/:slug" component={PersonalCareDetails} />
+      <Route path="/companion-care/:slug" component={CompanionCareDetails} />
+      <Route path="/hospice-care/:slug" component={HospiceCareDetails} />
+      <Route path="/medical-equipment/:slug" component={MedicalEquipmentDetails} />
+      <Route path="/nursing-services/:slug" component={NursingServicesDetails} />
       <Route path="/senior-resources-center" component={SeniorResourcesCenter} />
       <Route path="/providers/mayo-clinic" component={MayoClinicPage} />
       <Route path="/providers/cleveland-clinic" component={ClevelandClinicPage} />
