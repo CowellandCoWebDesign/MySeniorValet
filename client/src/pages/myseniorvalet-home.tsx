@@ -877,20 +877,22 @@ export default function MySeniorValetHome() {
                   const angle = index * anglePerItem;
                   const radius = 250; // Reduced from 350
                   
-                  // Calculate if this item is in front
-                  const adjustedAngle = (angle + currentRotation) % 360;
-                  const normalizedAngle = adjustedAngle < 0 ? adjustedAngle + 360 : adjustedAngle;
-                  const isFront = normalizedAngle > 315 || normalizedAngle < 45;
+                  // Calculate total rotation for this item
+                  const totalRotation = angle + currentRotation;
                   
-                  // Counter-rotation to keep cards facing forward
-                  const counterRotation = -(angle + currentRotation);
+                  // Calculate if this item is in front (around 0 degrees)
+                  const normalizedAngle = ((totalRotation % 360) + 360) % 360;
+                  const isFront = normalizedAngle < 45 || normalizedAngle > 315;
+                  
+                  // Billboard effect: rotate back to face viewer
+                  const billboardRotation = -totalRotation;
                   
                   return (
                     <div
                       key={careType.id}
                       className={`care-carousel-item ${careType.color} rounded-xl flex flex-col items-center justify-center p-2 ${isFront ? 'front' : ''}`}
                       style={{
-                        transform: `rotateY(${angle}deg) translateZ(${radius}px) rotateY(${counterRotation}deg)`,
+                        transform: `rotateY(${angle}deg) translateZ(${radius}px) rotateY(${billboardRotation}deg)`,
                         opacity: isFront ? 1 : 0.5,
                       }}
                       onClick={() => handleCareTypeClick(index)}
