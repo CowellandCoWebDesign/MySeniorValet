@@ -111,6 +111,7 @@ router.get('/care-services', async (req, res) => {
           END
         `.as('serviceCategory'),
         // Add rating from metadata if available
+        rating: communities.rating,
         // Add email if available
         email: communities.email
       })
