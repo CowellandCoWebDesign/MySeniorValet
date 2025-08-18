@@ -11,7 +11,7 @@ import {
   Pill, ChevronRight, CheckCircle, MapPin, Clock, Phone, Star,
   Zap, HeartHandshake, UserCheck, Calendar, AlertCircle, Search,
   Car, Apple, Eye, Ear, Footprints, TestTube, BedDouble, Palette,
-  Smile, Package, Filter
+  Smile, Package, Filter, Video, BrainCircuit
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -385,6 +385,29 @@ export default function SeniorHealthcareDirectory() {
       icon: TestTube,
       link: "/diagnostic-services",
       color: "from-gray-600 to-blue-600"
+    },
+    {
+      id: 22,
+      name: "Telemedicine",
+      category: "Virtual Care",
+      description: "Virtual consultations with healthcare providers",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Telemedicine').length,
+      verified: services.filter((s: any) => s.serviceCategory === 'Telemedicine').length > 0,
+      icon: Video,
+      link: "/telemedicine",
+      color: "from-violet-600 to-indigo-600",
+      badge: "VIRTUAL"
+    },
+    {
+      id: 23,
+      name: "Mental Health",
+      category: "Behavioral Health",
+      description: "Counseling & therapy services",
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Mental Health').length,
+      verified: services.filter((s: any) => s.serviceCategory === 'Mental Health').length > 0,
+      icon: BrainCircuit,
+      link: "/mental-health",
+      color: "from-emerald-600 to-teal-600"
     }
   ];
 
