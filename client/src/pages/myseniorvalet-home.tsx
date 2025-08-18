@@ -617,14 +617,14 @@ export default function MySeniorValetHome() {
                   </Button>
                 </Link>
 
-                {/* AI Matching Assistant */}
-                <Link href="/ai-matching" className="w-full">
-                  <Button className="w-full h-auto bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 px-2 py-2 rounded-md transform hover:scale-[1.01]">
+                {/* Competitive Market Analysis */}
+                <Link href="/competitive-analysis" className="w-full">
+                  <Button className="w-full h-auto bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 px-2 py-2 rounded-md transform hover:scale-[1.01]">
                     <div className="flex items-center justify-start space-x-1.5">
-                      <Brain className="h-4 w-4 flex-shrink-0" />
+                      <TrendingUp className="h-4 w-4 flex-shrink-0" />
                       <div className="text-left">
-                        <div className="text-[10px] font-semibold leading-tight">Smart Match</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Personalized</div>
+                        <div className="text-[10px] font-semibold leading-tight">Market Analysis</div>
+                        <div className="text-[8px] text-white/80 leading-tight">Price Compare</div>
                       </div>
                     </div>
                   </Button>

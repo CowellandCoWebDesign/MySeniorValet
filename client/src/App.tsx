@@ -136,6 +136,7 @@ import VendorTierTest from "@/pages/vendor-tier-test";
 import CommunityCreatorPortal from "@/pages/community-creator-portal";
 import MarketingHub from "@/pages/marketing-hub";
 import AvailabilityHeatmapPage from "@/pages/availability-heatmap";
+import CompetitiveAnalysis from "@/pages/competitive-analysis";
 import TestCommunityCards from "@/pages/test-community-cards";
 import EnhancedCardTest from "@/pages/enhanced-card-test";
 import AdminAvailabilityHeatmap from "@/pages/admin-availability-heatmap";
@@ -329,6 +330,7 @@ function Router() {
       <Route path="/admin-subscription-management" component={SuperAdminAnalytics} />
       <Route path="/admin/marketing-hub" component={SuperAdminAnalytics} />
       <Route path="/availability-heatmap" component={AvailabilityHeatmapPage} />
+      <Route path="/competitive-analysis" component={CompetitiveAnalysis} />
       <Route path="/admin/availability-heatmap" component={SuperAdminAnalytics} />
       <Route path="/payment-demo" component={PaymentDemo} />
       <Route path="/test-community-cards" component={TestCommunityCards} />
