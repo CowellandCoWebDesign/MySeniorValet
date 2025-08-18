@@ -751,13 +751,11 @@ body {
   animation: none !important;
 }
 
-/* Care Spectrum Evolution Oval - Expanded */
+/* Care Spectrum Evolution Oval - Full Width */
 .care-evolution-circle {
   position: relative;
-  width: 96vw !important;
-  max-width: 1800px;
-  height: 85vh !important;
-  max-height: 800px;
+  width: 98vw !important;
+  height: 88vh !important;
   margin: 0 auto;
 }
 

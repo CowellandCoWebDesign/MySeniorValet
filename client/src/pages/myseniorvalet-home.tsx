@@ -819,63 +819,63 @@ export default function MySeniorValetHome() {
                 <p className="text-white font-bold text-2xl" style={{ textShadow: '0 0 20px rgba(0,0,0,0.9)' }}>Spectrum</p>
               </div>
               
-              {/* Care Items positioned in oval shape - evenly distributed */}
+              {/* Care Items positioned in oval shape - maximum spread */}
               {/* Top Center */}
-              <div className="care-evolution-item" data-care="hud" style={{ top: '2%', left: '50%', transform: 'translateX(-50%)' }}>
+              <div className="care-evolution-item" data-care="hud" style={{ top: '1%', left: '50%', transform: 'translateX(-50%)' }}>
                 <Building2 className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">HUD</span>
               </div>
               
               {/* Top Right */}
-              <div className="care-evolution-item" data-care="va" style={{ top: '12%', right: '18%' }}>
+              <div className="care-evolution-item" data-care="va" style={{ top: '10%', right: '12%' }}>
                 <Shield className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">VA</span>
               </div>
               
               {/* Right Upper */}
-              <div className="care-evolution-item" data-care="mobile" style={{ top: '33%', right: '5%' }}>
+              <div className="care-evolution-item" data-care="mobile" style={{ top: '32%', right: '2%' }}>
                 <Truck className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Mobile</span>
               </div>
               
               {/* Right Lower */}
-              <div className="care-evolution-item" data-care="55plus" style={{ top: '57%', right: '5%' }}>
+              <div className="care-evolution-item" data-care="55plus" style={{ top: '58%', right: '2%' }}>
                 <Flag className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">55+</span>
               </div>
               
               {/* Bottom Right */}
-              <div className="care-evolution-item" data-care="independent" style={{ bottom: '12%', right: '18%' }}>
+              <div className="care-evolution-item" data-care="independent" style={{ bottom: '10%', right: '12%' }}>
                 <Home className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Independent</span>
               </div>
               
               {/* Bottom Center */}
-              <div className="care-evolution-item" data-care="board" style={{ bottom: '2%', left: '50%', transform: 'translateX(-50%)' }}>
+              <div className="care-evolution-item" data-care="board" style={{ bottom: '1%', left: '50%', transform: 'translateX(-50%)' }}>
                 <Building className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Board & Care</span>
               </div>
               
               {/* Bottom Left */}
-              <div className="care-evolution-item" data-care="assisted" style={{ bottom: '12%', left: '18%' }}>
+              <div className="care-evolution-item" data-care="assisted" style={{ bottom: '10%', left: '12%' }}>
                 <HeartHandshake className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Assisted</span>
               </div>
               
               {/* Left Lower */}
-              <div className="care-evolution-item" data-care="memory" style={{ top: '57%', left: '5%' }}>
+              <div className="care-evolution-item" data-care="memory" style={{ top: '58%', left: '2%' }}>
                 <Brain className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Memory</span>
               </div>
               
               {/* Left Upper */}
-              <div className="care-evolution-item" data-care="ccrc" style={{ top: '33%', left: '5%' }}>
+              <div className="care-evolution-item" data-care="ccrc" style={{ top: '32%', left: '2%' }}>
                 <RefreshCw className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">CCRC</span>
               </div>
               
               {/* Top Left */}
-              <div className="care-evolution-item" data-care="skilled" style={{ top: '12%', left: '18%' }}>
+              <div className="care-evolution-item" data-care="skilled" style={{ top: '10%', left: '12%' }}>
                 <Stethoscope className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Skilled</span>
               </div>
