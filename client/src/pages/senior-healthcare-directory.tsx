@@ -73,7 +73,7 @@ export default function SeniorHealthcareDirectory() {
   );
   
   const adultDayCareServices = services.filter((s: any) => 
-    s.serviceCategory === 'Adult Day Care' ||
+    s.serviceCategory === 'Adult Day Programs' ||
     s.name?.toLowerCase().includes('adult day')
   );
   
@@ -242,13 +242,13 @@ export default function SeniorHealthcareDirectory() {
     },
     {
       id: 9,
-      name: "Adult Day Care",
+      name: "Adult Day Programs",
       category: "Day Programs",
       description: "Daytime care and social activities",
-      providerCount: services.filter((s: any) => s.serviceCategory === 'Adult Day Care').length,
+      providerCount: services.filter((s: any) => s.serviceCategory === 'Adult Day Programs').length,
       verified: true,
       icon: Zap,
-      link: "/adult-day-care",
+      link: "/adult-day-programs",
       color: "from-yellow-500 to-orange-500",
       badge: "DAY PROGRAMS"
     },
@@ -900,17 +900,17 @@ export default function SeniorHealthcareDirectory() {
             );
           })()}
 
-          {/* 4. Adult Day Care Tab and Slider */}
+          {/* 4. Adult Day Programs Tab and Slider */}
           {(() => {
             const services = (careServicesData as any)?.services || [];
-            const adultDayCareCount = services.filter((s: any) => s.serviceCategory === 'Adult Day Care').length;
+            const adultDayCareCount = services.filter((s: any) => s.serviceCategory === 'Adult Day Programs').length;
             
             return (
               <div className="mb-8">
-                {/* Adult Day Care Tab */}
+                {/* Adult Day Programs Tab */}
                 <div
                   className="bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800 border-2 rounded-xl p-6 cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4"
-                  onClick={() => setSelectedCategory('Adult Day Care')}
+                  onClick={() => setSelectedCategory('Adult Day Programs')}
                 >
                   <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
                     <div className="flex items-center gap-4 flex-1">
@@ -918,7 +918,7 @@ export default function SeniorHealthcareDirectory() {
                         <Users className="w-8 h-8 text-white" />
                       </div>
                       <div>
-                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Adult Day Care</h4>
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Adult Day Programs</h4>
                         <p className="text-sm text-teal-700 dark:text-teal-300 mt-1">Daytime programs for social engagement and activities</p>
                       </div>
                     </div>
