@@ -751,11 +751,11 @@ body {
   animation: none !important;
 }
 
-/* Care Spectrum Evolution Oval - Full Width */
+/* Care Spectrum Evolution Oval - Flattened Ellipse */
 .care-evolution-circle {
   position: relative;
   width: 98vw !important;
-  height: 88vh !important;
+  height: 70vh !important;
   margin: 0 auto;
 }
 
