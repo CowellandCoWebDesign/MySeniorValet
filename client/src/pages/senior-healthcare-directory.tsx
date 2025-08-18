@@ -1296,52 +1296,7 @@ export default function SeniorHealthcareDirectory() {
             </section>
           </div>
 
-          {/* 9. Nursing Services */}
-          <div className="mb-8">
-            <div className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer">
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-                    <Stethoscope className="w-8 h-8 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Nursing Services</h4>
-                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">Skilled nursing care at home</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">215</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">Agencies</div>
-                  </div>
-                  <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">RN/LPN</Badge>
-                  <ChevronRight className="w-6 h-6 text-blue-700 dark:text-blue-300" />
-                </div>
-              </div>
-            </div>
-            
-            {/* Nursing Services Slider */}
-            <section className="px-4 py-4 relative overflow-hidden">
-              <div className="absolute inset-0 z-0">
-                <div className="w-full h-full bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-100/30 via-indigo-100/20 to-purple-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
-              </div>
-              
-              <div className="relative z-10">
-                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Licensed RN & LPN services • Medicare certified agencies</p>
-                
-                <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  <div className="w-full text-center py-8">
-                    <div className="text-gray-500 dark:text-gray-400">
-                      <Stethoscope className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                      <p className="text-lg font-medium">No nursing services available</p>
-                      <p className="text-sm mt-2">Check back soon as we add more verified agencies</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </div>
+
 
           {/* 10. Respite Care */}
           <div className="mb-8">
