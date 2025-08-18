@@ -36,9 +36,9 @@ import HospitalCarousel from "@/components/HospitalCarousel";
 import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
-// Image imports
-import heroBackgroundImage from '/starry-night-hero.png';
-import lighthouseBackground from '/lighthouse-sunset-final.png';
+// Image paths from public directory
+const heroBackgroundImage = '/starry-night-hero.png';
+const lighthouseBackground = '/lighthouse-sunset-final.png';
 import { EmergencyButton } from "@/components/EmergencyButton";
 
 
