@@ -799,9 +799,9 @@ body {
   width: 100%;
   height: 100%;
   padding: 2rem;
-  background-color: hsl(280deg, 40%, calc(100% - var(--abs-offset) * 50%));
   transition: all 0.3s ease-out;
   cursor: pointer;
+  /* Remove the automatic background color - let the card's own color classes handle it */
 }
 
 .card-3d h3,
@@ -820,14 +820,21 @@ body {
   z-index: 2;
   cursor: pointer;
   user-select: none;
-  background: unset;
-  border: unset;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
   padding: 0;
-  transition: transform 0.2s;
+  transition: all 0.2s;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .nav-3d:hover {
   transform: scale(1.2) translateY(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .nav-3d.left {
@@ -838,6 +845,14 @@ body {
 .nav-3d.right {
   right: -100px;
   transform: translateY(-50%);
+}
+
+.nav-3d.left:hover {
+  transform: scale(1.2) translateY(-50%);
+}
+
+.nav-3d.right:hover {
+  transform: scale(1.2) translateY(-50%);
 }
 
 .care-info-panel {

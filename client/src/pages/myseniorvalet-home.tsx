@@ -867,16 +867,23 @@ export default function MySeniorValetHome() {
                         '--offset': offset,
                         '--abs-offset': absOffset,
                         '--active': isActive ? 1 : 0,
-                        pointerEvents: isActive ? 'auto' : 'none',
+                        pointerEvents: 'auto',
                         opacity: Math.abs(selectedCareType - index) >= 3 ? 0 : 1,
                         display: Math.abs(selectedCareType - index) > 3 ? 'none' : 'block',
-                      }}
+                      } as React.CSSProperties}
                       onClick={() => handleCareTypeClick(index)}
                     >
-                      <div className={`card-3d ${careType.color} rounded-xl flex flex-col items-center justify-center p-4`}>
-                        <Icon className="w-12 h-12 text-white mb-2" />
-                        <h3 className="text-white font-bold text-center text-sm mb-2">{careType.name}</h3>
-                        <p className="text-white/90 text-xs text-center" style={{ opacity: isActive ? 1 : 0 }}>
+                      <div className={`card-3d ${careType.color} rounded-xl flex flex-col items-center justify-center p-4 shadow-2xl border-2 border-white/30`}
+                           style={{ 
+                             opacity: isActive ? 1 : 0.7,
+                             transform: isActive ? 'scale(1.05)' : 'scale(1)'
+                           }}>
+                        <Icon className="w-12 h-12 text-white drop-shadow-lg mb-2" />
+                        <h3 className="text-white font-bold text-center text-sm mb-2 drop-shadow-lg">{careType.name}</h3>
+                        <p className="text-white text-xs text-center drop-shadow-md" style={{ 
+                          opacity: isActive ? 1 : 0,
+                          transition: 'opacity 0.3s ease-out'
+                        }}>
                           {careType.description}
                         </p>
                       </div>
