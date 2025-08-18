@@ -557,7 +557,7 @@ export default function MySeniorValetHome() {
         <div className="relative hero-content min-h-screen pt-12 sm:pt-16 md:pt-20 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col">
           
           {/* Hero Text Section - At the top */}
-          <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8 mb-8 mt-8 text-center">
+          <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8 mb-8 mt-2 text-center">
             {/* Main Heading - Animates in first */}
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 animate-fade-in-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
               Empowering Families to Find Transparent, Affordable Senior Living and Care
