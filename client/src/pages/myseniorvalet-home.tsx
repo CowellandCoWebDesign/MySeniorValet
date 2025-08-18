@@ -68,6 +68,7 @@ export default function MySeniorValetHome() {
   // 3D Carousel state
   const [currentRotation, setCurrentRotation] = useState(0);
   const [selectedCareType, setSelectedCareType] = useState<string | null>(null);
+  const [isAutoRotating, setIsAutoRotating] = useState(true);
   
   const careTypes = [
     { id: 'hud', name: 'HUD', icon: Building2, color: 'bg-green-500', description: 'Government-subsidized housing for low-income seniors, offering rent based on 30% of income with verified pricing.' },
@@ -83,11 +84,31 @@ export default function MySeniorValetHome() {
   ];
   
   const handleCareTypeClick = (index: number) => {
+    setIsAutoRotating(false); // Stop auto-rotation on user interaction
     const anglePerItem = 360 / careTypes.length;
-    const targetRotation = -index * anglePerItem;
-    setCurrentRotation(targetRotation);
+    // Calculate the shortest rotation path
+    const targetAngle = -index * anglePerItem;
+    setCurrentRotation(targetAngle);
     setSelectedCareType(careTypes[index].id);
+    
+    // Auto-hide info panel after 5 seconds
+    setTimeout(() => {
+      if (selectedCareType === careTypes[index].id) {
+        setSelectedCareType(null);
+      }
+    }, 5000);
   };
+  
+  // Auto-rotation effect
+  useEffect(() => {
+    if (!isAutoRotating) return;
+    
+    const interval = setInterval(() => {
+      setCurrentRotation(prev => prev - 36); // Rotate by one item every 3 seconds
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, [isAutoRotating]);
 
 
   const [showIntegrationSpotlight, setShowIntegrationSpotlight] = useState(true);
@@ -833,33 +854,46 @@ export default function MySeniorValetHome() {
           </div>
           
           {/* 3D Care Spectrum Carousel */}
-          <div className="flex items-center justify-center px-1 flex-1">
+          <div className="flex flex-col items-center justify-center px-1 flex-1">
+            {/* Interaction Instructions */}
+            <div className="text-center mb-4">
+              <p className="text-white text-lg font-semibold animate-pulse">
+                {isAutoRotating ? '⟲ Auto-rotating - Click any care type to explore' : '👆 Click any care type to rotate and learn more'}
+              </p>
+            </div>
+            
             <div className="care-evolution-circle">
               
               {/* 3D Carousel Container */}
               <div 
                 className="care-carousel-container"
-                style={{ transform: `rotateY(${currentRotation}deg)` }}
+                style={{ 
+                  transform: `rotateX(-30deg) rotateY(${currentRotation}deg)` 
+                }}
               >
                 {careTypes.map((careType, index) => {
                   const Icon = careType.icon;
                   const anglePerItem = 360 / careTypes.length;
                   const angle = index * anglePerItem;
-                  const radius = 300;
-                  const zPos = Math.cos((angle * Math.PI) / 180) * radius;
-                  const xPos = Math.sin((angle * Math.PI) / 180) * radius;
+                  const radius = 350;
+                  
+                  // Calculate if this item is in front
+                  const adjustedAngle = (angle + currentRotation) % 360;
+                  const normalizedAngle = adjustedAngle < 0 ? adjustedAngle + 360 : adjustedAngle;
+                  const isFront = normalizedAngle > 315 || normalizedAngle < 45;
                   
                   return (
                     <div
                       key={careType.id}
-                      className={`care-carousel-item ${careType.color} rounded-2xl flex flex-col items-center justify-center p-4 shadow-2xl ${selectedCareType === careType.id ? 'active' : ''}`}
+                      className={`care-carousel-item ${careType.color} rounded-2xl flex flex-col items-center justify-center p-4 ${isFront ? 'front' : ''}`}
                       style={{
-                        transform: `rotateY(${-angle}deg) translateZ(${radius}px)`,
+                        transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
+                        opacity: isFront ? 1 : 0.7,
                       }}
                       onClick={() => handleCareTypeClick(index)}
                     >
                       <Icon className="w-12 h-12 text-white mb-2" />
-                      <span className="text-white font-bold text-lg">{careType.name}</span>
+                      <span className="text-white font-bold text-center text-base px-2">{careType.name}</span>
                     </div>
                   );
                 })}
