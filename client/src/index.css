@@ -751,14 +751,17 @@ body {
   animation: none !important;
 }
 
-/* Care Spectrum Evolution Oval */
+/* Care Spectrum Evolution Oval - Cache Bust 5:53 PM */
 .care-evolution-circle {
   position: relative;
-  width: 92vw;
+  width: 92vw !important;
   max-width: 1600px;
-  height: 75vh;
+  height: 75vh !important;
   max-height: 700px;
   margin: 0 auto;
+  /* Temporary border to confirm update */
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
 }
 
 @media (max-width: 768px) {
