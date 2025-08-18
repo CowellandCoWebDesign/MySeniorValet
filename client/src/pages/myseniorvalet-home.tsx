@@ -798,14 +798,7 @@ export default function MySeniorValetHome() {
 
       {/* TODAY, EVERYTHING CHANGES - Historic Launch Message with Care Spectrum */}
       <section 
-        className="relative overflow-hidden min-h-[900px]"
-        style={{
-          backgroundImage: `url('${lighthouseBackground}')`,
-          backgroundColor: '#f3b585',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
+        className="lighthouse-section relative overflow-hidden min-h-[900px]"
       >
         
         {/* Content Container */}

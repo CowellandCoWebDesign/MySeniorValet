@@ -6,6 +6,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Lighthouse Background Section */
+.lighthouse-section {
+  background-image: url('/lighthouse-sunset-final.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 /* CRITICAL TEXT CONTRAST FIXES - Platform Wide - August 17, 2025 */
 @layer base {
   /* Fix all text contrast in dark mode */
