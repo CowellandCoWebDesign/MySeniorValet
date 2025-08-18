@@ -954,110 +954,22 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Platform Content Section */}
+      {/* Platform Summary Section */}
       <section className="px-4 py-16">
         <div className="max-w-6xl mx-auto">
           <Card className="bg-white/98 backdrop-blur-sm shadow-2xl border-0">
             <CardContent className="p-10 md:p-14">
-              <div className="space-y-8">
-                {/* The Light Section */}
-                <div className="bg-white rounded-xl p-8 border-2 border-green-400">
-                  <div className="mb-6">
-                    {/* Country Coverage Badge */}
-                    <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 sm:px-6 py-3 bg-gradient-to-r from-emerald-500/90 to-blue-500/90 backdrop-blur-sm text-white rounded-full text-sm sm:text-lg font-bold shadow-2xl mb-4 animate-bounce-slow">
-                      <span className="flex items-center">
-                        <span className="text-xl sm:text-2xl mr-1">🇺🇸</span>
-                        <span>USA</span>
-                      </span>
-                      <span className="hidden sm:inline mx-2">•</span>
-                      <span className="flex items-center">
-                        <span className="text-xl sm:text-2xl mr-1">🇲🇽</span>
-                        <span>MEXICO</span>
-                      </span>
-                      <span className="hidden sm:inline mx-2">•</span>
-                      <span className="flex items-center">
-                        <span className="text-xl sm:text-2xl mr-1">🇨🇦</span>
-                        <span>CANADA</span>
-                      </span>
-                    </div>
-                    <h3 className="text-2xl md:text-3xl font-bold text-black dark:text-green-300">
-                      THIS STOPS NOW - COMPLETE CARE SPECTRUM FOR ALL
-                    </h3>
-                    <p className="text-lg text-black/90 dark:text-gray-100 mt-2 font-medium">
-                      Master all 10+ levels of care. Real pricing, real availability. <span className="font-bold text-orange-950 dark:text-amber-300">No hidden fees, no referral markups, no communication floods.</span> Welcome to complete transparency.
-                    </p>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-6 text-left">
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-3">
-                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
-                        <div>
-                          <p className="font-semibold text-black dark:text-gray-100">Learn All 10 Levels of Care</p>
-                          <p className="text-black/80 dark:text-gray-200 text-sm">From HUD Housing to Skilled Nursing - understand all 10 care levels, pricing ranges, and when each applies to your family's needs.</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
-                        <div>
-                          <p className="font-semibold text-black dark:text-gray-100">Real Pricing, Real Availability</p>
-                          <p className="text-black/80 dark:text-gray-200 text-sm">Actual prices. Current availability. No more "contact us" gatekeeping.</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
-                        <div>
-                          <p className="font-semibold text-black dark:text-gray-100">ALL Families Get PLATINUM Features Free</p>
-                          <p className="text-black/80 dark:text-gray-200 text-sm">Every family gets our complete PLATINUM toolkit. No tiers. No upgrades. Always free, guaranteed forever.</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
-                        <div>
-                          <p className="font-semibold text-black dark:text-gray-100">Shareable Tour Tracker - Hyper Rich Reviews</p>
-                          <p className="text-black/80 dark:text-gray-200 text-sm">Our transparency tool prevents high prices from hiding behind lagging online reviews. Share your real tour experiences to help others see the truth.</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-3">
-                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
-                        <div>
-                          <p className="font-semibold text-black dark:text-gray-100">Tour Tracker with Family Sharing</p>
-                          <p className="text-black/80 dark:text-gray-200 text-sm">Track every tour, save notes, build comparisons. Share instantly with family members for collaborative decisions.</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
-                        <div>
-                          <p className="font-semibold text-black dark:text-gray-100">Communities Shine Bright</p>
-                          <p className="text-black/80 dark:text-gray-200 text-sm">Every facility can represent itself honestly. No more hiding great care in the shadows.</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
-                        <div>
-                          <p className="font-semibold text-black dark:text-gray-100">Discover Benefits You Qualify For</p>
-                          <p className="text-black/80 dark:text-gray-200 text-sm">VA Aid & Attendance, Medicaid, state programs - we help you find and understand all available assistance.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-
-
-                <div className="pt-6">
-                  <p className="text-2xl md:text-3xl font-black text-gray-900 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-blue-400 dark:to-purple-400">
-                    To every family searching in the dark: The lights are on now.
-                  </p>
-                  <p className="text-lg md:text-xl text-gray-900 dark:text-gray-300 mt-4">
-                    <strong>You deserve the truth. Communities deserve to be found. The darkness ends today.</strong>
-                  </p>
-                </div>
+              <div className="text-center">
+                <p className="text-2xl md:text-3xl font-black text-gray-900 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-blue-400 dark:to-purple-400 mb-4">
+                  To every family searching in the dark: The lights are on now.
+                </p>
+                <p className="text-lg md:text-xl text-gray-900 dark:text-gray-300">
+                  <strong>You deserve the truth. Communities deserve to be found. The darkness ends today.</strong>
+                </p>
               </div>
 
               <div className="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
-                <p className="text-base md:text-lg text-gray-900 dark:text-gray-200 mb-6 font-bold">
+                <p className="text-base md:text-lg text-gray-900 dark:text-gray-200 mb-6 font-bold text-center">
                   Welcome to the Dawn of Transparency in Senior Living - All 10 Care Levels
                 </p>
                 <div className="flex flex-wrap justify-center gap-4">
