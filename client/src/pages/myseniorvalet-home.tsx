@@ -884,16 +884,14 @@ export default function MySeniorValetHome() {
                   const normalizedAngle = ((totalRotation % 360) + 360) % 360;
                   const isFront = normalizedAngle < 45 || normalizedAngle > 315;
                   
-                  // Billboard effect: rotate back to face viewer
-                  const billboardRotation = -totalRotation;
-                  
                   return (
                     <div
                       key={careType.id}
-                      className={`care-carousel-item ${careType.color} rounded-xl flex flex-col items-center justify-center p-2 ${isFront ? 'front' : ''}`}
+                      className={`care-carousel-item ${careType.color} rounded-xl flex flex-col items-center justify-center p-2 cursor-pointer ${isFront ? 'front' : ''}`}
                       style={{
-                        transform: `rotateY(${angle}deg) translateZ(${radius}px) rotateY(${billboardRotation}deg)`,
-                        opacity: isFront ? 1 : 0.5,
+                        transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
+                        opacity: isFront ? 1 : 0.8,
+                        pointerEvents: 'auto',
                       }}
                       onClick={() => handleCareTypeClick(index)}
                     >

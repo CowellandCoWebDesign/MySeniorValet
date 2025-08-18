@@ -782,11 +782,12 @@ body {
   top: 50%;
   margin-left: -65px;
   margin-top: -65px;
-  backface-visibility: visible !important;
+  backface-visibility: hidden !important;
   transition: all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
   cursor: pointer !important;
   border: 2px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  pointer-events: auto !important;
 }
 
 .care-carousel-item:hover {
@@ -796,7 +797,7 @@ body {
 
 .care-carousel-item.front {
   z-index: 10 !important;
-  transform: scale(1.1) !important;
+  backface-visibility: visible !important;
 }
 
 .care-info-panel {
