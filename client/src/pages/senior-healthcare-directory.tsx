@@ -1284,35 +1284,13 @@ export default function SeniorHealthcareDirectory() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Durable medical equipment (DME) • Rental & purchase options</p>
                 
                 <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  {Array.from({ length: 10 }, (_, i) => ({
-                    id: `equipment-${i}`,
-                    name: `Medical Supply Co. ${i + 1}`,
-                    serviceCategory: 'Medical Equipment',
-                    description: 'Wheelchairs, walkers, oxygen supplies, hospital beds',
-                    rating: 4.3 + (Math.random() * 0.7),
-                    reviewCount: Math.floor(80 + Math.random() * 150),
-                    verified: true,
-                    location: ['Dallas, TX', 'Phoenix, AZ', 'Miami, FL'][i % 3],
-                    availability: 'Same-day delivery',
-                    medicare: true,
-                    medicaid: i % 2 === 0
-                  })).map((service: any, index: number) => (
-                    <CareServiceCard
-                      key={service.id}
-                      service={service}
-                      index={index}
-                      borderColor="border-orange-200 dark:border-gray-700"
-                      hoverBorderColor="hover:border-orange-300 dark:hover:border-gray-600"
-                      iconBgColor="bg-gradient-to-br from-orange-500 to-orange-600"
-                      iconRingColor="ring-orange-100 dark:ring-orange-900"
-                      icon={<Package className="w-8 h-8 text-white" />}
-                      categoryBadgeColor="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900 dark:to-orange-800"
-                      categoryBadgeBorder="border-orange-300 dark:border-orange-600"
-                      categoryLabel="Medical Equipment"
-                      buttonColor="bg-gradient-to-r from-orange-500 to-orange-600"
-                      buttonHoverColor="hover:from-orange-600 hover:to-orange-700"
-                    />
-                  ))}
+                  <div className="w-full text-center py-8">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p className="text-lg font-medium">No medical equipment suppliers available</p>
+                      <p className="text-sm mt-2">Check back soon as we add more verified suppliers</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -1353,35 +1331,13 @@ export default function SeniorHealthcareDirectory() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Licensed RN & LPN services • Medicare certified agencies</p>
                 
                 <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  {Array.from({ length: 12 }, (_, i) => ({
-                    id: `nursing-${i}`,
-                    name: `Nursing Agency ${i + 1}`,
-                    serviceCategory: 'Nursing Services',
-                    description: 'Skilled nursing, wound care, medication management',
-                    rating: 4.6 + (Math.random() * 0.4),
-                    reviewCount: Math.floor(100 + Math.random() * 200),
-                    verified: true,
-                    location: ['Boston, MA', 'Seattle, WA', 'Denver, CO'][i % 3],
-                    availability: '24/7 On-call',
-                    medicare: true,
-                    medicaid: true
-                  })).map((service: any, index: number) => (
-                    <CareServiceCard
-                      key={service.id}
-                      service={service}
-                      index={index}
-                      borderColor="border-blue-200 dark:border-gray-700"
-                      hoverBorderColor="hover:border-blue-300 dark:hover:border-gray-600"
-                      iconBgColor="bg-gradient-to-br from-blue-600 to-indigo-600"
-                      iconRingColor="ring-blue-100 dark:ring-blue-900"
-                      icon={<Stethoscope className="w-8 h-8 text-white" />}
-                      categoryBadgeColor="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800"
-                      categoryBadgeBorder="border-blue-300 dark:border-blue-600"
-                      categoryLabel="Nursing Services"
-                      buttonColor="bg-gradient-to-r from-blue-600 to-indigo-600"
-                      buttonHoverColor="hover:from-blue-700 hover:to-indigo-700"
-                    />
-                  ))}
+                  <div className="w-full text-center py-8">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      <Stethoscope className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p className="text-lg font-medium">No nursing services available</p>
+                      <p className="text-sm mt-2">Check back soon as we add more verified agencies</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -1420,35 +1376,13 @@ export default function SeniorHealthcareDirectory() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Temporary relief for family caregivers • Day and overnight options</p>
                 
                 <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  {Array.from({ length: 8 }, (_, i) => ({
-                    id: `respite-${i}`,
-                    name: `Respite Care Center ${i + 1}`,
-                    serviceCategory: 'Respite Care',
-                    description: 'Short-term stays, caregiver relief programs',
-                    rating: 4.4 + (Math.random() * 0.6),
-                    reviewCount: Math.floor(60 + Math.random() * 120),
-                    verified: true,
-                    location: ['Atlanta, GA', 'Houston, TX', 'Philadelphia, PA'][i % 3],
-                    availability: 'Flexible scheduling',
-                    medicare: i % 2 === 0,
-                    medicaid: true
-                  })).map((service: any, index: number) => (
-                    <CareServiceCard
-                      key={service.id}
-                      service={service}
-                      index={index}
-                      borderColor="border-indigo-200 dark:border-gray-700"
-                      hoverBorderColor="hover:border-indigo-300 dark:hover:border-gray-600"
-                      iconBgColor="bg-gradient-to-br from-indigo-500 to-indigo-600"
-                      iconRingColor="ring-indigo-100 dark:ring-indigo-900"
-                      icon={<BedDouble className="w-8 h-8 text-white" />}
-                      categoryBadgeColor="bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-indigo-900 dark:to-indigo-800"
-                      categoryBadgeBorder="border-indigo-300 dark:border-indigo-600"
-                      categoryLabel="Respite Care"
-                      buttonColor="bg-gradient-to-r from-indigo-500 to-indigo-600"
-                      buttonHoverColor="hover:from-indigo-600 hover:to-indigo-700"
-                    />
-                  ))}
+                  <div className="w-full text-center py-8">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      <BedDouble className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p className="text-lg font-medium">No respite care providers available</p>
+                      <p className="text-sm mt-2">Check back soon as we add more verified providers</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -1487,35 +1421,13 @@ export default function SeniorHealthcareDirectory() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Comfort care for serious conditions • Pain and symptom management</p>
                 
                 <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  {Array.from({ length: 7 }, (_, i) => ({
-                    id: `palliative-${i}`,
-                    name: `Palliative Care Team ${i + 1}`,
-                    serviceCategory: 'Palliative Care',
-                    description: 'Symptom management, quality of life support',
-                    rating: 4.7 + (Math.random() * 0.3),
-                    reviewCount: Math.floor(40 + Math.random() * 80),
-                    verified: true,
-                    location: ['San Francisco, CA', 'Portland, OR', 'Austin, TX'][i % 3],
-                    availability: 'Consultation available',
-                    medicare: true,
-                    medicaid: true
-                  })).map((service: any, index: number) => (
-                    <CareServiceCard
-                      key={service.id}
-                      service={service}
-                      index={index}
-                      borderColor="border-purple-200 dark:border-gray-700"
-                      hoverBorderColor="hover:border-purple-300 dark:hover:border-gray-600"
-                      iconBgColor="bg-gradient-to-br from-purple-500 to-purple-600"
-                      iconRingColor="ring-purple-100 dark:ring-purple-900"
-                      icon={<Palette className="w-8 h-8 text-white" />}
-                      categoryBadgeColor="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800"
-                      categoryBadgeBorder="border-purple-300 dark:border-purple-600"
-                      categoryLabel="Palliative Care"
-                      buttonColor="bg-gradient-to-r from-purple-500 to-purple-600"
-                      buttonHoverColor="hover:from-purple-600 hover:to-purple-700"
-                    />
-                  ))}
+                  <div className="w-full text-center py-8">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      <Palette className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p className="text-lg font-medium">No palliative care providers available</p>
+                      <p className="text-sm mt-2">Check back soon as we add more verified providers</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -1555,35 +1467,13 @@ export default function SeniorHealthcareDirectory() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">24-hour skilled nursing facilities • Post-acute care</p>
                 
                 <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  {Array.from({ length: 12 }, (_, i) => ({
-                    id: `skilled-${i}`,
-                    name: `Skilled Nursing Facility ${i + 1}`,
-                    serviceCategory: 'Skilled Nursing',
-                    description: '24/7 nursing care, rehabilitation services',
-                    rating: 4.2 + (Math.random() * 0.8),
-                    reviewCount: Math.floor(100 + Math.random() * 250),
-                    verified: true,
-                    location: ['Orlando, FL', 'Nashville, TN', 'Charlotte, NC'][i % 3],
-                    availability: '24/7',
-                    medicare: true,
-                    medicaid: true
-                  })).map((service: any, index: number) => (
-                    <CareServiceCard
-                      key={service.id}
-                      service={service}
-                      index={index}
-                      borderColor="border-blue-200 dark:border-gray-700"
-                      hoverBorderColor="hover:border-blue-300 dark:hover:border-gray-600"
-                      iconBgColor="bg-gradient-to-br from-blue-500 to-blue-600"
-                      iconRingColor="ring-blue-100 dark:ring-blue-900"
-                      icon={<Shield className="w-8 h-8 text-white" />}
-                      categoryBadgeColor="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800"
-                      categoryBadgeBorder="border-blue-300 dark:border-blue-600"
-                      categoryLabel="Skilled Nursing"
-                      buttonColor="bg-gradient-to-r from-blue-500 to-blue-600"
-                      buttonHoverColor="hover:from-blue-600 hover:to-blue-700"
-                    />
-                  ))}
+                  <div className="w-full text-center py-8">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      <Shield className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p className="text-lg font-medium">No skilled nursing facilities available</p>
+                      <p className="text-sm mt-2">Check back soon as we add more verified facilities</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -1622,35 +1512,13 @@ export default function SeniorHealthcareDirectory() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Medical appointments • Wheelchair accessible vehicles</p>
                 
                 <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  {Array.from({ length: 10 }, (_, i) => ({
-                    id: `transport-${i}`,
-                    name: `Medical Transport Service ${i + 1}`,
-                    serviceCategory: 'Transport Services',
-                    description: 'Door-to-door medical transportation',
-                    rating: 4.3 + (Math.random() * 0.7),
-                    reviewCount: Math.floor(70 + Math.random() * 130),
-                    verified: true,
-                    location: ['Tampa, FL', 'San Diego, CA', 'Detroit, MI'][i % 3],
-                    availability: 'Schedule in advance',
-                    medicare: i % 3 === 0,
-                    medicaid: true
-                  })).map((service: any, index: number) => (
-                    <CareServiceCard
-                      key={service.id}
-                      service={service}
-                      index={index}
-                      borderColor="border-green-200 dark:border-gray-700"
-                      hoverBorderColor="hover:border-green-300 dark:hover:border-gray-600"
-                      iconBgColor="bg-gradient-to-br from-green-500 to-green-600"
-                      iconRingColor="ring-green-100 dark:ring-green-900"
-                      icon={<Car className="w-8 h-8 text-white" />}
-                      categoryBadgeColor="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900 dark:to-green-800"
-                      categoryBadgeBorder="border-green-300 dark:border-green-600"
-                      categoryLabel="Transport Services"
-                      buttonColor="bg-gradient-to-r from-green-500 to-green-600"
-                      buttonHoverColor="hover:from-green-600 hover:to-green-700"
-                    />
-                  ))}
+                  <div className="w-full text-center py-8">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      <Car className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p className="text-lg font-medium">No transport services available</p>
+                      <p className="text-sm mt-2">Check back soon as we add more verified providers</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -1689,35 +1557,13 @@ export default function SeniorHealthcareDirectory() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Meal delivery • Dietitian consultations • Special diets</p>
                 
                 <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  {Array.from({ length: 8 }, (_, i) => ({
-                    id: `nutrition-${i}`,
-                    name: `Nutrition Service ${i + 1}`,
-                    serviceCategory: 'Nutrition Services',
-                    description: 'Meal plans, dietary counseling, home delivery',
-                    rating: 4.5 + (Math.random() * 0.5),
-                    reviewCount: Math.floor(50 + Math.random() * 100),
-                    verified: true,
-                    location: ['Minneapolis, MN', 'Columbus, OH', 'Kansas City, MO'][i % 3],
-                    availability: 'Daily delivery',
-                    medicare: false,
-                    medicaid: i % 2 === 0
-                  })).map((service: any, index: number) => (
-                    <CareServiceCard
-                      key={service.id}
-                      service={service}
-                      index={index}
-                      borderColor="border-orange-200 dark:border-gray-700"
-                      hoverBorderColor="hover:border-orange-300 dark:hover:border-gray-600"
-                      iconBgColor="bg-gradient-to-br from-orange-500 to-orange-600"
-                      iconRingColor="ring-orange-100 dark:ring-orange-900"
-                      icon={<Apple className="w-8 h-8 text-white" />}
-                      categoryBadgeColor="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900 dark:to-orange-800"
-                      categoryBadgeBorder="border-orange-300 dark:border-orange-600"
-                      categoryLabel="Nutrition Services"
-                      buttonColor="bg-gradient-to-r from-orange-500 to-orange-600"
-                      buttonHoverColor="hover:from-orange-600 hover:to-orange-700"
-                    />
-                  ))}
+                  <div className="w-full text-center py-8">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      <Apple className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p className="text-lg font-medium">No nutrition services available</p>
+                      <p className="text-sm mt-2">Check back soon as we add more verified providers</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -1756,35 +1602,13 @@ export default function SeniorHealthcareDirectory() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Senior dental care • Dentures • Mobile dental services</p>
                 
                 <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  {Array.from({ length: 10 }, (_, i) => ({
-                    id: `dental-${i}`,
-                    name: `Senior Dental Clinic ${i + 1}`,
-                    serviceCategory: 'Dental Services',
-                    description: 'Comprehensive dental care for seniors',
-                    rating: 4.4 + (Math.random() * 0.6),
-                    reviewCount: Math.floor(90 + Math.random() * 160),
-                    verified: true,
-                    location: ['Baltimore, MD', 'Indianapolis, IN', 'Milwaukee, WI'][i % 3],
-                    availability: 'By appointment',
-                    medicare: false,
-                    medicaid: i % 3 === 0
-                  })).map((service: any, index: number) => (
-                    <CareServiceCard
-                      key={service.id}
-                      service={service}
-                      index={index}
-                      borderColor="border-cyan-200 dark:border-gray-700"
-                      hoverBorderColor="hover:border-cyan-300 dark:hover:border-gray-600"
-                      iconBgColor="bg-gradient-to-br from-cyan-500 to-cyan-600"
-                      iconRingColor="ring-cyan-100 dark:ring-cyan-900"
-                      icon={<Smile className="w-8 h-8 text-white" />}
-                      categoryBadgeColor="bg-gradient-to-r from-cyan-50 to-cyan-100 dark:from-cyan-900 dark:to-cyan-800"
-                      categoryBadgeBorder="border-cyan-300 dark:border-cyan-600"
-                      categoryLabel="Dental Services"
-                      buttonColor="bg-gradient-to-r from-cyan-500 to-cyan-600"
-                      buttonHoverColor="hover:from-cyan-600 hover:to-cyan-700"
-                    />
-                  ))}
+                  <div className="w-full text-center py-8">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      <Smile className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p className="text-lg font-medium">No dental services available</p>
+                      <p className="text-sm mt-2">Check back soon as we add more verified providers</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -1823,35 +1647,13 @@ export default function SeniorHealthcareDirectory() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Eye exams • Cataract care • Low vision aids</p>
                 
                 <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  {Array.from({ length: 9 }, (_, i) => ({
-                    id: `vision-${i}`,
-                    name: `Vision Care Center ${i + 1}`,
-                    serviceCategory: 'Vision Services',
-                    description: 'Comprehensive eye care for seniors',
-                    rating: 4.5 + (Math.random() * 0.5),
-                    reviewCount: Math.floor(80 + Math.random() * 140),
-                    verified: true,
-                    location: ['Sacramento, CA', 'Salt Lake City, UT', 'Richmond, VA'][i % 3],
-                    availability: 'Walk-ins welcome',
-                    medicare: true,
-                    medicaid: i % 2 === 0
-                  })).map((service: any, index: number) => (
-                    <CareServiceCard
-                      key={service.id}
-                      service={service}
-                      index={index}
-                      borderColor="border-violet-200 dark:border-gray-700"
-                      hoverBorderColor="hover:border-violet-300 dark:hover:border-gray-600"
-                      iconBgColor="bg-gradient-to-br from-violet-500 to-violet-600"
-                      iconRingColor="ring-violet-100 dark:ring-violet-900"
-                      icon={<Eye className="w-8 h-8 text-white" />}
-                      categoryBadgeColor="bg-gradient-to-r from-violet-50 to-violet-100 dark:from-violet-900 dark:to-violet-800"
-                      categoryBadgeBorder="border-violet-300 dark:border-violet-600"
-                      categoryLabel="Vision Services"
-                      buttonColor="bg-gradient-to-r from-violet-500 to-violet-600"
-                      buttonHoverColor="hover:from-violet-600 hover:to-violet-700"
-                    />
-                  ))}
+                  <div className="w-full text-center py-8">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      <Eye className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p className="text-lg font-medium">No vision services available</p>
+                      <p className="text-sm mt-2">Check back soon as we add more verified providers</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -1890,35 +1692,13 @@ export default function SeniorHealthcareDirectory() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Audiology services • Hearing aid fitting • Tinnitus care</p>
                 
                 <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  {Array.from({ length: 9 }, (_, i) => ({
-                    id: `hearing-${i}`,
-                    name: `Hearing Care Center ${i + 1}`,
-                    serviceCategory: 'Hearing Services',
-                    description: 'Hearing evaluations and hearing aid services',
-                    rating: 4.6 + (Math.random() * 0.4),
-                    reviewCount: Math.floor(70 + Math.random() * 120),
-                    verified: true,
-                    location: ['Louisville, KY', 'Birmingham, AL', 'Buffalo, NY'][i % 3],
-                    availability: 'Appointment required',
-                    medicare: true,
-                    medicaid: i % 4 === 0
-                  })).map((service: any, index: number) => (
-                    <CareServiceCard
-                      key={service.id}
-                      service={service}
-                      index={index}
-                      borderColor="border-pink-200 dark:border-gray-700"
-                      hoverBorderColor="hover:border-pink-300 dark:hover:border-gray-600"
-                      iconBgColor="bg-gradient-to-br from-pink-500 to-pink-600"
-                      iconRingColor="ring-pink-100 dark:ring-pink-900"
-                      icon={<Ear className="w-8 h-8 text-white" />}
-                      categoryBadgeColor="bg-gradient-to-r from-pink-50 to-pink-100 dark:from-pink-900 dark:to-pink-800"
-                      categoryBadgeBorder="border-pink-300 dark:border-pink-600"
-                      categoryLabel="Hearing Services"
-                      buttonColor="bg-gradient-to-r from-pink-500 to-pink-600"
-                      buttonHoverColor="hover:from-pink-600 hover:to-pink-700"
-                    />
-                  ))}
+                  <div className="w-full text-center py-8">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      <Ear className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p className="text-lg font-medium">No hearing services available</p>
+                      <p className="text-sm mt-2">Check back soon as we add more verified providers</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -1957,35 +1737,13 @@ export default function SeniorHealthcareDirectory() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Diabetic foot care • Orthotics • Foot surgery</p>
                 
                 <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  {Array.from({ length: 8 }, (_, i) => ({
-                    id: `podiatry-${i}`,
-                    name: `Podiatry Clinic ${i + 1}`,
-                    serviceCategory: 'Podiatry Services',
-                    description: 'Foot and ankle care, diabetic foot management',
-                    rating: 4.5 + (Math.random() * 0.5),
-                    reviewCount: Math.floor(60 + Math.random() * 100),
-                    verified: true,
-                    location: ['Memphis, TN', 'Norfolk, VA', 'Omaha, NE'][i % 3],
-                    availability: 'Same week appointments',
-                    medicare: true,
-                    medicaid: i % 2 === 0
-                  })).map((service: any, index: number) => (
-                    <CareServiceCard
-                      key={service.id}
-                      service={service}
-                      index={index}
-                      borderColor="border-emerald-200 dark:border-gray-700"
-                      hoverBorderColor="hover:border-emerald-300 dark:hover:border-gray-600"
-                      iconBgColor="bg-gradient-to-br from-emerald-500 to-emerald-600"
-                      iconRingColor="ring-emerald-100 dark:ring-emerald-900"
-                      icon={<Footprints className="w-8 h-8 text-white" />}
-                      categoryBadgeColor="bg-gradient-to-r from-emerald-50 to-emerald-100 dark:from-emerald-900 dark:to-emerald-800"
-                      categoryBadgeBorder="border-emerald-300 dark:border-emerald-600"
-                      categoryLabel="Podiatry Services"
-                      buttonColor="bg-gradient-to-r from-emerald-500 to-emerald-600"
-                      buttonHoverColor="hover:from-emerald-600 hover:to-emerald-700"
-                    />
-                  ))}
+                  <div className="w-full text-center py-8">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      <Footprints className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p className="text-lg font-medium">No podiatry services available</p>
+                      <p className="text-sm mt-2">Check back soon as we add more verified providers</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -2024,35 +1782,13 @@ export default function SeniorHealthcareDirectory() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Prescription delivery • Medication therapy management</p>
                 
                 <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-                  {Array.from({ length: 11 }, (_, i) => ({
-                    id: `pharmacy-${i}`,
-                    name: `Senior Pharmacy ${i + 1}`,
-                    serviceCategory: 'Pharmacy Services',
-                    description: 'Prescription services, medication counseling',
-                    rating: 4.4 + (Math.random() * 0.6),
-                    reviewCount: Math.floor(110 + Math.random() * 180),
-                    verified: true,
-                    location: ['Cincinnati, OH', 'Pittsburgh, PA', 'St. Louis, MO'][i % 3],
-                    availability: 'Free delivery',
-                    medicare: true,
-                    medicaid: true
-                  })).map((service: any, index: number) => (
-                    <CareServiceCard
-                      key={service.id}
-                      service={service}
-                      index={index}
-                      borderColor="border-red-200 dark:border-gray-700"
-                      hoverBorderColor="hover:border-red-300 dark:hover:border-gray-600"
-                      iconBgColor="bg-gradient-to-br from-red-500 to-red-600"
-                      iconRingColor="ring-red-100 dark:ring-red-900"
-                      icon={<Pill className="w-8 h-8 text-white" />}
-                      categoryBadgeColor="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900 dark:to-red-800"
-                      categoryBadgeBorder="border-red-300 dark:border-red-600"
-                      categoryLabel="Pharmacy Services"
-                      buttonColor="bg-gradient-to-r from-red-500 to-red-600"
-                      buttonHoverColor="hover:from-red-600 hover:to-red-700"
-                    />
-                  ))}
+                  <div className="w-full text-center py-8">
+                    <div className="text-gray-500 dark:text-gray-400">
+                      <Pill className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                      <p className="text-lg font-medium">No pharmacy services available</p>
+                      <p className="text-sm mt-2">Check back soon as we add more verified providers</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
