@@ -796,30 +796,74 @@ export default function MySeniorValetHome() {
               </CardContent>
             </Card>
 
-            {/* Right side - Beta Info */}
-            <Card className="bg-blue-900/95 dark:bg-blue-900/95 border-blue-400/30">
+            {/* Right side - The Solution */}
+            <Card className="bg-green-900/95 dark:bg-green-900/95 border-green-400/30">
               <CardContent className="p-6">
-                <h3 className="text-xl font-bold mb-4 text-white">
-                  Bringing Light to Senior Living
+                <h3 className="text-xl font-bold mb-4 text-green-400">
+                  Today, The Lights Turn On
                 </h3>
-                <div className="space-y-4">
-                  <p className="text-white/90">
-                    This platform is being released immediately to rapidly deliver transparency through AI-powered information access.
-                  </p>
-                  
-                  <div className="bg-blue-800/70 rounded-lg p-3 border border-blue-400/30">
-                    <p className="font-semibold text-yellow-400 text-sm">Quick Fix for Issues:</p>
-                    <p className="text-blue-100 text-sm">
-                      Navigate home and refresh browser to resolve most beta glitches.
-                    </p>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-green-300">Learn All 10 Levels of Care</p>
+                      <p className="text-gray-300">From HUD Housing to Skilled Nursing - understand all 10 care levels, pricing ranges, and when each applies to your family's needs.</p>
+                    </div>
                   </div>
-                  
-                  <p className="text-white/90 font-semibold">
-                    Thank you for joining this movement. Together, we're bringing transparency to an industry that has operated in darkness for too long.
-                  </p>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-green-300">Real Pricing, Real Availability</p>
+                      <p className="text-gray-300">Actual prices. Current availability. No more "contact us" gatekeeping.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-green-300">ALL Families Get PLATINUM Features Free</p>
+                      <p className="text-gray-300">Every family gets our complete PLATINUM toolkit. No tiers. No upgrades. Always free, guaranteed forever.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-green-300">Shareable Tour Tracker - Hyper Rich Reviews</p>
+                      <p className="text-gray-300">Our transparency tool prevents high prices from hiding behind lagging online reviews. Share your real tour experiences to help others see the truth.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-green-300">Tour Tracker with Family Sharing</p>
+                      <p className="text-gray-300">Track every tour, save notes, build comparisons. Share instantly with family members for collaborative decisions.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-green-300">Communities Shine Bright</p>
+                      <p className="text-gray-300">Every facility can represent itself honestly. No more hiding great care in the shadows.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-green-300">Discover Benefits You Qualify For</p>
+                      <p className="text-gray-300">VA Aid & Attendance, Medicaid, state programs - we help you find and understand all available assistance.</p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
+          </div>
+          
+          {/* Beta Note */}
+          <div className="mt-6 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-800/50 backdrop-blur-sm rounded-full border border-blue-400/30">
+              <p className="text-sm text-blue-100">
+                <span className="font-semibold text-yellow-400">Quick Fix for Beta Issues:</span> Navigate home and refresh browser to resolve most glitches
+              </p>
+            </div>
           </div>
         </div>
       </section>
