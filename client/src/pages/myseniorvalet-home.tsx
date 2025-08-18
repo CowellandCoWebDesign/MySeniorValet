@@ -554,7 +554,7 @@ export default function MySeniorValetHome() {
         
 
         
-        <div className="relative hero-content min-h-screen pt-12 sm:pt-16 md:pt-20 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col">
+        <div className="relative hero-content min-h-screen pt-2 sm:pt-3 md:pt-4 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col">
           
           {/* Hero Text Section - At the top */}
           <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8 mb-8 text-center">
