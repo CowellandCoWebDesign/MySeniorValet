@@ -74,93 +74,150 @@ export default function CompetitiveAnalysis() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-900">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <Link href="/">
-            <Button variant="ghost" className="text-white hover:bg-white/20 mb-4">
-              ← Back to Home
-            </Button>
-          </Link>
-          
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 flex items-center gap-3">
-            <TrendingUp className="w-10 h-10" />
-            Competitive Market Analysis
-          </h1>
-          <p className="text-xl text-white/90 max-w-3xl">
-            Real-time pricing analysis powered by AI. Compare senior living costs across cities, states, regions, and countries to understand market dynamics and find the best value.
-          </p>
-          
-          <div className="flex flex-wrap gap-2 mt-6">
-            <Badge className="bg-white/20 text-white border-white/30">
-              <Brain className="w-3 h-3 mr-1" />
-              Perplexity AI Powered
-            </Badge>
-            <Badge className="bg-white/20 text-white border-white/30">
-              <Globe className="w-3 h-3 mr-1" />
-              Live Web Search
-            </Badge>
-            <Badge className="bg-white/20 text-white border-white/30">
-              <BarChart3 className="w-3 h-3 mr-1" />
-              Real-Time Data
-            </Badge>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-emerald-50/20 dark:from-gray-900 dark:via-blue-900/30 dark:to-emerald-900/20">
+      {/* Animated Background Pattern */}
+      <div className="fixed inset-0 opacity-[0.03] dark:opacity-[0.02] pointer-events-none">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }} />
+      </div>
+
+      {/* Header with enhanced styling */}
+      <div className="relative bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white overflow-hidden">
+        {/* Animated gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/20 via-transparent to-cyan-600/20 animate-pulse" />
+        
+        <div className="relative py-20">
+          <div className="max-w-7xl mx-auto px-4">
+            <Link href="/">
+              <Button 
+                variant="ghost" 
+                className="text-white hover:bg-white/20 mb-6 transition-all duration-300 hover:scale-105 backdrop-blur-sm"
+              >
+                ← Back to Home
+              </Button>
+            </Link>
+            
+            <div className="space-y-6">
+              <h1 className="text-4xl md:text-6xl font-bold flex items-center gap-4 animate-fadeIn">
+                <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-sm">
+                  <TrendingUp className="w-10 h-10 md:w-12 md:h-12" />
+                </div>
+                <span className="bg-gradient-to-r from-white to-white/90 bg-clip-text">
+                  Competitive Market Analysis
+                </span>
+              </h1>
+              
+              <p className="text-xl md:text-2xl text-white/95 max-w-3xl leading-relaxed animate-fadeIn animation-delay-200">
+                Real-time pricing analysis powered by AI. Compare senior living costs across cities, states, regions, and countries to understand market dynamics and find the best value.
+              </p>
+              
+              <div className="flex flex-wrap gap-3 animate-fadeIn animation-delay-300">
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm hover:bg-white/30 transition-all duration-300 hover:scale-105">
+                  <Brain className="w-4 h-4 mr-2" />
+                  Perplexity AI Powered
+                </Badge>
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm hover:bg-white/30 transition-all duration-300 hover:scale-105">
+                  <Globe className="w-4 h-4 mr-2" />
+                  Live Web Search
+                </Badge>
+                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm hover:bg-white/30 transition-all duration-300 hover:scale-105">
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Real-Time Data
+                </Badge>
+              </div>
+            </div>
           </div>
+        </div>
+        
+        {/* Wave decoration at bottom */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg className="w-full h-12" viewBox="0 0 1440 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 48h1440V0c-120 28-240 48-360 48S840 28 720 28 480 48 360 48 120 28 0 28v20z" 
+                  fill="currentColor" className="text-gray-50 dark:text-gray-900" />
+          </svg>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Search Section */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Select Location for Analysis</CardTitle>
-            <CardDescription>
-              Choose a city, state, region, or country to analyze senior living pricing
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        {/* Search Section with enhanced styling */}
+        <Card className="mb-10 shadow-xl border-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm animate-fadeInUp">
+          <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-t-lg">
+            <CardTitle className="text-2xl flex items-center gap-3">
+              <div className="p-2 bg-emerald-100 dark:bg-emerald-800/50 rounded-lg">
+                <Search className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              Select Location for Analysis
+            </CardTitle>
+            <CardDescription className="text-base mt-2">
+              Choose a city, state, region, or country to analyze senior living pricing with real-time AI data
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* Location Type Selector */}
+          <CardContent className="pt-8">
+            <div className="space-y-6">
+              {/* Location Type Selector with improved styling */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <Select value={locationType} onValueChange={(value: any) => setLocationType(value)}>
-                  <SelectTrigger className="w-full sm:w-48">
+                  <SelectTrigger className="w-full sm:w-48 h-12 border-2 hover:border-emerald-400 transition-colors duration-300">
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="city">City</SelectItem>
-                    <SelectItem value="state">State/Province</SelectItem>
-                    <SelectItem value="region">Region</SelectItem>
-                    <SelectItem value="country">Country</SelectItem>
+                    <SelectItem value="city" className="py-3">
+                      <span className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4" />
+                        City
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="state" className="py-3">
+                      <span className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4" />
+                        State/Province
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="region" className="py-3">
+                      <span className="flex items-center gap-2">
+                        <Globe className="w-4 h-4" />
+                        Region
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="country" className="py-3">
+                      <span className="flex items-center gap-2">
+                        <Globe className="w-4 h-4" />
+                        Country
+                      </span>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 
-                <div className="flex-1 flex gap-2">
+                <div className="flex-1 flex gap-3">
                   <Input
                     placeholder={`Enter ${locationType} name...`}
                     value={searchLocation}
                     onChange={(e) => setSearchLocation(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleAnalysis()}
+                    className="h-12 border-2 hover:border-emerald-400 focus:border-emerald-500 transition-colors duration-300 text-lg"
                   />
                   <Button 
                     onClick={handleAnalysis}
                     disabled={!searchLocation || analysisMutation.isPending}
-                    className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+                    className="h-12 px-8 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                   >
                     {analysisMutation.isPending ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-5 h-5 animate-spin" />
                     ) : (
-                      <Search className="w-4 h-4" />
+                      <Search className="w-5 h-5" />
                     )}
-                    <span className="ml-2">Analyze</span>
+                    <span className="ml-2 font-semibold">Analyze</span>
                   </Button>
                 </div>
               </div>
 
-              {/* Popular Locations */}
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                  Popular {locationType === 'state' ? 'states/provinces' : locationType}:
+              {/* Popular Locations with enhanced styling */}
+              <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                  <span className="text-emerald-600 dark:text-emerald-400">★</span>
+                  Popular {locationType === 'state' ? 'states/provinces' : locationType === 'city' ? 'cities' : locationType === 'region' ? 'regions' : 'countries'}:
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {popularLocations[locationType].map((location) => (
@@ -169,9 +226,9 @@ export default function CompetitiveAnalysis() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleQuickSelect(location)}
-                      className="hover:bg-emerald-50 hover:border-emerald-300 dark:hover:bg-emerald-900/20"
+                      className="hover:bg-emerald-100 hover:border-emerald-400 dark:hover:bg-emerald-900/30 dark:hover:border-emerald-600 transition-all duration-300 hover:scale-105 hover:shadow-md"
                     >
-                      <MapPin className="w-3 h-3 mr-1" />
+                      <MapPin className="w-3 h-3 mr-1.5" />
                       {location}
                     </Button>
                   ))}
@@ -181,105 +238,136 @@ export default function CompetitiveAnalysis() {
           </CardContent>
         </Card>
 
-        {/* Analysis Results */}
+        {/* Analysis Results with enhanced styling */}
         {analysisMutation.isSuccess && analysisMutation.data && (
-          <Card className="mb-8 border-2 border-emerald-200 dark:border-emerald-800">
-            <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20">
-              <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5" />
+          <Card className="mb-10 shadow-2xl border-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm animate-fadeInUp animation-delay-200 overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-6">
+              <CardTitle className="flex items-center justify-between text-xl">
+                <span className="flex items-center gap-3">
+                  <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                    <MapPin className="w-6 h-6" />
+                  </div>
                   {analysisMutation.data.location}
                 </span>
-                <Badge variant="outline" className="text-xs">
-                  Updated: {new Date(analysisMutation.data.lastUpdated).toLocaleDateString()}
+                <Badge variant="secondary" className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
+                  Updated: {analysisMutation.data.lastUpdated ? new Date(analysisMutation.data.lastUpdated).toLocaleDateString() : 'Today'}
                 </Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Average Pricing */}
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Average Monthly Cost</p>
-                    <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
-                      ${analysisMutation.data.averageMonthlyRent.toLocaleString()}
+            <CardContent className="pt-8">
+              <div className="grid md:grid-cols-2 gap-8">
+                {/* Average Pricing with enhanced styling */}
+                <div className="space-y-6">
+                  <div className="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Average Monthly Cost</p>
+                    <p className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                      ${analysisMutation.data.averageMonthlyRent ? analysisMutation.data.averageMonthlyRent.toLocaleString() : 'N/A'}
                     </p>
-                    <p className="text-sm text-gray-500">
-                      Range: ${analysisMutation.data.priceRange.min.toLocaleString()} - ${analysisMutation.data.priceRange.max.toLocaleString()}
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
+                      Range: ${analysisMutation.data.priceRange?.min ? analysisMutation.data.priceRange.min.toLocaleString() : 'N/A'} - 
+                      ${analysisMutation.data.priceRange?.max ? analysisMutation.data.priceRange.max.toLocaleString() : 'N/A'}
                     </p>
                   </div>
 
-                  {/* Comparison to National Average */}
-                  <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  {/* Comparison to National Average with enhanced styling */}
+                  <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-inner">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">
                       Compared to National Average
                     </p>
-                    <div className="flex items-center gap-2">
-                      {analysisMutation.data.comparedToNational > 0 ? (
+                    <div className="flex items-center gap-3">
+                      {analysisMutation.data.comparedToNational && analysisMutation.data.comparedToNational > 0 ? (
                         <>
-                          <TrendingUp className="w-5 h-5 text-red-500" />
-                          <span className="text-xl font-bold text-red-600 dark:text-red-400">
+                          <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                            <TrendingUp className="w-6 h-6 text-red-600 dark:text-red-400" />
+                          </div>
+                          <span className="text-2xl font-bold text-red-600 dark:text-red-400">
                             {analysisMutation.data.comparedToNational}% Higher
                           </span>
                         </>
-                      ) : analysisMutation.data.comparedToNational < 0 ? (
+                      ) : analysisMutation.data.comparedToNational && analysisMutation.data.comparedToNational < 0 ? (
                         <>
-                          <TrendingDown className="w-5 h-5 text-green-500" />
-                          <span className="text-xl font-bold text-green-600 dark:text-green-400">
+                          <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                            <TrendingDown className="w-6 h-6 text-green-600 dark:text-green-400" />
+                          </div>
+                          <span className="text-2xl font-bold text-green-600 dark:text-green-400">
                             {Math.abs(analysisMutation.data.comparedToNational)}% Lower
                           </span>
                         </>
                       ) : (
                         <>
-                          <Minus className="w-5 h-5 text-gray-500" />
-                          <span className="text-xl font-bold text-gray-600 dark:text-gray-400">
+                          <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                            <Minus className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+                          </div>
+                          <span className="text-2xl font-bold text-gray-600 dark:text-gray-400">
                             At National Average
                           </span>
                         </>
                       )}
                     </div>
                     
-                    {/* Trend Indicator */}
-                    <div className="mt-3 pt-3 border-t">
+                    {/* Trend Indicator with enhanced styling */}
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                       <Badge 
                         variant="outline"
-                        className={
+                        className={`px-4 py-2 text-sm font-medium ${
                           analysisMutation.data.trend === 'increasing' 
-                            ? 'border-orange-300 text-orange-700 dark:text-orange-400'
+                            ? 'border-orange-400 bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400'
                             : analysisMutation.data.trend === 'decreasing'
-                            ? 'border-blue-300 text-blue-700 dark:text-blue-400'
-                            : 'border-gray-300 text-gray-700 dark:text-gray-400'
-                        }
+                            ? 'border-blue-400 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+                            : 'border-gray-400 bg-gray-50 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                        }`}
                       >
-                        {analysisMutation.data.trend === 'increasing' && '📈 Prices Trending Up'}
-                        {analysisMutation.data.trend === 'decreasing' && '📉 Prices Trending Down'}
-                        {analysisMutation.data.trend === 'stable' && '➡️ Prices Stable'}
+                        {analysisMutation.data.trend === 'increasing' && (
+                          <span className="flex items-center gap-2">
+                            <TrendingUp className="w-4 h-4" />
+                            Prices Trending Up
+                          </span>
+                        )}
+                        {analysisMutation.data.trend === 'decreasing' && (
+                          <span className="flex items-center gap-2">
+                            <TrendingDown className="w-4 h-4" />
+                            Prices Trending Down
+                          </span>
+                        )}
+                        {analysisMutation.data.trend === 'stable' && (
+                          <span className="flex items-center gap-2">
+                            <Minus className="w-4 h-4" />
+                            Prices Stable
+                          </span>
+                        )}
                       </Badge>
                     </div>
                   </div>
                 </div>
 
-                {/* Market Insights */}
-                <div>
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <Brain className="w-4 h-4" />
-                    AI Market Insights
-                  </h3>
-                  <ul className="space-y-2">
-                    {analysisMutation.data.insights.map((insight, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <span className="text-emerald-500 mt-1">•</span>
-                        <span className="text-sm text-gray-700 dark:text-gray-300">{insight}</span>
-                      </li>
-                    ))}
-                  </ul>
+                {/* Market Insights with enhanced styling */}
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="font-semibold text-lg mb-4 flex items-center gap-3">
+                      <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                        <Brain className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      </div>
+                      AI Market Insights
+                    </h3>
+                    <ul className="space-y-3">
+                      {analysisMutation.data.insights && analysisMutation.data.insights.map((insight, index) => (
+                        <li key={index} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300">
+                          <span className="text-emerald-500 mt-1 text-xl">✓</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{insight}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-                  {/* Data Sources */}
-                  <div className="mt-4 pt-4 border-t">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Data Sources:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {analysisMutation.data.sources.map((source, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
+                  {/* Data Sources with enhanced styling */}
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl">
+                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2">
+                      <Globe className="w-4 h-4" />
+                      Data Sources:
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {analysisMutation.data.sources && analysisMutation.data.sources.map((source, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs px-3 py-1 bg-white dark:bg-gray-800 shadow-sm">
                           {source}
                         </Badge>
                       ))}
@@ -291,69 +379,116 @@ export default function CompetitiveAnalysis() {
           </Card>
         )}
 
-        {/* Loading State */}
+        {/* Loading State with enhanced styling */}
         {analysisMutation.isPending && (
-          <Card className="mb-8">
-            <CardContent className="py-12">
-              <div className="text-center space-y-4">
-                <Loader2 className="w-12 h-12 animate-spin mx-auto text-emerald-600" />
-                <p className="text-lg font-medium">Analyzing Market Data...</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                  Our AI is searching live web data to provide you with the most current pricing information and market insights.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Error State */}
-        {analysisMutation.isError && (
-          <Card className="mb-8 border-red-200 dark:border-red-800">
-            <CardContent className="py-8">
-              <div className="text-center space-y-4">
-                <AlertCircle className="w-12 h-12 mx-auto text-red-500" />
-                <p className="text-lg font-medium">Analysis Error</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Unable to fetch market data. Please try again or select a different location.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* How It Works */}
-        <Card>
-          <CardHeader>
-            <CardTitle>How Market Analysis Works</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Brain className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+          <Card className="mb-10 shadow-xl border-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm animate-fadeInUp">
+            <CardContent className="py-16">
+              <div className="text-center space-y-6">
+                <div className="relative inline-flex">
+                  <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center">
+                    <Loader2 className="w-10 h-10 animate-spin text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <div className="absolute inset-0 w-20 h-20 bg-emerald-200 dark:bg-emerald-800/30 rounded-full animate-ping opacity-30" />
                 </div>
-                <h3 className="font-semibold mb-2">AI-Powered Search</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <div className="space-y-2">
+                  <p className="text-xl font-semibold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                    Analyzing Market Data...
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
+                    Our AI is searching live web data to provide you with the most current pricing information and market insights.
+                  </p>
+                </div>
+                <div className="flex justify-center gap-2">
+                  <div className="w-2 h-2 bg-emerald-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-teal-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-cyan-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Error State with enhanced styling */}
+        {analysisMutation.isError && (
+          <Card className="mb-10 shadow-xl border-2 border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-900/10 animate-fadeInUp">
+            <CardContent className="py-12">
+              <div className="text-center space-y-6">
+                <div className="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto">
+                  <AlertCircle className="w-10 h-10 text-red-600 dark:text-red-400" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-xl font-semibold text-red-600 dark:text-red-400">
+                    Analysis Error
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                    Unable to fetch market data. Please try again or select a different location.
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => analysisMutation.reset()}
+                  variant="outline"
+                  className="border-red-300 hover:bg-red-100 dark:hover:bg-red-900/20"
+                >
+                  Try Again
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* How It Works with enhanced styling */}
+        <Card className="shadow-xl border-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm animate-fadeInUp animation-delay-400">
+          <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-t-lg">
+            <CardTitle className="text-2xl flex items-center gap-3">
+              <div className="p-2 bg-indigo-100 dark:bg-indigo-800/50 rounded-lg">
+                <Users className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              How Market Analysis Works
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-8">
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="group text-center hover:scale-105 transition-transform duration-300">
+                <div className="relative">
+                  <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-800/30 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-lg transition-shadow duration-300">
+                    <Brain className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-emerald-400 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    1
+                  </div>
+                </div>
+                <h3 className="font-semibold mb-2 text-lg">AI-Powered Search</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                   Perplexity AI searches live web data for current pricing information
                 </p>
               </div>
               
-              <div className="text-center">
-                <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <BarChart3 className="w-6 h-6 text-teal-600 dark:text-teal-400" />
+              <div className="group text-center hover:scale-105 transition-transform duration-300">
+                <div className="relative">
+                  <div className="w-16 h-16 bg-gradient-to-br from-teal-100 to-teal-200 dark:from-teal-900/30 dark:to-teal-800/30 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-lg transition-shadow duration-300">
+                    <BarChart3 className="w-8 h-8 text-teal-600 dark:text-teal-400" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-teal-400 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    2
+                  </div>
                 </div>
-                <h3 className="font-semibold mb-2">Data Analysis</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <h3 className="font-semibold mb-2 text-lg">Data Analysis</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                   Compares pricing across multiple sources and calculates averages
                 </p>
               </div>
               
-              <div className="text-center">
-                <div className="w-12 h-12 bg-cyan-100 dark:bg-cyan-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <TrendingUp className="w-6 h-6 text-cyan-600 dark:text-cyan-400" />
+              <div className="group text-center hover:scale-105 transition-transform duration-300">
+                <div className="relative">
+                  <div className="w-16 h-16 bg-gradient-to-br from-cyan-100 to-cyan-200 dark:from-cyan-900/30 dark:to-cyan-800/30 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-lg transition-shadow duration-300">
+                    <TrendingUp className="w-8 h-8 text-cyan-600 dark:text-cyan-400" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-cyan-400 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    3
+                  </div>
                 </div>
-                <h3 className="font-semibold mb-2">Market Insights</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <h3 className="font-semibold mb-2 text-lg">Market Insights</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                   Provides trends and comparisons to help you make informed decisions
                 </p>
               </div>
