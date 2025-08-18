@@ -1305,7 +1305,7 @@ export default function MySeniorValetHome() {
                       <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-teal-300 dark:scrollbar-thumb-teal-600 scrollbar-track-transparent">
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🏥</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Adult Day Programs (707)</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">CMS Hospitals (1,956)</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🏠</span>
@@ -1329,7 +1329,7 @@ export default function MySeniorValetHome() {
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🏥</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">CMS Hospitals (1,956)</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Adult Day Programs (707)</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🦴</span>
