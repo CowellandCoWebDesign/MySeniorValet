@@ -21,6 +21,7 @@ interface MarketAnalysis {
   comparedToNational: number; // percentage difference
   trend: 'increasing' | 'decreasing' | 'stable';
   insights: string[];
+  detailedSummary?: string;
   lastUpdated: string;
   sources: string[];
 }
@@ -45,10 +46,10 @@ export default function CompetitiveAnalysis() {
   };
 
   // Fetch market analysis
-  const analysisMutation = useMutation({
+  const analysisMutation = useMutation<MarketAnalysis, Error, { location: string; type: string }>({
     mutationFn: async (params: { location: string; type: string }) => {
       const response = await apiRequest('POST', '/api/competitive-analysis', params);
-      return response;
+      return response as MarketAnalysis;
     },
     onSuccess: (data) => {
       setSelectedLocation(data.location);
@@ -377,6 +378,69 @@ export default function CompetitiveAnalysis() {
               </div>
             </CardContent>
           </Card>
+        )}
+        
+        {/* Detailed Market Summary */}
+        {analysisMutation.isSuccess && analysisMutation.data && analysisMutation.data.detailedSummary && (
+            <Card className="mt-8 shadow-xl border-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm animate-fadeInUp animation-delay-200">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-t-lg">
+                <CardTitle className="text-2xl flex items-center gap-3">
+                  <div className="p-2 bg-purple-100 dark:bg-purple-800/50 rounded-lg">
+                    <BarChart3 className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  Detailed Market Analysis
+                </CardTitle>
+                <CardDescription className="text-gray-600 dark:text-gray-400">
+                  Comprehensive AI-powered market research from real-time web data
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="prose prose-sm dark:prose-invert max-w-none">
+                  <div className="bg-gradient-to-r from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
+                    <div className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                      {analysisMutation.data.detailedSummary.split('\n').map((paragraph, index) => {
+                        // Format bullet points
+                        if (paragraph.trim().startsWith('-') || paragraph.trim().startsWith('•')) {
+                          return (
+                            <div key={index} className="flex items-start gap-3 mb-3">
+                              <span className="text-purple-500 mt-1">▸</span>
+                              <span>{paragraph.replace(/^[-•]\s*/, '')}</span>
+                            </div>
+                          );
+                        }
+                        // Format headers (lines ending with colon)
+                        if (paragraph.trim().endsWith(':') && paragraph.trim().length < 50) {
+                          return (
+                            <h4 key={index} className="font-semibold text-purple-700 dark:text-purple-400 mt-4 mb-2">
+                              {paragraph}
+                            </h4>
+                          );
+                        }
+                        // Regular paragraphs
+                        if (paragraph.trim()) {
+                          return (
+                            <p key={index} className="mb-3">
+                              {paragraph}
+                            </p>
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <p className="text-xs text-amber-700 dark:text-amber-400 flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span>
+                        This analysis is based on current web data and may vary from actual costs. 
+                        Always verify pricing directly with communities for the most accurate information.
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
         )}
 
         {/* Loading State with enhanced styling */}

@@ -156,6 +156,7 @@ router.post('/api/competitive-analysis', async (req, res) => {
         'Private rooms command premium pricing over shared accommodations',
         'Location within the city/state affects pricing substantially'
       ],
+      detailedSummary: content, // Add the full Perplexity response
       lastUpdated: new Date().toISOString(),
       sources: sources.length > 0 ? sources.map(s => {
         try {
