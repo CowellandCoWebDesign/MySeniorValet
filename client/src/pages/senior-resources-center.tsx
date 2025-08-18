@@ -1064,6 +1064,175 @@ export default function SeniorResourcesCenter() {
         </div>
       </section>
 
+      {/* Comprehensive Government Resources & Support Center Section */}
+      <section className="px-4 py-16 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Senior Resources & Support Center
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+              Essential government programs, support services, and resources for seniors and caregivers
+            </p>
+            
+            {/* Resource Counter */}
+            <div className="mt-6 inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 px-6 py-3 rounded-full">
+              <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <span className="text-lg font-semibold text-blue-900 dark:text-blue-100">
+                32 Verified Government Resources
+              </span>
+            </div>
+          </div>
+
+          {/* Filter by Category */}
+          <div className="mb-8 flex flex-wrap justify-center gap-2">
+            <Badge 
+              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
+              variant="outline"
+            >
+              All Resources (32)
+            </Badge>
+            <Badge 
+              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
+              variant="outline"
+            >
+              Healthcare (4)
+            </Badge>
+            <Badge 
+              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
+              variant="outline"
+            >
+              Financial (3)
+            </Badge>
+            <Badge 
+              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
+              variant="outline"
+            >
+              Support (4)
+            </Badge>
+            <Badge 
+              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
+              variant="outline"
+            >
+              Nutrition (3)
+            </Badge>
+            <Badge 
+              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
+              variant="outline"
+            >
+              Transportation (2)
+            </Badge>
+            <Badge 
+              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
+              variant="outline"
+            >
+              Veterans (2)
+            </Badge>
+          </div>
+
+          {/* Resources Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {governmentResources.map((resource, index) => {
+              const Icon = resource.icon;
+              const colorMap: Record<string, string> = {
+                blue: 'from-blue-500 to-blue-600',
+                green: 'from-green-500 to-green-600',
+                red: 'from-red-500 to-red-600',
+                purple: 'from-purple-500 to-purple-600',
+                orange: 'from-orange-500 to-orange-600',
+                cyan: 'from-cyan-500 to-cyan-600',
+                emerald: 'from-emerald-500 to-emerald-600',
+                yellow: 'from-yellow-500 to-yellow-600',
+                rose: 'from-rose-500 to-rose-600'
+              };
+              
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.02 }}
+                >
+                  <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 hover:border-blue-400 group cursor-pointer"
+                    onClick={() => window.open(resource.website, '_blank')}
+                  >
+                    <CardContent className="p-4">
+                      {/* Category Badge */}
+                      <Badge className="mb-3 text-xs" variant="secondary">
+                        {resource.category}
+                      </Badge>
+                      
+                      {/* Icon and Title */}
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className={`p-2 rounded-lg bg-gradient-to-br ${colorMap[resource.color]} text-white flex-shrink-0`}>
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-gray-900 dark:text-gray-100 text-sm mb-1">
+                            {resource.name}
+                          </h3>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
+                            {resource.description}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Contact Information */}
+                      <div className="space-y-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <a 
+                          href={`tel:${resource.phone.replace(/[^0-9]/g, '')}`}
+                          className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Phone className="h-3 w-3" />
+                          <span className="font-medium">{resource.phone}</span>
+                        </a>
+                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          <Globe className="h-3 w-3" />
+                          <span className="truncate">Visit Website →</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Help Section */}
+          <div className="mt-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border-2 border-blue-200 dark:border-blue-700">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                Need Help Finding the Right Resource?
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto">
+                Our team is here to help you navigate these resources and find the support you need. 
+                Contact us for personalized assistance.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  size="lg"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={() => setLocation('/contact')}
+                >
+                  <Phone className="mr-2 h-5 w-5" />
+                  Contact Support Team
+                </Button>
+                <Button 
+                  size="lg"
+                  variant="outline"
+                  className="border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                  onClick={() => setLocation('/ai-matching-assistant')}
+                >
+                  <Brain className="mr-2 h-5 w-5" />
+                  Get AI Assistance
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Quick Tools Section */}
       <section className="px-4 py-12 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
         <div className="max-w-4xl mx-auto">
