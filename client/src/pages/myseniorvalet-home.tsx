@@ -556,10 +556,23 @@ export default function MySeniorValetHome() {
         
         <div className="relative hero-content min-h-screen pt-12 sm:pt-16 md:pt-20 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col">
           
-          {/* Spacer to push search content to middle of the page */}
-          <div style={{ height: '50vh' }}></div>
+          {/* Spacer to push content to middle of the page */}
+          <div style={{ height: '35vh' }}></div>
           
-          {/* Search Container - Positioned 3/4 down */}
+          {/* Hero Text Section */}
+          <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8 mb-8 text-center">
+            {/* Main Heading - Animates in first */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 animate-fade-in-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
+              Empowering Families to Find Transparent, Affordable Senior Living and Care
+            </h1>
+            
+            {/* Subheading - Animates in second with delay */}
+            <p className="text-lg sm:text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto animate-fade-in-up animation-delay-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+              Explore trusted senior living communities and connect with services that make life easier. Transparent pricing, real-time availability, and seamless service integration, all in one place.
+            </p>
+          </div>
+          
+          {/* Search Container */}
           <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
             
             {/* All Action Buttons - Compact Horizontal Layout */}
