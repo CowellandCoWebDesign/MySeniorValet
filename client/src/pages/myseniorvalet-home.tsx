@@ -810,7 +810,7 @@ export default function MySeniorValetHome() {
           
           {/* Care Spectrum Evolution Circle - full width */}
           <div className="flex items-center justify-center px-1 flex-1">
-            <div className="care-evolution-circle" style={{ width: '98vw', height: '88vh' }}>
+            <div className="care-evolution-circle">
               
               {/* Center Text */}
               <div className="care-evolution-center">

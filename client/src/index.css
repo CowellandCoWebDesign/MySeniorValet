@@ -754,26 +754,26 @@ body {
 /* Care Spectrum Evolution Circle */
 .care-evolution-circle {
   position: relative;
-  width: 98vw;
-  max-width: 1200px;
-  height: 85vh;
-  max-height: 800px;
+  width: 95vw;
+  max-width: 1400px;
+  height: 90vh;
+  max-height: 900px;
   margin: 0 auto;
 }
 
 @media (max-width: 768px) {
   .care-evolution-circle {
-    width: 85vw;
-    height: 60vh;
-    max-width: 400px;
-    max-height: 400px;
+    width: 90vw;
+    height: 75vh;
+    max-width: 500px;
+    max-height: 500px;
   }
 }
 
 .care-evolution-item {
   position: absolute;
-  width: 90px;
-  height: 90px;
+  width: 100px;
+  height: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -781,8 +781,8 @@ body {
   background: rgba(30, 41, 59, 0.85);
   backdrop-filter: blur(10px);
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 15px;
-  padding: 8px;
+  border-radius: 18px;
+  padding: 10px;
   text-align: center;
   transition: all 0.3s ease;
   cursor: pointer;
@@ -791,9 +791,9 @@ body {
 
 @media (max-width: 768px) {
   .care-evolution-item {
-    width: 70px;
-    height: 70px;
-    padding: 6px;
+    width: 80px;
+    height: 80px;
+    padding: 8px;
   }
   
   .care-evolution-item .text-2xl {
@@ -801,7 +801,7 @@ body {
   }
   
   .care-evolution-item .text-xs {
-    font-size: 0.6rem !important;
+    font-size: 0.65rem !important;
   }
 }
 
