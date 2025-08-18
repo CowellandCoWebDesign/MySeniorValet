@@ -797,23 +797,13 @@ export default function MySeniorValetHome() {
       <section 
         className="relative overflow-hidden min-h-[900px]"
         style={{
-          backgroundImage: `url('/lighthouse-night.png?v=1')`,
-          backgroundColor: '#1a2638',
-          backgroundSize: '120%',
-          backgroundPosition: 'left center',
-          backgroundRepeat: 'no-repeat',
-          filter: 'brightness(1.3)'
+          backgroundImage: `url('/lighthouse-sunset.png')`,
+          backgroundColor: '#f3b585',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
         }}
       >
-        
-        {/* 3D Rotating Lighthouse Beacon */}
-        <div className="lighthouse-beacon">
-          <div className="beacon-container">
-            <div className="beacon-light"></div>
-            <div className="beacon-light-secondary"></div>
-          </div>
-          <div className="beacon-source"></div>
-        </div>
         
         {/* Content Container */}
         <div className="relative z-10 flex flex-col justify-between min-h-[900px] px-4 py-8">
