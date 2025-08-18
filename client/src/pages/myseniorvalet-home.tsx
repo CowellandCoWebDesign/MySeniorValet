@@ -556,8 +556,8 @@ export default function MySeniorValetHome() {
         
         <div className="relative hero-content min-h-screen pt-12 sm:pt-16 md:pt-20 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col">
           
-          {/* Spacer to push search content to 3/4 down the page */}
-          <div style={{ height: '75vh' }}></div>
+          {/* Spacer to push search content to middle of the page */}
+          <div style={{ height: '50vh' }}></div>
           
           {/* Search Container - Positioned 3/4 down */}
           <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
