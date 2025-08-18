@@ -819,22 +819,18 @@ export default function MySeniorValetHome() {
         <div className="relative z-10 flex flex-col justify-between min-h-[900px] px-4 py-8">
           
           {/* Top Header */}
-          <div className="text-center pt-8">
-            <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-4 drop-shadow-2xl">
+          <div className="text-center pt-4">
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-2 drop-shadow-2xl">
               TODAY, EVERYTHING CHANGES
             </h2>
-            <p className="text-2xl md:text-3xl text-gray-200 font-bold drop-shadow-lg mb-2">
+            <p className="text-2xl md:text-3xl text-gray-200 font-bold drop-shadow-lg mb-4">
               The Darkness in Senior Living Ends Now
             </p>
-            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full text-sm font-bold shadow-lg animate-pulse">
-              <span className="mr-2">🚀</span>
-              <span>ACTIVE BETA - LIVE NOW</span>
-            </div>
           </div>
           
           {/* Care Spectrum Evolution Circle - full width */}
-          <div className="flex items-center justify-center px-2 my-8">
-            <div className="care-evolution-circle" style={{ width: '95vw', height: '80vh' }}>
+          <div className="flex items-center justify-center px-1 flex-1">
+            <div className="care-evolution-circle" style={{ width: '98vw', height: '88vh' }}>
               
               {/* Center Text */}
               <div className="care-evolution-center">
