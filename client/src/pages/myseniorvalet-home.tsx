@@ -853,7 +853,7 @@ export default function MySeniorValetHome() {
               {/* Bottom Center */}
               <div className="care-evolution-item" data-care="board" style={{ bottom: '2%', left: '50%', transform: 'translateX(-50%)' }}>
                 <Building className="w-8 h-8 mb-1 text-white" />
-                <span className="text-sm text-white font-bold">Board & Care</span>
+                <span className="text-sm text-white font-bold">Residential Care</span>
               </div>
               
               {/* Bottom Left */}
