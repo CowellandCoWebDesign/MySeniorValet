@@ -800,7 +800,7 @@ export default function MySeniorValetHome() {
       <section 
         className="relative overflow-hidden min-h-[900px]"
         style={{
-          backgroundImage: `url('/lighthouse-sunset.png')`,
+          backgroundImage: `url('${lighthouseBackground}')`,
           backgroundColor: '#f3b585',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -852,13 +852,13 @@ export default function MySeniorValetHome() {
               </div>
               
               {/* Bottom Right */}
-              <div className="care-evolution-item" style={{ bottom: '15%', right: '15%' }}>
+              <div className="care-evolution-item" style={{ bottom: '20%', right: '10%' }}>
                 <Flag className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">55+</span>
               </div>
               
               {/* Bottom Right-Center */}
-              <div className="care-evolution-item" style={{ bottom: '0%', right: '35%' }}>
+              <div className="care-evolution-item" style={{ bottom: '5%', right: '28%' }}>
                 <Home className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Independent</span>
               </div>
@@ -870,13 +870,13 @@ export default function MySeniorValetHome() {
               </div>
               
               {/* Bottom Left-Center */}
-              <div className="care-evolution-item" style={{ bottom: '0%', left: '35%' }}>
+              <div className="care-evolution-item" style={{ bottom: '5%', left: '28%' }}>
                 <HeartHandshake className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Assisted</span>
               </div>
               
               {/* Bottom Left */}
-              <div className="care-evolution-item" style={{ bottom: '15%', left: '15%' }}>
+              <div className="care-evolution-item" style={{ bottom: '20%', left: '10%' }}>
                 <Brain className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Memory</span>
               </div>
