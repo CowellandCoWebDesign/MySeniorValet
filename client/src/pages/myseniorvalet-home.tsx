@@ -851,25 +851,25 @@ export default function MySeniorValetHome() {
               </div>
               
               {/* Top Right */}
-              <div className="care-evolution-item" style={{ top: '10%', right: '20%' }}>
+              <div className="care-evolution-item" style={{ top: '8%', right: '25%' }}>
                 <span className="text-3xl mb-1">🎖️</span>
                 <span className="text-sm text-white font-bold">VA</span>
               </div>
               
               {/* Right */}
-              <div className="care-evolution-item" style={{ top: '35%', right: '0%' }}>
+              <div className="care-evolution-item" style={{ top: '38%', right: '2%' }}>
                 <span className="text-3xl mb-1">🚐</span>
                 <span className="text-sm text-white font-bold">Mobile</span>
               </div>
               
               {/* Bottom Right */}
-              <div className="care-evolution-item" style={{ bottom: '25%', right: '5%' }}>
+              <div className="care-evolution-item" style={{ bottom: '30%', right: '8%' }}>
                 <span className="text-3xl mb-1">⛳</span>
                 <span className="text-sm text-white font-bold">55+</span>
               </div>
               
-              {/* Bottom */}
-              <div className="care-evolution-item" style={{ bottom: '5%', right: '25%' }}>
+              {/* Bottom Right-Center */}
+              <div className="care-evolution-item" style={{ bottom: '5%', right: '32%' }}>
                 <span className="text-3xl mb-1">🏠</span>
                 <span className="text-sm text-white font-bold">Independent</span>
               </div>
@@ -880,26 +880,26 @@ export default function MySeniorValetHome() {
                 <span className="text-sm text-white font-bold">Board & Care</span>
               </div>
               
-              {/* Bottom Left */}
-              <div className="care-evolution-item" style={{ bottom: '5%', left: '25%' }}>
+              {/* Bottom Left-Center */}
+              <div className="care-evolution-item" style={{ bottom: '5%', left: '32%' }}>
                 <span className="text-3xl mb-1">🤝</span>
                 <span className="text-sm text-white font-bold">Assisted</span>
               </div>
               
-              {/* Left Bottom */}
-              <div className="care-evolution-item" style={{ bottom: '25%', left: '5%' }}>
+              {/* Bottom Left */}
+              <div className="care-evolution-item" style={{ bottom: '30%', left: '8%' }}>
                 <span className="text-3xl mb-1">🧠</span>
                 <span className="text-sm text-white font-bold">Memory</span>
               </div>
               
               {/* Left */}
-              <div className="care-evolution-item" style={{ top: '35%', left: '0%' }}>
+              <div className="care-evolution-item" style={{ top: '38%', left: '2%' }}>
                 <span className="text-3xl mb-1">♾️</span>
                 <span className="text-sm text-white font-bold">CCRC</span>
               </div>
               
               {/* Top Left */}
-              <div className="care-evolution-item" style={{ top: '10%', left: '20%' }}>
+              <div className="care-evolution-item" style={{ top: '8%', left: '25%' }}>
                 <span className="text-3xl mb-1">🏥</span>
                 <span className="text-sm text-white font-bold">Skilled</span>
               </div>
