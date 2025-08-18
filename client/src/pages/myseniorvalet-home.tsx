@@ -783,12 +783,6 @@ export default function MySeniorValetHome() {
                   <p className="text-white/90 font-semibold">
                     Thank you for joining this movement. Together, we're bringing transparency to an industry that has operated in darkness for too long.
                   </p>
-                  
-                  <div className="pt-2">
-                    <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-sm font-bold animate-pulse">
-                      NOW LIVE: USA • MEXICO • CANADA
-                    </div>
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -827,81 +821,68 @@ export default function MySeniorValetHome() {
               
               {/* Care Items positioned in circle - properly distributed */}
               {/* Top */}
-              <div className="care-evolution-item" style={{ top: '0%', left: '50%', transform: 'translateX(-50%)' }}>
+              <div className="care-evolution-item" data-care="hud" style={{ top: '0%', left: '50%', transform: 'translateX(-50%)' }}>
                 <Building2 className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">HUD</span>
               </div>
               
               {/* Top Right */}
-              <div className="care-evolution-item" style={{ top: '15%', right: '15%' }}>
+              <div className="care-evolution-item" data-care="va" style={{ top: '15%', right: '15%' }}>
                 <Shield className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">VA</span>
               </div>
               
               {/* Right */}
-              <div className="care-evolution-item" style={{ top: '45%', right: '0%' }}>
+              <div className="care-evolution-item" data-care="mobile" style={{ top: '45%', right: '0%' }}>
                 <Truck className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Mobile</span>
               </div>
               
               {/* Bottom Right */}
-              <div className="care-evolution-item" style={{ bottom: '20%', right: '10%' }}>
+              <div className="care-evolution-item" data-care="55plus" style={{ bottom: '20%', right: '10%' }}>
                 <Flag className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">55+</span>
               </div>
               
               {/* Bottom Right-Center */}
-              <div className="care-evolution-item" style={{ bottom: '5%', right: '28%' }}>
+              <div className="care-evolution-item" data-care="independent" style={{ bottom: '5%', right: '28%' }}>
                 <Home className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Independent</span>
               </div>
               
               {/* Bottom Center */}
-              <div className="care-evolution-item" style={{ bottom: '0%', left: '50%', transform: 'translateX(-50%)' }}>
+              <div className="care-evolution-item" data-care="board" style={{ bottom: '0%', left: '50%', transform: 'translateX(-50%)' }}>
                 <Building className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Board & Care</span>
               </div>
               
               {/* Bottom Left-Center */}
-              <div className="care-evolution-item" style={{ bottom: '5%', left: '28%' }}>
+              <div className="care-evolution-item" data-care="assisted" style={{ bottom: '5%', left: '28%' }}>
                 <HeartHandshake className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Assisted</span>
               </div>
               
               {/* Bottom Left */}
-              <div className="care-evolution-item" style={{ bottom: '20%', left: '10%' }}>
+              <div className="care-evolution-item" data-care="memory" style={{ bottom: '20%', left: '10%' }}>
                 <Brain className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Memory</span>
               </div>
               
               {/* Left */}
-              <div className="care-evolution-item" style={{ top: '45%', left: '0%' }}>
+              <div className="care-evolution-item" data-care="ccrc" style={{ top: '45%', left: '0%' }}>
                 <RefreshCw className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">CCRC</span>
               </div>
               
               {/* Top Left */}
-              <div className="care-evolution-item" style={{ top: '15%', left: '15%' }}>
+              <div className="care-evolution-item" data-care="skilled" style={{ top: '15%', left: '15%' }}>
                 <Stethoscope className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Skilled</span>
               </div>
             </div>
           </div>
           
-          {/* Bottom Text */}
-          <div className="text-center pb-8">
-            <p className="text-xl md:text-2xl text-white mb-4">
-              Finally understand every option, every transition, every cost
-            </p>
-            <p className="text-lg text-gray-300 mb-6">
-              Complete care continuum from independent to full medical support
-            </p>
-            <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-base font-bold shadow-2xl animate-pulse">
-              <Sparkles className="w-5 h-5 mr-2" />
-              NOW LIVE ACROSS USA • MEXICO • CANADA
-              <Sparkles className="w-5 h-5 ml-2" />
-            </div>
-          </div>
+
         </div>
       </section>
 
