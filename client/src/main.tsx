@@ -4,8 +4,10 @@ import "./index.css";
 
 // Bypass HMR to prevent React rendering issues
 // @ts-ignore
-if (typeof import.meta.hot !== 'undefined') {
-  import.meta.hot.decline();
+if (import.meta.hot) {
+  import.meta.hot.accept(() => {
+    // Do nothing - prevent HMR from causing React issues
+  });
 }
 
 const root = document.getElementById("root");
