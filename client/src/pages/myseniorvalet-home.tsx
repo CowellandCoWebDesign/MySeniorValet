@@ -64,6 +64,30 @@ export default function MySeniorValetHome() {
   const [protectionSearchQuery, setProtectionSearchQuery] = useState('');
   const [showRemovalModal, setShowRemovalModal] = useState(false);
   const { preferences, togglePreference } = useAccessibilityPreferences();
+  
+  // 3D Carousel state
+  const [currentRotation, setCurrentRotation] = useState(0);
+  const [selectedCareType, setSelectedCareType] = useState<string | null>(null);
+  
+  const careTypes = [
+    { id: 'hud', name: 'HUD', icon: Building2, color: 'bg-green-500', description: 'Government-subsidized housing for low-income seniors, offering rent based on 30% of income with verified pricing.' },
+    { id: 'va', name: 'VA', icon: Shield, color: 'bg-purple-600', description: 'Veterans Affairs communities providing specialized care and benefits for military veterans and their spouses.' },
+    { id: 'mobile', name: 'Mobile', icon: Truck, color: 'bg-orange-500', description: 'Mobile home and manufactured housing communities designed for active seniors seeking affordable ownership options.' },
+    { id: '55plus', name: '55+', icon: Flag, color: 'bg-pink-600', description: 'Age-restricted active adult communities for those 55 and older, focusing on lifestyle and social activities.' },
+    { id: 'independent', name: 'Independent', icon: Home, color: 'bg-blue-600', description: 'Senior apartments and communities for those who can live independently with minimal assistance and optional services.' },
+    { id: 'residential', name: 'Residential Care', icon: Building, color: 'bg-purple-700', description: 'Small, privately-run homes with 6-10 beds offering personalized care in a family-like residential setting.' },
+    { id: 'assisted', name: 'Assisted', icon: HeartHandshake, color: 'bg-cyan-600', description: 'Communities providing help with daily activities like bathing, dressing, and medication management.' },
+    { id: 'memory', name: 'Memory', icon: Brain, color: 'bg-red-600', description: 'Specialized secure environments for those with Alzheimer\'s, dementia, and other memory-related conditions.' },
+    { id: 'ccrc', name: 'CCRC', icon: RefreshCw, color: 'bg-indigo-600', description: 'Continuing Care Retirement Communities offering all levels of care from independent to skilled nursing in one location.' },
+    { id: 'skilled', name: 'Skilled', icon: Stethoscope, color: 'bg-teal-600', description: '24-hour medical care and rehabilitation services provided by licensed nurses and healthcare professionals.' }
+  ];
+  
+  const handleCareTypeClick = (index: number) => {
+    const anglePerItem = 360 / careTypes.length;
+    const targetRotation = -index * anglePerItem;
+    setCurrentRotation(targetRotation);
+    setSelectedCareType(careTypes[index].id);
+  };
 
 
   const [showIntegrationSpotlight, setShowIntegrationSpotlight] = useState(true);
@@ -808,76 +832,51 @@ export default function MySeniorValetHome() {
             </p>
           </div>
           
-          {/* Care Spectrum Evolution Circle - full width */}
+          {/* 3D Care Spectrum Carousel */}
           <div className="flex items-center justify-center px-1 flex-1">
             <div className="care-evolution-circle">
               
-              {/* Center Text */}
-              <div className="care-evolution-center">
-                <p className="text-white font-bold text-2xl mb-1" style={{ textShadow: '0 0 20px rgba(0,0,0,0.9)' }}>10-Level</p>
-                <p className="text-white font-bold text-3xl" style={{ textShadow: '0 0 20px rgba(0,0,0,0.9)' }}>Care</p>
-                <p className="text-white font-bold text-2xl" style={{ textShadow: '0 0 20px rgba(0,0,0,0.9)' }}>Spectrum</p>
+              {/* 3D Carousel Container */}
+              <div 
+                className="care-carousel-container"
+                style={{ transform: `rotateY(${currentRotation}deg)` }}
+              >
+                {careTypes.map((careType, index) => {
+                  const Icon = careType.icon;
+                  const anglePerItem = 360 / careTypes.length;
+                  const angle = index * anglePerItem;
+                  const radius = 300;
+                  const zPos = Math.cos((angle * Math.PI) / 180) * radius;
+                  const xPos = Math.sin((angle * Math.PI) / 180) * radius;
+                  
+                  return (
+                    <div
+                      key={careType.id}
+                      className={`care-carousel-item ${careType.color} rounded-2xl flex flex-col items-center justify-center p-4 shadow-2xl ${selectedCareType === careType.id ? 'active' : ''}`}
+                      style={{
+                        transform: `rotateY(${-angle}deg) translateZ(${radius}px)`,
+                      }}
+                      onClick={() => handleCareTypeClick(index)}
+                    >
+                      <Icon className="w-12 h-12 text-white mb-2" />
+                      <span className="text-white font-bold text-lg">{careType.name}</span>
+                    </div>
+                  );
+                })}
               </div>
               
-              {/* Care Items positioned in flattened ellipse shape */}
-              {/* Top Center */}
-              <div className="care-evolution-item" data-care="hud" style={{ top: '2%', left: '50%', transform: 'translateX(-50%)' }}>
-                <Building2 className="w-8 h-8 mb-1 text-white" />
-                <span className="text-sm text-white font-bold">HUD</span>
-              </div>
-              
-              {/* Top Right */}
-              <div className="care-evolution-item" data-care="va" style={{ top: '15%', right: '8%' }}>
-                <Shield className="w-8 h-8 mb-1 text-white" />
-                <span className="text-sm text-white font-bold">VA</span>
-              </div>
-              
-              {/* Right Upper */}
-              <div className="care-evolution-item" data-care="mobile" style={{ top: '38%', right: '1%' }}>
-                <Truck className="w-8 h-8 mb-1 text-white" />
-                <span className="text-sm text-white font-bold">Mobile</span>
-              </div>
-              
-              {/* Right Lower */}
-              <div className="care-evolution-item" data-care="55plus" style={{ bottom: '38%', right: '1%' }}>
-                <Flag className="w-8 h-8 mb-1 text-white" />
-                <span className="text-sm text-white font-bold">55+</span>
-              </div>
-              
-              {/* Bottom Right */}
-              <div className="care-evolution-item" data-care="independent" style={{ bottom: '15%', right: '8%' }}>
-                <Home className="w-8 h-8 mb-1 text-white" />
-                <span className="text-sm text-white font-bold">Independent</span>
-              </div>
-              
-              {/* Bottom Center */}
-              <div className="care-evolution-item" data-care="board" style={{ bottom: '2%', left: '50%', transform: 'translateX(-50%)' }}>
-                <Building className="w-8 h-8 mb-1 text-white" />
-                <span className="text-sm text-white font-bold">Residential Care</span>
-              </div>
-              
-              {/* Bottom Left */}
-              <div className="care-evolution-item" data-care="assisted" style={{ bottom: '15%', left: '8%' }}>
-                <HeartHandshake className="w-8 h-8 mb-1 text-white" />
-                <span className="text-sm text-white font-bold">Assisted</span>
-              </div>
-              
-              {/* Left Lower */}
-              <div className="care-evolution-item" data-care="memory" style={{ bottom: '38%', left: '1%' }}>
-                <Brain className="w-8 h-8 mb-1 text-white" />
-                <span className="text-sm text-white font-bold">Memory</span>
-              </div>
-              
-              {/* Left Upper */}
-              <div className="care-evolution-item" data-care="ccrc" style={{ top: '38%', left: '1%' }}>
-                <RefreshCw className="w-8 h-8 mb-1 text-white" />
-                <span className="text-sm text-white font-bold">CCRC</span>
-              </div>
-              
-              {/* Top Left */}
-              <div className="care-evolution-item" data-care="skilled" style={{ top: '15%', left: '8%' }}>
-                <Stethoscope className="w-8 h-8 mb-1 text-white" />
-                <span className="text-sm text-white font-bold">Skilled</span>
+              {/* Information Panel */}
+              <div className={`care-info-panel ${selectedCareType ? 'visible' : ''}`}>
+                {selectedCareType && (
+                  <>
+                    <h3 className="care-info-title">
+                      {careTypes.find(ct => ct.id === selectedCareType)?.name}
+                    </h3>
+                    <p className="care-info-description">
+                      {careTypes.find(ct => ct.id === selectedCareType)?.description}
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           </div>
