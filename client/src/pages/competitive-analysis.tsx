@@ -239,6 +239,32 @@ export default function CompetitiveAnalysis() {
           </CardContent>
         </Card>
 
+        {/* Prompt to search if no data */}
+        {!analysisMutation.data && !analysisMutation.isPending && (
+          <Card className="mb-10 shadow-xl border-2 border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 animate-fadeInUp">
+            <CardContent className="py-12">
+              <div className="text-center space-y-4">
+                <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto">
+                  <Search className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+                    Start Your Market Analysis
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                    Enter a location above or select from popular cities to get real-time senior living pricing data
+                  </p>
+                </div>
+                <div className="pt-4">
+                  <p className="text-xs text-gray-500 dark:text-gray-500">
+                    Try searching for "Phoenix, AZ" or click a popular location button above
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Analysis Results with enhanced styling */}
         {analysisMutation.isSuccess && analysisMutation.data && (
           <Card className="mb-10 shadow-2xl border-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm animate-fadeInUp animation-delay-200 overflow-hidden">
