@@ -1106,6 +1106,50 @@ export default function SeniorHealthcareDirectory() {
                 </div>
               </div>
             </div>
+            
+            {/* Companion Care Slider */}
+            <section className="px-4 py-4 relative overflow-hidden">
+              <div className="absolute inset-0 z-0">
+                <div className="w-full h-full bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-100/30 via-yellow-100/20 to-orange-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Compassionate companionship services • Social engagement & support</p>
+                
+                <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  {Array.from({ length: 10 }, (_, i) => ({
+                    id: `companion-${i}`,
+                    name: `Companion Care Provider ${i + 1}`,
+                    serviceCategory: 'Companion Care',
+                    description: 'Social support, errands, and companionship',
+                    rating: 4.5 + (Math.random() * 0.5),
+                    reviewCount: Math.floor(50 + Math.random() * 100),
+                    verified: true,
+                    location: ['New York, NY', 'Los Angeles, CA', 'Chicago, IL'][i % 3],
+                    availability: '24/7',
+                    medicare: i % 2 === 0,
+                    medicaid: i % 3 === 0
+                  })).map((service: any, index: number) => (
+                    <CareServiceCard
+                      key={service.id}
+                      service={service}
+                      index={index}
+                      borderColor="border-amber-200 dark:border-gray-700"
+                      hoverBorderColor="hover:border-amber-300 dark:hover:border-gray-600"
+                      iconBgColor="bg-gradient-to-br from-amber-500 to-amber-600"
+                      iconRingColor="ring-amber-100 dark:ring-amber-900"
+                      icon={<Users className="w-8 h-8 text-white" />}
+                      categoryBadgeColor="bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-900 dark:to-amber-800"
+                      categoryBadgeBorder="border-amber-300 dark:border-amber-600"
+                      categoryLabel="Companion Care"
+                      buttonColor="bg-gradient-to-r from-amber-500 to-amber-600"
+                      buttonHoverColor="hover:from-amber-600 hover:to-amber-700"
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
           </div>
 
           {/* 8. Medical Equipment */}
@@ -1131,6 +1175,50 @@ export default function SeniorHealthcareDirectory() {
                 </div>
               </div>
             </div>
+            
+            {/* Medical Equipment Slider */}
+            <section className="px-4 py-4 relative overflow-hidden">
+              <div className="absolute inset-0 z-0">
+                <div className="w-full h-full bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-100/30 via-red-100/20 to-yellow-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Durable medical equipment (DME) • Rental & purchase options</p>
+                
+                <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  {Array.from({ length: 10 }, (_, i) => ({
+                    id: `equipment-${i}`,
+                    name: `Medical Supply Co. ${i + 1}`,
+                    serviceCategory: 'Medical Equipment',
+                    description: 'Wheelchairs, walkers, oxygen supplies, hospital beds',
+                    rating: 4.3 + (Math.random() * 0.7),
+                    reviewCount: Math.floor(80 + Math.random() * 150),
+                    verified: true,
+                    location: ['Dallas, TX', 'Phoenix, AZ', 'Miami, FL'][i % 3],
+                    availability: 'Same-day delivery',
+                    medicare: true,
+                    medicaid: i % 2 === 0
+                  })).map((service: any, index: number) => (
+                    <CareServiceCard
+                      key={service.id}
+                      service={service}
+                      index={index}
+                      borderColor="border-orange-200 dark:border-gray-700"
+                      hoverBorderColor="hover:border-orange-300 dark:hover:border-gray-600"
+                      iconBgColor="bg-gradient-to-br from-orange-500 to-orange-600"
+                      iconRingColor="ring-orange-100 dark:ring-orange-900"
+                      icon={<Package className="w-8 h-8 text-white" />}
+                      categoryBadgeColor="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900 dark:to-orange-800"
+                      categoryBadgeBorder="border-orange-300 dark:border-orange-600"
+                      categoryLabel="Medical Equipment"
+                      buttonColor="bg-gradient-to-r from-orange-500 to-orange-600"
+                      buttonHoverColor="hover:from-orange-600 hover:to-orange-700"
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
           </div>
 
           {/* 9. Nursing Services */}
@@ -1156,54 +1244,857 @@ export default function SeniorHealthcareDirectory() {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Additional service sections - dynamically rendered */}
-          {[
-            { name: "Respite Care", count: 125, icon: BedDouble, color: "indigo", description: "Short-term care for caregiver relief" },
-            { name: "Palliative Care", count: 95, icon: Palette, color: "purple", description: "Specialized medical care for serious illness" },
-            { name: "Skilled Nursing", count: 310, icon: Shield, color: "blue", description: "24/7 skilled nursing facilities", badge: "24/7 CARE" },
-            { name: "Transport Services", count: 145, icon: Car, color: "green", description: "Non-emergency medical transportation" },
-            { name: "Nutrition Services", count: 85, icon: Apple, color: "orange", description: "Meal delivery and nutrition counseling" },
-            { name: "Dental Services", count: 210, icon: Smile, color: "cyan", description: "Senior-focused dental care" },
-            { name: "Vision Services", count: 175, icon: Eye, color: "violet", description: "Eye exams and vision care" },
-            { name: "Hearing Services", count: 155, icon: Ear, color: "pink", description: "Hearing tests and hearing aids" },
-            { name: "Podiatry Services", count: 120, icon: Footprints, color: "emerald", description: "Specialized foot and ankle care" },
-            { name: "Pharmacy Services", count: 290, icon: Pill, color: "red", description: "Medication management and delivery" },
-            { name: "Home Health", count: 385, icon: Home, color: "teal", description: "Medicare-certified home health agencies", badge: "MEDICARE" },
-            { name: "Diagnostic Services", count: 195, icon: TestTube, color: "gray", description: "Lab tests and diagnostic imaging" }
-          ].map((service) => {
-            const Icon = service.icon;
-            return (
-              <div key={service.name} className="mb-8">
-                <div className={`bg-${service.color}-50 dark:bg-${service.color}-900/20 border-${service.color}-200 dark:border-${service.color}-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer`}>
-                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className={`w-16 h-16 bg-gradient-to-br from-${service.color}-500 to-${service.color}-600 rounded-2xl flex items-center justify-center shadow-lg`}>
-                        <Icon className="w-8 h-8 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">{service.name}</h4>
-                        <p className={`text-sm text-${service.color}-700 dark:text-${service.color}-300 mt-1`}>{service.description}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-center">
-                        <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{service.count}</div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
-                      </div>
-                      {service.badge && (
-                        <Badge className={`bg-${service.color}-100 text-${service.color}-800 dark:bg-${service.color}-900 dark:text-${service.color}-200`}>
-                          {service.badge}
-                        </Badge>
-                      )}
-                      <ChevronRight className={`w-6 h-6 text-${service.color}-700 dark:text-${service.color}-300`} />
-                    </div>
-                  </div>
+            
+            {/* Nursing Services Slider */}
+            <section className="px-4 py-4 relative overflow-hidden">
+              <div className="absolute inset-0 z-0">
+                <div className="w-full h-full bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-100/30 via-indigo-100/20 to-purple-100/30 dark:from-gray-700/30 dark:via-gray-800/20 dark:to-gray-700/30"></div>
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Licensed RN & LPN services • Medicare certified agencies</p>
+                
+                <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  {Array.from({ length: 12 }, (_, i) => ({
+                    id: `nursing-${i}`,
+                    name: `Nursing Agency ${i + 1}`,
+                    serviceCategory: 'Nursing Services',
+                    description: 'Skilled nursing, wound care, medication management',
+                    rating: 4.6 + (Math.random() * 0.4),
+                    reviewCount: Math.floor(100 + Math.random() * 200),
+                    verified: true,
+                    location: ['Boston, MA', 'Seattle, WA', 'Denver, CO'][i % 3],
+                    availability: '24/7 On-call',
+                    medicare: true,
+                    medicaid: true
+                  })).map((service: any, index: number) => (
+                    <CareServiceCard
+                      key={service.id}
+                      service={service}
+                      index={index}
+                      borderColor="border-blue-200 dark:border-gray-700"
+                      hoverBorderColor="hover:border-blue-300 dark:hover:border-gray-600"
+                      iconBgColor="bg-gradient-to-br from-blue-600 to-indigo-600"
+                      iconRingColor="ring-blue-100 dark:ring-blue-900"
+                      icon={<Stethoscope className="w-8 h-8 text-white" />}
+                      categoryBadgeColor="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800"
+                      categoryBadgeBorder="border-blue-300 dark:border-blue-600"
+                      categoryLabel="Nursing Services"
+                      buttonColor="bg-gradient-to-r from-blue-600 to-indigo-600"
+                      buttonHoverColor="hover:from-blue-700 hover:to-indigo-700"
+                    />
+                  ))}
                 </div>
               </div>
-            );
-          })}
+            </section>
+          </div>
+
+          {/* 10. Respite Care */}
+          <div className="mb-8">
+            <div className="bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <BedDouble className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Respite Care</h4>
+                    <p className="text-sm text-indigo-700 dark:text-indigo-300 mt-1">Short-term care for caregiver relief</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">125</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-indigo-700 dark:text-indigo-300" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Respite Care Slider */}
+            <section className="px-4 py-4 relative overflow-hidden">
+              <div className="absolute inset-0 z-0">
+                <div className="w-full h-full bg-gradient-to-br from-indigo-50 via-purple-50 to-blue-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Temporary relief for family caregivers • Day and overnight options</p>
+                
+                <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  {Array.from({ length: 8 }, (_, i) => ({
+                    id: `respite-${i}`,
+                    name: `Respite Care Center ${i + 1}`,
+                    serviceCategory: 'Respite Care',
+                    description: 'Short-term stays, caregiver relief programs',
+                    rating: 4.4 + (Math.random() * 0.6),
+                    reviewCount: Math.floor(60 + Math.random() * 120),
+                    verified: true,
+                    location: ['Atlanta, GA', 'Houston, TX', 'Philadelphia, PA'][i % 3],
+                    availability: 'Flexible scheduling',
+                    medicare: i % 2 === 0,
+                    medicaid: true
+                  })).map((service: any, index: number) => (
+                    <CareServiceCard
+                      key={service.id}
+                      service={service}
+                      index={index}
+                      borderColor="border-indigo-200 dark:border-gray-700"
+                      hoverBorderColor="hover:border-indigo-300 dark:hover:border-gray-600"
+                      iconBgColor="bg-gradient-to-br from-indigo-500 to-indigo-600"
+                      iconRingColor="ring-indigo-100 dark:ring-indigo-900"
+                      icon={<BedDouble className="w-8 h-8 text-white" />}
+                      categoryBadgeColor="bg-gradient-to-r from-indigo-50 to-indigo-100 dark:from-indigo-900 dark:to-indigo-800"
+                      categoryBadgeBorder="border-indigo-300 dark:border-indigo-600"
+                      categoryLabel="Respite Care"
+                      buttonColor="bg-gradient-to-r from-indigo-500 to-indigo-600"
+                      buttonHoverColor="hover:from-indigo-600 hover:to-indigo-700"
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* 11. Palliative Care */}
+          <div className="mb-8">
+            <div className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Palette className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Palliative Care</h4>
+                    <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">Specialized medical care for serious illness</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">95</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-purple-700 dark:text-purple-300" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Palliative Care Slider */}
+            <section className="px-4 py-4 relative overflow-hidden">
+              <div className="absolute inset-0 z-0">
+                <div className="w-full h-full bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Comfort care for serious conditions • Pain and symptom management</p>
+                
+                <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  {Array.from({ length: 7 }, (_, i) => ({
+                    id: `palliative-${i}`,
+                    name: `Palliative Care Team ${i + 1}`,
+                    serviceCategory: 'Palliative Care',
+                    description: 'Symptom management, quality of life support',
+                    rating: 4.7 + (Math.random() * 0.3),
+                    reviewCount: Math.floor(40 + Math.random() * 80),
+                    verified: true,
+                    location: ['San Francisco, CA', 'Portland, OR', 'Austin, TX'][i % 3],
+                    availability: 'Consultation available',
+                    medicare: true,
+                    medicaid: true
+                  })).map((service: any, index: number) => (
+                    <CareServiceCard
+                      key={service.id}
+                      service={service}
+                      index={index}
+                      borderColor="border-purple-200 dark:border-gray-700"
+                      hoverBorderColor="hover:border-purple-300 dark:hover:border-gray-600"
+                      iconBgColor="bg-gradient-to-br from-purple-500 to-purple-600"
+                      iconRingColor="ring-purple-100 dark:ring-purple-900"
+                      icon={<Palette className="w-8 h-8 text-white" />}
+                      categoryBadgeColor="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800"
+                      categoryBadgeBorder="border-purple-300 dark:border-purple-600"
+                      categoryLabel="Palliative Care"
+                      buttonColor="bg-gradient-to-r from-purple-500 to-purple-600"
+                      buttonHoverColor="hover:from-purple-600 hover:to-purple-700"
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* 12. Skilled Nursing */}
+          <div className="mb-8">
+            <div className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Shield className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Skilled Nursing</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">24/7 skilled nursing facilities</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">310</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Facilities</div>
+                  </div>
+                  <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">24/7 CARE</Badge>
+                  <ChevronRight className="w-6 h-6 text-blue-700 dark:text-blue-300" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Skilled Nursing Slider */}
+            <section className="px-4 py-4 relative overflow-hidden">
+              <div className="absolute inset-0 z-0">
+                <div className="w-full h-full bg-gradient-to-br from-blue-50 via-cyan-50 to-sky-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">24-hour skilled nursing facilities • Post-acute care</p>
+                
+                <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  {Array.from({ length: 12 }, (_, i) => ({
+                    id: `skilled-${i}`,
+                    name: `Skilled Nursing Facility ${i + 1}`,
+                    serviceCategory: 'Skilled Nursing',
+                    description: '24/7 nursing care, rehabilitation services',
+                    rating: 4.2 + (Math.random() * 0.8),
+                    reviewCount: Math.floor(100 + Math.random() * 250),
+                    verified: true,
+                    location: ['Orlando, FL', 'Nashville, TN', 'Charlotte, NC'][i % 3],
+                    availability: '24/7',
+                    medicare: true,
+                    medicaid: true
+                  })).map((service: any, index: number) => (
+                    <CareServiceCard
+                      key={service.id}
+                      service={service}
+                      index={index}
+                      borderColor="border-blue-200 dark:border-gray-700"
+                      hoverBorderColor="hover:border-blue-300 dark:hover:border-gray-600"
+                      iconBgColor="bg-gradient-to-br from-blue-500 to-blue-600"
+                      iconRingColor="ring-blue-100 dark:ring-blue-900"
+                      icon={<Shield className="w-8 h-8 text-white" />}
+                      categoryBadgeColor="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800"
+                      categoryBadgeBorder="border-blue-300 dark:border-blue-600"
+                      categoryLabel="Skilled Nursing"
+                      buttonColor="bg-gradient-to-r from-blue-500 to-blue-600"
+                      buttonHoverColor="hover:from-blue-600 hover:to-blue-700"
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* 13. Transport Services */}
+          <div className="mb-8">
+            <div className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Car className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Transport Services</h4>
+                    <p className="text-sm text-green-700 dark:text-green-300 mt-1">Non-emergency medical transportation</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">145</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-green-700 dark:text-green-300" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Transport Services Slider */}
+            <section className="px-4 py-4 relative overflow-hidden">
+              <div className="absolute inset-0 z-0">
+                <div className="w-full h-full bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Medical appointments • Wheelchair accessible vehicles</p>
+                
+                <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  {Array.from({ length: 10 }, (_, i) => ({
+                    id: `transport-${i}`,
+                    name: `Medical Transport Service ${i + 1}`,
+                    serviceCategory: 'Transport Services',
+                    description: 'Door-to-door medical transportation',
+                    rating: 4.3 + (Math.random() * 0.7),
+                    reviewCount: Math.floor(70 + Math.random() * 130),
+                    verified: true,
+                    location: ['Tampa, FL', 'San Diego, CA', 'Detroit, MI'][i % 3],
+                    availability: 'Schedule in advance',
+                    medicare: i % 3 === 0,
+                    medicaid: true
+                  })).map((service: any, index: number) => (
+                    <CareServiceCard
+                      key={service.id}
+                      service={service}
+                      index={index}
+                      borderColor="border-green-200 dark:border-gray-700"
+                      hoverBorderColor="hover:border-green-300 dark:hover:border-gray-600"
+                      iconBgColor="bg-gradient-to-br from-green-500 to-green-600"
+                      iconRingColor="ring-green-100 dark:ring-green-900"
+                      icon={<Car className="w-8 h-8 text-white" />}
+                      categoryBadgeColor="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900 dark:to-green-800"
+                      categoryBadgeBorder="border-green-300 dark:border-green-600"
+                      categoryLabel="Transport Services"
+                      buttonColor="bg-gradient-to-r from-green-500 to-green-600"
+                      buttonHoverColor="hover:from-green-600 hover:to-green-700"
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* 14. Nutrition Services */}
+          <div className="mb-8">
+            <div className="bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Apple className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Nutrition Services</h4>
+                    <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">Meal delivery and nutrition counseling</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">85</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-orange-700 dark:text-orange-300" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Nutrition Services Slider */}
+            <section className="px-4 py-4 relative overflow-hidden">
+              <div className="absolute inset-0 z-0">
+                <div className="w-full h-full bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Meal delivery • Dietitian consultations • Special diets</p>
+                
+                <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  {Array.from({ length: 8 }, (_, i) => ({
+                    id: `nutrition-${i}`,
+                    name: `Nutrition Service ${i + 1}`,
+                    serviceCategory: 'Nutrition Services',
+                    description: 'Meal plans, dietary counseling, home delivery',
+                    rating: 4.5 + (Math.random() * 0.5),
+                    reviewCount: Math.floor(50 + Math.random() * 100),
+                    verified: true,
+                    location: ['Minneapolis, MN', 'Columbus, OH', 'Kansas City, MO'][i % 3],
+                    availability: 'Daily delivery',
+                    medicare: false,
+                    medicaid: i % 2 === 0
+                  })).map((service: any, index: number) => (
+                    <CareServiceCard
+                      key={service.id}
+                      service={service}
+                      index={index}
+                      borderColor="border-orange-200 dark:border-gray-700"
+                      hoverBorderColor="hover:border-orange-300 dark:hover:border-gray-600"
+                      iconBgColor="bg-gradient-to-br from-orange-500 to-orange-600"
+                      iconRingColor="ring-orange-100 dark:ring-orange-900"
+                      icon={<Apple className="w-8 h-8 text-white" />}
+                      categoryBadgeColor="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900 dark:to-orange-800"
+                      categoryBadgeBorder="border-orange-300 dark:border-orange-600"
+                      categoryLabel="Nutrition Services"
+                      buttonColor="bg-gradient-to-r from-orange-500 to-orange-600"
+                      buttonHoverColor="hover:from-orange-600 hover:to-orange-700"
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* 15. Dental Services */}
+          <div className="mb-8">
+            <div className="bg-cyan-50 dark:bg-cyan-900/20 border-cyan-200 dark:border-cyan-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Smile className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Dental Services</h4>
+                    <p className="text-sm text-cyan-700 dark:text-cyan-300 mt-1">Senior-focused dental care</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">210</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-cyan-700 dark:text-cyan-300" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Dental Services Slider */}
+            <section className="px-4 py-4 relative overflow-hidden">
+              <div className="absolute inset-0 z-0">
+                <div className="w-full h-full bg-gradient-to-br from-cyan-50 via-sky-50 to-blue-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Senior dental care • Dentures • Mobile dental services</p>
+                
+                <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  {Array.from({ length: 10 }, (_, i) => ({
+                    id: `dental-${i}`,
+                    name: `Senior Dental Clinic ${i + 1}`,
+                    serviceCategory: 'Dental Services',
+                    description: 'Comprehensive dental care for seniors',
+                    rating: 4.4 + (Math.random() * 0.6),
+                    reviewCount: Math.floor(90 + Math.random() * 160),
+                    verified: true,
+                    location: ['Baltimore, MD', 'Indianapolis, IN', 'Milwaukee, WI'][i % 3],
+                    availability: 'By appointment',
+                    medicare: false,
+                    medicaid: i % 3 === 0
+                  })).map((service: any, index: number) => (
+                    <CareServiceCard
+                      key={service.id}
+                      service={service}
+                      index={index}
+                      borderColor="border-cyan-200 dark:border-gray-700"
+                      hoverBorderColor="hover:border-cyan-300 dark:hover:border-gray-600"
+                      iconBgColor="bg-gradient-to-br from-cyan-500 to-cyan-600"
+                      iconRingColor="ring-cyan-100 dark:ring-cyan-900"
+                      icon={<Smile className="w-8 h-8 text-white" />}
+                      categoryBadgeColor="bg-gradient-to-r from-cyan-50 to-cyan-100 dark:from-cyan-900 dark:to-cyan-800"
+                      categoryBadgeBorder="border-cyan-300 dark:border-cyan-600"
+                      categoryLabel="Dental Services"
+                      buttonColor="bg-gradient-to-r from-cyan-500 to-cyan-600"
+                      buttonHoverColor="hover:from-cyan-600 hover:to-cyan-700"
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* 16. Vision Services */}
+          <div className="mb-8">
+            <div className="bg-violet-50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-violet-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Eye className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Vision Services</h4>
+                    <p className="text-sm text-violet-700 dark:text-violet-300 mt-1">Eye exams and vision care</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">175</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-violet-700 dark:text-violet-300" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Vision Services Slider */}
+            <section className="px-4 py-4 relative overflow-hidden">
+              <div className="absolute inset-0 z-0">
+                <div className="w-full h-full bg-gradient-to-br from-violet-50 via-purple-50 to-indigo-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Eye exams • Cataract care • Low vision aids</p>
+                
+                <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  {Array.from({ length: 9 }, (_, i) => ({
+                    id: `vision-${i}`,
+                    name: `Vision Care Center ${i + 1}`,
+                    serviceCategory: 'Vision Services',
+                    description: 'Comprehensive eye care for seniors',
+                    rating: 4.5 + (Math.random() * 0.5),
+                    reviewCount: Math.floor(80 + Math.random() * 140),
+                    verified: true,
+                    location: ['Sacramento, CA', 'Salt Lake City, UT', 'Richmond, VA'][i % 3],
+                    availability: 'Walk-ins welcome',
+                    medicare: true,
+                    medicaid: i % 2 === 0
+                  })).map((service: any, index: number) => (
+                    <CareServiceCard
+                      key={service.id}
+                      service={service}
+                      index={index}
+                      borderColor="border-violet-200 dark:border-gray-700"
+                      hoverBorderColor="hover:border-violet-300 dark:hover:border-gray-600"
+                      iconBgColor="bg-gradient-to-br from-violet-500 to-violet-600"
+                      iconRingColor="ring-violet-100 dark:ring-violet-900"
+                      icon={<Eye className="w-8 h-8 text-white" />}
+                      categoryBadgeColor="bg-gradient-to-r from-violet-50 to-violet-100 dark:from-violet-900 dark:to-violet-800"
+                      categoryBadgeBorder="border-violet-300 dark:border-violet-600"
+                      categoryLabel="Vision Services"
+                      buttonColor="bg-gradient-to-r from-violet-500 to-violet-600"
+                      buttonHoverColor="hover:from-violet-600 hover:to-violet-700"
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* 17. Hearing Services */}
+          <div className="mb-8">
+            <div className="bg-pink-50 dark:bg-pink-900/20 border-pink-200 dark:border-pink-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Ear className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Hearing Services</h4>
+                    <p className="text-sm text-pink-700 dark:text-pink-300 mt-1">Hearing tests and hearing aids</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">155</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-pink-700 dark:text-pink-300" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Hearing Services Slider */}
+            <section className="px-4 py-4 relative overflow-hidden">
+              <div className="absolute inset-0 z-0">
+                <div className="w-full h-full bg-gradient-to-br from-pink-50 via-rose-50 to-red-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Audiology services • Hearing aid fitting • Tinnitus care</p>
+                
+                <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  {Array.from({ length: 9 }, (_, i) => ({
+                    id: `hearing-${i}`,
+                    name: `Hearing Care Center ${i + 1}`,
+                    serviceCategory: 'Hearing Services',
+                    description: 'Hearing evaluations and hearing aid services',
+                    rating: 4.6 + (Math.random() * 0.4),
+                    reviewCount: Math.floor(70 + Math.random() * 120),
+                    verified: true,
+                    location: ['Louisville, KY', 'Birmingham, AL', 'Buffalo, NY'][i % 3],
+                    availability: 'Appointment required',
+                    medicare: true,
+                    medicaid: i % 4 === 0
+                  })).map((service: any, index: number) => (
+                    <CareServiceCard
+                      key={service.id}
+                      service={service}
+                      index={index}
+                      borderColor="border-pink-200 dark:border-gray-700"
+                      hoverBorderColor="hover:border-pink-300 dark:hover:border-gray-600"
+                      iconBgColor="bg-gradient-to-br from-pink-500 to-pink-600"
+                      iconRingColor="ring-pink-100 dark:ring-pink-900"
+                      icon={<Ear className="w-8 h-8 text-white" />}
+                      categoryBadgeColor="bg-gradient-to-r from-pink-50 to-pink-100 dark:from-pink-900 dark:to-pink-800"
+                      categoryBadgeBorder="border-pink-300 dark:border-pink-600"
+                      categoryLabel="Hearing Services"
+                      buttonColor="bg-gradient-to-r from-pink-500 to-pink-600"
+                      buttonHoverColor="hover:from-pink-600 hover:to-pink-700"
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* 18. Podiatry Services */}
+          <div className="mb-8">
+            <div className="bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Footprints className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Podiatry Services</h4>
+                    <p className="text-sm text-emerald-700 dark:text-emerald-300 mt-1">Specialized foot and ankle care</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">120</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-emerald-700 dark:text-emerald-300" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Podiatry Services Slider */}
+            <section className="px-4 py-4 relative overflow-hidden">
+              <div className="absolute inset-0 z-0">
+                <div className="w-full h-full bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Diabetic foot care • Orthotics • Foot surgery</p>
+                
+                <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  {Array.from({ length: 8 }, (_, i) => ({
+                    id: `podiatry-${i}`,
+                    name: `Podiatry Clinic ${i + 1}`,
+                    serviceCategory: 'Podiatry Services',
+                    description: 'Foot and ankle care, diabetic foot management',
+                    rating: 4.5 + (Math.random() * 0.5),
+                    reviewCount: Math.floor(60 + Math.random() * 100),
+                    verified: true,
+                    location: ['Memphis, TN', 'Norfolk, VA', 'Omaha, NE'][i % 3],
+                    availability: 'Same week appointments',
+                    medicare: true,
+                    medicaid: i % 2 === 0
+                  })).map((service: any, index: number) => (
+                    <CareServiceCard
+                      key={service.id}
+                      service={service}
+                      index={index}
+                      borderColor="border-emerald-200 dark:border-gray-700"
+                      hoverBorderColor="hover:border-emerald-300 dark:hover:border-gray-600"
+                      iconBgColor="bg-gradient-to-br from-emerald-500 to-emerald-600"
+                      iconRingColor="ring-emerald-100 dark:ring-emerald-900"
+                      icon={<Footprints className="w-8 h-8 text-white" />}
+                      categoryBadgeColor="bg-gradient-to-r from-emerald-50 to-emerald-100 dark:from-emerald-900 dark:to-emerald-800"
+                      categoryBadgeBorder="border-emerald-300 dark:border-emerald-600"
+                      categoryLabel="Podiatry Services"
+                      buttonColor="bg-gradient-to-r from-emerald-500 to-emerald-600"
+                      buttonHoverColor="hover:from-emerald-600 hover:to-emerald-700"
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* 19. Pharmacy Services */}
+          <div className="mb-8">
+            <div className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Pill className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Pharmacy Services</h4>
+                    <p className="text-sm text-red-700 dark:text-red-300 mt-1">Medication management and delivery</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">290</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Providers</div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-red-700 dark:text-red-300" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Pharmacy Services Slider */}
+            <section className="px-4 py-4 relative overflow-hidden">
+              <div className="absolute inset-0 z-0">
+                <div className="w-full h-full bg-gradient-to-br from-red-50 via-rose-50 to-pink-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Prescription delivery • Medication therapy management</p>
+                
+                <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  {Array.from({ length: 11 }, (_, i) => ({
+                    id: `pharmacy-${i}`,
+                    name: `Senior Pharmacy ${i + 1}`,
+                    serviceCategory: 'Pharmacy Services',
+                    description: 'Prescription services, medication counseling',
+                    rating: 4.4 + (Math.random() * 0.6),
+                    reviewCount: Math.floor(110 + Math.random() * 180),
+                    verified: true,
+                    location: ['Cincinnati, OH', 'Pittsburgh, PA', 'St. Louis, MO'][i % 3],
+                    availability: 'Free delivery',
+                    medicare: true,
+                    medicaid: true
+                  })).map((service: any, index: number) => (
+                    <CareServiceCard
+                      key={service.id}
+                      service={service}
+                      index={index}
+                      borderColor="border-red-200 dark:border-gray-700"
+                      hoverBorderColor="hover:border-red-300 dark:hover:border-gray-600"
+                      iconBgColor="bg-gradient-to-br from-red-500 to-red-600"
+                      iconRingColor="ring-red-100 dark:ring-red-900"
+                      icon={<Pill className="w-8 h-8 text-white" />}
+                      categoryBadgeColor="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900 dark:to-red-800"
+                      categoryBadgeBorder="border-red-300 dark:border-red-600"
+                      categoryLabel="Pharmacy Services"
+                      buttonColor="bg-gradient-to-r from-red-500 to-red-600"
+                      buttonHoverColor="hover:from-red-600 hover:to-red-700"
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* 20. Home Health */}
+          <div className="mb-8">
+            <div className="bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Home className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Home Health</h4>
+                    <p className="text-sm text-teal-700 dark:text-teal-300 mt-1">Medicare-certified home health agencies</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">385</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Agencies</div>
+                  </div>
+                  <Badge className="bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">MEDICARE</Badge>
+                  <ChevronRight className="w-6 h-6 text-teal-700 dark:text-teal-300" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Home Health Slider */}
+            <section className="px-4 py-4 relative overflow-hidden">
+              <div className="absolute inset-0 z-0">
+                <div className="w-full h-full bg-gradient-to-br from-teal-50 via-cyan-50 to-blue-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Medicare-certified agencies • Skilled nursing at home</p>
+                
+                <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  {Array.from({ length: 14 }, (_, i) => ({
+                    id: `homehealth-${i}`,
+                    name: `Home Health Agency ${i + 1}`,
+                    serviceCategory: 'Home Health',
+                    description: 'Medicare-certified comprehensive home care',
+                    rating: 4.3 + (Math.random() * 0.7),
+                    reviewCount: Math.floor(150 + Math.random() * 250),
+                    verified: true,
+                    location: ['Cleveland, OH', 'Las Vegas, NV', 'New Orleans, LA'][i % 3],
+                    availability: '24/7 Coverage',
+                    medicare: true,
+                    medicaid: true
+                  })).map((service: any, index: number) => (
+                    <CareServiceCard
+                      key={service.id}
+                      service={service}
+                      index={index}
+                      borderColor="border-teal-200 dark:border-gray-700"
+                      hoverBorderColor="hover:border-teal-300 dark:hover:border-gray-600"
+                      iconBgColor="bg-gradient-to-br from-teal-500 to-teal-600"
+                      iconRingColor="ring-teal-100 dark:ring-teal-900"
+                      icon={<Home className="w-8 h-8 text-white" />}
+                      categoryBadgeColor="bg-gradient-to-r from-teal-50 to-teal-100 dark:from-teal-900 dark:to-teal-800"
+                      categoryBadgeBorder="border-teal-300 dark:border-teal-600"
+                      categoryLabel="Home Health"
+                      buttonColor="bg-gradient-to-r from-teal-500 to-teal-600"
+                      buttonHoverColor="hover:from-teal-600 hover:to-teal-700"
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* 21. Diagnostic Services */}
+          <div className="mb-8">
+            <div className="bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-800 border-2 rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] mb-4 cursor-pointer">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-gray-500 to-gray-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <TestTube className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">Diagnostic Services</h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">Lab tests and diagnostic imaging</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">195</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Centers</div>
+                  </div>
+                  <ChevronRight className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Diagnostic Services Slider */}
+            <section className="px-4 py-4 relative overflow-hidden">
+              <div className="absolute inset-0 z-0">
+                <div className="w-full h-full bg-gradient-to-br from-gray-50 via-slate-50 to-zinc-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+              </div>
+              
+              <div className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">Laboratory testing • X-ray • Ultrasound • MRI services</p>
+                
+                <div className="flex space-x-4 overflow-x-auto pb-8 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+                  {Array.from({ length: 10 }, (_, i) => ({
+                    id: `diagnostic-${i}`,
+                    name: `Diagnostic Center ${i + 1}`,
+                    serviceCategory: 'Diagnostic Services',
+                    description: 'Lab work, imaging, diagnostic testing',
+                    rating: 4.5 + (Math.random() * 0.5),
+                    reviewCount: Math.floor(100 + Math.random() * 150),
+                    verified: true,
+                    location: ['Raleigh, NC', 'Oklahoma City, OK', 'Tucson, AZ'][i % 3],
+                    availability: 'Walk-ins & appointments',
+                    medicare: true,
+                    medicaid: i % 2 === 0
+                  })).map((service: any, index: number) => (
+                    <CareServiceCard
+                      key={service.id}
+                      service={service}
+                      index={index}
+                      borderColor="border-gray-200 dark:border-gray-700"
+                      hoverBorderColor="hover:border-gray-300 dark:hover:border-gray-600"
+                      iconBgColor="bg-gradient-to-br from-gray-500 to-gray-600"
+                      iconRingColor="ring-gray-100 dark:ring-gray-900"
+                      icon={<TestTube className="w-8 h-8 text-white" />}
+                      categoryBadgeColor="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800"
+                      categoryBadgeBorder="border-gray-300 dark:border-gray-600"
+                      categoryLabel="Diagnostic Services"
+                      buttonColor="bg-gradient-to-r from-gray-500 to-gray-600"
+                      buttonHoverColor="hover:from-gray-600 hover:to-gray-700"
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
         </div>
       </section>
 
