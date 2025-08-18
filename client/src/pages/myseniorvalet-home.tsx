@@ -1332,7 +1332,7 @@ export default function MySeniorValetHome() {
                     <span className="text-sm text-gray-600 dark:text-gray-400">Resources</span>
                   </div>
 
-                  <div className="space-y-2 mb-6">
+                  <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
                       <span className="text-sm text-gray-700 dark:text-gray-300">Care Planning Guides</span>
@@ -1349,6 +1349,82 @@ export default function MySeniorValetHome() {
                       <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
                       <span className="text-sm text-gray-700 dark:text-gray-300">Educational Materials</span>
                     </div>
+                  </div>
+
+                  {/* Preview of Resources - Scrollable List */}
+                  <div className="mb-6 p-3 bg-gradient-to-br from-purple-50/50 to-indigo-50/50 dark:from-purple-900/10 dark:to-indigo-900/10 rounded-lg">
+                    <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 mb-2 uppercase tracking-wide">
+                      📋 Resource Preview
+                    </p>
+                    <div className="h-32 overflow-y-auto space-y-2 pr-2 scrollbar-thin scrollbar-thumb-purple-300 dark:scrollbar-thumb-purple-600 scrollbar-track-transparent">
+                      {/* Government Programs */}
+                      <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded flex items-start gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🏛️</span>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-gray-900 dark:text-gray-100">Medicare</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">Federal health insurance program</p>
+                        </div>
+                      </div>
+                      
+                      <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded flex items-start gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">💰</span>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-gray-900 dark:text-gray-100">Social Security</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">Retirement & disability benefits</p>
+                        </div>
+                      </div>
+                      
+                      <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded flex items-start gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🏥</span>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-gray-900 dark:text-gray-100">Medicaid</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">State & federal healthcare assistance</p>
+                        </div>
+                      </div>
+                      
+                      <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded flex items-start gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🎖️</span>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-gray-900 dark:text-gray-100">Veterans Affairs</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">Benefits for military veterans</p>
+                        </div>
+                      </div>
+                      
+                      <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded flex items-start gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🍽️</span>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-gray-900 dark:text-gray-100">SNAP Benefits</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">Food assistance program</p>
+                        </div>
+                      </div>
+                      
+                      <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded flex items-start gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🏠</span>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-gray-900 dark:text-gray-100">HUD Housing</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">Affordable housing programs</p>
+                        </div>
+                      </div>
+                      
+                      <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded flex items-start gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">📚</span>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-gray-900 dark:text-gray-100">Elder Law Resources</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">Legal assistance & planning</p>
+                        </div>
+                      </div>
+                      
+                      <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded flex items-start gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🤝</span>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-gray-900 dark:text-gray-100">Support Groups</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">Alzheimer's & caregiver support</p>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-xs text-center text-purple-600 dark:text-purple-400 mt-2 font-medium">
+                      + 92 more resources available
+                    </p>
                   </div>
 
                   <Button className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
