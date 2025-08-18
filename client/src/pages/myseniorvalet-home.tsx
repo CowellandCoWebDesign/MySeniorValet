@@ -882,12 +882,15 @@ export default function MySeniorValetHome() {
                   const normalizedAngle = adjustedAngle < 0 ? adjustedAngle + 360 : adjustedAngle;
                   const isFront = normalizedAngle > 315 || normalizedAngle < 45;
                   
+                  // Counter-rotation to keep cards facing forward
+                  const counterRotation = -(angle + currentRotation);
+                  
                   return (
                     <div
                       key={careType.id}
                       className={`care-carousel-item ${careType.color} rounded-xl flex flex-col items-center justify-center p-2 ${isFront ? 'front' : ''}`}
                       style={{
-                        transform: `rotateY(${angle}deg) translateZ(${radius}px) rotateY(${-angle - currentRotation}deg)`,
+                        transform: `rotateY(${angle}deg) translateZ(${radius}px) rotateY(${counterRotation}deg)`,
                         opacity: isFront ? 1 : 0.5,
                       }}
                       onClick={() => handleCareTypeClick(index)}
