@@ -1987,26 +1987,7 @@ export default function MySeniorValetHome() {
 
 
 
-      {/* Care Marketplace Section */}
-      <section ref={careServicesSectionRef} className="px-4 py-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-8">
-            <Card className="group bg-white dark:bg-gray-800 border-2 border-orange-200 dark:border-orange-400 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-red-50/50 dark:from-orange-900/20 dark:to-red-900/20"></div>
-              <CardContent className="p-8 relative z-10">
-                <div className="text-center mb-6">
-                  <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 rounded-full text-white text-sm font-semibold mb-4 shadow-lg">
-                    <span className="mr-2">🚀</span>
-                    Now Available!
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Healthcare and Care Services Directory</h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-lg max-w-3xl mx-auto mb-4">
-                    Connect with {(careServicesAnalytics as any)?.totalServices?.toLocaleString() || '4,210'}+ verified healthcare and caregiving services in your area
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+      {/* Care Marketplace Section - Replaced with consolidated Senior Healthcare Services Directory */}
 
           {/* Care Services Grid - 3x4 Layout */}
           <div className="grid grid-cols-3 gap-3 md:gap-4 mb-8 max-w-4xl mx-auto">
