@@ -783,7 +783,7 @@ export default function MySeniorValetHome() {
                   
                   <div className="pt-2">
                     <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-sm font-bold animate-pulse">
-                      NOW LIVE: 🇺🇸 USA • 🇲🇽 MEXICO • 🇨🇦 CANADA
+                      NOW LIVE: USA • MEXICO • CANADA
                     </div>
                   </div>
                 </div>
@@ -832,61 +832,61 @@ export default function MySeniorValetHome() {
               {/* Care Items positioned in circle - properly distributed */}
               {/* Top */}
               <div className="care-evolution-item" style={{ top: '0%', left: '50%', transform: 'translateX(-50%)' }}>
-                <span className="text-3xl mb-1">🏛️</span>
+                <Building2 className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">HUD</span>
               </div>
               
               {/* Top Right */}
               <div className="care-evolution-item" style={{ top: '15%', right: '15%' }}>
-                <span className="text-3xl mb-1">🎖️</span>
+                <Shield className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">VA</span>
               </div>
               
               {/* Right */}
               <div className="care-evolution-item" style={{ top: '45%', right: '0%' }}>
-                <span className="text-3xl mb-1">🚐</span>
+                <Truck className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Mobile</span>
               </div>
               
               {/* Bottom Right */}
               <div className="care-evolution-item" style={{ bottom: '15%', right: '15%' }}>
-                <span className="text-3xl mb-1">⛳</span>
+                <Flag className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">55+</span>
               </div>
               
               {/* Bottom Right-Center */}
               <div className="care-evolution-item" style={{ bottom: '0%', right: '35%' }}>
-                <span className="text-3xl mb-1">🏠</span>
+                <Home className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Independent</span>
               </div>
               
               {/* Bottom Center */}
               <div className="care-evolution-item" style={{ bottom: '0%', left: '50%', transform: 'translateX(-50%)' }}>
-                <span className="text-3xl mb-1">🏡</span>
+                <Building className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Board & Care</span>
               </div>
               
               {/* Bottom Left-Center */}
               <div className="care-evolution-item" style={{ bottom: '0%', left: '35%' }}>
-                <span className="text-3xl mb-1">🤝</span>
+                <HeartHandshake className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Assisted</span>
               </div>
               
               {/* Bottom Left */}
               <div className="care-evolution-item" style={{ bottom: '15%', left: '15%' }}>
-                <span className="text-3xl mb-1">🧠</span>
+                <Brain className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Memory</span>
               </div>
               
               {/* Left */}
               <div className="care-evolution-item" style={{ top: '45%', left: '0%' }}>
-                <span className="text-3xl mb-1">♾️</span>
+                <RefreshCw className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">CCRC</span>
               </div>
               
               {/* Top Left */}
               <div className="care-evolution-item" style={{ top: '15%', left: '15%' }}>
-                <span className="text-3xl mb-1">🏥</span>
+                <Stethoscope className="w-8 h-8 mb-1 text-white" />
                 <span className="text-sm text-white font-bold">Skilled</span>
               </div>
             </div>
@@ -902,7 +902,7 @@ export default function MySeniorValetHome() {
             </p>
             <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-base font-bold shadow-2xl animate-pulse">
               <Sparkles className="w-5 h-5 mr-2" />
-              NOW LIVE ACROSS 🇺🇸 USA • 🇲🇽 MEXICO • 🇨🇦 CANADA
+              NOW LIVE ACROSS USA • MEXICO • CANADA
               <Sparkles className="w-5 h-5 ml-2" />
             </div>
           </div>
