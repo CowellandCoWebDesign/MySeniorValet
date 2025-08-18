@@ -31,7 +31,6 @@ export default function SeniorResourcesCenter() {
   const [expandedResource, setExpandedResource] = useState<number | null>(null);
   const [expandedEducational, setExpandedEducational] = useState<number | null>(null);
   const [expandedSupport, setExpandedSupport] = useState<number | null>(null);
-  const [expandedProgram, setExpandedProgram] = useState<number | null>(null);
 
   // Fetch resources data from the database
   const { data: resourcesData, isLoading: resourcesLoading } = useQuery({
@@ -423,46 +422,7 @@ export default function SeniorResourcesCenter() {
     }
   ];
 
-  const governmentPrograms: ResourceCategory[] = [
-    {
-      id: 9,
-      name: "Veterans Resources",
-      description: "VA benefits and veterans housing options",
-      icon: Shield,
-      link: "/veterans-housing",
-      color: "from-blue-600 to-blue-800",
-      items: ["VA Benefits", "Aid & Attendance", "VA Homes", "Resources"],
-      badge: "VETERANS"
-    },
-    {
-      id: 10,
-      name: "Affordable Housing",
-      description: "HUD and subsidized housing programs",
-      icon: Building,
-      link: "/affordable-housing",
-      color: "from-green-600 to-teal-600",
-      items: ["HUD Housing", "Section 202", "Low Income", "Subsidies"],
-      badge: "HUD"
-    },
-    {
-      id: 11,
-      name: "Medicare & Medicaid",
-      description: "Government healthcare program information",
-      icon: Heart,
-      link: "/medicare-medicaid",
-      color: "from-purple-600 to-indigo-600",
-      items: ["Coverage", "Eligibility", "Applications", "Benefits"]
-    },
-    {
-      id: 12,
-      name: "Social Security",
-      description: "Benefits and retirement planning",
-      icon: DollarSign,
-      link: "/social-security",
-      color: "from-gray-600 to-gray-800",
-      items: ["Benefits Calculator", "Retirement Age", "Disability", "Survivors"]
-    }
-  ];
+
 
   const quickTools: ResourceCategory[] = [
     {
@@ -976,100 +936,14 @@ export default function SeniorResourcesCenter() {
         </div>
       </section>
 
-      {/* Government Programs Section */}
-      <section className="px-4 py-12">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Government Programs & Benefits
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Official programs and financial assistance
-            </p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {governmentPrograms.map((program) => (
-              <motion.div
-                key={program.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: (program.id - 8) * 0.05 }}
-              >
-                <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 hover:border-blue-400 relative overflow-hidden group">
-                  <div className={`absolute inset-0 bg-gradient-to-br ${program.color} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
-                  <CardHeader className="relative z-10 pb-3">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className={`p-2 rounded-lg bg-gradient-to-br ${program.color} text-white`}>
-                          <program.icon className="h-5 w-5" />
-                        </div>
-                        {program.badge && (
-                          <Badge className="bg-blue-500 text-white text-xs">
-                            {program.badge}
-                          </Badge>
-                        )}
-                      </div>
-                      <CardTitle className="text-lg">{program.name}</CardTitle>
-                      <CardDescription className="text-xs">
-                        {program.description}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="relative z-10 pt-0">
-                      {program.items && (
-                        <div className="grid grid-cols-2 gap-1 mb-3">
-                          {program.items.slice(0, 4).map((item, idx) => (
-                            <span key={idx} className="text-xs text-gray-600 dark:text-gray-400">
-                              • {item}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      {/* Expandable Content */}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setExpandedProgram(expandedProgram === program.id ? null : program.id)}
-                        className="w-full justify-between text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold text-sm"
-                      >
-                        {expandedProgram === program.id ? 'Hide Details' : 'Learn More'}
-                        <ArrowRight className={`ml-1 h-3 w-3 transition-transform ${expandedProgram === program.id ? 'rotate-90' : ''}`} />
-                      </Button>
-                      
-                      {expandedProgram === program.id && (
-                        <div className="mt-2 pt-2 space-y-2 border-t border-gray-200 dark:border-gray-700">
-                          {program.items && (
-                            <div className="grid grid-cols-1 gap-1">
-                              {program.items.map((item, idx) => (
-                                <span key={idx} className="text-xs text-gray-600 dark:text-gray-400">
-                                  • {item}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setLocation('/search')}
-                            className="w-full mt-2 text-xs"
-                          >
-                            Find Communities
-                          </Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* Comprehensive Government Resources & Support Center Section */}
+      {/* Comprehensive Government Programs & Resources Section */}
       <section className="px-4 py-16 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Senior Resources & Support Center
+              Government Programs & Resources
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
               Essential government programs, support services, and resources for seniors and caregivers
