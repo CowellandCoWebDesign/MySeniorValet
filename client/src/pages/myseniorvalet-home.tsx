@@ -564,7 +564,7 @@ export default function MySeniorValetHome() {
             </h1>
             
             {/* Subheading - Animates in second with delay */}
-            <p className="text-lg sm:text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto animate-fade-in-up animation-delay-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+            <p className="text-sm sm:text-base md:text-lg text-gray-200 max-w-3xl mx-auto animate-fade-in-up animation-delay-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
               Explore trusted senior living communities and connect with services that make life easier. Transparent pricing, real-time availability, and seamless service integration, all in one place.
             </p>
           </div>
