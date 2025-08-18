@@ -875,7 +875,7 @@ export default function MySeniorValetHome() {
                   const Icon = careType.icon;
                   const anglePerItem = 360 / careTypes.length;
                   const angle = index * anglePerItem;
-                  const radius = 350;
+                  const radius = 250; // Reduced from 350
                   
                   // Calculate if this item is in front
                   const adjustedAngle = (angle + currentRotation) % 360;
@@ -885,15 +885,15 @@ export default function MySeniorValetHome() {
                   return (
                     <div
                       key={careType.id}
-                      className={`care-carousel-item ${careType.color} rounded-2xl flex flex-col items-center justify-center p-4 ${isFront ? 'front' : ''}`}
+                      className={`care-carousel-item ${careType.color} rounded-xl flex flex-col items-center justify-center p-2 ${isFront ? 'front' : ''}`}
                       style={{
-                        transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
-                        opacity: isFront ? 1 : 0.7,
+                        transform: `rotateY(${angle}deg) translateZ(${radius}px) rotateY(${-angle - currentRotation}deg)`,
+                        opacity: isFront ? 1 : 0.5,
                       }}
                       onClick={() => handleCareTypeClick(index)}
                     >
-                      <Icon className="w-12 h-12 text-white mb-2" />
-                      <span className="text-white font-bold text-center text-base px-2">{careType.name}</span>
+                      <Icon className="w-8 h-8 text-white mb-1" />
+                      <span className="text-white font-semibold text-center text-xs px-1 leading-tight">{careType.name}</span>
                     </div>
                   );
                 })}

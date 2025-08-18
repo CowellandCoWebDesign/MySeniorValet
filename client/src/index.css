@@ -754,10 +754,11 @@ body {
 /* Care Spectrum 3D Carousel */
 .care-evolution-circle {
   position: relative;
-  width: 100% !important;
-  height: 600px !important;
+  width: 80% !important;
+  max-width: 700px !important;
+  height: 450px !important;
   margin: 0 auto;
-  perspective: 1500px !important;
+  perspective: 1200px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -767,7 +768,7 @@ body {
 .care-carousel-container {
   position: relative;
   width: 100%;
-  height: 200px;
+  height: 150px;
   transform-style: preserve-3d !important;
   transition: transform 1s cubic-bezier(0.4, 0.0, 0.2, 1);
   transform: rotateX(-15deg);
@@ -775,12 +776,12 @@ body {
 
 .care-carousel-item {
   position: absolute !important;
-  width: 160px;
-  height: 160px;
+  width: 130px;
+  height: 130px;
   left: 50%;
   top: 50%;
-  margin-left: -80px;
-  margin-top: -80px;
+  margin-left: -65px;
+  margin-top: -65px;
   backface-visibility: visible !important;
   transition: all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
   cursor: pointer !important;
