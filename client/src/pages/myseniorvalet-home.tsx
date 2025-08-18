@@ -73,7 +73,7 @@ export default function MySeniorValetHome() {
   const careTypes = [
     { id: 'hud', name: 'HUD', icon: Building2, color: 'bg-green-500', description: 'Government-subsidized housing for low-income seniors, offering rent based on 30% of income with verified pricing.' },
     { id: 'va', name: 'VA', icon: Shield, color: 'bg-purple-600', description: 'Veterans Affairs communities providing specialized care and benefits for military veterans and their spouses.' },
-    { id: 'mobile', name: 'Mobile', icon: Truck, color: 'bg-orange-500', description: 'Mobile home and manufactured housing communities designed for active seniors seeking affordable ownership options.' },
+    { id: 'mobile', name: 'RV & Mobile', icon: Truck, color: 'bg-orange-500', description: 'Senior RV and mobile parks offering flexible living for adventurous retirees who enjoy travel and community amenities.' },
     { id: '55plus', name: '55+', icon: Flag, color: 'bg-pink-600', description: 'Age-restricted active adult communities for those 55 and older, focusing on lifestyle and social activities.' },
     { id: 'independent', name: 'Independent', icon: Home, color: 'bg-blue-600', description: 'Senior apartments and communities for those who can live independently with minimal assistance and optional services.' },
     { id: 'residential', name: 'Residential Care', icon: Building, color: 'bg-purple-700', description: 'Small, privately-run homes with 6-10 beds offering personalized care in a family-like residential setting.' },
@@ -843,13 +843,7 @@ export default function MySeniorValetHome() {
           </div>
           
           {/* 3D Care Spectrum Carousel */}
-          <div className="flex flex-col items-center justify-center px-1 flex-1">
-            {/* Interaction Instructions */}
-            <div className="text-center mb-4">
-              <p className="text-white text-lg font-semibold animate-pulse">
-                {isAutoRotating ? '⟲ Auto-rotating - Click any care type to explore' : '👆 Click any care type to rotate and learn more'}
-              </p>
-            </div>
+          <div className="flex flex-col items-center justify-center px-1 flex-1 -mt-8">
             
             <div className="carousel-wrapper">
               <div className="carousel-3d">
