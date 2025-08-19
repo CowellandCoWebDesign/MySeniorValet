@@ -817,29 +817,6 @@ export default function MapSearch() {
 
     console.log('Enhanced API failed, falling back to location map...');
 
-    // Parse location string to handle various formats
-    const normalizedLocation = location.toLowerCase().trim();
-    
-    // Try to extract city and state from search query
-    let searchTerms: string[] = [];
-    
-    // Handle comma-separated format: "Redding, California" or "Redding California"
-    if (normalizedLocation.includes(',')) {
-      searchTerms = normalizedLocation.split(',').map(s => s.trim());
-    } else {
-      // Split by space and try combinations
-      const parts = normalizedLocation.split(/\s+/);
-      searchTerms.push(normalizedLocation); // Try full string first
-      
-      // If it's two parts, could be "city state"
-      if (parts.length === 2) {
-        searchTerms.push(parts[0]); // Try just the city
-      } else if (parts.length > 2) {
-        // Try various combinations for multi-word cities
-        searchTerms.push(parts.slice(0, -1).join(' ')); // Everything except last word (city without state)
-        searchTerms.push(parts[0]); // Just first word
-      }
-    }
 
     // Fallback to comprehensive North American location mapping
     const locationMap: Record<string, [number, number]> = {
@@ -958,56 +935,6 @@ export default function MapSearch() {
       'corpus christi': [27.8006, -97.3964],
       'lexington': [38.0406, -84.5037],
       'stockton': [37.9577, -121.2908],
-      // Additional California Cities
-      'redding': [40.5865, -122.3917],
-      'redding california': [40.5865, -122.3917],
-      'chico': [39.7285, -121.8375],
-      'eureka': [40.8021, -124.1637],
-      'santa rosa': [38.4404, -122.7141],
-      'modesto': [37.6391, -120.9969],
-      'salinas': [36.6777, -121.6555],
-      'santa barbara': [34.4208, -119.6982],
-      'ventura': [34.2746, -119.2290],
-      'visalia': [36.3302, -119.2921],
-      'santa cruz': [36.9741, -122.0308],
-      'redwood city': [37.4852, -122.2364],
-      'mountain view': [37.3861, -122.0839],
-      'palo alto': [37.4419, -122.1430],
-      'berkeley': [37.8716, -122.2727],
-      'vallejo': [38.1041, -122.2566],
-      'fairfield': [38.2494, -122.0400],
-      'concord': [37.9780, -122.0311],
-      'fremont': [37.5485, -121.9886],
-      'hayward': [37.6688, -122.0808],
-      'sunnyvale': [37.3688, -122.0363],
-      'pasadena': [34.1478, -118.1445],
-      'irvine': [33.6846, -117.8265],
-      'torrance': [33.8358, -118.3406],
-      'fullerton': [33.8703, -117.9253],
-      'thousand oaks': [34.1706, -118.8376],
-      'simi valley': [34.2694, -118.7815],
-      'oxnard': [34.1975, -119.1771],
-      'fontana': [34.0922, -117.4350],
-      'moreno valley': [33.9425, -117.2297],
-      'glendale': [34.1425, -118.2551],
-      'huntington beach': [33.6595, -117.9988],
-      'ontario': [34.0633, -117.6509],
-      'rancho cucamonga': [34.1064, -117.5931],
-      'oceanside': [33.1959, -117.3795],
-      'garden grove': [33.7743, -117.9380],
-      'elk grove': [38.4088, -121.3716],
-      'roseville': [38.7521, -121.2880],
-      'palmdale': [34.5794, -118.1165],
-      'lancaster': [34.6868, -118.1542],
-      'escondido': [33.1192, -117.0864],
-      'pomona': [34.0551, -117.7523],
-      'san bernardino': [34.1083, -117.2898],
-      'corona': [33.8753, -117.5664],
-      'temecula': [33.4936, -117.1484],
-      'murrieta': [33.5539, -117.2139],
-      'indio': [33.7206, -116.2156],
-      'palm springs': [33.8303, -116.5453],
-      'palm desert': [33.7222, -116.3745],
       'henderson': [36.0395, -114.9817],
       'saint paul': [44.9537, -93.0900],
       'st louis': [38.6270, -90.1994],
@@ -1151,62 +1078,25 @@ export default function MapSearch() {
       'mexico': [23.6345, -102.5528],
     };
 
-    // Try to find coordinates in the location map using searchTerms
-    let coords: [number, number] | null = null;
-    let matchedLocation = '';
-    
-    // Try each search term
-    for (const term of searchTerms) {
-      console.log('Trying search term:', term);
-      if (locationMap[term]) {
-        coords = locationMap[term];
-        matchedLocation = term;
-        console.log('✅ Found location match:', term, 'Coordinates:', coords);
-        break;
-      }
-    }
-    
-    // If no exact match, try partial matches
-    if (!coords) {
-      for (const term of searchTerms) {
-        for (const [key, value] of Object.entries(locationMap)) {
-          if (key.includes(term) || term.includes(key)) {
-            coords = value;
-            matchedLocation = key;
-            console.log('✅ Found partial match:', key, 'for term:', term, 'Coordinates:', coords);
-            break;
-          }
-        }
-        if (coords) break;
-      }
-    }
-
+    const coords = locationMap[location.toLowerCase()];
     if (coords) {
-      console.log('✅ Setting map center to:', coords, 'for location:', matchedLocation);
       setMapCenter(coords);
-      
       // Set appropriate zoom levels based on location type
-      if (matchedLocation === 'california' || matchedLocation === 'texas' || matchedLocation === 'florida' || 
-          matchedLocation === 'ontario' || matchedLocation === 'quebec' || matchedLocation === 'british columbia') {
+      const lowerLocation = location.toLowerCase();
+      if (lowerLocation === 'california' || lowerLocation === 'texas' || lowerLocation === 'florida' || 
+          lowerLocation === 'ontario' || lowerLocation === 'quebec' || lowerLocation === 'british columbia') {
         setMapZoom(6); // Large states/provinces
-      } else if (['alaska', 'montana', 'new mexico', 'arizona', 'colorado', 'wyoming', 'nevada', 'utah', 'idaho'].includes(matchedLocation)) {
+      } else if (['alaska', 'montana', 'new mexico', 'arizona', 'colorado', 'wyoming', 'nevada', 'utah', 'idaho'].includes(lowerLocation)) {
         setMapZoom(7); // Medium-large states
-      } else if (matchedLocation.includes('mexico') && !matchedLocation.includes('new mexico')) {
+      } else if (lowerLocation.includes('mexico') && !lowerLocation.includes('new mexico')) {
         setMapZoom(5); // Country-level Mexico
-      } else if (['canada', 'united states', 'usa', 'north america'].includes(matchedLocation)) {
+      } else if (['canada', 'united states', 'usa', 'north america'].includes(lowerLocation)) {
         setMapZoom(4); // Continental level
       } else {
         setMapZoom(12); // Cities and smaller areas
       }
       setPanelHeight(90); // Set to 90% height - goes just under navbar
       setShowBottomPanel(true); // Show results panel when using fallback location
-    } else {
-      console.log('❌ No location match found for:', location);
-      // Default to San Francisco if no match
-      setMapCenter([37.7749, -122.4194]);
-      setMapZoom(12);
-      setPanelHeight(90);
-      setShowBottomPanel(true);
     }
   };
 
