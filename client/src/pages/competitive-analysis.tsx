@@ -467,9 +467,9 @@ export default function CompetitiveAnalysis() {
           </Card>
         )}
         
-        {/* Communities in Our Database */}
+        {/* Communities in Our Database - SHOWN FIRST */}
         {analysisMutation.isSuccess && analysisMutation.data && analysisMutation.data.matchedCommunities && analysisMutation.data.matchedCommunities.length > 0 && (
-          <Card className="mt-8 shadow-xl border-0 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 animate-fadeInUp animation-delay-100">
+          <Card className="mt-6 shadow-xl border-0 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 animate-fadeInUp animation-delay-50">
             <CardHeader>
               <CardTitle className="text-2xl flex items-center gap-3">
                 <div className="p-2 bg-emerald-100 dark:bg-emerald-800/50 rounded-lg">
@@ -540,7 +540,9 @@ export default function CompetitiveAnalysis() {
                       <Home className="w-5 h-5 text-blue-500 flex-shrink-0" />
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{communityName}</span>
                       {isMatched && (
-                        <CheckCircle className="w-4 h-4 text-emerald-500 ml-auto" title="Available in our database" />
+                        <span className="ml-auto" title="Available in our database">
+                          <CheckCircle className="w-4 h-4 text-emerald-500" />
+                        </span>
                       )}
                     </div>
                   );

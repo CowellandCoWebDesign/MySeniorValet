@@ -154,6 +154,37 @@ router.post('/api/competitive-analysis', async (req, res) => {
       }
     }
 
+    // Extract mentioned community names
+    const communityMentions = Array.from(new Set(
+      content.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home|Place|House|Terrace|Gardens?|Lodge|Park|Estates?|Court|Heights|Oaks|Pines|Springs|Hills|Valley|Creek|Ridge|Point|Plaza|Square|Tower|Arms|Haven|Crossing|Landing|Station|Walk|Way|Trail|Grove|Meadows?|Fields?|Woods?|Forest|Lake|River|Bay|Beach|Shore|Coast|Harbor|Port|Vista|View|Pointe)\b/g) || []
+    ));
+
+    // Search our database for mentioned communities
+    const matchedCommunities = [];
+    if (communityMentions.length > 0) {
+      for (const communityName of communityMentions) {
+        try {
+          const matches = await db
+            .select({
+              id: communities.id,
+              name: communities.name,
+              city: communities.city,
+              state_province: communities.state_province,
+              type: communities.type
+            })
+            .from(communities)
+            .where(sql`lower(${communities.name}) = lower(${communityName})`)
+            .limit(1);
+          
+          if (matches.length > 0) {
+            matchedCommunities.push(matches[0]);
+          }
+        } catch (error) {
+          console.error(`Error searching for community "${communityName}":`, error);
+        }
+      }
+    }
+
     const analysisResult = {
       location,
       locationType: type,
@@ -168,9 +199,8 @@ router.post('/api/competitive-analysis', async (req, res) => {
         'Location within the city/state affects pricing substantially'
       ],
       detailedSummary: content, // Full unfiltered Perplexity response for complete transparency
-      communityMentions: Array.from(new Set(
-        content.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home|Place|House|Terrace|Gardens?|Lodge|Park|Estates?|Court|Heights|Oaks|Pines|Springs|Hills|Valley|Creek|Ridge|Point|Plaza|Square|Tower|Arms|Haven|Crossing|Landing|Station|Walk|Way|Trail|Grove|Meadows?|Fields?|Woods?|Forest|Lake|River|Bay|Beach|Shore|Coast|Harbor|Port|Vista|View|Pointe)\b/g) || []
-      )), // Extract all unique community names mentioned
+      communityMentions, // All mentioned community names
+      matchedCommunities, // Communities found in our database
       lastUpdated: new Date().toISOString(),
       sources: sources.length > 0 ? sources.map(s => {
         try {
