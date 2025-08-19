@@ -286,7 +286,7 @@ export default function DatabaseTest() {
             <Button onClick={() => window.location.href = '/'} variant="outline">
               ← Back to Home
             </Button>
-            <Button onClick={() => window.location.href = '/search'} variant="outline">
+            <Button onClick={() => window.location.href = "/map-search";
               Go to Search
             </Button>
           </CardContent>

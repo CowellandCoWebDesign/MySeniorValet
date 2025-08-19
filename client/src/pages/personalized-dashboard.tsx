@@ -320,7 +320,7 @@ export default function PersonalizedDashboard() {
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
               Recommended For You
             </h2>
-            <Link href="/search">
+            <Link href="/map-search">
               <Button className="bg-blue-600 hover:bg-blue-700">
                 <Search className="h-4 w-4 mr-2" />
                 See All Communities
@@ -418,7 +418,7 @@ export default function PersonalizedDashboard() {
               <Search className="h-12 w-12 text-blue-600 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Refine Search</h3>
               <p className="text-gray-600 dark:text-gray-300 mb-4">Update your criteria to find even better matches</p>
-              <Link href="/search">
+              <Link href="/map-search">
                 <Button className="w-full bg-blue-600 hover:bg-blue-700">
                   Update Search
                 </Button>

@@ -431,7 +431,7 @@ export default function CareGuide() {
             Search our 31,000+ communities with transparent pricing and detailed care information
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/search">
+            <Link href="/map-search">
               <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-3">
                 Search Communities
               </Button>

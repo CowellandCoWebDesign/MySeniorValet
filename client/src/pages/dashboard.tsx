@@ -174,7 +174,7 @@ export default function Dashboard() {
 
   const handleRepeatSearch = (search: RecentSearch) => {
     // Redirect to search with parameters
-    window.location.href = `/search?q=${encodeURIComponent(search.query)}&location=${encodeURIComponent(search.location)}`;
+    window.location.href = `/map-search?q=${encodeURIComponent(search.query)}&location=${encodeURIComponent(search.location)}`;
   };
 
   return (
@@ -407,7 +407,7 @@ export default function Dashboard() {
                       <h3 className="font-semibold">Search Insights</h3>
                     </div>
                     <p className="text-sm text-white/80 mb-4">Your top location: {recentSearches[0]?.location || 'Not set'}</p>
-                    <Link href="/search">
+                    <Link href="/map-search">
                       <Button size="sm" className="w-full bg-white/20 hover:bg-white/30 text-white border-0">
                         Refine Search
                       </Button>
@@ -442,7 +442,7 @@ export default function Dashboard() {
                       </Button>
                     </div>
                   ))}
-                  <Link href="/search">
+                  <Link href="/map-search">
                     <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl h-12">
                       Start New Search
                       <ChevronRight className="h-4 w-4 ml-2" />
@@ -533,7 +533,7 @@ export default function Dashboard() {
               <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Your Saved Communities
               </h2>
-              <Link href="/search">
+              <Link href="/map-search">
                 <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl px-6 py-3">
                   <Search className="h-4 w-4 mr-2" />
                   Find More Communities
@@ -549,7 +549,7 @@ export default function Dashboard() {
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">No Saved Communities Yet</h3>
                   <p className="text-gray-600 dark:text-gray-300 mb-8 max-w-md mx-auto">Start exploring communities and save your favorites here for easy access</p>
-                  <Link href="/search">
+                  <Link href="/map-search">
                     <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl px-8 py-3">
                       Start Exploring
                     </Button>

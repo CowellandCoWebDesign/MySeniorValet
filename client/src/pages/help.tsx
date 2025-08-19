@@ -375,7 +375,7 @@ export default function Help() {
             Ready to start your senior living search?
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/search">
+            <Link href="/map-search">
               <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
                 Search Communities
               </Button>

@@ -72,7 +72,7 @@ export default function MySeniorValetCommunity() {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Community not found</h2>
-          <Link href="/search">
+          <Link href="/map-search">
             <Button variant="outline">Back to search</Button>
           </Link>
         </div>
@@ -108,7 +108,7 @@ export default function MySeniorValetCommunity() {
         {/* Header Overlay */}
         <div className="absolute top-0 left-0 right-0 p-4">
           <div className="flex items-center justify-between">
-            <Link href="/search">
+            <Link href="/map-search">
               <Button variant="ghost" size="sm" className="bg-white/80 hover:bg-white p-2 rounded-full">
                 <ArrowLeft className="w-5 h-5 text-gray-700" />
               </Button>

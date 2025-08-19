@@ -21,7 +21,7 @@ export default function CommunityPage() {
   
   // Redirect to search if no ID is provided
   if (!params?.id) {
-    window.location.href = '/search';
+    window.location.href = "/map-search";
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -51,14 +51,14 @@ export default function CommunityPage() {
         if (state.sortBy && state.sortBy !== 'relevance') searchParams.set('sortBy', state.sortBy);
         
         const queryString = searchParams.toString();
-        return queryString ? `/search?${queryString}` : '/search';
+        return queryString ? `/search?${queryString}` : '/map-search';
       } catch (error) {
         console.error('Error parsing search state:', error);
       }
     }
     
     // Fallback to basic search page
-    return '/search';
+    return '/map-search';
   };
 
   // Helper function to get source citation for pricing/availability data
@@ -329,7 +329,7 @@ export default function CommunityPage() {
                 </div>
 
                 <div className="flex items-center space-x-4">
-                  <Link to="/search">
+                  <Link to="/map-search">
                     <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                       <CheckCircle className="h-4 w-4 mr-2" />
                       Search Real Communities

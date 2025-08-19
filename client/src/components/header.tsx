@@ -10,7 +10,7 @@ export function Header() {
   const [location] = useLocation();
 
   const navigation = [
-    { name: "Search", href: "/search", icon: Search },
+    { name: "Search", href: "/map-search", icon: Search },
     { name: "Explore", href: "/explore", icon: MapPin },
     { name: "About", href: "/about", icon: HelpCircle },
     { name: "Privacy", href: "/privacy", icon: Shield },

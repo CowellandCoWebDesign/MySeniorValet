@@ -440,7 +440,7 @@ export function MoveInCostCalculator() {
             });
             
             // Redirect to search with price filter
-            setLocation(`/search?maxPrice=${seniorLivingCost[0]}&budget=${totalCost}`);
+            setLocation(`/map-search?maxPrice=${seniorLivingCost[0]}&budget=${totalCost}`);
           }}
         >
           <TrendingUp className="w-4 h-4" />

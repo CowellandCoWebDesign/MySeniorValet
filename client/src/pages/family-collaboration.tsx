@@ -280,7 +280,7 @@ export default function FamilyCollaborationPage() {
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </RouterLink>
-                <RouterLink href="/search">
+                <RouterLink href="/map-search">
                   <Button size="lg" variant="outline" className="font-semibold px-8 py-4 text-lg">
                     Start Searching
                   </Button>
@@ -296,7 +296,7 @@ export default function FamilyCollaborationPage() {
                   <LogIn className="mr-2 h-5 w-5" />
                   Try It Now
                 </Button>
-                <RouterLink href="/search">
+                <RouterLink href="/map-search">
                   <Button size="lg" variant="outline" className="font-semibold px-8 py-4 text-lg">
                     Start Searching
                   </Button>

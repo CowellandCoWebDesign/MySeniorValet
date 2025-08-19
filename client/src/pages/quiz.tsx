@@ -230,7 +230,7 @@ export default function QuizPage() {
                 <Button variant="outline" onClick={handleStartOver}>
                   Retake Quiz
                 </Button>
-                <Button onClick={() => setLocation('/search')}>
+                <Button onClick={() => setLocation('/map-search')}>
                   Browse All Communities
                 </Button>
               </div>

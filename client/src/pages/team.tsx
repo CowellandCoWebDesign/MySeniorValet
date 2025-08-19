@@ -144,7 +144,7 @@ export default function Team() {
                   Get in Touch
                 </button>
               </Link>
-              <Link href="/search">
+              <Link href="/map-search">
                 <button className="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg hover:bg-blue-50 transition-all duration-200">
                   Explore Our Platform
                 </button>

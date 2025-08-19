@@ -175,7 +175,7 @@ export default function CommunityDirectory() {
                       </Card>
                     </Link>
                   ))}
-                  <Link href="/search">
+                  <Link href="/map-search">
                     <Card className="hover:shadow-lg transition-all cursor-pointer border hover:border-blue-400 group bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
                       <CardContent className="p-3 text-center flex flex-col justify-center h-full">
                         <div className="font-bold text-sm text-blue-600">
@@ -236,7 +236,7 @@ export default function CommunityDirectory() {
                 </div>
                 <Button 
                   className="w-full mt-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
-                  onClick={() => setLocation('/search')}
+                  onClick={() => setLocation('/map-search')}
                 >
                   <Search className="mr-2 h-4 w-4" />
                   Start Searching

@@ -478,7 +478,7 @@ export default function AISupport() {
             Still need help? Our team is here to support you
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/search">
+            <Link href="/map-search">
               <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
                 Start Searching Communities
               </Button>

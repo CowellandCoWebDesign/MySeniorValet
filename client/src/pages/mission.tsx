@@ -169,7 +169,7 @@ export default function Mission() {
 
         {/* Call to Action */}
         <div className="text-center">
-          <Link href="/search">
+          <Link href="/map-search">
             <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 text-lg font-semibold shadow-lg">
               Experience Our Mission in Action
             </button>

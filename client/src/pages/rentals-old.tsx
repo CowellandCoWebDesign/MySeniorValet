@@ -391,7 +391,7 @@ export default function Rentals() {
       <BottomNavigation 
         activeTab="rentals"
         onTabChange={(tab) => {
-          if (tab === 'search') window.location.href = '/search';
+          if (tab === 'search') window.location.href = "/map-search";
           else if (tab === 'updates') window.location.href = '/dashboard?tab=updates';
           else if (tab === 'saved') window.location.href = '/dashboard?tab=saved';
           else if (tab === 'tours') window.location.href = '/dashboard?tab=tours';

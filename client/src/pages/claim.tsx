@@ -333,7 +333,7 @@ export default function ClaimCommunity() {
               <p className="text-gray-600 dark:text-gray-300 mb-4">
                 No community specified for claiming. Please navigate to a community page and click "Claim This Community".
               </p>
-              <Link to="/search">
+              <Link to="/map-search">
                 <Button>
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back to Search
@@ -413,7 +413,7 @@ export default function ClaimCommunity() {
                     </Button>
                   </Link>
                   
-                  <Link to="/search">
+                  <Link to="/map-search">
                     <Button>
                       Search Other Communities
                     </Button>
@@ -478,7 +478,7 @@ export default function ClaimCommunity() {
                     </Button>
                   </Link>
                   
-                  <Link to="/search">
+                  <Link to="/map-search">
                     <Button variant="outline">
                       Continue Searching
                     </Button>

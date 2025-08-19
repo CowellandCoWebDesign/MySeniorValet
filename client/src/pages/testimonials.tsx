@@ -258,7 +258,7 @@ export default function Testimonials() {
           <p className="text-gray-600 mb-4">
             Ready to start your senior living search?
           </p>
-          <Link href="/search">
+          <Link href="/map-search">
             <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
               Explore Communities
             </Button>

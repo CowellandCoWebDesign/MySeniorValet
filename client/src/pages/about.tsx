@@ -130,7 +130,7 @@ export default function About() {
             Join thousands of families who have found their perfect senior living community through MySeniorValet.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/search">
+            <Link href="/map-search">
               <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
                 Search Communities
               </Button>

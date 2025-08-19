@@ -175,7 +175,7 @@ export default function CommunityMobilePayment() {
         } else {
           // Fallback to search if no valid ID
           console.error('No valid community ID received, redirecting to search');
-          setLocation('/search');
+          setLocation('/map-search');
         }
       }, 2000);
     } catch (err) {
