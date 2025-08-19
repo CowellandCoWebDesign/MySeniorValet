@@ -579,9 +579,9 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
 };
 
 // Real-time AI Insights Component - Enhanced with Multi-AI Verification
-const RealTimeInsights = ({ community }: { community: any }) => {
+const RealTimeInsights = ({ community, onVerificationReport }: { community: any, onVerificationReport?: (report: any) => void }) => {
   const realTimeData = community?.realTimeData;
-  const [verificationReport, setVerificationReport] = useState<any>(null);
+  const [localVerificationReport, setLocalVerificationReport] = useState<any>(null);
   const [isVerifying, setIsVerifying] = useState(false);
 
   // Trigger Multi-AI verification when real-time data is available
@@ -597,7 +597,11 @@ const RealTimeInsights = ({ community }: { community: any }) => {
       })
       .then(res => res.json())
       .then(report => {
-        setVerificationReport(report);
+        setLocalVerificationReport(report);
+        // Also update parent state if callback provided
+        if (onVerificationReport) {
+          onVerificationReport(report);
+        }
       })
       .catch(error => {
         // Silently handle error in production
@@ -606,7 +610,7 @@ const RealTimeInsights = ({ community }: { community: any }) => {
         setIsVerifying(false);
       });
     }
-  }, [realTimeData, community?.id]);
+  }, [realTimeData, community?.id, onVerificationReport]);
 
   if (!realTimeData) {
     return null;
@@ -665,26 +669,26 @@ const RealTimeInsights = ({ community }: { community: any }) => {
       </CardHeader>
       <CardContent className="pt-6">
         {/* Multi-AI Verification Results */}
-        {(verificationReport || isVerifying) && (
+        {(localVerificationReport || isVerifying) && (
           <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
             <div className="flex items-center justify-between mb-3">
               <h4 className="font-semibold text-lg flex items-center">
                 <Shield className="w-5 h-5 mr-2 text-indigo-600" />
                 Multi-AI Verification
               </h4>
-              {verificationReport?.consensus && (
+              {localVerificationReport?.consensus && (
                 <Badge className={`${
-                  verificationReport.consensus.agreementLevel === 'strong' 
+                  localVerificationReport.consensus.agreementLevel === 'strong' 
                     ? 'bg-green-600' 
-                    : verificationReport.consensus.agreementLevel === 'moderate'
+                    : localVerificationReport.consensus.agreementLevel === 'moderate'
                     ? 'bg-yellow-600'
-                    : verificationReport.consensus.agreementLevel === 'conflicting'
+                    : localVerificationReport.consensus.agreementLevel === 'conflicting'
                     ? 'bg-red-600'
                     : 'bg-gray-600'
                 } text-white`}>
-                  {verificationReport.consensus.agreementLevel === 'strong' ? '✓ Strong' 
-                    : verificationReport.consensus.agreementLevel === 'moderate' ? '⚠ Moderate'
-                    : verificationReport.consensus.agreementLevel === 'conflicting' ? '⚡ Conflicting'
+                  {localVerificationReport.consensus.agreementLevel === 'strong' ? '✓ Strong' 
+                    : localVerificationReport.consensus.agreementLevel === 'moderate' ? '⚠ Moderate'
+                    : localVerificationReport.consensus.agreementLevel === 'conflicting' ? '⚡ Conflicting'
                     : 'Weak'} Agreement
                 </Badge>
               )}
@@ -694,7 +698,7 @@ const RealTimeInsights = ({ community }: { community: any }) => {
             <div className="grid grid-cols-3 gap-2 mb-3">
               <div className="bg-white dark:bg-gray-800 p-2 rounded text-center">
                 <div className={`w-3 h-3 mx-auto mb-1 rounded-full ${
-                  verificationReport?.aiOrchestra?.perplexity?.status === 'active' 
+                  localVerificationReport?.aiOrchestra?.perplexity?.status === 'active' 
                     ? 'bg-green-500 animate-pulse' 
                     : 'bg-gray-300'
                 }`} />
@@ -703,7 +707,7 @@ const RealTimeInsights = ({ community }: { community: any }) => {
               </div>
               <div className="bg-white dark:bg-gray-800 p-2 rounded text-center">
                 <div className={`w-3 h-3 mx-auto mb-1 rounded-full ${
-                  verificationReport?.aiOrchestra?.claude?.status === 'active' 
+                  localVerificationReport?.aiOrchestra?.claude?.status === 'active' 
                     ? 'bg-green-500 animate-pulse' 
                     : 'bg-gray-300'
                 }`} />
@@ -712,7 +716,7 @@ const RealTimeInsights = ({ community }: { community: any }) => {
               </div>
               <div className="bg-white dark:bg-gray-800 p-2 rounded text-center">
                 <div className={`w-3 h-3 mx-auto mb-1 rounded-full ${
-                  verificationReport?.aiOrchestra?.chatgpt?.status === 'active' 
+                  localVerificationReport?.aiOrchestra?.chatgpt?.status === 'active' 
                     ? 'bg-green-500 animate-pulse' 
                     : 'bg-gray-300'
                 }`} />
@@ -722,31 +726,31 @@ const RealTimeInsights = ({ community }: { community: any }) => {
             </div>
             
             {/* Confidence Score */}
-            {verificationReport?.consensus?.confidenceScore > 0 && (
+            {localVerificationReport?.consensus?.confidenceScore > 0 && (
               <div className="mb-3">
                 <div className="flex justify-between text-sm mb-1">
                   <span className="text-gray-600 dark:text-gray-400">Verification Confidence</span>
-                  <span className="font-semibold">{verificationReport.consensus.confidenceScore}%</span>
+                  <span className="font-semibold">{localVerificationReport.consensus.confidenceScore}%</span>
                 </div>
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                   <div 
                     className={`h-2 rounded-full transition-all duration-500 ${
-                      verificationReport.consensus.confidenceScore >= 80 ? 'bg-green-500' :
-                      verificationReport.consensus.confidenceScore >= 60 ? 'bg-yellow-500' :
+                      localVerificationReport.consensus.confidenceScore >= 80 ? 'bg-green-500' :
+                      localVerificationReport.consensus.confidenceScore >= 60 ? 'bg-yellow-500' :
                       'bg-red-500'
                     }`}
-                    style={{ width: `${verificationReport.consensus.confidenceScore}%` }}
+                    style={{ width: `${localVerificationReport.consensus.confidenceScore}%` }}
                   />
                 </div>
               </div>
             )}
             
             {/* Verified Facts */}
-            {verificationReport?.consensus?.verifiedFacts?.length > 0 && (
+            {localVerificationReport?.consensus?.verifiedFacts?.length > 0 && (
               <div className="mb-3">
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">✓ Verified Facts:</p>
                 <ul className="text-xs space-y-1">
-                  {verificationReport.consensus.verifiedFacts.slice(0, 3).map((fact: any, idx: number) => {
+                  {localVerificationReport.consensus.verifiedFacts.slice(0, 3).map((fact: any, idx: number) => {
                     // Check if fact is JSON string and parse it
                     let factText = fact;
                     try {
@@ -771,9 +775,9 @@ const RealTimeInsights = ({ community }: { community: any }) => {
             )}
             
             {/* Transparency Note */}
-            {verificationReport?.consensus?.transparencyNotes && (
+            {localVerificationReport?.consensus?.transparencyNotes && (
               <p className="text-xs text-gray-600 dark:text-gray-400 italic">
-                {verificationReport.consensus.transparencyNotes}
+                {localVerificationReport.consensus.transparencyNotes}
               </p>
             )}
             
@@ -1218,6 +1222,7 @@ export default function CommunityDetail() {
   const [waitlistPreferences, setWaitlistPreferences] = useState('');
   const [selectedUnitType, setSelectedUnitType] = useState<string | null>(null);
   const [expandedUnits, setExpandedUnits] = useState<Set<string>>(new Set());
+  // Track verification report to show live pricing data from Market Data tab
   const [verificationReport, setVerificationReport] = useState<any>(null);
   
   // Advanced reservation flow state
@@ -2880,7 +2885,7 @@ export default function CommunityDetail() {
               {/* Live Market Data Tab */}
               <TabsContent value="market-data" className="space-y-6 mt-6">
                 {/* Real-Time AI Insights */}
-                <RealTimeInsights community={community} />
+                <RealTimeInsights community={community} onVerificationReport={setVerificationReport} />
 
                 {/* Intelligent Pricing Prediction */}
                 <IntelligentPricingPrediction community={community} />
