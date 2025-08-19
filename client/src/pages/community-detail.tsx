@@ -2019,14 +2019,38 @@ export default function CommunityDetail() {
 
             {/* Tabbed Content Section */}
             <Tabs defaultValue="community-info" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="community-info">Community Information</TabsTrigger>
-                <TabsTrigger value="availability">Availability</TabsTrigger>
-                <TabsTrigger value="market-data">Live Market Data</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-1 rounded-xl shadow-lg border-2 border-blue-200 dark:border-blue-700">
+                <TabsTrigger 
+                  value="community-info" 
+                  className="data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-lg data-[state=active]:font-bold text-gray-600 dark:text-gray-300 font-semibold transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400"
+                >
+                  <Building className="w-4 h-4 mr-2" />
+                  Community Information
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="availability" 
+                  className="data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-lg data-[state=active]:font-bold text-gray-600 dark:text-gray-300 font-semibold transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400"
+                >
+                  <Home className="w-4 h-4 mr-2" />
+                  Availability
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="market-data" 
+                  className="data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-lg data-[state=active]:font-bold text-gray-600 dark:text-gray-300 font-semibold transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400"
+                >
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Live Market Data
+                </TabsTrigger>
               </TabsList>
 
               {/* Community Information Tab */}
               <TabsContent value="community-info" className="space-y-6 mt-6">
+                {/* Pricing History & Transparency - Moved from Availability Tab */}
+                <PricingHistory 
+                  communityId={community.id} 
+                  communityName={community.name} 
+                />
+
                 {/* Contact & Tour Section */}
             <Card>
               <CardContent className="p-0">
@@ -2381,12 +2405,6 @@ export default function CommunityDetail() {
 
               {/* Availability Tab */}
               <TabsContent value="availability" className="space-y-6 mt-6">
-                {/* Pricing History & Transparency */}
-                <PricingHistory 
-                  communityId={community.id} 
-                  communityName={community.name} 
-                />
-
                 {/* Available Units Section - Enhanced with Rich Information */}
                 <Card>
               <CardHeader>
