@@ -878,7 +878,7 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
                     </div>
                   </div>
                 )}
-                {realTimeData.waitlistStatus && (
+                {realTimeData?.waitlistStatus && (
                   <div className="flex items-start">
                     <Clock className="w-4 h-4 mt-1 mr-2 text-orange-600" />
                     <div>
@@ -903,14 +903,14 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
           )}
 
           {/* Community Highlights */}
-          {realTimeData.communityHighlights && realTimeData.communityHighlights.length > 0 && (
+          {realTimeData?.communityHighlights && realTimeData?.communityHighlights.length > 0 && (
             <div>
               <h4 className="font-semibold text-lg mb-3 flex items-center">
                 <Award className="w-5 h-5 mr-2 text-purple-600" />
                 Community Achievements
               </h4>
               <div className="space-y-2">
-                {realTimeData.communityHighlights.map((highlight: string, idx: number) => {
+                {realTimeData?.communityHighlights.map((highlight: string, idx: number) => {
                   // Check if highlight is JSON string and parse it
                   let highlightText = highlight;
                   try {
@@ -933,7 +933,7 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
 
           {/* Recent News & Updates */}
           {(() => {
-            const news = parseDataArray(realTimeData.recentNews);
+            const news = parseDataArray(realTimeData?.recentNews);
             return news.length > 0 && (
               <div>
                 <h4 className="font-semibold text-lg mb-3 flex items-center">
@@ -956,7 +956,7 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
 
           {/* Upcoming Events */}
           {(() => {
-            const events = parseDataArray(realTimeData.upcomingEvents);
+            const events = parseDataArray(realTimeData?.upcomingEvents);
             return events.length > 0 && (
               <div>
                 <h4 className="font-semibold text-lg mb-3 flex items-center">
@@ -978,11 +978,11 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
           })()}
 
           {/* Data Sources */}
-          {realTimeData.sources && realTimeData.sources.length > 0 && (
+          {realTimeData?.sources && realTimeData?.sources.length > 0 && (
             <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-                  🔍 Verified by Perplexity AI from {realTimeData.sources.length} trusted sources
+                  🔍 Verified by Perplexity AI from {realTimeData?.sources.length} trusted sources
                 </p>
                 <div className="flex items-center text-xs text-gray-500">
                   <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
