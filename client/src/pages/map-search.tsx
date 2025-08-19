@@ -2051,7 +2051,27 @@ export default function MapSearch() {
                 .map((community: Community, index: number) => (
                   <PrioritizedCommunityCard
                     key={`community-${community.id}`}
-                    community={community}
+                    community={{
+                      ...community,
+                      // Transform priceRange from string to object if needed
+                      priceRange: typeof community.priceRange === 'string' 
+                        ? undefined  // Let the card handle missing price data
+                        : community.priceRange,
+                      // Pass through ALL available data - find its usefulness
+                      occupancyRate: (community as any).occupancyRate,
+                      occupancyRateHud: (community as any).occupancyRateHud,
+                      totalUnits: (community as any).totalUnits,
+                      totalUnitsHud: (community as any).totalUnitsHud,
+                      availableUnits: (community as any).availableUnits,
+                      waitListLength: (community as any).waitListLength,
+                      verified: (community as any).verified,
+                      licenseStatus: (community as any).licenseStatus,
+                      violations: (community as any).violations,
+                      lastInspection: (community as any).lastInspection,
+                      medicalRestrictions: (community as any).medicalRestrictions,
+                      specialPromotions: (community as any).specialPromotions,
+                      moveInCosts: (community as any).moveInCosts
+                    }}
                     variant="list"
                     onSelect={() => handleCommunityClick(community)}
                     onToggleFavorite={() => console.log(`Toggle favorite: ${community.name}`)}
