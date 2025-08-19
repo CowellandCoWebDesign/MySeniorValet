@@ -1234,7 +1234,7 @@ export default function CommunityDetail() {
   React.useEffect(() => {
     if (!id || id === '-1' || isNaN(Number(id))) {
       console.warn('Invalid community ID:', id);
-      setLocation('/search');
+      setLocation('/map-search');
       return;
     }
   }, [id, setLocation]);
@@ -1551,7 +1551,7 @@ export default function CommunityDetail() {
           <BreadcrumbNavigation 
             items={[
               { label: 'Home', href: '/' },
-              { label: 'Communities', href: '/search' },
+              { label: 'Communities', href: '/map-search' },
               { label: community?.name || 'Community Details' }
             ]}
           />

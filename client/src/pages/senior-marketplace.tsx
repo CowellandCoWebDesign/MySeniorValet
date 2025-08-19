@@ -78,7 +78,7 @@ export default function SeniorMarketplace() {
                   Home
                 </Button>
               </Link>
-              <Link href="/search">
+              <Link href="/map-search">
                 <Button variant="ghost" className="text-gray-700 dark:text-gray-300">
                   <Search className="w-4 h-4 mr-2" />
                   Search
@@ -116,7 +116,7 @@ export default function SeniorMarketplace() {
                         Home
                       </Button>
                     </Link>
-                    <Link href="/search" onClick={() => setIsMenuOpen(false)}>
+                    <Link href="/map-search" onClick={() => setIsMenuOpen(false)}>
                       <Button variant="ghost" className="w-full justify-start">
                         <Search className="w-4 h-4 mr-2" />
                         Search Communities

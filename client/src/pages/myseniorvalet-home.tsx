@@ -371,7 +371,7 @@ export default function MySeniorValetHome() {
                           <Home className="h-5 w-5" />
                           <span>Home</span>
                         </Link>
-                        <Link href="/search" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <Link href="/map-search" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
                           <Search className="h-5 w-5" />
                           <span>Search Communities</span>
                         </Link>

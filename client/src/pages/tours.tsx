@@ -226,7 +226,7 @@ export default function ToursPage() {
             <Card>
               <CardContent className="text-center py-8">
                 <p className="text-gray-500 mb-4">You don't have any upcoming tours scheduled.</p>
-                <Button onClick={() => window.location.href = "/map-search";
+                <Button onClick={() => window.location.href = "/map-search"}>
                   Find Communities
                 </Button>
               </CardContent>

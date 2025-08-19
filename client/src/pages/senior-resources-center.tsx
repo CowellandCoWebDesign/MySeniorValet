@@ -823,7 +823,7 @@ export default function SeniorResourcesCenter() {
                             <Button
                               variant="default"
                               size="sm"
-                              onClick={() => setLocation('/search')}
+                              onClick={() => setLocation('/map-search')}
                               className="w-full"
                             >
                               Search Communities
@@ -919,7 +919,7 @@ export default function SeniorResourcesCenter() {
                               <Button
                                 variant="default"
                                 size="sm"
-                                onClick={() => setLocation('/search')}
+                                onClick={() => setLocation('/map-search')}
                                 className="w-full"
                               >
                                 Find Support Services
@@ -1125,8 +1125,8 @@ export default function SeniorResourcesCenter() {
                     variant="outline"
                     className="h-full flex flex-col items-center gap-2 py-4 hover:shadow-lg transition-all hover:border-indigo-400"
                     onClick={() => {
-                      if (tool.link === '/search') {
-                        setLocation('/search');
+                      if (tool.link === '/map-search') {
+                        setLocation('/map-search');
                       } else if (tool.link === '/saved') {
                         setLocation('/saved');
                       } else if (tool.link === '/contact') {
