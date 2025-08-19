@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import HospitalCarousel from "@/components/HospitalCarousel";
 import { CareServiceCard } from "@/components/CareServiceCard";
+import { CareServices3DCarousel } from "@/components/CareServices3DCarousel";
 import { 
   Stethoscope, Home, Activity, Users, Heart, Brain, Shield, Monitor,
   Pill, ChevronRight, CheckCircle, MapPin, Clock, Phone, Star,
@@ -473,6 +474,9 @@ export default function SeniorHealthcareDirectory() {
           </motion.div>
         </div>
       </section>
+
+      {/* 3D Care Services Carousel - Showcasing 8 Government-Verified Care Levels */}
+      <CareServices3DCarousel />
 
       {/* Search and Filter Interface */}
       <section className="px-4 py-8 bg-gradient-to-b from-blue-50 to-white dark:from-gray-800 dark:to-gray-900">
