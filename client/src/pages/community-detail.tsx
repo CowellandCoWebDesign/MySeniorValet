@@ -580,29 +580,9 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
 
 // Real-time AI Insights Component - Enhanced with Multi-AI Verification
 const RealTimeInsights = ({ community, onVerificationReport }: { community: any, onVerificationReport?: (report: any) => void }) => {
-  const [realTimeData, setRealTimeData] = useState<any>(null);
+  const realTimeData = community?.realTimeData;
   const [localVerificationReport, setLocalVerificationReport] = useState<any>(null);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [isLoadingData, setIsLoadingData] = useState(false);
-
-  // Fetch real-time data when component mounts
-  useEffect(() => {
-    if (community?.id && !isLoadingData && !realTimeData) {
-      setIsLoadingData(true);
-      
-      // Simulate real-time data fetch (in production, this would call a real-time API)
-      // For now, create mock real-time data to trigger verification
-      const mockRealTimeData = {
-        currentPricing: "Contact for current pricing",
-        currentAvailability: "Limited availability",
-        lastUpdated: new Date().toISOString(),
-        searchQuery: community.name + " " + community.city + " " + community.state + " pricing availability"
-      };
-      
-      setRealTimeData(mockRealTimeData);
-      setIsLoadingData(false);
-    }
-  }, [community?.id]);
 
   // Trigger Multi-AI verification when real-time data is available
   useEffect(() => {
@@ -626,7 +606,7 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
         }
       })
       .catch(error => {
-        console.error('Verification error:', error);
+        // Silently handle error in production
       })
       .finally(() => {
         setIsVerifying(false);
@@ -634,21 +614,9 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
     }
   }, [realTimeData, community?.id]);
 
-  if (!realTimeData && !isLoadingData) {
+  // Don't render if there's no real-time data yet
+  if (!realTimeData) {
     return null;
-  }
-
-  if (isLoadingData) {
-    return (
-      <Card className="mb-8 border-2 border-blue-200 dark:border-blue-800">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-3 text-gray-600">Loading real-time market data...</span>
-          </div>
-        </CardContent>
-      </Card>
-    );
   }
 
   // Parse text arrays to filter out empty or "no information" responses
