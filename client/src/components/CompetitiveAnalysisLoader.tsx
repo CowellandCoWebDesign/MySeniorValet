@@ -51,7 +51,7 @@ export function CompetitiveAnalysisLoader({ location }: { location: string }) {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentFactIndex((prev) => (prev + 1) % facts.length);
-    }, 3000);
+    }, 7000); // Changed from 3 seconds to 7 seconds for better readability
 
     return () => clearInterval(interval);
   }, []);

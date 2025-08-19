@@ -71,3 +71,4 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - ✅ **Tab Structure Fixed**: Removed redundant TourTracker tab from Community Details page - now shows 3 tabs
 - ✅ **Business Functionality Verified**: Complete verification of community claiming, payment tiers, and dashboard management - all core business features confirmed operational
 - ✅ **Community Management Confirmed**: Communities can claim listings, choose payment tiers (free/$149/$299/$349), and edit information through dashboard based on subscription level
+- ✅ **Loading Screen Timing Optimized**: Increased message display duration from 3 seconds to 7 seconds across all loading components (SearchingMascot and CompetitiveAnalysisLoader) for better readability
