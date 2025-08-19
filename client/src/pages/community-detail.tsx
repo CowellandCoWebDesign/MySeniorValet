@@ -2888,6 +2888,9 @@ export default function CommunityDetail() {
                 {/* Intelligent Pricing Prediction */}
                 <IntelligentPricingPrediction community={community} />
 
+                {/* Pricing History */}
+                <PricingHistory communityId={community.id} communityName={community.name} />
+
                 {/* Community Competitive Analysis */}
                 <CommunityCompetitiveAnalysis community={community} />
               </TabsContent>
