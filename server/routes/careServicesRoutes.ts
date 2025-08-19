@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "../db";
 import { communities } from "../../shared/schema";
-import { sql, or, and, ne, isNotNull, ilike } from "drizzle-orm";
+import { sql, like, or, and, ne, isNotNull } from "drizzle-orm";
 
 const router = Router();
 
@@ -16,93 +16,70 @@ router.get('/care-services', async (req, res) => {
         // Home care services
         and(
           or(
-            ilike(communities.name, '%home care%'),
-            ilike(communities.name, '%caregiving%'),
-            ilike(communities.name, '%visiting%'),
-            ilike(communities.name, '%home health%')
+            like(sql`LOWER(${communities.name})`, '%home care%'),
+            like(sql`LOWER(${communities.name})`, '%caregiving%'),
+            like(sql`LOWER(${communities.name})`, '%visiting%'),
+            like(sql`LOWER(${communities.name})`, '%home health%')
           ),
           // Exclude placement agencies disguised as home care
-          sql`${communities.name} NOT ILIKE '%placement%'`
+          sql`LOWER(${communities.name}) NOT LIKE '%placement%'`
         ),
         // Adult day care
         or(
-          sql`${communities.careTypes}::text ILIKE '%adult day%'`,
-          ilike(communities.name, '%adult day%'),
-          ilike(communities.name, '%day program%')
+          like(sql`LOWER(${communities.careTypes}::text)`, '%adult day%'),
+          like(sql`LOWER(${communities.name})`, '%adult day%'),
+          like(sql`LOWER(${communities.name})`, '%day program%')
         ),
         // Therapy services
         or(
-          sql`${communities.careTypes}::text ILIKE '%therapy%'`,
-          ilike(communities.name, '%therapy%'),
-          ilike(communities.name, '%rehabilitation%'),
-          ilike(communities.name, '%physical therapy%'),
-          ilike(communities.name, '%occupational%')
+          like(sql`LOWER(${communities.careTypes}::text)`, '%therapy%'),
+          like(sql`LOWER(${communities.name})`, '%therapy%'),
+          like(sql`LOWER(${communities.name})`, '%rehabilitation%'),
+          like(sql`LOWER(${communities.name})`, '%physical therapy%'),
+          like(sql`LOWER(${communities.name})`, '%occupational%')
         ),
         // Hospice care
         or(
-          sql`${communities.careTypes}::text ILIKE '%hospice%'`,
-          ilike(communities.name, '%hospice%')
+          like(sql`LOWER(${communities.careTypes}::text)`, '%hospice%'),
+          like(sql`LOWER(${communities.name})`, '%hospice%')
         ),
         // Respite care
         or(
-          sql`${communities.careTypes}::text ILIKE '%respite%'`,
-          ilike(communities.name, '%respite%')
+          like(sql`LOWER(${communities.careTypes}::text)`, '%respite%'),
+          like(sql`LOWER(${communities.name})`, '%respite%')
         ),
         // Personal care services
         or(
-          sql`${communities.careTypes}::text ILIKE '%personal care%'`,
-          ilike(communities.name, '%personal care%')
+          like(sql`LOWER(${communities.careTypes}::text)`, '%personal care%'),
+          like(sql`LOWER(${communities.name})`, '%personal care%')
         ),
         // Dental services
         or(
-          sql`${communities.careTypes}::text ILIKE '%dental%'`,
-          ilike(communities.name, '%dental%')
+          like(sql`LOWER(${communities.careTypes}::text)`, '%dental%'),
+          like(sql`LOWER(${communities.name})`, '%dental%')
         ),
         // Palliative care services
         or(
-          sql`${communities.careTypes}::text ILIKE '%palliative%'`,
-          ilike(communities.name, '%palliative%'),
-          ilike(communities.name, '%comfort care%')
+          like(sql`LOWER(${communities.careTypes}::text)`, '%palliative%'),
+          like(sql`LOWER(${communities.name})`, '%palliative%'),
+          like(sql`LOWER(${communities.name})`, '%comfort care%')
         ),
         // Nutrition services
         or(
-          sql`${communities.careTypes}::text ILIKE '%nutrition%'`,
-          ilike(communities.name, '%nutrition%'),
-          ilike(communities.name, '%dietitian%'),
-          ilike(communities.name, '%dietician%')
-        ),
-        // Companion care services
-        or(
-          sql`${communities.careTypes}::text ILIKE '%companion%'`,
-          ilike(communities.name, '%companion%'),
-          ilike(communities.name, '%visiting angels%'),
-          ilike(communities.name, '%comfort keepers%')
-        ),
-        // Medical equipment services
-        or(
-          sql`${communities.careTypes}::text ILIKE '%medical equipment%'`,
-          ilike(communities.name, '%medical equipment%'),
-          ilike(communities.name, '%medical supply%'),
-          ilike(communities.name, '%healthcare equipment%'),
-          ilike(communities.name, '%apria%'),
-          ilike(communities.name, '%lincare%')
-        ),
-        // Skilled nursing services
-        or(
-          sql`${communities.careTypes}::text ILIKE '%skilled nursing%'`,
-          ilike(communities.name, '%skilled nursing%'),
-          sql`COALESCE(${communities.community_subtype}, '') ILIKE '%skilled nursing%'`,
-          ilike(communities.name, '%snf%')
+          like(sql`LOWER(${communities.careTypes}::text)`, '%nutrition%'),
+          like(sql`LOWER(${communities.name})`, '%nutrition%'),
+          like(sql`LOWER(${communities.name})`, '%dietitian%'),
+          like(sql`LOWER(${communities.name})`, '%dietician%')
         )
       ),
       // Must have phone for verification
       isNotNull(communities.phone),
       ne(communities.phone, ''),
       // Exclude any placement agencies
-      sql`${communities.name} NOT ILIKE '%placement%'`,
-      sql`${communities.name} NOT ILIKE '%referral%'`,
-      sql`${communities.name} NOT ILIKE '%advisor%'`,
-      sql`${communities.name} NOT ILIKE '%locator%'`
+      sql`LOWER(${communities.name}) NOT LIKE '%placement%'`,
+      sql`LOWER(${communities.name}) NOT LIKE '%referral%'`,
+      sql`LOWER(${communities.name}) NOT LIKE '%advisor%'`,
+      sql`LOWER(${communities.name}) NOT LIKE '%locator%'`
     );
 
     // Add location filter if specified
@@ -110,8 +87,8 @@ router.get('/care-services', async (req, res) => {
       whereConditions = and(
         whereConditions,
         or(
-          ilike(communities.city, `%${String(location).toLowerCase()}%`),
-          ilike(communities.state, `%${String(location).toLowerCase()}%`)
+          like(sql`LOWER(${communities.city})`, `%${String(location).toLowerCase()}%`),
+          like(sql`LOWER(${communities.state})`, `%${String(location).toLowerCase()}%`)
         )
       );
     }
@@ -129,8 +106,37 @@ router.get('/care-services', async (req, res) => {
         website: communities.website,
         latitude: communities.latitude,
         longitude: communities.longitude,
-        // Categorize services - simplified to avoid SQL syntax issues
-        serviceCategory: sql<string>`'Care Services'`,
+        // Categorize services - NO placement agencies
+        serviceCategory: sql<string>`
+          CASE 
+            WHEN LOWER(${communities.name}) LIKE '%home care%' OR LOWER(${communities.name}) LIKE '%caregiving%' 
+                 OR LOWER(${communities.name}) LIKE '%visiting%' OR LOWER(${communities.name}) LIKE '%home health%' THEN 'Home Care Services'
+            WHEN LOWER(${communities.careTypes}::text) LIKE '%adult day%' 
+                 OR LOWER(${communities.name}) LIKE '%adult day%' 
+                 OR LOWER(${communities.name}) LIKE '%day program%' THEN 'Adult Day Care'
+            WHEN LOWER(${communities.careTypes}::text) LIKE '%therapy%' 
+                 OR LOWER(${communities.name}) LIKE '%therapy%' 
+                 OR LOWER(${communities.name}) LIKE '%rehabilitation%'
+                 OR LOWER(${communities.name}) LIKE '%physical therapy%'
+                 OR LOWER(${communities.name}) LIKE '%occupational%' THEN 'Therapy Services'
+            WHEN LOWER(${communities.careTypes}::text) LIKE '%hospice%' 
+                 OR LOWER(${communities.name}) LIKE '%hospice%' THEN 'Hospice Care'
+            WHEN LOWER(${communities.careTypes}::text) LIKE '%respite%' 
+                 OR LOWER(${communities.name}) LIKE '%respite%' THEN 'Respite Care'
+            WHEN LOWER(${communities.careTypes}::text) LIKE '%personal care%' 
+                 OR LOWER(${communities.name}) LIKE '%personal care%' THEN 'Personal Care Services'
+            WHEN LOWER(${communities.careTypes}::text) LIKE '%dental%' 
+                 OR LOWER(${communities.name}) LIKE '%dental%' THEN 'Dental Services'
+            WHEN LOWER(${communities.careTypes}::text) LIKE '%palliative%' 
+                 OR LOWER(${communities.name}) LIKE '%palliative%' 
+                 OR LOWER(${communities.name}) LIKE '%comfort care%' THEN 'Palliative Care'
+            WHEN LOWER(${communities.careTypes}::text) LIKE '%nutrition%' 
+                 OR LOWER(${communities.name}) LIKE '%nutrition%' 
+                 OR LOWER(${communities.name}) LIKE '%dietitian%' 
+                 OR LOWER(${communities.name}) LIKE '%dietician%' THEN 'Nutrition Services'
+            ELSE 'Care Services'
+          END
+        `.as('serviceCategory'),
         // Add rating from metadata if available
         rating: communities.rating,
         // Add email if available
@@ -138,21 +144,32 @@ router.get('/care-services', async (req, res) => {
       })
       .from(communities)
       .where(whereConditions)
-      .orderBy(communities.name);
+      .orderBy(sql`
+        CASE 
+          WHEN LOWER(${communities.name}) LIKE '%home care%' OR LOWER(${communities.name}) LIKE '%caregiving%' 
+               OR LOWER(${communities.name}) LIKE '%visiting%' OR LOWER(${communities.name}) LIKE '%home health%' THEN 'Home Care Services'
+          WHEN LOWER(${communities.careTypes}::text) LIKE '%adult day%' 
+               OR LOWER(${communities.name}) LIKE '%adult day%' 
+               OR LOWER(${communities.name}) LIKE '%day program%' THEN 'Adult Day Care'
+          WHEN LOWER(${communities.careTypes}::text) LIKE '%therapy%' 
+               OR LOWER(${communities.name}) LIKE '%therapy%' 
+               OR LOWER(${communities.name}) LIKE '%rehabilitation%' THEN 'Therapy Services'
+          WHEN LOWER(${communities.careTypes}::text) LIKE '%hospice%' 
+               OR LOWER(${communities.name}) LIKE '%hospice%' THEN 'Hospice Care'
+          WHEN LOWER(${communities.careTypes}::text) LIKE '%respite%' 
+               OR LOWER(${communities.name}) LIKE '%respite%' THEN 'Respite Care'
+          WHEN LOWER(${communities.careTypes}::text) LIKE '%personal care%' 
+               OR LOWER(${communities.name}) LIKE '%personal care%' THEN 'Personal Care Services'
+          ELSE 'Care Services'
+        END
+      `, communities.name);
     
-    // Apply limit (default to 100 if not specified)
-    careServicesQuery = careServicesQuery.limit(limit ? Number(limit) : 100);
+    // Apply limit only if specified
+    if (limit) {
+      careServicesQuery = careServicesQuery.limit(Number(limit));
+    }
       
     const queryResult = await careServicesQuery;
-    
-    console.log('Query returned', queryResult.length, 'services');
-    if (queryResult.length > 0) {
-      console.log('First few services:', queryResult.slice(0, 3).map(s => ({
-        name: s.name,
-        category: s.serviceCategory,
-        careTypes: s.careTypes
-      })));
-    }
 
     // Remove duplicates based on phone number and address
     const uniqueServicesMap = new Map();
@@ -164,16 +181,12 @@ router.get('/care-services', async (req, res) => {
     });
     
     let uniqueServices = Array.from(uniqueServicesMap.values());
-    console.log('After deduplication:', uniqueServices.length, 'services');
 
     // Add category filter if specified
     if (category) {
-      console.log('Filtering for category:', category);
-      const beforeFilter = uniqueServices.length;
       uniqueServices = uniqueServices.filter(service => 
         service.serviceCategory.toLowerCase().includes(String(category).toLowerCase())
       );
-      console.log('After category filter:', uniqueServices.length, 'services (was', beforeFilter, ')');
     }
 
     res.json({
@@ -185,13 +198,7 @@ router.get('/care-services', async (req, res) => {
         'Therapy Services',
         'Hospice Care',
         'Respite Care',
-        'Personal Care Services',
-        'Dental Services',
-        'Palliative Care',
-        'Nutrition Services',
-        'Companion Care',
-        'Medical Equipment',
-        'Skilled Nursing'
+        'Personal Care Services'
       ]
     });
 
@@ -216,68 +223,19 @@ router.get('/care-services/category/:category', async (req, res) => {
         );
         break;
       case 'adult-day':
-        categoryFilter = sql`LOWER(${communities.careTypes}::text) LIKE '%adult day%'`;
+        categoryFilter = like(sql`LOWER(${communities.careTypes}::text)`, '%adult day%');
         break;
       case 'therapy':
-        categoryFilter = sql`LOWER(${communities.careTypes}::text) LIKE '%therapy%'`;
+        categoryFilter = like(sql`LOWER(${communities.careTypes}::text)`, '%therapy%');
         break;
       case 'hospice':
-        categoryFilter = sql`LOWER(${communities.careTypes}::text) LIKE '%hospice%'`;
+        categoryFilter = like(sql`LOWER(${communities.careTypes}::text)`, '%hospice%');
         break;
       case 'respite':
-        categoryFilter = sql`LOWER(${communities.careTypes}::text) LIKE '%respite%'`;
+        categoryFilter = like(sql`LOWER(${communities.careTypes}::text)`, '%respite%');
         break;
       case 'personal-care':
-        categoryFilter = sql`LOWER(${communities.careTypes}::text) LIKE '%personal care%'`;
-        break;
-      case 'dental':
-        categoryFilter = or(
-          sql`LOWER(${communities.careTypes}::text) LIKE '%dental%'`,
-          like(sql`LOWER(${communities.name})`, '%dental%')
-        );
-        break;
-      case 'palliative':
-        categoryFilter = or(
-          sql`LOWER(${communities.careTypes}::text) LIKE '%palliative%'`,
-          like(sql`LOWER(${communities.name})`, '%palliative%'),
-          like(sql`LOWER(${communities.name})`, '%comfort care%')
-        );
-        break;
-      case 'nutrition':
-        categoryFilter = or(
-          sql`LOWER(${communities.careTypes}::text) LIKE '%nutrition%'`,
-          like(sql`LOWER(${communities.name})`, '%nutrition%'),
-          like(sql`LOWER(${communities.name})`, '%dietitian%'),
-          like(sql`LOWER(${communities.name})`, '%dietician%')
-        );
-        break;
-      case 'companion':
-        categoryFilter = or(
-          sql`LOWER(${communities.careTypes}::text) LIKE '%companion%'`,
-          like(sql`LOWER(${communities.name})`, '%companion%'),
-          like(sql`LOWER(${communities.name})`, '%visiting angels%'),
-          like(sql`LOWER(${communities.name})`, '%comfort keepers%')
-        );
-        break;
-      case 'medical':
-      case 'medical-equipment':
-        categoryFilter = or(
-          sql`LOWER(${communities.careTypes}::text) LIKE '%medical equipment%'`,
-          like(sql`LOWER(${communities.name})`, '%medical equipment%'),
-          like(sql`LOWER(${communities.name})`, '%medical supply%'),
-          like(sql`LOWER(${communities.name})`, '%healthcare equipment%'),
-          like(sql`LOWER(${communities.name})`, '%apria%'),
-          like(sql`LOWER(${communities.name})`, '%lincare%')
-        );
-        break;
-      case 'skilled':
-      case 'skilled-nursing':
-        categoryFilter = or(
-          sql`LOWER(${communities.careTypes}::text) LIKE '%skilled nursing%'`,
-          like(sql`LOWER(${communities.name})`, '%skilled nursing%'),
-          sql`LOWER(COALESCE(${communities.community_subtype}, '')) LIKE '%skilled nursing%'`,
-          like(sql`LOWER(${communities.name})`, '%snf%')
-        );
+        categoryFilter = like(sql`LOWER(${communities.careTypes}::text)`, '%personal care%');
         break;
       default:
         return res.status(400).json({ message: 'Invalid category' });
@@ -294,8 +252,8 @@ router.get('/care-services/category/:category', async (req, res) => {
       whereConditions = and(
         whereConditions,
         or(
-          ilike(communities.city, `%${String(location).toLowerCase()}%`),
-          ilike(communities.state, `%${String(location).toLowerCase()}%`)
+          like(sql`LOWER(${communities.city})`, `%${String(location).toLowerCase()}%`),
+          like(sql`LOWER(${communities.state})`, `%${String(location).toLowerCase()}%`)
         )
       );
     }
@@ -354,21 +312,21 @@ router.get('/care-services/analytics/summary', async (req, res) => {
             like(sql`LOWER(${communities.name})`, '%caregiving%'),
             like(sql`LOWER(${communities.name})`, '%visiting%'),
             like(sql`LOWER(${communities.name})`, '%home health%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%adult day%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%adult day%'),
             like(sql`LOWER(${communities.name})`, '%adult day%'),
             like(sql`LOWER(${communities.name})`, '%day program%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%personal care%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%personal care%'),
             like(sql`LOWER(${communities.name})`, '%personal care%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%companion%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%companion%'),
             like(sql`LOWER(${communities.name})`, '%companion%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%nursing%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%nursing%'),
             like(sql`LOWER(${communities.name})`, '%nursing%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%dental%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%dental%'),
             like(sql`LOWER(${communities.name})`, '%dental%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%palliative%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%palliative%'),
             like(sql`LOWER(${communities.name})`, '%palliative%'),
             like(sql`LOWER(${communities.name})`, '%comfort care%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%nutrition%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%nutrition%'),
             like(sql`LOWER(${communities.name})`, '%nutrition%'),
             like(sql`LOWER(${communities.name})`, '%dietitian%'),
             like(sql`LOWER(${communities.name})`, '%dietician%')
@@ -415,26 +373,26 @@ router.get('/care-services/analytics', async (req, res) => {
             like(sql`LOWER(${communities.name})`, '%caregiving%'),
             like(sql`LOWER(${communities.name})`, '%visiting%'),
             like(sql`LOWER(${communities.name})`, '%home health%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%adult day%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%adult day%'),
             like(sql`LOWER(${communities.name})`, '%adult day%'),
             like(sql`LOWER(${communities.name})`, '%day program%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%therapy%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%therapy%'),
             like(sql`LOWER(${communities.name})`, '%therapy%'),
             like(sql`LOWER(${communities.name})`, '%rehabilitation%'),
             like(sql`LOWER(${communities.name})`, '%physical therapy%'),
             like(sql`LOWER(${communities.name})`, '%occupational%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%hospice%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%hospice%'),
             like(sql`LOWER(${communities.name})`, '%hospice%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%respite%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%respite%'),
             like(sql`LOWER(${communities.name})`, '%respite%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%personal care%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%personal care%'),
             like(sql`LOWER(${communities.name})`, '%personal care%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%dental%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%dental%'),
             like(sql`LOWER(${communities.name})`, '%dental%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%palliative%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%palliative%'),
             like(sql`LOWER(${communities.name})`, '%palliative%'),
             like(sql`LOWER(${communities.name})`, '%comfort care%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%nutrition%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%nutrition%'),
             like(sql`LOWER(${communities.name})`, '%nutrition%'),
             like(sql`LOWER(${communities.name})`, '%dietitian%'),
             like(sql`LOWER(${communities.name})`, '%dietician%')
@@ -486,19 +444,19 @@ router.get('/care-services/canadian', async (req, res) => {
             like(sql`LOWER(${communities.name})`, '%caregiving%'),
             like(sql`LOWER(${communities.name})`, '%visiting%'),
             like(sql`LOWER(${communities.name})`, '%home health%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%adult day%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%adult day%'),
             like(sql`LOWER(${communities.name})`, '%adult day%'),
             like(sql`LOWER(${communities.name})`, '%day program%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%therapy%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%therapy%'),
             like(sql`LOWER(${communities.name})`, '%therapy%'),
             like(sql`LOWER(${communities.name})`, '%rehabilitation%'),
             like(sql`LOWER(${communities.name})`, '%physical therapy%'),
             like(sql`LOWER(${communities.name})`, '%occupational%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%hospice%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%hospice%'),
             like(sql`LOWER(${communities.name})`, '%hospice%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%respite%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%respite%'),
             like(sql`LOWER(${communities.name})`, '%respite%'),
-            sql`LOWER(${communities.careTypes}::text) LIKE '%personal care%'`,
+            like(sql`LOWER(${communities.careTypes}::text)`, '%personal care%'),
             like(sql`LOWER(${communities.name})`, '%personal care%')
           ),
           // Must have phone
@@ -566,13 +524,13 @@ router.get('/care-services/search', async (req, res) => {
       or(
         like(sql`LOWER(${communities.name})`, '%home care%'),
         like(sql`LOWER(${communities.name})`, '%caregiving%'),
-        sql`LOWER(${communities.careTypes}::text) LIKE '%adult day%'`,
-        sql`LOWER(${communities.careTypes}::text) LIKE '%therapy%'`,
-        sql`LOWER(${communities.careTypes}::text) LIKE '%hospice%'`,
-        sql`LOWER(${communities.careTypes}::text) LIKE '%respite%'`,
-        sql`LOWER(${communities.careTypes}::text) LIKE '%personal care%'`
+        like(sql`LOWER(${communities.careTypes}::text)`, '%adult day%'),
+        like(sql`LOWER(${communities.careTypes}::text)`, '%therapy%'),
+        like(sql`LOWER(${communities.careTypes}::text)`, '%hospice%'),
+        like(sql`LOWER(${communities.careTypes}::text)`, '%respite%'),
+        like(sql`LOWER(${communities.careTypes}::text)`, '%personal care%')
       ),
-      ilike(communities.name, `%${String(q).toLowerCase()}%`),
+      like(sql`LOWER(${communities.name})`, `%${String(q).toLowerCase()}%`),
       isNotNull(communities.phone)
     );
 
@@ -581,8 +539,8 @@ router.get('/care-services/search', async (req, res) => {
       whereConditions = and(
         whereConditions,
         or(
-          ilike(communities.city, `%${String(location).toLowerCase()}%`),
-          ilike(communities.state, `%${String(location).toLowerCase()}%`)
+          like(sql`LOWER(${communities.city})`, `%${String(location).toLowerCase()}%`),
+          like(sql`LOWER(${communities.state})`, `%${String(location).toLowerCase()}%`)
         )
       );
     }
