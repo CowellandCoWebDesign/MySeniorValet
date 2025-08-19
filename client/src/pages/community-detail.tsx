@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'wouter';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, Lock,
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
-         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope } from 'lucide-react';
+         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3 } from 'lucide-react';
 import type { Community } from '@shared/schema';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -38,6 +38,160 @@ import { MessageCommunityButton } from "@/components/message-community-button";
 import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
 import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
 import { PricingHistory } from "@/components/pricing-history";
+import { apiRequest } from "@/lib/queryClient";
+
+// Community Competitive Analysis Component
+const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
+  const [analysis, setAnalysis] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  const fetchAnalysis = async () => {
+    if (!community?.city || !community?.state) return;
+    
+    setIsLoading(true);
+    try {
+      const response = await apiRequest('POST', '/api/competitive-analysis', {
+        city: community.city,
+        state: community.state
+      });
+      const data = await response.json();
+      setAnalysis(data);
+      setIsExpanded(true);
+    } catch (error) {
+      console.error('Failed to fetch competitive analysis:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  return (
+    <Card className="mb-8 border-2 border-indigo-200 dark:border-indigo-800">
+      <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
+        <CardTitle className="text-xl font-bold flex items-center justify-between">
+          <div className="flex items-center">
+            <BarChart3 className="w-6 h-6 mr-2 text-indigo-600" />
+            Local Market Analysis for {community?.city}, {community?.state}
+          </div>
+          {!analysis && (
+            <Button 
+              onClick={fetchAnalysis}
+              disabled={isLoading}
+              className="bg-indigo-600 hover:bg-indigo-700"
+              size="sm"
+            >
+              {isLoading ? 'Analyzing...' : 'Analyze Market'}
+            </Button>
+          )}
+        </CardTitle>
+        <CardDescription>
+          Compare pricing with other communities in {community?.city}
+        </CardDescription>
+      </CardHeader>
+      
+      {analysis && (
+        <CardContent className="space-y-6 pt-6">
+          {/* Core Pricing Comparison */}
+          {analysis.averagePrice && (
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
+              <h3 className="font-semibold text-lg mb-4 flex items-center">
+                <DollarSign className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
+                Local Market Pricing
+              </h3>
+              
+              <div className="grid md:grid-cols-3 gap-4 mb-4">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Average Price</p>
+                  <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                    {analysis.averagePrice}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Price Range</p>
+                  <p className="text-xl font-semibold text-gray-700 dark:text-gray-300">
+                    {analysis.priceRange || analysis.averagePrice}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">vs National Average</p>
+                  <div className="flex items-center gap-2">
+                    {analysis.nationalComparison?.includes('higher') ? (
+                      <TrendingUp className="w-5 h-5 text-red-500" />
+                    ) : analysis.nationalComparison?.includes('lower') ? (
+                      <TrendingDown className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <Minus className="w-5 h-5 text-gray-500" />
+                    )}
+                    <p className="text-sm font-medium">
+                      {analysis.nationalComparison || 'Similar to national average'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Market Insights */}
+          {analysis.insights && analysis.insights.length > 0 && (
+            <div>
+              <h3 className="font-semibold text-lg mb-3 flex items-center">
+                <Brain className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
+                Key Market Insights
+              </h3>
+              <ul className="space-y-2">
+                {analysis.insights.slice(0, isExpanded ? undefined : 3).map((insight: string, index: number) => (
+                  <li key={index} className="flex items-start gap-3 p-3 bg-purple-50/50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <span className="text-purple-500 mt-1">✓</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{insight}</span>
+                  </li>
+                ))}
+              </ul>
+              {analysis.insights.length > 3 && !isExpanded && (
+                <Button
+                  onClick={() => setIsExpanded(true)}
+                  variant="ghost"
+                  className="mt-3 text-purple-600 hover:text-purple-700"
+                  size="sm"
+                >
+                  <ChevronDown className="w-4 h-4 mr-1" />
+                  Show {analysis.insights.length - 3} more insights
+                </Button>
+              )}
+            </div>
+          )}
+          
+          {/* Data Sources */}
+          {analysis.sources && analysis.sources.length > 0 && (
+            <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-2">
+                <Globe className="w-3 h-3" />
+                Data Sources:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {analysis.sources.map((source: string, index: number) => (
+                  <Badge key={index} variant="secondary" className="text-xs">
+                    {source}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Disclaimer */}
+          <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+            <p className="text-xs text-amber-700 dark:text-amber-400 flex items-start gap-2">
+              <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+              <span>
+                Market analysis based on current web data. Actual pricing may vary. 
+                Contact {community?.name} directly for current rates.
+              </span>
+            </p>
+          </div>
+        </CardContent>
+      )}
+    </Card>
+  );
+};
 
 // Intelligent Pricing Prediction Component
 const IntelligentPricingPrediction = ({ community }: { community: any }) => {
@@ -1943,6 +2097,9 @@ export default function CommunityDetail() {
               communityId={community.id} 
               communityName={community.name} 
             />
+
+            {/* Community Competitive Analysis */}
+            <CommunityCompetitiveAnalysis community={community} />
 
             {/* Available Units Section - Enhanced with Rich Information */}
             <Card>
