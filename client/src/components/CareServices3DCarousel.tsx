@@ -1,7 +1,7 @@
 import React, { useState, TouchEvent, MouseEvent } from 'react';
 import { Link } from 'wouter';
 import { 
-  Brain, 
+  Activity,
   Heart, 
   Home, 
   Sun, 
@@ -28,38 +28,38 @@ export const CareServices3DCarousel = () => {
 
   const careServices = [
     {
-      id: 'memory-care',
-      name: 'Memory Care',
-      icon: Brain,
+      id: 'therapy-services',
+      name: 'Therapy Services',
+      icon: Activity,
       color: 'bg-gradient-to-br from-purple-600 to-purple-800',
-      avgCost: '$5,500-$8,000/mo',
-      details: 'Specialized dementia & Alzheimer\'s care',
-      federalProgram: 'CMS Dementia Care Standards',
-      coverage: '1.2M Americans served',
+      avgCost: '$75-$150/session',
+      details: 'Physical, Occupational & Speech therapy',
+      federalProgram: 'Medicare Part B',
+      coverage: '10M+ beneficiaries',
       keyFeatures: [
-        'Secure environment',
-        'Cognitive therapies',
-        '24/7 specialized staff',
-        'Medicare coverage available'
+        'Physical therapy',
+        'Occupational therapy',
+        'Speech therapy',
+        'Medicare Part B covered'
       ],
-      linkPath: '/care-types/memory-care'
+      linkPath: '/therapy-services'
     },
     {
-      id: 'assisted-living',
-      name: 'Assisted Living',
-      icon: Heart,
+      id: 'respite-care',
+      name: 'Respite Care',
+      icon: Clock,
       color: 'bg-gradient-to-br from-blue-600 to-blue-800',
-      avgCost: '$4,500-$7,000/mo',
-      details: 'Help with daily activities & medication',
-      federalProgram: 'Medicaid HCBS Coverage',
-      coverage: '800K+ residents nationwide',
+      avgCost: '$100-$300/day',
+      details: 'Temporary relief for family caregivers',
+      federalProgram: 'ARCH National Respite',
+      coverage: '66M caregivers need respite',
       keyFeatures: [
-        'Personal care assistance',
-        'Medication management',
-        'Social activities',
-        'Medicaid accepted'
+        'Caregiver relief',
+        'Short-term stays',
+        'In-home or facility',
+        'Medicaid waiver programs'
       ],
-      linkPath: '/assisted-living'
+      linkPath: '/respite-care'
     },
     {
       id: 'home-care',
@@ -237,10 +237,10 @@ export const CareServices3DCarousel = () => {
         {/* Header */}
         <div className="text-center pt-4">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-2 drop-shadow-2xl">
-            8 LEVELS OF PROFESSIONAL CARE
+            8 ESSENTIAL CARE SERVICES
           </h2>
           <p className="text-xl md:text-2xl text-gray-200 font-bold drop-shadow-lg mb-4">
-            Every Service Backed by Federal Standards & Medicare Coverage
+            Professional Healthcare Services Backed by Federal Programs
           </p>
           <div className="flex items-center justify-center gap-2 mb-4">
             <Badge className="bg-green-500/20 text-green-300 border-green-400/30">
