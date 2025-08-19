@@ -2632,3 +2632,25 @@ body {
     filter: blur(0.3px) brightness(1.2);
   }
 }
+
+/* Hero button glow animation */
+.hero-search-button-glow {
+  animation: hero-button-pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  position: relative;
+}
+
+@keyframes hero-button-pulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 20px rgba(147, 51, 234, 0.5),
+      0 0 40px rgba(59, 130, 246, 0.3),
+      inset 0 0 15px rgba(147, 51, 234, 0.2);
+  }
+  50% {
+    box-shadow: 
+      0 0 30px rgba(147, 51, 234, 0.8),
+      0 0 60px rgba(59, 130, 246, 0.5),
+      0 0 80px rgba(147, 51, 234, 0.3),
+      inset 0 0 20px rgba(147, 51, 234, 0.3);
+  }
+}

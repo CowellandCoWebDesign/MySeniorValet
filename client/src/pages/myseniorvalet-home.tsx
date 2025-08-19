@@ -799,7 +799,11 @@ export default function MySeniorValetHome() {
                     </div>
                     <button
                       type="submit"
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-2 m-2 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
+                      className="hero-search-button-glow bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-2 m-2 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg hover:scale-105"
+                      style={{
+                        boxShadow: '0 0 20px rgba(147, 51, 234, 0.5), 0 0 40px rgba(59, 130, 246, 0.3)',
+                        transition: 'all 0.3s ease'
+                      }}
                     >
                       <Search className="w-5 h-5" />
                     </button>
