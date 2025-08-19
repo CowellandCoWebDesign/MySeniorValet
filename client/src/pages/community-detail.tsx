@@ -1035,6 +1035,7 @@ export default function CommunityDetail() {
   const [selectedUnitType, setSelectedUnitType] = useState<string | null>(null);
   const [expandedUnits, setExpandedUnits] = useState<Set<string>>(new Set());
   const [verificationReport, setVerificationReport] = useState<any>(null);
+  const [competitiveAnalysisData, setCompetitiveAnalysisData] = useState<any>(null);
   
   // Advanced reservation flow state
   const [showAdvancedReservation, setShowAdvancedReservation] = useState(false);
@@ -1059,6 +1060,23 @@ export default function CommunityDetail() {
     queryKey: [`/api/communities/${id}`],
     enabled: !!id && id !== '-1' && !isNaN(Number(id)),
   });
+
+  // Fetch competitive analysis data
+  React.useEffect(() => {
+    if (community?.city && community?.state) {
+      fetch('/api/competitive-analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          location: `${community.city}, ${community.state}`,
+          type: 'city' 
+        })
+      })
+      .then(res => res.json())
+      .then(data => setCompetitiveAnalysisData(data))
+      .catch(err => console.error('Failed to fetch competitive analysis:', err));
+    }
+  }, [community?.city, community?.state]);
 
   if (!id || id === '-1' || isNaN(Number(id))) {
     return <div className="flex justify-center items-center h-64">Invalid community ID</div>;

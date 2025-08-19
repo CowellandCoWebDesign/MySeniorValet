@@ -1,11 +1,15 @@
 import express from 'express';
 import { PerplexityAIService } from '../perplexity-ai-service';
+import { AnthropicAIService } from '../anthropic-ai-service';
+import { openAIIntegration } from '../openai-integration';
 import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { sql } from 'drizzle-orm';
 
 const router = express.Router();
 const perplexityService = new PerplexityAIService();
+const anthropicService = new AnthropicAIService();
+const openaiService = openAIIntegration;
 
 // Competitive Analysis endpoint
 router.post('/api/competitive-analysis', async (req, res) => {
@@ -39,14 +43,60 @@ router.post('/api/competitive-analysis', async (req, res) => {
         break;
     }
 
-    // Use Perplexity to get real-time market data
-    const perplexityResponse = await perplexityService.searchRealTime(contextQuery);
-
-    // Parse the response to extract pricing information
-    const content = perplexityResponse.summary || '';
-    const sources = perplexityResponse.sources || [];
+    // ORCHESTRA PATTERN: Multiple AI sources with fallback positions
+    console.log('🎭 AI Orchestra starting competitive analysis for:', location);
     
-    console.log('Perplexity response content:', content); // Debug logging
+    // Position 1: Perplexity for real-time web search data
+    let perplexityData = null;
+    let claudeAnalysis = null;
+    let openaiInsights = null;
+    
+    try {
+      console.log('  Position 1: Perplexity searching real-time market data...');
+      const perplexityResponse = await perplexityService.searchRealTime(contextQuery);
+      perplexityData = {
+        content: perplexityResponse.summary || '',
+        sources: perplexityResponse.sources || [],
+        confidence: 0.9 // High confidence for real-time data
+      };
+    } catch (error) {
+      console.error('  ⚠️ Perplexity unavailable, moving to next position');
+    }
+    
+    // Position 2: Claude for deep reasoning and analysis
+    try {
+      console.log('  Position 2: Claude analyzing market patterns...');
+      const claudePrompt = `Analyze senior living pricing in ${location}. Based on current market trends, what are the typical monthly costs for assisted living, memory care, and skilled nursing? Provide specific price ranges and factors affecting costs.`;
+      claudeAnalysis = await anthropicService.analyzeWithClaude(claudePrompt);
+    } catch (error) {
+      console.error('  ⚠️ Claude unavailable, moving to next position');
+    }
+    
+    // Position 3: OpenAI GPT-4o as fallback for pricing insights
+    try {
+      console.log('  Position 3: GPT-4o providing fallback analysis...');
+      const openaiPrompt = `What are the average senior living costs in ${location}? Include pricing for different care levels and how they compare to national averages.`;
+      openaiInsights = await openaiService.analyzePricing(openaiPrompt);
+    } catch (error) {
+      console.error('  ⚠️ GPT-4o unavailable');
+    }
+    
+    // Combine all available data sources
+    const orchestraResults = {
+      perplexity: perplexityData,
+      claude: claudeAnalysis,
+      openai: openaiInsights
+    };
+    
+    // Priority content selection (first available wins)
+    const content = perplexityData?.content || claudeAnalysis || openaiInsights || '';
+    const sources = perplexityData?.sources || [];
+    
+    console.log('🎭 Orchestra complete. Active sources:', {
+      perplexity: !!perplexityData,
+      claude: !!claudeAnalysis,
+      openai: !!openaiInsights
+    });
     
     // Extract pricing information from the response with multiple patterns
     const pricePatterns = [
@@ -157,6 +207,13 @@ router.post('/api/competitive-analysis', async (req, res) => {
         'Location within the city/state affects pricing substantially'
       ],
       detailedSummary: content, // Add the full Perplexity response
+      orchestraStatus: {
+        perplexity: perplexityData ? 'Active (Real-time web search)' : 'Unavailable',
+        claude: claudeAnalysis ? 'Active (Deep analysis)' : 'Standby',
+        openai: openaiInsights ? 'Active (Backup insights)' : 'Standby',
+        primarySource: perplexityData ? 'Perplexity AI' : claudeAnalysis ? 'Claude AI' : openaiInsights ? 'OpenAI GPT-4o' : 'Fallback data',
+        confidence: perplexityData ? 0.9 : claudeAnalysis ? 0.85 : openaiInsights ? 0.8 : 0.6
+      },
       lastUpdated: new Date().toISOString(),
       sources: sources.length > 0 ? sources.map(s => {
         try {
