@@ -1976,106 +1976,8 @@ export default function CommunityDetail() {
                 </TabsTrigger>
               </TabsList>
 
-            {/* Community Claim Status Card */}
-            <Card className="border-2 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 mt-6">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-amber-100 dark:bg-amber-800 rounded-lg">
-                    <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-300" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                      Community Claim Status
-                    </h3>
-                    <div className="space-y-2">
-                      {/* MySeniorValet Verification Status - Always show as pending since no claims approved */}
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-amber-500" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                          <span className="font-medium">Not Verified</span> - Pending MySeniorValet.com verification
-                        </span>
-                      </div>
-
-                      {/* Data Source - Display actual verified data_source field */}
-                      <div className="flex items-center gap-2">
-                        {(community as any).data_source ? (
-                          <>
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">Verified Source:</span> {(community as any).data_source}
-                            </span>
-                          </>
-                        ) : community.hudPropertyId ? (
-                          <>
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">HUD Database</span> - Government verified source
-                            </span>
-                          </>
-                        ) : (community as any).dataSource?.includes('state') ? (
-                          <>
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">State Database</span> - Government licensing data
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <Info className="w-4 h-4 text-blue-500" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">Public Records</span> - Awaiting verification
-                            </span>
-                          </>
-                        )}
-                      </div>
-
-                      {/* Real-time Updates Status - Now with Perplexity AI */}
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                          <span className="font-medium">Real-time Market Data</span> - Powered by Perplexity AI web search
-                        </span>
-                      </div>
-                      
-                      {/* Market Intelligence Status */}
-                      <div className="flex items-center gap-2">
-                        <BarChart3 className="w-4 h-4 text-indigo-500" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                          <span className="font-medium">Live Competitive Analysis</span> - Market pricing verified from web sources
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Call to Action - Claim Now Button */}
-                    <div className="mt-4 pt-4 border-t border-amber-200 dark:border-amber-700">
-                      <div className="space-y-3">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Are you the owner or authorized representative of this community?
-                        </p>
-                        <Button 
-                          onClick={() => window.location.href = `/claim-community?id=${community.id}`}
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 flex items-center justify-center"
-                        >
-                          <Building className="w-5 h-5 mr-2" />
-                          Claim This Community Now
-                        </Button>
-                        <p className="text-xs text-gray-500 dark:text-gray-500 text-center">
-                          Get verified status • Update pricing & availability • Respond to reviews
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
               {/* Community Information Tab */}
               <TabsContent value="community-info" className="space-y-6 mt-6">
-                {/* Pricing History & Transparency - Moved from Availability Tab */}
-                <PricingHistory 
-                  communityId={community.id} 
-                  communityName={community.name} 
-                />
 
                 {/* Contact & Tour Section */}
             <Card>
@@ -2899,6 +2801,99 @@ export default function CommunityDetail() {
 
 
             </Tabs>
+
+            {/* Community Claim Status Card - Moved to bottom of page */}
+            <Card className="border-2 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 mt-6">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-amber-100 dark:bg-amber-800 rounded-lg">
+                    <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-300" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                      Community Claim Status
+                    </h3>
+                    <div className="space-y-2">
+                      {/* MySeniorValet Verification Status - Always show as pending since no claims approved */}
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-amber-500" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          <span className="font-medium">Not Verified</span> - Pending MySeniorValet.com verification
+                        </span>
+                      </div>
+
+                      {/* Data Source - Display actual verified data_source field */}
+                      <div className="flex items-center gap-2">
+                        {(community as any).data_source ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">Verified Source:</span> {(community as any).data_source}
+                            </span>
+                          </>
+                        ) : community.hudPropertyId ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">HUD Database</span> - Government verified source
+                            </span>
+                          </>
+                        ) : (community as any).dataSource?.includes('state') ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">State Database</span> - Government licensing data
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <Info className="w-4 h-4 text-blue-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">Public Records</span> - Awaiting verification
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Real-time Updates Status - Now with Perplexity AI */}
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          <span className="font-medium">Real-time Market Data</span> - Powered by Perplexity AI web search
+                        </span>
+                      </div>
+                      
+                      {/* Market Intelligence Status */}
+                      <div className="flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4 text-indigo-500" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          <span className="font-medium">Live Competitive Analysis</span> - Market pricing verified from web sources
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Call to Action - Claim Now Button */}
+                    <div className="mt-4 pt-4 border-t border-amber-200 dark:border-amber-700">
+                      <div className="space-y-3">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Are you the owner or authorized representative of this community?
+                        </p>
+                        <Button 
+                          onClick={() => window.location.href = `/claim-community?id=${community.id}`}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 flex items-center justify-center"
+                        >
+                          <Building className="w-5 h-5 mr-2" />
+                          Claim This Community Now
+                        </Button>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 text-center">
+                          Get verified status • Update pricing & availability • Respond to reviews
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Community Details Content - Reorganized from nested tabs */}
             <Card className="mt-6">
