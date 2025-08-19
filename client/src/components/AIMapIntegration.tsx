@@ -32,7 +32,7 @@ interface Community {
 
 interface AIMapIntegrationProps {
   onLocationAnalysis?: (analysis: any) => void;
-  onCommunityRecommendations?: (recommendations: any[]) => void;
+  onCommunityMatches?: (matches: any[]) => void;
   onShowAnalysisPanel?: (show: boolean) => void;
 }
 
@@ -46,7 +46,7 @@ interface LocationInsight {
 
 export const AIMapIntegration: React.FC<AIMapIntegrationProps> = ({
   onLocationAnalysis,
-  onCommunityRecommendations,
+  onCommunityMatches,
   onShowAnalysisPanel
 }) => {
   const map = useMap();
@@ -157,7 +157,7 @@ export const AIMapIntegration: React.FC<AIMapIntegrationProps> = ({
     } finally {
       setIsAnalyzing(false);
     }
-  }, [map, onLocationAnalysis, onCommunityRecommendations]);
+  }, [map, onLocationAnalysis, onCommunityMatches]);
 
   // Smart search enhancement for map area
   const analyzeCurrentMapArea = useCallback(async () => {

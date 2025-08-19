@@ -234,7 +234,7 @@ export function MarketIntelligenceModal({
             <p className="mb-1">📊 <strong>About Market Intelligence:</strong></p>
             <p>Pricing estimates are based on aggregated market data, regional trends, and publicly available information. 
             Actual pricing may vary based on individual needs, room availability, and specific care requirements. 
-            We recommend contacting communities directly for personalized quotes.</p>
+            Contact communities directly for personalized quotes.</p>
           </div>
         </div>
       </DialogContent>

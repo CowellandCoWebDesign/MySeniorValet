@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { SemanticSearch } from '@/components/SemanticSearch';
-import { PersonalizedRecommendations } from '@/components/PersonalizedRecommendations';
+import { PersonalizedMatches } from '@/components/PersonalizedMatches';
 import { SimilarCommunities } from '@/components/SimilarCommunities';
 import { WeaviateIndexManager } from '@/components/WeaviateIndexManager';
 
@@ -207,7 +207,7 @@ export default function WeaviateTestPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Personalized Recommendations Testing</h2>
               <p className="text-gray-600">Test AI-powered personalization</p>
             </div>
-            <PersonalizedRecommendations onCommunityClick={handleCommunitySelect} />
+            <PersonalizedMatches onCommunityClick={handleCommunitySelect} />
           </TabsContent>
 
           <TabsContent value="similar" className="space-y-8 mt-8">

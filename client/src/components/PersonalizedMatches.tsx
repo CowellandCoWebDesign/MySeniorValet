@@ -1,6 +1,6 @@
 /**
- * Personalized Recommendations Component
- * AI-powered community recommendations based on user preferences
+ * Personalized Matches Component
+ * AI-powered community matching based on user preferences
  */
 
 import React, { useState, useEffect } from 'react';
@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-interface RecommendationResult {
+interface MatchResult {
   community: {
     id: string;
     name: string;
@@ -42,8 +42,8 @@ interface UserPreferences {
   specialNeeds: string[];
 }
 
-interface PersonalizedRecommendationsProps {
-  onCommunityClick?: (community: RecommendationResult['community']) => void;
+interface PersonalizedMatchesProps {
+  onCommunityClick?: (community: MatchResult['community']) => void;
   userId?: string;
 }
 
@@ -88,11 +88,11 @@ const SPECIAL_NEEDS_OPTIONS = [
   'Mental Health Support'
 ];
 
-export function PersonalizedRecommendations({ 
+export function PersonalizedMatches({ 
   onCommunityClick,
   userId 
-}: PersonalizedRecommendationsProps) {
-  const [recommendations, setRecommendations] = useState<RecommendationResult[]>([]);
+}: PersonalizedMatchesProps) {
+  const [matches, setMatches] = useState<MatchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [preferences, setPreferences] = useState<UserPreferences>({
@@ -103,16 +103,16 @@ export function PersonalizedRecommendations({
   });
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
 
-  const loadRecommendations = async () => {
+  const loadMatches = async () => {
     if (preferences.careTypes.length === 0 && preferences.amenities.length === 0) {
-      return; // Need some preferences to make recommendations
+      return; // Need some preferences to find matches
     }
 
     setIsLoading(true);
     setError(null);
 
     try {
-      const response = await fetch('/api/weaviate/recommendations', {
+      const response = await fetch('/api/weaviate/matches', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -126,20 +126,20 @@ export function PersonalizedRecommendations({
       const data = await response.json();
 
       if (data.success) {
-        setRecommendations(data.recommendations || []);
+        setMatches(data.matches || []);
       } else {
-        setError(data.message || 'Failed to load recommendations');
+        setError(data.message || 'Failed to load matches');
       }
     } catch (err) {
-      setError('Failed to load recommendations');
-      console.error('Recommendations error:', err);
+      setError('Failed to load matches');
+      console.error('Matches error:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    loadRecommendations();
+    loadMatches();
   }, [preferences]);
 
   const updatePreferences = (section: keyof UserPreferences, value: any) => {
@@ -165,7 +165,7 @@ export function PersonalizedRecommendations({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Heart className="h-6 w-6 text-red-500" />
-          <h2 className="text-2xl font-bold text-gray-900">Personalized Recommendations</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Personalized Matches</h2>
           <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
             <Brain className="h-3 w-3 mr-1" />
             AI-Powered
@@ -341,63 +341,63 @@ export function PersonalizedRecommendations({
         </Card>
       )}
 
-      {/* Recommendations */}
-      {!isLoading && recommendations.length > 0 && (
+      {/* Matches */}
+      {!isLoading && matches.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900">
-            Your Personalized Recommendations
+            Your Personalized Matches
           </h3>
 
           <div className="grid gap-4">
-            {recommendations.map((recommendation, index) => (
+            {matches.map((match, index) => (
               <Card 
-                key={`${recommendation.community.id}-${index}`}
+                key={`${match.community.id}-${index}`}
                 className="hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => onCommunityClick?.(recommendation.community)}
+                onClick={() => onCommunityClick?.(match.community)}
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <CardTitle className="text-lg font-semibold text-gray-900 hover:text-blue-600">
-                        {recommendation.community.name}
+                        {match.community.name}
                       </CardTitle>
                       <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
                         <div className="flex items-center gap-1">
                           <MapPin className="h-3 w-3" />
-                          {recommendation.community.city}, {recommendation.community.state}
+                          {match.community.city}, {match.community.state}
                         </div>
-                        {recommendation.community.properties?.overallRating && (
+                        {match.community.properties?.overallRating && (
                           <div className="flex items-center gap-1">
                             <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                            {recommendation.community.properties.overallRating.toFixed(1)}
+                            {match.community.properties.overallRating.toFixed(1)}
                           </div>
                         )}
                       </div>
                     </div>
                     <Badge className="bg-purple-100 text-purple-800">
-                      {Math.round(recommendation.relevanceScore * 100)}% match
+                      {Math.round(match.relevanceScore * 100)}% match
                     </Badge>
                   </div>
                 </CardHeader>
 
                 <CardContent className="space-y-3">
                   {/* Description */}
-                  {recommendation.community.description && (
+                  {match.community.description && (
                     <p className="text-gray-700 text-sm leading-relaxed">
-                      {recommendation.community.description.length > 200 
-                        ? `${recommendation.community.description.slice(0, 200)}...` 
-                        : recommendation.community.description
+                      {match.community.description.length > 200 
+                        ? `${match.community.description.slice(0, 200)}...` 
+                        : match.community.description
                       }
                     </p>
                   )}
 
                   {/* Care Types */}
-                  {recommendation.community.careTypes.length > 0 && (
+                  {match.community.careTypes.length > 0 && (
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4 text-gray-500" />
                       <span className="text-sm font-medium text-gray-900">Care Types:</span>
                       <span className="text-sm text-gray-600">
-                        {formatCareTypes(recommendation.community.careTypes)}
+                        {formatCareTypes(match.community.careTypes)}
                       </span>
                     </div>
                   )}
@@ -405,7 +405,7 @@ export function PersonalizedRecommendations({
                   {/* AI Explanation */}
                   <div className="bg-purple-50 p-3 rounded-lg border-l-4 border-purple-200">
                     <p className="text-xs text-purple-800">
-                      <strong>Why we recommend this:</strong> {recommendation.explanation}
+                      <strong>Why this matches:</strong> {match.explanation}
                     </p>
                   </div>
                 </CardContent>
@@ -414,22 +414,22 @@ export function PersonalizedRecommendations({
           </div>
 
           <Button 
-            onClick={loadRecommendations}
+            onClick={loadMatches}
             variant="outline" 
             className="w-full"
             disabled={isLoading}
           >
-            Refresh Recommendations
+            Refresh Matches
           </Button>
         </div>
       )}
 
-      {/* No Recommendations */}
-      {!isLoading && hasPreferences && recommendations.length === 0 && !error && (
+      {/* No Matches */}
+      {!isLoading && hasPreferences && matches.length === 0 && !error && (
         <Card className="text-center py-8">
           <CardContent>
             <Heart className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No recommendations found</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No matches found</h3>
             <p className="text-gray-600 text-sm mb-4">
               Try adjusting your preferences to see more communities.
             </p>

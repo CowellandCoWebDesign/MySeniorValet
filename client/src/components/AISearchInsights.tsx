@@ -37,7 +37,7 @@ interface SearchInsights {
     comparativeAnalysis: string;
     sources: string[];
   };
-  recommendations: string[];
+  suggestions: string[];
   generatedBy: string[];
   timestamp: string;
 }
@@ -146,17 +146,17 @@ export function AISearchInsights({ bounds, communityIds, searchQuery }: AIInsigh
               </div>
             </div>
             
-            {insights.recommendations.length > 0 && (
+            {insights.suggestions.length > 0 && (
               <div className="mt-4 space-y-2">
                 <h4 className="font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
                   <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  AI Recommendations
+                  AI Suggestions
                 </h4>
                 <ul className="space-y-1">
-                  {insights.recommendations.map((rec, idx) => (
+                  {insights.suggestions.map((suggestion, idx) => (
                     <li key={idx} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
                       <span className="text-purple-600 dark:text-purple-400 mt-0.5">•</span>
-                      <span>{rec}</span>
+                      <span>{suggestion}</span>
                     </li>
                   ))}
                 </ul>

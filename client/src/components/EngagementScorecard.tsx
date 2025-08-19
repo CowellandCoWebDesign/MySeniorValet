@@ -42,7 +42,7 @@ interface EngagementScoreBreakdown {
     monthOverMonth: number;
     quarterOverQuarter: number;
   };
-  recommendations: string[];
+  insights: string[];
   benchmarks: {
     industryAverage: number;
     topPercentile: number;
@@ -298,7 +298,7 @@ export default function EngagementScorecard({ communityId }: EngagementScorecard
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="metrics">Detailed Metrics</TabsTrigger>
           <TabsTrigger value="trends">Trends</TabsTrigger>
-          <TabsTrigger value="recommendations">Insights</TabsTrigger>
+          <TabsTrigger value="insights">Insights</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -538,7 +538,7 @@ export default function EngagementScorecard({ communityId }: EngagementScorecard
           </Card>
         </TabsContent>
 
-        <TabsContent value="recommendations" className="space-y-4">
+        <TabsContent value="insights" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -551,11 +551,11 @@ export default function EngagementScorecard({ communityId }: EngagementScorecard
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {scorecard.recommendations.length > 0 ? (
-                  scorecard.recommendations.map((recommendation, index) => (
+                {scorecard.insights.length > 0 ? (
+                  scorecard.insights.map((insight, index) => (
                     <div key={index} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
                       <Lightbulb className="h-4 w-4 mt-0.5 text-yellow-600" />
-                      <div className="text-sm">{recommendation}</div>
+                      <div className="text-sm">{insight}</div>
                     </div>
                   ))
                 ) : (

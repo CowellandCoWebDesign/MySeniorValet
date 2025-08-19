@@ -189,16 +189,16 @@ export const LocalServicesPanel: React.FC<LocalServicesPanelProps> = ({
         </div>
       </div>
 
-      {/* Recommended Products Section */}
-      {amazonAssociateTag && recommendedProducts.length > 0 && (
+      {/* Available Products Section */}
+      {amazonAssociateTag && availableProducts.length > 0 && (
         <div className="space-y-4 pt-6 border-t">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <ShoppingCart className="w-5 h-5" />
-            Recommended Products for Senior Living
+            Available Products for Senior Living
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {recommendedProducts.map((product) => (
+            {availableProducts.map((product) => (
               <a
                 key={product.asin}
                 href={product.productUrl}
