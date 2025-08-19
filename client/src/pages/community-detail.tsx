@@ -1793,22 +1793,25 @@ export default function CommunityDetail() {
                         const tier = community.subscriptionTier || 'verified';
                         
                         if (tier === 'verified') {
-                          // Verified tier has no messaging access
+                          // Community hasn't verified for instant messaging
                           return (
                             <div>
                               <Button
                                 variant="outline"
                                 disabled
-                                className="bg-gray-50 border-gray-300 text-gray-500 font-semibold px-6 py-3 shadow-sm cursor-not-allowed opacity-70"
+                                className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-300 font-semibold px-6 py-3 shadow-md cursor-not-allowed hover:shadow-lg transition-all"
                               >
                                 <MessageSquare className="h-5 w-5 mr-2" />
-                                <span className="flex items-center gap-1">
-                                  Messaging Locked
-                                  <Lock className="h-4 w-4" />
+                                <span className="flex items-center gap-2">
+                                  Direct Messaging
+                                  <span className="text-xs bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full">
+                                    Not Available
+                                  </span>
                                 </span>
                               </Button>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                                Community needs to upgrade to Standard+ tier to enable messaging
+                              <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 max-w-xs">
+                                <Info className="h-3 w-3 inline mr-1" />
+                                This community hasn't verified their contact information and opted into instant messaging service yet
                               </p>
                             </div>
                           );
