@@ -98,7 +98,7 @@ export function FeaturedAndCoastalSection() {
               <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 More Recommended Communities
               </h3>
-              <Link href="/search?featured=true">
+              <Link href="/map-search?featured=true">
                 <Button variant="outline" className="border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-600 dark:text-purple-300 dark:hover:bg-purple-900/20">
                   View All Featured
                 </Button>

@@ -87,7 +87,7 @@ export function HighestRatedSection() {
             <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               More Top-Rated Communities
             </h3>
-            <Link href="/search?minRating=4.0">
+            <Link href="/map-search?minRating=4.0">
               <Button variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-900/20">
                 <Star className="w-4 h-4 mr-2" />
                 View All Top-Rated

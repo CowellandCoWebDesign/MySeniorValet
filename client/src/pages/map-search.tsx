@@ -2127,19 +2127,6 @@ export default function MapSearch() {
               {/* Display all results mixed */}
               {resultType === 'all' && (
                 <>
-                  {/* AI-powered insights for communities in view */}
-                  {mapBounds && mapCommunities.length > 0 && (
-                    <AISearchInsights 
-                      bounds={{
-                        north: mapBounds.getNorth(),
-                        south: mapBounds.getSouth(),
-                        east: mapBounds.getEast(),
-                        west: mapBounds.getWest()
-                      }}
-                      searchQuery={searchQuery}
-                    />
-                  )}
-                  
                   {/* Communities section */}
                   {mapCommunities.filter((item: any) => !item.type || item.type === 'community').length > 0 && (
                     <>

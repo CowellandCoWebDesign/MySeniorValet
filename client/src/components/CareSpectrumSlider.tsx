@@ -131,7 +131,7 @@ export function CareSpectrumSlider() {
           <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
             {currentLevel.description}
           </p>
-          <Link href={`/search?subtype=${currentLevel.searchValue}`}>
+          <Link href={`/map-search?subtype=${currentLevel.searchValue}`}>
             <button className="w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 py-2 px-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
               Explore {currentLevel.name} Communities
               <ChevronRight className="w-4 h-4" />
@@ -184,7 +184,7 @@ export function CareSpectrumSlider() {
 
         {/* Quick Links */}
         <div className="grid grid-cols-2 gap-2">
-          <Link href="/search?subtype=hud_senior_housing">
+          <Link href="/map-search?subtype=hud_senior_housing">
             <button className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 py-2 px-3 rounded-lg font-medium hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">
               View All HUD Properties
             </button>

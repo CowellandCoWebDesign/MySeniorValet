@@ -87,7 +87,7 @@ export function VerifiedCommunitiesSection() {
             <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               More Verified Communities
             </h3>
-            <Link href="/search?verified=true">
+            <Link href="/map-search?verified=true">
               <Button variant="outline" className="border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-600 dark:text-emerald-300 dark:hover:bg-emerald-900/20">
                 <Shield className="w-4 h-4 mr-2" />
                 View All Verified
