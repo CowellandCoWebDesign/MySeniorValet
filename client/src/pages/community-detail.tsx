@@ -52,8 +52,8 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
     setIsLoading(true);
     try {
       const response = await apiRequest('POST', '/api/competitive-analysis', {
-        city: community.city,
-        state: community.state
+        location: `${community.city}, ${community.state}`,
+        type: 'city'
       });
       const data = await response.json();
       setAnalysis(data);
