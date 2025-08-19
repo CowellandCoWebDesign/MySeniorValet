@@ -427,37 +427,30 @@ export default function CompetitiveAnalysis() {
                   </div>
                 </div>
 
-                {/* Market Insights with enhanced styling */}
+                {/* Quick Facts Placeholder */}
                 <div className="space-y-6">
-                  <div>
+                  <div className="p-6 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl">
                     <h3 className="font-semibold text-lg mb-4 flex items-center gap-3">
-                      <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                        <Brain className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                      <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                        <Lightbulb className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                       </div>
-                      AI Market Insights
+                      Quick Facts
                     </h3>
-                    <ul className="space-y-3">
-                      {analysisMutation.data.insights && analysisMutation.data.insights.map((insight, index) => (
-                        <li key={index} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300">
-                          <span className="text-emerald-500 mt-1 text-xl">✓</span>
-                          <span className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{insight}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Data Sources with enhanced styling */}
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl">
-                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2">
-                      <Globe className="w-4 h-4" />
-                      Data Sources:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {analysisMutation.data.sources && analysisMutation.data.sources.map((source, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs px-3 py-1 bg-white dark:bg-gray-800 shadow-sm">
-                          {source}
-                        </Badge>
-                      ))}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <Clock className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          Analysis powered by real-time web data
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Users className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          {analysisMutation.data.insights && analysisMutation.data.insights[0] ? 
+                            analysisMutation.data.insights[0] : 
+                            'Comprehensive market data available'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -514,6 +507,43 @@ export default function CompetitiveAnalysis() {
                       })}
                     </div>
                   </div>
+                  
+                  {/* AI Market Insights Section */}
+                  {analysisMutation.data.insights && analysisMutation.data.insights.length > 0 && (
+                    <div className="mt-6">
+                      <h3 className="font-semibold text-lg mb-4 flex items-center gap-3">
+                        <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                          <Brain className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                        </div>
+                        Key Market Insights
+                      </h3>
+                      <ul className="space-y-3">
+                        {analysisMutation.data.insights.map((insight, index) => (
+                          <li key={index} className="flex items-start gap-3 p-3 bg-purple-50/50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                            <span className="text-purple-500 mt-1 text-xl">✓</span>
+                            <span className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{insight}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {/* Data Sources Section */}
+                  {analysisMutation.data.sources && analysisMutation.data.sources.length > 0 && (
+                    <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                      <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                        <Globe className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        Verified Data Sources:
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {analysisMutation.data.sources.map((source, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs px-3 py-1 bg-white/80 dark:bg-gray-800/80 shadow-sm border border-blue-200 dark:border-blue-800">
+                            {source}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   
                   <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
                     <p className="text-xs text-amber-700 dark:text-amber-400 flex items-start gap-2">
