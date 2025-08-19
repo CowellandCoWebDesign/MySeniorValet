@@ -38,7 +38,6 @@ import { MessageCommunityButton } from "@/components/message-community-button";
 import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
 import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
 import { PricingHistory } from "@/components/pricing-history";
-import { apiRequest } from "@/lib/queryClient";
 
 // Community Competitive Analysis Component
 const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
@@ -52,9 +51,15 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
     
     setIsLoading(true);
     try {
-      const response = await apiRequest('POST', '/api/competitive-analysis', {
-        location: `${community.city}, ${community.state}`,
-        type: 'city'
+      const response = await fetch('/api/competitive-analysis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          location: `${community.city}, ${community.state}`,
+          type: 'city'
+        })
       });
       
       if (!response.ok) {
