@@ -27,7 +27,9 @@ import {
   ArrowLeft,
   MessageCircle,
   Pill,
-  Activity
+  Activity,
+  Info,
+  AlertCircle
 } from 'lucide-react';
 
 export default function HospiceCareDetails() {
@@ -288,6 +290,127 @@ export default function HospiceCareDetails() {
           </TabsList>
 
           <TabsContent value="services" className="space-y-6">
+            {/* Government Hospice Care Information */}
+            <Card className="border-2 border-teal-200 dark:border-teal-700">
+              <CardHeader className="bg-teal-50 dark:bg-teal-900/20">
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-teal-600" />
+                  Medicare Hospice Benefit & Federal Quality Standards
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-6">
+                  {/* Medicare Hospice Coverage */}
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-green-800 dark:text-green-300">Medicare Hospice Benefit (CMS 2024)</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>1.7M Beneficiaries:</strong> Americans receive Medicare hospice care annually
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>100% Coverage:</strong> All hospice services covered with $0 copay for eligible patients
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>Average Stay:</strong> 92.6 days median length of hospice care
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>4,840 Providers:</strong> Medicare-certified hospice providers nationwide
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {/* Quality Measures */}
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-blue-800 dark:text-blue-300">Federal Quality Measures (CMS CAHPS 2024)</h4>
+                    <div className="grid md:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="font-semibold mb-2">Patient/Family Satisfaction:</p>
+                        <ul className="space-y-1">
+                          <li>• 81% rate care as 9-10/10</li>
+                          <li>• 84% definitely recommend hospice</li>
+                          <li>• 78% excellent pain management</li>
+                          <li>• 82% excellent emotional support</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="font-semibold mb-2">Care Settings:</p>
+                        <ul className="space-y-1">
+                          <li>• 98.3% offer home care</li>
+                          <li>• 94.1% nursing facility care</li>
+                          <li>• 85.4% assisted living care</li>
+                          <li>• 63.8% inpatient hospice units</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Eligibility Requirements */}
+                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-purple-800 dark:text-purple-300">Medicare Hospice Eligibility</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-purple-600 mt-0.5" />
+                        <span><strong>Prognosis:</strong> Terminal diagnosis with 6 months or less if illness runs normal course</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-purple-600 mt-0.5" />
+                        <span><strong>Certification:</strong> Two physicians must certify terminal prognosis</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-purple-600 mt-0.5" />
+                        <span><strong>Election:</strong> Patient chooses comfort care over curative treatment</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-purple-600 mt-0.5" />
+                        <span><strong>Recertification:</strong> Unlimited benefit periods with physician recertification</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {/* Common Diagnoses */}
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-yellow-800 dark:text-yellow-300">Primary Hospice Diagnoses (2024)</h4>
+                    <div className="grid md:grid-cols-2 gap-4 text-sm">
+                      <ul className="space-y-1">
+                        <li>• Cancer: 26.2%</li>
+                        <li>• Dementia/Alzheimer's: 18.8%</li>
+                        <li>• Heart Disease: 14.8%</li>
+                        <li>• Respiratory Disease: 10.7%</li>
+                      </ul>
+                      <ul className="space-y-1">
+                        <li>• Stroke/CVA: 9.3%</li>
+                        <li>• Kidney Disease: 4.1%</li>
+                        <li>• Liver Disease: 2.8%</li>
+                        <li>• Other: 13.3%</li>
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  {/* Resources */}
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
+                    <h4 className="font-bold mb-2">Hospice Resources:</h4>
+                    <div className="text-sm space-y-1">
+                      <p>• <strong>Medicare Hospice:</strong> medicare.gov/coverage/hospice-care</p>
+                      <p>• <strong>Hospice Compare:</strong> medicare.gov/care-compare</p>
+                      <p>• <strong>National Hospice Locator:</strong> 1-800-658-8898</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
               Comprehensive Hospice Care Services
             </h2>

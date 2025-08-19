@@ -9,7 +9,7 @@ import {
   Heart, Phone, MapPin, Clock, Star, CheckCircle, Calendar,
   Users, Shield, Activity, Brain, Award, FileText, DollarSign,
   ChevronRight, ArrowLeft, ExternalLink, AlertCircle, Zap,
-  UserCheck, Sparkles, HandHeart, Home, Sun, Moon
+  UserCheck, Sparkles, HandHeart, Home, Sun, Moon, Info
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -367,6 +367,133 @@ export default function PersonalCareDetails() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
+            {/* Government Personal Care Services Information */}
+            <Card className="border-2 border-pink-200 dark:border-pink-700">
+              <CardHeader className="bg-pink-50 dark:bg-pink-900/20">
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-pink-600" />
+                  Federal Personal Care Services & Medicaid Standards
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-6">
+                  {/* Medicaid Personal Care Services */}
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-green-800 dark:text-green-300">Medicaid Personal Care Services (CMS 2024)</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>All 50 States:</strong> Personal care services covered under Medicaid state plans or HCBS waivers
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>4.2M Recipients:</strong> Americans receive Medicaid-funded personal care services (CMS 2024)
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>$85B Annual Spending:</strong> Federal/state investment in personal care services
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>Self-Direction Option:</strong> 1.8M people manage their own care through consumer-directed programs
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {/* ADL Coverage Standards */}
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-blue-800 dark:text-blue-300">Activities of Daily Living (ADL) Federal Standards</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <strong>6 Core ADLs:</strong> Bathing, dressing, toileting, transferring, continence, feeding (CMS definition)
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <strong>Eligibility Threshold:</strong> Need help with 2+ ADLs qualifies for most programs
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <strong>28% of Seniors:</strong> Adults 65+ need help with at least one ADL (NIH/NIA 2024)
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <strong>Training Required:</strong> 75+ hours minimum training for certified personal care aides
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {/* Financial Assistance Options */}
+                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-purple-800 dark:text-purple-300">Financial Assistance Programs</h4>
+                    <div className="grid md:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="font-semibold mb-2">Federal Programs:</p>
+                        <ul className="space-y-1">
+                          <li>• <strong>VA Aid & Attendance:</strong> Up to $2,229/month for veterans</li>
+                          <li>• <strong>State Medicaid:</strong> Income limits vary by state</li>
+                          <li>• <strong>PACE:</strong> All-inclusive care for eligible</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="font-semibold mb-2">Average Costs (Genworth 2024):</p>
+                        <ul className="space-y-1">
+                          <li>• <strong>National Average:</strong> $30/hour for personal care</li>
+                          <li>• <strong>Annual Cost:</strong> $62,400 for 40 hrs/week</li>
+                          <li>• <strong>Compare:</strong> 70% less than nursing home care</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Worker Standards & Rights */}
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-yellow-800 dark:text-yellow-300">Federal Worker Protections (DOL 2024)</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <Shield className="h-4 w-4 text-yellow-600 mt-0.5" />
+                        <span><strong>Fair Labor Standards:</strong> Minimum wage and overtime protections apply</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Shield className="h-4 w-4 text-yellow-600 mt-0.5" />
+                        <span><strong>Background Checks:</strong> Required in 38 states for all personal care workers</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Shield className="h-4 w-4 text-yellow-600 mt-0.5" />
+                        <span><strong>Worker Registry:</strong> State registries track certified aides</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {/* Resources */}
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
+                    <h4 className="font-bold mb-2">Find Personal Care Services:</h4>
+                    <div className="text-sm space-y-1">
+                      <p>• <strong>Medicaid Office:</strong> medicaid.gov/about-us/contact-us</p>
+                      <p>• <strong>Eldercare Locator:</strong> 1-800-677-1116</p>
+                      <p>• <strong>VA Caregiver Support:</strong> 1-855-260-3274</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* About Section */}
             <Card>
               <CardHeader>

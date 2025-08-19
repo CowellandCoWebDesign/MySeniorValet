@@ -9,7 +9,7 @@ import {
   Home, Phone, MapPin, Clock, Star, CheckCircle, Calendar,
   Users, Heart, Shield, Activity, Award, FileText, DollarSign,
   ChevronRight, ArrowLeft, ExternalLink, AlertCircle, Zap,
-  UserCheck, Stethoscope, Pill, Brain, HandHeart, Sun
+  UserCheck, Stethoscope, Pill, Brain, HandHeart, Sun, Info
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -307,6 +307,106 @@ export default function HomeCareDetails() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
+            {/* Government Medicare Home Health Information */}
+            <Card className="border-2 border-blue-200 dark:border-blue-700">
+              <CardHeader className="bg-blue-50 dark:bg-blue-900/20">
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-blue-600" />
+                  Medicare Home Health Coverage & Federal Standards
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-6">
+                  {/* Medicare Coverage */}
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-green-800 dark:text-green-300">Medicare Home Health Benefits (CMS 2024)</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>100% Coverage:</strong> Medicare Part A covers 100% of approved home health services for up to 60 days
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>No Copay:</strong> $0 copayment for Medicare-approved services including skilled nursing and therapy
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>5.2M Beneficiaries:</strong> Medicare serves 5.2 million home health patients annually (CMS 2024)
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {/* Federal Quality Standards */}
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-blue-800 dark:text-blue-300">Federal Quality Requirements</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <Shield className="h-4 w-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <strong>OASIS Assessment:</strong> Mandatory comprehensive assessment within 5 days (CMS requirement)
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Shield className="h-4 w-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <strong>CAHPS Surveys:</strong> Patient satisfaction tracked with 29.1% response rate nationally (AHRQ 2024)
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Shield className="h-4 w-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <strong>Quality Reporting:</strong> 11 quality measures publicly reported on Home Health Compare (CMS)
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {/* Financial Assistance */}
+                  <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-orange-800 dark:text-orange-300">Additional Financial Resources</h4>
+                    <div className="grid md:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="font-semibold mb-2">Federal Programs:</p>
+                        <ul className="space-y-1">
+                          <li>• <strong>VA Home Care:</strong> Up to 65 hours/month for eligible veterans (VA 2024)</li>
+                          <li>• <strong>Medicaid PCS:</strong> Personal care services in all 50 states</li>
+                          <li>• <strong>PACE:</strong> $7B serving 70,000+ participants (ACL 2024)</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="font-semibold mb-2">State Programs:</p>
+                        <ul className="space-y-1">
+                          <li>• <strong>HCBS Waivers:</strong> Available in 47 states for home care</li>
+                          <li>• <strong>State VA Programs:</strong> Additional veteran benefits</li>
+                          <li>• <strong>ADRC Resources:</strong> Call 1-800-677-1116 for local help</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Safety Alert */}
+                  <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-700">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+                      <div className="text-sm">
+                        <p className="font-bold text-red-800 dark:text-red-300 mb-1">Home Care Safety Statistics (CDC 2024)</p>
+                        <p className="text-red-700 dark:text-red-400">
+                          • 1 in 4 seniors fall annually at home • 3M ER visits from falls yearly
+                          • Home safety assessments reduce falls by 23% • Medicare covers safety equipment
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Service Areas */}
             <Card>
               <CardHeader>

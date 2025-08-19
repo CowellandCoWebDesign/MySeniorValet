@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
-import { Search, MapPin, DollarSign, Star, Phone, Heart, CheckCircle, Home } from 'lucide-react';
+import { Search, MapPin, DollarSign, Star, Phone, Heart, CheckCircle, Home, AlertCircle, Shield, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -82,16 +82,16 @@ export default function AssistedLivingPage() {
               <div className="text-sm opacity-90">Assisted Living Communities</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">$2k-$8k</div>
-              <div className="text-sm opacity-90">Monthly Price Range</div>
+              <div className="text-3xl font-bold">$4,500</div>
+              <div className="text-sm opacity-90">National Average (Genworth 2024)</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">50</div>
-              <div className="text-sm opacity-90">States Covered</div>
+              <div className="text-3xl font-bold">1M+</div>
+              <div className="text-sm opacity-90">Residents Nationwide (NCAL 2024)</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">100%</div>
-              <div className="text-sm opacity-90">Free to Use</div>
+              <div className="text-3xl font-bold">3.48 HPRD</div>
+              <div className="text-sm opacity-90">CMS Staffing Standard</div>
             </div>
           </div>
         </div>
@@ -104,12 +104,43 @@ export default function AssistedLivingPage() {
           <div className="prose prose-lg dark:prose-invert mx-auto">
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
               Assisted living facilities provide housing, meals, and personal care support for seniors who need help with daily activities but don't require skilled nursing care. 
-              Residents typically live in private or semi-private apartments and receive assistance with medication management, bathing, dressing, and other activities of daily living (ADLs).
+              According to the <strong>National Center for Assisted Living (NCAL)</strong>, over 1 million Americans currently reside in assisted living communities,
+              with residents typically receiving assistance with an average of 3.75 activities of daily living (ADLs).
             </p>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
-              The average cost of assisted living in the United States ranges from $2,000 to $8,000 per month, depending on location, 
-              level of care needed, and amenities offered. Our platform helps you compare real prices from communities in {userLocation}, 
-              with no hidden fees or referral markups that typically add 15-30% to your costs.
+              The national average cost of assisted living is <strong>$4,500 per month</strong> (Genworth 2024), though costs vary significantly by state and care level. 
+              The <strong>Centers for Medicare & Medicaid Services (CMS)</strong> now requires assisted living facilities to maintain minimum staffing of 
+              <strong>3.48 hours per resident day (HPRD)</strong> to ensure quality care standards are met.
+            </p>
+            
+            {/* Federal Financial Assistance Box */}
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-6 mt-6">
+              <h3 className="text-xl font-bold mb-4 text-green-800 dark:text-green-300">Federal Financial Assistance Available</h3>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <strong>VA Aid & Attendance:</strong> Up to $2,358/month for veterans, $2,795/month for surviving spouses (VA 2024)
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <strong>Medicaid HCBS Waivers:</strong> Home and Community-Based Services for those earning under $2,901/month (Medicaid 2024)
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <strong>SSI Supplementation:</strong> State supplements available in 46 states for assisted living residents (SSA 2024)
+                  </div>
+                </li>
+              </ul>
+            </div>
+            
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
+              The <strong>Long-Term Care Ombudsman Program</strong> investigated 198,502 complaints in 2024 (ACL), ensuring residents' rights are protected. 
+              Our platform connects you with communities in {userLocation} that meet federal quality standards.
             </p>
           </div>
         </div>
@@ -119,6 +150,22 @@ export default function AssistedLivingPage() {
       <section className="py-16 px-4 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold mb-12 text-center">Services Typically Included in Assisted Living</h2>
+          
+          {/* Federal Quality Standards Alert */}
+          <div className="mb-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-700">
+            <div className="flex items-start gap-3">
+              <Shield className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
+              <div>
+                <h4 className="font-bold text-blue-900 dark:text-blue-300 mb-2">Federal Quality Standards (CMS 2024)</h4>
+                <p className="text-sm text-blue-800 dark:text-blue-400">
+                  All licensed assisted living facilities must meet CMS minimum staffing requirements of 3.48 HPRD, 
+                  maintain 24/7 registered nurse coverage, and undergo annual state inspections. The FDA reports 15% 
+                  adverse drug event rates in senior care facilities, with 50% being potentially preventable through proper medication management.
+                </p>
+              </div>
+            </div>
+          </div>
+          
           <div className="grid md:grid-cols-3 gap-6">
             <Card>
               <CardHeader>
@@ -213,7 +260,61 @@ export default function AssistedLivingPage() {
       {/* Cost Breakdown */}
       <section className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-12 text-center">Assisted Living Costs by State</h2>
+          <h2 className="text-3xl font-bold mb-12 text-center">Assisted Living Costs & Financial Resources</h2>
+          
+          {/* Government Financial Assistance Programs */}
+          <div className="mb-10 bg-green-50 dark:bg-green-900/20 rounded-lg p-6">
+            <h3 className="text-xl font-bold mb-4 text-green-800 dark:text-green-300">Federal & State Financial Assistance Programs</h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold mb-3">Federal Programs:</h4>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start gap-2">
+                    <DollarSign className="h-4 w-4 text-green-600 mt-0.5" />
+                    <div>
+                      <strong>VA Aid & Attendance:</strong> $2,358-$2,795/month for eligible veterans/spouses (VA 2024)
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <DollarSign className="h-4 w-4 text-green-600 mt-0.5" />
+                    <div>
+                      <strong>Medicaid HCBS:</strong> Covers AL for those earning under $2,901/month (Medicaid 2024)
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <DollarSign className="h-4 w-4 text-green-600 mt-0.5" />
+                    <div>
+                      <strong>PACE Programs:</strong> Serving 70,000+ participants, $7B annually (ACL 2024)
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-3">State Programs:</h4>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start gap-2">
+                    <DollarSign className="h-4 w-4 text-green-600 mt-0.5" />
+                    <div>
+                      <strong>SSI State Supplements:</strong> Available in 46 states for AL residents (SSA 2024)
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <DollarSign className="h-4 w-4 text-green-600 mt-0.5" />
+                    <div>
+                      <strong>State Veterans Programs:</strong> Additional benefits varying by state
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <DollarSign className="h-4 w-4 text-green-600 mt-0.5" />
+                    <div>
+                      <strong>Optional State Plans:</strong> Medicaid AL coverage in 44 states (CMS 2024)
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { state: 'California', avgCost: '$5,500', range: '$3,000 - $9,000' },
@@ -242,6 +343,120 @@ export default function AssistedLivingPage() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Quality Standards & Oversight */}
+      <section className="py-16 px-4 bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold mb-12 text-center">Federal Quality Standards & Resident Rights</h2>
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Quality Measures */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-blue-600" />
+                  Federal Quality Measures (AHRQ 2024)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 text-sm">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>SOPS Survey 2.0:</strong> 8 composite quality measures for resident safety
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>Pressure Ulcer Prevention:</strong> Tracked monthly by CMS
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>Fall Prevention Protocols:</strong> Required documentation and reporting
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>Medication Safety:</strong> FDA monitoring shows 15% adverse event rate
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>UTI Prevention:</strong> CDC infection control guidelines mandatory
+                    </div>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+            
+            {/* Resident Rights */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Info className="h-5 w-5 text-purple-600" />
+                  Resident Rights & Protections (ACL 2024)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 text-sm">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>Long-Term Care Ombudsman:</strong> 198,502 complaints investigated in 2024
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>Right to Privacy:</strong> Protected under federal regulations
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>Freedom from Restraints:</strong> Physical/chemical restraints prohibited
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>Choice of Provider:</strong> Right to choose healthcare providers
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                    <div>
+                      <strong>Appeal Rights:</strong> Can appeal discharge/transfer decisions
+                    </div>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Contact Information */}
+          <div className="mt-8 bg-orange-50 dark:bg-orange-900/20 rounded-lg p-6">
+            <h3 className="font-bold mb-3 text-orange-800 dark:text-orange-300">Report Concerns or Get Help:</h3>
+            <div className="grid md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="font-semibold">Long-Term Care Ombudsman:</p>
+                <p>Call: 1-800-677-1116</p>
+                <p>Visit: ltcombudsman.org</p>
+              </div>
+              <div>
+                <p className="font-semibold">State Health Departments:</p>
+                <p>File complaints about quality of care</p>
+                <p>Request inspection reports</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

@@ -28,7 +28,9 @@ import {
   Thermometer,
   Brain,
   Eye,
-  Zap
+  Zap,
+  Info,
+  AlertCircle
 } from 'lucide-react';
 
 export default function NursingServicesDetails() {
@@ -279,6 +281,135 @@ export default function NursingServicesDetails() {
           </TabsList>
 
           <TabsContent value="services" className="space-y-6">
+            {/* Government Skilled Nursing Information */}
+            <Card className="border-2 border-blue-200 dark:border-blue-700">
+              <CardHeader className="bg-blue-50 dark:bg-blue-900/20">
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-blue-600" />
+                  Medicare Skilled Nursing Services & Federal Standards
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-6">
+                  {/* Medicare Home Health Benefits */}
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-green-800 dark:text-green-300">Medicare Home Health Coverage (CMS 2024)</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>3.4M Beneficiaries:</strong> Receive Medicare-certified home health services annually
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>100% Coverage:</strong> Medicare Part A covers skilled nursing when medically necessary
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>60-Day Episodes:</strong> Up to 60 days of covered care per certification period
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>No Copay:</strong> Zero out-of-pocket for qualifying Medicare beneficiaries
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {/* Nursing Workforce Statistics */}
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-blue-800 dark:text-blue-300">Federal Nursing Workforce Data (HRSA 2024)</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <strong>5.2M Nurses:</strong> Registered nurses in U.S. (largest healthcare profession)
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <strong>950,000 LPNs:</strong> Licensed practical nurses providing direct care
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <strong>11,700 Home Health Agencies:</strong> Medicare-certified agencies nationwide
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <strong>203,000 Shortage:</strong> Projected RN shortage by 2031 (BLS)
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {/* Quality & Safety Standards */}
+                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-purple-800 dark:text-purple-300">Federal Quality Standards (CMS Star Ratings)</h4>
+                    <div className="grid md:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="font-semibold mb-2">Quality Measures:</p>
+                        <ul className="space-y-1">
+                          <li>• Timely initiation of care</li>
+                          <li>• Medication management</li>
+                          <li>• Fall prevention</li>
+                          <li>• Hospital readmission rates</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="font-semibold mb-2">Patient Outcomes:</p>
+                        <ul className="space-y-1">
+                          <li>• 86% improvement in ambulation</li>
+                          <li>• 71% improvement in bathing</li>
+                          <li>• 22% rehospitalization rate</li>
+                          <li>• 4.2/5 average patient satisfaction</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* VA Benefits */}
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-yellow-800 dark:text-yellow-300">Veterans Skilled Home Care (VA 2024)</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <Shield className="h-4 w-4 text-yellow-600 mt-0.5" />
+                        <span><strong>Skilled Home Health:</strong> Covered for eligible veterans at no cost</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Shield className="h-4 w-4 text-yellow-600 mt-0.5" />
+                        <span><strong>146 VA Medical Centers:</strong> Coordinate home nursing services</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Shield className="h-4 w-4 text-yellow-600 mt-0.5" />
+                        <span><strong>Home-Based Primary Care:</strong> Comprehensive care for complex needs</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {/* Resources */}
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
+                    <h4 className="font-bold mb-2">Find Skilled Nursing Services:</h4>
+                    <div className="text-sm space-y-1">
+                      <p>• <strong>Medicare.gov:</strong> Home Health Compare tool</p>
+                      <p>• <strong>VA Benefits:</strong> 1-877-222-8387</p>
+                      <p>• <strong>State Boards of Nursing:</strong> Verify nurse licenses</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
               Comprehensive Skilled Nursing Services
             </h2>

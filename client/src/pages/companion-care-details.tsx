@@ -26,7 +26,9 @@ import {
   CheckCircle,
   Shield,
   Award,
-  ArrowLeft
+  ArrowLeft,
+  AlertCircle,
+  Info
 } from 'lucide-react';
 
 export default function CompanionCareDetails() {
@@ -265,6 +267,133 @@ export default function CompanionCareDetails() {
           </TabsList>
 
           <TabsContent value="services" className="space-y-6">
+            {/* Government Social Isolation & Companion Care Information */}
+            <Card className="border-2 border-rose-200 dark:border-rose-700">
+              <CardHeader className="bg-rose-50 dark:bg-rose-900/20">
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-rose-600" />
+                  Federal Research on Social Isolation & Companion Care
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-6">
+                  {/* Social Isolation Statistics */}
+                  <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-700">
+                    <h4 className="font-bold mb-3 text-red-800 dark:text-red-300">Critical Health Impact (CDC/NIH 2024)</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <AlertCircle className="h-4 w-4 text-red-600 mt-0.5" />
+                        <div>
+                          <strong>28% of Seniors:</strong> Adults 65+ live alone (17M Americans) at high risk for isolation
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <AlertCircle className="h-4 w-4 text-red-600 mt-0.5" />
+                        <div>
+                          <strong>50% Increased Risk:</strong> Social isolation increases premature death risk comparable to smoking
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <AlertCircle className="h-4 w-4 text-red-600 mt-0.5" />
+                        <div>
+                          <strong>32% Higher Stroke Risk:</strong> Loneliness increases stroke risk by 32% (NIH 2024)
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <AlertCircle className="h-4 w-4 text-red-600 mt-0.5" />
+                        <div>
+                          <strong>$6.7B Annual Cost:</strong> Medicare spending attributed to social isolation effects
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {/* ACL Senior Companion Programs */}
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-green-800 dark:text-green-300">Federal Senior Companion Programs (ACL 2024)</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>Senior Corps:</strong> 217,000 volunteers serve 840,000 seniors annually nationwide
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>RSVP Program:</strong> Volunteers 55+ provide companionship in all 50 states
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>Foster Grandparent:</strong> 26,000 volunteers mentor children while combating own isolation
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>Area Agencies on Aging:</strong> 622 AAAs coordinate companion services locally
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {/* Insurance & Financial Coverage */}
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-blue-800 dark:text-blue-300">Coverage & Financial Assistance</h4>
+                    <div className="grid md:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="font-semibold mb-2">Limited Coverage Options:</p>
+                        <ul className="space-y-1">
+                          <li>• <strong>Medicare:</strong> Generally does NOT cover companion care</li>
+                          <li>• <strong>Medicaid Waivers:</strong> Some states include respite/companion</li>
+                          <li>• <strong>VA Benefits:</strong> Homemaker/Home Health Aide services</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="font-semibold mb-2">Alternative Funding:</p>
+                        <ul className="space-y-1">
+                          <li>• <strong>Long-Term Care Insurance:</strong> May cover companion services</li>
+                          <li>• <strong>Title III-B:</strong> Supportive services through AAAs</li>
+                          <li>• <strong>Private Pay:</strong> $20-35/hour national average</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Mental Health Impact */}
+                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-purple-800 dark:text-purple-300">Mental Health Benefits (SAMHSA 2024)</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-purple-600 mt-0.5" />
+                        <span><strong>40% Reduction:</strong> Depression symptoms decrease with regular companionship</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-purple-600 mt-0.5" />
+                        <span><strong>Cognitive Protection:</strong> Social engagement reduces dementia risk by 30%</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-purple-600 mt-0.5" />
+                        <span><strong>Hospital Readmissions:</strong> 25% reduction with companion support post-discharge</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {/* Resources */}
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
+                    <h4 className="font-bold mb-2">Find Companion Care Resources:</h4>
+                    <div className="text-sm space-y-1">
+                      <p>• <strong>Eldercare Locator:</strong> 1-800-677-1116 (free companion service referrals)</p>
+                      <p>• <strong>AmeriCorps Seniors:</strong> americorps.gov/serve/americorps-seniors</p>
+                      <p>• <strong>988 Crisis Line:</strong> Mental health support for isolated seniors</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
               Comprehensive Companion Care Services
             </h2>

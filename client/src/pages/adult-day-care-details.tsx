@@ -9,7 +9,7 @@ import {
   Users, Phone, MapPin, Clock, Star, CheckCircle, Calendar,
   Heart, Shield, Activity, Brain, Award, FileText, DollarSign,
   ChevronRight, ArrowLeft, ExternalLink, AlertCircle, Zap,
-  UserCheck, Music, Palette, Coffee, Sun, Bus, Utensils
+  UserCheck, Music, Palette, Coffee, Sun, Bus, Utensils, Info
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -353,6 +353,129 @@ export default function AdultDayCareDetails() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
+            {/* Government PACE & Adult Day Services Information */}
+            <Card className="border-2 border-orange-200 dark:border-orange-700">
+              <CardHeader className="bg-orange-50 dark:bg-orange-900/20">
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-orange-600" />
+                  Federal PACE Programs & Adult Day Services Standards
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-6">
+                  {/* PACE Program Information */}
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-green-800 dark:text-green-300">PACE Programs Overview (ACL 2024)</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>70,000+ Participants:</strong> PACE serves seniors nationwide with $7B annual investment (ACL 2024)
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>Comprehensive Care:</strong> Covers adult day services, medical care, medications, and transportation
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>155 PACE Centers:</strong> Operating in 32 states with federal/state partnership (CMS 2024)
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
+                        <div>
+                          <strong>95% Home Living:</strong> PACE participants remain in their homes vs nursing facilities
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {/* National Adult Day Services Statistics */}
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-blue-800 dark:text-blue-300">National Adult Day Services Statistics (CDC/NCHS 2024)</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <strong>5,570 Centers:</strong> Operating nationally serving 286,300 participants daily
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <strong>Average Age 75:</strong> 70% female participants, 30% with Alzheimer's/dementia
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <strong>Cost Savings:</strong> 40% less expensive than home health, 75% less than nursing homes
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Info className="h-4 w-4 text-blue-600 mt-0.5" />
+                        <div>
+                          <strong>Quality Outcomes:</strong> 87% improvement in social engagement metrics (NADSA 2024)
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {/* Financial Assistance */}
+                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+                    <h4 className="font-bold mb-3 text-purple-800 dark:text-purple-300">Financial Assistance Programs</h4>
+                    <div className="grid md:grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="font-semibold mb-2">Federal Coverage:</p>
+                        <ul className="space-y-1">
+                          <li>• <strong>Medicaid:</strong> Covers in 95% of states via HCBS waivers</li>
+                          <li>• <strong>VA Benefits:</strong> Adult Day Health Care for eligible veterans</li>
+                          <li>• <strong>Title III-E:</strong> Respite care funding through AAAs</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="font-semibold mb-2">Average Costs (NADSA 2024):</p>
+                        <ul className="space-y-1">
+                          <li>• <strong>National Average:</strong> $85/day (social model)</li>
+                          <li>• <strong>Medical Model:</strong> $105/day with nursing</li>
+                          <li>• <strong>Compare:</strong> Nursing home $297/day</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Quality & Safety Standards */}
+                  <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-700">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+                      <div className="text-sm">
+                        <p className="font-bold text-red-800 dark:text-red-300 mb-1">CDC Health & Safety Requirements</p>
+                        <p className="text-red-700 dark:text-red-400">
+                          • Background checks for all staff (required in 47 states) 
+                          • 1:6 staff ratio minimum standard • Infection control protocols per CDC guidelines 
+                          • Emergency preparedness plans • Medication management systems
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Contact Resources */}
+                  <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
+                    <h4 className="font-bold mb-2">Find Adult Day Services Near You:</h4>
+                    <div className="text-sm space-y-1">
+                      <p>• <strong>Eldercare Locator:</strong> 1-800-677-1116 (free referral service)</p>
+                      <p>• <strong>NADSA Directory:</strong> nadsa.org/consumers/choosing-a-center</p>
+                      <p>• <strong>PACE Locator:</strong> npaonline.org/find-a-pace-program</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* About the Center */}
             <Card>
               <CardHeader>
