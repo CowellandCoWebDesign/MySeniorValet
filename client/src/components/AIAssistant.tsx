@@ -6,11 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import { Brain, MessageSquare, FileText, Camera, Globe, Sparkles } from 'lucide-react';
 
 interface AIAssistantProps {
-  onRecommendation?: (recommendations: any[]) => void;
+  onCommunityMatches?: (matches: any[]) => void;
   onAnalysis?: (analysis: any) => void;
 }
 
-export function AIAssistant({ onRecommendation, onAnalysis }: AIAssistantProps) {
+export function AIAssistant({ onCommunityMatches, onAnalysis }: AIAssistantProps) {
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [activeService, setActiveService] = useState<'anthropic' | 'gemini'>('anthropic');
@@ -35,8 +35,8 @@ export function AIAssistant({ onRecommendation, onAnalysis }: AIAssistantProps) 
       setResults(data);
       
       if (onAnalysis) onAnalysis(data);
-      if (onRecommendation && data.recommendations) {
-        onRecommendation(data.recommendations);
+      if (onCommunityMatches && data.recommendations) {
+        onCommunityMatches(data.recommendations);
       }
     } catch (error) {
       console.error('AI Analysis Error:', error);
@@ -159,7 +159,7 @@ export function AIAssistant({ onRecommendation, onAnalysis }: AIAssistantProps) 
               disabled={isLoading || !query.trim()}
               className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
             >
-              {isLoading ? 'Analyzing...' : 'Get AI Recommendations'}
+              {isLoading ? 'Analyzing...' : 'Find Matching Communities'}
             </Button>
             
             <div className="relative">
@@ -213,7 +213,7 @@ export function AIAssistant({ onRecommendation, onAnalysis }: AIAssistantProps) 
             {results.recommendations && (
               <div className="mb-4">
                 <h5 className="font-medium text-gray-800 dark:text-gray-200 mb-2">
-                  Top Recommendations:
+                  Matching Communities Found:
                 </h5>
                 <div className="space-y-2">
                   {results.recommendations.slice(0, 3).map((rec: any, index: number) => (

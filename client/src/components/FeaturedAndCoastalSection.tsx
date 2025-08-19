@@ -106,7 +106,7 @@ export function FeaturedAndCoastalSection() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Show remaining recommended communities */}
+              {/* Show remaining discovered communities */}
               {((featuredCommunities as any[]).slice(4, 8)).map((community: any, index: number) => (
                 <Link key={`more-featured-${community.id}-${index}`} href={`/community/${community.id}`}>
                   <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm dark:bg-gray-700">

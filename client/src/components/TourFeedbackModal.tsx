@@ -143,7 +143,7 @@ export function TourFeedbackModal({ isOpen, onClose, tourId, tourDetails }: Tour
 
           {/* Would Recommend */}
           <div className="space-y-2">
-            <Label>Would you recommend this community?</Label>
+            <Label>Would you share this community with others?</Label>
             <RadioGroup
               value={wouldRecommend === null ? "" : wouldRecommend.toString()}
               onValueChange={(value) => setWouldRecommend(value === "true")}

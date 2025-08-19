@@ -68,7 +68,7 @@ export const LocalServicesPanel: React.FC<LocalServicesPanelProps> = ({
   amazonAssociateTag
 }) => {
   const [services, setServices] = useState<LocalService[]>([]);
-  const [recommendedProducts, setRecommendedProducts] = useState<AmazonProduct[]>([]);
+  const [availableProducts, setAvailableProducts] = useState<AmazonProduct[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [loading, setLoading] = useState(false);
 
@@ -76,7 +76,7 @@ export const LocalServicesPanel: React.FC<LocalServicesPanelProps> = ({
   useEffect(() => {
     // Only real data from API allowed
     setServices([]);
-    setRecommendedProducts([]);
+    setAvailableProducts([]);
   }, [location, amazonAssociateTag]);
 
   const filteredServices = selectedCategory === 'all' 

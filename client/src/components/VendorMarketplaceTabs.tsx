@@ -448,7 +448,7 @@ export function VendorMarketplaceTabs() {
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-bold text-gray-900 dark:text-gray-100">Now Available!</div>
-                  <div className="text-sm text-green-600 dark:text-green-300 font-medium">Service recommendations</div>
+                  <div className="text-sm text-green-600 dark:text-green-300 font-medium">Service connections available</div>
                 </div>
               </div>
               
