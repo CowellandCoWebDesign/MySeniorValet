@@ -55,15 +55,27 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
         location: `${community.city}, ${community.state}`,
         type: 'city'
       });
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
       const data = await response.json();
       setAnalysis(data);
       setIsExpanded(true);
     } catch (error) {
       console.error('Failed to fetch competitive analysis:', error);
+      // Set a basic fallback state
+      setAnalysis({ error: true });
     } finally {
       setIsLoading(false);
     }
   };
+  
+  // Auto-load analysis when component mounts
+  useEffect(() => {
+    fetchAnalysis();
+  }, [community?.id]);
   
   return (
     <Card className="mb-8 border-2 border-indigo-200 dark:border-indigo-800">
@@ -73,15 +85,10 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
             <BarChart3 className="w-6 h-6 mr-2 text-indigo-600" />
             Local Market Analysis for {community?.city}, {community?.state}
           </div>
-          {!analysis && (
-            <Button 
-              onClick={fetchAnalysis}
-              disabled={isLoading}
-              className="bg-indigo-600 hover:bg-indigo-700"
-              size="sm"
-            >
-              {isLoading ? 'Analyzing...' : 'Analyze Market'}
-            </Button>
+          {isLoading && (
+            <span className="text-sm font-normal text-indigo-600">
+              Analyzing market data...
+            </span>
           )}
         </CardTitle>
         <CardDescription>
@@ -89,7 +96,16 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
         </CardDescription>
       </CardHeader>
       
-      {analysis && (
+      {isLoading && !analysis && (
+        <CardContent className="py-8">
+          <div className="flex items-center justify-center text-gray-500">
+            <Loader2 className="w-6 h-6 mr-2 animate-spin" />
+            Analyzing local market data...
+          </div>
+        </CardContent>
+      )}
+      
+      {analysis && !analysis.error && (
         <CardContent className="space-y-6 pt-6">
           {/* Core Pricing Comparison */}
           {analysis.averagePrice && (
@@ -186,6 +202,23 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
                 Contact {community?.name} directly for current rates.
               </span>
             </p>
+          </div>
+        </CardContent>
+      )}
+      
+      {analysis && analysis.error && (
+        <CardContent className="py-8">
+          <div className="text-center text-gray-500">
+            <AlertCircle className="w-8 h-8 mx-auto mb-2 text-amber-500" />
+            <p>Unable to load market analysis at this time</p>
+            <Button 
+              onClick={fetchAnalysis}
+              className="mt-4"
+              size="sm"
+              variant="outline"
+            >
+              Try Again
+            </Button>
           </div>
         </CardContent>
       )}
@@ -2092,14 +2125,14 @@ export default function CommunityDetail() {
             {/* Intelligent Pricing Prediction */}
             <IntelligentPricingPrediction community={community} />
 
+            {/* Community Competitive Analysis */}
+            <CommunityCompetitiveAnalysis community={community} />
+
             {/* Pricing History & Transparency */}
             <PricingHistory 
               communityId={community.id} 
               communityName={community.name} 
             />
-
-            {/* Community Competitive Analysis */}
-            <CommunityCompetitiveAnalysis community={community} />
 
             {/* Available Units Section - Enhanced with Rich Information */}
             <Card>
