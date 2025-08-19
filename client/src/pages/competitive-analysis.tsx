@@ -23,6 +23,13 @@ interface MarketAnalysis {
   insights: string[];
   detailedSummary?: string;
   communityMentions?: string[]; // Array of community names found in analysis
+  matchedCommunities?: Array<{ // Communities that exist in our database
+    id: string;
+    name: string;
+    city: string;
+    state_province: string;
+    type: string;
+  }>;
   lastUpdated: string;
   sources: string[];
 }
@@ -460,7 +467,52 @@ export default function CompetitiveAnalysis() {
           </Card>
         )}
         
-        {/* Communities Found in Market Analysis */}
+        {/* Communities in Our Database */}
+        {analysisMutation.isSuccess && analysisMutation.data && analysisMutation.data.matchedCommunities && analysisMutation.data.matchedCommunities.length > 0 && (
+          <Card className="mt-8 shadow-xl border-0 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 animate-fadeInUp animation-delay-100">
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center gap-3">
+                <div className="p-2 bg-emerald-100 dark:bg-emerald-800/50 rounded-lg">
+                  <CheckCircle className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                Available Communities in Our Database
+                <Badge className="ml-2 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
+                  {analysisMutation.data.matchedCommunities.length} Found
+                </Badge>
+              </CardTitle>
+              <CardDescription className="text-gray-600 dark:text-gray-400">
+                These mentioned communities have detailed pages you can explore
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {analysisMutation.data.matchedCommunities.map((community, index) => (
+                  <Link key={index} href={`/community/${community.id}`}>
+                    <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-emerald-200 dark:border-emerald-700 hover:border-emerald-400 dark:hover:border-emerald-500 hover:shadow-lg transition-all cursor-pointer transform hover:scale-[1.02]">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg">
+                          <Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{community.name}</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {community.city}, {community.state_province}
+                          </p>
+                          <Badge variant="secondary" className="mt-2 text-xs">
+                            {community.type}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* All Communities Mentioned */}
         {analysisMutation.isSuccess && analysisMutation.data && analysisMutation.data.communityMentions && analysisMutation.data.communityMentions.length > 0 && (
           <Card className="mt-8 shadow-xl border-0 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 animate-fadeInUp animation-delay-100">
             <CardHeader>
@@ -468,23 +520,31 @@ export default function CompetitiveAnalysis() {
                 <div className="p-2 bg-blue-100 dark:bg-blue-800/50 rounded-lg">
                   <Building className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                Communities Found in Market Analysis
+                All Communities Mentioned
                 <Badge className="ml-2 bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
-                  {analysisMutation.data.communityMentions.length} Communities
+                  {analysisMutation.data.communityMentions.length} Total
                 </Badge>
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400">
-                All senior living communities mentioned in the market research
+                Complete list of senior living communities referenced in the market research
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {analysisMutation.data.communityMentions.map((communityName: string, index: number) => (
-                  <div key={index} className="flex items-center gap-3 p-4 bg-white/70 dark:bg-gray-900/50 rounded-lg border border-blue-200/50 dark:border-blue-700/50 hover:bg-white dark:hover:bg-gray-900/70 transition-colors">
-                    <Home className="w-5 h-5 text-blue-500 flex-shrink-0" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{communityName}</span>
-                  </div>
-                ))}
+                {analysisMutation.data.communityMentions.map((communityName: string, index: number) => {
+                  const isMatched = analysisMutation.data.matchedCommunities?.some(
+                    mc => mc.name.toLowerCase() === communityName.toLowerCase()
+                  );
+                  return (
+                    <div key={index} className="flex items-center gap-3 p-4 bg-white/70 dark:bg-gray-900/50 rounded-lg border border-blue-200/50 dark:border-blue-700/50 hover:bg-white dark:hover:bg-gray-900/70 transition-colors">
+                      <Home className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{communityName}</span>
+                      {isMatched && (
+                        <CheckCircle className="w-4 h-4 text-emerald-500 ml-auto" title="Available in our database" />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
