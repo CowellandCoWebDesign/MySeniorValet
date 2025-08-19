@@ -552,7 +552,7 @@ function CommunityCard({
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
-                    setShowMarketModal(true);
+                    window.location.href = `/community/${community.id}`;
                   }}
                   className="text-sm text-blue-400 ml-1 hover:text-blue-300 underline cursor-pointer"
                 >
