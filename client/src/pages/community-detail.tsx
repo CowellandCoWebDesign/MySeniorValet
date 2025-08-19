@@ -5,7 +5,7 @@ import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSig
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, Lock,
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
-         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3, Loader2 } from 'lucide-react';
+         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3, Loader2, Utensils } from 'lucide-react';
 import type { Community } from '@shared/schema';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -1926,13 +1926,13 @@ export default function CommunityDetail() {
 
 
 
-            {/* Tabbed Content Section */}
+            {/* Tabbed Content Section - Enhanced Visibility */}
             <Tabs defaultValue="community-info" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="community-info">Community Information</TabsTrigger>
-                <TabsTrigger value="availability">Availability</TabsTrigger>
-                <TabsTrigger value="market-data">Live Market Data</TabsTrigger>
-                <TabsTrigger value="tour-tracker">TourTracker</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 p-1 rounded-lg shadow-lg border-2 border-blue-200 dark:border-blue-700 mb-4">
+                <TabsTrigger value="community-info" className="font-semibold text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-md">Community Information</TabsTrigger>
+                <TabsTrigger value="availability" className="font-semibold text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-md">Availability</TabsTrigger>
+                <TabsTrigger value="market-data" className="font-semibold text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-md">Live Market Data</TabsTrigger>
+                <TabsTrigger value="tour-tracker" className="font-semibold text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-md">TourTracker</TabsTrigger>
               </TabsList>
 
               {/* Community Information Tab */}
@@ -2543,79 +2543,221 @@ export default function CommunityDetail() {
                 <CommunityCompetitiveAnalysis community={community} />
               </TabsContent>
 
-              {/* TourTracker Tab */}
+              {/* TourTracker Tab - Comprehensive Grading System */}
               <TabsContent value="tour-tracker" className="space-y-6 mt-6">
                 <Card>
-                  <CardContent className="p-0">
-                    <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 p-8 rounded-lg border-2 border-blue-100 dark:border-blue-700">
-                      <div className="text-center mb-6">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">TourMate™ Tour Scheduling System</h3>
-                        <p className="text-gray-900 dark:text-gray-100">Schedule and track your community tours with our comprehensive management system</p>
-                      </div>
-
-                      {/* Community Contact Info for Tours */}
-                      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-blue-200 dark:border-blue-700 mb-6">
-                        <div className="flex items-center mb-4">
-                          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-xl mr-4">
-                            <Phone className="w-8 h-8" />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                              {community.phone || 'Phone Pending'}
-                            </h4>
-                            <p className="text-gray-600 dark:text-gray-400">Call to schedule your tour</p>
-                          </div>
-                        </div>
-                        
-                        {/* Additional Contact Methods */}
-                        {community.website && (
-                          <div className="flex items-center mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                            <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-3" />
-                            <a 
-                              href={community.website} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline dark:text-blue-400"
-                            >
-                              Visit Community Website
-                            </a>
-                          </div>
-                        )}
-                        
-                        {community.email && (
-                          <div className="flex items-center mt-2">
-                            <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-3" />
-                            <a 
-                              href={`mailto:${community.email}`}
-                              className="text-blue-600 hover:underline dark:text-blue-400"
-                            >
-                              {community.email}
-                            </a>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Tour Scheduling Component */}
+                  <CardHeader className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
+                    <CardTitle className="text-2xl font-bold flex items-center">
+                      <ClipboardList className="w-6 h-6 mr-2" />
+                      Comprehensive Tour Grading System
+                    </CardTitle>
+                    <p className="text-purple-100 mt-2">
+                      Your detailed evaluations help future families make informed decisions
+                    </p>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    {/* Tour Scheduling Section */}
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border-2 border-blue-200 dark:border-blue-700 mb-6">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+                        <Calendar className="w-5 h-5 mr-2 text-blue-600" />
+                        Schedule Your Tour
+                      </h3>
                       <TourScheduler 
                         communityId={community.id}
                         communityName={community.name}
                         communityPhone={community.phone || undefined}
                       />
+                    </div>
 
+                    {/* Grading Categories */}
+                    <div className="space-y-6">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                        Grade Each Category (A-F)
+                      </h3>
+                      
+                      {/* Staff & Care Quality */}
+                      <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-200 dark:border-green-700">
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+                          <Heart className="w-5 h-5 mr-2 text-green-600" />
+                          Staff & Care Quality
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Staff Friendliness
+                            </label>
+                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
+                              <option value="">Select Grade</option>
+                              <option value="A">A - Exceptional</option>
+                              <option value="B">B - Good</option>
+                              <option value="C">C - Average</option>
+                              <option value="D">D - Below Average</option>
+                              <option value="F">F - Poor</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Care Expertise
+                            </label>
+                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
+                              <option value="">Select Grade</option>
+                              <option value="A">A - Exceptional</option>
+                              <option value="B">B - Good</option>
+                              <option value="C">C - Average</option>
+                              <option value="D">D - Below Average</option>
+                              <option value="F">F - Poor</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
 
+                      {/* Facility & Cleanliness */}
+                      <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-700">
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+                          <Home className="w-5 h-5 mr-2 text-blue-600" />
+                          Facility & Cleanliness
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Overall Cleanliness
+                            </label>
+                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
+                              <option value="">Select Grade</option>
+                              <option value="A">A - Exceptional</option>
+                              <option value="B">B - Good</option>
+                              <option value="C">C - Average</option>
+                              <option value="D">D - Below Average</option>
+                              <option value="F">F - Poor</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Maintenance Quality
+                            </label>
+                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
+                              <option value="">Select Grade</option>
+                              <option value="A">A - Exceptional</option>
+                              <option value="B">B - Good</option>
+                              <option value="C">C - Average</option>
+                              <option value="D">D - Below Average</option>
+                              <option value="F">F - Poor</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
 
-                      {/* Comprehensive Tour Grading Button */}
-                      <div className="mt-4">
+                      {/* Activities & Social Life */}
+                      <div className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-lg border border-purple-200 dark:border-purple-700">
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+                          <Users className="w-5 h-5 mr-2 text-purple-600" />
+                          Activities & Social Life
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Activity Variety
+                            </label>
+                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
+                              <option value="">Select Grade</option>
+                              <option value="A">A - Exceptional</option>
+                              <option value="B">B - Good</option>
+                              <option value="C">C - Average</option>
+                              <option value="D">D - Below Average</option>
+                              <option value="F">F - Poor</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Community Atmosphere
+                            </label>
+                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
+                              <option value="">Select Grade</option>
+                              <option value="A">A - Exceptional</option>
+                              <option value="B">B - Good</option>
+                              <option value="C">C - Average</option>
+                              <option value="D">D - Below Average</option>
+                              <option value="F">F - Poor</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Dining Experience */}
+                      <div className="bg-orange-50 dark:bg-orange-900/20 p-6 rounded-lg border border-orange-200 dark:border-orange-700">
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+                          <Utensils className="w-5 h-5 mr-2 text-orange-600" />
+                          Dining Experience
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Food Quality
+                            </label>
+                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
+                              <option value="">Select Grade</option>
+                              <option value="A">A - Exceptional</option>
+                              <option value="B">B - Good</option>
+                              <option value="C">C - Average</option>
+                              <option value="D">D - Below Average</option>
+                              <option value="F">F - Poor</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Dining Atmosphere
+                            </label>
+                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
+                              <option value="">Select Grade</option>
+                              <option value="A">A - Exceptional</option>
+                              <option value="B">B - Good</option>
+                              <option value="C">C - Average</option>
+                              <option value="D">D - Below Average</option>
+                              <option value="F">F - Poor</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Overall Impression */}
+                      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-6 rounded-lg border-2 border-indigo-200 dark:border-indigo-700">
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
+                          <Star className="w-5 h-5 mr-2 text-indigo-600" />
+                          Overall Impression
+                        </h4>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Would you recommend this community?
+                            </label>
+                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
+                              <option value="">Select</option>
+                              <option value="highly">Highly Recommend</option>
+                              <option value="yes">Yes, Would Recommend</option>
+                              <option value="maybe">Maybe</option>
+                              <option value="no">Would Not Recommend</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Additional Comments
+                            </label>
+                            <textarea 
+                              className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600 h-24"
+                              placeholder="Share your detailed thoughts about your tour experience..."
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Submit Button */}
+                      <div className="flex justify-center mt-6">
                         <Button 
-                          onClick={() => window.location.href = `/tour-tracker?communityId=${community.id}`}
-                          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-3 font-semibold"
+                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-3 font-semibold text-lg"
                         >
-                          <ClipboardList className="w-4 h-4 mr-2" />
-                          Start Comprehensive Tour Grading
+                          <CheckCircle className="w-5 h-5 mr-2" />
+                          Submit Tour Evaluation
                         </Button>
-                        <p className="text-xs text-center text-blue-700 dark:text-blue-300 mt-2">
-                          Grade 10+ categories with A-F scoring • Your evaluations help future families make informed decisions
-                        </p>
                       </div>
                     </div>
                   </CardContent>
