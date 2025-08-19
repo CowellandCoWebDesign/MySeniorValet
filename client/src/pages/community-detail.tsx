@@ -1828,7 +1828,7 @@ export default function CommunityDetail() {
                           Real-time Market Pricing
                         </Badge>
                       </div>
-                      <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                      <div className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                         {(() => {
                           // Check for AI verified pricing from Multi-AI report
                           if (verificationReport?.pricing?.verified && verificationReport.pricing.amount) {
@@ -1881,6 +1881,19 @@ export default function CommunityDetail() {
                         })()}
                       </div>
                       
+                      {/* Live Web Price Info */}
+                      {verificationReport?.pricing?.verified && (
+                        <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+                          <div className="flex items-center gap-1 text-xs text-green-700 dark:text-green-300">
+                            <CheckCircle className="h-3 w-3" />
+                            <span className="font-medium">Live web price found</span>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                            See detailed market analysis in the <span className="font-semibold">Live Market Data</span> tab below
+                          </p>
+                        </div>
+                      )}
+                      
                       {/* Compact Pricing Attribution for Estimates */}
                       {!hasLiveData && !community.claimedBy && (
                         <div className="mt-2 flex items-center justify-end gap-2 text-xs">
@@ -1924,8 +1937,34 @@ export default function CommunityDetail() {
               </CardHeader>
             </Card>
 
+            {/* Tabbed Content Section - Moved up for better visibility */}
+            <Tabs defaultValue="community-info" className="w-full -mt-2">
+              <TabsList className="grid w-full grid-cols-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-1 rounded-xl shadow-lg border-2 border-blue-200 dark:border-blue-700">
+                <TabsTrigger 
+                  value="community-info" 
+                  className="data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-lg data-[state=active]:font-bold text-gray-600 dark:text-gray-300 font-semibold transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400"
+                >
+                  <Building className="w-4 h-4 mr-2" />
+                  Community Information
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="availability" 
+                  className="data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-lg data-[state=active]:font-bold text-gray-600 dark:text-gray-300 font-semibold transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400"
+                >
+                  <Home className="w-4 h-4 mr-2" />
+                  Availability
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="market-data" 
+                  className="data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-lg data-[state=active]:font-bold text-gray-600 dark:text-gray-300 font-semibold transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400"
+                >
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Live Market Data
+                </TabsTrigger>
+              </TabsList>
+
             {/* Community Claim Status Card */}
-            <Card className="border-2 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
+            <Card className="border-2 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 mt-6">
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
                   <div className="p-2 bg-amber-100 dark:bg-amber-800 rounded-lg">
@@ -2016,32 +2055,6 @@ export default function CommunityDetail() {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Tabbed Content Section */}
-            <Tabs defaultValue="community-info" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-1 rounded-xl shadow-lg border-2 border-blue-200 dark:border-blue-700">
-                <TabsTrigger 
-                  value="community-info" 
-                  className="data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-lg data-[state=active]:font-bold text-gray-600 dark:text-gray-300 font-semibold transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400"
-                >
-                  <Building className="w-4 h-4 mr-2" />
-                  Community Information
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="availability" 
-                  className="data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-lg data-[state=active]:font-bold text-gray-600 dark:text-gray-300 font-semibold transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400"
-                >
-                  <Home className="w-4 h-4 mr-2" />
-                  Availability
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="market-data" 
-                  className="data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-lg data-[state=active]:font-bold text-gray-600 dark:text-gray-300 font-semibold transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400"
-                >
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Live Market Data
-                </TabsTrigger>
-              </TabsList>
 
               {/* Community Information Tab */}
               <TabsContent value="community-info" className="space-y-6 mt-6">
