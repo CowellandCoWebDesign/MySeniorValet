@@ -727,7 +727,7 @@ export default function MySeniorValetHome() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
             {/* Left side - The Darkness */}
             <Card className="bg-gray-900/95 dark:bg-black/95 border-red-500/30">
               <CardContent className="p-6">
