@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
-import { TrendingUp, TrendingDown, Minus, MapPin, Building2, DollarSign, Search, Loader2, AlertCircle, BarChart3, Globe, Users, Brain, X, Clock, Lightbulb } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, MapPin, Building2, DollarSign, Search, Loader2, AlertCircle, BarChart3, Globe, Users, Brain, X, Clock, Lightbulb, Home, Building, CheckCircle, Star, FileText } from 'lucide-react';
 import { Link } from 'wouter';
 import { useSEO } from '@/hooks/useSEO';
 
@@ -22,6 +22,7 @@ interface MarketAnalysis {
   trend: 'increasing' | 'decreasing' | 'stable';
   insights: string[];
   detailedSummary?: string;
+  communityMentions?: string[]; // Array of community names found in analysis
   lastUpdated: string;
   sources: string[];
 }
@@ -459,15 +460,45 @@ export default function CompetitiveAnalysis() {
           </Card>
         )}
         
+        {/* Communities Found in Market Analysis */}
+        {analysisMutation.isSuccess && analysisMutation.data && analysisMutation.data.communityMentions && analysisMutation.data.communityMentions.length > 0 && (
+          <Card className="mt-8 shadow-xl border-0 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 animate-fadeInUp animation-delay-100">
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center gap-3">
+                <div className="p-2 bg-blue-100 dark:bg-blue-800/50 rounded-lg">
+                  <Building className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                Communities Found in Market Analysis
+                <Badge className="ml-2 bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
+                  {analysisMutation.data.communityMentions.length} Communities
+                </Badge>
+              </CardTitle>
+              <CardDescription className="text-gray-600 dark:text-gray-400">
+                All senior living communities mentioned in the market research
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {analysisMutation.data.communityMentions.map((communityName: string, index: number) => (
+                  <div key={index} className="flex items-center gap-3 p-4 bg-white/70 dark:bg-gray-900/50 rounded-lg border border-blue-200/50 dark:border-blue-700/50 hover:bg-white dark:hover:bg-gray-900/70 transition-colors">
+                    <Home className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{communityName}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Detailed Market Summary */}
         {analysisMutation.isSuccess && analysisMutation.data && analysisMutation.data.detailedSummary && (
             <Card className="mt-8 shadow-xl border-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm animate-fadeInUp animation-delay-200">
               <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-t-lg">
                 <CardTitle className="text-2xl flex items-center gap-3">
                   <div className="p-2 bg-purple-100 dark:bg-purple-800/50 rounded-lg">
-                    <BarChart3 className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                    <FileText className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                   </div>
-                  Detailed Market Analysis
+                  Complete Market Analysis (Unfiltered)
                 </CardTitle>
                 <CardDescription className="text-gray-600 dark:text-gray-400">
                   Comprehensive AI-powered market research from real-time web data
@@ -478,29 +509,31 @@ export default function CompetitiveAnalysis() {
                   <div className="bg-gradient-to-r from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
                     <div className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
                       {analysisMutation.data.detailedSummary.split('\n').map((paragraph, index) => {
+                        // Highlight community names
+                        const highlightedParagraph = paragraph.replace(
+                          /\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home|Place|House|Terrace|Gardens?|Lodge|Park|Estates?|Court|Heights|Oaks|Pines|Springs|Hills|Valley|Creek|Ridge|Point|Plaza|Square|Tower|Arms|Haven|Crossing|Landing|Station|Walk|Way|Trail|Grove|Meadows?|Fields?|Woods?|Forest|Lake|River|Bay|Beach|Shore|Coast|Harbor|Port|Vista|View|Pointe))\b/g,
+                          '<span class="bg-yellow-200 dark:bg-yellow-900/50 px-1 rounded font-semibold">$1</span>'
+                        );
+                        
                         // Format bullet points
                         if (paragraph.trim().startsWith('-') || paragraph.trim().startsWith('•')) {
                           return (
                             <div key={index} className="flex items-start gap-3 mb-3">
                               <span className="text-purple-500 mt-1">▸</span>
-                              <span>{paragraph.replace(/^[-•]\s*/, '')}</span>
+                              <span dangerouslySetInnerHTML={{ __html: highlightedParagraph.replace(/^[-•]\s*/, '') }} />
                             </div>
                           );
                         }
                         // Format headers (lines ending with colon)
                         if (paragraph.trim().endsWith(':') && paragraph.trim().length < 50) {
                           return (
-                            <h4 key={index} className="font-semibold text-purple-700 dark:text-purple-400 mt-4 mb-2">
-                              {paragraph}
-                            </h4>
+                            <h4 key={index} className="font-semibold text-purple-700 dark:text-purple-400 mt-4 mb-2" dangerouslySetInnerHTML={{ __html: highlightedParagraph }} />
                           );
                         }
                         // Regular paragraphs
                         if (paragraph.trim()) {
                           return (
-                            <p key={index} className="mb-3">
-                              {paragraph}
-                            </p>
+                            <p key={index} className="mb-3" dangerouslySetInnerHTML={{ __html: highlightedParagraph }} />
                           );
                         }
                         return null;

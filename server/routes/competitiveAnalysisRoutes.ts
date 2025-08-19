@@ -168,7 +168,9 @@ router.post('/api/competitive-analysis', async (req, res) => {
         'Location within the city/state affects pricing substantially'
       ],
       detailedSummary: content, // Full unfiltered Perplexity response for complete transparency
-      communityMentions: content.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home|Place|House|Terrace|Gardens?|Lodge|Park|Estates?|Court|Heights|Oaks|Pines|Springs|Hills|Valley|Creek|Ridge|Point|Plaza|Square|Tower|Arms|Haven|Crossing|Landing|Station|Walk|Way|Trail|Grove|Meadows?|Fields?|Woods?|Forest|Lake|River|Bay|Beach|Shore|Coast|Harbor|Port|Vista|View|Pointe)\b/g) || [], // Extract all community names mentioned
+      communityMentions: Array.from(new Set(
+        content.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home|Place|House|Terrace|Gardens?|Lodge|Park|Estates?|Court|Heights|Oaks|Pines|Springs|Hills|Valley|Creek|Ridge|Point|Plaza|Square|Tower|Arms|Haven|Crossing|Landing|Station|Walk|Way|Trail|Grove|Meadows?|Fields?|Woods?|Forest|Lake|River|Bay|Beach|Shore|Coast|Harbor|Port|Vista|View|Pointe)\b/g) || []
+      )), // Extract all unique community names mentioned
       lastUpdated: new Date().toISOString(),
       sources: sources.length > 0 ? sources.map(s => {
         try {
@@ -201,6 +203,7 @@ router.post('/api/competitive-analysis', async (req, res) => {
         'Costs vary significantly by region and level of care needed',
         'Urban areas generally have higher costs than rural locations'
       ],
+      communityMentions: [], // No communities available in fallback
       lastUpdated: new Date().toISOString(),
       sources: ['Industry Estimates', 'Historical Data']
     };
