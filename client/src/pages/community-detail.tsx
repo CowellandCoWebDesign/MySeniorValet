@@ -45,13 +45,11 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
   const [analysis, setAnalysis] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [hasTriggered, setHasTriggered] = useState(false);
   
   const fetchAnalysis = async () => {
     if (!community?.city || !community?.state) return;
-    if (hasTriggered) return; // Prevent duplicate fetches
+    if (isLoading) return; // Prevent duplicate fetches
     
-    setHasTriggered(true);
     setIsLoading(true);
     try {
       const response = await apiRequest('POST', '/api/competitive-analysis', {
@@ -75,23 +73,6 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
     }
   };
   
-  // Trigger analysis on first scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!hasTriggered && window.scrollY > 50) {
-        fetchAnalysis();
-      }
-    };
-    
-    // Add scroll listener
-    window.addEventListener('scroll', handleScroll);
-    
-    // Cleanup
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [hasTriggered, community?.id]);
-  
   return (
     <Card className="mb-8 border-2 border-indigo-200 dark:border-indigo-800">
       <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
@@ -111,16 +92,23 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
         </CardDescription>
       </CardHeader>
       
-      {!hasTriggered && !analysis && (
+      {!analysis && !isLoading && (
         <CardContent className="py-8">
-          <div className="text-center text-gray-500">
+          <div className="text-center">
             <BarChart3 className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-            <p className="text-sm">Scroll to load market analysis</p>
+            <p className="text-sm text-gray-500 mb-4">Compare local market pricing</p>
+            <Button 
+              onClick={fetchAnalysis}
+              className="bg-indigo-600 hover:bg-indigo-700"
+              size="sm"
+            >
+              Analyze Market
+            </Button>
           </div>
         </CardContent>
       )}
       
-      {isLoading && !analysis && (
+      {isLoading && (
         <CardContent className="py-8">
           <div className="flex items-center justify-center text-gray-500">
             <Loader2 className="w-6 h-6 mr-2 animate-spin" />
