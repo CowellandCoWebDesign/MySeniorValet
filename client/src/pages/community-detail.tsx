@@ -395,7 +395,7 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
 };
 
 // Real-time AI Insights Component - Enhanced with Multi-AI Verification
-const RealTimeInsights = ({ community }: { community: any }) => {
+const RealTimeInsights = ({ community, competitiveAnalysisData }: { community: any, competitiveAnalysisData: any }) => {
   const realTimeData = community?.realTimeData;
   const [verificationReport, setVerificationReport] = useState<any>(null);
   const [isVerifying, setIsVerifying] = useState(false);
