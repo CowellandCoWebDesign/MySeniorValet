@@ -172,34 +172,59 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
             </div>
           )}
           
+          {/* Communities Mentioned in Analysis */}
+          {analysis.communityMentions && analysis.communityMentions.length > 0 && (
+            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
+              <h3 className="font-semibold text-lg mb-4 flex items-center">
+                <Building className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
+                Communities Found in Market Analysis
+                <Badge className="ml-2" variant="secondary">{analysis.communityMentions.length} Communities</Badge>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {analysis.communityMentions.map((communityName: string, index: number) => (
+                  <div key={index} className="flex items-center gap-2 p-3 bg-white/50 dark:bg-gray-900/50 rounded-lg border border-blue-200/50 dark:border-blue-700/50">
+                    <Home className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{communityName}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Detailed Market Analysis */}
           {analysis.detailedSummary && (
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-xl border border-purple-200 dark:border-purple-800">
               <h3 className="font-semibold text-lg mb-4 flex items-center">
                 <FileText className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
-                Detailed Market Analysis
+                Complete Market Analysis (Unfiltered)
               </h3>
               <div className="prose prose-sm dark:prose-invert max-w-none">
                 <div className="text-gray-700 dark:text-gray-300 space-y-3">
                   {analysis.detailedSummary.split('\n').filter((line: string) => line.trim()).map((paragraph: string, index: number) => {
+                    // Highlight community names
+                    const highlightedParagraph = paragraph.replace(
+                      /\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home|Place|House|Terrace|Gardens?|Lodge|Park|Estates?|Court|Heights|Oaks|Pines|Springs|Hills|Valley|Creek|Ridge|Point|Plaza|Square|Tower|Arms|Haven|Crossing|Landing|Station|Walk|Way|Trail|Grove|Meadows?|Fields?|Woods?|Forest|Lake|River|Bay|Beach|Shore|Coast|Harbor|Port|Vista|View|Pointe))\b/g,
+                      '<span class="bg-yellow-200 dark:bg-yellow-900/50 px-1 rounded font-semibold">$1</span>'
+                    );
+                    
                     // Check if it's a bullet point
                     if (paragraph.trim().startsWith('-') || paragraph.trim().startsWith('•')) {
                       return (
                         <div key={index} className="flex items-start gap-2 ml-4">
                           <span className="text-purple-500 mt-1">•</span>
-                          <span className="text-sm">{paragraph.replace(/^[-•]\s*/, '')}</span>
+                          <span className="text-sm" dangerouslySetInnerHTML={{ __html: highlightedParagraph.replace(/^[-•]\s*/, '') }} />
                         </div>
                       );
                     }
                     // Check if it's a heading (contains **)
                     if (paragraph.includes('**')) {
-                      const formatted = paragraph.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                      const formatted = highlightedParagraph.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                       return (
                         <p key={index} className="text-sm font-medium" dangerouslySetInnerHTML={{ __html: formatted }} />
                       );
                     }
                     // Regular paragraph
-                    return <p key={index} className="text-sm">{paragraph}</p>;
+                    return <p key={index} className="text-sm" dangerouslySetInnerHTML={{ __html: highlightedParagraph }} />;
                   })}
                 </div>
               </div>

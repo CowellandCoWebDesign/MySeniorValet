@@ -23,19 +23,19 @@ router.post('/api/competitive-analysis', async (req, res) => {
     switch(type) {
       case 'city':
         searchQuery = `average senior living costs assisted living memory care nursing home prices in ${location} current 2025 monthly rates`;
-        contextQuery = `What are the current average monthly costs for senior living communities (assisted living, memory care, nursing homes) in ${location}? Include price ranges and how they compare to the national average.`;
+        contextQuery = `List ALL senior living communities in ${location} with their specific pricing. Include every facility name you find, individual community pricing, assisted living costs, memory care costs, nursing home costs. Provide complete data on each community mentioned. Compare to national averages. Include all facilities viewed or referenced.`;
         break;
       case 'state':
         searchQuery = `senior living facility costs ${location} state average prices assisted living memory care 2025`;
-        contextQuery = `What are the average monthly costs for senior living facilities across ${location}? Compare different care types and how ${location} compares to other states.`;
+        contextQuery = `List ALL senior living facilities and communities across ${location} with specific pricing data. Include every community name, individual facility costs, different care types, regional variations. Provide all data points found about each community.`;
         break;
       case 'region':
         searchQuery = `senior care costs ${location} region United States Canada Mexico pricing trends 2025`;
-        contextQuery = `What are the typical senior care costs in the ${location} region? Include pricing trends and variations within the region.`;
+        contextQuery = `List ALL senior care facilities in the ${location} region with complete pricing information. Include every community name found, specific costs, pricing trends, variations within the region. Provide comprehensive data on each facility.`;
         break;
       case 'country':
         searchQuery = `national average senior living costs ${location} assisted living memory care pricing 2025`;
-        contextQuery = `What is the national average cost for senior living in ${location}? Include different care types and regional variations.`;
+        contextQuery = `Provide comprehensive national data for senior living in ${location}. List specific communities with pricing, include all facility names found, different care types, regional variations. Include every data point discovered.`;
         break;
     }
 
@@ -117,12 +117,23 @@ router.post('/api/competitive-analysis', async (req, res) => {
       trend = 'decreasing';
     }
 
-    // Extract insights from the content
+    // Extract ALL insights from the content - no filtering for transparency
     const insights = [];
     const sentences = content.split('. ');
-    for (const sentence of sentences.slice(0, 5)) {
-      if (sentence.length > 50 && sentence.length < 200) {
-        insights.push(sentence.trim());
+    
+    // Include ALL sentences that contain valuable information
+    for (const sentence of sentences) {
+      const trimmed = sentence.trim();
+      if (trimmed.length > 20) { // Minimal filtering - just avoid empty sentences
+        // Prioritize sentences with community names, prices, or specific data
+        if (trimmed.match(/\$[\d,]+/) || // Has pricing
+            trimmed.match(/\b[A-Z][a-z]+\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home)\b/) || // Has community names
+            trimmed.match(/\d+%/) || // Has percentages
+            trimmed.match(/average|cost|price|rate|facility|community/i)) { // Has relevant keywords
+          insights.unshift(trimmed + '.'); // Add high-priority insights to beginning
+        } else {
+          insights.push(trimmed + '.'); // Add other insights to end
+        }
       }
     }
 
@@ -156,7 +167,8 @@ router.post('/api/competitive-analysis', async (req, res) => {
         'Private rooms command premium pricing over shared accommodations',
         'Location within the city/state affects pricing substantially'
       ],
-      detailedSummary: content, // Add the full Perplexity response
+      detailedSummary: content, // Full unfiltered Perplexity response for complete transparency
+      communityMentions: content.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home|Place|House|Terrace|Gardens?|Lodge|Park|Estates?|Court|Heights|Oaks|Pines|Springs|Hills|Valley|Creek|Ridge|Point|Plaza|Square|Tower|Arms|Haven|Crossing|Landing|Station|Walk|Way|Trail|Grove|Meadows?|Fields?|Woods?|Forest|Lake|River|Bay|Beach|Shore|Coast|Harbor|Port|Vista|View|Pointe)\b/g) || [], // Extract all community names mentioned
       lastUpdated: new Date().toISOString(),
       sources: sources.length > 0 ? sources.map(s => {
         try {

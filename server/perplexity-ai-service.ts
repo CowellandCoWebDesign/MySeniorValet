@@ -35,7 +35,14 @@ export class PerplexityAIService {
     }
 
     try {
-      const systemPrompt = `Find real senior living data. Return current pricing, availability, and facts only. Never guess. MySeniorValet now covers 34,000+ communities across USA, Canada, and Mexico with 101 authentic Mexican government-certified facilities from DIF and INAPAM sources. ${context ? `Context: ${context}` : ''}`;
+      const systemPrompt = `You are providing comprehensive senior living market analysis. Include ALL information found about:
+- Individual community names and their specific pricing
+- All facilities mentioned in the search results
+- Complete pricing ranges and variations
+- Every data point discovered about the location
+- Specific communities viewed or referenced
+Do not filter or summarize - provide complete transparency with all discovered information.
+MySeniorValet covers 34,000+ communities across USA, Canada, and Mexico. ${context ? `Context: ${context}` : ''}`;
 
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,
@@ -51,7 +58,7 @@ export class PerplexityAIService {
               content: query
             }
           ],
-          max_tokens: 500,
+          max_tokens: 2000,  // Increased for comprehensive responses
           temperature: 0.2,
           top_p: 0.9,
           return_images: false,
