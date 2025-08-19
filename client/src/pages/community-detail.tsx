@@ -782,7 +782,7 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
             )}
             
             {/* Loading State */}
-            {isVerifying && !verificationReport && (
+            {isVerifying && !localVerificationReport && (
               <div className="flex items-center justify-center py-2">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mr-2" />
                 <p className="text-sm text-indigo-700 dark:text-indigo-300">
@@ -1887,7 +1887,7 @@ export default function CommunityDetail() {
                       </div>
                       
                       {/* Live Web Price Info - Show when we have any price data */}
-                      {(community.priceRange?.min > 0 || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
+                      {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
                         <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/30 dark:to-blue-900/30 rounded-lg border border-green-300 dark:border-green-700">
                           <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-300">
                             <CheckCircle className="h-4 w-4 flex-shrink-0" />
