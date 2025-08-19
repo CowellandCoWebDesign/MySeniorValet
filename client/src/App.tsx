@@ -166,7 +166,6 @@ function Router() {
     <Switch>
       <Route path="/" component={MySeniorValetHome} />
       <Route path="/canada" component={CanadaPage} />
-      <Route path="/search" component={MapSearch} />
       <Route path="/map" component={MapSearch} />
       <Route path="/map-search" component={MapSearch} />
       <Route path="/ai-intelligence" component={AISearchIntelligence} />
