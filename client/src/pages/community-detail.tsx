@@ -1830,17 +1830,7 @@ export default function CommunityDetail() {
                       </div>
                       <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
                         {(() => {
-                          // First check for competitive analysis data
-                          const analysis = competitiveAnalysisData;
-                          if (analysis?.pricing) {
-                            if (analysis.pricing.priceRange) {
-                              return analysis.pricing.priceRange;
-                            } else if (analysis.pricing.averageMonthlyRent) {
-                              return `$${analysis.pricing.averageMonthlyRent.toLocaleString()}/mo`;
-                            }
-                          }
-                          
-                          // Then check for AI verified pricing from Multi-AI report
+                          // Check for AI verified pricing from Multi-AI report
                           if (verificationReport?.pricing?.verified && verificationReport.pricing.amount) {
                             const amount = verificationReport.pricing.amount;
                             const minMax = verificationReport.pricing.minMax;
@@ -1878,11 +1868,6 @@ export default function CommunityDetail() {
                       </div>
                       <div className="text-sm text-gray-900 dark:text-gray-100">
                         {(() => {
-                          const analysis = competitiveAnalysisData;
-                          if (analysis?.pricing) {
-                            return `Perplexity AI Market Analysis - ${analysis.pricing.comparedToNational || 'Current market rates'}`;
-                          }
-                          
                           return verificationReport?.pricing?.verified && verificationReport.pricing.source ? 
                             `AI Verified - ${verificationReport.pricing.source}` :
                             community.priceRange && community.priceRange.min > 0 ? 
