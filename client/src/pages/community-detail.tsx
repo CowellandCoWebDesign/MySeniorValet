@@ -125,7 +125,7 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
       {analysis && !analysis.error && (
         <CardContent className="space-y-6 pt-6">
           {/* Core Pricing Comparison */}
-          {analysis.averagePrice && (
+          {analysis.averageMonthlyRent && (
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
               <h3 className="font-semibold text-lg mb-4 flex items-center">
                 <DollarSign className="w-5 h-5 mr-2 text-blue-600 dark:text-blue-400" />
@@ -134,33 +134,52 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
               
               <div className="grid md:grid-cols-3 gap-4 mb-4">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Average Price</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Average Monthly Cost</p>
                   <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                    {analysis.averagePrice}
+                    ${analysis.averageMonthlyRent?.toLocaleString()}/mo
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">Price Range</p>
                   <p className="text-xl font-semibold text-gray-700 dark:text-gray-300">
-                    {analysis.priceRange || analysis.averagePrice}
+                    ${analysis.priceRange?.min?.toLocaleString()} - ${analysis.priceRange?.max?.toLocaleString()}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">vs National Average</p>
                   <div className="flex items-center gap-2">
-                    {analysis.nationalComparison?.includes('higher') ? (
+                    {analysis.comparedToNational > 10 ? (
                       <TrendingUp className="w-5 h-5 text-red-500" />
-                    ) : analysis.nationalComparison?.includes('lower') ? (
+                    ) : analysis.comparedToNational < -10 ? (
                       <TrendingDown className="w-5 h-5 text-green-500" />
                     ) : (
                       <Minus className="w-5 h-5 text-gray-500" />
                     )}
                     <p className="text-sm font-medium">
-                      {analysis.nationalComparison || 'Similar to national average'}
+                      {analysis.comparedToNational > 0 ? `${analysis.comparedToNational}% higher` : 
+                       analysis.comparedToNational < 0 ? `${Math.abs(analysis.comparedToNational)}% lower` : 
+                       'Similar to national average'}
                     </p>
                   </div>
                 </div>
               </div>
+              
+              {/* Trend Indicator */}
+              {analysis.trend && (
+                <div className="mt-4 flex items-center gap-2 text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">Market Trend:</span>
+                  <span className={`font-medium flex items-center gap-1 ${
+                    analysis.trend === 'increasing' ? 'text-red-600' : 
+                    analysis.trend === 'decreasing' ? 'text-green-600' : 
+                    'text-gray-600'
+                  }`}>
+                    {analysis.trend === 'increasing' && <TrendingUp className="w-4 h-4" />}
+                    {analysis.trend === 'decreasing' && <TrendingDown className="w-4 h-4" />}
+                    {analysis.trend === 'stable' && <Minus className="w-4 h-4" />}
+                    {analysis.trend.charAt(0).toUpperCase() + analysis.trend.slice(1)}
+                  </span>
+                </div>
+              )}
             </div>
           )}
           
