@@ -40,6 +40,7 @@ import { useSEO } from '@/hooks/useSEO';
 const heroBackgroundImage = '/starry-night-hero.png';
 const lighthouseBackground = '/lighthouse-sunset-final.png';
 import { EmergencyButton } from "@/components/EmergencyButton";
+import { HeroAIAssistant } from "@/components/HeroAIAssistant";
 
 
 
@@ -700,6 +701,9 @@ export default function MySeniorValetHome() {
                 </span>
               </div>
             </div>
+            
+            {/* AI Assistant Integration */}
+            <HeroAIAssistant />
             
           </div>
           {/* End Search Container */}
