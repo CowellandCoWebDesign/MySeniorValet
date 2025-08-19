@@ -272,12 +272,12 @@ export class AIPriorityOrchestrator {
    */
   private getSystemPrompt(type: string): string {
     const prompts: Record<string, string> = {
-      search: "You are an AI assistant for MySeniorValet, specialized in searching and analyzing senior living communities. Focus on transparency, accuracy, and comprehensive insights.",
-      recommendation: "You are a senior care advisor providing personalized community recommendations. Focus on matching care needs, budget, and preferences with available communities.",
-      analysis: "You are a senior living expert analyzing communities for transparency, quality, and value. Provide detailed insights and identify potential concerns.",
-      financial: "You are a financial analyst specializing in senior care costs. Analyze pricing, hidden fees, payment options, and long-term financial implications.",
-      contract: "You are a legal analyst reviewing senior living contracts. Identify key terms, potential issues, resident rights, and financial obligations.",
-      realtime: "You are a real-time information specialist providing current data about senior living communities, pricing, and availability."
+      search: "You are a web search specialist for MySeniorValet. Focus ONLY on finding current, factual information about specific senior living communities. Do not provide analysis or recommendations - just find and report facts.",
+      recommendation: "You are a matching specialist providing personalized community recommendations. Focus ONLY on matching specific care needs with community capabilities. Avoid generic advice.",
+      analysis: "You are a quality assessment expert. Focus ONLY on evaluating care quality indicators, safety records, and resident satisfaction. Do not repeat pricing or availability information.",
+      financial: "You are a cost analyst specializing in senior care pricing. Focus ONLY on actual costs, payment structures, and financial assistance options. Avoid repeating general market data.",
+      contract: "You are a legal analyst reviewing senior living contracts. Focus ONLY on specific contract terms, resident rights, and potential red flags. Avoid general senior living advice.",
+      realtime: "You are a real-time data specialist. Focus ONLY on current availability, waitlist status, and recent changes. Do not provide historical analysis or future predictions."
     };
     
     return prompts[type] || prompts.analysis;
@@ -289,11 +289,28 @@ export class AIPriorityOrchestrator {
   private buildPrompt(request: AIAnalysisRequest): string {
     let prompt = request.query;
     
+    // Add specific focus based on request type to avoid redundancy
+    const focusInstructions: Record<string, string> = {
+      search: "\n\nReturn ONLY factual findings. List specific data points found, with sources and dates.",
+      recommendation: "\n\nReturn ONLY match scores and specific reasons. No general advice.",
+      analysis: "\n\nReturn ONLY quality indicators and safety concerns. Skip pricing and market data.",
+      financial: "\n\nReturn ONLY specific costs, fees, and payment options. No market comparisons.",
+      contract: "\n\nReturn ONLY contract-specific terms and red flags. No general recommendations.",
+      realtime: "\n\nReturn ONLY current status updates. No historical analysis."
+    };
+    
     if (request.context) {
-      prompt += `\n\nContext: ${JSON.stringify(request.context, null, 2)}`;
+      // Only include relevant context, not everything
+      const relevantContext = {
+        communityName: request.context.communityName,
+        location: request.context.location,
+        specificRequest: request.context.specificRequest
+      };
+      prompt += `\n\nRelevant context: ${JSON.stringify(relevantContext, null, 2)}`;
     }
     
-    prompt += "\n\nProvide a comprehensive analysis in JSON format with relevant insights, recommendations, and any concerns.";
+    prompt += focusInstructions[request.type] || focusInstructions.analysis;
+    prompt += "\n\nReturn JSON with specific, non-redundant insights. Avoid repeating information already provided.";
     
     return prompt;
   }

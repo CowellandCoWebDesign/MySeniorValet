@@ -49,9 +49,9 @@ export class AnthropicAIService {
     userPreferences?: any
   ): Promise<CommunityRecommendation[]> {
     try {
-      const prompt = `As a senior living expert, analyze this request and recommend the best communities:
+      const prompt = `You are a precision matching specialist. Match communities to specific needs WITHOUT providing general advice.
 
-USER REQUEST: "${userQuery}"
+USER'S SPECIFIC REQUEST: "${userQuery}"
 
 AVAILABLE COMMUNITIES: ${JSON.stringify(availableCommunities.slice(0, 20))}
 
@@ -63,13 +63,19 @@ Provide recommendations in JSON format:
     {
       "communityId": number,
       "matchScore": number (0-100),
-      "reasons": ["reason1", "reason2"],
-      "concerns": ["concern1", "concern2"]
+      "reasons": ["SPECIFIC reason why THIS community matches THIS user's needs"],
+      "concerns": ["SPECIFIC concern about THIS community for THIS user"]
     }
   ]
 }
 
-Focus on: location proximity, care level match, budget alignment, amenities, medical services, and family preferences.`;
+ONLY evaluate:
+- How well each community's ACTUAL services match the STATED needs
+- Distance from user's specified location
+- Budget fit based on ACTUAL pricing
+- Care level availability for SPECIFIC conditions mentioned
+
+DO NOT include generic statements like "offers quality care" or "good reputation"`;
 
       const response = await anthropic.messages.create({
         model: "claude-3-5-sonnet-20241022",
@@ -88,29 +94,34 @@ Focus on: location proximity, care level match, budget alignment, amenities, med
     }
   }
 
-  // Advanced Care Planning
+  // Advanced Care Planning - Focus on MEDICAL ASSESSMENT ONLY
   static async assessCareNeeds(
     healthProfile: any,
     currentSituation: string,
     familyInput: string
   ): Promise<CarePlanAssessment> {
     try {
-      const prompt = `As a geriatric care specialist, assess the care needs:
+      const prompt = `You are a geriatric care specialist. Provide ONLY medical assessment based on stated conditions.
 
-HEALTH PROFILE: ${JSON.stringify(healthProfile)}
-CURRENT SITUATION: "${currentSituation}"
-FAMILY INPUT: "${familyInput}"
+HEALTH CONDITIONS: ${JSON.stringify(healthProfile)}
+CURRENT FUNCTIONAL STATUS: "${currentSituation}"
+FAMILY OBSERVATIONS: "${familyInput}"
 
-Provide assessment in JSON format:
+Provide clinical assessment in JSON format:
 {
   "recommendedCareLevel": "independent|assisted|memory|skilled",
-  "currentNeeds": ["need1", "need2"],
-  "futureNeeds": ["future1", "future2"],
-  "timelineMonths": number,
+  "currentNeeds": ["SPECIFIC medical/ADL need based on conditions"],
+  "futureNeeds": ["LIKELY progression based on diagnosis"],
+  "timelineMonths": number (based on typical disease progression),
   "budgetRange": {"min": number, "max": number}
 }
 
-Consider: mobility, cognition, medical conditions, social needs, safety concerns, and progression timeline.`;
+Base assessment ONLY on:
+- Diagnosed conditions and their typical progression
+- Current functional limitations mentioned
+- Specific ADL/IADL deficits noted
+
+DO NOT include generic advice or community recommendations.`;
 
       const response = await anthropic.messages.create({
         model: "claude-3-5-sonnet-20241022",
@@ -134,29 +145,32 @@ Consider: mobility, cognition, medical conditions, social needs, safety concerns
     }
   }
 
-  // Family Communication Assistant
+  // Family Communication Assistant - Focus on VISIT-SPECIFIC OBSERVATIONS
   static async generateFamilyReport(
     communityData: any,
     tourNotes: string,
     familyQuestions: string[]
   ): Promise<string> {
     try {
-      const prompt = `Create a comprehensive family report for this senior living community visit:
+      const prompt = `Generate a VISIT-SPECIFIC report based on actual tour observations. DO NOT include generic information.
 
-COMMUNITY DATA: ${JSON.stringify(communityData)}
-TOUR NOTES: "${tourNotes}"
-FAMILY QUESTIONS: ${JSON.stringify(familyQuestions)}
+COMMUNITY VISITED: ${communityData.name} in ${communityData.city}, ${communityData.state}
+YOUR TOUR OBSERVATIONS: "${tourNotes}"
+FAMILY'S SPECIFIC QUESTIONS: ${JSON.stringify(familyQuestions)}
 
-Generate a professional, easy-to-understand report that includes:
-1. Community Overview & Key Features
-2. Pricing & Financial Considerations
-3. Care Services & Medical Support
-4. Social Activities & Amenities
-5. Safety & Security Measures
-6. Answers to Family Questions
-7. Next Steps & Recommendations
+Create a report focusing ONLY on:
+1. What you ACTUALLY observed during the tour (from tour notes)
+2. Direct answers to the family's SPECIFIC questions
+3. Specific concerns or positives noted during THIS visit
+4. Next steps based on THIS family's situation
 
-Write in a warm, informative tone that helps families make informed decisions.`;
+DO NOT include:
+- Generic senior living advice
+- Information not observed during the tour
+- Standard features lists
+- General recommendations
+
+Format: Brief, factual paragraphs addressing only what was actually discussed or observed.`;
 
       const response = await anthropic.messages.create({
         model: "claude-3-5-sonnet-20241022",
@@ -174,23 +188,29 @@ Write in a warm, informative tone that helps families make informed decisions.`;
     }
   }
 
-  // Review Analysis
+  // Review Analysis - Focus on SPECIFIC PATTERNS IN ACTUAL REVIEWS
   static async analyzeReviews(reviews: string[]): Promise<ReviewSentiment> {
     try {
-      const prompt = `Analyze these senior living community reviews:
+      const prompt = `Extract SPECIFIC patterns from these ACTUAL reviews. DO NOT add generic observations.
 
-REVIEWS: ${JSON.stringify(reviews)}
+ACTUAL REVIEWS TO ANALYZE: ${JSON.stringify(reviews)}
 
-Provide sentiment analysis in JSON format:
+Provide analysis in JSON format:
 {
   "overallSentiment": "positive|negative|neutral",
   "confidence": number (0-1),
-  "keyThemes": ["theme1", "theme2"],
-  "redFlags": ["flag1", "flag2"],
-  "strengths": ["strength1", "strength2"]
+  "keyThemes": ["EXACT theme mentioned multiple times in reviews"],
+  "redFlags": ["SPECIFIC issue mentioned in reviews with quotes"],
+  "strengths": ["SPECIFIC positive mentioned in reviews with evidence"]
 }
 
-Focus on: care quality, staff behavior, facility conditions, food quality, activities, safety, and family satisfaction.`;
+Rules:
+- ONLY extract themes that appear in multiple reviews
+- ONLY flag issues explicitly mentioned by reviewers
+- ONLY list strengths actually praised in the reviews
+- Include partial quotes to show evidence
+
+DO NOT add generic themes like "good care" unless specifically stated in reviews.`;
 
       const response = await anthropic.messages.create({
         model: "claude-3-5-sonnet-20241022",
