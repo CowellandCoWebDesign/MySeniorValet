@@ -154,9 +154,19 @@ router.post('/api/competitive-analysis', async (req, res) => {
       }
     }
 
-    // Extract mentioned community names
+    // Extract mentioned community names - improved pattern to avoid generic terms
+    const rawMatches = content.match(/\b(?:The\s+)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home|Place|House|Terrace|Gardens?|Lodge|Park|Estates?|Court|Heights|Oaks|Pines|Springs|Hills|Valley|Creek|Ridge|Point|Plaza|Square|Tower|Arms|Haven|Crossing|Landing|Station|Walk|Way|Trail|Grove|Meadows?|Fields?|Woods?|Forest|Lake|River|Bay|Beach|Shore|Coast|Harbor|Port|Vista|View|Pointe)\b/g) || [];
+    
+    // Filter out generic care type terms
+    const genericTerms = [
+      'Assisted Living', 'Memory Care', 'Independent Living', 'Nursing Home',
+      'Senior Living', 'Skilled Care', 'Enhanced Care', 'Residential Care',
+      'Long Term Care', 'Short Term Care', 'Respite Care', 'Home Care',
+      'Adult Day Care', 'Continuing Care', 'Retirement Community'
+    ];
+    
     const communityMentions = Array.from(new Set(
-      content.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home|Place|House|Terrace|Gardens?|Lodge|Park|Estates?|Court|Heights|Oaks|Pines|Springs|Hills|Valley|Creek|Ridge|Point|Plaza|Square|Tower|Arms|Haven|Crossing|Landing|Station|Walk|Way|Trail|Grove|Meadows?|Fields?|Woods?|Forest|Lake|River|Bay|Beach|Shore|Coast|Harbor|Port|Vista|View|Pointe)\b/g) || []
+      rawMatches.filter(name => !genericTerms.includes(name))
     ));
 
     // Search our database for mentioned communities
@@ -164,20 +174,24 @@ router.post('/api/competitive-analysis', async (req, res) => {
     if (communityMentions.length > 0) {
       for (const communityName of communityMentions) {
         try {
+          // Use LIKE for partial matching to catch variations
           const matches = await db
             .select({
               id: communities.id,
               name: communities.name,
               city: communities.city,
-              state_province: communities.state_province,
+              state_province: communities.state,
               type: communities.type
             })
             .from(communities)
-            .where(sql`lower(${communities.name}) = lower(${communityName})`)
-            .limit(1);
+            .where(sql`lower(${communities.name}) LIKE lower(${'%' + communityName + '%'})`)
+            .limit(5); // Get up to 5 matches per community name
           
-          if (matches.length > 0) {
-            matchedCommunities.push(matches[0]);
+          // Add unique matches only
+          for (const match of matches) {
+            if (!matchedCommunities.find(m => m.id === match.id)) {
+              matchedCommunities.push(match);
+            }
           }
         } catch (error) {
           console.error(`Error searching for community "${communityName}":`, error);
