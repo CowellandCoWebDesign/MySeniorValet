@@ -9,6 +9,7 @@ import { queryClient, apiRequest } from '@/lib/queryClient';
 import { TrendingUp, TrendingDown, Minus, MapPin, Building2, DollarSign, Search, Loader2, AlertCircle, BarChart3, Globe, Users, Brain, X, Clock, Lightbulb, Home, Building, CheckCircle, Star, FileText } from 'lucide-react';
 import { Link } from 'wouter';
 import { useSEO } from '@/hooks/useSEO';
+import { CompetitiveAnalysisLoader } from '@/components/CompetitiveAnalysisLoader';
 
 interface MarketAnalysis {
   location: string;
@@ -260,28 +261,11 @@ export default function CompetitiveAnalysis() {
           </CardContent>
         </Card>
 
-        {/* Loading state */}
+        {/* Loading state with engaging Valet Gentleman */}
         {analysisMutation.isPending && (
           <Card className="mb-10 shadow-xl border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 animate-fadeInUp">
-            <CardContent className="py-12">
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto animate-pulse">
-                  <Brain className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div className="space-y-2">
-                  <p className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                    Analyzing Market Data...
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                    Fetching real-time pricing information from web sources
-                  </p>
-                  <div className="flex justify-center items-center gap-2 pt-2">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                  </div>
-                </div>
-              </div>
+            <CardContent className="p-0">
+              <CompetitiveAnalysisLoader location={searchLocation || 'the market'} />
             </CardContent>
           </Card>
         )}
