@@ -78,6 +78,11 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
     }
   };
   
+  // Automatically load analysis when component mounts
+  useEffect(() => {
+    fetchAnalysis();
+  }, [community?.city, community?.state]);
+  
   return (
     <Card className="mb-8 border-2 border-indigo-200 dark:border-indigo-800">
       <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
@@ -97,23 +102,7 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
         </CardDescription>
       </CardHeader>
       
-      {!analysis && !isLoading && (
-        <CardContent className="py-8">
-          <div className="text-center">
-            <BarChart3 className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-            <p className="text-sm text-gray-500 mb-4">Compare local market pricing</p>
-            <Button 
-              onClick={fetchAnalysis}
-              className="bg-indigo-600 hover:bg-indigo-700"
-              size="sm"
-            >
-              Analyze Market
-            </Button>
-          </div>
-        </CardContent>
-      )}
-      
-      {isLoading && (
+      {(isLoading || (!analysis && community?.city && community?.state)) && (
         <CardContent className="py-8">
           <div className="flex items-center justify-center text-gray-500">
             <Loader2 className="w-6 h-6 mr-2 animate-spin" />
