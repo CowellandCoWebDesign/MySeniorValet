@@ -105,7 +105,7 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
       
       {(isLoading || (!analysis && community?.city && community?.state)) && (
         <CardContent className="py-8">
-          <CompetitiveAnalysisLoader />
+          <CompetitiveAnalysisLoader location={`${community?.city}, ${community?.state}`} />
         </CardContent>
       )}
       
@@ -1250,7 +1250,7 @@ export default function CommunityDetail() {
 
   if (isLoading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <CompetitiveAnalysisLoader />
+      <CompetitiveAnalysisLoader location="Loading community details..." />
     </div>
   );
   if (error) return <div className="text-red-500">Error loading community</div>;
@@ -2017,7 +2017,18 @@ export default function CommunityDetail() {
               </CardContent>
             </Card>
 
-            {/* Contact & Tour Section */}
+            {/* Tabbed Content Section */}
+            <Tabs defaultValue="community-info" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="community-info">Community Information</TabsTrigger>
+                <TabsTrigger value="availability">Availability</TabsTrigger>
+                <TabsTrigger value="market-data">Live Market Data</TabsTrigger>
+                <TabsTrigger value="tour-tracker">TourTracker</TabsTrigger>
+              </TabsList>
+
+              {/* Community Information Tab */}
+              <TabsContent value="community-info" className="space-y-6 mt-6">
+                {/* Contact & Tour Section */}
             <Card>
               <CardContent className="p-0">
                 <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 p-8 rounded-lg border-2 border-blue-100 dark:border-blue-700">
@@ -2367,24 +2378,18 @@ export default function CommunityDetail() {
                 </div>
               </CardContent>
             </Card>
+              </TabsContent>
 
-            {/* Real-Time AI Insights */}
-            <RealTimeInsights community={community} />
+              {/* Availability Tab */}
+              <TabsContent value="availability" className="space-y-6 mt-6">
+                {/* Pricing History & Transparency */}
+                <PricingHistory 
+                  communityId={community.id} 
+                  communityName={community.name} 
+                />
 
-            {/* Intelligent Pricing Prediction */}
-            <IntelligentPricingPrediction community={community} />
-
-            {/* Community Competitive Analysis */}
-            <CommunityCompetitiveAnalysis community={community} />
-
-            {/* Pricing History & Transparency */}
-            <PricingHistory 
-              communityId={community.id} 
-              communityName={community.name} 
-            />
-
-            {/* Available Units Section - Enhanced with Rich Information */}
-            <Card>
+                {/* Available Units Section - Enhanced with Rich Information */}
+                <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center">
                   <Home className="w-5 h-5 mr-2" />
@@ -2835,9 +2840,80 @@ export default function CommunityDetail() {
                 </div>
               </CardContent>
             </Card>
+              </TabsContent>
 
-            {/* Tabbed Content */}
-            <Card>
+              {/* Live Market Data Tab */}
+              <TabsContent value="market-data" className="space-y-6 mt-6">
+                {/* Real-Time AI Insights */}
+                <RealTimeInsights community={community} />
+
+                {/* Intelligent Pricing Prediction */}
+                <IntelligentPricingPrediction community={community} />
+
+                {/* Community Competitive Analysis */}
+                <CommunityCompetitiveAnalysis community={community} />
+              </TabsContent>
+
+              {/* TourTracker Tab */}
+              <TabsContent value="tour-tracker" className="space-y-6 mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Calendar className="w-5 h-5 mr-2" />
+                      Tour Scheduling & Tracking
+                    </CardTitle>
+                    <CardDescription>
+                      Schedule and track your tours with our comprehensive tour management system
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-700">
+                      <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">TourMate™ Features</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-start">
+                          <CheckCircle className="w-5 h-5 text-green-600 mr-2 mt-0.5" />
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-gray-100">Schedule Tours</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Book tours directly with communities</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start">
+                          <CheckCircle className="w-5 h-5 text-green-600 mr-2 mt-0.5" />
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-gray-100">Tour Grading</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Grade 10+ categories with A-F scoring</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start">
+                          <CheckCircle className="w-5 h-5 text-green-600 mr-2 mt-0.5" />
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-gray-100">Side-by-Side Comparison</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Compare multiple communities</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start">
+                          <CheckCircle className="w-5 h-5 text-green-600 mr-2 mt-0.5" />
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-gray-100">Track Progress</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Monitor your tour history</p>
+                          </div>
+                        </div>
+                      </div>
+                      <Button 
+                        onClick={() => window.location.href = `/tour-tracker?communityId=${community.id}`}
+                        className="w-full mt-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                      >
+                        <ClipboardList className="w-4 h-4 mr-2" />
+                        Start Tour Grading
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+
+            {/* Community Details Content - Reorganized from nested tabs */}
+            <Card className="mt-6">
               <CardContent className="p-6">
                 <Tabs defaultValue="overview" className="w-full">
                   <TabsList className="grid w-full grid-cols-6">
