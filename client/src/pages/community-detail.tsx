@@ -587,8 +587,6 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
   // Trigger Multi-AI verification when real-time data is available
   useEffect(() => {
     if (realTimeData && community?.id && !isVerifying) {
-      console.log('🚀 Starting AI verification for community:', community.id);
-      console.log('🚀 Real-time data available:', realTimeData);
       setIsVerifying(true);
       
       // Call Multi-AI Verification endpoint
@@ -599,16 +597,14 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
       })
       .then(res => res.json())
       .then(report => {
-        console.log('✅ Verification report received:', report);
         setLocalVerificationReport(report);
         // Also update parent state if callback provided
         if (onVerificationReport) {
-          console.log('📤 Sending report to parent component');
           onVerificationReport(report);
         }
       })
       .catch(error => {
-        console.error('❌ Verification error:', error);
+        // Silently handle error in production
       })
       .finally(() => {
         setIsVerifying(false);
@@ -786,7 +782,7 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
             )}
             
             {/* Loading State */}
-            {isVerifying && !localVerificationReport && (
+            {isVerifying && !verificationReport && (
               <div className="flex items-center justify-center py-2">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mr-2" />
                 <p className="text-sm text-indigo-700 dark:text-indigo-300">
@@ -1228,14 +1224,6 @@ export default function CommunityDetail() {
   const [expandedUnits, setExpandedUnits] = useState<Set<string>>(new Set());
   // Track verification report to show live pricing data from Market Data tab
   const [verificationReport, setVerificationReport] = useState<any>(null);
-  
-  // Debug: Log when verification report updates
-  React.useEffect(() => {
-    if (verificationReport) {
-      console.log('🔥 Verification Report Updated:', verificationReport);
-      console.log('🔥 Pricing Data:', verificationReport.pricing);
-    }
-  }, [verificationReport]);
   
   // Advanced reservation flow state
   const [showAdvancedReservation, setShowAdvancedReservation] = useState(false);
@@ -1840,17 +1828,9 @@ export default function CommunityDetail() {
                     {/* Live Pricing with Badge - Now with Real-time Market Data */}
                     <div className="mb-3">
                       <div className="flex items-center justify-end mb-1">
-                        <Badge className={`${
-                          verificationReport?.pricing?.verified 
-                            ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 animate-pulse' 
-                            : 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200'
-                        } mr-2 transition-all duration-500`}>
-                          <div className={`w-2 h-2 ${
-                            verificationReport?.pricing?.verified 
-                              ? 'bg-blue-500 dark:bg-blue-400' 
-                              : 'bg-green-500 dark:bg-green-400'
-                          } rounded-full mr-1 animate-pulse`}></div>
-                          {verificationReport?.pricing?.verified ? 'AI-Verified Live Pricing' : 'Real-time Market Pricing'}
+                        <Badge className="bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 mr-2">
+                          <div className="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full mr-1 animate-pulse"></div>
+                          Real-time Market Pricing
                         </Badge>
                       </div>
                       <div className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
@@ -1907,7 +1887,7 @@ export default function CommunityDetail() {
                       </div>
                       
                       {/* Live Web Price Info - Show when we have any price data */}
-                      {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
+                      {(community.priceRange?.min > 0 || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
                         <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/30 dark:to-blue-900/30 rounded-lg border border-green-300 dark:border-green-700">
                           <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-300">
                             <CheckCircle className="h-4 w-4 flex-shrink-0" />
