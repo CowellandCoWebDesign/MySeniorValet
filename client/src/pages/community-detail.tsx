@@ -1939,26 +1939,40 @@ export default function CommunityDetail() {
 
             {/* Tabbed Content Section - Moved up for better visibility */}
             <Tabs defaultValue="community-info" className="w-full -mt-2">
-              <TabsList className="grid w-full grid-cols-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-1 rounded-xl shadow-lg border-2 border-blue-200 dark:border-blue-700">
+              <TabsList className="grid w-full grid-cols-3 bg-gradient-to-r from-purple-100 via-pink-50 to-purple-100 dark:from-purple-900/30 dark:via-pink-900/20 dark:to-purple-900/30 p-2 rounded-xl shadow-2xl border-2 border-purple-300 dark:border-purple-700 tabs-glow-animation" style={{
+                background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(236, 72, 153, 0.1), rgba(168, 85, 247, 0.1))'
+              }}>
                 <TabsTrigger 
                   value="community-info" 
-                  className="data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-lg data-[state=active]:font-bold text-gray-600 dark:text-gray-300 font-semibold transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400"
+                  className="relative data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:font-bold bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-300 font-semibold transition-all duration-500 hover:bg-blue-200 dark:hover:bg-blue-800/40 hover:scale-105 rounded-lg border border-blue-200 dark:border-blue-700"
+                  style={{
+                    boxShadow: '0 0 15px rgba(59, 130, 246, 0.3), inset 0 0 10px rgba(59, 130, 246, 0.1)',
+                    transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
                 >
-                  <Building className="w-4 h-4 mr-2" />
+                  <Building className="w-5 h-5 mr-2" />
                   Community Information
                 </TabsTrigger>
                 <TabsTrigger 
                   value="availability" 
-                  className="data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-lg data-[state=active]:font-bold text-gray-600 dark:text-gray-300 font-semibold transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400"
+                  className="relative data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:font-bold bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/30 dark:to-orange-800/30 text-orange-700 dark:text-orange-300 font-semibold transition-all duration-500 hover:bg-orange-200 dark:hover:bg-orange-800/40 hover:scale-105 rounded-lg border border-orange-200 dark:border-orange-700"
+                  style={{
+                    boxShadow: '0 0 15px rgba(251, 146, 60, 0.3), inset 0 0 10px rgba(251, 146, 60, 0.1)',
+                    transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
                 >
-                  <Home className="w-4 h-4 mr-2" />
+                  <Home className="w-5 h-5 mr-2" />
                   Availability
                 </TabsTrigger>
                 <TabsTrigger 
                   value="market-data" 
-                  className="data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-lg data-[state=active]:font-bold text-gray-600 dark:text-gray-300 font-semibold transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400"
+                  className="relative data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:font-bold bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 text-green-700 dark:text-green-300 font-semibold transition-all duration-500 hover:bg-green-200 dark:hover:bg-green-800/40 hover:scale-105 rounded-lg border border-green-200 dark:border-green-700"
+                  style={{
+                    boxShadow: '0 0 15px rgba(34, 197, 94, 0.3), inset 0 0 10px rgba(34, 197, 94, 0.1)',
+                    transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
                 >
-                  <TrendingUp className="w-4 h-4 mr-2" />
+                  <TrendingUp className="w-5 h-5 mr-2" />
                   Live Market Data
                 </TabsTrigger>
               </TabsList>
