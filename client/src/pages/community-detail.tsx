@@ -395,7 +395,7 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
 };
 
 // Real-time AI Insights Component - Enhanced with Multi-AI Verification
-const RealTimeInsights = ({ community, competitiveAnalysisData }: { community: any, competitiveAnalysisData: any }) => {
+const RealTimeInsights = ({ community }: { community: any }) => {
   const realTimeData = community?.realTimeData;
   const [verificationReport, setVerificationReport] = useState<any>(null);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -789,32 +789,20 @@ const RealTimeInsights = ({ community, competitiveAnalysisData }: { community: a
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="flex -space-x-2">
-                    <div className={`w-8 h-8 rounded-full ${data?.orchestraStatus?.perplexity?.includes('Active') ? 'bg-blue-600' : 'bg-gray-400'} flex items-center justify-center text-white text-xs font-bold`}>P</div>
-                    <div className={`w-8 h-8 rounded-full ${data?.orchestraStatus?.claude?.includes('Active') ? 'bg-purple-600' : 'bg-gray-400'} flex items-center justify-center text-white text-xs font-bold`}>C</div>
-                    <div className={`w-8 h-8 rounded-full ${data?.orchestraStatus?.openai?.includes('Active') ? 'bg-green-600' : 'bg-gray-400'} flex items-center justify-center text-white text-xs font-bold`}>G</div>
+                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">P</div>
+                    <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-bold">C</div>
+                    <div className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white text-xs font-bold">G</div>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">AI Orchestra Status</p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      {data?.orchestraStatus ? (
-                        <>
-                          {data.orchestraStatus.perplexity?.includes('Active') ? '✓ Perplexity' : '○ Perplexity'} • 
-                          {data.orchestraStatus.claude?.includes('Active') ? ' ✓ Claude' : ' ○ Claude'} • 
-                          {data.orchestraStatus.openai?.includes('Active') ? ' ✓ GPT-4o' : ' ○ GPT-4o'}
-                        </>
-                      ) : (
-                        'Perplexity • Claude • GPT-4o'
-                      )}
+                      Perplexity (Active) • Claude (Standby) • GPT-4o (Backup)
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-semibold text-blue-700 dark:text-blue-300">
-                    {data?.orchestraStatus?.primarySource || 'MySeniorValet Intelligence'}
-                  </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    {data?.orchestraStatus?.confidence ? `${Math.round(data.orchestraStatus.confidence * 100)}% confidence` : 'Transparency through AI'}
-                  </p>
+                  <p className="text-xs font-semibold text-blue-700 dark:text-blue-300">MySeniorValet Intelligence</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Transparency through AI</p>
                 </div>
               </div>
             </div>
@@ -1047,7 +1035,6 @@ export default function CommunityDetail() {
   const [selectedUnitType, setSelectedUnitType] = useState<string | null>(null);
   const [expandedUnits, setExpandedUnits] = useState<Set<string>>(new Set());
   const [verificationReport, setVerificationReport] = useState<any>(null);
-  const [competitiveAnalysisData, setCompetitiveAnalysisData] = useState<any>(null);
   
   // Advanced reservation flow state
   const [showAdvancedReservation, setShowAdvancedReservation] = useState(false);
@@ -1072,23 +1059,6 @@ export default function CommunityDetail() {
     queryKey: [`/api/communities/${id}`],
     enabled: !!id && id !== '-1' && !isNaN(Number(id)),
   });
-
-  // Fetch competitive analysis data
-  React.useEffect(() => {
-    if (community?.city && community?.state) {
-      fetch('/api/competitive-analysis', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          location: `${community.city}, ${community.state}`,
-          type: 'city' 
-        })
-      })
-      .then(res => res.json())
-      .then(data => setCompetitiveAnalysisData(data))
-      .catch(err => console.error('Failed to fetch competitive analysis:', err));
-    }
-  }, [community?.city, community?.state]);
 
   if (!id || id === '-1' || isNaN(Number(id))) {
     return <div className="flex justify-center items-center h-64">Invalid community ID</div>;
