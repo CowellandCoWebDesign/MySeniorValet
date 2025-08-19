@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { LoadingMascot } from "@/components/mascot";
 import { FamilyShareButton } from "@/components/family-share-button";
 import { AdvancedReservationFlow } from "@/components/AdvancedReservationFlow";
+import { CompetitiveAnalysisLoader } from "@/components/CompetitiveAnalysisLoader";
 import { 
   getAmenitiesByCategory, 
   getCareServicesByCategory, 
@@ -104,10 +105,7 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
       
       {(isLoading || (!analysis && community?.city && community?.state)) && (
         <CardContent className="py-8">
-          <div className="flex items-center justify-center text-gray-500">
-            <Loader2 className="w-6 h-6 mr-2 animate-spin" />
-            Analyzing local market data...
-          </div>
+          <CompetitiveAnalysisLoader />
         </CardContent>
       )}
       
@@ -1252,11 +1250,7 @@ export default function CommunityDetail() {
 
   if (isLoading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <LoadingMascot 
-        message="Loading community details..." 
-        variant="loading"
-        size="lg"
-      />
+      <CompetitiveAnalysisLoader />
     </div>
   );
   if (error) return <div className="text-red-500">Error loading community</div>;
