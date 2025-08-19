@@ -30,103 +30,21 @@ import { useSEO, SEOTemplates } from '@/hooks/useSEO';
 interface Community {
   id: number;
   name: string;
-  nameFr?: string;
   address: string;
   city: string;
   state: string;
-  country?: string;
   zipCode: string;
   latitude: number;
   longitude: number;
-  phone?: string;
-  email?: string;
-  website?: string;
-  description?: string;
-  descriptionFr?: string;
-  bilingual?: boolean;
-  primaryLanguage?: string;
   careTypes: string[];
-  amenities?: string[];
-  services?: string[];
-  careServices?: string[];
-  medicalRestrictions?: string[];
-  photos?: string[];
-  photoAttributions?: string[];
-  virtualTourUrl?: string;
-  
-  // Detailed Services
-  spaServices?: string[];
-  healthcareServices?: string[];
-  fitnessServices?: string[];
-  diningServices?: string[];
-  transportationServices?: string[];
-  socialServices?: string[];
-  
-  // Data source and verification
-  data_source?: string;
-  verified?: boolean;
-  licenseStatus?: string;
-  violations?: number;
-  lastInspection?: string;
-  
-  // Pricing and availability
-  priceRange?: string | { min: number; max: number };
-  availability?: string;
-  totalUnits?: number;
-  availableUnits?: number;
-  occupancyRate?: number;
-  waitListLength?: number;
-  monthlyRentRangeStart?: number;
-  monthlyRentRangeEnd?: number;
-  rentPerMonth?: number | string;
-  
-  // HUD specific
-  hudPropertyId?: string;
-  totalUnitsHud?: string | number;
-  occupancyRateHud?: string | number;
-  seniorPercentage?: number;
-  
-  // Business details
-  priceTier?: string;
-  sizeCategory?: string;
-  communitySubtype?: string;
-  yearEstablished?: number;
-  ownershipType?: string;
-  
-  // Reviews and ratings
-  rating?: number;
-  reviewCount?: number;
-  averageMonthlyReviews?: number;
-  reviewsLastMonth?: number;
-  
-  // Special features
-  petFriendly?: boolean;
-  specialPromotions?: Array<{
-    title: string;
-    description: string;
-    monthsWaived?: number;
-    percentageOff?: number;
-  }>;
-  moveInCosts?: {
-    securityDeposit?: number;
-    communityFee?: number;
-    totalEstimatedMoveIn?: number;
-  };
-  
-  // Live pricing if available
-  livePricing?: {
-    independentLiving?: { min: number; max: number };
-    assistedLiving?: { min: number; max: number };
-    memoryCare?: { min: number; max: number };
-  };
-  pricingType?: 'live' | 'market' | 'contact';
-  
-  // Additional metadata
-  careLevel?: string;
-  acceptsMedicaid?: boolean;
-  acceptsMedicare?: boolean;
-  privatePay?: boolean;
-  veteranPrograms?: boolean;
+  rating: number;
+  reviewCount: number;
+  phone: string;
+  website: string;
+  priceRange: string;
+  availability: string;
+  photos: string[];
+  description: string;
 }
 
 interface Vendor {
@@ -2133,13 +2051,7 @@ export default function MapSearch() {
                 .map((community: Community, index: number) => (
                   <PrioritizedCommunityCard
                     key={`community-${community.id}`}
-                    community={{
-                      ...community,
-                      // Transform priceRange only if it's a string (for compatibility)
-                      priceRange: typeof community.priceRange === 'string' 
-                        ? undefined  // Let the card display "Contact for pricing"
-                        : community.priceRange
-                    }}
+                    community={community}
                     variant="list"
                     onSelect={() => handleCommunityClick(community)}
                     onToggleFavorite={() => console.log(`Toggle favorite: ${community.name}`)}
@@ -2240,13 +2152,7 @@ export default function MapSearch() {
                         .map((community: Community, index: number) => (
                         <PrioritizedCommunityCard
                           key={`all-community-${community.id}`}
-                          community={{
-                            ...community,
-                            // Transform priceRange only if it's a string (for compatibility)
-                            priceRange: typeof community.priceRange === 'string' 
-                              ? undefined  // Let the card display "Contact for pricing"
-                              : community.priceRange
-                          }}
+                          community={community}
                           variant="list"
                           onSelect={() => handleCommunityClick(community)}
                           onToggleFavorite={() => console.log(`Toggle favorite: ${community.name}`)}
