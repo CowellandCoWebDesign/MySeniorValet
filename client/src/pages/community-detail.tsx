@@ -5,7 +5,7 @@ import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSig
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, Lock,
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
-         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3 } from 'lucide-react';
+         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3, Loader2 } from 'lucide-react';
 import type { Community } from '@shared/schema';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -45,10 +45,13 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
   const [analysis, setAnalysis] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [hasTriggered, setHasTriggered] = useState(false);
   
   const fetchAnalysis = async () => {
     if (!community?.city || !community?.state) return;
+    if (hasTriggered) return; // Prevent duplicate fetches
     
+    setHasTriggered(true);
     setIsLoading(true);
     try {
       const response = await apiRequest('POST', '/api/competitive-analysis', {
@@ -72,10 +75,22 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
     }
   };
   
-  // Auto-load analysis when component mounts
+  // Trigger analysis on first scroll
   useEffect(() => {
-    fetchAnalysis();
-  }, [community?.id]);
+    const handleScroll = () => {
+      if (!hasTriggered && window.scrollY > 50) {
+        fetchAnalysis();
+      }
+    };
+    
+    // Add scroll listener
+    window.addEventListener('scroll', handleScroll);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [hasTriggered, community?.id]);
   
   return (
     <Card className="mb-8 border-2 border-indigo-200 dark:border-indigo-800">
@@ -95,6 +110,15 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
           Compare pricing with other communities in {community?.city}
         </CardDescription>
       </CardHeader>
+      
+      {!hasTriggered && !analysis && (
+        <CardContent className="py-8">
+          <div className="text-center text-gray-500">
+            <BarChart3 className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+            <p className="text-sm">Scroll to load market analysis</p>
+          </div>
+        </CardContent>
+      )}
       
       {isLoading && !analysis && (
         <CardContent className="py-8">
