@@ -2543,221 +2543,234 @@ export default function CommunityDetail() {
                 <CommunityCompetitiveAnalysis community={community} />
               </TabsContent>
 
-              {/* TourTracker Tab - Comprehensive Grading System */}
+              {/* TourTracker Tab - Original Layout */}
               <TabsContent value="tour-tracker" className="space-y-6 mt-6">
-                <Card>
-                  <CardHeader className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
-                    <CardTitle className="text-2xl font-bold flex items-center">
-                      <ClipboardList className="w-6 h-6 mr-2" />
-                      Comprehensive Tour Grading System
-                    </CardTitle>
-                    <p className="text-purple-100 mt-2">
-                      Your detailed evaluations help future families make informed decisions
-                    </p>
-                  </CardHeader>
+                <Card className="bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 text-white">
                   <CardContent className="p-6">
-                    {/* Tour Scheduling Section */}
-                    <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border-2 border-blue-200 dark:border-blue-700 mb-6">
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                        <Calendar className="w-5 h-5 mr-2 text-blue-600" />
-                        Schedule Your Tour
-                      </h3>
-                      <TourScheduler 
-                        communityId={community.id}
-                        communityName={community.name}
-                        communityPhone={community.phone || undefined}
-                      />
+                    {/* Ready to Visit Header */}
+                    <div className="text-center mb-6">
+                      <h2 className="text-3xl font-bold mb-2">Ready to Visit?</h2>
+                      <p className="text-purple-200">Connect with our community team to schedule your tour</p>
                     </div>
 
-                    {/* Grading Categories */}
-                    <div className="space-y-6">
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                        Grade Each Category (A-F)
-                      </h3>
-                      
-                      {/* Staff & Care Quality */}
-                      <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-200 dark:border-green-700">
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                          <Heart className="w-5 h-5 mr-2 text-green-600" />
-                          Staff & Care Quality
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Staff Friendliness
-                            </label>
-                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
-                              <option value="">Select Grade</option>
-                              <option value="A">A - Exceptional</option>
-                              <option value="B">B - Good</option>
-                              <option value="C">C - Average</option>
-                              <option value="D">D - Below Average</option>
-                              <option value="F">F - Poor</option>
-                            </select>
+                    {/* Community Main Office */}
+                    <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 mb-6 border border-gray-700">
+                      <div className="flex items-center mb-4">
+                        <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mr-4">
+                          <Phone className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold">Community Main Office</h3>
+                          <p className="text-sm text-gray-300">Call for sales and leasing information</p>
+                        </div>
+                      </div>
+                      <div className="text-2xl font-bold mb-2">
+                        📞 {community.phone || '415-555-0616'}
+                      </div>
+                      <p className="text-sm text-gray-400">Ask to speak with a leasing manager or sales director</p>
+                      <div className="mt-4 text-sm text-gray-400">
+                        ⏰ Usually responds within 2 hours
+                      </div>
+                    </div>
+
+                    {/* Tour Tracker Pro Section */}
+                    <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 mb-6 border border-gray-700">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-xl font-bold flex items-center">
+                          ✅ Tour Tracker™ Pro
+                          <Badge className="ml-2 bg-blue-600 text-white">Comprehensive</Badge>
+                        </h3>
+                      </div>
+                      <p className="text-gray-300 mb-6">Grade every aspect of your visit with our 360° evaluation system</p>
+
+                      {/* Grading Categories Grid */}
+                      <div className="space-y-3 mb-6">
+                        {/* Units & Living Spaces */}
+                        <div className="bg-indigo-600/20 border border-indigo-500/50 rounded-lg p-3">
+                          <div className="flex items-center">
+                            <div className="w-2 h-2 bg-indigo-400 rounded-full mr-3"></div>
+                            <span className="font-semibold">Units & Living Spaces</span>
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Care Expertise
-                            </label>
-                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
-                              <option value="">Select Grade</option>
-                              <option value="A">A - Exceptional</option>
-                              <option value="B">B - Good</option>
-                              <option value="C">C - Average</option>
-                              <option value="D">D - Below Average</option>
-                              <option value="F">F - Poor</option>
-                            </select>
+                          <p className="text-xs text-gray-400 ml-5">Size, layout, comfort, privacy</p>
+                        </div>
+
+                        {/* Common Areas */}
+                        <div className="bg-green-600/20 border border-green-500/50 rounded-lg p-3">
+                          <div className="flex items-center">
+                            <div className="w-2 h-2 bg-green-400 rounded-full mr-3"></div>
+                            <span className="font-semibold">Common Areas</span>
+                          </div>
+                          <p className="text-xs text-gray-400 ml-5">Dining, lobby, activities, library</p>
+                        </div>
+
+                        {/* Outdoor Spaces */}
+                        <div className="bg-yellow-600/20 border border-yellow-500/50 rounded-lg p-3">
+                          <div className="flex items-center">
+                            <div className="w-2 h-2 bg-yellow-400 rounded-full mr-3"></div>
+                            <span className="font-semibold">Outdoor Spaces</span>
+                          </div>
+                          <p className="text-xs text-gray-400 ml-5">Gardens, patios, walking paths</p>
+                        </div>
+
+                        {/* Staff & Care */}
+                        <div className="bg-purple-600/20 border border-purple-500/50 rounded-lg p-3">
+                          <div className="flex items-center">
+                            <div className="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
+                            <span className="font-semibold">Staff & Care</span>
+                          </div>
+                          <p className="text-xs text-gray-400 ml-5">Friendliness, knowledge, ratio</p>
+                        </div>
+
+                        {/* Food & Dining */}
+                        <div className="bg-orange-600/20 border border-orange-500/50 rounded-lg p-3">
+                          <div className="flex items-center">
+                            <div className="w-2 h-2 bg-orange-400 rounded-full mr-3"></div>
+                            <span className="font-semibold">Food & Dining</span>
+                          </div>
+                          <p className="text-xs text-gray-400 ml-5">Quality, variety, atmosphere</p>
+                        </div>
+
+                        {/* Safety & Security */}
+                        <div className="bg-red-600/20 border border-red-500/50 rounded-lg p-3">
+                          <div className="flex items-center">
+                            <div className="w-2 h-2 bg-red-400 rounded-full mr-3"></div>
+                            <span className="font-semibold">Safety & Security</span>
+                          </div>
+                          <p className="text-xs text-gray-400 ml-5">Emergency systems, access control</p>
+                        </div>
+                      </div>
+
+                      {/* Additional Evaluation Areas */}
+                      <div className="bg-gray-700/50 rounded-lg p-4 mb-6">
+                        <h4 className="font-semibold mb-3">Additional Evaluation Areas:</h4>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div className="flex items-center">
+                            <CheckCircle className="w-4 h-4 text-blue-400 mr-2" />
+                            <span>Activities & Programs</span>
+                          </div>
+                          <div className="flex items-center">
+                            <CheckCircle className="w-4 h-4 text-blue-400 mr-2" />
+                            <span>Transportation</span>
+                          </div>
+                          <div className="flex items-center">
+                            <CheckCircle className="w-4 h-4 text-blue-400 mr-2" />
+                            <span>Value for Money</span>
+                          </div>
+                          <div className="flex items-center">
+                            <CheckCircle className="w-4 h-4 text-blue-400 mr-2" />
+                            <span>Overall Atmosphere</span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Facility & Cleanliness */}
-                      <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-700">
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                          <Home className="w-5 h-5 mr-2 text-blue-600" />
-                          Facility & Cleanliness
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Overall Cleanliness
-                            </label>
-                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
-                              <option value="">Select Grade</option>
-                              <option value="A">A - Exceptional</option>
-                              <option value="B">B - Good</option>
-                              <option value="C">C - Average</option>
-                              <option value="D">D - Below Average</option>
-                              <option value="F">F - Poor</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Maintenance Quality
-                            </label>
-                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
-                              <option value="">Select Grade</option>
-                              <option value="A">A - Exceptional</option>
-                              <option value="B">B - Good</option>
-                              <option value="C">C - Average</option>
-                              <option value="D">D - Below Average</option>
-                              <option value="F">F - Poor</option>
-                            </select>
-                          </div>
+                      {/* A-F Grading System */}
+                      <div className="bg-gray-700/50 rounded-lg p-4 mb-6">
+                        <h4 className="font-semibold mb-3">A-F Grading System</h4>
+                        <p className="text-sm text-gray-400 mb-4">Grade each category during your visit. Your scores help future families and contribute to community transparency.</p>
+                        <div className="flex gap-2 justify-center">
+                          <Button variant="outline" className="w-12 h-12 bg-green-600/20 border-green-500 text-green-400 hover:bg-green-600/30">A</Button>
+                          <Button variant="outline" className="w-12 h-12 bg-blue-600/20 border-blue-500 text-blue-400 hover:bg-blue-600/30">B</Button>
+                          <Button variant="outline" className="w-12 h-12 bg-yellow-600/20 border-yellow-500 text-yellow-400 hover:bg-yellow-600/30">C</Button>
+                          <Button variant="outline" className="w-12 h-12 bg-orange-600/20 border-orange-500 text-orange-400 hover:bg-orange-600/30">D</Button>
+                          <Button variant="outline" className="w-12 h-12 bg-red-600/20 border-red-500 text-red-400 hover:bg-red-600/30">F</Button>
                         </div>
                       </div>
 
-                      {/* Activities & Social Life */}
-                      <div className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-lg border border-purple-200 dark:border-purple-700">
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                          <Users className="w-5 h-5 mr-2 text-purple-600" />
-                          Activities & Social Life
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Activity Variety
-                            </label>
-                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
-                              <option value="">Select Grade</option>
-                              <option value="A">A - Exceptional</option>
-                              <option value="B">B - Good</option>
-                              <option value="C">C - Average</option>
-                              <option value="D">D - Below Average</option>
-                              <option value="F">F - Poor</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Community Atmosphere
-                            </label>
-                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
-                              <option value="">Select Grade</option>
-                              <option value="A">A - Exceptional</option>
-                              <option value="B">B - Good</option>
-                              <option value="C">C - Average</option>
-                              <option value="D">D - Below Average</option>
-                              <option value="F">F - Poor</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Dining Experience */}
-                      <div className="bg-orange-50 dark:bg-orange-900/20 p-6 rounded-lg border border-orange-200 dark:border-orange-700">
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                          <Utensils className="w-5 h-5 mr-2 text-orange-600" />
-                          Dining Experience
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Food Quality
-                            </label>
-                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
-                              <option value="">Select Grade</option>
-                              <option value="A">A - Exceptional</option>
-                              <option value="B">B - Good</option>
-                              <option value="C">C - Average</option>
-                              <option value="D">D - Below Average</option>
-                              <option value="F">F - Poor</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Dining Atmosphere
-                            </label>
-                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
-                              <option value="">Select Grade</option>
-                              <option value="A">A - Exceptional</option>
-                              <option value="B">B - Good</option>
-                              <option value="C">C - Average</option>
-                              <option value="D">D - Below Average</option>
-                              <option value="F">F - Poor</option>
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Overall Impression */}
-                      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-6 rounded-lg border-2 border-indigo-200 dark:border-indigo-700">
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                          <Star className="w-5 h-5 mr-2 text-indigo-600" />
-                          Overall Impression
-                        </h4>
-                        <div className="space-y-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Would you recommend this community?
-                            </label>
-                            <select className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
-                              <option value="">Select</option>
-                              <option value="highly">Highly Recommend</option>
-                              <option value="yes">Yes, Would Recommend</option>
-                              <option value="maybe">Maybe</option>
-                              <option value="no">Would Not Recommend</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              Additional Comments
-                            </label>
-                            <textarea 
-                              className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600 h-24"
-                              placeholder="Share your detailed thoughts about your tour experience..."
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Submit Button */}
-                      <div className="flex justify-center mt-6">
-                        <Button 
-                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-3 font-semibold text-lg"
-                        >
-                          <CheckCircle className="w-5 h-5 mr-2" />
-                          Submit Tour Evaluation
+                      {/* Action Buttons */}
+                      <div className="space-y-3">
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold">
+                          <Calendar className="w-5 h-5 mr-2" />
+                          Schedule Tour
                         </Button>
+                        <Button variant="outline" className="w-full border-gray-600 text-white hover:bg-gray-700 py-3">
+                          <Phone className="w-5 h-5 mr-2" />
+                          Call Now
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Moving Soon Section */}
+                    <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 mb-6 border border-gray-700">
+                      <h3 className="text-lg font-bold mb-2 flex items-center">
+                        <Truck className="w-5 h-5 mr-2" />
+                        Moving Soon? We'll Help Coordinate Everything
+                      </h3>
+                      <p className="text-sm text-gray-400 mb-4">
+                        Our Maverick Connection Circles helps you manage every aspect of the transition, including movers to setting up healthcare providers and utilities.
+                      </p>
+                      <div className="grid grid-cols-3 gap-2 text-xs">
+                        <div className="flex items-center">
+                          <CheckCircle className="w-4 h-4 text-green-400 mr-1" />
+                          <span>Moving Services</span>
+                        </div>
+                        <div className="flex items-center">
+                          <CheckCircle className="w-4 h-4 text-green-400 mr-1" />
+                          <span>Healthcare Setup</span>
+                        </div>
+                        <div className="flex items-center">
+                          <CheckCircle className="w-4 h-4 text-green-400 mr-1" />
+                          <span>Utilities Transfer</span>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+                        <div className="flex items-center">
+                          <CheckCircle className="w-4 h-4 text-green-400 mr-1" />
+                          <span>Checklist Tracking</span>
+                        </div>
+                        <div className="flex items-center">
+                          <CheckCircle className="w-4 h-4 text-green-400 mr-1" />
+                          <span>Start Move-In Planning</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Live Intelligence Report */}
+                    <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 rounded-xl p-6 mb-6 border border-indigo-500/50">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-bold">✨ Live Intelligence Report</h3>
+                        <Badge className="bg-purple-600 text-white">
+                          <Activity className="w-3 h-3 mr-1" />
+                          Powered by Perplexity AI
+                        </Badge>
+                      </div>
+                      <div className="text-sm space-y-2">
+                        <p className="text-gray-300">AI Orchestrator Status: <span className="text-green-400">Active</span> - Updated: 11:04:04 PM</p>
+                        <div className="grid grid-cols-2 gap-4 mt-3">
+                          <div className="bg-gray-800/50 rounded p-3">
+                            <div className="text-xs text-gray-400">📊 Perplexity AI Research:</div>
+                            <div className="text-sm mt-1">386 Sources</div>
+                          </div>
+                          <div className="bg-gray-800/50 rounded p-3">
+                            <div className="text-xs text-gray-400">🎯 Claude Synthesizer:</div>
+                            <div className="text-sm mt-1">4.0 Composite</div>
+                          </div>
+                        </div>
+                      </div>
+                      <Button variant="outline" className="w-full mt-4 border-indigo-500 text-indigo-300 hover:bg-indigo-600/20">
+                        <Brain className="w-4 h-4 mr-2" />
+                        Analyzing Sources: Certified
+                      </Button>
+                    </div>
+
+                    {/* Multi-AI Verification */}
+                    <div className="bg-gray-800/50 backdrop-blur rounded-xl p-6 border border-gray-700">
+                      <h3 className="text-lg font-bold mb-4 text-center">✅ Multi-AI Verification</h3>
+                      <div className="text-center">
+                        <Badge className="bg-red-600 text-white mr-2">Conflicting Agreement!</Badge>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 mt-4 text-xs text-center">
+                        <div>
+                          <div className="font-semibold">Perplexity</div>
+                          <div className="text-gray-400">✓</div>
+                        </div>
+                        <div>
+                          <div className="font-semibold">Claude 4.0</div>
+                          <div className="text-gray-400">✓</div>
+                        </div>
+                        <div>
+                          <div className="font-semibold">ChatGPT 4o</div>
+                          <div className="text-gray-400">✓</div>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
