@@ -591,8 +591,8 @@ export default function MySeniorValetHome() {
                   </Button>
                 </Link>
 
-                {/* AI Intelligence */}
-                <Link href="/ai-search-intelligence" className="w-full">
+                {/* AI Intelligence - Links directly to simplified tab */}
+                <Link href="/ai-search-intelligence?mode=simplified" className="w-full">
                   <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200">
                     <div className="flex items-center justify-start space-x-1.5">
                       <Sparkles className="h-4 w-4 flex-shrink-0" />
