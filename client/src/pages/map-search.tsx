@@ -299,80 +299,33 @@ export default function MapSearch() {
     return `${sw.lng.toFixed(6)},${sw.lat.toFixed(6)},${ne.lng.toFixed(6)},${ne.lat.toFixed(6)}`;
   }, [mapBounds]);
 
-  // Use direct query data instead of local state to prevent stale data
-  // Remove local state management that was causing ordering issues
-
-  const { data: mapCommunities = [], isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities, error: communitiesError } = useQuery<Community[]>({
-    queryKey: ['communities-map-bounds', boundsKey, showBottomPanel, filters.selectedCareTypes, filters.minRating],
+  // Use simpler text-based search instead of complex spatial queries
+  const { data: searchResults = { communities: [], total: 0 }, isLoading: isLoadingCommunities, isFetching: isFetchingCommunities, refetch: refetchCommunities, error: communitiesError } = useQuery({
+    queryKey: ['communities-search', searchQuery, filters.careType, filters.minRating],
     gcTime: 5 * 60 * 1000, // Keep data in cache for 5 minutes
     staleTime: 30 * 1000, // Consider data fresh for 30 seconds
     retry: 2, // Retry failed requests twice
+    enabled: showBottomPanel && searchQuery.length > 0, // Only fetch when panel is open and there's a search
     queryFn: async ({ signal }) => {
-      // If we're showing the bottom panel but no bounds yet, fetch default San Francisco area
-      if (!mapBounds && showBottomPanel) {
-        console.log('No bounds yet, fetching default San Francisco area communities...');
-        const params = new URLSearchParams({
-          swLat: '37.7000',
-          swLng: '-122.5200',
-          neLat: '37.8200',
-          neLng: '-122.3800',
-          limit: '500',
-          ...(filters.careType !== 'All Types' && { careType: filters.careType }),
-          ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
-        });
-
-        const response = await fetch(`/api/communities/search/spatial?${params}`, {
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          signal: signal
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch communities: ${response.statusText}`);
-        }
-
-        const communities = await response.json();
-        console.log('Fetched default area communities:', communities.length);
-        return communities;
+      if (!searchQuery) {
+        return { communities: [], total: 0 };
       }
-
-      if (!mapBounds) return [];
 
       const startTime = Date.now();
       try {
-        console.log('🚀 STARTING COMMUNITY FETCH:', { 
-          boundsKey, 
+        console.log('🚀 STARTING SIMPLE SEARCH:', { 
+          searchQuery, 
           showBottomPanel, 
-          timestamp: startTime,
-          mapBounds: mapBounds ? 'present' : 'missing' 
+          timestamp: startTime
         });
 
-        const sw = mapBounds.getSouthWest();
-        const ne = mapBounds.getNorthEast();
-
-        // Check if search includes radius filtering (e.g., "within 25 miles")
-        const radiusMatch = searchQuery.match(/within\s+(\d+)\s+miles?/i);
-        
-        let params: URLSearchParams;
-        
-        if (radiusMatch) {
-          // Radius search mode - use center point and radius
-          const center = mapBounds.getCenter();
-          params = new URLSearchParams({
-            radius: radiusMatch[1],
-            centerLat: center.lat.toString(),
-            centerLng: center.lng.toString(),
-            limit: '500',
-            ...(filters.careType !== 'All Types' && { careType: filters.careType }),
-            ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
-          });
-          console.log('📍 RADIUS SEARCH MODE:', {
-            radius: radiusMatch[1],
-            center: { lat: center.lat, lng: center.lng },
-            showBottomPanel
-          });
+        // Use the simpler enhanced search endpoint that accepts text queries
+        const params = new URLSearchParams({
+          location: searchQuery,
+          limit: '100',
+          ...(filters.careType !== 'All Types' && { careType: filters.careType }),
+          ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
+        });
         } else {
           // Default map bounds mode for pan/zoom
           // No buffer - use exact viewport bounds for precise list synchronization
