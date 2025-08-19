@@ -179,7 +179,7 @@ export const CareServices3DCarousel = () => {
   const handleTouchEnd = () => {
     if (!isDragging) return;
     const diff = currentX - startX;
-    if (Math.abs(diff) > 50) {
+    if (Math.abs(diff) > 30) { // Reduced threshold for more responsive swiping
       if (diff > 0 && selectedService > 0) {
         setSelectedService(selectedService - 1);
       } else if (diff < 0 && selectedService < careServices.length - 1) {
@@ -203,7 +203,7 @@ export const CareServices3DCarousel = () => {
   const handleMouseUp = () => {
     if (!isDragging) return;
     const diff = currentX - startX;
-    if (Math.abs(diff) > 50) {
+    if (Math.abs(diff) > 30) { // Reduced threshold for more responsive dragging
       if (diff > 0 && selectedService > 0) {
         setSelectedService(selectedService - 1);
       } else if (diff < 0 && selectedService < careServices.length - 1) {
@@ -393,7 +393,7 @@ export const CareServices3DCarousel = () => {
       </div>
 
       {/* CSS for 3D Carousel */}
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .carousel-wrapper {
           width: 100%;
           height: 420px;
@@ -420,7 +420,7 @@ export const CareServices3DCarousel = () => {
             translateX(calc(var(--offset) * 250px))
             translateZ(calc(var(--abs-offset) * -200px))
             rotateY(calc(var(--offset) * -25deg));
-          transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: transform 0.3s ease-out, opacity 0.3s ease-out;
           z-index: calc(10 - var(--abs-offset) * 10);
         }
         
@@ -476,8 +476,21 @@ export const CareServices3DCarousel = () => {
               translateZ(calc(var(--abs-offset) * -150px))
               rotateY(calc(var(--offset) * -20deg));
           }
+          
+          .nav-3d {
+            width: 40px;
+            height: 40px;
+          }
+          
+          .nav-3d.left {
+            left: 10px;
+          }
+          
+          .nav-3d.right {
+            right: 10px;
+          }
         }
-      `}</style>
+      `}} />
     </div>
   );
 };
