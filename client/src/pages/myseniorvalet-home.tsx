@@ -730,11 +730,11 @@ export default function MySeniorValetHome() {
           <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
             {/* Left side - The Darkness */}
             <Card className="bg-gray-900/95 dark:bg-black/95 border-red-500/30">
-              <CardContent className="p-6">
-                <h3 className="text-xl font-bold mb-4 text-red-400">
+              <CardContent className="p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-red-400">
                   For Too Long, Families Have Been Kept in the Dark
                 </h3>
-                <div className="space-y-3 text-sm">
+                <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
                   <div className="flex items-start gap-2">
                     <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
                     <div>
@@ -769,11 +769,11 @@ export default function MySeniorValetHome() {
 
             {/* Right side - The Solution */}
             <Card className="bg-green-900/95 dark:bg-green-900/95 border-green-400/30">
-              <CardContent className="p-6">
-                <h3 className="text-xl font-bold mb-4 text-green-400">
+              <CardContent className="p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-green-400">
                   Today, The Lights Turn On
                 </h3>
-                <div className="space-y-3 text-sm">
+                <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
                   <div className="flex items-start gap-2">
                     <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <div>
