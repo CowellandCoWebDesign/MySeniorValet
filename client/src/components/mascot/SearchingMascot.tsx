@@ -35,7 +35,7 @@ export function SearchingMascot({
       setShowMascot(true);
       const interval = setInterval(() => {
         setMessageIndex((prev) => (prev + 1) % searchMessages.length);
-      }, 6000); // Change message every 6 seconds
+      }, 10000); // Change message every 10 seconds - increased for better readability
 
       return () => clearInterval(interval);
     } else {
