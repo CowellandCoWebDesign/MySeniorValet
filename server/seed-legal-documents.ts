@@ -147,7 +147,7 @@ MySeniorValet's liability is limited to the amount paid for services in the prec
 These terms are governed by applicable federal and state laws.
 
 ## 10. Contact Information
-For questions about these terms, contact us at legal@myseniorvalet.com.
+For questions about these terms, contact us at Admin@myseniorvalet.com.
 
 Last updated: August 7, 2025`;
 
@@ -194,7 +194,7 @@ We comply with GDPR for European users and PIPEDA for Canadian users.
 We use cookies and similar technologies as described in our Cookie Policy.
 
 ## 10. Contact Information
-For privacy questions, contact us at privacy@myseniorvalet.com or:
+For privacy questions, contact us at Admin@myseniorvalet.com or:
 MySeniorValet Privacy Team
 [Address]
 [City, State ZIP]
@@ -243,7 +243,7 @@ Similar technologies may be used in our mobile applications.
 This policy may be updated periodically. Check the last modified date.
 
 ## 8. Contact Information
-For cookie-related questions, contact us at privacy@myseniorvalet.com.
+For cookie-related questions, contact us at Admin@myseniorvalet.com.
 
 Last updated: August 7, 2025`;
 

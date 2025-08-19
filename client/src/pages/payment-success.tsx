@@ -248,8 +248,8 @@ export default function PaymentSuccess() {
                 <MessageSquare className="w-4 h-4" />
                 <p>
                   Questions? Our support team is here to help at{' '}
-                  <a href="mailto:support@myseniorvalet.com" className="text-blue-600 hover:underline">
-                    support@myseniorvalet.com
+                  <a href="mailto:billing@myseniorvalet.com" className="text-blue-600 hover:underline">
+                    billing@myseniorvalet.com
                   </a>
                 </p>
               </div>

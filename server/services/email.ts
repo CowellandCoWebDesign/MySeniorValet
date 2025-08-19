@@ -20,7 +20,7 @@ export interface EmailOptions {
 }
 
 // Default sender email
-const DEFAULT_FROM_EMAIL = 'noreply@myseniorvalet.com';
+const DEFAULT_FROM_EMAIL = 'hello@myseniorvalet.com';
 const DEFAULT_FROM_NAME = 'MySeniorValet';
 
 export class EmailService {
@@ -103,7 +103,7 @@ export class EmailService {
           </div>
           
           <p style="color: #666; font-size: 14px;">
-            If you have any questions, our team is here to help at support@myseniorvalet.com
+            If you have any questions, our team is here to help at hello@myseniorvalet.com
           </p>
         </div>
       `
@@ -163,7 +163,7 @@ export class EmailService {
           </div>
           <p style="color: #666; font-size: 14px;">
             This is an automated notification from MySeniorValet. 
-            If you have questions, contact us at support@myseniorvalet.com
+            If you have questions, contact us at hello@myseniorvalet.com
           </p>
         </div>
       `
@@ -291,7 +291,7 @@ export class EmailService {
           
           <div style="background-color: #f3f4f6; padding: 20px; text-align: center; font-size: 14px; color: #666;">
             <p style="margin: 5px 0;">MySeniorValet - Clarity in Senior Living</p>
-            <p style="margin: 5px 0;">Questions? Email us at support@myseniorvalet.com</p>
+            <p style="margin: 5px 0;">Questions? Email us at hello@myseniorvalet.com</p>
           </div>
         </div>
       `

@@ -451,9 +451,9 @@ export default function CookiePolicy() {
             </p>
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
               <ul className="text-gray-700 dark:text-gray-300 space-y-2">
-                <li><strong>Privacy Team:</strong> privacy@myseniorvalet.com</li>
+                <li><strong>Privacy Team:</strong> Admin@myseniorvalet.com</li>
                 <li><strong>General Inquiries:</strong> hello@myseniorvalet.com</li>
-                <li><strong>Technical Support:</strong> support@myseniorvalet.com</li>
+                <li><strong>Technical Support:</strong> CowellandCoWebDesign@gmail.com</li>
               </ul>
             </div>
           </section>

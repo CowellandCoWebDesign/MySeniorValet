@@ -44,7 +44,7 @@ const baseTemplate = (content: string, footerMessage?: string) => `
           <tr>
             <td style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb; border-radius: 0 0 8px 8px;">
               <p style="color: #6b7280; font-size: 14px; margin: 0 0 10px 0;">
-                ${footerMessage || 'Questions? Contact us at <a href="mailto:support@myseniorvalet.com" style="color: ' + BRAND_PRIMARY + ';">support@myseniorvalet.com</a>'}
+                ${footerMessage || 'Questions? Contact us at <a href="mailto:hello@myseniorvalet.com" style="color: ' + BRAND_PRIMARY + ';">hello@myseniorvalet.com</a>'}
               </p>
               <p style="color: #9ca3af; font-size: 12px; margin: 10px 0;">
                 © 2025 MySeniorValet. All rights reserved.<br>
@@ -164,7 +164,7 @@ export const welcomeEmail: EmailTemplate = {
     
     <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 30px;">
       <strong>Need help getting started?</strong><br>
-      📧 Email: support@myseniorvalet.com<br>
+      📧 Email: hello@myseniorvalet.com<br>
       📞 Call: 1-888-SENIOR-V<br>
       💬 Live chat available on our website
     </p>
@@ -283,7 +283,7 @@ export const communitySignupEmail: EmailTemplate = {
       Your dedicated onboarding specialist will contact you within 24 hours.<br>
       Questions? Call us at <strong>1-888-SENIOR-V</strong>
     </p>
-  `, 'Community onboarding team: <a href="mailto:communities@myseniorvalet.com">communities@myseniorvalet.com</a>')
+  `, 'Community onboarding team: <a href="mailto:hello@myseniorvalet.com">hello@myseniorvalet.com</a>')
 };
 
 // ============= VENDOR TEMPLATES =============
@@ -947,7 +947,7 @@ export const inquiryReceivedEmail: EmailTemplate = {
     ${buttonHTML('Track Your Inquiries', 'https://myseniorvalet.com/inquiries')}
     
     <p style="color: #6b7280; font-size: 14px; text-align: center;">
-      Haven't heard back in 48 hours? <a href="mailto:support@myseniorvalet.com" style="color: ${BRAND_PRIMARY};">Let us know</a>
+      Haven't heard back in 48 hours? <a href="mailto:hello@myseniorvalet.com" style="color: ${BRAND_PRIMARY};">Let us know</a>
     </p>
   `)
 };

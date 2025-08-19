@@ -84,10 +84,9 @@ router.post("/", isAuthenticated, async (req: any, res) => {
         communityId: body.communityId,
         communityName: community.name,
         unitType: body.unitType || "Standard",
-        status: "active",
-        createdAt: new Date(),
+        status: "active" as const,
         expiresAt,
-        moveInDate: body.moveInDate ? new Date(body.moveInDate) : null,
+        moveInDate: body.moveInDate ? body.moveInDate : null,
         notes: body.notes,
         contactName: body.contactName || req.user?.claims?.first_name || "Guest",
         contactEmail: body.contactEmail || req.user?.claims?.email,
@@ -102,7 +101,7 @@ router.post("/", isAuthenticated, async (req: any, res) => {
         try {
           await sgMail.send({
             to: reservation.contactEmail,
-            from: "reservations@myseniorvalet.com", // Update with your verified sender
+            from: "billing@myseniorvalet.com", // Billing department handles reservations
             subject: `Reservation Confirmed: ${community.name} - ${reservationId}`,
             html: `
               <h2>Your Senior Living Reservation is Confirmed!</h2>
@@ -134,7 +133,7 @@ router.post("/", isAuthenticated, async (req: any, res) => {
         
         await sgMail.send({
           to: communityEmail,
-          from: "reservations@myseniorvalet.com",
+          from: "billing@myseniorvalet.com",
           subject: `New Reservation Alert: ${reservationId} - ${reservation.contactName}`,
           html: `
             <h2>🎉 New Unit Reservation Received!</h2>
@@ -343,10 +342,9 @@ router.post("/reserve", async (req, res) => {
         communityId: body.communityId,
         communityName: community.name,
         unitType: body.unitType || "Standard",
-        status: "active",
-        createdAt: new Date(),
+        status: "active" as const,
         expiresAt,
-        moveInDate: body.moveInDate ? new Date(body.moveInDate) : null,
+        moveInDate: body.moveInDate ? body.moveInDate : null,
         notes: body.careNeeds || body.message,
         contactName: body.contactName,
         contactEmail: body.email,
@@ -361,7 +359,7 @@ router.post("/reserve", async (req, res) => {
         try {
           await sgMail.send({
             to: body.email,
-            from: "reservations@myseniorvalet.com",
+            from: "billing@myseniorvalet.com",
             subject: `Reservation Confirmed: ${community.name} - ${reservationId}`,
             html: `
               <h2>Your Senior Living Reservation is Confirmed!</h2>
@@ -392,7 +390,7 @@ router.post("/reserve", async (req, res) => {
         
         await sgMail.send({
           to: communityEmail,
-          from: "reservations@myseniorvalet.com",
+          from: "billing@myseniorvalet.com",
           subject: `🎉 New Reservation: ${reservationId} - ${body.contactName}`,
           html: `
             <h2>🎉 New Unit Reservation via MySeniorValet!</h2>

@@ -5,13 +5,14 @@ MySeniorValet is a technology platform connecting families with publicly availab
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
-- **Notification Email Configuration**:
-  - Primary Admin Notifications: admin@myseniorvalet.com (system events, emergency alerts)
-  - Personal Emergency/Backup Access: William.cowell01@gmail.com (private, secondary notifications)
-  - Super Admin Backup: CowellandCoWebDesign@gmail.com (private)
-  - Onboarding Team: hello@myseniorvalet.com (public)
-  - Billing Team: billing@myseniorvalet.com (public)
+- **Notification Email Configuration** (STANDARDIZED August 19, 2025):
+  - Primary Admin Notifications: admin@myseniorvalet.com (system events, emergency alerts, privacy inquiries)
+  - Personal Emergency/Backup Access: William.cowell01@gmail.com (private, secondary notifications, security concerns)
+  - Technical Support: CowellandCoWebDesign@gmail.com (private, technical issues)
+  - General Inquiries: hello@myseniorvalet.com (public, press inquiries, community onboarding)
+  - Billing & Reservations: billing@myseniorvalet.com (public, payments, reservation confirmations)
   - Emergency button alerts sent to both admin@myseniorvalet.com (primary) and William.cowell01@gmail.com (backup)
+  - NOTE: ALL emails standardized across entire platform - no legacy addresses remain
 - **Data Integrity Standards**: Maintain strict Golden Data Rule enforcement. HUD properties show verified government pricing only. Communities without verified pricing display "Contact for pricing." Multi-AI verification system for absolute accuracy. Never claim partnerships, verifications, or certifications unless legally verified and documented. Service recommendations must be clearly labeled as such, not as partnerships.
 - **Accurate Platform Messaging**: Use "Complete Care Spectrum & Live Market Intelligence" to describe our national pricing insights and verified HUD data system. Avoid claiming "live pricing from all communities" as this is our goal, not current capability. Market Intelligence fills gaps with national reported averages while building toward full live pricing coverage. Be cautious with analytics claims during launch phase.
 - **Documentation Preferences**: Keep documentation clean and consolidated. Remove outdated files to prevent confusion. Focus on current operational status over historical details.

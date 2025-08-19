@@ -201,7 +201,7 @@ export default function PrivacyPolicy() {
               <li><strong>Withdrawal:</strong> Withdraw consent at any time</li>
             </ul>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
-              To exercise these rights, contact us at privacy@myseniorvalet.com.
+              To exercise these rights, contact us at Admin@myseniorvalet.com.
             </p>
           </section>
 
@@ -280,10 +280,10 @@ export default function PrivacyPolicy() {
             </p>
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
               <ul className="text-gray-700 dark:text-gray-300 space-y-2">
-                <li><strong>Privacy Team:</strong> privacy@myseniorvalet.com</li>
+                <li><strong>Privacy Team:</strong> Admin@myseniorvalet.com</li>
                 <li><strong>General Contact:</strong> hello@myseniorvalet.com</li>
-                <li><strong>Data Protection Officer:</strong> dpo@myseniorvalet.com</li>
-                <li><strong>Security Concerns:</strong> security@myseniorvalet.com</li>
+                <li><strong>Data Protection Officer:</strong> Admin@myseniorvalet.com</li>
+                <li><strong>Security Concerns:</strong> William.cowell01@gmail.com</li>
               </ul>
             </div>
           </section>

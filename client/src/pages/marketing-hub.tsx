@@ -85,7 +85,7 @@ Media Contact:
 [Name]
 Director of Communications
 MySeniorValet
-press@myseniorvalet.com
+hello@myseniorvalet.com
 [Phone Number]
 
 ###`;
