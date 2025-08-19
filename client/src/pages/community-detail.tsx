@@ -5,7 +5,7 @@ import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSig
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, Lock,
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
-         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3, Loader2, Utensils } from 'lucide-react';
+         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3, Loader2 } from 'lucide-react';
 import type { Community } from '@shared/schema';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -1924,149 +1924,460 @@ export default function CommunityDetail() {
               </CardHeader>
             </Card>
 
+            {/* Community Claim Status Card */}
+            <Card className="border-2 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-amber-100 dark:bg-amber-800 rounded-lg">
+                    <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-300" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                      Community Claim Status
+                    </h3>
+                    <div className="space-y-2">
+                      {/* MySeniorValet Verification Status - Always show as pending since no claims approved */}
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-amber-500" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          <span className="font-medium">Not Verified</span> - Pending MySeniorValet.com verification
+                        </span>
+                      </div>
 
+                      {/* Data Source - Display actual verified data_source field */}
+                      <div className="flex items-center gap-2">
+                        {(community as any).data_source ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">Verified Source:</span> {(community as any).data_source}
+                            </span>
+                          </>
+                        ) : community.hudPropertyId ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">HUD Database</span> - Government verified source
+                            </span>
+                          </>
+                        ) : (community as any).dataSource?.includes('state') ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">State Database</span> - Government licensing data
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <Info className="w-4 h-4 text-blue-500" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              <span className="font-medium">Public Records</span> - Awaiting verification
+                            </span>
+                          </>
+                        )}
+                      </div>
 
-            {/* Tabbed Content Section - Enhanced Visibility */}
+                      {/* Real-time Updates Status - Now with Perplexity AI */}
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          <span className="font-medium">Real-time Market Data</span> - Powered by Perplexity AI web search
+                        </span>
+                      </div>
+                      
+                      {/* Market Intelligence Status */}
+                      <div className="flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4 text-indigo-500" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          <span className="font-medium">Live Competitive Analysis</span> - Market pricing verified from web sources
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Call to Action - Claim Now Button */}
+                    <div className="mt-4 pt-4 border-t border-amber-200 dark:border-amber-700">
+                      <div className="space-y-3">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Are you the owner or authorized representative of this community?
+                        </p>
+                        <Button 
+                          onClick={() => window.location.href = `/claim-community?id=${community.id}`}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 flex items-center justify-center"
+                        >
+                          <Building className="w-5 h-5 mr-2" />
+                          Claim This Community Now
+                        </Button>
+                        <p className="text-xs text-gray-500 dark:text-gray-500 text-center">
+                          Get verified status • Update pricing & availability • Respond to reviews
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Tabbed Content Section */}
             <Tabs defaultValue="community-info" className="w-full">
-              <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 p-1 rounded-lg shadow-lg border-2 border-blue-200 dark:border-blue-700 mb-4">
-                <TabsTrigger value="community-info" className="font-semibold text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-md">Community Information</TabsTrigger>
-                <TabsTrigger value="availability" className="font-semibold text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-md">Availability</TabsTrigger>
-                <TabsTrigger value="market-data" className="font-semibold text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-md">Live Market Data</TabsTrigger>
-                <TabsTrigger value="tour-tracker" className="font-semibold text-sm data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:shadow-md">TourTracker</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="community-info">Community Information</TabsTrigger>
+                <TabsTrigger value="availability">Availability</TabsTrigger>
+                <TabsTrigger value="market-data">Live Market Data</TabsTrigger>
+                <TabsTrigger value="tour-tracker">TourTracker</TabsTrigger>
               </TabsList>
 
               {/* Community Information Tab */}
               <TabsContent value="community-info" className="space-y-6 mt-6">
-                {/* Contact Information Section */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <Phone className="w-5 h-5 mr-2" />
-                      Contact Information
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <Phone className="w-5 h-5 text-blue-600" />
-                      <span className="text-gray-900 dark:text-gray-100">{community.phone || 'Phone not available'}</span>
-                    </div>
-                    {community.website && (
-                      <div className="flex items-center gap-3">
-                        <Globe className="w-5 h-5 text-blue-600" />
-                        <a href={community.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                          Visit Website
-                        </a>
-                      </div>
-                    )}
-                    {community.email && (
-                      <div className="flex items-center gap-3">
-                        <Mail className="w-5 h-5 text-blue-600" />
-                        <a href={`mailto:${community.email}`} className="text-blue-600 hover:underline">
-                          {community.email}
-                        </a>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-3">
-                      <MapPin className="w-5 h-5 text-blue-600" />
-                      <span className="text-gray-900 dark:text-gray-100">
-                        {community.address}, {community.city}, {community.state} {community.zipCode}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
+                {/* Contact & Tour Section */}
+            <Card>
+              <CardContent className="p-0">
+                <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 p-8 rounded-lg border-2 border-blue-100 dark:border-blue-700">
+                  <div className="text-center mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Ready to Visit?</h3>
+                    <p className="text-gray-900 dark:text-gray-100">Connect with our community team to schedule your tour</p>
+                  </div>
 
-                {/* Community Claim Status - Moved to bottom of Community Information tab */}
-                <Card className="border-2 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20">
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-amber-100 dark:bg-amber-800 rounded-lg">
-                        <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-300" />
+                  {/* Community Contact Info */}
+                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-blue-200 dark:border-blue-700 mb-6">
+                    <div className="flex items-center mb-4">
+                      <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-xl mr-4">
+                        <Phone className="w-8 h-8" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                          Community Claim Status
-                        </h3>
-                        <div className="space-y-2">
-                          {/* MySeniorValet Verification Status - Always show as pending since no claims approved */}
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-amber-500" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">Not Verified</span> - Pending MySeniorValet.com verification
-                            </span>
-                          </div>
-
-                          {/* Data Source - Display actual verified data_source field */}
-                          <div className="flex items-center gap-2">
-                            {(community as any).data_source ? (
-                              <>
-                                <CheckCircle className="w-4 h-4 text-green-500" />
-                                <span className="text-sm text-gray-700 dark:text-gray-300">
-                                  <span className="font-medium">Verified Source:</span> {(community as any).data_source}
-                                </span>
-                              </>
-                            ) : community.hudPropertyId ? (
-                              <>
-                                <CheckCircle className="w-4 h-4 text-green-500" />
-                                <span className="text-sm text-gray-700 dark:text-gray-300">
-                                  <span className="font-medium">HUD Database</span> - Government verified source
-                                </span>
-                              </>
-                            ) : (community as any).dataSource?.includes('state') ? (
-                              <>
-                                <CheckCircle className="w-4 h-4 text-green-500" />
-                                <span className="text-sm text-gray-700 dark:text-gray-300">
-                                  <span className="font-medium">State Database</span> - Government licensing data
-                                </span>
-                              </>
-                            ) : (
-                              <>
-                                <Info className="w-4 h-4 text-blue-500" />
-                                <span className="text-sm text-gray-700 dark:text-gray-300">
-                                  <span className="font-medium">Public Records</span> - Awaiting verification
-                                </span>
-                              </>
-                            )}
-                          </div>
-
-                          {/* Real-time Updates Status - Now with Perplexity AI */}
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">Real-time Market Data</span> - Powered by Perplexity AI web search
-                            </span>
-                          </div>
-                          
-                          {/* Market Intelligence Status */}
-                          <div className="flex items-center gap-2">
-                            <BarChart3 className="w-4 h-4 text-indigo-500" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">
-                              <span className="font-medium">Live Competitive Analysis</span> - Market pricing verified from web sources
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Call to Action - Claim Now Button */}
-                        <div className="mt-4 pt-4 border-t border-amber-200 dark:border-amber-700">
-                          <div className="space-y-3">
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              Are you the owner or authorized representative of this community?
+                        {/* Show live contact data if available, otherwise show community phone */}
+                        {(community as any).salesDirector?.name ? (
+                          <>
+                            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                              {(community as any).salesDirector.name}
+                            </h4>
+                            <p className="text-gray-900 dark:text-gray-100 font-medium">
+                              {(community as any).salesDirector.title || 'Sales Director'}
                             </p>
-                            <Button 
-                              onClick={() => window.location.href = `/claim-community?id=${community.id}`}
-                              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 flex items-center justify-center"
-                            >
-                              <Building className="w-5 h-5 mr-2" />
-                              Claim This Community Now
-                            </Button>
-                            <p className="text-xs text-gray-500 dark:text-gray-500 text-center">
-                              Get verified status • Update pricing & availability • Respond to reviews
+                            <div className="flex items-center mt-2">
+                              <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
+                              <span className="text-gray-900 dark:text-gray-100 font-medium">
+                                {(community as any).salesDirector.phone || community.phone}
+                              </span>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                              Community Main Office
+                            </h4>
+                            <p className="text-gray-900 dark:text-gray-100 font-medium">
+                              Call for sales and leasing information
                             </p>
-                          </div>
-                        </div>
+                            <div className="flex items-center mt-2">
+                              <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
+                              <span className="text-gray-900 dark:text-gray-100 font-medium">
+                                {community.phone}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
+                              Ask to speak with a leasing manager or sales director
+                            </p>
+                          </>
+                        )}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4">
+                      <div className="flex items-center">
+                        <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
+                        <span className="text-blue-800 dark:text-blue-200 font-medium">Usually responds within 2 hours</span>
+                      </div>
+                    </div>
+
+                    {/* Enhanced Tour Section - Combined Ready to Tour & Tour Tracker */}
+                    <div className="space-y-6">
+                      {/* Comprehensive Tour Tracker Integration */}
+                      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-600 rounded-lg p-4">
+                        <div className="flex items-center mb-3">
+                          <ClipboardList className="w-5 h-5 mr-2 text-blue-600" />
+                          <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200">Tour Tracker™ Pro</h3>
+                          <Badge className="ml-2 bg-blue-600 text-white text-xs">Comprehensive</Badge>
+                        </div>
+                        <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
+                          Grade every aspect of your visit with our 360° evaluation system
+                        </p>
+                        
+                        {/* Main Evaluation Categories */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+                          {/* Units & Living Spaces */}
+                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-green-200 dark:border-green-600">
+                            <Home className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Units & Living Spaces</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Size, layout, condition, storage</p>
+                            </div>
+                          </div>
+
+                          {/* Common Areas & Amenities */}
+                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
+                            <Users className="w-4 h-4 text-blue-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Common Areas</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Dining, lobby, activities, library</p>
+                            </div>
+                          </div>
+
+                          {/* Outdoor Spaces */}
+                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-emerald-200 dark:border-emerald-600">
+                            <MapIcon className="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Outdoor Spaces</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Gardens, patios, walking paths</p>
+                            </div>
+                          </div>
+
+                          {/* Staff & Care Quality */}
+                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-600">
+                            <UserCheck className="w-4 h-4 text-purple-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Staff & Care</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Friendliness, knowledge, ratio</p>
+                            </div>
+                          </div>
+
+                          {/* Food & Dining */}
+                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-orange-200 dark:border-orange-600">
+                            <UtensilsCrossed className="w-4 h-4 text-orange-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Food & Dining</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Quality, variety, atmosphere</p>
+                            </div>
+                          </div>
+
+                          {/* Safety & Security */}
+                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-red-200 dark:border-red-600">
+                            <Shield className="w-4 h-4 text-red-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Safety & Security</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Emergency systems, access control</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Additional Evaluation Areas */}
+                        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg p-3 mb-4">
+                          <h4 className="text-sm font-semibold text-indigo-800 dark:text-indigo-200 mb-2">Additional Evaluation Areas:</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                            <div className="flex items-center">
+                              <Activity className="w-3 h-3 text-indigo-600 mr-1" />
+                              <span className="text-indigo-700 dark:text-indigo-300">Activities & Programs</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Car className="w-3 h-3 text-indigo-600 mr-1" />
+                              <span className="text-indigo-700 dark:text-indigo-300">Transportation</span>
+                            </div>
+                            <div className="flex items-center">
+                              <DollarSign className="w-3 h-3 text-indigo-600 mr-1" />
+                              <span className="text-indigo-700 dark:text-indigo-300">Value for Money</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Heart className="w-3 h-3 text-indigo-600 mr-1" />
+                              <span className="text-indigo-700 dark:text-indigo-300">Overall Atmosphere</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Grading System Preview */}
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">A-F Grading System</h4>
+                            <div className="flex space-x-1">
+                              <span className="px-2 py-1 text-xs font-bold bg-green-100 text-green-800 rounded">A</span>
+                              <span className="px-2 py-1 text-xs font-bold bg-blue-100 text-blue-800 rounded">B</span>
+                              <span className="px-2 py-1 text-xs font-bold bg-yellow-100 text-yellow-800 rounded">C</span>
+                              <span className="px-2 py-1 text-xs font-bold bg-orange-100 text-orange-800 rounded">D</span>
+                              <span className="px-2 py-1 text-xs font-bold bg-red-100 text-red-800 rounded">F</span>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                            Grade each category during your visit. Your scores help future families and contribute to community transparency.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Main Action Buttons */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <TourScheduler
+                          communityId={community.id}
+                          communityName={community.name}
+                          communityAddress={`${community.city}, ${community.state}`}
+                          communityPhone={community.phone || generatePhoneNumber(community.state, community.id)}
+                          buttonText="Schedule Tour"
+                          buttonVariant="default"
+                          hasEmail={!!(community.communityManagerEmail || community.email || community.managementEmail)}
+                          onSuccess={() => {
+                            toast({
+                              title: "Tour Scheduled Successfully!",
+                              description: "Check your email for confirmation details.",
+                            });
+                          }}
+                        />
+                        
+                        <Button 
+                          variant="outline" 
+                          className="py-4 text-base font-semibold border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                          onClick={() => window.open(`tel:${community.phone || generatePhoneNumber(community.state, community.id)}`, '_self')}
+                        >
+                          <Phone className="w-5 h-5 mr-2" />
+                          Call Now
+                        </Button>
+                      </div>
+
+                      {/* Move-In Coordination Section */}
+                      <Card className="mt-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-800">
+                        <CardContent className="p-6">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center mb-2">
+                                <Truck className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-2" />
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                  Moving Soon? We'll Help Coordinate Everything
+                                </h3>
+                              </div>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                Our Move-In Coordination Center helps you manage every aspect of the transition - from hiring movers to setting up healthcare providers and utilities.
+                              </p>
+                              <div className="flex flex-wrap gap-2 mb-4">
+                                <Badge variant="outline" className="text-xs">
+                                  <Package className="w-3 h-3 mr-1" />
+                                  Moving Services
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  <Stethoscope className="w-3 h-3 mr-1" />
+                                  Healthcare Setup
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  <Home className="w-3 h-3 mr-1" />
+                                  Utilities Transfer
+                                </Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  <CheckCircle className="w-3 h-3 mr-1" />
+                                  Checklist Tracking
+                                </Badge>
+                              </div>
+                              <Button 
+                                variant="default"
+                                className="bg-blue-600 hover:bg-blue-700 text-white"
+                                onClick={() => {
+                                  // Save community info to localStorage for Move-In Coordination
+                                  localStorage.setItem('moveInCommunity', JSON.stringify({
+                                    id: community.id,
+                                    name: community.name,
+                                    address: `${community.address}, ${community.city}, ${community.state} ${community.zipCode}`,
+                                    phone: community.phone
+                                  }));
+                                  window.location.href = '/move-in-coordination';
+                                }}
+                              >
+                                <Truck className="w-4 h-4 mr-2" />
+                                Start Move-In Planning
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Waitlist Dialog */}
+                      <Dialog open={isWaitlistOpen} onOpenChange={setIsWaitlistOpen}>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Join Waitlist</DialogTitle>
+                            <DialogDescription>
+                              {selectedUnitType ? (
+                                `You'll be notified when ${selectedUnitType} units become available.`
+                              ) : (
+                                "Complete this form to be notified when units become available."
+                              )}
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div>
+                              <Label htmlFor="waitlist-name">Your Name</Label>
+                              <Input
+                                id="waitlist-name"
+                                placeholder="Enter your full name"
+                                value={waitlistName}
+                                onChange={(e) => setWaitlistName(e.target.value)}
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="waitlist-email">Email</Label>
+                                <Input
+                                  id="waitlist-email"
+                                  type="email"
+                                  placeholder="your.email@example.com"
+                                  value={waitlistEmail}
+                                  onChange={(e) => setWaitlistEmail(e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="waitlist-phone">Phone</Label>
+                                <Input
+                                  id="waitlist-phone"
+                                  type="tel"
+                                  placeholder="(555) 123-4567"
+                                  value={waitlistPhone}
+                                  onChange={(e) => setWaitlistPhone(e.target.value)}
+                                />
+                              </div>
+                            </div>
+
+                            <div>
+                              <Label htmlFor="waitlist-preferences">Preferred Unit Type & Other Preferences</Label>
+                              <textarea
+                                id="waitlist-preferences"
+                                className="w-full p-3 border border-gray-300 rounded-md"
+                                placeholder={selectedUnitType ? 
+                                  `Interested in ${selectedUnitType} units. Add any additional preferences...` :
+                                  "e.g., 1 bedroom, ground floor, pet-friendly..."
+                                }
+                                value={waitlistPreferences || (selectedUnitType ? `Interested in ${selectedUnitType} units.` : '')}
+                                onChange={(e) => setWaitlistPreferences(e.target.value)}
+                                rows={3}
+                              />
+                            </div>
+
+                            <Button 
+                              onClick={handleWaitlistSubmit}
+                              className="w-full bg-orange-600 hover:bg-orange-700"
+                              disabled={!waitlistName || !waitlistEmail || !waitlistPhone}
+                            >
+                              <Users className="w-4 h-4 mr-2" />
+                              Join Waitlist
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+
+
+
+
+
+                    {/* Comprehensive Tour Grading Button */}
+                    <div className="mt-4">
+                      <Button 
+                        onClick={() => window.location.href = `/tour-tracker?communityId=${community.id}`}
+                        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-3 font-semibold"
+                      >
+                        <ClipboardList className="w-4 h-4 mr-2" />
+                        Start Comprehensive Tour Grading
+                      </Button>
+                      <p className="text-xs text-center text-blue-700 dark:text-blue-300 mt-2">
+                        Grade 10+ categories with A-F scoring • Your evaluations help future families make informed decisions
+                      </p>
+                    </div>
+                  </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
               </TabsContent>
 
               {/* Availability Tab */}
@@ -2543,224 +2854,58 @@ export default function CommunityDetail() {
                 <CommunityCompetitiveAnalysis community={community} />
               </TabsContent>
 
-              {/* TourTracker Tab - Exact Original Layout */}
+              {/* TourTracker Tab */}
               <TabsContent value="tour-tracker" className="space-y-6 mt-6">
-                <Card className="bg-gray-900 text-white border-gray-800">
-                  <CardContent className="p-6 bg-gradient-to-b from-gray-900 to-black">
-                    {/* Ready to Visit Header */}
-                    <div className="text-center mb-6">
-                      <h2 className="text-2xl font-bold mb-2">Ready to Visit?</h2>
-                      <p className="text-gray-400 text-sm">Connect with our community team to schedule your tour</p>
-                    </div>
-
-                    {/* Community Main Office */}
-                    <div className="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-700">
-                      <div className="flex items-center mb-3">
-                        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center mr-3">
-                          <Phone className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-base">Community Main Office</h3>
-                          <p className="text-xs text-gray-400">Call for sales and leasing information</p>
-                        </div>
-                      </div>
-                      <div className="text-xl font-bold">
-                        📞 {community.phone || '415-555-0616'}
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">Ask to speak with a leasing manager or sales director</p>
-                      <div className="mt-3 text-xs text-gray-500">
-                        ⏰ Usually responds within 2 hours
-                      </div>
-                    </div>
-
-                    {/* Tour Tracker Pro Section */}
-                    <div className="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-700">
-                      <div className="flex items-center mb-3">
-                        <span className="text-base font-bold">✅ Tour Tracker™ Pro</span>
-                        <Badge className="ml-2 bg-blue-600 text-white text-xs">Comprehensive</Badge>
-                      </div>
-                      <p className="text-xs text-gray-400 mb-4">Grade every aspect of your visit with our 360° evaluation system</p>
-
-                      {/* Grading Categories */}
-                      <div className="space-y-2 mb-4">
-                        {/* Units & Living Spaces */}
-                        <div className="bg-gray-700/50 border-l-4 border-indigo-500 rounded p-2">
-                          <div className="flex items-center">
-                            <span className="text-sm font-medium">Units & Living Spaces</span>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Calendar className="w-5 h-5 mr-2" />
+                      Tour Scheduling & Tracking
+                    </CardTitle>
+                    <CardDescription>
+                      Schedule and track your tours with our comprehensive tour management system
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-700">
+                      <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">TourMate™ Features</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-start">
+                          <CheckCircle className="w-5 h-5 text-green-600 mr-2 mt-0.5" />
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-gray-100">Schedule Tours</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Book tours directly with communities</p>
                           </div>
-                          <p className="text-xs text-gray-500">Living room, bedroom, bathroom, closet</p>
                         </div>
-
-                        {/* Common Areas */}
-                        <div className="bg-gray-700/50 border-l-4 border-green-500 rounded p-2">
-                          <div className="flex items-center">
-                            <span className="text-sm font-medium">Common Areas</span>
+                        <div className="flex items-start">
+                          <CheckCircle className="w-5 h-5 text-green-600 mr-2 mt-0.5" />
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-gray-100">Tour Grading</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Grade 10+ categories with A-F scoring</p>
                           </div>
-                          <p className="text-xs text-gray-500">Dining, lobby, activities, library</p>
                         </div>
-
-                        {/* Outdoor Spaces */}
-                        <div className="bg-gray-700/50 border-l-4 border-yellow-500 rounded p-2">
-                          <div className="flex items-center">
-                            <span className="text-sm font-medium">Outdoor Spaces</span>
+                        <div className="flex items-start">
+                          <CheckCircle className="w-5 h-5 text-green-600 mr-2 mt-0.5" />
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-gray-100">Side-by-Side Comparison</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Compare multiple communities</p>
                           </div>
-                          <p className="text-xs text-gray-500">Courtyard, patio, walking paths</p>
                         </div>
-
-                        {/* Staff & Care */}
-                        <div className="bg-gray-700/50 border-l-4 border-purple-500 rounded p-2">
-                          <div className="flex items-center">
-                            <span className="text-sm font-medium">Staff & Care</span>
-                          </div>
-                          <p className="text-xs text-gray-500">Friendliness, knowledge, ratio</p>
-                        </div>
-
-                        {/* Food & Dining */}
-                        <div className="bg-gray-700/50 border-l-4 border-orange-500 rounded p-2">
-                          <div className="flex items-center">
-                            <span className="text-sm font-medium">Food & Dining</span>
-                          </div>
-                          <p className="text-xs text-gray-500">Quality, variety, atmosphere</p>
-                        </div>
-
-                        {/* Safety & Security */}
-                        <div className="bg-gray-700/50 border-l-4 border-red-500 rounded p-2">
-                          <div className="flex items-center">
-                            <span className="text-sm font-medium">Safety & Security</span>
-                          </div>
-                          <p className="text-xs text-gray-500">Emergency systems, access control</p>
-                        </div>
-                      </div>
-
-                      {/* Additional Evaluation Areas */}
-                      <div className="text-xs text-gray-400 mb-4">
-                        <span className="font-semibold">Additional Evaluation Areas:</span>
-                        <div className="mt-1">➤ Transportation ➤ Overall Atmosphere</div>
-                        <div>➤ Activities & Programs ➤ Value for Money</div>
-                      </div>
-
-                      {/* A-F Grading System */}
-                      <div className="mb-4">
-                        <h4 className="text-sm font-bold mb-2">A-F Grading System</h4>
-                        <p className="text-xs text-gray-400 mb-3">Grade each category during your visit. Your scores help future families and contribute to community transparency.</p>
-                        <div className="flex gap-1 justify-center">
-                          <Button variant="outline" size="sm" className="w-10 h-10 bg-gray-700 border-gray-600 text-white hover:bg-gray-600">A</Button>
-                          <Button variant="outline" size="sm" className="w-10 h-10 bg-gray-700 border-gray-600 text-white hover:bg-gray-600">B</Button>
-                          <Button variant="outline" size="sm" className="w-10 h-10 bg-gray-700 border-gray-600 text-white hover:bg-gray-600">C</Button>
-                          <Button variant="outline" size="sm" className="w-10 h-10 bg-gray-700 border-gray-600 text-white hover:bg-gray-600">D</Button>
-                          <Button variant="outline" size="sm" className="w-10 h-10 bg-gray-700 border-gray-600 text-white hover:bg-gray-600">F</Button>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="space-y-2">
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          Schedule Tour
-                        </Button>
-                        <Button variant="outline" className="w-full border-gray-600 text-white hover:bg-gray-700 py-2">
-                          <Phone className="w-4 h-4 mr-2" />
-                          Call Now
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Moving Soon Section */}
-                    <div className="bg-gray-800 rounded-lg p-4 mb-4 border border-gray-700">
-                      <h3 className="text-base font-bold mb-2 flex items-center">
-                        <Truck className="w-4 h-4 mr-2" />
-                        Moving Soon? We'll Help Coordinate Everything
-                      </h3>
-                      <p className="text-xs text-gray-400 mb-3">
-                        Our Maverick Connection Circles helps you manage every aspect of the transition, including movers to setting up healthcare providers and utilities.
-                      </p>
-                      <div className="grid grid-cols-3 gap-1 text-xs">
-                        <div className="flex items-center">
-                          <span className="text-green-400">✓</span>
-                          <span className="ml-1 text-gray-400">Moving Services</span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="text-green-400">✓</span>
-                          <span className="ml-1 text-gray-400">Healthcare Setup</span>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="text-green-400">✓</span>
-                          <span className="ml-1 text-gray-400">Utilities Transfer</span>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-1 mt-1 text-xs">
-                        <div className="flex items-center">
-                          <span className="text-green-400">✓</span>
-                          <span className="ml-1 text-gray-400">Checklist Tracking</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Button variant="link" className="h-auto p-0 text-xs text-blue-400 hover:text-blue-300">
-                            Start Move-In Planning
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Start Comprehensive Tour Grading Button */}
-                    <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 mb-4">
-                      <ClipboardList className="w-5 h-5 mr-2" />
-                      Start Comprehensive Tour Grading
-                    </Button>
-
-                    {/* Live Intelligence Report */}
-                    <div className="bg-gradient-to-r from-purple-900/30 to-indigo-900/30 rounded-lg p-4 mb-4 border border-purple-800/50">
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-base font-bold">💫 Live Intelligence Report</h3>
-                        <Badge className="bg-purple-700 text-white text-xs">
-                          <Activity className="w-3 h-3 mr-1" />
-                          Powered by Perplexity AI
-                        </Badge>
-                      </div>
-                      <div className="text-xs">
-                        <p className="text-gray-400">AI Orchestrator Status: <span className="text-green-400">Active</span> • Updated: 11:04:04 PM</p>
-                        <div className="grid grid-cols-2 gap-2 mt-2">
-                          <div className="bg-gray-800/50 rounded p-2">
-                            <div className="text-gray-500">📊 Perplexity AI Research:</div>
-                            <div className="text-white">386 Sources</div>
-                          </div>
-                          <div className="bg-gray-800/50 rounded p-2">
-                            <div className="text-gray-500">🎯 Claude 4.0 Synthesizer:</div>
-                            <div className="text-white">4.0 Composite</div>
+                        <div className="flex items-start">
+                          <CheckCircle className="w-5 h-5 text-green-600 mr-2 mt-0.5" />
+                          <div>
+                            <p className="font-medium text-gray-900 dark:text-gray-100">Track Progress</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Monitor your tour history</p>
                           </div>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 mt-3">
-                        <Button variant="outline" size="sm" className="text-xs border-purple-700 text-purple-300 hover:bg-purple-900/30">
-                          <Brain className="w-3 h-3 mr-1" />
-                          Source Analysis: Certified
-                        </Button>
-                        <Button variant="outline" size="sm" className="text-xs border-orange-700 text-orange-300 hover:bg-orange-900/30">
-                          <TrendingUp className="w-3 h-3 mr-1" />
-                          Outlier Report 4.0: Exemplary • Australia
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Multi-AI Verification */}
-                    <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                      <h3 className="text-base font-bold mb-2 text-center">✅ Multi-AI Verification</h3>
-                      <div className="text-center mb-2">
-                        <Badge className="bg-red-600 text-white text-xs">⚠️ Conflicting Agreement!</Badge>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2 text-xs text-center">
-                        <div>
-                          <div className="font-semibold">Perplexity</div>
-                          <div className="text-green-400">✓</div>
-                        </div>
-                        <div>
-                          <div className="font-semibold">Claude 4.0</div>
-                          <div className="text-green-400">✓</div>
-                        </div>
-                        <div>
-                          <div className="font-semibold">ChatGPT 4o</div>
-                          <div className="text-green-400">✓</div>
-                        </div>
-                      </div>
+                      <Button 
+                        onClick={() => window.location.href = `/tour-tracker?communityId=${community.id}`}
+                        className="w-full mt-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                      >
+                        <ClipboardList className="w-4 h-4 mr-2" />
+                        Start Tour Grading
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
