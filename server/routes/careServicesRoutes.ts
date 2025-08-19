@@ -92,6 +92,24 @@ router.get('/care-services', async (req, res) => {
           like(sql`LOWER(${communities.name})`, '%nursing home%'),
           like(sql`LOWER(${communities.name})`, '%nursing center%'),
           like(sql`LOWER(${communities.name})`, '%nursing facility%')
+        ),
+        // Vision services
+        or(
+          like(sql`LOWER(${communities.careTypes}::text)`, '%vision%'),
+          like(sql`LOWER(${communities.name})`, '%vision%'),
+          like(sql`LOWER(${communities.name})`, '%eye care%'),
+          like(sql`LOWER(${communities.name})`, '%optical%'),
+          like(sql`LOWER(${communities.name})`, '%optometry%'),
+          like(sql`LOWER(${communities.name})`, '%lenscrafters%'),
+          like(sql`LOWER(${communities.name})`, '%pearle%')
+        ),
+        // Hearing services
+        or(
+          like(sql`LOWER(${communities.careTypes}::text)`, '%hearing%'),
+          like(sql`LOWER(${communities.name})`, '%hearing%'),
+          like(sql`LOWER(${communities.name})`, '%audiology%'),
+          like(sql`LOWER(${communities.name})`, '%miracle-ear%'),
+          like(sql`LOWER(${communities.name})`, '%beltone%')
         )
       ),
       // Must have phone for verification
@@ -169,6 +187,18 @@ router.get('/care-services', async (req, res) => {
                  OR LOWER(${communities.name}) LIKE '%nursing home%' 
                  OR LOWER(${communities.name}) LIKE '%nursing center%' 
                  OR LOWER(${communities.name}) LIKE '%nursing facility%' THEN 'Skilled Nursing'
+            WHEN LOWER(${communities.careTypes}::text) LIKE '%vision%' 
+                 OR LOWER(${communities.name}) LIKE '%vision%' 
+                 OR LOWER(${communities.name}) LIKE '%eye care%' 
+                 OR LOWER(${communities.name}) LIKE '%optical%' 
+                 OR LOWER(${communities.name}) LIKE '%optometry%' 
+                 OR LOWER(${communities.name}) LIKE '%lenscrafters%' 
+                 OR LOWER(${communities.name}) LIKE '%pearle%' THEN 'Vision Services'
+            WHEN LOWER(${communities.careTypes}::text) LIKE '%hearing%' 
+                 OR LOWER(${communities.name}) LIKE '%hearing%' 
+                 OR LOWER(${communities.name}) LIKE '%audiology%' 
+                 OR LOWER(${communities.name}) LIKE '%miracle-ear%' 
+                 OR LOWER(${communities.name}) LIKE '%beltone%' THEN 'Hearing Services'
             ELSE 'Care Services'
           END
         `.as('serviceCategory'),
@@ -217,6 +247,18 @@ router.get('/care-services', async (req, res) => {
                OR LOWER(${communities.name}) LIKE '%nursing home%' 
                OR LOWER(${communities.name}) LIKE '%nursing center%' 
                OR LOWER(${communities.name}) LIKE '%nursing facility%' THEN 'Skilled Nursing'
+          WHEN LOWER(${communities.careTypes}::text) LIKE '%vision%' 
+               OR LOWER(${communities.name}) LIKE '%vision%' 
+               OR LOWER(${communities.name}) LIKE '%eye care%' 
+               OR LOWER(${communities.name}) LIKE '%optical%' 
+               OR LOWER(${communities.name}) LIKE '%optometry%' 
+               OR LOWER(${communities.name}) LIKE '%lenscrafters%' 
+               OR LOWER(${communities.name}) LIKE '%pearle%' THEN 'Vision Services'
+          WHEN LOWER(${communities.careTypes}::text) LIKE '%hearing%' 
+               OR LOWER(${communities.name}) LIKE '%hearing%' 
+               OR LOWER(${communities.name}) LIKE '%audiology%' 
+               OR LOWER(${communities.name}) LIKE '%miracle-ear%' 
+               OR LOWER(${communities.name}) LIKE '%beltone%' THEN 'Hearing Services'
           ELSE 'Care Services'
         END
       `, communities.name);

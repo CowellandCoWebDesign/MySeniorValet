@@ -16,7 +16,11 @@ import {
   BookOpen,
   Shield,
   Clock,
-  DollarSign
+  DollarSign,
+  Apple,
+  Smile,
+  Eye,
+  Ear
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -162,6 +166,74 @@ export const CareServices3DCarousel = () => {
         '$0 cost with Medicare'
       ],
       linkPath: '/hospice-care-details'
+    },
+    {
+      id: 'nutrition-services',
+      name: 'Nutrition Services',
+      icon: Apple,
+      color: 'bg-gradient-to-br from-lime-600 to-lime-800',
+      avgCost: '$10-$15/meal',
+      details: 'Meal delivery & nutrition counseling',
+      federalProgram: 'Meals on Wheels',
+      coverage: '2.4M seniors served',
+      keyFeatures: [
+        'Home-delivered meals',
+        'Dietitian consultations',
+        'Special diet support',
+        'Federal funding available'
+      ],
+      linkPath: '/nutrition-services'
+    },
+    {
+      id: 'dental-services',
+      name: 'Dental Services',
+      icon: Smile,
+      color: 'bg-gradient-to-br from-sky-600 to-sky-800',
+      avgCost: '$100-$500/visit',
+      details: 'Specialized senior dental care',
+      federalProgram: 'Limited Medicare Coverage',
+      coverage: '70% seniors need dental care',
+      keyFeatures: [
+        'Mobile dental units',
+        'Denture services',
+        'Preventive care',
+        'Some Medicare Advantage coverage'
+      ],
+      linkPath: '/dental-services'
+    },
+    {
+      id: 'vision-services',
+      name: 'Vision Services',
+      icon: Eye,
+      color: 'bg-gradient-to-br from-violet-600 to-violet-800',
+      avgCost: '$200-$400/exam',
+      details: 'Eye care & vision correction',
+      federalProgram: 'Medicare Part B',
+      coverage: '11M with age-related vision loss',
+      keyFeatures: [
+        'Eye exams',
+        'Cataract surgery',
+        'Glaucoma treatment',
+        'Medicare Part B coverage'
+      ],
+      linkPath: '/vision-services'
+    },
+    {
+      id: 'hearing-services',
+      name: 'Hearing Services',
+      icon: Ear,
+      color: 'bg-gradient-to-br from-amber-600 to-amber-800',
+      avgCost: '$2,000-$5,000/aids',
+      details: 'Hearing tests & hearing aids',
+      federalProgram: 'Medicare Advantage',
+      coverage: '28M seniors with hearing loss',
+      keyFeatures: [
+        'Hearing evaluations',
+        'Hearing aid fitting',
+        'Tinnitus management',
+        'Some Medicare Advantage coverage'
+      ],
+      linkPath: '/hearing-services'
     }
   ];
 
