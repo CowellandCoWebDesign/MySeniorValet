@@ -191,31 +191,49 @@ export class MultiAIVerificationService {
       const careTypes = communityContext?.careTypes?.join(', ') || 'senior living';
       const communityType = communityContext?.communityType || 'senior living community';
 
-      const prompt = `You are verifying data accuracy for ${communityName}, a ${communityType} offering ${careTypes} in ${location}.
+      const prompt = `You are a senior living verification expert analyzing ${communityName}, a ${communityType} offering ${careTypes} in ${location}.
 
-FOCUS: Verify factual accuracy, pricing validation, and regulatory compliance. DO NOT repeat general market insights.
+Your expertise is crucial for families making life-changing decisions. Provide comprehensive verification and insights.
 
-Data to verify:
+Data from live web search:
 ${JSON.stringify(perplexityData, null, 2)}
 
-Community context:
+Community profile:
 - Type: ${communityType}
 - Care levels: ${careTypes}
 - Beds: ${communityContext?.bedCount || 'Unknown'}
 - Year established: ${communityContext?.yearEstablished || 'Unknown'}
+- Ownership: ${communityContext?.ownershipType || 'Unknown'}
+- Certifications: ${communityContext?.certifications?.join(', ') || 'Unknown'}
 
-Return JSON with SPECIFIC verification results:
-- verified: boolean (is the pricing and availability data accurate?)
-- confidence: 0-100 (based on source reliability and data recency)
-- findings: string array (ONLY verified facts about THIS specific community - pricing, availability, recent changes)
-- concerns: string array (ONLY data inconsistencies or red flags found)
-- recommendations: string array (ONLY specific action items for families considering THIS community)
+Provide thorough verification in JSON format:
+{
+  "verified": boolean (assessment of data accuracy and completeness),
+  "confidence": 0-100 (your confidence in the verification),
+  "findings": [
+    "Verified pricing information with context and implications",
+    "Availability status and waitlist insights",
+    "Recent changes or updates affecting the community",
+    "Quality indicators from the data",
+    "Regulatory compliance observations",
+    "Notable features or services confirmed"
+  ],
+  "concerns": [
+    "Data inconsistencies or gaps that need clarification",
+    "Red flags families should investigate",
+    "Missing information that's typically available",
+    "Potential issues based on the data patterns"
+  ],
+  "recommendations": [
+    "Specific questions families should ask during tours",
+    "Documents to request for verification",
+    "Timeline considerations based on availability",
+    "Financial planning insights specific to this community",
+    "Areas requiring additional research"
+  ]
+}
 
-DO NOT include:
-- General market trends
-- Competitor comparisons
-- Industry-wide insights
-- Generic advice about senior living`;
+Be thorough and helpful - your analysis helps families navigate one of life's most important decisions.`;
 
       const response = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514', // Latest Claude model
@@ -281,30 +299,48 @@ DO NOT include:
           },
           {
             role: 'user',
-            content: `Analyze market context for ${communityName}, a ${communityType} in ${location}.
+            content: `Analyze the market position and value proposition for ${communityName}, a ${communityType} in ${location}.
 
-FOCUS: Provide market insights, competitive positioning, and value analysis. DO NOT repeat basic facts already verified.
+You're helping families understand the competitive landscape and make informed financial decisions.
 
-Data provided:
+Live web data:
 ${JSON.stringify(perplexityData, null, 2)}
 
-Community details:
+Community profile:
 - Care types: ${careTypes}
 - Bed count: ${communityContext?.bedCount || 'Unknown'}
 - Ownership: ${communityContext?.ownershipType || 'Unknown'}
+- Year established: ${communityContext?.yearEstablished || 'Unknown'}
+- Rating: ${communityContext?.rating || 'Unknown'}
 
-Return JSON with UNIQUE market insights:
-- verified: boolean (does the market data support the pricing?)
-- confidence: 0-100 (based on market data completeness)
-- findings: string array (ONLY market positioning insights - how this community compares locally, value proposition, pricing competitiveness)
-- concerns: string array (ONLY market-based concerns - overpricing, market saturation, competitive disadvantages)
-- recommendations: string array (ONLY strategic recommendations - timing to apply, negotiation leverage, alternative options in area)
+Provide comprehensive market intelligence in JSON format:
+{
+  "verified": boolean (market data validation),
+  "confidence": 0-100 (confidence in analysis),
+  "findings": [
+    "How this community's pricing compares to local market rates",
+    "Value proposition relative to similar communities in the area",
+    "Market demand indicators and occupancy trends",
+    "Competitive advantages or unique selling points",
+    "Recent market developments affecting this community",
+    "Financial stability indicators from available data"
+  ],
+  "concerns": [
+    "Pricing concerns relative to market standards",
+    "Competitive disadvantages to consider",
+    "Market risks or trends affecting long-term value",
+    "Financial red flags or sustainability concerns"
+  ],
+  "recommendations": [
+    "Optimal timing for application based on market conditions",
+    "Negotiation strategies based on market position",
+    "Alternative communities offering better value",
+    "Financial planning considerations for this price point",
+    "Questions to validate value proposition during tours"
+  ]
+}
 
-DO NOT include:
-- Basic community facts
-- General senior living advice
-- Information already in the data
-- Generic recommendations`
+Provide actionable market intelligence that helps families maximize value and make confident decisions.`
           }
         ],
         response_format: { type: 'json_object' }

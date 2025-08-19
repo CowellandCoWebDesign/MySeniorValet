@@ -49,13 +49,22 @@ export class AnthropicAIService {
     userPreferences?: any
   ): Promise<CommunityRecommendation[]> {
     try {
-      const prompt = `You are a precision matching specialist. Match communities to specific needs WITHOUT providing general advice.
+      const prompt = `You are an expert senior living advisor helping families find the perfect community match. Provide thoughtful, comprehensive recommendations.
 
-USER'S SPECIFIC REQUEST: "${userQuery}"
+USER'S REQUEST: "${userQuery}"
 
 AVAILABLE COMMUNITIES: ${JSON.stringify(availableCommunities.slice(0, 20))}
 
 USER PREFERENCES: ${JSON.stringify(userPreferences || {})}
+
+Analyze each community thoroughly and provide rich insights about:
+- How well the community matches the specific needs stated
+- Unique advantages this community offers for this family's situation
+- Important considerations or potential concerns to discuss
+- Quality indicators like staffing ratios, certifications, specializations
+- Community culture, activities, and lifestyle fit
+- Financial considerations and value proposition
+- Proximity benefits and family visitation logistics
 
 Provide recommendations in JSON format:
 {
@@ -63,19 +72,13 @@ Provide recommendations in JSON format:
     {
       "communityId": number,
       "matchScore": number (0-100),
-      "reasons": ["SPECIFIC reason why THIS community matches THIS user's needs"],
-      "concerns": ["SPECIFIC concern about THIS community for THIS user"]
+      "reasons": ["Comprehensive reasons why this is a strong match"],
+      "concerns": ["Important considerations for the family to explore"]
     }
   ]
 }
 
-ONLY evaluate:
-- How well each community's ACTUAL services match the STATED needs
-- Distance from user's specified location
-- Budget fit based on ACTUAL pricing
-- Care level availability for SPECIFIC conditions mentioned
-
-DO NOT include generic statements like "offers quality care" or "good reputation"`;
+Be thorough and helpful - families rely on your expertise to make life-changing decisions.`;
 
       const response = await anthropic.messages.create({
         model: "claude-3-5-sonnet-20241022",
@@ -94,34 +97,39 @@ DO NOT include generic statements like "offers quality care" or "good reputation
     }
   }
 
-  // Advanced Care Planning - Focus on MEDICAL ASSESSMENT ONLY
+  // Advanced Care Planning
   static async assessCareNeeds(
     healthProfile: any,
     currentSituation: string,
     familyInput: string
   ): Promise<CarePlanAssessment> {
     try {
-      const prompt = `You are a geriatric care specialist. Provide ONLY medical assessment based on stated conditions.
+      const prompt = `You are an experienced geriatric care manager helping families understand care needs and plan for the future. Provide comprehensive, compassionate assessment.
 
-HEALTH CONDITIONS: ${JSON.stringify(healthProfile)}
-CURRENT FUNCTIONAL STATUS: "${currentSituation}"
-FAMILY OBSERVATIONS: "${familyInput}"
+HEALTH PROFILE: ${JSON.stringify(healthProfile)}
+CURRENT SITUATION: "${currentSituation}"
+FAMILY INPUT: "${familyInput}"
 
-Provide clinical assessment in JSON format:
+Provide a thorough care assessment that includes:
+- Medical needs based on diagnoses and current symptoms
+- Functional abilities and support requirements for daily activities
+- Cognitive considerations and safety needs
+- Social and emotional well-being factors
+- Typical progression patterns for the conditions present
+- Quality of life considerations
+- Family support dynamics and caregiver stress factors
+- Financial planning considerations for different care scenarios
+
+Provide assessment in JSON format:
 {
   "recommendedCareLevel": "independent|assisted|memory|skilled",
-  "currentNeeds": ["SPECIFIC medical/ADL need based on conditions"],
-  "futureNeeds": ["LIKELY progression based on diagnosis"],
-  "timelineMonths": number (based on typical disease progression),
+  "currentNeeds": ["Detailed current care and support needs"],
+  "futureNeeds": ["Anticipated needs based on likely progression"],
+  "timelineMonths": number (realistic planning timeframe),
   "budgetRange": {"min": number, "max": number}
 }
 
-Base assessment ONLY on:
-- Diagnosed conditions and their typical progression
-- Current functional limitations mentioned
-- Specific ADL/IADL deficits noted
-
-DO NOT include generic advice or community recommendations.`;
+Help families understand not just what care is needed, but why and when transitions might become necessary.`;
 
       const response = await anthropic.messages.create({
         model: "claude-3-5-sonnet-20241022",
@@ -145,32 +153,50 @@ DO NOT include generic advice or community recommendations.`;
     }
   }
 
-  // Family Communication Assistant - Focus on VISIT-SPECIFIC OBSERVATIONS
+  // Family Communication Assistant
   static async generateFamilyReport(
     communityData: any,
     tourNotes: string,
     familyQuestions: string[]
   ): Promise<string> {
     try {
-      const prompt = `Generate a VISIT-SPECIFIC report based on actual tour observations. DO NOT include generic information.
+      const prompt = `You are a compassionate senior living advisor helping a family after their community tour. Create a comprehensive, helpful report.
 
 COMMUNITY VISITED: ${communityData.name} in ${communityData.city}, ${communityData.state}
-YOUR TOUR OBSERVATIONS: "${tourNotes}"
-FAMILY'S SPECIFIC QUESTIONS: ${JSON.stringify(familyQuestions)}
+TOUR OBSERVATIONS: "${tourNotes}"
+FAMILY'S QUESTIONS: ${JSON.stringify(familyQuestions)}
 
-Create a report focusing ONLY on:
-1. What you ACTUALLY observed during the tour (from tour notes)
-2. Direct answers to the family's SPECIFIC questions
-3. Specific concerns or positives noted during THIS visit
-4. Next steps based on THIS family's situation
+Create a thorough family report that includes:
 
-DO NOT include:
-- Generic senior living advice
-- Information not observed during the tour
-- Standard features lists
-- General recommendations
+1. TOUR IMPRESSIONS & OBSERVATIONS
+- Detailed analysis of what was observed during the visit
+- Community atmosphere, cleanliness, and overall environment
+- Staff interactions and professionalism witnessed
+- Resident engagement and quality of life indicators
 
-Format: Brief, factual paragraphs addressing only what was actually discussed or observed.`;
+2. ANSWERS TO FAMILY QUESTIONS
+- Thoughtful, detailed responses to each specific question
+- Additional context that helps families understand the implications
+- Related considerations they might not have thought to ask
+
+3. COMMUNITY STRENGTHS & CONSIDERATIONS
+- Notable advantages this community offers
+- Areas that warrant further investigation or discussion
+- How this community compares to typical standards in the area
+
+4. PRACTICAL NEXT STEPS
+- Specific follow-up questions to ask the community
+- Important documents to request and review
+- Timeline considerations for decision-making
+- Financial planning recommendations
+- Tips for involving other family members in the decision
+
+5. EMOTIONAL SUPPORT & GUIDANCE
+- Acknowledgment of the emotional difficulty of this transition
+- Reassurance about the decision-making process
+- Resources for additional support
+
+Make this report valuable, compassionate, and actionable - families are making one of life's most important decisions.`;
 
       const response = await anthropic.messages.create({
         model: "claude-3-5-sonnet-20241022",
@@ -188,29 +214,32 @@ Format: Brief, factual paragraphs addressing only what was actually discussed or
     }
   }
 
-  // Review Analysis - Focus on SPECIFIC PATTERNS IN ACTUAL REVIEWS
+  // Review Analysis
   static async analyzeReviews(reviews: string[]): Promise<ReviewSentiment> {
     try {
-      const prompt = `Extract SPECIFIC patterns from these ACTUAL reviews. DO NOT add generic observations.
+      const prompt = `You are an expert at understanding family experiences in senior living. Analyze these reviews comprehensively to help families make informed decisions.
 
-ACTUAL REVIEWS TO ANALYZE: ${JSON.stringify(reviews)}
+REVIEWS TO ANALYZE: ${JSON.stringify(reviews)}
+
+Provide deep insights including:
+- Overall sentiment patterns and what they reveal about the community
+- Recurring themes that indicate consistent strengths or concerns
+- Specific red flags that families should investigate further
+- Notable strengths that differentiate this community
+- Between-the-lines insights about staff attitudes, management responsiveness, and community culture
+- Temporal patterns (are issues improving or worsening over time?)
+- What types of residents/families seem happiest here
 
 Provide analysis in JSON format:
 {
   "overallSentiment": "positive|negative|neutral",
   "confidence": number (0-1),
-  "keyThemes": ["EXACT theme mentioned multiple times in reviews"],
-  "redFlags": ["SPECIFIC issue mentioned in reviews with quotes"],
-  "strengths": ["SPECIFIC positive mentioned in reviews with evidence"]
+  "keyThemes": ["Important patterns with context and implications"],
+  "redFlags": ["Concerning issues with specific examples and what they might mean"],
+  "strengths": ["Notable positives with evidence and why they matter"]
 }
 
-Rules:
-- ONLY extract themes that appear in multiple reviews
-- ONLY flag issues explicitly mentioned by reviewers
-- ONLY list strengths actually praised in the reviews
-- Include partial quotes to show evidence
-
-DO NOT add generic themes like "good care" unless specifically stated in reviews.`;
+Help families understand not just what reviewers said, but what it means for their loved one's potential experience.`;
 
       const response = await anthropic.messages.create({
         model: "claude-3-5-sonnet-20241022",

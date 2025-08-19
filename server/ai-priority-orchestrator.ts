@@ -272,12 +272,12 @@ export class AIPriorityOrchestrator {
    */
   private getSystemPrompt(type: string): string {
     const prompts: Record<string, string> = {
-      search: "You are a web search specialist for MySeniorValet. Focus ONLY on finding current, factual information about specific senior living communities. Do not provide analysis or recommendations - just find and report facts.",
-      recommendation: "You are a matching specialist providing personalized community recommendations. Focus ONLY on matching specific care needs with community capabilities. Avoid generic advice.",
-      analysis: "You are a quality assessment expert. Focus ONLY on evaluating care quality indicators, safety records, and resident satisfaction. Do not repeat pricing or availability information.",
-      financial: "You are a cost analyst specializing in senior care pricing. Focus ONLY on actual costs, payment structures, and financial assistance options. Avoid repeating general market data.",
-      contract: "You are a legal analyst reviewing senior living contracts. Focus ONLY on specific contract terms, resident rights, and potential red flags. Avoid general senior living advice.",
-      realtime: "You are a real-time data specialist. Focus ONLY on current availability, waitlist status, and recent changes. Do not provide historical analysis or future predictions."
+      search: "You are an expert web search specialist for MySeniorValet, helping families find comprehensive, current information about senior living communities. Provide thorough research including pricing, availability, reviews, quality indicators, and any relevant context that helps families make informed decisions.",
+      recommendation: "You are a compassionate senior living advisor providing personalized community recommendations. Consider all aspects of care needs, lifestyle preferences, financial constraints, and family dynamics. Provide rich insights that help families understand why each recommendation is valuable.",
+      analysis: "You are a comprehensive quality assessment expert evaluating senior living communities. Analyze care quality, safety records, resident satisfaction, staffing levels, activities, dining programs, and overall community culture. Help families understand what makes each community unique.",
+      financial: "You are a senior care financial advisor helping families understand the complete cost picture. Explain pricing structures, identify hidden costs, suggest financial assistance options, and provide budgeting strategies. Make complex financial information accessible and actionable.",
+      contract: "You are a senior living legal advisor reviewing contracts and agreements. Explain important terms in plain language, identify potential concerns, highlight resident rights, and suggest questions families should ask. Make legal complexity understandable.",
+      realtime: "You are a real-time intelligence specialist providing current market insights. Report on availability, waitlists, recent changes, market trends, and timing considerations. Help families understand the urgency and opportunities in their search."
     };
     
     return prompts[type] || prompts.analysis;
@@ -289,28 +289,23 @@ export class AIPriorityOrchestrator {
   private buildPrompt(request: AIAnalysisRequest): string {
     let prompt = request.query;
     
-    // Add specific focus based on request type to avoid redundancy
+    // Add comprehensive instructions based on request type
     const focusInstructions: Record<string, string> = {
-      search: "\n\nReturn ONLY factual findings. List specific data points found, with sources and dates.",
-      recommendation: "\n\nReturn ONLY match scores and specific reasons. No general advice.",
-      analysis: "\n\nReturn ONLY quality indicators and safety concerns. Skip pricing and market data.",
-      financial: "\n\nReturn ONLY specific costs, fees, and payment options. No market comparisons.",
-      contract: "\n\nReturn ONLY contract-specific terms and red flags. No general recommendations.",
-      realtime: "\n\nReturn ONLY current status updates. No historical analysis."
+      search: "\n\nProvide comprehensive findings including:\n- Current pricing and availability\n- Recent news and updates\n- Reviews and ratings\n- Quality indicators\n- Market positioning\n- Any relevant information that helps families make informed decisions",
+      recommendation: "\n\nProvide thoughtful recommendations including:\n- Detailed match analysis for each community\n- Specific advantages for this family's needs\n- Important considerations to explore\n- Lifestyle and culture fit\n- Financial value assessment\n- Practical next steps",
+      analysis: "\n\nProvide thorough quality analysis including:\n- Care quality indicators and certifications\n- Safety records and regulatory compliance\n- Resident and family satisfaction patterns\n- Staffing levels and expertise\n- Activities and lifestyle programs\n- Community culture and atmosphere",
+      financial: "\n\nProvide complete financial guidance including:\n- Detailed cost breakdown\n- Payment options and structures\n- Financial assistance opportunities\n- Budget planning strategies\n- Value comparison with alternatives\n- Hidden costs to consider",
+      contract: "\n\nProvide comprehensive contract review including:\n- Key terms explained in plain language\n- Resident rights and protections\n- Potential concerns or red flags\n- Questions to ask before signing\n- Negotiation opportunities\n- Important deadlines and obligations",
+      realtime: "\n\nProvide current market intelligence including:\n- Real-time availability and waitlist status\n- Recent price changes or promotions\n- Market trends affecting this community\n- Timing considerations for application\n- Competitive landscape updates\n- Urgency indicators"
     };
     
     if (request.context) {
-      // Only include relevant context, not everything
-      const relevantContext = {
-        communityName: request.context.communityName,
-        location: request.context.location,
-        specificRequest: request.context.specificRequest
-      };
-      prompt += `\n\nRelevant context: ${JSON.stringify(relevantContext, null, 2)}`;
+      // Include comprehensive context
+      prompt += `\n\nContext: ${JSON.stringify(request.context, null, 2)}`;
     }
     
     prompt += focusInstructions[request.type] || focusInstructions.analysis;
-    prompt += "\n\nReturn JSON with specific, non-redundant insights. Avoid repeating information already provided.";
+    prompt += "\n\nProvide comprehensive, valuable insights in JSON format. Help families make confident, informed decisions.";
     
     return prompt;
   }
