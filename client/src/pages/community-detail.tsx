@@ -1881,15 +1881,20 @@ export default function CommunityDetail() {
                         })()}
                       </div>
                       
-                      {/* Live Web Price Info */}
-                      {verificationReport?.pricing?.verified && (
-                        <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
-                          <div className="flex items-center gap-1 text-xs text-green-700 dark:text-green-300">
-                            <CheckCircle className="h-3 w-3" />
-                            <span className="font-medium">Live web price found</span>
+                      {/* Live Web Price Info - Show when we have any price data */}
+                      {(community.priceRange?.min > 0 || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
+                        <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/30 dark:to-blue-900/30 rounded-lg border border-green-300 dark:border-green-700">
+                          <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-300">
+                            <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                            <div>
+                              <span className="font-semibold">Live pricing data available!</span>
+                              {verificationReport?.pricing?.verified && (
+                                <span className="ml-2 text-xs">• Web verified by AI</span>
+                              )}
+                            </div>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                            See detailed market analysis in the <span className="font-semibold">Live Market Data</span> tab below
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                            💡 See the <span className="font-semibold text-blue-600 dark:text-blue-400">Market Data</span> tab below for detailed competitive analysis and market insights
                           </p>
                         </div>
                       )}
@@ -1937,29 +1942,29 @@ export default function CommunityDetail() {
               </CardHeader>
             </Card>
 
-            {/* Tabbed Content Section - Moved up for better visibility */}
-            <Tabs defaultValue="community-info" className="w-full -mt-2">
-              <TabsList className="grid w-full grid-cols-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-1 rounded-xl shadow-lg border-2 border-blue-200 dark:border-blue-700">
+            {/* Tabbed Content Section - Clean layout without overlapping borders */}
+            <Tabs defaultValue="community-info" className="w-full mt-6">
+              <TabsList className="grid w-full grid-cols-3 bg-white dark:bg-gray-800 p-1 rounded-lg shadow-md">
                 <TabsTrigger 
                   value="community-info" 
-                  className="data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-lg data-[state=active]:font-bold text-gray-600 dark:text-gray-300 font-semibold transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400"
+                  className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-600 dark:text-gray-300 font-medium"
                 >
                   <Building className="w-4 h-4 mr-2" />
-                  Community Information
+                  Community Info
                 </TabsTrigger>
                 <TabsTrigger 
                   value="availability" 
-                  className="data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-lg data-[state=active]:font-bold text-gray-600 dark:text-gray-300 font-semibold transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400"
+                  className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-600 dark:text-gray-300 font-medium"
                 >
                   <Home className="w-4 h-4 mr-2" />
                   Availability
                 </TabsTrigger>
                 <TabsTrigger 
                   value="market-data" 
-                  className="data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-lg data-[state=active]:font-bold text-gray-600 dark:text-gray-300 font-semibold transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400"
+                  className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-600 dark:text-gray-300 font-medium"
                 >
                   <TrendingUp className="w-4 h-4 mr-2" />
-                  Live Market Data
+                  Market Data
                 </TabsTrigger>
               </TabsList>
 
