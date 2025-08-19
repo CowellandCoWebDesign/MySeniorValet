@@ -789,20 +789,32 @@ const RealTimeInsights = ({ community }: { community: any }) => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="flex -space-x-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">P</div>
-                    <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-bold">C</div>
-                    <div className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white text-xs font-bold">G</div>
+                    <div className={`w-8 h-8 rounded-full ${data?.orchestraStatus?.perplexity?.includes('Active') ? 'bg-blue-600' : 'bg-gray-400'} flex items-center justify-center text-white text-xs font-bold`}>P</div>
+                    <div className={`w-8 h-8 rounded-full ${data?.orchestraStatus?.claude?.includes('Active') ? 'bg-purple-600' : 'bg-gray-400'} flex items-center justify-center text-white text-xs font-bold`}>C</div>
+                    <div className={`w-8 h-8 rounded-full ${data?.orchestraStatus?.openai?.includes('Active') ? 'bg-green-600' : 'bg-gray-400'} flex items-center justify-center text-white text-xs font-bold`}>G</div>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">AI Orchestra Status</p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Perplexity (Active) • Claude (Standby) • GPT-4o (Backup)
+                      {data?.orchestraStatus ? (
+                        <>
+                          {data.orchestraStatus.perplexity?.includes('Active') ? '✓ Perplexity' : '○ Perplexity'} • 
+                          {data.orchestraStatus.claude?.includes('Active') ? ' ✓ Claude' : ' ○ Claude'} • 
+                          {data.orchestraStatus.openai?.includes('Active') ? ' ✓ GPT-4o' : ' ○ GPT-4o'}
+                        </>
+                      ) : (
+                        'Perplexity • Claude • GPT-4o'
+                      )}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-semibold text-blue-700 dark:text-blue-300">MySeniorValet Intelligence</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Transparency through AI</p>
+                  <p className="text-xs font-semibold text-blue-700 dark:text-blue-300">
+                    {data?.orchestraStatus?.primarySource || 'MySeniorValet Intelligence'}
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {data?.orchestraStatus?.confidence ? `${Math.round(data.orchestraStatus.confidence * 100)}% confidence` : 'Transparency through AI'}
+                  </p>
                 </div>
               </div>
             </div>
