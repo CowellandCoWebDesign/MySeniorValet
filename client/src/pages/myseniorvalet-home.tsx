@@ -921,73 +921,19 @@ export default function MySeniorValetHome() {
             </div>
           </div>
           
+          {/* Platform Message - Moved from separate section */}
+          <div className="text-center px-4 pb-8 pt-4">
+            <p className="text-2xl md:text-3xl font-black text-white mb-4 drop-shadow-2xl">
+              To every family searching in the dark: The lights are on now.
+            </p>
+            <p className="text-lg md:text-xl text-gray-200 mb-4 drop-shadow-lg">
+              <strong>You deserve the truth. Communities deserve to be found. The darkness ends today.</strong>
+            </p>
+            <p className="text-base md:text-lg text-gray-100 font-bold drop-shadow-lg">
+              Welcome to the Dawn of Transparency in Senior Living - All 10 Care Levels
+            </p>
+          </div>
 
-        </div>
-      </section>
-
-      {/* Platform Summary Section */}
-      <section className="px-4 py-16">
-        <div className="max-w-6xl mx-auto">
-          <Card className="bg-white/98 backdrop-blur-sm shadow-2xl border-0">
-            <CardContent className="p-10 md:p-14">
-              <div className="text-center">
-                <p className="text-2xl md:text-3xl font-black text-gray-900 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-blue-400 dark:to-purple-400 mb-4">
-                  To every family searching in the dark: The lights are on now.
-                </p>
-                <p className="text-lg md:text-xl text-gray-900 dark:text-gray-300">
-                  <strong>You deserve the truth. Communities deserve to be found. The darkness ends today.</strong>
-                </p>
-              </div>
-
-              <div className="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
-                <p className="text-base md:text-lg text-gray-900 dark:text-gray-200 mb-6 font-bold text-center">
-                  Welcome to the Dawn of Transparency in Senior Living - All 10 Care Levels
-                </p>
-                
-                {/* Platform Features - Moved from hero */}
-                <div className="grid md:grid-cols-2 gap-3 mb-8 max-w-4xl mx-auto">
-                  {/* Government Pricing Feature */}
-                  <div className="flex items-center gap-2 bg-gradient-to-r from-green-500/10 to-emerald-500/10 dark:from-green-500/20 dark:to-emerald-500/20 border border-green-400/30 rounded-lg px-3 py-2">
-                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
-                    <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">Compare verified government pricing & availability</span>
-                  </div>
-                  
-                  {/* TourMate Feature */}
-                  <div className="flex items-center gap-2 bg-blue-500/10 dark:bg-blue-500/20 border border-blue-400/30 rounded-lg px-3 py-2">
-                    <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                    <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">Schedule tours with TourMate™ instant booking</span>
-                  </div>
-                  
-                  {/* Family Sharing Feature */}
-                  <div className="flex items-center gap-2 bg-purple-500/10 dark:bg-purple-500/20 border border-purple-400/30 rounded-lg px-3 py-2">
-                    <CheckCircle className="w-5 h-5 text-purple-600 dark:text-purple-400 flex-shrink-0" />
-                    <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">Save favorites & share with family members</span>
-                  </div>
-                  
-                  {/* Marketplace Feature */}
-                  <div className="flex items-center gap-2 bg-orange-500/10 dark:bg-orange-500/20 border border-orange-400/30 rounded-lg px-3 py-2">
-                    <CheckCircle className="w-5 h-5 text-orange-600 dark:text-orange-400 flex-shrink-0" />
-                    <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">Connect with senior services marketplace</span>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap justify-center gap-4">
-                  <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
-                    <Flag className="w-4 h-4 mr-2" />
-                    🇺🇸 USA • 🇲🇽 MEXICO • 🇨🇦 CANADA
-                  </Badge>
-                  <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
-                    <Building className="w-4 h-4 mr-2" />
-                    34,000+ Communities
-                  </Badge>
-                  <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-5 py-2 text-sm font-bold shadow-lg">
-                    <Unlock className="w-4 h-4 mr-2" />
-                    Zero Paywalls
-                  </Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </section>
 
