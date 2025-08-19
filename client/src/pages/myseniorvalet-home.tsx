@@ -66,7 +66,6 @@ export default function MySeniorValetHome() {
   // 3D Carousel state
   const [currentRotation, setCurrentRotation] = useState(0);
   const [selectedCareType, setSelectedCareType] = useState(2); // Start with 55+ selected
-  const [isAutoRotating, setIsAutoRotating] = useState(true);
   
   const careTypes = [
     { id: 'hud', name: 'HUD', icon: Building2, color: 'bg-green-500', description: 'Government-subsidized housing for low-income seniors, offering rent based on 30% of income with verified pricing.' },
@@ -82,20 +81,8 @@ export default function MySeniorValetHome() {
   ];
   
   const handleCareTypeClick = (index: number) => {
-    setIsAutoRotating(false); // Stop auto-rotation on user interaction
     setSelectedCareType(index);
   };
-  
-  // Auto-rotation effect
-  useEffect(() => {
-    if (!isAutoRotating) return;
-    
-    const interval = setInterval(() => {
-      setSelectedCareType(prev => (prev + 1) % careTypes.length);
-    }, 3000);
-    
-    return () => clearInterval(interval);
-  }, [isAutoRotating, careTypes.length]);
 
 
   const [showIntegrationSpotlight, setShowIntegrationSpotlight] = useState(true);
@@ -857,6 +844,19 @@ export default function MySeniorValetHome() {
             </p>
           </div>
           
+          {/* Platform Message - Moved above care levels */}
+          <div className="text-center px-4 pb-4">
+            <p className="text-2xl md:text-3xl font-black text-white mb-4 drop-shadow-2xl">
+              To every family searching in the dark: The lights are on now.
+            </p>
+            <p className="text-lg md:text-xl text-gray-200 mb-4 drop-shadow-lg">
+              <strong>You deserve the truth. Communities deserve to be found. The darkness ends today.</strong>
+            </p>
+            <p className="text-base md:text-lg text-gray-100 font-bold drop-shadow-lg">
+              Welcome to the Dawn of Transparency in Senior Living - All 10 Care Levels
+            </p>
+          </div>
+          
           {/* 3D Care Spectrum Carousel */}
           <div className="flex flex-col items-center justify-center px-1 flex-1 -mt-8">
             
@@ -919,19 +919,6 @@ export default function MySeniorValetHome() {
                 )}
               </div>
             </div>
-          </div>
-          
-          {/* Platform Message - Moved from separate section */}
-          <div className="text-center px-4 pb-8 pt-4">
-            <p className="text-2xl md:text-3xl font-black text-white mb-4 drop-shadow-2xl">
-              To every family searching in the dark: The lights are on now.
-            </p>
-            <p className="text-lg md:text-xl text-gray-200 mb-4 drop-shadow-lg">
-              <strong>You deserve the truth. Communities deserve to be found. The darkness ends today.</strong>
-            </p>
-            <p className="text-base md:text-lg text-gray-100 font-bold drop-shadow-lg">
-              Welcome to the Dawn of Transparency in Senior Living - All 10 Care Levels
-            </p>
           </div>
 
         </div>
