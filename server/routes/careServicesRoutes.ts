@@ -69,7 +69,29 @@ router.get('/care-services', async (req, res) => {
           like(sql`LOWER(${communities.careTypes}::text)`, '%nutrition%'),
           like(sql`LOWER(${communities.name})`, '%nutrition%'),
           like(sql`LOWER(${communities.name})`, '%dietitian%'),
-          like(sql`LOWER(${communities.name})`, '%dietician%')
+          like(sql`LOWER(${communities.name})`, '%dietician%'),
+          like(sql`LOWER(${communities.name})`, '%meals%')
+        ),
+        // Companion care services
+        or(
+          like(sql`LOWER(${communities.careTypes}::text)`, '%companion%'),
+          like(sql`LOWER(${communities.name})`, '%companion%')
+        ),
+        // Medical equipment services
+        or(
+          like(sql`LOWER(${communities.careTypes}::text)`, '%medical equipment%'),
+          like(sql`LOWER(${communities.name})`, '%medical equipment%'),
+          like(sql`LOWER(${communities.name})`, '%dme%'),
+          like(sql`LOWER(${communities.name})`, '%durable medical%')
+        ),
+        // Skilled nursing services
+        or(
+          like(sql`LOWER(${communities.careTypes}::text)`, '%skilled nursing%'),
+          like(sql`LOWER(${communities.careTypes}::text)`, '%nursing%'),
+          like(sql`LOWER(${communities.name})`, '%skilled nursing%'),
+          like(sql`LOWER(${communities.name})`, '%nursing home%'),
+          like(sql`LOWER(${communities.name})`, '%nursing center%'),
+          like(sql`LOWER(${communities.name})`, '%nursing facility%')
         )
       ),
       // Must have phone for verification
@@ -133,7 +155,20 @@ router.get('/care-services', async (req, res) => {
             WHEN LOWER(${communities.careTypes}::text) LIKE '%nutrition%' 
                  OR LOWER(${communities.name}) LIKE '%nutrition%' 
                  OR LOWER(${communities.name}) LIKE '%dietitian%' 
-                 OR LOWER(${communities.name}) LIKE '%dietician%' THEN 'Nutrition Services'
+                 OR LOWER(${communities.name}) LIKE '%dietician%' 
+                 OR LOWER(${communities.name}) LIKE '%meals%' THEN 'Nutrition Services'
+            WHEN LOWER(${communities.careTypes}::text) LIKE '%companion%' 
+                 OR LOWER(${communities.name}) LIKE '%companion%' THEN 'Companion Care'
+            WHEN LOWER(${communities.careTypes}::text) LIKE '%medical equipment%' 
+                 OR LOWER(${communities.name}) LIKE '%medical equipment%' 
+                 OR LOWER(${communities.name}) LIKE '%dme%' 
+                 OR LOWER(${communities.name}) LIKE '%durable medical%' THEN 'Medical Equipment'
+            WHEN LOWER(${communities.careTypes}::text) LIKE '%skilled nursing%' 
+                 OR LOWER(${communities.careTypes}::text) LIKE '%nursing%' 
+                 OR LOWER(${communities.name}) LIKE '%skilled nursing%' 
+                 OR LOWER(${communities.name}) LIKE '%nursing home%' 
+                 OR LOWER(${communities.name}) LIKE '%nursing center%' 
+                 OR LOWER(${communities.name}) LIKE '%nursing facility%' THEN 'Skilled Nursing'
             ELSE 'Care Services'
           END
         `.as('serviceCategory'),
@@ -160,6 +195,28 @@ router.get('/care-services', async (req, res) => {
                OR LOWER(${communities.name}) LIKE '%respite%' THEN 'Respite Care'
           WHEN LOWER(${communities.careTypes}::text) LIKE '%personal care%' 
                OR LOWER(${communities.name}) LIKE '%personal care%' THEN 'Personal Care Services'
+          WHEN LOWER(${communities.careTypes}::text) LIKE '%dental%' 
+               OR LOWER(${communities.name}) LIKE '%dental%' THEN 'Dental Services'
+          WHEN LOWER(${communities.careTypes}::text) LIKE '%palliative%' 
+               OR LOWER(${communities.name}) LIKE '%palliative%' 
+               OR LOWER(${communities.name}) LIKE '%comfort care%' THEN 'Palliative Care'
+          WHEN LOWER(${communities.careTypes}::text) LIKE '%nutrition%' 
+               OR LOWER(${communities.name}) LIKE '%nutrition%' 
+               OR LOWER(${communities.name}) LIKE '%dietitian%' 
+               OR LOWER(${communities.name}) LIKE '%dietician%' 
+               OR LOWER(${communities.name}) LIKE '%meals%' THEN 'Nutrition Services'
+          WHEN LOWER(${communities.careTypes}::text) LIKE '%companion%' 
+               OR LOWER(${communities.name}) LIKE '%companion%' THEN 'Companion Care'
+          WHEN LOWER(${communities.careTypes}::text) LIKE '%medical equipment%' 
+               OR LOWER(${communities.name}) LIKE '%medical equipment%' 
+               OR LOWER(${communities.name}) LIKE '%dme%' 
+               OR LOWER(${communities.name}) LIKE '%durable medical%' THEN 'Medical Equipment'
+          WHEN LOWER(${communities.careTypes}::text) LIKE '%skilled nursing%' 
+               OR LOWER(${communities.careTypes}::text) LIKE '%nursing%' 
+               OR LOWER(${communities.name}) LIKE '%skilled nursing%' 
+               OR LOWER(${communities.name}) LIKE '%nursing home%' 
+               OR LOWER(${communities.name}) LIKE '%nursing center%' 
+               OR LOWER(${communities.name}) LIKE '%nursing facility%' THEN 'Skilled Nursing'
           ELSE 'Care Services'
         END
       `, communities.name);
