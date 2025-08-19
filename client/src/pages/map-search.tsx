@@ -2051,16 +2051,7 @@ export default function MapSearch() {
                 .map((community: Community, index: number) => (
                   <PrioritizedCommunityCard
                     key={`community-${community.id}`}
-                    community={{
-                      ...community,
-                      // Golden Data Rule: Only pass real data, no synthetic values
-                      occupancyRate: community.occupancyRate,
-                      occupancyRateHud: community.occupancyRateHud,
-                      totalUnits: community.totalUnits,
-                      totalUnitsHud: community.totalUnitsHud,
-                      availableUnits: community.availableUnits,
-                      waitListLength: community.waitListLength
-                    }}
+                    community={community}
                     variant="list"
                     onSelect={() => handleCommunityClick(community)}
                     onToggleFavorite={() => console.log(`Toggle favorite: ${community.name}`)}
@@ -2161,16 +2152,7 @@ export default function MapSearch() {
                         .map((community: Community, index: number) => (
                         <PrioritizedCommunityCard
                           key={`all-community-${community.id}`}
-                          community={{
-                            ...community,
-                            // Golden Data Rule: Only pass real data, no synthetic values
-                            occupancyRate: community.occupancyRate,
-                            occupancyRateHud: community.occupancyRateHud,
-                            totalUnits: community.totalUnits,
-                            totalUnitsHud: community.totalUnitsHud,
-                            availableUnits: community.availableUnits,
-                            waitListLength: community.waitListLength
-                          }}
+                          community={community}
                           variant="list"
                           onSelect={() => handleCommunityClick(community)}
                           onToggleFavorite={() => console.log(`Toggle favorite: ${community.name}`)}
