@@ -102,18 +102,19 @@ export default function MemoryCareDetailPage() {
       url: "https://www.alz.org"
     },
     {
-      name: "Medicare Memory Care Coverage",
-      description: "Understanding Medicare coverage for memory care services",
-      url: "https://www.medicare.gov"
-    },
-    {
-      name: "VA Memory Care Benefits",
-      description: "Aid & Attendance benefits for veterans with dementia",
+      name: "VA Aid & Attendance Benefits",
+      description: "Up to $2,795/month for eligible veterans and surviving spouses (VA 2024)",
       url: "https://www.va.gov"
     },
     {
-      name: "Medicaid Waiver Programs",
-      description: "State-specific programs that may cover memory care",
+      name: "Long-Term Care Ombudsman",
+      phone: "1-800-677-1116",
+      description: "Free advocacy for residents' rights and complaint resolution (ACL)",
+      url: "https://ltcombudsman.org"
+    },
+    {
+      name: "Medicaid HCBS Waivers",
+      description: "Home and Community-Based Services covering memory care ($2,901/month income limit)",
       url: "https://www.medicaid.gov"
     }
   ];
@@ -155,8 +156,8 @@ export default function MemoryCareDetailPage() {
             </Card>
             <Card className="bg-white/10 border-white/20 text-white">
               <CardContent className="p-4">
-                <div className="text-3xl font-bold">6.5M+</div>
-                <div className="text-sm opacity-90">Americans Living with Dementia</div>
+                <div className="text-3xl font-bold">6.9M</div>
+                <div className="text-sm opacity-90">Americans with Alzheimer's (NIH/NIA 2024)</div>
               </CardContent>
             </Card>
           </div>
@@ -239,6 +240,9 @@ export default function MemoryCareDetailPage() {
               <Activity className="w-6 h-6 text-blue-600" />
               Understanding the Progression
             </CardTitle>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              Source: National Institute on Aging (NIH/NIA) - Alzheimer's Disease Fact Sheet 2024
+            </p>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -269,6 +273,17 @@ export default function MemoryCareDetailPage() {
                 </div>
               ))}
             </div>
+            
+            {/* Government Statistics */}
+            <div className="mt-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+              <h4 className="font-bold mb-3">Key Federal Statistics:</h4>
+              <ul className="space-y-2 text-sm">
+                <li>• <strong>6.9 million Americans</strong> currently living with Alzheimer's disease (NIH/NIA 2024)</li>
+                <li>• <strong>15% or more</strong> of nursing home residents experience adverse drug events (FDA FAERS 2024)</li>
+                <li>• <strong>198,502 complaints</strong> investigated by Long-Term Care Ombudsman programs nationwide (ACL 2024)</li>
+                <li>• <strong>3.48 hours per resident day</strong> minimum nursing care required by CMS (effective 2026-2027)</li>
+              </ul>
+            </div>
           </CardContent>
         </Card>
 
@@ -294,7 +309,7 @@ export default function MemoryCareDetailPage() {
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
                     <div>
-                      <strong>Specialized Staff:</strong> Dementia-trained caregivers, higher staff ratios
+                      <strong>CMS Staffing Standards:</strong> 3.48 hours per resident day, 24/7 RN coverage (CMS 2024)
                     </div>
                   </li>
                   <li className="flex items-start gap-2">
@@ -342,6 +357,29 @@ export default function MemoryCareDetailPage() {
                 </ul>
               </div>
             </div>
+
+            {/* Federal Quality & Safety Standards */}
+            <div className="mt-6 bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
+              <h4 className="font-bold mb-3 text-orange-800 dark:text-orange-300">Federal Quality & Safety Standards:</h4>
+              <div className="grid md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="font-semibold mb-2">Medication Safety (FDA 2024):</p>
+                  <ul className="space-y-1">
+                    <li>• 15%+ adverse drug event rate in nursing homes</li>
+                    <li>• 50% of events potentially preventable</li>
+                    <li>• FAERS monitoring system active</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-semibold mb-2">Quality Measures (AHRQ 2024):</p>
+                  <ul className="space-y-1">
+                    <li>• SOPS Survey 2.0 with 8 composite measures</li>
+                    <li>• Pressure ulcer prevention tracking</li>
+                    <li>• UTI reduction protocols</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -375,6 +413,37 @@ export default function MemoryCareDetailPage() {
                   </div>
                 ))}
               </div>
+            </div>
+            
+            {/* Federal Financial Assistance Programs */}
+            <div className="mt-6 bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+              <h4 className="font-bold mb-3 text-green-800 dark:text-green-300">Federal Financial Assistance Available:</h4>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                  <div>
+                    <strong>VA Aid & Attendance:</strong> $2,358-$2,795/month for eligible veterans and surviving spouses (VA 2024)
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                  <div>
+                    <strong>Medicaid HCBS Waivers:</strong> Income limit $2,901/month, covers home and community-based services (Medicaid 2024)
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                  <div>
+                    <strong>HUD Section 202:</strong> $115M funding for affordable senior housing (HUD 2024)
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                  <div>
+                    <strong>PACE Programs:</strong> Serving 70,000+ participants at $7 billion annually (ACL 2024)
+                  </div>
+                </li>
+              </ul>
             </div>
           </CardContent>
         </Card>
