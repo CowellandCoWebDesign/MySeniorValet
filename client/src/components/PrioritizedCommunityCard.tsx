@@ -423,6 +423,11 @@ function CommunityCard({
 
       {/* Bottom Section - Dark Theme */}
       <CardContent className="p-4 bg-gray-900 text-white">
+        {/* City and State at the Top */}
+        <div className="text-sm text-gray-400 mb-2 font-semibold">
+          {community.city}, {community.state}
+        </div>
+        
         {/* Community Name and Contact Info */}
         <div className="mb-3">
           <h3 className="text-xl font-bold text-white mb-1">
@@ -449,126 +454,122 @@ function CommunityCard({
 
 
 
-        {/* Key Services Section - Always show these 4 standard services */}
-        <div className="bg-gray-800 rounded-lg p-3 mb-3">
-          <div className="text-sm text-gray-400 mb-2">Key Services:</div>
-          <div className="space-y-1">
-            {/* Check if amenities data confirms each service */}
-            <div className="flex items-center text-sm text-white">
-              {(community.amenities?.includes('24_7_staff') || 
-                community.amenities?.includes('nursing_staff') ||
-                community.amenities?.includes('medical_staff')) ? (
-                <span className="text-green-400 mr-2">✓</span>
-              ) : (
-                <span className="text-gray-600 mr-2">○</span>
-              )}
-              <span>24/7 Medical Staff</span>
+        {/* Key Services and Live Intelligence Side by Side */}
+        <div className="flex gap-3 mb-3">
+          {/* Key Services Section - Left Side */}
+          <div className="bg-gray-800 rounded-lg p-3 flex-1">
+            <div className="text-sm text-gray-400 mb-2">Key Services:</div>
+            <div className="space-y-1">
+              {/* Check if amenities data confirms each service */}
+              <div className="flex items-center text-sm text-white">
+                {(community.amenities?.includes('24_7_staff') || 
+                  community.amenities?.includes('nursing_staff') ||
+                  community.amenities?.includes('medical_staff')) ? (
+                  <span className="text-green-400 mr-2">✓</span>
+                ) : (
+                  <span className="text-gray-600 mr-2">○</span>
+                )}
+                <span>24/7 Medical Staff</span>
+              </div>
+              
+              <div className="flex items-center text-sm text-white">
+                {(community.amenities?.includes('medication_management') || 
+                  community.amenities?.includes('medication_assistance')) ? (
+                  <span className="text-green-400 mr-2">✓</span>
+                ) : (
+                  <span className="text-gray-600 mr-2">○</span>
+                )}
+                <span>Medication Management</span>
+              </div>
+              
+              <div className="flex items-center text-sm text-white">
+                {(community.amenities?.includes('housekeeping') || 
+                  community.amenities?.includes('cleaning') ||
+                  community.amenities?.includes('housekeeping_included')) ? (
+                  <span className="text-green-400 mr-2">✓</span>
+                ) : (
+                  <span className="text-gray-600 mr-2">○</span>
+                )}
+                <span>Housekeeping Included</span>
+              </div>
+              
+              <div className="flex items-center text-sm text-white">
+                {(community.amenities?.includes('transportation') || 
+                  community.amenities?.includes('shuttle') ||
+                  community.amenities?.includes('transportation_services')) ? (
+                  <span className="text-green-400 mr-2">✓</span>
+                ) : (
+                  <span className="text-gray-600 mr-2">○</span>
+                )}
+                <span>Transportation Included</span>
+              </div>
             </div>
-            
-            <div className="flex items-center text-sm text-white">
-              {(community.amenities?.includes('medication_management') || 
-                community.amenities?.includes('medication_assistance')) ? (
-                <span className="text-green-400 mr-2">✓</span>
-              ) : (
-                <span className="text-gray-600 mr-2">○</span>
-              )}
-              <span>Medication Management</span>
-            </div>
-            
-            <div className="flex items-center text-sm text-white">
-              {(community.amenities?.includes('housekeeping') || 
-                community.amenities?.includes('cleaning') ||
-                community.amenities?.includes('housekeeping_included')) ? (
-                <span className="text-green-400 mr-2">✓</span>
-              ) : (
-                <span className="text-gray-600 mr-2">○</span>
-              )}
-              <span>Housekeeping Included</span>
-            </div>
-            
-            <div className="flex items-center text-sm text-white">
-              {(community.amenities?.includes('transportation') || 
-                community.amenities?.includes('shuttle') ||
-                community.amenities?.includes('transportation_services')) ? (
-                <span className="text-green-400 mr-2">✓</span>
-              ) : (
-                <span className="text-gray-600 mr-2">○</span>
-              )}
-              <span>Transportation Included</span>
-            </div>
+            {(!community.amenities || community.amenities.length === 0) && (
+              <div className="text-xs text-gray-500 mt-2">
+                Contact for service details
+              </div>
+            )}
           </div>
-          {(!community.amenities || community.amenities.length === 0) && (
-            <div className="text-xs text-gray-500 mt-2">
-              Contact for service details
-            </div>
-          )}
-        </div>
 
-        {/* Live Intelligence Report - Compact Version */}
-        <div className="bg-gradient-to-br from-blue-900/50 to-purple-900/50 rounded-lg p-3 mb-3 border border-blue-700/30">
-          {/* Header with AI Status */}
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center">
-              <Sparkles className="w-4 h-4 mr-1 text-blue-400" />
-              <span className="text-xs font-semibold text-blue-300">Live Intelligence</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-xs text-green-400">Active</span>
-            </div>
-          </div>
-          
-          {/* AI Verification Badges - Mini Version */}
-          <div className="flex space-x-1 mb-2">
-            <div className="bg-blue-800/50 rounded px-1.5 py-0.5 text-xs text-blue-300 flex items-center">
-              <div className="w-1 h-1 bg-blue-400 rounded-full mr-1"></div>
-              <span>Perplexity</span>
-            </div>
-            <div className="bg-purple-800/50 rounded px-1.5 py-0.5 text-xs text-purple-300 flex items-center">
-              <div className="w-1 h-1 bg-purple-400 rounded-full mr-1"></div>
-              <span>Claude</span>
-            </div>
-            <div className="bg-green-800/50 rounded px-1.5 py-0.5 text-xs text-green-300 flex items-center">
-              <div className="w-1 h-1 bg-green-400 rounded-full mr-1"></div>
-              <span>ChatGPT</span>
-            </div>
-          </div>
-          
-          {/* Current Availability & Pricing - Compact */}
-          <div className="bg-gradient-to-r from-green-900/30 to-blue-900/30 rounded p-2">
-            <div className="text-xs text-gray-400 mb-1">Current Availability & Pricing</div>
-            
-            {/* Pricing Display */}
-            <div className="flex items-center mb-1">
-              <DollarSign className="w-3 h-3 mr-1 text-green-400" />
-              {priceDisplay ? (
-                <>
-                  <span className="text-xs text-green-400">Live Pricing Found:</span>
-                  <span className="text-sm font-bold text-white ml-1">{priceDisplay}</span>
-                </>
-              ) : (
-                <>
-                  <span className="text-xs text-gray-400">Pricing:</span>
-                  <span className="text-sm text-gray-500 ml-1">Contact for Details</span>
-                </>
-              )}
+          {/* Live Intelligence Report - Right Side */}
+          <div className="bg-gradient-to-br from-blue-900/50 to-purple-900/50 rounded-lg p-3 border border-blue-700/30 flex-1">
+            {/* Header with AI Status */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center">
+                <Sparkles className="w-4 h-4 mr-1 text-blue-400" />
+                <span className="text-xs font-semibold text-blue-300">Live Intelligence</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-xs text-green-400">Active</span>
+              </div>
             </div>
             
-            {/* Availability Status */}
-            <div className="flex items-center">
-              <Activity className="w-3 h-3 mr-1 text-blue-400" />
-              <span className="text-xs text-blue-400">Status:</span>
-              <span className={`text-sm font-medium ml-1 ${
-                availability.status === 'Available Now' ? 'text-green-400' :
-                availability.status === 'Limited Availability' ? 'text-yellow-400' :
-                availability.status === 'Wait List' ? 'text-red-400' :
-                'text-gray-400'
-              }`}>
-                {availability.status}
-              </span>
-              {availability.detail && (
-                <span className="text-xs text-gray-500 ml-2">({availability.detail})</span>
-              )}
+            {/* AI Verification Badges - Mini Version */}
+            <div className="flex space-x-1 mb-2">
+              <div className="bg-blue-800/50 rounded px-1.5 py-0.5 text-xs text-blue-300 flex items-center">
+                <div className="w-1 h-1 bg-blue-400 rounded-full mr-1"></div>
+                <span>Perplexity</span>
+              </div>
+              <div className="bg-purple-800/50 rounded px-1.5 py-0.5 text-xs text-purple-300 flex items-center">
+                <div className="w-1 h-1 bg-purple-400 rounded-full mr-1"></div>
+                <span>Claude</span>
+              </div>
+              <div className="bg-green-800/50 rounded px-1.5 py-0.5 text-xs text-green-300 flex items-center">
+                <div className="w-1 h-1 bg-green-400 rounded-full mr-1"></div>
+                <span>ChatGPT</span>
+              </div>
+            </div>
+            
+            {/* Current Availability & Pricing - Updated Text */}
+            <div className="bg-gradient-to-r from-green-900/30 to-blue-900/30 rounded p-2">
+              <div className="text-xs text-gray-400 mb-1">Current Availability & Pricing</div>
+              
+              {/* Pricing Display - Updated to "Click for Live Analysis" */}
+              <div className="flex items-center mb-1">
+                <DollarSign className="w-3 h-3 mr-1 text-green-400" />
+                <span className="text-xs text-gray-400">Pricing:</span>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowMarketModal(true);
+                  }}
+                  className="text-sm text-blue-400 ml-1 hover:text-blue-300 underline cursor-pointer"
+                >
+                  Click for Live Analysis
+                </button>
+              </div>
+              
+              {/* Availability Status - Updated to show "Confirmed" */}
+              <div className="flex items-center">
+                <Activity className="w-3 h-3 mr-1 text-blue-400" />
+                <span className="text-xs text-blue-400">Status:</span>
+                <span className={`text-sm font-medium ml-1 ${
+                  availability.status !== 'Unconfirmed' ? 'text-green-400' : 'text-gray-400'
+                }`}>
+                  {availability.status !== 'Unconfirmed' ? 'Confirmed' : 'Unconfirmed'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
