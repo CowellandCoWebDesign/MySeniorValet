@@ -1361,7 +1361,7 @@ export default function Map({
         )}
 
         {/* MarkerClusterGroup with performance optimization */}
-        {!isLoading && !error && markerData?.markers && (
+        {!isLoading && !error && markerData?.markers && markerData.markers.length > 0 && (
           <MarkerClusterGroup
             chunkedLoading
             disableClusteringAtZoom={15} // Simplified clustering
@@ -1398,14 +1398,19 @@ export default function Map({
             }}
           >
             {markerData.markers.map((feature: any, index: number) => {
-              const [lng, lat] = feature.geometry.coordinates;
+              // Parse coordinates as they're coming as strings from the API
+              const [lng, lat] = feature.geometry.coordinates.map((coord: any) => parseFloat(coord));
               const { properties } = feature;
+
+              // Validate coordinates
+              if (isNaN(lat) || isNaN(lng)) {
+                return null;
+              }
 
               // Skip clusters that backend sends - we're handling clustering on frontend now
               if (properties.cluster) {
                 return null;
               }
-
               // Handle individual community markers with enhanced styling
               const community: Community = {
                 id: properties.id,
@@ -1436,49 +1441,18 @@ export default function Map({
 
               return (
                 <Marker
-              key={`community-${properties.id}`}
-              position={[lat, lng]}
-              icon={communityIcon}
-              eventHandlers={{
-                click: (e) => {
-                  // Stop propagation to prevent map from handling the click
-                  DomEvent.stopPropagation(e);
-                  // Use proper navigation
-                  if (community.id) {
-                    window.location.href = `/community/${community.id}`;
-                  }
-                }
-              }}
-            >
-              {/* Enhanced community tooltip */}
-              {isHovered && (
-                <Tooltip permanent direction="top" offset={[0, -15]} className="community-tooltip">
-                  <div className="bg-white/98 backdrop-blur-sm rounded-xl p-3 shadow-xl border border-gray-200 max-w-xs">
-                    <div className="font-bold text-sm text-gray-900 mb-1 line-clamp-2">
-                      {community.name}
-                    </div>
-                    <div className="text-xs text-gray-600 mb-2">
-                      📍 {community.city}, {community.state}
-                    </div>
-                    {community.careTypes.length > 0 && (
-                      <div className="text-xs text-blue-600 mb-2">
-                        🏥 {community.careTypes.slice(0, 2).join(', ')}
-                      </div>
-                    )}
-                    <div className="text-sm font-semibold">
-                      <span className={community.hudPropertyId ? 'text-green-600' : 'text-blue-600'}>
-                        💰 {formatPrice(community.priceRange)}
-                      </span>
-                      {community.hudPropertyId && (
-                        <div className="text-xs text-green-600 mt-1">✓ HUD Verified</div>
-                      )}
-                    </div>
-                  </div>
-                </Tooltip>
-              )}
-
-              {/* No popup - direct navigation on click */}
-                </Marker>
+                  key={`community-${properties.id}`}
+                  position={[lat, lng]}
+                  icon={communityIcon}
+                  eventHandlers={{
+                    click: () => {
+                      // Direct navigation
+                      if (community.id) {
+                        window.location.href = `/community/${community.id}`;
+                      }
+                    }
+                  }}
+                />
               );
             })}
           </MarkerClusterGroup>
