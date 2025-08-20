@@ -365,6 +365,37 @@ async function handleWebhookEvent(event: Stripe.Event) {
           console.error('Error recording payment:', error);
         }
       }
+      
+      // Send email notification to hello@myseniorvalet.com
+      try {
+        const { EmailService } = await import('../services/email');
+        const emailHtml = `
+          <h2>✅ Payment Successful</h2>
+          <p>A payment has been successfully processed on MySeniorValet.</p>
+          
+          <h3>Payment Details:</h3>
+          <ul>
+            <li><strong>Payment ID:</strong> ${paymentIntent.id}</li>
+            <li><strong>Amount:</strong> $${(paymentIntent.amount / 100).toFixed(2)}</li>
+            <li><strong>Type:</strong> ${type || 'Unknown'}</li>
+            <li><strong>Tier:</strong> ${tierName || tier || 'Unknown'}</li>
+            <li><strong>Customer:</strong> ${paymentIntent.customer || 'Guest'}</li>
+            <li><strong>Time:</strong> ${new Date().toLocaleString()}</li>
+          </ul>
+          
+          <p>This payment has been successfully processed and recorded.</p>
+        `;
+        
+        await EmailService.sendEmail({
+          to: 'hello@myseniorvalet.com',
+          subject: `✅ Payment Received: $${(paymentIntent.amount / 100).toFixed(2)} - MySeniorValet`,
+          html: emailHtml
+        });
+        
+        console.log('Payment success notification sent to hello@myseniorvalet.com');
+      } catch (emailError) {
+        console.error('Failed to send payment success notification:', emailError);
+      }
       break;
     }
 
@@ -451,6 +482,38 @@ async function handleWebhookEvent(event: Stripe.Event) {
       console.log(`   Tier: ${paymentIntent.metadata.tier}`);
       console.log(`   Type: ${paymentIntent.metadata.type}`);
       console.log(`   Amount: $${paymentIntent.amount / 100}`);
+      
+      // Send email notification to hello@myseniorvalet.com
+      try {
+        const { EmailService } = await import('../services/email');
+        const emailHtml = `
+          <h2>🚨 Payment Failed Alert</h2>
+          <p>A payment attempt has failed on MySeniorValet.</p>
+          
+          <h3>Payment Details:</h3>
+          <ul>
+            <li><strong>Payment ID:</strong> ${paymentIntent.id}</li>
+            <li><strong>Amount:</strong> $${(paymentIntent.amount / 100).toFixed(2)}</li>
+            <li><strong>Type:</strong> ${paymentIntent.metadata.type || 'Unknown'}</li>
+            <li><strong>Tier:</strong> ${paymentIntent.metadata.tier || 'Unknown'}</li>
+            <li><strong>Customer:</strong> ${paymentIntent.customer || 'Guest'}</li>
+            <li><strong>Error:</strong> ${paymentIntent.last_payment_error?.message || 'Unknown error'}</li>
+            <li><strong>Time:</strong> ${new Date().toLocaleString()}</li>
+          </ul>
+          
+          <p>Please review this failed payment and reach out to the customer if necessary.</p>
+        `;
+        
+        await EmailService.sendEmail({
+          to: 'hello@myseniorvalet.com',
+          subject: `⚠️ Payment Failed: $${(paymentIntent.amount / 100).toFixed(2)} - MySeniorValet`,
+          html: emailHtml
+        });
+        
+        console.log('Payment failure notification sent to hello@myseniorvalet.com');
+      } catch (emailError) {
+        console.error('Failed to send payment failure notification:', emailError);
+      }
       break;
     }
 

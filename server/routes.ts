@@ -82,6 +82,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const familyRoutes = await import('./routes/familyRoutes');
   app.use('/api/family', familyRoutes.default);
   
+  // Register Feedback routes for beta testing
+  const feedbackRoutes = await import('./routes/feedbackRoutes');
+  app.use('/api/feedback', feedbackRoutes.default);
+  
   // Import and register webhook routes
   const webhookRoutes = await import('./routes/webhookRoutes');
   const webhookDevelopment = await import('./routes/webhookDevelopment');

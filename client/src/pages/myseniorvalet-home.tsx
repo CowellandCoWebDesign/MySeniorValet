@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send } from "lucide-react";
 import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
@@ -61,7 +61,18 @@ export default function MySeniorValetHome() {
   const [showProtectionModal, setShowProtectionModal] = useState(false);
   const [protectionSearchQuery, setProtectionSearchQuery] = useState('');
   const [showRemovalModal, setShowRemovalModal] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const { preferences, togglePreference } = useAccessibilityPreferences();
+  
+  // Auto-hide toast after 5 seconds
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => {
+        setToast(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
   
   // 3D Carousel state
   const [currentRotation, setCurrentRotation] = useState(0);
@@ -474,6 +485,26 @@ export default function MySeniorValetHome() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-[60] px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 ${
+          toast.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+        }`}>
+          {toast.type === 'success' ? (
+            <CheckCircle className="w-5 h-5" />
+          ) : (
+            <XCircle className="w-5 h-5" />
+          )}
+          <span>{toast.message}</span>
+          <button
+            onClick={() => setToast(null)}
+            className="ml-4 hover:opacity-80"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+      
       {/* Header - Fixed to top */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="px-4 py-2.5">
@@ -971,6 +1002,123 @@ export default function MySeniorValetHome() {
                 <span className="font-semibold text-yellow-400">Quick Fix for Beta Issues:</span> Navigate home and refresh browser to resolve most glitches
               </p>
             </div>
+          </div>
+
+          {/* Beta Feedback Form */}
+          <div className="mt-8">
+            <Card className="bg-gradient-to-br from-purple-900/90 to-blue-900/90 border-purple-400/30 max-w-2xl mx-auto">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <MessageSquare className="w-6 h-6 text-yellow-400" />
+                  Share Your Beta Feedback
+                </h3>
+                <p className="text-gray-200 mb-4 text-sm">
+                  Help us improve! Your feedback, suggestions, and bug reports are invaluable as we perfect this platform for all families.
+                </p>
+                
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  const form = e.target as HTMLFormElement;
+                  const formData = new FormData(form);
+                  
+                  const name = formData.get('name') as string;
+                  const email = formData.get('email') as string;
+                  const type = formData.get('type') as string;
+                  const message = formData.get('message') as string;
+                  
+                  try {
+                    const response = await fetch('/api/feedback/submit', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ name, email, type, message }),
+                    });
+                    
+                    if (response.ok) {
+                      setToast({
+                        message: 'Thank you for your feedback! We\'ll review it shortly.',
+                        type: 'success'
+                      });
+                      form.reset();
+                    } else {
+                      throw new Error('Failed to submit feedback');
+                    }
+                  } catch (error) {
+                    setToast({
+                      message: 'Error submitting feedback. Please try again.',
+                      type: 'error'
+                    });
+                  }
+                }}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-200 mb-1">
+                        Your Name (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        className="w-full px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        placeholder="John Doe"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-200 mb-1">
+                        Your Email (Optional)
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        className="w-full px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        placeholder="john@example.com"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <label htmlFor="type" className="block text-sm font-medium text-gray-200 mb-1">
+                      Feedback Type
+                    </label>
+                    <select
+                      id="type"
+                      name="type"
+                      required
+                      className="w-full px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
+                    >
+                      <option value="">Select a type...</option>
+                      <option value="bug">Bug Report</option>
+                      <option value="feature">Feature Suggestion</option>
+                      <option value="improvement">Improvement Idea</option>
+                      <option value="praise">Positive Feedback</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <label htmlFor="message" className="block text-sm font-medium text-gray-200 mb-1">
+                      Your Message
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      required
+                      rows={4}
+                      className="w-full px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                      placeholder="Tell us what you think..."
+                    />
+                  </div>
+                  
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3 rounded-lg shadow-lg transform transition hover:scale-[1.02]"
+                  >
+                    <Send className="w-5 h-5 mr-2" />
+                    Send Feedback
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
