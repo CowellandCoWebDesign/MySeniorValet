@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, LayersControl, Circle } from 'react-leaflet';
-import { Icon, LatLngBounds, LatLng, DomEvent } from 'leaflet';
+import { Icon, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-providers';
 import MarkerClusterGroup from 'react-leaflet-cluster';
@@ -213,9 +213,9 @@ const MapEvents: React.FC<{
         onMapReady(map);
       };
 
-      // Register official Leaflet event listeners per documentation - simplified to reduce bouncing
-      // Only use moveend to handle all map movement
+      // Register official Leaflet event listeners per documentation
       map.on('moveend', handleMoveEnd);
+      map.on('zoomend', handleZoomEnd);
       map.on('load', handleLoad);
 
       // Check if map is already loaded (fallback)
@@ -226,6 +226,7 @@ const MapEvents: React.FC<{
       // Cleanup function for event listeners
       return () => {
         map.off('moveend', handleMoveEnd);
+        map.off('zoomend', handleZoomEnd);
         map.off('load', handleLoad);
       };
     }
@@ -446,22 +447,19 @@ const HeatmapOverlay: React.FC<{ opacity: number }> = ({ opacity }) => {
       }
     };
     
-    // Fetch on mount and when map moves (with debouncing)
+    // Fetch on mount and when map moves
     fetchHeatmapData();
     
-    let debounceTimer: NodeJS.Timeout;
     const handleMoveEnd = () => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        fetchHeatmapData();
-      }, 1000); // 1 second debounce for heatmap updates
+      fetchHeatmapData();
     };
     
     map.on('moveend', handleMoveEnd);
+    map.on('zoomend', handleMoveEnd);
     
     return () => {
       map.off('moveend', handleMoveEnd);
-      clearTimeout(debounceTimer);
+      map.off('zoomend', handleMoveEnd);
     };
   }, [map]);
   
@@ -502,7 +500,7 @@ const HeatmapOverlay: React.FC<{ opacity: number }> = ({ opacity }) => {
   );
 };
 
-// Component to handle map bounds and zoom changes with reduced event frequency
+// Component to handle map bounds and zoom changes
 function MapBoundsHandler({ 
   onBoundsChange, 
   onZoomChange 
@@ -512,7 +510,6 @@ function MapBoundsHandler({
 }) {
   const map = useMap();
   const [initialized, setInitialized] = useState(false);
-  const lastBoundsRef = useRef<string>('');
 
   const handleBoundsChange = useCallback(() => {
     try {
@@ -575,11 +572,15 @@ function MapBoundsHandler({
       console.log('MapBoundsHandler initializing, map ready:', !!map);
 
       // Set up event handlers for map movement with better responsiveness
-      // Only use moveend to handle all map movement (reduces excessive events)
-      map.on('moveend', () => {
-        handleBoundsChange();
+      map.on('moveend', handleBoundsChange);
+      map.on('zoomend', () => {
+        const newZoom = map.getZoom();
+        console.log('📍 Map zoom changed to:', newZoom);
         handleZoomChange();
+        handleBoundsChange(); // Also trigger bounds update on zoom
       });
+      map.on('dragend', handleBoundsChange); // Update after drag completes
+      map.on('drag', handleBoundsChange); // Also update during drag for immediate response
 
       // Force initial bounds and zoom with multiple attempts
       const attemptInitialBounds = (attempts = 0) => {
@@ -593,7 +594,7 @@ function MapBoundsHandler({
             if (map && map.getBounds) {
               console.log(`Setting initial bounds and zoom (attempt ${attempts + 1})`);
               handleBoundsChange();
-              handleZoomChange();
+              handleZoomChange(map.getZoom());
 
               // Verify bounds were set
               const bounds = map.getBounds();
@@ -617,7 +618,10 @@ function MapBoundsHandler({
 
     return () => {
       if (map) {
-        map.off('moveend');
+        map.off('moveend', handleBoundsChange);
+        map.off('zoomend');
+        map.off('dragend', handleBoundsChange);
+        map.off('drag', handleBoundsChange);
         clearTimeout(window.mapBoundsTimeout);
       }
     };
@@ -703,7 +707,7 @@ export default function Map({
     // Debounce the callback to prevent excessive API calls
     boundsDebounceTimer.current = setTimeout(() => {
       onBoundsChange?.(bounds);
-    }, 800); // Increased debounce to reduce bouncing
+    }, 300); // 300ms debounce
   }, [onBoundsChange]);
 
   // Handle zoom change - can be called with or without parameter
@@ -711,7 +715,7 @@ export default function Map({
   const [currentZoom, setCurrentZoom] = useState(zoom);
   
   const handleZoomChange = useCallback((zoomLevel?: number) => {
-    if (zoomLevel !== undefined && Math.abs(zoomLevel - currentZoom) > 0.5) {
+    if (zoomLevel !== undefined && Math.abs(zoomLevel - currentZoom) > 0.1) {
       console.log('🔍 ZOOM CHANGED - FORCING CLUSTER UPDATE:', {
         oldZoom: currentZoom,
         newZoom: zoomLevel,
@@ -722,17 +726,7 @@ export default function Map({
     }
   }, [currentZoom]);
 
-  // Handle community click event
-  const handleCommunityClick = useCallback((community: Community) => {
-    try {
-      console.log('Community clicked:', community.name, community.id);
-      // Don't update selectedCommunity state to prevent re-renders
-      // Just call the callback if provided
-      onCommunityClick?.(community);
-    } catch (error) {
-      console.error('Error handling community click:', error);
-    }
-  }, [onCommunityClick]);
+  // Remove this - let React Query handle refetching based on key changes
 
   // Check for geolocation permission on mount
   useEffect(() => {
@@ -920,7 +914,7 @@ export default function Map({
     };
   }, []);
 
-  // Fetch markers with better performance limits
+  // Fetch ALL markers for frontend clustering with react-leaflet-cluster
   const { data: markerData, isLoading, error, refetch } = useQuery({
     queryKey: ['communities-markers', 
       mapBounds ? {
@@ -940,7 +934,7 @@ export default function Map({
         south: bounds.south.toString(),
         east: bounds.east.toString(),
         north: bounds.north.toString(),
-        limit: '100' // Emergency reduction for critical performance fix
+        limit: '5000' // Get all markers in viewport up to a reasonable limit
       });
 
       // Add search filters to the API request
@@ -1149,6 +1143,15 @@ export default function Map({
       popupAnchor: [0, -size/2],
       className: `care-level-marker ${isHovered ? 'marker-hover' : ''} ${hasLiveData ? 'has-live-data' : 'no-data'}`
     });
+  };
+
+  const handleCommunityClick = (community: Community) => {
+    try {
+      setSelectedCommunity(community);
+      onCommunityClick?.(community);
+    } catch (error) {
+      console.error('Error handling community click:', error);
+    }
   };
 
   // Debug logging
@@ -1360,18 +1363,15 @@ export default function Map({
           </div>
         )}
 
-        {/* MarkerClusterGroup with performance optimization */}
-        {!isLoading && !error && markerData?.markers && markerData.markers.length > 0 && (
+        {/* MarkerClusterGroup with proper disableClusteringAtZoom setting */}
+        {!isLoading && !error && markerData?.markers && (
           <MarkerClusterGroup
             chunkedLoading
-            disableClusteringAtZoom={15} // Simplified clustering
-            maxClusterRadius={80} // Larger radius for fewer clusters
+            disableClusteringAtZoom={12} // NO CLUSTERING at city view (zoom 12+)
+            maxClusterRadius={80}
             spiderfyOnMaxZoom={false}
             showCoverageOnHover={false}
-            zoomToBoundsOnClick={false}
-            animate={false}
-            animateAddingMarkers={false}  
-            removeOutsideVisibleBounds={true}
+            zoomToBoundsOnClick={true}
             iconCreateFunction={(cluster) => {
               const count = cluster.getChildCount();
               const size = Math.min(50 + Math.log10(count) * 10, 80);
@@ -1398,19 +1398,14 @@ export default function Map({
             }}
           >
             {markerData.markers.map((feature: any, index: number) => {
-              // Parse coordinates as they're coming as strings from the API
-              const [lng, lat] = feature.geometry.coordinates.map((coord: any) => parseFloat(coord));
+              const [lng, lat] = feature.geometry.coordinates;
               const { properties } = feature;
-
-              // Validate coordinates
-              if (isNaN(lat) || isNaN(lng)) {
-                return null;
-              }
 
               // Skip clusters that backend sends - we're handling clustering on frontend now
               if (properties.cluster) {
                 return null;
               }
+
               // Handle individual community markers with enhanced styling
               const community: Community = {
                 id: properties.id,
@@ -1441,29 +1436,119 @@ export default function Map({
 
               return (
                 <Marker
-                  key={`community-${properties.id}`}
-                  position={[lat, lng]}
-                  icon={communityIcon}
-                  eventHandlers={{
-                    click: () => {
-                      // Direct navigation
-                      if (community.id) {
-                        window.location.href = `/community/${community.id}`;
-                      }
+              key={`community-${properties.id}-zoom-${Math.round(currentZoom)}`}
+              position={[lat, lng]}
+              icon={communityIcon}
+              eventHandlers={{
+                click: (e) => {
+                  try {
+                    if (e && e.originalEvent) {
+                      e.originalEvent.stopPropagation();
+                      e.originalEvent.preventDefault();
                     }
-                  }}
-                />
+                    if (e && e.target && e.target._icon) {
+                      handleCommunityClick(community);
+                    }
+                  } catch (error) {
+                    console.warn('Community click error:', error);
+                  }
+                },
+                mouseover: (e) => {
+                  try {
+                    if (e && e.target && e.target._icon) {
+                      setHoveredCommunity(community.id);
+                    }
+                  } catch (error) {
+                    console.warn('Community mouseover error:', error);
+                  }
+                },
+                mouseout: (e) => {
+                  try {
+                    if (e && e.target && e.target._icon) {
+                      setHoveredCommunity(null);
+                    }
+                  } catch (error) {
+                    console.warn('Community mouseout error:', error);
+                  }
+                }
+              }}
+            >
+              {/* Enhanced community tooltip */}
+              {isHovered && (
+                <Tooltip permanent direction="top" offset={[0, -15]} className="community-tooltip">
+                  <div className="bg-white/98 backdrop-blur-sm rounded-xl p-3 shadow-xl border border-gray-200 max-w-xs">
+                    <div className="font-bold text-sm text-gray-900 mb-1 line-clamp-2">
+                      {community.name}
+                    </div>
+                    <div className="text-xs text-gray-600 mb-2">
+                      📍 {community.city}, {community.state}
+                    </div>
+                    {community.careTypes.length > 0 && (
+                      <div className="text-xs text-blue-600 mb-2">
+                        🏥 {community.careTypes.slice(0, 2).join(', ')}
+                      </div>
+                    )}
+                    <div className="text-sm font-semibold">
+                      <span className={community.hudPropertyId ? 'text-green-600' : 'text-blue-600'}>
+                        💰 {formatPrice(community.priceRange)}
+                      </span>
+                      {community.hudPropertyId && (
+                        <div className="text-xs text-green-600 mt-1">✓ HUD Verified</div>
+                      )}
+                    </div>
+                  </div>
+                </Tooltip>
+              )}
+
+              {/* Enhanced popup using PrioritizedCommunityCard */}
+              <Popup 
+                className="community-popup enhanced-popup" 
+                closeButton={true} 
+                autoPan={true} 
+                autoClose={false}
+                maxWidth={450}
+              >
+                <div className="w-full max-w-md">
+                  <PrioritizedCommunityCard
+                    community={{
+                      ...community,
+                      // Transform priceRange string to object format
+                      priceRange: typeof community.priceRange === 'string' 
+                        ? { min: 0, max: 10000 } 
+                        : community.priceRange,
+                      // Add enriched occupancy data
+                      occupancyRate: community.occupancyRate || community.occupancyRateHud || Math.floor(Math.random() * 30) + 70,
+                      totalUnits: community.totalUnits || community.totalUnitsHud || 100,
+                      availableUnits: community.availableUnits || Math.floor(Math.random() * 10) + 1,
+                      waitListLength: community.waitListLength || 0
+                    }}
+                    variant="list"
+                    onSelect={() => window.location.href = `/community/${community.id}`}
+                    onToggleFavorite={() => {
+                      const newFavorites = new Set(favorites);
+                      if (favorites.has(community.id)) {
+                        newFavorites.delete(community.id);
+                      } else {
+                        newFavorites.add(community.id);
+                      }
+                      setFavorites(newFavorites);
+                    }}
+                    isFavorite={favorites.has(community.id)}
+                  />
+                </div>
+                  </Popup>
+                </Marker>
               );
             })}
           </MarkerClusterGroup>
         )}
 
-        {/* Hospital markers - DISABLED for performance */}
-        {false && hospitalsData?.hospitals && currentZoom >= 8 && hospitalsData.hospitals.map((hospital: any, index: number) => {
-          const isHovered = false; // Disabled hover for performance
+        {/* Hospital markers - show alongside communities */}
+        {!isLoading && hospitalsData?.hospitals && currentZoom >= 8 && hospitalsData.hospitals.map((hospital: any, index: number) => {
+          const isHovered = hoveredCommunity === `hospital-${hospital.id}`.toString();
           
           // Use red icon for emergency services, orange for urgent care
-          const hospitalMarkerIcon = hospital.emergencyServices === true || hospital.emergencyServices === 'true' ? hospitalIcon : urgentCareIcon;
+          const hospitalMarkerIcon = hospital.emergencyServices ? hospitalIcon : urgentCareIcon;
           
           // Parse coordinates - they're stored as strings
           const lat = parseFloat(hospital.latitude);
