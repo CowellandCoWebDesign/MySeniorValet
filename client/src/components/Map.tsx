@@ -1369,6 +1369,9 @@ export default function Map({
             spiderfyOnMaxZoom={false}
             showCoverageOnHover={false}
             zoomToBoundsOnClick={true}  // Allow zooming on cluster click (expected behavior for clusters)
+            animate={false}  // Disable animations to prevent bouncing
+            animateAddingMarkers={false}  // Disable marker add animations
+            removeOutsideVisibleBounds={false}  // Keep markers stable
             iconCreateFunction={(cluster) => {
               const count = cluster.getChildCount();
               const size = Math.min(50 + Math.log10(count) * 10, 80);
@@ -1437,38 +1440,12 @@ export default function Map({
               position={[lat, lng]}
               icon={communityIcon}
               eventHandlers={{
-                click: (e) => {
-                  try {
-                    // Prevent all propagation to stop map from jumping
-                    if (e && e.originalEvent) {
-                      e.originalEvent.stopPropagation();
-                      e.originalEvent.preventDefault();
-                      e.originalEvent.stopImmediatePropagation();
-                    }
-                    // Navigate directly to community page
-                    window.location.href = `/community/${community.id}`;
-                  } catch (error) {
-                    console.warn('Community click error:', error);
-                  }
+                click: () => {
+                  // Direct navigation without any event handling complexities
+                  // This should make clicks instant and responsive
+                  window.location.href = `/community/${community.id}`;
                 },
-                mouseover: (e) => {
-                  try {
-                    if (e && e.target && e.target._icon) {
-                      setHoveredCommunity(community.id);
-                    }
-                  } catch (error) {
-                    console.warn('Community mouseover error:', error);
-                  }
-                },
-                mouseout: (e) => {
-                  try {
-                    if (e && e.target && e.target._icon) {
-                      setHoveredCommunity(null);
-                    }
-                  } catch (error) {
-                    console.warn('Community mouseout error:', error);
-                  }
-                }
+                // Removed hover effects to prevent delays and improve click responsiveness
               }}
             >
               {/* Enhanced community tooltip */}
