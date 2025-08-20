@@ -186,12 +186,46 @@ export default function MapSearch() {
         setShowBottomPanel(true);
       }
       
-      // If query is a city/state, try to center map there
-      const { city, state } = parseSearchQuery(initialQuery);
-      if (city || state) {
-        // Use geocoding to center map (this would require a geocoding API)
-        console.log('📍 Location search detected:', { city, state });
-      }
+      // Perform actual search for the query
+      fetch(`/api/communities/search?query=${encodeURIComponent(initialQuery)}&limit=50`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.communities && data.communities.length > 0) {
+            const firstCommunity = data.communities[0];
+            console.log('📍 Found community, centering map:', firstCommunity.name, firstCommunity.city, firstCommunity.state);
+            
+            // Center map on the first result
+            if (firstCommunity.latitude && firstCommunity.longitude) {
+              setMapCenter([firstCommunity.latitude, firstCommunity.longitude]);
+              setMapZoom(14); // Zoom in to show the community clearly
+            }
+          } else {
+            // Try parsing as city/state if no direct community match
+            const { city, state } = parseSearchQuery(initialQuery);
+            if (city || state) {
+              console.log('📍 Searching by location:', { city, state });
+              const locationQuery = new URLSearchParams({
+                ...(city && { city }),
+                ...(state && { state }),
+                limit: '50'
+              });
+              
+              fetch(`/api/communities/search?${locationQuery}`)
+                .then(res => res.json())
+                .then(locationData => {
+                  if (locationData.communities && locationData.communities.length > 0) {
+                    const firstCommunity = locationData.communities[0];
+                    if (firstCommunity.latitude && firstCommunity.longitude) {
+                      setMapCenter([firstCommunity.latitude, firstCommunity.longitude]);
+                      setMapZoom(12); // City-level zoom
+                    }
+                  }
+                })
+                .catch(err => console.error('Location search failed:', err));
+            }
+          }
+        })
+        .catch(err => console.error('Initial search failed:', err));
     }
   }, [initialQuery, hasSearched]);
 

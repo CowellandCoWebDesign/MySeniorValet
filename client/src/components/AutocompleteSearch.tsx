@@ -93,7 +93,7 @@ export function AutocompleteSearch({
       apiRequest('GET', `/api/autocomplete/suggestions?query=${encodeURIComponent(debouncedValue)}&limit=10`)
         .then(res => res.json())
         .then(data => {
-          // Ensure suggestions are in the correct format and filter out exact matches
+          // Ensure suggestions are in the correct format
           const validSuggestions = (data.suggestions || []).filter((s: AutocompleteSuggestion) => {
             // Ensure all fields are strings, not objects
             const isValid = s && 
@@ -101,10 +101,8 @@ export function AutocompleteSearch({
               typeof s.value === 'string' && 
               typeof s.type === 'string';
             
-            // Filter out suggestions that exactly match what the user typed (case-insensitive)
-            const isNotExactMatch = s.value.toLowerCase() !== debouncedValue.toLowerCase();
-            
-            return isValid && isNotExactMatch;
+            // Show ALL valid suggestions including exact matches
+            return isValid;
           });
           setSuggestions(validSuggestions);
           setShowSuggestions(validSuggestions.length > 0);
