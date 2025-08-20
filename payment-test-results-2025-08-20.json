@@ -1,0 +1,98 @@
+{
+  "timestamp": "2025-08-20T21:24:26.907Z",
+  "duration": "1.09s",
+  "summary": {
+    "passed": 5,
+    "failed": 6,
+    "skipped": 3,
+    "total": 14
+  },
+  "results": [
+    {
+      "name": "User Registration",
+      "status": "failed",
+      "error": "Registration failed"
+    },
+    {
+      "name": "Create Vendor Profile",
+      "status": "passed",
+      "data": {}
+    },
+    {
+      "name": "Get Vendor Subscription Tiers",
+      "status": "passed",
+      "data": {
+        "tiers": [
+          "basic",
+          "featured",
+          "national",
+          "_version",
+          "_timestamp"
+        ]
+      }
+    },
+    {
+      "name": "Create Vendor Checkout Session",
+      "status": "failed",
+      "error": "Unauthorized"
+    },
+    {
+      "name": "Get Vendor Subscription Status",
+      "status": "failed",
+      "error": "Unauthorized"
+    },
+    {
+      "name": "Cancel Vendor Subscription",
+      "status": "failed",
+      "error": "Unauthorized"
+    },
+    {
+      "name": "Claim Community",
+      "status": "passed",
+      "data": {
+        "communityId": 1
+      }
+    },
+    {
+      "name": "Get Community Subscription Pricing",
+      "status": "passed",
+      "data": {
+        "tiers": [
+          "Verified Listing: $0",
+          "Standard: $149",
+          "Featured: $249",
+          "Platinum: $349"
+        ]
+      }
+    },
+    {
+      "name": "Create Community Checkout Session",
+      "status": "failed",
+      "error": "Unauthorized"
+    },
+    {
+      "name": "Activate Free Community Tier",
+      "status": "failed",
+      "error": "Unauthorized"
+    },
+    {
+      "name": "Vendor Webhook Endpoint",
+      "status": "skipped",
+      "error": "Webhook secret not configured"
+    },
+    {
+      "name": "Community Webhook Endpoint",
+      "status": "skipped",
+      "error": "Webhook secret not configured"
+    },
+    {
+      "name": "Stripe API Configuration",
+      "status": "skipped",
+      "error": "Unable to determine Stripe status"
+    },
+    {
+      "name": "Payment Database Integration",
+      "status": "passed"
+    }
+  ]
+}

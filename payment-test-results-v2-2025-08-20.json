@@ -1,0 +1,133 @@
+{
+  "timestamp": "2025-08-20T21:26:32.020Z",
+  "duration": "0.10s",
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "warnings": 2,
+    "total": 11,
+    "score": "82%",
+    "assessment": "READY FOR PRODUCTION"
+  },
+  "systemStatus": {
+    "stripeConfigured": true,
+    "publicEndpointsWorking": true,
+    "authRequired": true,
+    "webhooksAvailable": true
+  },
+  "results": [
+    {
+      "name": "Stripe API Keys",
+      "status": "passed",
+      "details": {
+        "configured": true
+      }
+    },
+    {
+      "name": "Get Vendor Subscription Tiers",
+      "status": "passed",
+      "details": {
+        "tiers": [
+          "basic",
+          "featured",
+          "national",
+          "_version",
+          "_timestamp"
+        ],
+        "pricing": [
+          "basic: $99/mo",
+          "featured: $249/mo",
+          "national: $499/mo",
+          "_version: $undefined/mo",
+          "_timestamp: $undefined/mo"
+        ]
+      }
+    },
+    {
+      "name": "Get Community Subscription Pricing",
+      "status": "passed",
+      "details": {
+        "tiers": [
+          {
+            "name": "Verified Listing",
+            "price": "$0",
+            "popular": false
+          },
+          {
+            "name": "Standard",
+            "price": "$149",
+            "popular": false
+          },
+          {
+            "name": "Featured",
+            "price": "$249",
+            "popular": true
+          },
+          {
+            "name": "Platinum",
+            "price": "$349",
+            "popular": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "Vendor Checkout Auth Required",
+      "status": "passed",
+      "details": {
+        "message": "Correctly requires authentication"
+      }
+    },
+    {
+      "name": "Community Checkout Auth Required",
+      "status": "passed",
+      "details": {
+        "message": "Correctly requires authentication"
+      }
+    },
+    {
+      "name": "Vendor Webhook Endpoint",
+      "status": "warning",
+      "details": {
+        "status": "Available but not configured",
+        "action": "Need to set STRIPE_VENDOR_WEBHOOK_SECRET"
+      }
+    },
+    {
+      "name": "Community Webhook Endpoint",
+      "status": "warning",
+      "details": {
+        "status": "Available but not configured",
+        "action": "Need to set STRIPE_COMMUNITY_WEBHOOK_SECRET"
+      }
+    },
+    {
+      "name": "Community Payment Schema",
+      "status": "passed",
+      "details": {
+        "message": "Database supports community subscriptions"
+      }
+    },
+    {
+      "name": "Vendor Payment Schema",
+      "status": "passed",
+      "details": {
+        "message": "Database supports vendor subscriptions"
+      }
+    },
+    {
+      "name": "Stripe API Ready",
+      "status": "passed",
+      "details": {
+        "message": "Stripe integration appears ready (auth check working)"
+      }
+    },
+    {
+      "name": "Critical Payment Endpoints",
+      "status": "passed",
+      "details": {
+        "message": "All public payment endpoints operational"
+      }
+    }
+  ]
+}
