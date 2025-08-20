@@ -879,257 +879,6 @@ export default function MySeniorValetHome() {
         
       </section>
 
-      {/* Combined Beta Launch & Industry Darkness Section */}
-      <section className="px-4 py-8 bg-gradient-to-r from-gray-900 via-blue-900 to-gray-900 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-600/10"></div>
-        <div className="max-w-6xl mx-auto relative z-10">
-          <div className="text-center mb-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 flex items-center justify-center gap-3">
-              <Sparkles className="w-8 h-8 text-yellow-400 animate-pulse" />
-              Welcome to Our Active Beta Launch
-              <Sparkles className="w-8 h-8 text-yellow-400 animate-pulse" />
-            </h2>
-            <p className="text-xl text-yellow-400 font-bold">
-              We're not just launching a platform. We're launching a movement.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
-            {/* Left side - The Darkness */}
-            <Card className="bg-gray-900/95 dark:bg-black/95 border-red-500/30">
-              <CardContent className="p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-red-400">
-                  For Too Long, Families Have Been Kept in the Dark
-                </h3>
-                <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
-                  <div className="flex items-start gap-2">
-                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-red-300">Information Scattered & Paywalled</p>
-                      <p className="text-gray-400">Desperately searching across dozens of sites, most behind paywalls.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-red-300">Unaware of 10 Levels of Care</p>
-                      <p className="text-gray-400">Most don't know about HUD, VA, Memory Care, CCRC - 10 distinct levels!</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-red-300">"Contact for Pricing" Gatekeeping</p>
-                      <p className="text-gray-400">Hidden pricing everywhere adds stress to family crisis.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-red-300">Referral Services Raise Costs</p>
-                      <p className="text-gray-400">Aggregators charge up to one month's rent, passed to ALL families.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-red-300">No Tour Tracking Tools</p>
-                      <p className="text-gray-400">Families juggle notes on paper, losing critical comparison details.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-red-300">Benefits & Aid Unknown</p>
-                      <p className="text-gray-400">Missing out on VA, Medicaid, and state assistance they qualify for.</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Right side - The Solution */}
-            <Card className="bg-green-900/95 dark:bg-green-900/95 border-green-400/30">
-              <CardContent className="p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-green-400">
-                  Today, The Lights Turn On
-                </h3>
-                <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-green-300">Learn All 10 Levels of Care</p>
-                      <p className="text-gray-300">From HUD Housing to Skilled Nursing - understand each level's pricing and care.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-green-300">Real Pricing, Real Availability</p>
-                      <p className="text-gray-300">Actual prices. Current availability. No more "contact us" gatekeeping.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-green-300">ALL Families Get PLATINUM Free</p>
-                      <p className="text-gray-300">Complete toolkit. No tiers. No upgrades. Always free, guaranteed forever.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-green-300">Tour Tracker with Family Sharing</p>
-                      <p className="text-gray-300">Track tours, save notes, compare. Share instantly with family members.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-green-300">Communities Shine Bright</p>
-                      <p className="text-gray-300">Every facility can represent itself honestly. No more hiding great care in shadows.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-green-300">Discover Benefits You Qualify For</p>
-                      <p className="text-gray-300">VA Aid & Attendance, Medicaid, state programs - find all available assistance.</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Beta Note */}
-          <div className="mt-6 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-800/50 backdrop-blur-sm rounded-full border border-blue-400/30">
-              <p className="text-sm text-blue-100">
-                <span className="font-semibold text-yellow-400">Quick Fix for Beta Issues:</span> Navigate home and refresh browser to resolve most glitches
-              </p>
-            </div>
-          </div>
-
-          {/* Beta Feedback Form */}
-          <div className="mt-8">
-            <Card className="bg-gradient-to-br from-purple-900/90 to-blue-900/90 border-purple-400/30 max-w-2xl mx-auto">
-              <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                  <MessageSquare className="w-6 h-6 text-yellow-400" />
-                  Share Your Beta Feedback
-                </h3>
-                <p className="text-gray-200 mb-4 text-sm">
-                  Help us improve! Your feedback, suggestions, and bug reports are invaluable as we perfect this platform for all families.
-                </p>
-                
-                <form onSubmit={async (e) => {
-                  e.preventDefault();
-                  const form = e.target as HTMLFormElement;
-                  const formData = new FormData(form);
-                  
-                  const name = formData.get('name') as string;
-                  const email = formData.get('email') as string;
-                  const type = formData.get('type') as string;
-                  const message = formData.get('message') as string;
-                  
-                  try {
-                    const response = await fetch('/api/feedback/submit', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ name, email, type, message }),
-                    });
-                    
-                    if (response.ok) {
-                      setToast({
-                        message: 'Thank you for your feedback! We\'ll review it shortly.',
-                        type: 'success'
-                      });
-                      form.reset();
-                    } else {
-                      throw new Error('Failed to submit feedback');
-                    }
-                  } catch (error) {
-                    setToast({
-                      message: 'Error submitting feedback. Please try again.',
-                      type: 'error'
-                    });
-                  }
-                }}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-200 mb-1">
-                        Your Name (Optional)
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        className="w-full px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                        placeholder="John Doe"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-200 mb-1">
-                        Your Email (Optional)
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        className="w-full px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                        placeholder="john@example.com"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <label htmlFor="type" className="block text-sm font-medium text-gray-200 mb-1">
-                      Feedback Type
-                    </label>
-                    <select
-                      id="type"
-                      name="type"
-                      required
-                      className="w-full px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
-                    >
-                      <option value="">Select a type...</option>
-                      <option value="bug">Bug Report</option>
-                      <option value="feature">Feature Suggestion</option>
-                      <option value="improvement">Improvement Idea</option>
-                      <option value="praise">Positive Feedback</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-                  
-                  <div className="mb-4">
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-200 mb-1">
-                      Your Message
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      required
-                      rows={4}
-                      className="w-full px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                      placeholder="Tell us what you think..."
-                    />
-                  </div>
-                  
-                  <Button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-3 rounded-lg shadow-lg transform transition hover:scale-[1.02]"
-                  >
-                    <Send className="w-5 h-5 mr-2" />
-                    Send Feedback
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
       {/* TODAY, EVERYTHING CHANGES - Historic Launch Message with Care Spectrum */}
       <section 
         className="lighthouse-section relative overflow-hidden min-h-[900px]"
@@ -1443,6 +1192,29 @@ export default function MySeniorValetHome() {
                     <div className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
                       <span className="text-sm text-gray-700 dark:text-gray-300">Verified Pricing Data</span>
+                    </div>
+                  </div>
+
+                  {/* 3D Care Spectrum Mini Carousel */}
+                  <div className="mb-6 overflow-hidden rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-4">
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 text-center">EXPLORE 10 CARE LEVELS</p>
+                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                      {careTypes.map((careType, index) => {
+                        const Icon = careType.icon;
+                        return (
+                          <div
+                            key={careType.id}
+                            className={`flex-shrink-0 ${careType.color} rounded-lg p-3 w-32 cursor-pointer hover:scale-105 transition-transform`}
+                            onClick={() => setLocation(`/care-types/${careType.id}`)}
+                          >
+                            <div className="flex flex-col items-center">
+                              <Icon className="w-8 h-8 text-white mb-1" />
+                              <p className="text-xs font-bold text-white text-center leading-tight">{careType.name}</p>
+                              <p className="text-[9px] text-white/80 text-center mt-1">{careType.avgCost}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 
