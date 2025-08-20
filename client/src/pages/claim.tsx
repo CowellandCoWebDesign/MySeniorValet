@@ -176,6 +176,10 @@ export default function ClaimCommunity() {
               <CardDescription>
                 Complete this form to activate your free verified listing on MySeniorValet
               </CardDescription>
+              <div className="mt-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg p-3">
+                <p className="text-sm font-semibold">🎉 INTRODUCTORY PRICING on Premium Tiers!</p>
+                <p className="text-xs">Take advantage now • More plans may come soon • Check back for updates</p>
+              </div>
             </CardHeader>
             <CardContent>
               <Form {...form}>

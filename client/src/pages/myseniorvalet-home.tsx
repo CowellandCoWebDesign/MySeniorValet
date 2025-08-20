@@ -2479,6 +2479,10 @@ export default function MySeniorValetHome() {
                         Free → $149 → $249 → $349
                       </p>
                       <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Monthly subscriptions • Cancel anytime</p>
+                      <div className="mt-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded px-2 py-1">
+                        <p className="text-xs font-semibold">🎉 INTRODUCTORY PRICING - Take advantage now!</p>
+                        <p className="text-xs">More plans may come soon • Check back for updates</p>
+                      </div>
                     </div>
                   </div>
 
@@ -2559,6 +2563,10 @@ export default function MySeniorValetHome() {
                       <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300">$99 Basic (1 State)</Badge>
                       <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">$249 Featured (3 States)</Badge>
                       <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">$499 National Partner</Badge>
+                    </div>
+                    <div className="mt-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded px-2 py-1">
+                      <p className="text-xs font-semibold text-center">🚀 INTRODUCTORY PRICING - Take advantage now!</p>
+                      <p className="text-xs text-center">More plans may come soon • Check back for updates</p>
                     </div>
                   </div>
 

@@ -189,6 +189,10 @@ export default function VendorSignup() {
                 </div>
               </div>
             </div>
+            <div className="mt-4 pt-4 border-t border-white/30">
+              <p className="text-lg font-semibold">🚀 INTRODUCTORY PRICING - Take advantage now!</p>
+              <p className="text-sm">More plans may come soon • Check back for updates</p>
+            </div>
           </div>
         </div>
 

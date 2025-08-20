@@ -277,6 +277,12 @@ export default function CommunityPortal() {
               <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-4">
                 Enhance your community's visibility and unlock premium features
               </p>
+              
+              {/* Introductory Pricing Banner */}
+              <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg p-4 max-w-3xl mx-auto mb-4">
+                <p className="text-lg font-bold">🎉 INTRODUCTORY PRICING NOW AVAILABLE!</p>
+                <p className="text-sm mt-1">Take advantage now • More plans may come soon • Check back for updates</p>
+              </div>
               <Card className="max-w-md mx-auto mb-6 bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20">
                 <CardContent className="p-4">
                   <p className="text-sm text-gray-600 dark:text-gray-400">Currently Managing:</p>

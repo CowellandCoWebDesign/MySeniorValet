@@ -216,6 +216,12 @@ export default function VendorMarketplaceTiers() {
               <span className="font-semibold">Save 20% with annual billing!</span>
             </div>
           </div>
+          
+          {/* Introductory Pricing Banner */}
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg p-4 max-w-3xl mx-auto mb-4">
+            <p className="text-lg font-bold">🎉 INTRODUCTORY PRICING NOW AVAILABLE!</p>
+            <p className="text-sm mt-1">Take advantage now • More plans may come soon • Check back for updates</p>
+          </div>
           <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 max-w-3xl mx-auto mb-4">
             <p className="text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2">
               <Info className="w-4 h-4" />
@@ -355,8 +361,8 @@ export default function VendorMarketplaceTiers() {
                 <tr className="border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
                   <th className="text-left py-3 px-3 md:py-4 md:px-6 text-gray-900 dark:text-gray-100 font-semibold text-sm md:text-base">Feature</th>
                   <th className="text-center py-3 px-3 md:py-4 md:px-6">
-                    <div className="text-gray-900 dark:text-gray-100 font-semibold text-sm md:text-base">Basic</div>
-                    <div className="text-lg md:text-2xl font-bold text-gray-700 dark:text-gray-300 mt-1">$99</div>
+                    <div className="text-gray-900 dark:text-gray-100 font-semibold text-sm md:text-base">Standard</div>
+                    <div className="text-lg md:text-2xl font-bold text-gray-700 dark:text-gray-300 mt-1">$149</div>
                   </th>
                   <th className="text-center py-3 px-3 md:py-4 md:px-6 relative">
                     <div className="absolute top-0 right-0 bg-blue-600 text-white px-1 py-0.5 text-xs rounded-bl-lg">Popular</div>
@@ -364,8 +370,8 @@ export default function VendorMarketplaceTiers() {
                     <div className="text-lg md:text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">$249</div>
                   </th>
                   <th className="text-center py-3 px-3 md:py-4 md:px-6">
-                    <div className="text-gray-900 dark:text-gray-100 font-semibold text-sm md:text-base">National</div>
-                    <div className="text-lg md:text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1">$499</div>
+                    <div className="text-gray-900 dark:text-gray-100 font-semibold text-sm md:text-base">Platinum</div>
+                    <div className="text-lg md:text-2xl font-bold text-purple-600 dark:text-purple-400 mt-1">$349</div>
                   </th>
                 </tr>
               </thead>
@@ -565,7 +571,7 @@ export default function VendorMarketplaceTiers() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-left">
-              <Badge variant="outline" className="mb-2 border-gray-300">Basic ($99/mo)</Badge>
+              <Badge variant="outline" className="mb-2 border-gray-300">Standard ($149/mo)</Badge>
               <ul className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
                 <li>• Standard directory listing</li>
                 <li>• Appears in search results</li>
@@ -581,7 +587,7 @@ export default function VendorMarketplaceTiers() {
               </ul>
             </div>
             <div className="text-left">
-              <Badge variant="outline" className="mb-2 border-yellow-500 text-yellow-700 dark:text-yellow-300">National ($499/mo)</Badge>
+              <Badge variant="outline" className="mb-2 border-yellow-500 text-yellow-700 dark:text-yellow-300">Platinum ($349/mo)</Badge>
               <ul className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
                 <li>• <span className="font-medium text-yellow-600 dark:text-yellow-400">Premium banner placement</span></li>
                 <li>• <span className="font-medium text-yellow-600 dark:text-yellow-400">Top of all vendor listings</span></li>
