@@ -612,31 +612,43 @@ export default function CommunityDirectory() {
                       <Home className="h-8 w-8" />
                       <CardTitle className="text-2xl">Independent Living</CardTitle>
                     </div>
-                    <Badge className="bg-white/20 text-white">$2,500-$4,500/mo</Badge>
+                    <Badge className="bg-white/20 text-white">$2,000-$4,500/mo</Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="p-6">
                   <p className="text-gray-700 dark:text-gray-300 mb-4">
-                    Active senior communities for those who want maintenance-free living without assistance. Perfect for social seniors who value their independence.
+                    Active senior communities for those 60+ who can care for themselves. Maintenance-free lifestyle with luxury amenities and social activities.
                   </p>
                   <div className="space-y-3">
                     <div className="flex items-start gap-2">
+                      <Shield className="h-5 w-5 text-blue-500 mt-0.5" />
+                      <div>
+                        <p className="font-semibold">Medicare Coverage:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">NOT covered by Medicare - considered non-medical housing. Some medical services in the facility may be covered.</p>
+                        <p className="text-xs text-gray-500 mt-1">Source: Medicare.gov</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
                       <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
                       <div>
-                        <p className="font-semibold">Little-Known Fact:</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Many communities offer "trial stays" of 1-3 months before committing to a long-term lease.</p>
+                        <p className="font-semibold">Government Insight:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">National average: $3,000/month. Communities often include pools, fitness centers, restaurants, and golf courses.</p>
+                        <p className="text-xs text-gray-500 mt-1">Source: National Institute on Aging (NIA.NIH.gov)</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
                       <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
                       <div>
-                        <p className="font-semibold">Money-Saving Tip:</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Ask about "founder's rates" at new communities - can save 20-30% locked in for life.</p>
+                        <p className="font-semibold">Money-Saving Tips:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Ask about "trial stays" (1-3 months) before committing</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Negotiate "founder's rates" at new communities (20-30% savings)</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Some states offer property tax exemptions for senior housing</p>
                       </div>
                     </div>
                     <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
-                      <p className="text-sm"><strong>Includes:</strong> Meals, housekeeping, activities, transportation</p>
-                      <p className="text-sm mt-1"><strong>Best For:</strong> Ages 55+, fully mobile, social lifestyle seekers</p>
+                      <p className="text-sm"><strong>Typically Includes:</strong> Private apartment/home, maintenance, meals optional, activities, transportation</p>
+                      <p className="text-sm mt-1"><strong>Best For:</strong> Active adults 60+ who want amenities without assistance</p>
+                      <p className="text-sm mt-1"><strong>Payment Options:</strong> Private pay, long-term care insurance, reverse mortgage</p>
                     </div>
                   </div>
                 </CardContent>
@@ -650,31 +662,53 @@ export default function CommunityDirectory() {
                       <HeartHandshake className="h-8 w-8" />
                       <CardTitle className="text-2xl">Assisted Living</CardTitle>
                     </div>
-                    <Badge className="bg-white/20 text-white">$4,000-$6,500/mo</Badge>
+                    <Badge className="bg-white/20 text-white">$4,500-$7,000/mo</Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="p-6">
                   <p className="text-gray-700 dark:text-gray-300 mb-4">
-                    Personal care assistance with daily activities while maintaining independence. The most popular senior living option nationwide.
+                    Personal care assistance with 1-2 activities of daily living. 24/7 staff, meals, medication management in apartment-style settings.
                   </p>
                   <div className="space-y-3">
                     <div className="flex items-start gap-2">
-                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                      <Shield className="h-5 w-5 text-blue-500 mt-0.5" />
                       <div>
-                        <p className="font-semibold">Little-Known Fact:</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Veterans can receive up to $2,169/month through VA Aid & Attendance benefits for assisted living.</p>
+                        <p className="font-semibold">Medicare Coverage:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Room and board NOT covered. Medical services (doctor visits, therapy) may be covered.</p>
+                        <p className="text-xs text-gray-500 mt-1">Source: Medicare.gov</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <DollarSign className="h-5 w-5 text-green-500 mt-0.5" />
+                      <div>
+                        <p className="font-semibold">VA Aid & Attendance (2025 Rates):</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Single veteran: $2,300/month ($27,609/year)</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Veteran with spouse: $2,727/month ($32,729/year)</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• 75% of assisted living costs count as medical expenses</p>
+                        <p className="text-xs text-gray-500 mt-1">Source: VA.gov | Apply: VA Form 21-527EZ</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-5 w-5 text-purple-500 mt-0.5" />
+                      <div>
+                        <p className="font-semibold">Medicaid HCBS Waivers:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Many states offer waivers to cover assisted living for low-income seniors. Check your state's Medicaid office.</p>
+                        <p className="text-xs text-gray-500 mt-1">Source: Medicaid.gov</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
                       <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
                       <div>
-                        <p className="font-semibold">Money-Saving Tip:</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Negotiate the community fee (often $2,000-$5,000) - many will waive it during slow months.</p>
+                        <p className="font-semibold">Money-Saving Tips:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Negotiate move-in fees (often $2,000-$5,000)</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Ask about rate locks for 1-2 years</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Share a suite to save 20-30%</p>
                       </div>
                     </div>
                     <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
-                      <p className="text-sm"><strong>Includes:</strong> 24/7 staff, medication management, ADL assistance</p>
-                      <p className="text-sm mt-1"><strong>Best For:</strong> Those needing help with 2+ daily activities</p>
+                      <p className="text-sm"><strong>National Average:</strong> $4,800/month (2024)</p>
+                      <p className="text-sm mt-1"><strong>Services:</strong> Personal care, meals, housekeeping, medication management, transportation</p>
+                      <p className="text-sm mt-1"><strong>Best For:</strong> Seniors needing help with bathing, dressing, medication</p>
                     </div>
                   </div>
                 </CardContent>
@@ -688,31 +722,53 @@ export default function CommunityDirectory() {
                       <Brain className="h-8 w-8" />
                       <CardTitle className="text-2xl">Memory Care</CardTitle>
                     </div>
-                    <Badge className="bg-white/20 text-white">$5,500-$8,500/mo</Badge>
+                    <Badge className="bg-white/20 text-white">$5,500-$9,000/mo</Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="p-6">
                   <p className="text-gray-700 dark:text-gray-300 mb-4">
-                    Specialized care for Alzheimer's and dementia in secure environments with trained staff and therapeutic programs.
+                    Specialized secure facilities for Alzheimer's/dementia with trained staff. Higher staffing ratios and therapeutic programs.
                   </p>
                   <div className="space-y-3">
                     <div className="flex items-start gap-2">
+                      <Shield className="h-5 w-5 text-blue-500 mt-0.5" />
+                      <div>
+                        <p className="font-semibold">Medicare Coverage:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Limited to medical services only. Room and board NOT covered.</p>
+                        <p className="text-xs text-gray-500 mt-1">Source: Medicare.gov</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Brain className="h-5 w-5 text-purple-500 mt-0.5" />
+                      <div>
+                        <p className="font-semibold">NIH Research Findings:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Music therapy reduces agitation by up to 50%</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Structured routines improve sleep patterns</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Pet therapy decreases anxiety and depression</p>
+                        <p className="text-xs text-gray-500 mt-1">Source: National Institute on Aging (NIA.NIH.gov)</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
                       <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
                       <div>
-                        <p className="font-semibold">Little-Known Fact:</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Music therapy can reduce sundowning behaviors by up to 50% - ask if the facility offers it.</p>
+                        <p className="font-semibold">Medicaid Coverage Options:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Some states cover memory care through HCBS waivers for qualifying low-income seniors.</p>
+                        <p className="text-xs text-gray-500 mt-1">Source: Medicaid.gov</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
                       <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
                       <div>
-                        <p className="font-semibold">Critical Question:</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Ask about staff-to-resident ratios during nights and weekends - should be 1:8 or better.</p>
+                        <p className="font-semibold">Critical Questions to Ask:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Staff-to-resident ratio (should be 1:6-1:8)</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Dementia training hours for staff</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Secure outdoor spaces available?</p>
                       </div>
                     </div>
                     <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
-                      <p className="text-sm"><strong>Includes:</strong> Secured units, specialized activities, behavior management</p>
-                      <p className="text-sm mt-1"><strong>Best For:</strong> Mid to late-stage dementia requiring 24/7 supervision</p>
+                      <p className="text-sm"><strong>Features:</strong> Secured units, 24/7 supervision, specialized activities, behavior management</p>
+                      <p className="text-sm mt-1"><strong>Best For:</strong> Mid to late-stage dementia requiring constant supervision</p>
+                      <p className="text-sm mt-1"><strong>Payment:</strong> Private pay, long-term care insurance, VA benefits, some Medicaid waivers</p>
                     </div>
                   </div>
                 </CardContent>
@@ -726,31 +782,54 @@ export default function CommunityDirectory() {
                       <Stethoscope className="h-8 w-8" />
                       <CardTitle className="text-2xl">Skilled Nursing</CardTitle>
                     </div>
-                    <Badge className="bg-white/20 text-white">$7,000-$10,000/mo</Badge>
+                    <Badge className="bg-white/20 text-white">$8,200-$11,000/mo</Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="p-6">
                   <p className="text-gray-700 dark:text-gray-300 mb-4">
-                    24/7 medical care with RNs and rehabilitation services. Often covered by Medicare for qualifying stays.
+                    24/7 medical supervision with registered nurses. Rehabilitation therapy, wound care, and complex medical management.
                   </p>
                   <div className="space-y-3">
                     <div className="flex items-start gap-2">
-                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                      <Shield className="h-5 w-5 text-blue-500 mt-0.5" />
                       <div>
-                        <p className="font-semibold">Little-Known Fact:</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Medicare covers 100% of the first 20 days if admitted from a 3-day hospital stay.</p>
+                        <p className="font-semibold">Medicare Coverage (Up to 100 Days):</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Days 1-20: 100% covered (after 3-day hospital stay)</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Days 21-100: You pay $204/day (2025), Medicare covers rest</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Day 101+: 100% out-of-pocket unless Medicaid eligible</p>
+                        <p className="text-xs text-gray-500 mt-1">Source: Medicare.gov</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <DollarSign className="h-5 w-5 text-green-500 mt-0.5" />
+                      <div>
+                        <p className="font-semibold">National Averages (2024):</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Semi-private room: $8,200/month</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Private room: $9,500/month</p>
+                        <p className="text-xs text-gray-500 mt-1">Source: CMS.gov (Centers for Medicare & Medicaid Services)</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-5 w-5 text-purple-500 mt-0.5" />
+                      <div>
+                        <p className="font-semibold">VA Community Living Centers:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Veterans may qualify for VA nursing homes with copays $0-$97/day based on service connection.</p>
+                        <p className="text-xs text-gray-500 mt-1">Source: VA.gov</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
                       <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
                       <div>
-                        <p className="font-semibold">Money-Saving Tip:</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Days 21-100: Medicare pays all but $200/day (2024) - supplemental insurance often covers this gap.</p>
+                        <p className="font-semibold">Money-Saving Tips:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Medicare Advantage may offer extended coverage</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Apply for Medicaid before savings depleted</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Medigap policies cover Days 21-100 copays</p>
                       </div>
                     </div>
                     <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
-                      <p className="text-sm"><strong>Includes:</strong> IV therapy, wound care, physical therapy, speech therapy</p>
-                      <p className="text-sm mt-1"><strong>Best For:</strong> Post-surgery recovery, complex medical needs</p>
+                      <p className="text-sm"><strong>Services:</strong> IV therapy, wound care, PT/OT/Speech therapy, ventilator care</p>
+                      <p className="text-sm mt-1"><strong>Best For:</strong> Post-hospital recovery, stroke rehab, complex medical conditions</p>
+                      <p className="text-sm mt-1"><strong>Quality Check:</strong> Review ratings at Medicare.gov/care-compare</p>
                     </div>
                   </div>
                 </CardContent>
@@ -764,31 +843,107 @@ export default function CommunityDirectory() {
                       <Activity className="h-8 w-8" />
                       <CardTitle className="text-2xl">Active Adult (55+)</CardTitle>
                     </div>
-                    <Badge className="bg-white/20 text-white">$1,500-$3,500/mo</Badge>
+                    <Badge className="bg-white/20 text-white">$1,200-$3,500/mo</Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="p-6">
                   <p className="text-gray-700 dark:text-gray-300 mb-4">
-                    Age-restricted communities with resort-style amenities. No care services but vibrant social life.
+                    Age-restricted communities (55+ under Fair Housing Act) with resort amenities. No care services provided.
                   </p>
                   <div className="space-y-3">
                     <div className="flex items-start gap-2">
-                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                      <Shield className="h-5 w-5 text-blue-500 mt-0.5" />
                       <div>
-                        <p className="font-semibold">Little-Known Fact:</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">HOA fees often include golf memberships worth $500+/month at country club communities.</p>
+                        <p className="font-semibold">HUD Fair Housing Act:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Communities must have 80% of units with at least one resident 55+ to qualify for age restriction.</p>
+                        <p className="text-xs text-gray-500 mt-1">Source: HUD.gov Fair Housing Act</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Home className="h-5 w-5 text-green-500 mt-0.5" />
+                      <div>
+                        <p className="font-semibold">Government Programs:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• USDA Rural Development offers loans for 55+ communities in rural areas</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Property tax exemptions available in many states</p>
+                        <p className="text-xs text-gray-500 mt-1">Source: USDA.gov</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-2">
                       <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
                       <div>
-                        <p className="font-semibold">Insider Tip:</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Buy during developer closeouts for 20-40% discounts on final units.</p>
+                        <p className="font-semibold">Money-Saving Tips:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Buy during developer closeouts (20-40% discounts)</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• HOA fees often include $500+/mo golf memberships</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Consider manufactured home communities (50% less)</p>
                       </div>
                     </div>
                     <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">
-                      <p className="text-sm"><strong>Includes:</strong> Pools, fitness centers, social clubs, golf courses</p>
-                      <p className="text-sm mt-1"><strong>Best For:</strong> Active retirees wanting community without care</p>
+                      <p className="text-sm"><strong>Amenities:</strong> Pools, fitness centers, golf courses, social clubs, gated security</p>
+                      <p className="text-sm mt-1"><strong>Best For:</strong> Active retirees 55+ wanting resort lifestyle without care</p>
+                      <p className="text-sm mt-1"><strong>No Medicare/Medicaid coverage</strong> - Lifestyle choice, not medical</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* HUD Section 202 */}
+              <Card className="hover:shadow-2xl transition-all duration-300 border-2 border-orange-200 dark:border-orange-700">
+                <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Building className="h-8 w-8" />
+                      <CardTitle className="text-2xl">HUD Section 202</CardTitle>
+                    </div>
+                    <Badge className="bg-white/20 text-white">30% of Income</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <p className="text-gray-700 dark:text-gray-300 mb-4">
+                    Government-subsidized senior housing for low-income individuals 62+. Rent based on adjusted income.
+                  </p>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-2">
+                      <Shield className="h-5 w-5 text-blue-500 mt-0.5" />
+                      <div>
+                        <p className="font-semibold">HUD Rent Calculation:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Rent = 30% of adjusted monthly income</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• $400 elderly household deduction applied</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Medical expenses over 3% of income deducted</p>
+                        <p className="text-xs text-gray-500 mt-1">Source: HUD.gov Section 202 Program</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <DollarSign className="h-5 w-5 text-green-500 mt-0.5" />
+                      <div>
+                        <p className="font-semibold">Eligibility Requirements:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Age 62 or older (or disabled)</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Income at or below 50% Area Median Income</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Example: $27,450/year for single person (varies by area)</p>
+                        <p className="text-xs text-gray-500 mt-1">Source: HUD.gov Income Limits</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-5 w-5 text-purple-500 mt-0.5" />
+                      <div>
+                        <p className="font-semibold">Additional Benefits:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Service Coordinators help access Medicare/Medicaid</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Utility allowances reduce rent further</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Often includes meals and transportation</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
+                      <div>
+                        <p className="font-semibold">Application Tips:</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Apply to multiple properties (waiting lists are long)</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Contact local HUD office for complete list</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">• Priority often given to homeless or at-risk seniors</p>
+                      </div>
+                    </div>
+                    <div className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg">
+                      <p className="text-sm"><strong>Average Wait:</strong> 9-24 months (varies by location)</p>
+                      <p className="text-sm mt-1"><strong>Find Properties:</strong> HUD.gov Resource Locator or call 1-800-569-4287</p>
+                      <p className="text-sm mt-1"><strong>Best For:</strong> Low-income seniors needing affordable, safe housing</p>
                     </div>
                   </div>
                 </CardContent>
