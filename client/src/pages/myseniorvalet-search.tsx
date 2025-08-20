@@ -198,7 +198,7 @@ export default function MySeniorValetSearch() {
           <p className="text-sm text-gray-700 font-medium">
             {isLoading ? 'Searching...' : 
              communities.length > 0 ? `Found ${communities.length} results` : 
-             searchParams.get('q') ? 'No results found' : 'Enter a search term'}
+             searchQuery ? 'No results found' : 'Enter a search term'}
           </p>
           <Button className="gradient-primary hover:opacity-90 text-white px-4 py-2 rounded-full border-0 animate-gradient">
             <Search className="w-4 h-4 mr-2" />
@@ -232,9 +232,9 @@ export default function MySeniorValetSearch() {
               </div>
             ))
           ) : (
-            searchParams.get('q') && (
+            searchQuery && (
               <div className="text-center py-8">
-                <p className="text-gray-500">No communities found for "{searchParams.get('q')}"</p>
+                <p className="text-gray-500">No communities found for "{searchQuery}"</p>
                 <p className="text-sm text-gray-400 mt-2">Try searching for a different location or community name</p>
               </div>
             )
