@@ -538,7 +538,7 @@ export default function MySeniorValetHome() {
                           <Home className="h-5 w-5" />
                           <span>Home</span>
                         </Link>
-                        <Link href="/myseniorvalet-search" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
+                        <Link href="/map-search" className="flex items-center space-x-3 px-4 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700">
                           <Search className="h-5 w-5" />
                           <span>Search Communities</span>
                         </Link>
@@ -745,8 +745,8 @@ export default function MySeniorValetHome() {
             {/* All Action Buttons - Compact Horizontal Layout */}
             <div className="mb-4 animate-fade-in-up animation-delay-100">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {/* Traditional Search - Points to correct myseniorvalet-search route */}
-                <Link href={`/myseniorvalet-search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="w-full">
+                {/* Traditional Search - Points to map-search route */}
+                <Link href={`/map-search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="w-full">
                   <Button className="w-full h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-600">
                     <div className="flex items-center justify-start space-x-1.5">
                       <Search className="h-4 w-4 flex-shrink-0" />
@@ -804,7 +804,7 @@ export default function MySeniorValetHome() {
               <form onSubmit={(e) => {
                 e.preventDefault();
                 if (searchQuery) {
-                  window.location.href = `/myseniorvalet-search?q=${encodeURIComponent(searchQuery)}`;
+                  window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
                 }
               }}>
                 <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl" style={{ overflow: 'visible' }}>
@@ -815,7 +815,7 @@ export default function MySeniorValetHome() {
                         onChange={setSearchQuery}
                         onSubmit={(value) => {
                           if (value) {
-                            window.location.href = `/myseniorvalet-search?q=${encodeURIComponent(value)}`;
+                            window.location.href = `/map-search?q=${encodeURIComponent(value)}`;
                           }
                         }}
                         placeholder={t('hero.searchPlaceholder')}

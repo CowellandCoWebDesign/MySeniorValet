@@ -169,7 +169,8 @@ function Router() {
       <Route path="/canada" component={CanadaPage} />
       <Route path="/map" component={MapSearch} />
       <Route path="/map-search" component={MapSearch} />
-      <Route path="/myseniorvalet-search" component={MySeniorValetSearch} />
+      {/* MySeniorValetSearch removed - redirected to map-search */}
+      <Route path="/myseniorvalet-search" component={MapSearch} />
       <Route path="/ai-intelligence" component={AISearchIntelligence} />
       <Route path="/simplified-search" component={SimplifiedSearch} />
       <Route path="/community/:id" component={CommunityDetail} />
