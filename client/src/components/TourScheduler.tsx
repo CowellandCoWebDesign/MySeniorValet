@@ -71,20 +71,30 @@ export function TourScheduler({
     },
   });
 
+  // Convert 24-hour time to 12-hour format with AM/PM
+  const convertTo12HourFormat = (time24: string): string => {
+    const [hours, minutes] = time24.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const hours12 = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    return `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
+    const tourTime = formData.get('tourTime') as string;
+    const formattedTime = tourTime ? convertTo12HourFormat(tourTime) : '10:00 AM';
+    
     scheduleTourMutation.mutate({
       communityId,
-      tourDate: formData.get('tourDate'),
-      tourTime: formData.get('tourTime'),
-      tourType: formData.get('tourType'),
-      attendeeCount: parseInt(formData.get('attendeeCount') as string),
+      preferredDate: formData.get('tourDate'),
+      preferredTime: formattedTime,
+      tourType: formData.get('tourType') || 'in-person',
+      partySize: parseInt(formData.get('attendeeCount') as string) || 1,
       contactName: formData.get('contactName'),
       contactEmail: formData.get('contactEmail'),
       contactPhone: formData.get('contactPhone'),
-      contactPreference: formData.get('contactPreference'),
       specialRequests: formData.get('specialRequests'),
     });
   };

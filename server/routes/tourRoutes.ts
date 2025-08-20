@@ -66,24 +66,24 @@ router.post("/schedule", async (req, res) => {
     // Generate confirmation code
     const confirmationCode = generateConfirmationCode();
     
-    // Create the tour - using camelCase field names as expected by Drizzle
+    // Create the tour - using snake_case field names as defined in schema
     const tourInsertData = {
-      userId: userId,
-      communityId: tourData.communityId,
-      preferredDate: tourData.preferredDate,
-      preferredTime: tourData.preferredTime,
-      alternativeDate: tourData.alternativeDate || null,
-      alternativeTime: tourData.alternativeTime || null,
-      contactName: tourData.contactName,
-      contactEmail: tourData.contactEmail,
-      contactPhone: tourData.contactPhone,
-      tourType: tourData.tourType as "in-person" | "virtual" | "self-guided",
-      partySize: tourData.partySize,
-      specialRequests: tourData.specialRequests || null,
-      interestedInCareLevel: tourData.interestedInCareLevel || [],
+      user_id: userId,
+      community_id: tourData.communityId,
+      preferred_date: tourData.preferredDate,
+      preferred_time: tourData.preferredTime,
+      alternative_date: tourData.alternativeDate || null,
+      alternative_time: tourData.alternativeTime || null,
+      contact_name: tourData.contactName,
+      contact_email: tourData.contactEmail,
+      contact_phone: tourData.contactPhone,
+      tour_type: tourData.tourType as "in-person" | "virtual" | "self-guided",
+      party_size: tourData.partySize,
+      special_requests: tourData.specialRequests || null,
+      interested_in_care_level: tourData.interestedInCareLevel || [],
       source: tourData.source as "website" | "mobile" | "phone" | "email" | "partner",
-      utmParams: tourData.utmParams || null,
-      confirmationCode: confirmationCode,
+      utm_params: tourData.utmParams || null,
+      confirmation_code: confirmationCode,
       status: "pending" as const,
     };
     
@@ -290,7 +290,7 @@ router.patch("/:tourId/status", isAuthenticated, async (req, res) => {
           </div>
         `;
         
-        await sendEmail({
+        await sgMail.send({
           to: updatedTour.contactEmail,
           from: "hello@myseniorvalet.com",
           subject: `Tour Confirmed - ${community?.name}`,
