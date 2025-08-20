@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Heart, MapPin, Filter, Star, Home, ArrowLeft, Settings, Map, List, Loader2 } from "lucide-react";
+import { Search, Heart, MapPin, Filter, Star, Home, ArrowLeft, Settings, Map as MapIcon, List, Loader2, Brain } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { PricingTransparencyBadgeList, TransparencyScore } from "@/components/PricingTransparencyBadge";
 import { NavigationHeader } from "@/components/NavigationHeader";
@@ -16,6 +16,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { SlidersHorizontal } from 'lucide-react';
+import { AutocompleteSearch } from "@/components/AutocompleteSearch";
+
+// Lazy load the Map component
+const Map = lazy(() => import("@/components/Map"));
 
 interface Community {
   id: number;
@@ -51,8 +55,9 @@ interface Community {
 }
 
 export default function MySeniorValetSearch() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchLocation, setSearchLocation] = useState<{lat: number; lng: number} | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -143,12 +148,56 @@ export default function MySeniorValetSearch() {
     // TODO: Implement favorites functionality
   };
 
+  // Handle search submission
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setLocation(`/myseniorvalet-search?q=${encodeURIComponent(query)}`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <NavigationHeader 
         title="Community Search" 
         subtitle="Find your perfect senior living community"
       />
+
+      {/* Home-style Search Bar Interface */}
+      <div className="px-4 py-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 border-b">
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          if (searchQuery) {
+            handleSearch(searchQuery);
+          }
+        }}>
+          <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-4xl mx-auto">
+            <div className="flex items-center">
+              <div className="flex-1">
+                <AutocompleteSearch
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  onSubmit={handleSearch}
+                  placeholder="Search by city, community name, or care type..."
+                  hideSearchButton={true}
+                  inputClassName="w-full pl-12 pr-3 py-3 text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              </div>
+              <div className="flex items-center mr-2">
+                <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs px-3 py-1 font-semibold">
+                  <Brain className="w-3 h-3 mr-1" />
+                  AI-Powered
+                </Badge>
+              </div>
+              <button
+                type="submit"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-2.5 m-2 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
 
       {/* Enhanced Filter Bar with Drawer */}
       <div className="px-4 py-3 bg-white dark:bg-gray-900 border-b">
@@ -262,7 +311,7 @@ export default function MySeniorValetSearch() {
               size="sm"
               onClick={() => setViewMode('map')}
             >
-              <Map className="h-4 w-4" />
+              <MapIcon className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -306,7 +355,7 @@ export default function MySeniorValetSearch() {
           <div className="max-w-7xl mx-auto px-4 py-4">
             {communities.length > 0 ? (
               <div className="space-y-4">
-                {communities.slice(0, displayedCount).map((community, index) => (
+                {communities.slice(0, displayedCount).map((community: Community, index: number) => (
                   <div key={community.id} className="animate-fadeIn" style={{animationDelay: `${Math.min(index, 10) * 0.05}s`}}>
                     <PrioritizedCommunityCard
                       community={community}
@@ -345,11 +394,32 @@ export default function MySeniorValetSearch() {
         </div>
       )}
 
-      {/* Grid View - Keep for Map Mode */}
+      {/* Map View */}
       {!isLoading && viewMode === 'map' && (
+        <div className="relative h-[calc(100vh-260px)]">
+          <Suspense fallback={
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+                <p className="text-gray-600">Loading map...</p>
+              </div>
+            </div>
+          }>
+            <Map 
+              communities={communities}
+              className="w-full h-full"
+              center={searchLocation ? [searchLocation.lat, searchLocation.lng] : undefined}
+              zoom={searchLocation ? 12 : 5}
+            />
+          </Suspense>
+        </div>
+      )}
+
+      {/* Previous Grid View - Hidden Now */}
+      {false && (
         <div className="px-4 py-2">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-            {communities.map((community, index) => (
+            {communities.map((community: Community, index: number) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden cursor-pointer bg-white shadow-sm hover:shadow-md transition-shadow animate-float w-full" style={{animationDelay: `${index * 0.1}s`}}>
                 {/* Photo Section - Matching Homepage Style */}
