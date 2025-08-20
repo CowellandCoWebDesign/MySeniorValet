@@ -6,14 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Heart, MapPin, Filter, Star, Home, ArrowLeft, Settings, Map as MapIcon, List, Loader2, X } from "lucide-react";
+import { Search, Heart, MapPin, Filter, Star, Home, ArrowLeft, Settings, Map, List, Loader2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { PricingTransparencyBadgeList, TransparencyScore } from "@/components/PricingTransparencyBadge";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
-import Map from "@/components/Map";
-import MapErrorBoundary from "@/components/MapErrorBoundary";
-import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
 
 interface Community {
   id: number;
@@ -22,8 +19,6 @@ interface Community {
   city: string;
   state: string;
   zipCode: string;
-  latitude?: number;
-  longitude?: number;
   careTypes: string[];
   monthlyRent?: number;
   priceRange?: {
@@ -48,20 +43,12 @@ interface Community {
     points: number;
   }>;
   transparencyScore?: number;
-  rating?: number;
-  reviewCount?: number;
-  availability?: string;
-  description?: string;
-  hudPropertyId?: string;
-  rentPerMonth?: string;
 }
 
 export default function MySeniorValetSearch() {
   const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
-  const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]);
-  const [mapZoom, setMapZoom] = useState(12);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     careTypes: [] as string[],
@@ -89,17 +76,6 @@ export default function MySeniorValetSearch() {
     if (careType) setFilters(prev => ({ ...prev, careTypes: [careType] }));
   }, [location]);
 
-  // Update map center when communities change
-  useEffect(() => {
-    if (communities.length > 0) {
-      const firstWithCoords = communities.find(c => c.latitude && c.longitude);
-      if (firstWithCoords && firstWithCoords.latitude && firstWithCoords.longitude) {
-        setMapCenter([firstWithCoords.latitude, firstWithCoords.longitude]);
-        setMapZoom(13);
-      }
-    }
-  }, [communities]);
-
   // Build query string for API
   const buildQueryString = () => {
     const params = new URLSearchParams();
@@ -108,7 +84,7 @@ export default function MySeniorValetSearch() {
     if (filters.careTypes.length > 0) params.append('careType', filters.careTypes[0]);
     if (filters.maxPrice) params.append('priceMax', filters.maxPrice);
     if (filters.minRating) params.append('minRating', filters.minRating);
-    params.append('limit', '20'); // Start with 20 for faster initial load
+    params.append('limit', '100');
     return params.toString();
   };
 
@@ -123,7 +99,6 @@ export default function MySeniorValetSearch() {
     },
     retry: false,
     enabled: true, // Always enabled to fetch initial data
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   // Extract communities array from search response
@@ -211,7 +186,7 @@ export default function MySeniorValetSearch() {
               onClick={() => setViewMode('map')}
               className="p-2"
             >
-              <MapIcon className="w-4 h-4" />
+              <Map className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -232,20 +207,13 @@ export default function MySeniorValetSearch() {
         </div>
       </div>
 
-      {/* Loading State - Show skeleton cards while loading */}
+      {/* Loading State */}
       {isLoading && (
-        <div className="px-4 py-2 space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <Card className="overflow-hidden bg-gray-100 dark:bg-gray-800">
-                <CardContent className="p-4">
-                  <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded mb-3"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                </CardContent>
-              </Card>
-            </div>
-          ))}
+        <div className="px-4 py-8 text-center">
+          <div className="gradient-card p-8 rounded-lg animate-pulse-glow particles">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto animate-gradient"></div>
+            <p className="text-gradient mt-2 font-semibold">Loading communities...</p>
+          </div>
         </div>
       )}
 
@@ -274,57 +242,8 @@ export default function MySeniorValetSearch() {
         </div>
       )}
 
-      {/* Map View - Full Map Component from map-search */}
+      {/* Grid View - Keep for Map Mode */}
       {!isLoading && viewMode === 'map' && (
-        <div className="relative h-[calc(100vh-200px)]">
-          <MapErrorBoundary>
-            <Map
-              center={mapCenter}
-              zoom={mapZoom}
-              onBoundsChange={(bounds) => {
-                // You can optionally fetch communities within bounds here
-                console.log('Map bounds changed:', bounds);
-              }}
-              showBottomPanel={communities.length > 0}
-              bottomPanelContent={
-                <div className="p-4 space-y-4 max-h-[400px] overflow-y-auto">
-                  <div className="font-semibold text-gray-700 mb-2">
-                    {communities.length} communities in current view
-                  </div>
-                  {communities.map((community, index) => (
-                    <PrioritizedCommunityCard
-                      key={community.id}
-                      community={{
-                        ...community,
-                        rating: community.rating || community.googleRating || 0,
-                        reviewCount: community.reviewCount || community.googleReviewCount || 0
-                      }}
-                      index={index}
-                      onClick={() => window.location.href = `/community/${community.id}`}
-                    />
-                  ))}
-                </div>
-              }
-              mapData={{
-                communities: communities.map(c => ({
-                  ...c,
-                  latitude: c.latitude || mapCenter[0] + (Math.random() - 0.5) * 0.1,
-                  longitude: c.longitude || mapCenter[1] + (Math.random() - 0.5) * 0.1,
-                  rating: c.rating || c.googleRating || 0,
-                  reviewCount: c.reviewCount || c.googleReviewCount || 0
-                })),
-                hospitals: [],
-                vendors: [],
-                healthcare: [],
-                resources: []
-              }}
-            />
-          </MapErrorBoundary>
-        </div>
-      )}
-
-      {/* Original Grid View - Now removed in favor of Map Component */}
-      {false && (
         <div className="px-4 py-2">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
             {communities.map((community, index) => (
