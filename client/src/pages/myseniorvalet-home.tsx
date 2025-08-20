@@ -727,12 +727,12 @@ export default function MySeniorValetHome() {
           <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8 mb-4 text-center">
             {/* Main Heading - Animates in first */}
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 animate-fade-in-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
-              Empowering Families to Find Transparent, Affordable Senior Living and Care
+              The Clear Path to Senior Living & Care
             </h1>
             
             {/* Subheading - Animates in second with delay */}
             <p className="text-sm sm:text-base md:text-lg text-gray-200 max-w-3xl mx-auto animate-fade-in-up animation-delay-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-              Explore trusted senior living communities and connect with services that make life easier. Transparent pricing, real-time availability, and seamless service integration, all in one place.
+              Find communities, services, and resources with real pricing, live availability, and trusted reviews—all in one place.
             </p>
           </div>
           
