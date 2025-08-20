@@ -157,6 +157,110 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
+      {/* Browse by State and Database Features */}
+      <section className="px-4 py-12 bg-gray-50 dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Browse by State */}
+            <Card className="lg:col-span-2 border-2 border-blue-200 dark:border-blue-700">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="h-6 w-6 text-blue-600" />
+                  Browse by State
+                </CardTitle>
+                <CardDescription>
+                  Select a state to explore communities in that region
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                  {topStates.slice(0, 15).map((state: any) => (
+                    <Link key={state.state} href={`/search?state=${state.state}`}>
+                      <Card className="hover:shadow-lg transition-all cursor-pointer border hover:border-blue-400 group">
+                        <CardContent className="p-3 text-center">
+                          <div className="font-bold text-lg text-gray-900 dark:text-gray-100 group-hover:text-blue-600">
+                            {state.state}
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400">
+                            {state.count.toLocaleString()} communities
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                  <Link href="/map-search">
+                    <Card className="hover:shadow-lg transition-all cursor-pointer border hover:border-blue-400 group bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+                      <CardContent className="p-3 text-center flex flex-col justify-center h-full">
+                        <div className="font-bold text-sm text-blue-600">
+                          View All 50 States
+                        </div>
+                        <ChevronRight className="h-4 w-4 mx-auto mt-1 text-blue-600" />
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Database Features */}
+            <Card className="border-2 border-purple-200 dark:border-purple-700">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Database className="h-6 w-6 text-purple-600" />
+                  Database Features
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                  <div>
+                    <div className="font-semibold text-sm">Real-Time Updates</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      Live pricing and availability
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                  <div>
+                    <div className="font-semibold text-sm">HUD Verified Pricing</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      5,936+ government properties
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                  <div>
+                    <div className="font-semibold text-sm">Advanced Filtering</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      Search by care type, price, location
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                  <div>
+                    <div className="font-semibold text-sm">Complete Details</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      Photos, amenities, reviews
+                    </div>
+                  </div>
+                </div>
+                <Button 
+                  className="w-full mt-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
+                  onClick={() => setLocation('/map-search')}
+                >
+                  <Search className="mr-2 h-4 w-4" />
+                  Start Searching
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Comprehensive Care Spectrum Section */}
       <section id="care-spectrum" className="px-4 py-16 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-7xl mx-auto">
@@ -621,110 +725,12 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* Main Content Grid */}
-      <section className="px-4 py-12">
+      {/* Trending Communities and Tools */}
+      <section className="px-4 py-12 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            {/* Browse by State */}
-            <Card className="lg:col-span-2 border-2 border-blue-200 dark:border-blue-700">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="h-6 w-6 text-blue-600" />
-                  Browse by State
-                </CardTitle>
-                <CardDescription>
-                  Select a state to explore communities in that region
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
-                  {topStates.slice(0, 15).map((state: any) => (
-                    <Link key={state.state} href={`/search?state=${state.state}`}>
-                      <Card className="hover:shadow-lg transition-all cursor-pointer border hover:border-blue-400 group">
-                        <CardContent className="p-3 text-center">
-                          <div className="font-bold text-lg text-gray-900 dark:text-gray-100 group-hover:text-blue-600">
-                            {state.state}
-                          </div>
-                          <div className="text-xs text-gray-600 dark:text-gray-400">
-                            {state.count.toLocaleString()} communities
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                  <Link href="/map-search">
-                    <Card className="hover:shadow-lg transition-all cursor-pointer border hover:border-blue-400 group bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-                      <CardContent className="p-3 text-center flex flex-col justify-center h-full">
-                        <div className="font-bold text-sm text-blue-600">
-                          View All 50 States
-                        </div>
-                        <ChevronRight className="h-4 w-4 mx-auto mt-1 text-blue-600" />
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Database Features */}
-            <Card className="border-2 border-purple-200 dark:border-purple-700">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Database className="h-6 w-6 text-purple-600" />
-                  Database Features
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div>
-                    <div className="font-semibold text-sm">Real-Time Updates</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">
-                      Live pricing and availability
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div>
-                    <div className="font-semibold text-sm">HUD Verified Pricing</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">
-                      5,936+ government properties
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div>
-                    <div className="font-semibold text-sm">Advanced Filtering</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">
-                      Search by care type, price, location
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div>
-                    <div className="font-semibold text-sm">Complete Details</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">
-                      Photos, amenities, reviews
-                    </div>
-                  </div>
-                </div>
-                <Button 
-                  className="w-full mt-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
-                  onClick={() => setLocation('/map-search')}
-                >
-                  <Search className="mr-2 h-4 w-4" />
-                  Start Searching
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
 
           {/* Trending Communities */}
-          <Card className="mt-8 border-2 border-green-200 dark:border-green-700">
+          <Card className="border-2 border-green-200 dark:border-green-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-6 w-6 text-green-600" />
