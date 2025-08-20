@@ -12,7 +12,7 @@ import {
   Pill, ChevronRight, CheckCircle, MapPin, Clock, Phone, Star,
   Zap, HeartHandshake, UserCheck, Calendar, AlertCircle, Search,
   Car, Apple, Eye, Ear, Footprints, TestTube, BedDouble, Palette,
-  Smile, Package, Filter, Video, BrainCircuit
+  Smile, Package, Filter, Video, BrainCircuit, DollarSign, Sun, Moon, Info
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
