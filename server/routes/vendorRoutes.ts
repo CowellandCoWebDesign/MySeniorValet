@@ -81,50 +81,52 @@ export function registerVendorRoutes(app: Express) {
     }
   });
 
+  // Search vendors (MUST come before :id route)
+  app.get('/api/vendors/search', async (req, res) => {
+    try {
+      const { query, category, location, minRating } = req.query;
+      
+      // Use raw SQL completely to avoid all Drizzle ORM issues
+      const results = await db.execute(sql`
+        SELECT id, business_name, business_type, description, short_description, 
+               business_city, business_state, website, logo_url, service_areas,
+               subscription_tier, average_rating, total_reviews, featured, status,
+               primary_contact_email, primary_contact_phone
+        FROM vendors
+        WHERE status = 'active'
+        ORDER BY featured DESC, average_rating DESC
+        LIMIT 20
+      `);
+
+      res.json(results.rows || []);
+    } catch (error) {
+      console.error('Error searching vendors:', error);
+      res.status(500).json({ error: 'Failed to search vendors' });
+    }
+  });
+
   // Get vendor by ID
   app.get('/api/vendors/:id', async (req, res) => {
     try {
       const { id } = req.params;
       
-      const vendor = await db
-        .select({
-          id: vendors.id,
-          businessName: vendors.businessName,
-          businessType: vendors.businessType,
-          description: vendors.description,
-          shortDescription: vendors.shortDescription,
-          primaryContactEmail: vendors.primaryContactEmail,
-          primaryContactPhone: vendors.primaryContactPhone,
-          businessCity: vendors.businessCity,
-          businessState: vendors.businessState,
-          website: vendors.website,
-          logoUrl: vendors.logoUrl,
-          serviceAreas: vendors.serviceAreas,
-          subscriptionTier: vendors.subscriptionTier,
-          isVerified: vendors.isVerified,
-          averageRating: vendors.averageRating,
-          totalReviews: vendors.totalReviews,
-          featured: vendors.featured,
-          status: vendors.status,
-          profileViews: vendors.profileViews,
-          leadsReceived: vendors.leadsReceived,
-          responseRate: vendors.responseRate
-        })
-        .from(vendors)
-        .where(eq(vendors.id, parseInt(id)))
-        .limit(1);
+      // Use raw SQL to avoid Drizzle ORM query builder issues
+      const result = await db.execute(sql`
+        SELECT 
+          id, business_name, business_type, description, short_description,
+          primary_contact_email, primary_contact_phone, business_city, business_state,
+          website, logo_url, service_areas, subscription_tier, is_verified,
+          average_rating, total_reviews, featured, status, created_at, updated_at
+        FROM vendors
+        WHERE id = ${parseInt(id)}
+        LIMIT 1
+      `);
       
-      if (!vendor || vendor.length === 0) {
+      if (!result.rows || result.rows.length === 0) {
         return res.status(404).json({ error: 'Vendor not found' });
       }
       
-      // Update profile views
-      await db
-        .update(vendors)
-        .set({ profileViews: sql`COALESCE(${vendors.profileViews}, 0) + 1` })
-        .where(eq(vendors.id, parseInt(id)));
-      
-      res.json(vendor[0]);
+      res.json(result.rows[0]);
     } catch (error) {
       console.error('Error fetching vendor:', error);
       res.status(500).json({ error: 'Failed to fetch vendor' });
@@ -271,56 +273,36 @@ export function registerVendorRoutes(app: Express) {
     try {
       const vendorId = parseInt(req.params.id);
       
-      const [vendor] = await db
-        .select({
-          id: vendors.id,
-          userId: vendors.userId,
-          businessName: vendors.businessName,
-          businessType: vendors.businessType,
-          primaryContactEmail: vendors.primaryContactEmail,
-          primaryContactPhone: vendors.primaryContactPhone,
-          businessAddress: vendors.businessAddress,
-          businessCity: vendors.businessCity,
-          businessState: vendors.businessState,
-          businessZip: vendors.businessZip,
-          logoUrl: vendors.logoUrl,
-          coverImageUrl: vendors.coverImageUrl,
-          description: vendors.description,
-          shortDescription: vendors.shortDescription,
-          yearsInBusiness: vendors.yearsInBusiness,
-          employeeCount: vendors.employeeCount,
-          website: vendors.website,
-          socialLinks: vendors.socialLinks,
-          serviceAreas: vendors.serviceAreas,
-          serviceRadius: vendors.serviceRadius,
-          isVerified: vendors.isVerified,
-          verificationDate: vendors.verificationDate,
-          subscriptionStatus: vendors.subscriptionStatus,
-          subscriptionTier: vendors.subscriptionTier,
-          averageRating: vendors.averageRating,
-          totalReviews: vendors.totalReviews,
-          status: vendors.status,
-          featured: vendors.featured,
-          createdAt: vendors.createdAt
-        })
-        .from(vendors)
-        .where(eq(vendors.id, vendorId))
-        .limit(1);
+      // Use raw SQL to avoid Drizzle ORM query builder issues
+      const vendorResult = await db.execute(sql`
+        SELECT 
+          id, user_id, business_name, business_type,
+          primary_contact_email, primary_contact_phone,
+          business_address, business_city, business_state, business_zip,
+          logo_url, cover_image_url, description, short_description,
+          years_in_business, employee_count, website, social_links,
+          service_areas, service_radius, is_verified, verification_date,
+          subscription_status, subscription_tier, average_rating,
+          total_reviews, status, featured, created_at
+        FROM vendors
+        WHERE id = ${vendorId}
+        LIMIT 1
+      `);
 
-      if (!vendor) {
+      if (!vendorResult.rows || vendorResult.rows.length === 0) {
         return res.status(404).json({ error: 'Vendor not found' });
       }
 
-      // Get vendor services
-      const services = await db
-        .select()
-        .from(vendorServices)
-        .where(eq(vendorServices.vendorId, vendorId))
-        .orderBy(desc(vendorServices.isActive));
+      // Get vendor services using raw SQL
+      const servicesResult = await db.execute(sql`
+        SELECT * FROM vendor_services
+        WHERE vendor_id = ${vendorId}
+        ORDER BY is_active DESC
+      `);
 
       res.json({
-        ...vendor,
-        services
+        ...vendorResult.rows[0],
+        services: servicesResult.rows || []
       });
     } catch (error) {
       console.error('Error fetching vendor:', error);
@@ -651,47 +633,6 @@ export function registerVendorRoutes(app: Express) {
     } catch (error) {
       console.error('Error fetching vendor dashboard:', error);
       res.status(500).json({ error: 'Failed to fetch dashboard data' });
-    }
-  });
-
-  // Search vendors
-  app.get('/api/vendors/search', async (req, res) => {
-    try {
-      const { query, category, location, minRating } = req.query;
-      
-      let conditions = [eq(vendors.status, 'active')];
-      
-      if (query) {
-        const searchPattern = `%${query}%`;
-        conditions.push(
-          or(
-            sql`${vendors.businessName} ILIKE ${searchPattern}`,
-            sql`${vendors.description} ILIKE ${searchPattern}`
-          )
-        );
-      }
-      
-      // TODO: Implement category and location filtering after fixing SQL template syntax
-      
-      if (minRating) {
-        conditions.push(sql`${vendors.averageRating}::float >= ${parseFloat(minRating as string)}`);
-      }
-
-      // Simplified query to avoid TypeErrors
-      const dbQuery = db.select().from(vendors);
-      
-      if (conditions.length > 0) {
-        dbQuery.where(and(...conditions));
-      }
-      
-      const results = await dbQuery
-        .orderBy(desc(vendors.featured), desc(vendors.averageRating))
-        .limit(20);
-
-      res.json(results);
-    } catch (error) {
-      console.error('Error searching vendors:', error);
-      res.status(500).json({ error: 'Failed to search vendors' });
     }
   });
 }

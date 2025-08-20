@@ -64,31 +64,34 @@ export function registerAdminRoutes(app: Express) {
       const { page = 1, limit = 50, tier, search } = req.query;
       const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
 
-      // Get all vendors with their details
-      const vendorsList = await db.select().from(vendors)
-        .orderBy(desc(vendors.createdAt))
-        .limit(parseInt(limit as string))
-        .offset(offset);
+      // Get all vendors with their details using raw SQL
+      const vendorsResult = await db.execute(sql`
+        SELECT * FROM vendors
+        ORDER BY created_at DESC
+        LIMIT ${parseInt(limit as string)}
+        OFFSET ${offset}
+      `);
 
       // Get total count
-      const [{ count }] = await db
-        .select({ count: sql<number>`COUNT(*)::integer` })
-        .from(vendors);
+      const countResult = await db.execute(sql`
+        SELECT COUNT(*)::integer as count FROM vendors
+      `);
+      const count = countResult.rows[0]?.count || 0;
 
       // Get tier counts
-      const tierCounts = await db
-        .select({
-          tier: vendors.tier,
-          count: sql<number>`COUNT(*)::integer`
-        })
-        .from(vendors)
-        .groupBy(vendors.tier);
+      const tierCountsResult = await db.execute(sql`
+        SELECT tier, COUNT(*)::integer as count
+        FROM vendors
+        GROUP BY tier
+      `);
 
       res.json({
-        vendors: vendorsList,
+        vendors: vendorsResult.rows || [],
         total: count,
-        tierCounts: tierCounts.reduce((acc, { tier, count }) => {
-          acc[tier] = count;
+        tierCounts: (tierCountsResult.rows || []).reduce((acc: Record<string, number>, row: any) => {
+          if (row.tier) {
+            acc[row.tier] = row.count;
+          }
           return acc;
         }, {} as Record<string, number>),
         page: parseInt(page as string),

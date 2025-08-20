@@ -63,13 +63,19 @@ export class VendorDatabaseStorage implements IVendorStorage {
   }
 
   async getVendorById(id: number): Promise<Vendor | undefined> {
-    const [vendor] = await db.select().from(vendors).where(eq(vendors.id, id));
-    return vendor;
+    // Use raw SQL to avoid Drizzle ORM query builder issues
+    const result = await db.execute(sql`
+      SELECT * FROM vendors WHERE id = ${id} LIMIT 1
+    `);
+    return result.rows[0] as Vendor | undefined;
   }
 
   async getVendorByUserId(userId: string): Promise<Vendor | undefined> {
-    const [vendor] = await db.select().from(vendors).where(eq(vendors.userId, userId));
-    return vendor;
+    // Use raw SQL to avoid Drizzle ORM query builder issues
+    const result = await db.execute(sql`
+      SELECT * FROM vendors WHERE user_id = ${userId} LIMIT 1
+    `);
+    return result.rows[0] as Vendor | undefined;
   }
 
   async updateVendor(id: number, updates: Partial<InsertVendor>): Promise<Vendor | undefined> {
