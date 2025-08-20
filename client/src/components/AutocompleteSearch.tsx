@@ -89,10 +89,11 @@ export function AutocompleteSearch({
     }
     
     if (debouncedValue && debouncedValue.length >= 2) {
+      console.log('Fetching suggestions for:', debouncedValue);
       setLoadingSuggestions(true);
       apiRequest('GET', `/api/autocomplete/suggestions?query=${encodeURIComponent(debouncedValue)}&limit=10`)
-        .then(res => res.json())
         .then(data => {
+          console.log('Received autocomplete data:', data);
           // Ensure suggestions are in the correct format
           const validSuggestions = (data.suggestions || []).filter((s: AutocompleteSuggestion) => {
             // Ensure all fields are strings, not objects
@@ -104,12 +105,14 @@ export function AutocompleteSearch({
             // Show ALL valid suggestions including exact matches
             return isValid;
           });
+          console.log('Valid suggestions:', validSuggestions);
           setSuggestions(validSuggestions);
           setShowSuggestions(validSuggestions.length > 0);
           setLoadingSuggestions(false);
         })
         .catch(error => {
-          console.error('Autocomplete error:', error);
+          console.error('Autocomplete error:', error.message || error);
+          console.error('Full error details:', error);
           setSuggestions([]);
           setShowSuggestions(false);
           setLoadingSuggestions(false);
@@ -284,6 +287,14 @@ export function AutocompleteSearch({
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
     }
   };
+
+  // Debug logging for rendering
+  console.log('Render state:', { 
+    showSuggestions, 
+    suggestionsLength: suggestions.length, 
+    loadingSuggestions,
+    suggestions: suggestions.slice(0, 2) // Show first 2 for debugging
+  });
 
   return (
     <div className="relative w-full">
