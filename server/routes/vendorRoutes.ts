@@ -106,11 +106,9 @@ export function registerVendorRoutes(app: Express) {
           totalReviews: vendors.totalReviews,
           featured: vendors.featured,
           status: vendors.status,
-          analytics: sql`json_build_object(
-            'profileViews', COALESCE(${vendors.profileViews}, 0),
-            'leadsReceived', COALESCE(${vendors.leadsReceived}, 0),
-            'responseRate', COALESCE(${vendors.responseRate}, 95)
-          )`
+          profileViews: vendors.profileViews,
+          leadsReceived: vendors.leadsReceived,
+          responseRate: vendors.responseRate
         })
         .from(vendors)
         .where(eq(vendors.id, parseInt(id)))
@@ -661,13 +659,14 @@ export function registerVendorRoutes(app: Express) {
     try {
       const { query, category, location, minRating } = req.query;
       
-      let conditions = [eq(vendors.isActive, true)];
+      let conditions = [eq(vendors.status, 'active')];
       
       if (query) {
+        const searchPattern = `%${query}%`;
         conditions.push(
           or(
-            sql`${vendors.businessName} ILIKE ${'%' + query + '%'}`,
-            sql`${vendors.description} ILIKE ${'%' + query + '%'}`
+            sql`${vendors.businessName} ILIKE ${searchPattern}`,
+            sql`${vendors.description} ILIKE ${searchPattern}`
           )
         );
       }
@@ -675,14 +674,18 @@ export function registerVendorRoutes(app: Express) {
       // TODO: Implement category and location filtering after fixing SQL template syntax
       
       if (minRating) {
-        conditions.push(sql`${vendors.rating}::float >= ${parseFloat(minRating as string)}`);
+        conditions.push(sql`${vendors.averageRating}::float >= ${parseFloat(minRating as string)}`);
       }
 
-      const results = await db
-        .select()
-        .from(vendors)
-        .where(and(...conditions))
-        .orderBy(desc(vendors.isVerified), desc(vendors.rating))
+      // Simplified query to avoid TypeErrors
+      const dbQuery = db.select().from(vendors);
+      
+      if (conditions.length > 0) {
+        dbQuery.where(and(...conditions));
+      }
+      
+      const results = await dbQuery
+        .orderBy(desc(vendors.featured), desc(vendors.averageRating))
         .limit(20);
 
       res.json(results);

@@ -233,6 +233,7 @@ export class EnhancedPlatformStatsService {
    */
   async getFormattedStats(): Promise<{
     totalCommunities: string;
+    communityCount: number;
     coverage: string;
     availability: string;
     capacity: string;
@@ -242,6 +243,7 @@ export class EnhancedPlatformStatsService {
     
     return {
       totalCommunities: stats.totalCommunities.toLocaleString(),
+      communityCount: stats.totalCommunities,
       coverage: `${stats.statesCovered} States • ${stats.countiesCovered.toLocaleString()} Counties • ${stats.citiesCovered.toLocaleString()} Cities`,
       availability: stats.totalAvailableUnits > 0 ? 
         `${stats.totalAvailableUnits.toLocaleString()} Units Available` : 

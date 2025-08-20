@@ -6,6 +6,16 @@ import { communityStatsCache } from "../community-stats-cache";
 import { enhancedPlatformStats } from "../enhanced-platform-stats";
 
 export function registerStatsRoutes(app: Express) {
+  // Platform statistics formatted endpoint
+  app.get("/api/platform/stats/formatted", async (req, res) => {
+    try {
+      const stats = await enhancedPlatformStats.getFormattedStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching formatted platform stats:", error);
+      res.status(500).json({ error: "Failed to fetch formatted statistics" });
+    }
+  });
   // Hero images endpoint - Using Pixabay for high-quality senior living imagery
   app.get('/api/images/hero', async (req, res) => {
     try {
