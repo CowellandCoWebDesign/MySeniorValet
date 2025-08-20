@@ -833,116 +833,7 @@ export default function MySeniorValetHome() {
         </div>
       </div>
 
-      {/* Senior Living Command Center with Integrated Marketplace */}
-      <section className="relative overflow-hidden">
-        {/* Command Center Header with Beautiful Gradient - matching marketplace page */}
-        <div className="px-4 py-12 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
-          {/* Animated gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-pink-900/20 animate-pulse"></div>
-          
-          <div className="max-w-7xl mx-auto relative z-10">
-            <div className="text-center">
-              <h2 className="text-5xl font-bold text-white mb-4">
-                Senior Living Command Center
-              </h2>
-              <div className="flex flex-col items-center gap-3 mb-6">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white">
-                  <Brain className="w-5 h-5" />
-                  <span className="text-sm font-semibold">Powered & Supported by Artificial Intelligence Orchestra</span>
-                </div>
-                <div className="flex flex-wrap items-center justify-center gap-2 px-4">
-                  <span className="text-xs text-white/80">Powered by:</span>
-                  <div className="flex flex-wrap items-center justify-center gap-2">
-                    <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-2 py-0.5 text-xs">
-                      1. Perplexity AI (Primary - Web Search)
-                    </Badge>
-                    <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 text-xs">
-                      2. Claude Sonnet 4.0 (Secondary - Analysis)
-                    </Badge>
-                    <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-2 py-0.5 text-xs">
-                      3. ChatGPT-4o (Backup - Verification)
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-              <div className="text-xl text-blue-100 max-w-4xl mx-auto mb-8">
-                <p className="mb-6">Access the most comprehensive senior living ecosystem ever assembled - over 42,000 resources spanning communities, vendors, healthcare, and education. Every listing enhanced by AI-powered search, Red Tag specials, and real-time market intelligence.</p>
-                <div className="space-y-2 text-lg">
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">🏘️</span>
-                    <span className="font-semibold">34,181+ Communities</span> with verified HUD pricing
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">🛍️</span>
-                    <span className="font-semibold">1,500+ Vendor Services</span> for senior living needs
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">🏥</span>
-                    <span className="font-semibold">6,800+ Healthcare Providers</span> nationwide
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">📚</span>
-                    <span className="font-semibold">100+ Educational Resources</span> for informed decisions
-                  </div>
-                </div>
-              </div>
-              
-              {/* Feature Badges */}
-              <div className="flex flex-wrap justify-center gap-3 mb-8">
-                <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 text-sm font-bold shadow-lg">
-                  <Flame className="w-4 h-4 mr-2" />
-                  Red Tag Specials
-                </Badge>
-                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                  <Brain className="w-4 h-4 mr-2" />
-                  AI Market Intelligence
-                </Badge>
-                <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                  <Calculator className="w-4 h-4 mr-2" />
-                  Cost Calculators
-                </Badge>
-                <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  42,481+ Total Resources
-                </Badge>
-                <Badge className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                  <Shield className="w-4 h-4 mr-2" />
-                  Complete Care Spectrum
-                </Badge>
-              </div>
-              
-              {/* Quick Stats Bar - like marketplace page */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">34,181+</div>
-                    <div className="text-xs text-blue-100">Communities</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">1,500+</div>
-                    <div className="text-xs text-blue-100">Vendors</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">6,800+</div>
-                    <div className="text-xs text-blue-100">Healthcare</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">100+</div>
-                    <div className="text-xs text-blue-100">Resources</div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      
+
       {/* Four Directory Cards Grid - Seamlessly Connected */}
       <section className="px-4 py-16 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
           <div className="max-w-7xl mx-auto">
@@ -1572,7 +1463,115 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-
+      {/* Senior Living Command Center Section - Moved after Resources */}
+      <section className="relative overflow-hidden">
+        {/* Command Center Header with Beautiful Gradient - matching marketplace page */}
+        <div className="px-4 py-12 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
+          {/* Animated gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-pink-900/20 animate-pulse"></div>
+          
+          <div className="max-w-7xl mx-auto relative z-10">
+            <div className="text-center">
+              <h2 className="text-5xl font-bold text-white mb-4">
+                Senior Living Command Center
+              </h2>
+              <div className="flex flex-col items-center gap-3 mb-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white">
+                  <Brain className="w-5 h-5" />
+                  <span className="text-sm font-semibold">Powered & Supported by Artificial Intelligence Orchestra</span>
+                </div>
+                <div className="flex flex-wrap items-center justify-center gap-2 px-4">
+                  <span className="text-xs text-white/80">Powered by:</span>
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-2 py-0.5 text-xs">
+                      1. Perplexity AI (Primary - Web Search)
+                    </Badge>
+                    <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 text-xs">
+                      2. Claude Sonnet 4.0 (Secondary - Analysis)
+                    </Badge>
+                    <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-2 py-0.5 text-xs">
+                      3. ChatGPT-4o (Backup - Verification)
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              <div className="text-xl text-blue-100 max-w-4xl mx-auto mb-8">
+                <p className="mb-6">Access the most comprehensive senior living ecosystem ever assembled - over 42,000 resources spanning communities, vendors, healthcare, and education. Every listing enhanced by AI-powered search, Red Tag specials, and real-time market intelligence.</p>
+                <div className="space-y-2 text-lg">
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-2xl">🏘️</span>
+                    <span className="font-semibold">34,181+ Communities</span> with verified HUD pricing
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-2xl">🛍️</span>
+                    <span className="font-semibold">1,500+ Vendor Services</span> for senior living needs
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-2xl">🏥</span>
+                    <span className="font-semibold">6,800+ Healthcare Providers</span> nationwide
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-2xl">📚</span>
+                    <span className="font-semibold">100+ Educational Resources</span> for informed decisions
+                  </div>
+                </div>
+              </div>
+              
+              {/* Feature Badges */}
+              <div className="flex flex-wrap justify-center gap-3 mb-8">
+                <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 text-sm font-bold shadow-lg">
+                  <Flame className="w-4 h-4 mr-2" />
+                  Red Tag Specials
+                </Badge>
+                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
+                  <Brain className="w-4 h-4 mr-2" />
+                  AI Market Intelligence
+                </Badge>
+                <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
+                  <Calculator className="w-4 h-4 mr-2" />
+                  Cost Calculators
+                </Badge>
+                <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
+                  <MapPin className="w-4 h-4 mr-2" />
+                  42,481+ Total Resources
+                </Badge>
+                <Badge className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Complete Care Spectrum
+                </Badge>
+              </div>
+              
+              {/* Quick Stats Bar - like marketplace page */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-2xl font-bold text-white">34,181+</div>
+                    <div className="text-xs text-blue-100">Communities</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-2xl font-bold text-white">1,500+</div>
+                    <div className="text-xs text-blue-100">Vendors</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-2xl font-bold text-white">6,800+</div>
+                    <div className="text-xs text-blue-100">Healthcare</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-2xl font-bold text-white">100+</div>
+                    <div className="text-xs text-blue-100">Resources</div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Partner Onboarding Section - Communities & Vendors */}
       <section className="py-20 px-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
