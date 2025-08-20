@@ -35,9 +35,9 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-6 mb-6">
-          {/* Logo & Social - Spans 2 columns on desktop */}
-          <div className="col-span-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-6">
+          {/* Logo & Social */}
+          <div>
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <Home className="text-white h-4 w-4" />
@@ -47,7 +47,7 @@ export function Footer() {
                 <p className="text-xs text-gray-400">Your Personal Senior Living Concierge</p>
               </div>
             </div>
-            <p className="text-xs text-gray-400 mb-3 pr-4">
+            <p className="text-xs text-gray-400 mb-3">
               The trusted platform for authentic senior living community information.
             </p>
             <div className="flex space-x-2">
@@ -63,25 +63,22 @@ export function Footer() {
             </div>
           </div>
           
-          {/* For Families */}
+          {/* For Families & Communities */}
           <div>
             <h3 className="text-sm font-semibold mb-3 text-white">For Families</h3>
-            <ul className="space-y-2 text-xs text-gray-300">
+            <ul className="space-y-2 text-xs text-gray-300 mb-4">
               <li><Link href="/map-search" className="hover:text-blue-400 transition-colors">Search Communities</Link></li>
               <li><Link href="/map-search" className="hover:text-blue-400 transition-colors">Explore All</Link></li>
               <li><Link href="/about" className="hover:text-blue-400 transition-colors">How it Works</Link></li>
               <li><Link href="/care-guide" className="hover:text-blue-400 transition-colors">Care Guide</Link></li>
             </ul>
-          </div>
-          
-          {/* For Communities */}
-          <div>
-            <h3 className="text-sm font-semibold mb-3 text-white">For Communities</h3>
+            
+            <h3 className="text-sm font-semibold mb-3 text-white mt-6">For Communities</h3>
             <ul className="space-y-2 text-xs text-gray-300">
               <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors">Claim Profile</Link></li>
-              <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors">Portal</Link></li>
-              <li><Link href="/mission" className="hover:text-blue-400 transition-colors">Benefits</Link></li>
-              <li><Link href="/ai-support" className="hover:text-blue-400 transition-colors">Support</Link></li>
+              <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors">Community Portal</Link></li>
+              <li><Link href="/mission" className="hover:text-blue-400 transition-colors">Transparency Benefits</Link></li>
+              <li><Link href="/ai-support" className="hover:text-blue-400 transition-colors">Support Center</Link></li>
             </ul>
           </div>
           
@@ -90,21 +87,22 @@ export function Footer() {
             <h3 className="text-sm font-semibold mb-3 text-white">For Vendors</h3>
             <ul className="space-y-2 text-xs text-gray-300">
               <li><Link href="/vendor-marketplace" className="hover:text-blue-400 transition-colors">Marketplace</Link></li>
-              <li><Link href="/vendor-marketplace-tiers" className="hover:text-blue-400 transition-colors">Pricing</Link></li>
-              <li><Link href="/vendor-dashboard" className="hover:text-blue-400 transition-colors">Dashboard</Link></li>
-              <li><Link href="/vendor-signup" className="hover:text-blue-400 transition-colors">Sign Up</Link></li>
+              <li><Link href="/vendor-marketplace-tiers" className="hover:text-blue-400 transition-colors">Pricing & Tiers</Link></li>
+              <li><Link href="/vendor-dashboard" className="hover:text-blue-400 transition-colors">Vendor Dashboard</Link></li>
+              <li><Link href="/vendor-signup" className="hover:text-blue-400 transition-colors">Become a Vendor</Link></li>
             </ul>
           </div>
           
-          {/* Legal */}
+          {/* Legal & Compliance */}
           <div>
-            <h3 className="text-sm font-semibold mb-3 text-white">Legal</h3>
+            <h3 className="text-sm font-semibold mb-3 text-white">Legal & Compliance</h3>
             <ul className="space-y-2 text-xs text-gray-300">
-              <li><Link href="/privacy-policy" className="hover:text-blue-400 transition-colors">Privacy</Link></li>
-              <li><Link href="/terms-of-service" className="hover:text-blue-400 transition-colors">Terms</Link></li>
-              <li><Link href="/cookie-policy" className="hover:text-blue-400 transition-colors">Cookies</Link></li>
+              <li><Link href="/privacy-policy" className="hover:text-blue-400 transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms-of-service" className="hover:text-blue-400 transition-colors">Terms of Service</Link></li>
+              <li><Link href="/cookie-policy" className="hover:text-blue-400 transition-colors">Cookie Policy</Link></li>
               <li><Link href="/disclaimer" className="hover:text-blue-400 transition-colors">Disclaimer</Link></li>
               <li><Link href="/accessibility" className="hover:text-blue-400 transition-colors">Accessibility</Link></li>
+              <li><Link href="/veterans" className="hover:text-blue-400 transition-colors">Veterans Housing</Link></li>
             </ul>
           </div>
         </div>
@@ -123,8 +121,6 @@ export function Footer() {
             
             {/* Quick links and dashboard access - right side */}
             <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 text-xs">
-              <Link href="/veterans" className="text-gray-400 hover:text-blue-400 transition-colors">Veterans</Link>
-              <span className="text-gray-600">•</span>
               <Link href="/privacy-policy" className="text-gray-400 hover:text-blue-400 transition-colors">Privacy</Link>
               <span className="text-gray-600">•</span>
               <Link href="/terms-of-service" className="text-gray-400 hover:text-blue-400 transition-colors">Terms</Link>
