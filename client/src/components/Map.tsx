@@ -213,9 +213,9 @@ const MapEvents: React.FC<{
         onMapReady(map);
       };
 
-      // Register official Leaflet event listeners per documentation
+      // Register official Leaflet event listeners per documentation - simplified to reduce bouncing
+      // Only use moveend to handle all map movement
       map.on('moveend', handleMoveEnd);
-      map.on('zoomend', handleZoomEnd);
       map.on('load', handleLoad);
 
       // Check if map is already loaded (fallback)
@@ -226,7 +226,6 @@ const MapEvents: React.FC<{
       // Cleanup function for event listeners
       return () => {
         map.off('moveend', handleMoveEnd);
-        map.off('zoomend', handleZoomEnd);
         map.off('load', handleLoad);
       };
     }
@@ -447,19 +446,22 @@ const HeatmapOverlay: React.FC<{ opacity: number }> = ({ opacity }) => {
       }
     };
     
-    // Fetch on mount and when map moves
+    // Fetch on mount and when map moves (with debouncing)
     fetchHeatmapData();
     
+    let debounceTimer: NodeJS.Timeout;
     const handleMoveEnd = () => {
-      fetchHeatmapData();
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        fetchHeatmapData();
+      }, 1000); // 1 second debounce for heatmap updates
     };
     
     map.on('moveend', handleMoveEnd);
-    map.on('zoomend', handleMoveEnd);
     
     return () => {
       map.off('moveend', handleMoveEnd);
-      map.off('zoomend', handleMoveEnd);
+      clearTimeout(debounceTimer);
     };
   }, [map]);
   
@@ -500,7 +502,7 @@ const HeatmapOverlay: React.FC<{ opacity: number }> = ({ opacity }) => {
   );
 };
 
-// Component to handle map bounds and zoom changes
+// Component to handle map bounds and zoom changes with reduced event frequency
 function MapBoundsHandler({ 
   onBoundsChange, 
   onZoomChange 
@@ -510,6 +512,7 @@ function MapBoundsHandler({
 }) {
   const map = useMap();
   const [initialized, setInitialized] = useState(false);
+  const lastBoundsRef = useRef<string>('');
 
   const handleBoundsChange = useCallback(() => {
     try {
@@ -572,15 +575,14 @@ function MapBoundsHandler({
       console.log('MapBoundsHandler initializing, map ready:', !!map);
 
       // Set up event handlers for map movement with better responsiveness
-      map.on('moveend', handleBoundsChange);
-      map.on('zoomend', () => {
+      // Only use moveend to handle all map movement (reduces excessive events)
+      map.on('moveend', () => {
+        handleBoundsChange();
         const newZoom = map.getZoom();
-        console.log('📍 Map zoom changed to:', newZoom);
-        handleZoomChange();
-        handleBoundsChange(); // Also trigger bounds update on zoom
+        if (newZoom !== undefined) {
+          handleZoomChange(newZoom);
+        }
       });
-      map.on('dragend', handleBoundsChange); // Update after drag completes
-      map.on('drag', handleBoundsChange); // Also update during drag for immediate response
 
       // Force initial bounds and zoom with multiple attempts
       const attemptInitialBounds = (attempts = 0) => {
@@ -618,10 +620,7 @@ function MapBoundsHandler({
 
     return () => {
       if (map) {
-        map.off('moveend', handleBoundsChange);
-        map.off('zoomend');
-        map.off('dragend', handleBoundsChange);
-        map.off('drag', handleBoundsChange);
+        map.off('moveend');
         clearTimeout(window.mapBoundsTimeout);
       }
     };
@@ -707,7 +706,7 @@ export default function Map({
     // Debounce the callback to prevent excessive API calls
     boundsDebounceTimer.current = setTimeout(() => {
       onBoundsChange?.(bounds);
-    }, 300); // 300ms debounce
+    }, 800); // Increased debounce to reduce bouncing
   }, [onBoundsChange]);
 
   // Handle zoom change - can be called with or without parameter
@@ -715,7 +714,7 @@ export default function Map({
   const [currentZoom, setCurrentZoom] = useState(zoom);
   
   const handleZoomChange = useCallback((zoomLevel?: number) => {
-    if (zoomLevel !== undefined && Math.abs(zoomLevel - currentZoom) > 0.1) {
+    if (zoomLevel !== undefined && Math.abs(zoomLevel - currentZoom) > 0.5) {
       console.log('🔍 ZOOM CHANGED - FORCING CLUSTER UPDATE:', {
         oldZoom: currentZoom,
         newZoom: zoomLevel,
@@ -726,7 +725,16 @@ export default function Map({
     }
   }, [currentZoom]);
 
-  // Remove this - let React Query handle refetching based on key changes
+  // Handle community click event
+  const handleCommunityClick = useCallback((community: Community) => {
+    try {
+      console.log('Community clicked:', community.name, community.id);
+      setSelectedCommunity(community);
+      onCommunityClick?.(community);
+    } catch (error) {
+      console.error('Error handling community click:', error);
+    }
+  }, [onCommunityClick]);
 
   // Check for geolocation permission on mount
   useEffect(() => {
@@ -1143,15 +1151,6 @@ export default function Map({
       popupAnchor: [0, -size/2],
       className: `care-level-marker ${isHovered ? 'marker-hover' : ''} ${hasLiveData ? 'has-live-data' : 'no-data'}`
     });
-  };
-
-  const handleCommunityClick = (community: Community) => {
-    try {
-      setSelectedCommunity(community);
-      onCommunityClick?.(community);
-    } catch (error) {
-      console.error('Error handling community click:', error);
-    }
   };
 
   // Debug logging
