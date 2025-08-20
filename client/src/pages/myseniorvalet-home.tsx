@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send } from "lucide-react";
 import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
@@ -73,6 +73,176 @@ export default function MySeniorValetHome() {
       return () => clearTimeout(timer);
     }
   }, [toast]);
+  
+  // 3D Carousel state
+  const [currentRotation, setCurrentRotation] = useState(0);
+  const [selectedCareType, setSelectedCareType] = useState(2); // Start with 55+ selected
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  
+  const careTypes = [
+    { 
+      id: 'hud', 
+      name: 'HUD', 
+      icon: Building2, 
+      color: 'bg-green-500', 
+      description: 'Government-subsidized housing for low-income seniors, offering rent based on 30% of income with verified pricing.',
+      details: 'Income-based rent • Federal oversight • Accessibility features',
+      avgCost: '$300-900/month',
+      keyFeatures: ['Income-based rent (30% of income)', 'Government subsidized', 'Accessible units available']
+    },
+    { 
+      id: 'va', 
+      name: 'VA', 
+      icon: Shield, 
+      color: 'bg-purple-600', 
+      description: 'Veterans Affairs communities providing specialized care and benefits for military veterans and their spouses.',
+      details: 'Military benefits • Medical services • Honor programs',
+      avgCost: 'Varies by service connection',
+      keyFeatures: ['Veterans benefits', 'Specialized medical care', 'Service-connected priority']
+    },
+    { 
+      id: 'mobile', 
+      name: 'RV & Mobile', 
+      icon: Truck, 
+      color: 'bg-orange-500', 
+      description: 'Senior RV and mobile parks offering flexible living for adventurous retirees who enjoy travel and community amenities.',
+      details: 'Lot rent • Community amenities • Flexible lifestyle',
+      avgCost: '$400-1,200/month lot rent',
+      keyFeatures: ['Own your home', 'Community lifestyle', 'Lower maintenance costs']
+    },
+    { 
+      id: '55plus', 
+      name: '55+', 
+      icon: Flag, 
+      color: 'bg-pink-600', 
+      description: 'Age-restricted active adult communities for those 55 and older, focusing on lifestyle and social activities.',
+      details: 'Active lifestyle • Social programs • Age-restricted',
+      avgCost: '$1,500-3,500/month',
+      keyFeatures: ['Age 55+ requirement', 'Active lifestyle focus', 'Golf, pools, activities']
+    },
+    { 
+      id: 'independent', 
+      name: 'Independent', 
+      icon: Home, 
+      color: 'bg-blue-600', 
+      description: 'Senior apartments and communities for those who can live independently with minimal assistance and optional services.',
+      details: 'Self-sufficient living • Optional services • Social activities',
+      avgCost: '$2,000-4,500/month',
+      keyFeatures: ['Full kitchen & bath', 'Maintenance-free', 'Social activities included']
+    },
+    { 
+      id: 'residential', 
+      name: 'Residential Care', 
+      icon: Building, 
+      color: 'bg-purple-700', 
+      description: 'Small, privately-run homes with 6-10 beds offering personalized care in a family-like residential setting.',
+      details: 'Home-like setting • Personal care • Small group living',
+      avgCost: '$3,000-5,500/month',
+      keyFeatures: ['6-10 residents only', 'Family atmosphere', 'Personalized attention']
+    },
+    { 
+      id: 'assisted', 
+      name: 'Assisted', 
+      icon: HeartHandshake, 
+      color: 'bg-cyan-600', 
+      description: 'Communities providing help with daily activities like bathing, dressing, and medication management.',
+      details: 'ADL assistance • Medication management • 24/7 staff',
+      avgCost: '$4,500-7,000/month',
+      keyFeatures: ['Help with daily tasks', 'Medication management', '24-hour staffing']
+    },
+    { 
+      id: 'memory', 
+      name: 'Memory', 
+      icon: Brain, 
+      color: 'bg-red-600', 
+      description: 'Specialized secure environments for those with Alzheimer\'s, dementia, and other memory-related conditions.',
+      details: 'Secure environment • Specialized programs • Expert staff',
+      avgCost: '$5,500-9,000/month',
+      keyFeatures: ['Secure unit', 'Memory care certified', 'Specialized activities']
+    },
+    { 
+      id: 'ccrc', 
+      name: 'CCRC', 
+      icon: RefreshCw, 
+      color: 'bg-indigo-600', 
+      description: 'Continuing Care Retirement Communities offering all levels of care from independent to skilled nursing in one location.',
+      details: 'Lifetime care • Multiple levels • Single campus',
+      avgCost: 'Entry: $100K-500K + Monthly',
+      keyFeatures: ['All care levels', 'Age in place', 'Healthcare guarantee']
+    },
+    { 
+      id: 'skilled', 
+      name: 'Skilled', 
+      icon: Stethoscope, 
+      color: 'bg-teal-600', 
+      description: '24-hour medical care and rehabilitation services provided by licensed nurses and healthcare professionals.',
+      details: '24/7 nursing • Rehab services • Medical equipment',
+      avgCost: '$8,000-12,000/month',
+      keyFeatures: ['24-hour nursing', 'Physical therapy', 'Complex medical needs']
+    }
+  ];
+  
+  const handleCareTypeClick = (index: number) => {
+    setSelectedCareType(index);
+  };
+
+  // Touch/swipe handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    
+    const touchEndX = e.touches[0].clientX;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > 50) { // Threshold for swipe
+      if (diff > 0) {
+        // Swipe left - next item
+        setSelectedCareType(prev => (prev + 1) % careTypes.length);
+      } else {
+        // Swipe right - previous item
+        setSelectedCareType(prev => prev === 0 ? careTypes.length - 1 : prev - 1);
+      }
+      setIsDragging(false);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
+  // Mouse drag handlers for desktop
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setTouchStartX(e.clientX);
+    setIsDragging(true);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    
+    const diff = touchStartX - e.clientX;
+    
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        setSelectedCareType(prev => (prev + 1) % careTypes.length);
+      } else {
+        setSelectedCareType(prev => prev === 0 ? careTypes.length - 1 : prev - 1);
+      }
+      setIsDragging(false);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
 
 
   const [showIntegrationSpotlight, setShowIntegrationSpotlight] = useState(true);
@@ -728,25 +898,127 @@ export default function MySeniorValetHome() {
           </div>
           
           {/* Platform Message - Moved above care levels */}
-          <div className="text-center px-4 pb-4 flex-1 flex flex-col justify-center">
+          <div className="text-center px-4 pb-4">
             <p className="text-2xl md:text-3xl font-black text-white mb-4 drop-shadow-2xl">
               To every family searching in the dark: The lights are on now.
             </p>
             <p className="text-lg md:text-xl text-gray-200 mb-4 drop-shadow-lg">
               <strong>You deserve the truth. Communities deserve to be found. The darkness ends today.</strong>
             </p>
-            <p className="text-base md:text-lg text-gray-100 font-bold drop-shadow-lg mb-8">
+            <p className="text-base md:text-lg text-gray-100 font-bold drop-shadow-lg">
               Welcome to the Dawn of Transparency in Senior Living - All 10 Care Levels
             </p>
+          </div>
+          
+          {/* 3D Care Spectrum Carousel */}
+          <div className="flex flex-col items-center justify-center px-1 flex-1 -mt-8">
             
-            {/* Call to Action Button */}
-            <div className="flex justify-center">
-              <Link to="/community-directory#care-spectrum">
-                <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 font-bold shadow-xl">
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  Explore the Complete Care Spectrum
-                </Button>
-              </Link>
+            <div 
+              className="carousel-wrapper select-none"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+              style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+            >
+              <div className="carousel-3d">
+                {careTypes.map((careType, index) => {
+                  const Icon = careType.icon;
+                  const offset = (selectedCareType - index) / 3;
+                  const absOffset = Math.abs(selectedCareType - index) / 3;
+                  const isActive = index === selectedCareType;
+                  
+                  return (
+                    <div
+                      key={careType.id}
+                      className="card-container-3d"
+                      style={{
+                        '--offset': offset,
+                        '--abs-offset': absOffset,
+                        '--active': isActive ? 1 : 0,
+                        pointerEvents: 'auto',
+                        opacity: Math.abs(selectedCareType - index) >= 3 ? 0 : 1,
+                        display: Math.abs(selectedCareType - index) > 3 ? 'none' : 'block',
+                      } as React.CSSProperties}
+                      onClick={() => !isDragging && handleCareTypeClick(index)}
+                    >
+                      <div className={`card-3d ${careType.color} rounded-xl flex flex-col items-center justify-between p-4 shadow-2xl border-2 border-white/30`}
+                           style={{ 
+                             opacity: isActive ? 1 : 0.7,
+                             transform: isActive ? 'scale(1.05)' : 'scale(1)',
+                             height: '100%'
+                           }}>
+                        <div className="flex flex-col items-center">
+                          <Icon className="w-12 h-12 text-white drop-shadow-lg mb-2" />
+                          <h3 className="text-white font-bold text-center text-lg mb-1 drop-shadow-lg">{careType.name}</h3>
+                          
+                          {/* Average Cost */}
+                          <div className="bg-white/20 rounded-lg px-2 py-1 mb-2">
+                            <p className="text-white text-xs font-bold drop-shadow-md">
+                              {careType.avgCost}
+                            </p>
+                          </div>
+                          
+                          {/* Quick Details */}
+                          <p className="text-white/90 text-xs text-center mb-2 drop-shadow-md">
+                            {careType.details}
+                          </p>
+                        </div>
+                        
+                        {/* Key Features - Only show when active */}
+                        <div style={{ 
+                          opacity: isActive ? 1 : 0,
+                          maxHeight: isActive ? '150px' : '0',
+                          overflow: 'hidden',
+                          transition: 'opacity 0.3s ease-out, max-height 0.3s ease-out'
+                        }}>
+                          <div className="space-y-1 mb-3">
+                            {careType.keyFeatures.map((feature, idx) => (
+                              <div key={idx} className="flex items-start gap-1">
+                                <CheckCircle className="w-3 h-3 text-white/80 mt-0.5 flex-shrink-0" />
+                                <p className="text-white/90 text-xs leading-tight">{feature}</p>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          {/* Learn More Button - Links to Care Spectrum Section */}
+                          <Link 
+                            to="/community-directory#care-spectrum"
+                            className="block w-full"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button className="w-full bg-white/20 hover:bg-white/30 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors flex items-center justify-center gap-1">
+                              <BookOpen className="w-3 h-3" />
+                              Learn More
+                            </button>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+                
+                {/* Navigation buttons */}
+                {selectedCareType > 0 && (
+                  <button 
+                    className="nav-3d left"
+                    onClick={() => setSelectedCareType(i => i - 1)}
+                  >
+                    <ChevronLeft className="w-8 h-8" />
+                  </button>
+                )}
+                {selectedCareType < careTypes.length - 1 && (
+                  <button 
+                    className="nav-3d right"
+                    onClick={() => setSelectedCareType(i => i + 1)}
+                  >
+                    <ChevronRight className="w-8 h-8" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -923,16 +1195,27 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
 
-                  {/* Care Spectrum Link */}
+                  {/* 3D Care Spectrum Mini Carousel */}
                   <div className="mb-6 overflow-hidden rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-4">
                     <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 text-center">EXPLORE 10 CARE LEVELS</p>
-                    <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400">
-                      <Sparkles className="w-5 h-5" />
-                      <p className="text-sm font-semibold">Interactive 3D Care Spectrum</p>
+                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                      {careTypes.map((careType, index) => {
+                        const Icon = careType.icon;
+                        return (
+                          <div
+                            key={careType.id}
+                            className={`flex-shrink-0 ${careType.color} rounded-lg p-3 w-32 cursor-pointer hover:scale-105 transition-transform`}
+                            onClick={() => setLocation(`/care-types/${careType.id}`)}
+                          >
+                            <div className="flex flex-col items-center">
+                              <Icon className="w-8 h-8 text-white mb-1" />
+                              <p className="text-xs font-bold text-white text-center leading-tight">{careType.name}</p>
+                              <p className="text-[9px] text-white/80 text-center mt-1">{careType.avgCost}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 text-center mt-2">
-                      Discover all care types from HUD to Skilled Nursing
-                    </p>
                   </div>
 
                   <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:opacity-90 group-hover:shadow-lg transition-all">

@@ -65,8 +65,6 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - **Document Signing**: Documenso
 
 ## Recent Changes & Status (August 20, 2025)
-- ✅ **3D Carousel Relocated**: Moved interactive 3D care spectrum carousel from home page to Community Directory page, positioned in Care Spectrum section between "little-known facts" and "Independent Living" sections. Resized to 50% of original size for better integration
-- ✅ **Home Page Cleanup**: Removed all carousel-related code and event handlers from home page, replaced with clean link to new location
 - ✅ **Search Interface Unified**: Replaced plain input fields with AutocompleteSearch component across all search interfaces for consistent predictive text
 - ✅ **Duplicate Interface Removed**: Eliminated redundant MySeniorValet search page, maintaining single map-search interface
 - ✅ **Code Cleanup**: Removed old custom autocomplete implementation in map-search page
