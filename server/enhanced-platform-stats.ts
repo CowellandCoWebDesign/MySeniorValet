@@ -105,11 +105,9 @@ export class EnhancedPlatformStatsService {
         .select({ count: sql<number>`count(*)::int` })
         .from(communities)
         .where(sql`
-          ${communities.live_pricing} IS NOT NULL 
-          OR ${communities.price_range} IS NOT NULL 
-          OR ${communities.rent_per_month} IS NOT NULL 
-          OR ${communities.monthly_rent_range_start} IS NOT NULL 
-          OR ${communities.monthly_rent_range_end} IS NOT NULL
+          ${communities.livePricing} IS NOT NULL 
+          OR ${communities.priceRange} IS NOT NULL 
+          OR ${communities.rentPerMonth} IS NOT NULL
         `)
         .execute();
 
@@ -122,13 +120,13 @@ export class EnhancedPlatformStatsService {
       const [availabilityCount] = await db
         .select({ count: sql<number>`count(*)::int` })
         .from(communities)
-        .where(sql`${communities.availability} IS NOT NULL`)
+        .where(sql`${communities.availabilityStatus} IS NOT NULL`)
         .execute();
 
       const [hudCount] = await db
         .select({ count: sql<number>`count(*)::int` })
         .from(communities)
-        .where(sql`${communities.hudStatus} = 'HUD-verified'`)
+        .where(sql`${communities.hudPropertyId} IS NOT NULL`)
         .execute();
 
       const totalCommunities = communityCount?.count || 0;
