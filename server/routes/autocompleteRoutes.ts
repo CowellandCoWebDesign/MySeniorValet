@@ -47,11 +47,8 @@ router.get('/autocomplete/suggestions', async (req, res) => {
           .from(communities)
           .where(
             searchTerm.length <= 3 
-              ? ilike(communities.name, `${searchTerm}%`)  // Short queries: starts with only
-              : or(
-                  ilike(communities.name, `${searchTerm}%`),  // Starts with (priority)
-                  ilike(communities.name, `%${searchTerm}%`)   // Contains (fallback)
-                )
+              ? sql`LOWER(${communities.name}) LIKE LOWER(${searchTerm + '%'})`  // Uses index
+              : sql`LOWER(${communities.name}) LIKE LOWER(${searchTerm + '%'})`  // Prefix search with index
           )
           .limit(5)
           .then(results => ({
@@ -71,12 +68,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
         })
         .from(communities)
         .where(
-          searchTerm.length <= 3
-            ? ilike(communities.city, `${searchTerm}%`)  // Short queries: starts with only
-            : or(
-                ilike(communities.city, `${searchTerm}%`),  // Starts with
-                ilike(communities.city, `%${searchTerm}%`)  // Contains
-              )
+          sql`LOWER(${communities.city}) LIKE LOWER(${searchTerm + '%'})`  // Uses index for prefix search
         )
         .groupBy(communities.city, communities.state)
         .limit(3)  // Reduced limit for speed
