@@ -42,10 +42,12 @@ interface Community {
   reviewCount: number;
   phone: string;
   website: string;
-  priceRange: string;
+  priceRange?: { min: number; max: number };
   availability: string;
   photos: string[];
   description: string;
+  hudPropertyId?: string;
+  rentPerMonth?: string;
 }
 
 interface Vendor {
@@ -187,7 +189,7 @@ export default function MapSearch() {
       }
       
       // Perform actual search for the query
-      fetch(`/api/communities/search?query=${encodeURIComponent(initialQuery)}&limit=50`)
+      fetch(`/api/communities/search?q=${encodeURIComponent(initialQuery)}&limit=50`)
         .then(res => res.json())
         .then(data => {
           if (data.communities && data.communities.length > 0) {

@@ -196,7 +196,9 @@ export default function MySeniorValetSearch() {
       <div className="px-4 py-3 gradient-card border-b border-white/20">
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-700 font-medium">
-            Showing {displayedCommunities.length} of {filteredCommunities.length} results
+            {isLoading ? 'Searching...' : 
+             communities.length > 0 ? `Found ${communities.length} results` : 
+             searchParams.get('q') ? 'No results found' : 'Enter a search term'}
           </p>
           <Button className="gradient-primary hover:opacity-90 text-white px-4 py-2 rounded-full border-0 animate-gradient">
             <Search className="w-4 h-4 mr-2" />
@@ -218,29 +220,24 @@ export default function MySeniorValetSearch() {
       {/* Communities List - Enhanced with Better Information Display */}
       {!isLoading && viewMode === 'list' && (
         <div className="px-4 py-2 space-y-4">
-          {displayedCommunities.map((community, index) => (
-            <div key={community.id} className="animate-fadeIn" style={{animationDelay: `${Math.min(index, 10) * 0.05}s`}}>
-              <EnhancedCommunityCard
-                community={community}
-                variant="list"
-                index={index}
-                onSelect={() => window.location.href = `/community/${community.id}`}
-              />
-            </div>
-          ))}
-          
-          {/* Load More Trigger */}
-          {displayedCount < filteredCommunities.length && (
-            <div ref={loadMoreRef} className="py-8 text-center">
-              {isLoadingMore ? (
-                <div className="gradient-card p-4 rounded-lg animate-pulse-glow">
-                  <Loader2 className="w-6 h-6 mx-auto text-purple-600 animate-spin" />
-                  <p className="text-gradient mt-2 font-semibold">Loading more communities...</p>
-                </div>
-              ) : (
-                <p className="text-gray-500">Scroll to load more</p>
-              )}
-            </div>
+          {communities.length > 0 ? (
+            communities.map((community, index) => (
+              <div key={community.id} className="animate-fadeIn" style={{animationDelay: `${Math.min(index, 10) * 0.05}s`}}>
+                <EnhancedCommunityCard
+                  community={community}
+                  variant="list"
+                  index={index}
+                  onSelect={() => window.location.href = `/community/${community.id}`}
+                />
+              </div>
+            ))
+          ) : (
+            searchParams.get('q') && (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No communities found for "{searchParams.get('q')}"</p>
+                <p className="text-sm text-gray-400 mt-2">Try searching for a different location or community name</p>
+              </div>
+            )
           )}
         </div>
       )}
@@ -249,7 +246,7 @@ export default function MySeniorValetSearch() {
       {!isLoading && viewMode === 'map' && (
         <div className="px-4 py-2">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-            {displayedCommunities.map((community, index) => (
+            {communities.map((community, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden cursor-pointer bg-white shadow-sm hover:shadow-md transition-shadow animate-float w-full" style={{animationDelay: `${index * 0.1}s`}}>
                 {/* Photo Section - Matching Homepage Style */}
