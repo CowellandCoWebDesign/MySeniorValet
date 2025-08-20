@@ -5,6 +5,7 @@ import { communityStatsCache } from "../community-stats-cache";
 
 // Import route modules
 import { registerCommunityRoutes } from "./communityRoutes";
+import { registerDirectoryRoutes } from "./directoryRoutes";
 import { registerUserRoutes } from "./userRoutes";
 import { registerAIRoutes } from "./aiRoutes";
 import { registerPerplexityRoutes } from "./perplexityRoutes";
@@ -94,6 +95,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerMappingFixRoutes(app);
   registerUnifiedSearchRoutes(app); // Unified search handles both text and map searches
   registerMultiAITestRoutes(app);
+  registerDirectoryRoutes(app); // Register directory filtering routes
   registerCommunityRoutes(app);
   registerUserRoutes(app);
   registerSearchRoutes(app);

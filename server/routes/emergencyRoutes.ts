@@ -255,6 +255,61 @@ router.get("/quick-dial/:userId", async (req: Request, res: Response) => {
   }
 });
 
+// Send emergency alert
+router.post("/send", async (req: Request, res: Response) => {
+  try {
+    const { communityId, message, userId, userEmail } = req.body;
+    
+    console.log("🚨 Emergency alert sent:", {
+      communityId,
+      message,
+      userId,
+      userEmail,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Send email notification if configured
+    if (process.env.SENDGRID_API_KEY) {
+      const primaryEmail = "admin@myseniorvalet.com";
+      const backupEmail = "William.cowell01@gmail.com";
+      
+      const msg = {
+        to: [primaryEmail, backupEmail],
+        from: "hello@myseniorvalet.com",
+        subject: "🚨 Emergency Alert from MySeniorValet",
+        html: `
+          <div style="font-family: Arial, sans-serif;">
+            <h2>Emergency Alert</h2>
+            <p><strong>Community ID:</strong> ${communityId}</p>
+            <p><strong>Message:</strong> ${message}</p>
+            <p><strong>User:</strong> ${userEmail || 'Anonymous'}</p>
+            <p><strong>Time:</strong> ${new Date().toISOString()}</p>
+          </div>
+        `
+      };
+      
+      try {
+        await sgMail.send(msg);
+        console.log("✅ Emergency alert email sent");
+      } catch (emailError) {
+        console.error("Failed to send emergency alert email:", emailError);
+      }
+    }
+    
+    res.json({ 
+      success: true,
+      message: "Emergency alert sent successfully",
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error("Error sending emergency alert:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Failed to send emergency alert" 
+    });
+  }
+});
+
 // Log emergency button press and notify admin
 router.post("/button-pressed", async (req: Request, res: Response) => {
   try {

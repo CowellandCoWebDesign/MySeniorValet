@@ -1001,9 +1001,12 @@ export function registerCommunityRoutes(app: Express) {
         sources: [] as string[]
       };
 
-      // Use Perplexity to get real-time information about the community
+      // Only fetch real-time data if explicitly requested (to prevent 39-second delays)
+      const fetchRealtime = req.query.realtime === 'true';
+      
+      // Use Perplexity to get real-time information about the community (only when requested)
       const perplexityService = new PerplexityAIService();
-      if (perplexityService.isConfigured()) {
+      if (fetchRealtime && perplexityService.isConfigured()) {
         try {
           // Define sentence splitting function that handles abbreviations
           const splitSentences = (text: string): string[] => {
