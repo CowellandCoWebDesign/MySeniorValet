@@ -930,6 +930,20 @@ export default function MySeniorValetHome() {
                       <p className="text-gray-400">Aggregators charge up to one month's rent, passed to ALL families.</p>
                     </div>
                   </div>
+                  <div className="flex items-start gap-2">
+                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-red-300">No Tour Tracking Tools</p>
+                      <p className="text-gray-400">Families juggle notes on paper, losing critical comparison details.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-red-300">Benefits & Aid Unknown</p>
+                      <p className="text-gray-400">Missing out on VA, Medicaid, and state assistance they qualify for.</p>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -945,7 +959,7 @@ export default function MySeniorValetHome() {
                     <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="font-semibold text-green-300">Learn All 10 Levels of Care</p>
-                      <p className="text-gray-300">From HUD Housing to Skilled Nursing - understand all 10 care levels, pricing ranges, and when each applies to your family's needs.</p>
+                      <p className="text-gray-300">From HUD Housing to Skilled Nursing - understand each level's pricing and care.</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
@@ -958,36 +972,29 @@ export default function MySeniorValetHome() {
                   <div className="flex items-start gap-2">
                     <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <div>
-                      <p className="font-semibold text-green-300">ALL Families Get PLATINUM Features Free</p>
-                      <p className="text-gray-300">Every family gets our complete PLATINUM toolkit. No tiers. No upgrades. Always free, guaranteed forever.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-green-300">Shareable Tour Tracker - Hyper Rich Reviews</p>
-                      <p className="text-gray-300">Our transparency tool prevents high prices from hiding behind lagging online reviews. Share your real tour experiences to help others see the truth.</p>
+                      <p className="font-semibold text-green-300">ALL Families Get PLATINUM Free</p>
+                      <p className="text-gray-300">Complete toolkit. No tiers. No upgrades. Always free, guaranteed forever.</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
                     <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="font-semibold text-green-300">Tour Tracker with Family Sharing</p>
-                      <p className="text-gray-300">Track every tour, save notes, build comparisons. Share instantly with family members for collaborative decisions.</p>
+                      <p className="text-gray-300">Track tours, save notes, compare. Share instantly with family members.</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
                     <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="font-semibold text-green-300">Communities Shine Bright</p>
-                      <p className="text-gray-300">Every facility can represent itself honestly. No more hiding great care in the shadows.</p>
+                      <p className="text-gray-300">Every facility can represent itself honestly. No more hiding great care in shadows.</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
                     <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="font-semibold text-green-300">Discover Benefits You Qualify For</p>
-                      <p className="text-gray-300">VA Aid & Attendance, Medicaid, state programs - we help you find and understand all available assistance.</p>
+                      <p className="text-gray-300">VA Aid & Attendance, Medicaid, state programs - find all available assistance.</p>
                     </div>
                   </div>
                 </div>
