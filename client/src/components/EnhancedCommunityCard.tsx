@@ -549,7 +549,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                     ))}
                   </div>
                   <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    {community.rating.toFixed(1)}
+                    {community.rating ? (typeof community.rating === 'number' ? community.rating.toFixed(1) : parseFloat(String(community.rating)).toFixed(1)) : '0.0'}
                   </span>
                   {community.reviewCount && (
                     <span className="text-sm text-gray-500">
@@ -730,7 +730,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                   <div className="flex items-center gap-1">
                     <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
                     <span className="font-medium text-gray-900 dark:text-white">
-                      {community.rating?.toFixed(1) || '0.0'}
+                      {community.rating ? (typeof community.rating === 'number' ? community.rating.toFixed(1) : parseFloat(String(community.rating)).toFixed(1)) : '0.0'}
                     </span>
                     {community.reviewCount && (
                       <span className="text-gray-500 dark:text-gray-400">
@@ -929,7 +929,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                 {community.rating && (
                   <div className="flex items-center">
                     <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 mr-1" />
-                    <span className="font-medium">{community.rating.toFixed(1)}</span>
+                    <span className="font-medium">{community.rating ? (typeof community.rating === 'number' ? community.rating.toFixed(1) : parseFloat(String(community.rating)).toFixed(1)) : '0.0'}</span>
                   </div>
                 )}
                 {community.careTypes && community.careTypes.length > 0 && (
