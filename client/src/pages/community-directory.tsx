@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,10 +11,16 @@ import {
   ChevronRight, Clock, CheckCircle, Info, Heart,
   HeartHandshake, Brain, Activity, Stethoscope, UserCheck,
   Calendar, Hotel, Flower2, Sparkles, AlertCircle,
-  Truck, Flag, Building, RefreshCw, BookOpen, ChevronLeft
+  Truck, Flag, Building, RefreshCw, BookOpen, ChevronLeft,
+  ArrowRight
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
+import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
+import { RedTagDeals } from "@/components/RedTagDeals";
+import { MarketIntelligence } from "@/components/MarketIntelligence";
+import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
+import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 
 export default function CommunityDirectory() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -203,6 +209,17 @@ export default function CommunityDirectory() {
     }
   }, []);
 
+  // Refs for sections
+  const hawaiiSectionRef = useRef<HTMLDivElement>(null);
+  const floridaSectionRef = useRef<HTMLDivElement>(null);
+  const texasSectionRef = useRef<HTMLDivElement>(null);
+  const newYorkSectionRef = useRef<HTMLDivElement>(null);
+  const canadianSectionRef = useRef<HTMLDivElement>(null);
+  const californiaSectionRef = useRef<HTMLDivElement>(null);
+
+  // Language state (default to English)
+  const [language, setLanguage] = useState('en');
+
   // Fetch community stats
   const { data: communityCount } = useQuery({
     queryKey: ['/api/communities/count'],
@@ -214,6 +231,41 @@ export default function CommunityDirectory() {
 
   const { data: marketOverview } = useQuery({
     queryKey: ['/api/market/overview'],
+  });
+
+  // Fetch Hawaii communities
+  const { data: hawaiiCommunities, isLoading: hawaiiLoading } = useQuery({
+    queryKey: ['/api/communities/by-state', 'Hawaii'],
+  });
+
+  // Fetch HUD properties
+  const { data: hudProperties, isLoading: hudLoading } = useQuery({
+    queryKey: ['/api/communities/hud-properties'],
+  });
+
+  // Fetch Florida communities  
+  const { data: floridaCommunities, isLoading: floridaLoading } = useQuery({
+    queryKey: ['/api/communities/by-state', 'Florida'],
+  });
+
+  // Fetch Texas communities (specifically Fort Worth)
+  const { data: texasCommunities, isLoading: texasLoading } = useQuery({
+    queryKey: ['/api/communities/by-city', 'Fort Worth', 'Texas'],
+  });
+
+  // Fetch New York communities
+  const { data: newYorkCommunities, isLoading: newYorkLoading } = useQuery({
+    queryKey: ['/api/communities/by-state', 'New York'],
+  });
+
+  // Fetch Canadian communities
+  const { data: canadianCommunities, isLoading: canadianLoading } = useQuery({
+    queryKey: ['/api/communities/canadian'],
+  });
+
+  // Fetch Mexican communities
+  const { data: mexicoCommunities, isLoading: mexicoLoading } = useQuery({
+    queryKey: ['/api/communities/mexican'],
   });
 
   const { data: trendingCommunities } = useQuery({
@@ -1334,6 +1386,610 @@ export default function CommunityDirectory() {
               </div>
             </CardContent>
           </Card>
+        </div>
+      </section>
+
+      {/* Featured Communities Slider - Visual Break */}
+      <section ref={hawaiiSectionRef} className="px-4 py-8 bg-white dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                🌺 Hawaii Communities
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300">
+                Paradise living with world-class senior care in the Hawaiian Islands
+              </p>
+            </div>
+            <Link href="/search?location=Hawaii">
+              <Button variant="outline" className="flex items-center gap-2">
+                View All Hawaii
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
+          
+          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style={{height: '44rem'}}>
+            {(hawaiiLoading || !hawaiiCommunities || (hawaiiCommunities as any[]).length === 0) ? (
+              Array.from({ length: 6 }).map((_, index) => (
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-64 h-80 animate-pulse">
+                  <div className="aspect-[4/3] bg-gradient-to-br from-blue-200 to-teal-200 dark:bg-gray-700"></div>
+                  <CardContent className="p-4">
+                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              (hawaiiCommunities as any[]).slice(0, 8).map((community: any, index) => (
+                <EnhancedCommunityCard
+                  key={`hawaii-${community.id}-${index}`}
+                  community={community}
+                  index={index}
+                  variant='featured'
+                />
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Red Tag Deals Promotional Section */}
+      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
+        <div className="max-w-7xl mx-auto">
+          <RedTagDeals />
+        </div>
+      </section>
+
+      {/* HUD Communities Showcase */}
+      <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
+        {/* Background Government Building Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="Government building background"
+            className="w-full h-full object-cover opacity-75"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-green-50/40 to-emerald-50/40 dark:from-gray-900/60 dark:to-gray-800/60"></div>
+        </div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                HUD Communities & Government Verified
+              </h2>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-green-700 dark:text-green-300 font-medium">Government verified pricing</span>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Income-based affordable</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">$57 - $800</div>
+              <div className="text-sm text-green-600 dark:text-green-300 font-medium">HUD verified</div>
+            </div>
+          </div>
+          
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+            {(hudCount as any)?.total || '6,078+'} affordable communities • 
+            Government transparency and income-based options
+          </p>
+          
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-md p-2 mb-4">
+            <p className="text-xs text-blue-800 dark:text-blue-200">
+              <span className="font-medium">Platform Promise:</span> Not all senior housing requires a six-figure budget. 
+              MySeniorValet shows everything — from $0 HUD properties to full-service memory care.
+            </p>
+          </div>
+        
+          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', height: '44rem'}}>
+            {/* Show HUD communities */}
+            {(!hudProperties || (hudProperties as any[]).length === 0) ? (
+              // Loading skeleton cards
+              Array.from({ length: 4 }).map((_, index) => (
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[26rem] border border-gray-200 animate-pulse">
+                  <div className="aspect-[4/3] bg-gray-200"></div>
+                  <CardContent className="p-3">
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <>
+                {/* Display first 10 HUD properties in slider */}
+                {((hudProperties as any[]) || []).slice(0, 10).map((community: any, index: number) => (
+                  <EnhancedCommunityCard
+                    key={`hud-${community.id}-${index}`}
+                    community={community}
+                    index={index}
+                    variant='featured'
+                  />
+                ))}
+                
+                {/* Action Card at the end */}
+                <Link href="/search?certified=hud">
+                  <Card className="overflow-hidden flex-shrink-0 w-64 h-[30rem] border-2 border-green-300 dark:border-green-600 hover:shadow-xl transition-all cursor-pointer group">
+                    <div className="aspect-[4/3] bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 flex items-center justify-center">
+                      <div className="text-center p-6">
+                        <Building2 className="w-16 h-16 text-green-600 dark:text-green-400 mx-auto mb-3" />
+                        <h3 className="text-2xl font-bold text-green-700 dark:text-green-300">
+                          {(hudCount as any)?.total || '6,078+'}
+                        </h3>
+                        <p className="text-sm text-green-600 dark:text-green-400">
+                          HUD Communities
+                        </p>
+                      </div>
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="font-bold text-lg mb-2 text-gray-900 dark:text-gray-100">
+                        Explore All HUD Housing
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Income-based affordable housing with government-verified pricing
+                      </p>
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-center text-sm">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                          <span className="text-gray-700 dark:text-gray-300">30% of income</span>
+                        </div>
+                        <div className="flex items-center text-sm">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                          <span className="text-gray-700 dark:text-gray-300">Section 8 accepted</span>
+                        </div>
+                        <div className="flex items-center text-sm">
+                          <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                          <span className="text-gray-700 dark:text-gray-300">No hidden fees</span>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-green-100 dark:bg-green-900/30 rounded-lg p-3 mb-4">
+                        <p className="text-xs text-green-800 dark:text-green-200 font-medium">
+                          Search by income level, location, or specific needs
+                        </p>
+                      </div>
+                      
+                      <Button 
+                        className="w-full bg-green-600 hover:bg-green-700 text-white group-hover:scale-105 transition-transform"
+                      >
+                        Search All HUD Communities
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </Card>
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Compact Benefits Bar */}
+      <section className="px-4 py-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-wrap justify-center items-center gap-4 text-sm">
+            <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-700/80 px-3 py-2 rounded-full">
+              <Brain className="w-4 h-4 text-blue-600" />
+              <span className="font-medium text-gray-900 dark:text-white">3-AI Verification</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-700/80 px-3 py-2 rounded-full">
+              <Shield className="w-4 h-4 text-green-600" />
+              <span className="font-medium text-gray-900 dark:text-white">HUD Verified</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-700/80 px-3 py-2 rounded-full">
+              <BarChart3 className="w-4 h-4 text-purple-600" />
+              <span className="font-medium text-gray-900 dark:text-white">34,171+ Communities</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Market Intelligence Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <MarketIntelligence />
+        </div>
+      </section>
+
+      {/* Florida Communities Section - Authentic Data */}
+      <section ref={floridaSectionRef} className="px-4 py-12 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+              🌴 Florida Senior Living Paradise
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
+              Year-round sunshine and world-class senior communities
+            </p>
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <Badge className="bg-cyan-600 text-white px-3 py-1">
+                No State Income Tax
+              </Badge>
+              <Badge className="bg-blue-600 text-white px-3 py-1">
+                Beach & Golf Communities
+              </Badge>
+            </div>
+          </div>
+          
+          {/* Florida Communities Slider - Using Real API Data */}
+          {floridaLoading ? (
+            <div className="flex items-center justify-center h-40">
+              <div className="animate-spin w-8 h-8 border-4 border-cyan-600 border-t-transparent rounded-full"></div>
+            </div>
+          ) : !(floridaCommunities as any)?.communities?.length ? (
+            <div className="text-center text-gray-600 dark:text-gray-400">
+              <p>No Florida communities available at this time.</p>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => setLocation('/search?state=Florida')}
+              >
+                Search All Florida Communities
+              </Button>
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style={{height: '32rem'}}>
+                {((floridaCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => (
+                  <EnhancedCommunityCard
+                    key={`florida-${community.id}-${index}`}
+                    community={community}
+                    index={index}
+                    variant='featured'
+                  />
+                ))}
+              </div>
+              
+              <div className="text-center mt-6">
+                <Button 
+                  variant="outline" 
+                  className="border-cyan-300 text-cyan-700 hover:bg-cyan-50 dark:border-cyan-600 dark:text-cyan-300 dark:hover:bg-cyan-900/20"
+                  onClick={() => setLocation('/search?state=Florida')}
+                >
+                  View All Florida Communities
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Move-In Cost Calculator Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <MoveInCostCalculator />
+        </div>
+      </section>
+
+      {/* Cost Comparison Worksheet Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <CostComparisonWorksheet />
+        </div>
+      </section>
+
+      {/* Fort Worth, Texas Communities Promotional Section */}
+      <section ref={texasSectionRef} className="px-4 py-12 bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+              ⭐ Fort Worth, Texas Communities
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
+              Discover premier senior living options in the heart of Texas
+            </p>
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <Badge className="bg-orange-600 text-white px-3 py-1">
+                Authentic Texas Hospitality
+              </Badge>
+              <Badge className="bg-red-600 text-white px-3 py-1">
+                Starting from $2,800/month
+              </Badge>
+            </div>
+          </div>
+          
+          {/* Fort Worth Communities Slider */}
+          <div className="relative">
+            {texasLoading ? (
+              <div className="flex items-center justify-center h-40">
+                <div className="animate-spin w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full"></div>
+              </div>
+            ) : !(texasCommunities as any)?.communities?.length ? (
+              <div className="text-center text-gray-600 dark:text-gray-400">
+                <p>No Fort Worth communities available at this time.</p>
+                <Button 
+                  variant="outline" 
+                  className="mt-4"
+                  onClick={() => setLocation('/search?city=Fort Worth&state=Texas')}
+                >
+                  Search Fort Worth Communities
+                </Button>
+              </div>
+            ) : (
+              <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style={{height: '32rem'}}>
+                {((texasCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => (
+                  <EnhancedCommunityCard
+                    key={`texas-${community.id}-${index}`}
+                    community={community}
+                    index={index}
+                    variant='featured'
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured & Coastal Communities Section */}
+      <section ref={newYorkSectionRef} className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
+        {/* Background New York Skyline Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
+            alt="New York skyline background"
+            className="w-full h-full object-cover opacity-75"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-50/40 to-blue-50/40 dark:from-gray-900/60 dark:to-gray-800/60"></div>
+        </div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                🗽 New York Communities
+              </h2>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-purple-700 dark:text-purple-300 font-medium">Empire State living</span>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Metropolitan access</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">$3,200 - $4,800</div>
+              <div className="text-sm text-purple-600 dark:text-purple-300 font-medium">New York State</div>
+            </div>
+          </div>
+          
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+            {((newYorkCommunities as any)?.communities?.length || 0)} New York communities • 
+            Empire State senior living excellence
+          </p>
+        
+          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', height: '44rem'}}>
+            {/* Show New York communities */}
+            {newYorkLoading ? (
+              // Loading skeleton cards
+              Array.from({ length: 4 }).map((_, index) => (
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
+                  <div className="aspect-[4/3] bg-gray-200"></div>
+                  <CardContent className="p-3">
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : ((newYorkCommunities as any)?.communities || []).length === 0 ? (
+              <div className="text-center text-gray-600 dark:text-gray-400 py-8 w-full">
+                <Building className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p>No New York communities available at this time.</p>
+              </div>
+            ) : (
+              ((newYorkCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => (
+                <EnhancedCommunityCard
+                  key={`newyork-${community.id}-${index}`}
+                  community={community}
+                  index={index}
+                  variant='featured'
+                />
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Canadian Communities Section */}
+      <section ref={canadianSectionRef} className="px-4 py-12 relative dark:bg-gray-800">
+        {/* Background Canadian-themed styling */}
+        <div className="absolute inset-0 z-0">
+          <div className="w-full h-full bg-gradient-to-br from-red-100 via-white to-red-50 dark:from-red-900/20 dark:via-gray-900 dark:to-red-900/10">
+            {/* Canadian maple leaf pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-10 left-20 text-red-600 text-8xl">🍁</div>
+              <div className="absolute top-40 right-40 text-red-600 text-6xl rotate-45">🍁</div>
+              <div className="absolute bottom-20 left-1/3 text-red-600 text-7xl -rotate-12">🍁</div>
+              <div className="absolute bottom-10 right-20 text-red-600 text-5xl rotate-180">🍁</div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1 flex items-center gap-2">
+                <Flag className="h-6 w-6 text-red-600" />
+                {language === 'en' ? 'Featured Canadian Communities' : 'Communautés canadiennes en vedette'}
+              </h2>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-red-700 dark:text-red-300 font-medium">
+                  {language === 'en' ? 'Coast to coast coverage' : 'Couverture d\'un océan à l\'autre'}
+                </span>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+                  {language === 'en' ? 'Bilingual services available' : 'Services bilingues disponibles'}
+                </span>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">$2,500 - $5,500 CAD</div>
+              <div className="text-sm text-red-600 dark:text-red-300 font-medium">
+                {language === 'en' ? 'Canadian communities' : 'Communautés canadiennes'}
+              </div>
+            </div>
+          </div>
+          
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
+            {language === 'en' 
+              ? '24 communities across all 13 provinces and territories • 10 with bilingual French/English services' 
+              : '24 communautés dans les 13 provinces et territoires • 10 avec services bilingues français/anglais'}
+          </p>
+        
+          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', height: '44rem'}}>
+            {/* Show Canadian communities */}
+            {canadianLoading ? (
+              // Loading skeleton cards
+              Array.from({ length: 4 }).map((_, index) => (
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
+                  <div className="aspect-[4/3] bg-gray-200"></div>
+                  <CardContent className="p-3">
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : ((canadianCommunities as any)?.communities || []).length === 0 ? (
+              <>
+                <div className="text-center text-gray-600 dark:text-gray-400 py-8 w-full">
+                  <Flag className="w-16 h-16 mx-auto mb-4 opacity-50 text-red-600" />
+                  <p className="mb-4">
+                    {language === 'en' 
+                      ? 'Canadian communities loading...' 
+                      : 'Chargement des communautés canadiennes...'}
+                  </p>
+                </div>
+                <Link href="/search?country=Canada">
+                  <Card className="overflow-hidden flex-shrink-0 w-64 h-[30rem] border-2 border-red-300 dark:border-red-600 hover:shadow-xl transition-all cursor-pointer group">
+                    <div className="aspect-[4/3] bg-gradient-to-br from-red-100 via-white to-red-100 dark:from-red-900 dark:via-gray-900 dark:to-red-900 flex items-center justify-center">
+                      <div className="text-center p-6">
+                        <span className="text-6xl mb-4 block">🍁</span>
+                        <h3 className="text-2xl font-bold text-red-700 dark:text-red-300">
+                          24
+                        </h3>
+                        <p className="text-sm text-red-600 dark:text-red-400">
+                          {language === 'en' ? 'Communities' : 'Communautés'}
+                        </p>
+                      </div>
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="font-bold text-lg mb-2 text-gray-900 dark:text-gray-100">
+                        {language === 'en' ? 'Explore Canadian Communities' : 'Explorer les communautés'}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        {language === 'en' 
+                          ? 'Coast to coast senior living options with bilingual services' 
+                          : 'Options de vie pour aînés d\'un océan à l\'autre avec services bilingues'}
+                      </p>
+                      <div className="space-y-2 text-left mb-4">
+                        <div className="flex items-center text-sm">
+                          <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+                          <span className="text-gray-700 dark:text-gray-300">
+                            {language === 'en' ? '13 provinces & territories' : '13 provinces et territoires'}
+                          </span>
+                        </div>
+                        <div className="flex items-center text-sm">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                          <span className="text-gray-700 dark:text-gray-300">
+                            {language === 'en' ? '10 bilingual communities' : '10 communautés bilingues'}
+                          </span>
+                        </div>
+                        <div className="flex items-center text-sm">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                          <span className="text-gray-700 dark:text-gray-300">
+                            {language === 'en' ? 'Coast to coast coverage' : 'D\'un océan à l\'autre'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <Button 
+                        className="w-full bg-red-600 hover:bg-red-700 text-white group-hover:scale-105 transition-transform"
+                      >
+                        {language === 'en' ? 'Explore Canadian Communities' : 'Explorer les communautés'}
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </Card>
+                </Link>
+              </>
+            ) : (
+              ((canadianCommunities as any)?.communities || []).slice(0, 10).map((community: any, index: number) => (
+                <EnhancedCommunityCard
+                  key={`canadian-${community.id}-${index}`}
+                  community={community}
+                  index={index}
+                  variant='featured'
+                />
+              ))
+            )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Mexican Communities Section */}
+      <section ref={californiaSectionRef} className="px-4 py-8 relative overflow-hidden">
+        {/* Background with Mexican flag colors styling */}
+        <div className="absolute inset-0 z-0">
+          <div className="w-full h-full bg-gradient-to-br from-green-50 via-white to-red-50 dark:from-green-900/20 dark:via-gray-900 dark:to-red-900/20"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-green-100/30 via-white/20 to-red-100/30 dark:from-green-700/30 dark:via-gray-800/20 dark:to-red-700/30"></div>
+          {/* Mexican flag pattern overlay */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-10 left-20 text-green-600 text-8xl">🦅</div>
+            <div className="absolute top-40 right-40 text-red-600 text-6xl rotate-45">🌮</div>
+            <div className="absolute bottom-20 left-1/3 text-green-600 text-7xl -rotate-12">🌵</div>
+            <div className="absolute bottom-10 right-20 text-red-600 text-5xl rotate-180">🌺</div>
+          </div>
+        </div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+              <span className="text-2xl">🇲🇽</span>
+              Featured Mexican Communities
+            </h2>
+            <div className="text-right">
+              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">$800 - $1,200 USD</div>
+              <div className="text-xs text-green-600 dark:text-green-400">Government-certified facilities</div>
+            </div>
+          </div>
+          
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{(mexicoCommunities as any[] || []).length || 101} authentic facilities • Ciudad de México, Cuernavaca, Guadalajara, Querétaro across 13 states</p>
+        
+          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+            {mexicoLoading ? (
+              // Loading skeleton cards
+              Array.from({ length: 4 }).map((_, index) => (
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
+                  <div className="aspect-[4/3] bg-gray-200"></div>
+                  <CardContent className="p-3">
+                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              ((mexicoCommunities as any[] || []).slice(0, 12)).map((community: any, index: number) => (
+                <EnhancedCommunityCard
+                  key={`mexico-${community.id}-${index}`}
+                  community={community}
+                  index={index}
+                  variant='featured'
+                />
+              ))
+            )}
+          </div>
         </div>
       </section>
     </div>
