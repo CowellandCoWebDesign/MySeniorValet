@@ -35,8 +35,9 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
-          {/* Logo & Social */}
+        {/* Main Footer Grid - 4 Columns */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3 border-t border-gray-700 pt-4">
+          {/* Column 1: Logo & Social */}
           <div>
             <div className="flex items-center gap-2 mb-2">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
@@ -63,7 +64,7 @@ export function Footer() {
             </div>
           </div>
           
-          {/* For Families */}
+          {/* Column 2: For Families */}
           <div>
             <h3 className="text-sm font-semibold mb-2 text-white">For Families</h3>
             <ul className="space-y-1 text-xs text-gray-300">
@@ -84,7 +85,7 @@ export function Footer() {
             </div>
           </div>
           
-          {/* For Vendors */}
+          {/* Column 3: For Vendors */}
           <div>
             <h3 className="text-sm font-semibold mb-2 text-white">For Vendors</h3>
             <ul className="space-y-1 text-xs text-gray-300">
@@ -95,7 +96,7 @@ export function Footer() {
             </ul>
           </div>
           
-          {/* Legal & Compliance */}
+          {/* Column 4: Legal & Compliance */}
           <div>
             <h3 className="text-sm font-semibold mb-2 text-white">Legal & Compliance</h3>
             <ul className="space-y-1 text-xs text-gray-300">
