@@ -742,62 +742,7 @@ export default function MySeniorValetHome() {
           {/* Search Container */}
           <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
             
-            {/* All Action Buttons - Compact Horizontal Layout */}
-            <div className="mb-4 animate-fade-in-up animation-delay-100">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {/* Traditional Search - Points to map-search route */}
-                <Link href={`/map-search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="w-full">
-                  <Button className="w-full h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-600">
-                    <div className="flex items-center justify-start space-x-1.5">
-                      <Search className="h-4 w-4 flex-shrink-0" />
-                      <div className="text-left">
-                        <div className="text-[10px] font-semibold leading-tight">Traditional Browse</div>
-                        <div className="text-[8px] text-gray-400 leading-tight">Filter & Sort</div>
-                      </div>
-                    </div>
-                  </Button>
-                </Link>
 
-                {/* AI Intelligence - Links directly to simplified tab */}
-                <Link href="/ai-search-intelligence?mode=simplified" className="w-full">
-                  <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200">
-                    <div className="flex items-center justify-start space-x-1.5">
-                      <Sparkles className="h-4 w-4 flex-shrink-0" />
-                      <div className="text-left">
-                        <div className="text-[10px] font-semibold leading-tight">AI Assistant</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Ask Questions</div>
-                      </div>
-                    </div>
-                  </Button>
-                </Link>
-
-                {/* Live Availability Heatmap */}
-                <Link href="/availability-heatmap" className="w-full">
-                  <Button className="w-full h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 px-2 py-2 rounded-md transform hover:scale-[1.01]">
-                    <div className="flex items-center justify-start space-x-1.5">
-                      <Flame className="h-4 w-4 flex-shrink-0 animate-pulse" />
-                      <div className="text-left">
-                        <div className="text-[10px] font-semibold leading-tight">Live Heatmap</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Availability Now</div>
-                      </div>
-                    </div>
-                  </Button>
-                </Link>
-
-                {/* Competitive Market Analysis */}
-                <Link href="/competitive-analysis" className="w-full">
-                  <Button className="w-full h-auto bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 px-2 py-2 rounded-md transform hover:scale-[1.01]">
-                    <div className="flex items-center justify-start space-x-1.5">
-                      <TrendingUp className="h-4 w-4 flex-shrink-0" />
-                      <div className="text-left">
-                        <div className="text-[10px] font-semibold leading-tight">Market Analysis</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Price Compare</div>
-                      </div>
-                    </div>
-                  </Button>
-                </Link>
-              </div>
-            </div>
 
             {/* Search Bar - Full Screen Width - Slimmer Design */}
             <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 mb-3 animate-fade-in-up animation-delay-200" style={{ position: 'relative', zIndex: 99999 }}>
@@ -1032,22 +977,59 @@ export default function MySeniorValetHome() {
                     <span className="text-sm text-gray-600 dark:text-gray-400">Communities</span>
                   </div>
 
-                  <div className="space-y-2 mb-6">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">All U.S. Communities</span>
+                  {/* Two-column layout for checkboxes and action buttons */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                    {/* Left column - Checkboxes */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">All U.S. Communities</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">5,936+ HUD Properties</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Real-Time Availability</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Verified Pricing Data</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">5,936+ HUD Properties</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Real-Time Availability</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Verified Pricing Data</span>
+
+                    {/* Right column - Action buttons */}
+                    <div className="grid grid-cols-3 gap-2">
+                      {/* Traditional Search */}
+                      <Link href="/map-search" className="w-full">
+                        <Button className="w-full h-auto bg-gray-800 hover:bg-gray-700 text-white px-1 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
+                          <div className="flex flex-col items-center">
+                            <Search className="h-4 w-4 mb-1" />
+                            <div className="text-[9px] font-semibold leading-tight">Browse</div>
+                          </div>
+                        </Button>
+                      </Link>
+
+                      {/* AI Intelligence */}
+                      <Link href="/ai-search-intelligence?mode=simplified" className="w-full">
+                        <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-1 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                          <div className="flex flex-col items-center">
+                            <Sparkles className="h-4 w-4 mb-1" />
+                            <div className="text-[9px] font-semibold leading-tight">AI Chat</div>
+                          </div>
+                        </Button>
+                      </Link>
+
+                      {/* Live Heatmap */}
+                      <Link href="/availability-heatmap" className="w-full">
+                        <Button className="w-full h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 px-1 py-2 rounded-md transform hover:scale-[1.02]">
+                          <div className="flex flex-col items-center">
+                            <Flame className="h-4 w-4 mb-1 animate-pulse" />
+                            <div className="text-[9px] font-semibold leading-tight">Heatmap</div>
+                          </div>
+                        </Button>
+                      </Link>
                     </div>
                   </div>
 
