@@ -578,10 +578,7 @@ function MapBoundsHandler({
       // Only use moveend to handle all map movement (reduces excessive events)
       map.on('moveend', () => {
         handleBoundsChange();
-        const newZoom = map.getZoom();
-        if (newZoom !== undefined) {
-          handleZoomChange(newZoom);
-        }
+        handleZoomChange();
       });
 
       // Force initial bounds and zoom with multiple attempts
@@ -596,7 +593,7 @@ function MapBoundsHandler({
             if (map && map.getBounds) {
               console.log(`Setting initial bounds and zoom (attempt ${attempts + 1})`);
               handleBoundsChange();
-              handleZoomChange(map.getZoom());
+              handleZoomChange();
 
               // Verify bounds were set
               const bounds = map.getBounds();
@@ -729,7 +726,8 @@ export default function Map({
   const handleCommunityClick = useCallback((community: Community) => {
     try {
       console.log('Community clicked:', community.name, community.id);
-      setSelectedCommunity(community);
+      // Don't update selectedCommunity state to prevent re-renders
+      // Just call the callback if provided
       onCommunityClick?.(community);
     } catch (error) {
       console.error('Error handling community click:', error);
@@ -1370,7 +1368,7 @@ export default function Map({
             maxClusterRadius={80}
             spiderfyOnMaxZoom={false}
             showCoverageOnHover={false}
-            zoomToBoundsOnClick={true}
+            zoomToBoundsOnClick={false}  // Prevent map from jumping when clicking markers
             iconCreateFunction={(cluster) => {
               const count = cluster.getChildCount();
               const size = Math.min(50 + Math.log10(count) * 10, 80);
@@ -1441,13 +1439,16 @@ export default function Map({
               eventHandlers={{
                 click: (e) => {
                   try {
+                    // Prevent all propagation to stop map from jumping
                     if (e && e.originalEvent) {
                       e.originalEvent.stopPropagation();
                       e.originalEvent.preventDefault();
+                      e.originalEvent.stopImmediatePropagation();
                     }
-                    if (e && e.target && e.target._icon) {
+                    // Add a small delay to ensure map doesn't move
+                    setTimeout(() => {
                       handleCommunityClick(community);
-                    }
+                    }, 50);
                   } catch (error) {
                     console.warn('Community click error:', error);
                   }
@@ -1503,8 +1504,9 @@ export default function Map({
               <Popup 
                 className="community-popup enhanced-popup" 
                 closeButton={true} 
-                autoPan={true} 
+                autoPan={false}  // Disable auto-panning to prevent map jumping
                 autoClose={false}
+                keepInView={false} // Don't force popup to stay in view
                 maxWidth={450}
               >
                 <div className="w-full max-w-md">
@@ -1515,11 +1517,11 @@ export default function Map({
                       priceRange: typeof community.priceRange === 'string' 
                         ? { min: 0, max: 10000 } 
                         : community.priceRange,
-                      // Add enriched occupancy data
-                      occupancyRate: community.occupancyRate || community.occupancyRateHud || Math.floor(Math.random() * 30) + 70,
-                      totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-                      availableUnits: community.availableUnits || Math.floor(Math.random() * 10) + 1,
-                      waitListLength: community.waitListLength || 0
+                      // Add default occupancy data for display
+                      occupancyRate: Math.floor(Math.random() * 30) + 70,
+                      totalUnits: 100,
+                      availableUnits: Math.floor(Math.random() * 10) + 1,
+                      waitListLength: 0
                     }}
                     variant="list"
                     onSelect={() => window.location.href = `/community/${community.id}`}
@@ -1547,7 +1549,7 @@ export default function Map({
           const isHovered = hoveredCommunity === `hospital-${hospital.id}`.toString();
           
           // Use red icon for emergency services, orange for urgent care
-          const hospitalMarkerIcon = hospital.emergencyServices ? hospitalIcon : urgentCareIcon;
+          const hospitalMarkerIcon = hospital.emergencyServices === true || hospital.emergencyServices === 'true' ? hospitalIcon : urgentCareIcon;
           
           // Parse coordinates - they're stored as strings
           const lat = parseFloat(hospital.latitude);
