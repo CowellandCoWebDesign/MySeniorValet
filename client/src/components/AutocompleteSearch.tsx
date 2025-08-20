@@ -91,6 +91,7 @@ export function AutocompleteSearch({
     if (debouncedValue && debouncedValue.length >= 2) {
       setLoadingSuggestions(true);
       apiRequest('GET', `/api/autocomplete/suggestions?query=${encodeURIComponent(debouncedValue)}&limit=10`)
+        .then(res => res.json())
         .then(data => {
           // Ensure suggestions are in the correct format
           const validSuggestions = (data.suggestions || []).filter((s: AutocompleteSuggestion) => {
@@ -108,8 +109,7 @@ export function AutocompleteSearch({
           setLoadingSuggestions(false);
         })
         .catch(error => {
-          console.error('Autocomplete error:', error.message || error);
-          console.error('Full error details:', error);
+          console.error('Autocomplete error:', error);
           setSuggestions([]);
           setShowSuggestions(false);
           setLoadingSuggestions(false);
@@ -285,9 +285,6 @@ export function AutocompleteSearch({
     }
   };
 
-  // Remove debug logging in production
-  // Removed excessive console logging for cleaner output
-
   return (
     <div className="relative w-full">
       <div className="relative">
@@ -324,7 +321,7 @@ export function AutocompleteSearch({
         <Card 
           ref={suggestionsRef}
           className="absolute w-full mt-2 max-h-[400px] overflow-y-auto shadow-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
-          style={{ zIndex: 999999, position: 'absolute', top: '100%', left: 0, right: 0 }}
+          style={{ zIndex: 50, position: 'absolute', top: '100%', left: 0, right: 0 }}
         >
           {loadingSuggestions ? (
             <div className="p-4 text-center">

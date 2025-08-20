@@ -800,16 +800,16 @@ export default function MySeniorValetHome() {
             </div>
 
             {/* Search Bar - Full Screen Width - Slimmer Design */}
-            <div className="mb-3 animate-fade-in-up animation-delay-200" style={{ position: 'relative', zIndex: 99999, overflow: 'visible' }}>
+            <div className="mb-3 animate-fade-in-up animation-delay-200" style={{ position: 'relative', zIndex: 99999 }}>
               <form onSubmit={(e) => {
                 e.preventDefault();
                 if (searchQuery) {
                   window.location.href = `/myseniorvalet-search?q=${encodeURIComponent(searchQuery)}`;
                 }
               }}>
-                <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl" style={{ overflow: 'visible', position: 'relative' }}>
+                <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl" style={{ overflow: 'visible' }}>
                   <div className="flex items-center">
-                    <div className="flex-1" style={{ position: 'relative', overflow: 'visible' }}>
+                    <div className="flex-1 relative">
                       <AutocompleteSearch
                         value={searchQuery}
                         onChange={setSearchQuery}

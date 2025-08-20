@@ -213,9 +213,9 @@ const MapEvents: React.FC<{
         onMapReady(map);
       };
 
-      // Register official Leaflet event listeners per documentation - simplified to reduce bouncing
-      // Only use moveend to handle all map movement
+      // Register official Leaflet event listeners per documentation
       map.on('moveend', handleMoveEnd);
+      map.on('zoomend', handleZoomEnd);
       map.on('load', handleLoad);
 
       // Check if map is already loaded (fallback)
@@ -226,6 +226,7 @@ const MapEvents: React.FC<{
       // Cleanup function for event listeners
       return () => {
         map.off('moveend', handleMoveEnd);
+        map.off('zoomend', handleZoomEnd);
         map.off('load', handleLoad);
       };
     }
@@ -446,22 +447,19 @@ const HeatmapOverlay: React.FC<{ opacity: number }> = ({ opacity }) => {
       }
     };
     
-    // Fetch on mount and when map moves (with debouncing)
+    // Fetch on mount and when map moves
     fetchHeatmapData();
     
-    let debounceTimer: NodeJS.Timeout;
     const handleMoveEnd = () => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        fetchHeatmapData();
-      }, 1000); // 1 second debounce for heatmap updates
+      fetchHeatmapData();
     };
     
     map.on('moveend', handleMoveEnd);
+    map.on('zoomend', handleMoveEnd);
     
     return () => {
       map.off('moveend', handleMoveEnd);
-      clearTimeout(debounceTimer);
+      map.off('zoomend', handleMoveEnd);
     };
   }, [map]);
   
@@ -502,7 +500,7 @@ const HeatmapOverlay: React.FC<{ opacity: number }> = ({ opacity }) => {
   );
 };
 
-// Component to handle map bounds and zoom changes with reduced event frequency
+// Component to handle map bounds and zoom changes
 function MapBoundsHandler({ 
   onBoundsChange, 
   onZoomChange 
@@ -512,7 +510,6 @@ function MapBoundsHandler({
 }) {
   const map = useMap();
   const [initialized, setInitialized] = useState(false);
-  const lastBoundsRef = useRef<string>('');
 
   const handleBoundsChange = useCallback(() => {
     try {
@@ -575,11 +572,15 @@ function MapBoundsHandler({
       console.log('MapBoundsHandler initializing, map ready:', !!map);
 
       // Set up event handlers for map movement with better responsiveness
-      // Only use moveend to handle all map movement (reduces excessive events)
-      map.on('moveend', () => {
-        handleBoundsChange();
+      map.on('moveend', handleBoundsChange);
+      map.on('zoomend', () => {
+        const newZoom = map.getZoom();
+        console.log('📍 Map zoom changed to:', newZoom);
         handleZoomChange();
+        handleBoundsChange(); // Also trigger bounds update on zoom
       });
+      map.on('dragend', handleBoundsChange); // Update after drag completes
+      map.on('drag', handleBoundsChange); // Also update during drag for immediate response
 
       // Force initial bounds and zoom with multiple attempts
       const attemptInitialBounds = (attempts = 0) => {
@@ -593,7 +594,7 @@ function MapBoundsHandler({
             if (map && map.getBounds) {
               console.log(`Setting initial bounds and zoom (attempt ${attempts + 1})`);
               handleBoundsChange();
-              handleZoomChange();
+              handleZoomChange(map.getZoom());
 
               // Verify bounds were set
               const bounds = map.getBounds();
@@ -617,7 +618,10 @@ function MapBoundsHandler({
 
     return () => {
       if (map) {
-        map.off('moveend');
+        map.off('moveend', handleBoundsChange);
+        map.off('zoomend');
+        map.off('dragend', handleBoundsChange);
+        map.off('drag', handleBoundsChange);
         clearTimeout(window.mapBoundsTimeout);
       }
     };
@@ -703,7 +707,7 @@ export default function Map({
     // Debounce the callback to prevent excessive API calls
     boundsDebounceTimer.current = setTimeout(() => {
       onBoundsChange?.(bounds);
-    }, 800); // Increased debounce to reduce bouncing
+    }, 300); // 300ms debounce
   }, [onBoundsChange]);
 
   // Handle zoom change - can be called with or without parameter
@@ -711,7 +715,7 @@ export default function Map({
   const [currentZoom, setCurrentZoom] = useState(zoom);
   
   const handleZoomChange = useCallback((zoomLevel?: number) => {
-    if (zoomLevel !== undefined && Math.abs(zoomLevel - currentZoom) > 0.5) {
+    if (zoomLevel !== undefined && Math.abs(zoomLevel - currentZoom) > 0.1) {
       console.log('🔍 ZOOM CHANGED - FORCING CLUSTER UPDATE:', {
         oldZoom: currentZoom,
         newZoom: zoomLevel,
@@ -722,17 +726,7 @@ export default function Map({
     }
   }, [currentZoom]);
 
-  // Handle community click event
-  const handleCommunityClick = useCallback((community: Community) => {
-    try {
-      console.log('Community clicked:', community.name, community.id);
-      // Don't update selectedCommunity state to prevent re-renders
-      // Just call the callback if provided
-      onCommunityClick?.(community);
-    } catch (error) {
-      console.error('Error handling community click:', error);
-    }
-  }, [onCommunityClick]);
+  // Remove this - let React Query handle refetching based on key changes
 
   // Check for geolocation permission on mount
   useEffect(() => {
@@ -1151,6 +1145,15 @@ export default function Map({
     });
   };
 
+  const handleCommunityClick = (community: Community) => {
+    try {
+      setSelectedCommunity(community);
+      onCommunityClick?.(community);
+    } catch (error) {
+      console.error('Error handling community click:', error);
+    }
+  };
+
   // Debug logging
   useEffect(() => {
     console.log('Map component mounted with initial zoom:', zoom, 'center:', center);
@@ -1368,7 +1371,7 @@ export default function Map({
             maxClusterRadius={80}
             spiderfyOnMaxZoom={false}
             showCoverageOnHover={false}
-            zoomToBoundsOnClick={false}  // Prevent map from jumping when clicking markers
+            zoomToBoundsOnClick={true}
             iconCreateFunction={(cluster) => {
               const count = cluster.getChildCount();
               const size = Math.min(50 + Math.log10(count) * 10, 80);
@@ -1439,16 +1442,13 @@ export default function Map({
               eventHandlers={{
                 click: (e) => {
                   try {
-                    // Prevent all propagation to stop map from jumping
                     if (e && e.originalEvent) {
                       e.originalEvent.stopPropagation();
                       e.originalEvent.preventDefault();
-                      e.originalEvent.stopImmediatePropagation();
                     }
-                    // Add a small delay to ensure map doesn't move
-                    setTimeout(() => {
+                    if (e && e.target && e.target._icon) {
                       handleCommunityClick(community);
-                    }, 50);
+                    }
                   } catch (error) {
                     console.warn('Community click error:', error);
                   }
@@ -1504,9 +1504,8 @@ export default function Map({
               <Popup 
                 className="community-popup enhanced-popup" 
                 closeButton={true} 
-                autoPan={false}  // Disable auto-panning to prevent map jumping
+                autoPan={true} 
                 autoClose={false}
-                keepInView={false} // Don't force popup to stay in view
                 maxWidth={450}
               >
                 <div className="w-full max-w-md">
@@ -1517,11 +1516,11 @@ export default function Map({
                       priceRange: typeof community.priceRange === 'string' 
                         ? { min: 0, max: 10000 } 
                         : community.priceRange,
-                      // Add default occupancy data for display
-                      occupancyRate: Math.floor(Math.random() * 30) + 70,
-                      totalUnits: 100,
-                      availableUnits: Math.floor(Math.random() * 10) + 1,
-                      waitListLength: 0
+                      // Add enriched occupancy data
+                      occupancyRate: community.occupancyRate || community.occupancyRateHud || Math.floor(Math.random() * 30) + 70,
+                      totalUnits: community.totalUnits || community.totalUnitsHud || 100,
+                      availableUnits: community.availableUnits || Math.floor(Math.random() * 10) + 1,
+                      waitListLength: community.waitListLength || 0
                     }}
                     variant="list"
                     onSelect={() => window.location.href = `/community/${community.id}`}
@@ -1549,7 +1548,7 @@ export default function Map({
           const isHovered = hoveredCommunity === `hospital-${hospital.id}`.toString();
           
           // Use red icon for emergency services, orange for urgent care
-          const hospitalMarkerIcon = hospital.emergencyServices === true || hospital.emergencyServices === 'true' ? hospitalIcon : urgentCareIcon;
+          const hospitalMarkerIcon = hospital.emergencyServices ? hospitalIcon : urgentCareIcon;
           
           // Parse coordinates - they're stored as strings
           const lat = parseFloat(hospital.latitude);

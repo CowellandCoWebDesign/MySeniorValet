@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,20 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Search, Heart, MapPin, Filter, Star, Home, ArrowLeft, Settings, Map as MapIcon, List, Loader2, Brain } from "lucide-react";
+import { Search, Heart, MapPin, Filter, Star, Home, ArrowLeft, Settings, Map, List, Loader2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { PricingTransparencyBadgeList, TransparencyScore } from "@/components/PricingTransparencyBadge";
 import { NavigationHeader } from "@/components/NavigationHeader";
-import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { SlidersHorizontal } from 'lucide-react';
-import { AutocompleteSearch } from "@/components/AutocompleteSearch";
-
-// Lazy load the Map component
-const Map = lazy(() => import("@/components/Map"));
+import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 
 interface Community {
   id: number;
@@ -55,9 +46,8 @@ interface Community {
 }
 
 export default function MySeniorValetSearch() {
-  const [location, setLocation] = useLocation();
+  const [location] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchLocation, setSearchLocation] = useState<{lat: number; lng: number} | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -94,7 +84,7 @@ export default function MySeniorValetSearch() {
     if (filters.careTypes.length > 0) params.append('careType', filters.careTypes[0]);
     if (filters.maxPrice) params.append('priceMax', filters.maxPrice);
     if (filters.minRating) params.append('minRating', filters.minRating);
-    params.append('limit', '20'); // Start with 20 for faster initial load
+    params.append('limit', '100');
     return params.toString();
   };
 
@@ -109,7 +99,6 @@ export default function MySeniorValetSearch() {
     },
     retry: false,
     enabled: true, // Always enabled to fetch initial data
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   // Extract communities array from search response
@@ -148,12 +137,6 @@ export default function MySeniorValetSearch() {
     // TODO: Implement favorites functionality
   };
 
-  // Handle search submission
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    setLocation(`/myseniorvalet-search?q=${encodeURIComponent(query)}`);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <NavigationHeader 
@@ -161,157 +144,49 @@ export default function MySeniorValetSearch() {
         subtitle="Find your perfect senior living community"
       />
 
-      {/* Home-style Search Bar Interface */}
-      <div className="px-4 py-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 border-b">
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          if (searchQuery) {
-            handleSearch(searchQuery);
-          }
-        }}>
-          <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-4xl mx-auto">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <AutocompleteSearch
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                  onSubmit={handleSearch}
-                  placeholder="Search by city, community name, or care type..."
-                  hideSearchButton={true}
-                  inputClassName="w-full pl-12 pr-3 py-3 text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                />
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              </div>
-              <div className="flex items-center mr-2">
-                <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs px-3 py-1 font-semibold">
-                  <Brain className="w-3 h-3 mr-1" />
-                  AI-Powered
-                </Badge>
-              </div>
-              <button
-                type="submit"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-2.5 m-2 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
-              >
-                <Search className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-
-      {/* Enhanced Filter Bar with Drawer */}
-      <div className="px-4 py-3 bg-white dark:bg-gray-900 border-b">
+      {/* Filter Pills */}
+      <div className="px-4 py-3 gradient-card border-b border-white/20">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Drawer>
-              <DrawerTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <SlidersHorizontal className="h-4 w-4" />
-                  Filters
-                  {(filters.careTypes.length > 0 || filters.maxPrice || filters.minRating) && (
-                    <Badge variant="secondary" className="ml-1 px-1.5 py-0 h-5 text-xs">
-                      {filters.careTypes.length + (filters.maxPrice ? 1 : 0) + (filters.minRating ? 1 : 0)}
-                    </Badge>
-                  )}
-                </Button>
-              </DrawerTrigger>
-              <DrawerContent>
-                <DrawerHeader>
-                  <DrawerTitle>Search Filters</DrawerTitle>
-                </DrawerHeader>
-                <div className="p-4 space-y-4">
-                  <div>
-                    <Label>Care Types</Label>
-                    <div className="grid grid-cols-2 gap-2 mt-2">
-                      {['Independent Living', 'Assisted Living', 'Memory Care', 'Skilled Nursing'].map(type => (
-                        <div key={type} className="flex items-center space-x-2">
-                          <Checkbox 
-                            checked={filters.careTypes.includes(type)}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setFilters(prev => ({
-                                  ...prev,
-                                  careTypes: [...prev.careTypes, type]
-                                }));
-                              } else {
-                                setFilters(prev => ({
-                                  ...prev,
-                                  careTypes: prev.careTypes.filter(t => t !== type)
-                                }));
-                              }
-                            }}
-                          />
-                          <Label className="text-sm">{type}</Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <Label>Max Price/Month</Label>
-                    <Select value={filters.maxPrice} onValueChange={(value) => setFilters(prev => ({ ...prev, maxPrice: value }))}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Any price" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">Any price</SelectItem>
-                        <SelectItem value="2000">$2,000</SelectItem>
-                        <SelectItem value="3000">$3,000</SelectItem>
-                        <SelectItem value="4000">$4,000</SelectItem>
-                        <SelectItem value="5000">$5,000</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Min Rating</Label>
-                    <Select value={filters.minRating} onValueChange={(value) => setFilters(prev => ({ ...prev, minRating: value }))}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Any rating" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">Any rating</SelectItem>
-                        <SelectItem value="3">3+ Stars</SelectItem>
-                        <SelectItem value="4">4+ Stars</SelectItem>
-                        <SelectItem value="4.5">4.5+ Stars</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </DrawerContent>
-            </Drawer>
-            
-            {/* Active filter badges */}
-            {filters.careTypes.length > 0 && (
-              <Badge variant="secondary" className="gap-1">
-                {filters.careTypes.length} Care Types
-                <button onClick={() => setFilters(prev => ({ ...prev, careTypes: [] }))} className="ml-1">
-                  ×
-                </button>
-              </Badge>
-            )}
-            {filters.maxPrice && (
-              <Badge variant="secondary" className="gap-1">
-                Max ${filters.maxPrice}
-                <button onClick={() => setFilters(prev => ({ ...prev, maxPrice: '' }))} className="ml-1">
-                  ×
-                </button>
-              </Badge>
-            )}
+          <div className="flex space-x-2 overflow-x-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-shrink-0 gradient-primary text-white border-0 hover:opacity-90 animate-gradient"
+            >
+              <Filter className="w-4 h-4 mr-2" />
+              Care type
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-shrink-0 gradient-secondary text-white border-0 hover:opacity-90"
+            >
+              Price
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-shrink-0"
+            >
+              Rating
+            </Button>
           </div>
-          
-          <div className="flex items-center gap-2">
+          <div className="flex items-center space-x-2">
             <Button
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('list')}
+              className="p-2"
             >
-              <List className="h-4 w-4" />
+              <List className="w-4 h-4" />
             </Button>
             <Button
               variant={viewMode === 'map' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('map')}
+              className="p-2"
             >
-              <MapIcon className="h-4 w-4" />
+              <Map className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -323,7 +198,7 @@ export default function MySeniorValetSearch() {
           <p className="text-sm text-gray-700 font-medium">
             {isLoading ? 'Searching...' : 
              communities.length > 0 ? `Found ${communities.length} results` : 
-             searchQuery ? 'No results found' : 'Enter a search term'}
+             searchParams.get('q') ? 'No results found' : 'Enter a search term'}
           </p>
           <Button className="gradient-primary hover:opacity-90 text-white px-4 py-2 rounded-full border-0 animate-gradient">
             <Search className="w-4 h-4 mr-2" />
@@ -332,94 +207,46 @@ export default function MySeniorValetSearch() {
         </div>
       </div>
 
-      {/* Loading State - Show skeleton cards while loading */}
+      {/* Loading State */}
       {isLoading && (
-        <div className="px-4 py-2 space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <Card className="overflow-hidden bg-gray-100 dark:bg-gray-800">
-                <CardContent className="p-4">
-                  <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded mb-3"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                </CardContent>
-              </Card>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Communities List with PrioritizedCommunityCard */}
-      {!isLoading && viewMode === 'list' && (
-        <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            {communities.length > 0 ? (
-              <div className="space-y-4">
-                {communities.slice(0, displayedCount).map((community: Community, index: number) => (
-                  <div key={community.id} className="animate-fadeIn" style={{animationDelay: `${Math.min(index, 10) * 0.05}s`}}>
-                    <PrioritizedCommunityCard
-                      community={community}
-                      variant="list"
-                      onSelect={() => window.location.href = `/community/${community.id}`}
-                    />
-                  </div>
-                ))}
-                
-                {/* Load More Indicator */}
-                {communities.length > displayedCount && (
-                  <div ref={loadMoreRef} className="py-4 text-center">
-                    {isLoadingMore ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                        <span className="text-gray-500">Loading more communities...</span>
-                      </div>
-                    ) : (
-                      <span className="text-gray-400 text-sm">Scroll for more</span>
-                    )}
-                  </div>
-                )}
-              </div>
-            ) : (
-              searchQuery && (
-                <div className="text-center py-16">
-                  <div className="max-w-md mx-auto">
-                    <MapPin className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-600 text-lg mb-2">No communities found for "{searchQuery}"</p>
-                    <p className="text-gray-400">Try searching for a different location or adjusting your filters</p>
-                  </div>
-                </div>
-              )
-            )}
+        <div className="px-4 py-8 text-center">
+          <div className="gradient-card p-8 rounded-lg animate-pulse-glow particles">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto animate-gradient"></div>
+            <p className="text-gradient mt-2 font-semibold">Loading communities...</p>
           </div>
         </div>
       )}
 
-      {/* Map View */}
-      {!isLoading && viewMode === 'map' && (
-        <div className="relative h-[calc(100vh-260px)]">
-          <Suspense fallback={
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-                <p className="text-gray-600">Loading map...</p>
+      {/* Communities List - Enhanced with Better Information Display */}
+      {!isLoading && viewMode === 'list' && (
+        <div className="px-4 py-2 space-y-4">
+          {communities.length > 0 ? (
+            communities.map((community, index) => (
+              <div key={community.id} className="animate-fadeIn" style={{animationDelay: `${Math.min(index, 10) * 0.05}s`}}>
+                <EnhancedCommunityCard
+                  community={community}
+                  variant="list"
+                  index={index}
+                  onSelect={() => window.location.href = `/community/${community.id}`}
+                />
               </div>
-            </div>
-          }>
-            <Map 
-              communities={communities}
-              className="w-full h-full"
-              center={searchLocation ? [searchLocation.lat, searchLocation.lng] : undefined}
-              zoom={searchLocation ? 12 : 5}
-            />
-          </Suspense>
+            ))
+          ) : (
+            searchParams.get('q') && (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No communities found for "{searchParams.get('q')}"</p>
+                <p className="text-sm text-gray-400 mt-2">Try searching for a different location or community name</p>
+              </div>
+            )
+          )}
         </div>
       )}
 
-      {/* Previous Grid View - Hidden Now */}
-      {false && (
+      {/* Grid View - Keep for Map Mode */}
+      {!isLoading && viewMode === 'map' && (
         <div className="px-4 py-2">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-            {communities.map((community: Community, index: number) => (
+            {communities.map((community, index) => (
             <Link key={community.id} href={`/community/${community.id}`}>
               <Card className="overflow-hidden cursor-pointer bg-white shadow-sm hover:shadow-md transition-shadow animate-float w-full" style={{animationDelay: `${index * 0.1}s`}}>
                 {/* Photo Section - Matching Homepage Style */}

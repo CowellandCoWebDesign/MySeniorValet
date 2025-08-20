@@ -39,7 +39,7 @@ export function registerUnifiedSearchRoutes(app: Express) {
       const params = req.query as unknown as SearchParams;
       const { 
         q, query, location, careType, state, city, bounds,
-        limit = 20, offset = 0, // Default to 20 for faster response
+        limit = 50, offset = 0,
         minRating, priceMin, priceMax,
         hasPhotos, hudOnly,
         sortBy = 'relevance', sortOrder = 'desc'
