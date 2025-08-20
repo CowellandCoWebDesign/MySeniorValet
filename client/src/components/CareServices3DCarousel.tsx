@@ -20,7 +20,18 @@ import {
   Apple,
   Smile,
   Eye,
-  Ear
+  Ear,
+  Monitor,
+  UserCheck,
+  Zap,
+  BedDouble,
+  Palette,
+  Car,
+  Footprints,
+  Pill,
+  TestTube,
+  Video,
+  BrainCircuit
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -234,6 +245,193 @@ export const CareServices3DCarousel = () => {
         'Some Medicare Advantage coverage'
       ],
       linkPath: '/hearing-services'
+    },
+    {
+      id: 'medical-equipment',
+      name: 'Medical Equipment',
+      icon: Monitor,
+      color: 'bg-gradient-to-br from-gray-600 to-gray-800',
+      avgCost: 'Varies by equipment',
+      details: 'Durable medical equipment & supplies',
+      federalProgram: 'Medicare Part B DME',
+      coverage: '80% covered after deductible',
+      keyFeatures: [
+        'Wheelchairs & walkers',
+        'Oxygen equipment',
+        'Hospital beds',
+        'Medicare 80% coverage'
+      ],
+      linkPath: '/medical-equipment'
+    },
+    {
+      id: 'skilled-nursing',
+      name: 'Skilled Nursing',
+      icon: Shield,
+      color: 'bg-gradient-to-br from-blue-700 to-teal-600',
+      avgCost: '$300-$500/day',
+      details: '24/7 skilled nursing facilities',
+      federalProgram: 'Medicare Part A',
+      coverage: '100 days post-hospital coverage',
+      keyFeatures: [
+        '24-hour nursing care',
+        'Post-acute recovery',
+        'Rehabilitation services',
+        'Medicare covers first 20 days'
+      ],
+      linkPath: '/skilled-nursing'
+    },
+    {
+      id: 'transport-services',
+      name: 'Transport Services',
+      icon: Car,
+      color: 'bg-gradient-to-br from-green-600 to-teal-600',
+      avgCost: '$25-$60/trip',
+      details: 'Non-emergency medical transportation',
+      federalProgram: 'Medicaid NEMT',
+      coverage: 'State Medicaid programs',
+      keyFeatures: [
+        'Medical appointments',
+        'Wheelchair accessible',
+        'Door-to-door service',
+        'Medicaid coverage available'
+      ],
+      linkPath: '/transport-services'
+    },
+    {
+      id: 'palliative-care',
+      name: 'Palliative Care',
+      icon: Palette,
+      color: 'bg-gradient-to-br from-purple-600 to-pink-600',
+      avgCost: 'Medicare Covered',
+      details: 'Comfort care for serious illness',
+      federalProgram: 'Medicare Part B',
+      coverage: 'No time limit with Medicare',
+      keyFeatures: [
+        'Pain management',
+        'Symptom control',
+        'Any stage of illness',
+        'Concurrent with treatment'
+      ],
+      linkPath: '/palliative-care'
+    },
+    {
+      id: 'podiatry-services',
+      name: 'Podiatry Services',
+      icon: Footprints,
+      color: 'bg-gradient-to-br from-emerald-500 to-green-600',
+      avgCost: '$100-$200/visit',
+      details: 'Specialized foot & ankle care',
+      federalProgram: 'Medicare Part B',
+      coverage: 'Medically necessary care',
+      keyFeatures: [
+        'Diabetic foot care',
+        'Nail disorders',
+        'Foot deformities',
+        'Medicare with conditions'
+      ],
+      linkPath: '/podiatry'
+    },
+    {
+      id: 'pharmacy-services',
+      name: 'Pharmacy Services',
+      icon: Pill,
+      color: 'bg-gradient-to-br from-red-600 to-pink-600',
+      avgCost: 'Varies by medication',
+      details: 'Medication management & delivery',
+      federalProgram: 'Medicare Part D',
+      coverage: '49M beneficiaries',
+      keyFeatures: [
+        'Prescription coverage',
+        'Mail-order delivery',
+        'Medication therapy management',
+        'Medicare Part D plans'
+      ],
+      linkPath: '/pharmacy-services'
+    },
+    {
+      id: 'home-health',
+      name: 'Home Health',
+      icon: Home,
+      color: 'bg-gradient-to-br from-teal-600 to-cyan-600',
+      avgCost: 'Medicare Covered',
+      details: 'Medicare-certified home health agencies',
+      federalProgram: 'Medicare Home Health',
+      coverage: '$257 Part B deductible (2025)',
+      keyFeatures: [
+        'Skilled nursing at home',
+        'Physical therapy',
+        'Homebound requirement',
+        'Doctor certification needed'
+      ],
+      linkPath: '/home-health'
+    },
+    {
+      id: 'diagnostic-services',
+      name: 'Diagnostic Services',
+      icon: TestTube,
+      color: 'bg-gradient-to-br from-gray-600 to-blue-600',
+      avgCost: 'Varies by test',
+      details: 'Lab tests & diagnostic imaging',
+      federalProgram: 'Medicare Part B',
+      coverage: '80% after deductible',
+      keyFeatures: [
+        'Blood work',
+        'X-rays & MRIs',
+        'CT scans',
+        'Medicare 80% coverage'
+      ],
+      linkPath: '/diagnostic-services'
+    },
+    {
+      id: 'telemedicine',
+      name: 'Telemedicine',
+      icon: Video,
+      color: 'bg-gradient-to-br from-violet-600 to-indigo-600',
+      avgCost: '$50-$150/visit',
+      details: 'Virtual healthcare consultations',
+      federalProgram: 'Medicare Telehealth',
+      coverage: 'Expanded Medicare coverage',
+      keyFeatures: [
+        'Virtual doctor visits',
+        'Remote monitoring',
+        'Mental health sessions',
+        'Medicare coverage expanded'
+      ],
+      linkPath: '/telemedicine'
+    },
+    {
+      id: 'mental-health',
+      name: 'Mental Health',
+      icon: BrainCircuit,
+      color: 'bg-gradient-to-br from-emerald-600 to-teal-600',
+      avgCost: '$100-$200/session',
+      details: 'Counseling & therapy services',
+      federalProgram: 'Medicare Part B',
+      coverage: '80% after deductible',
+      keyFeatures: [
+        'Depression screening',
+        'Counseling services',
+        'Psychiatric care',
+        'Medicare Part B coverage'
+      ],
+      linkPath: '/mental-health'
+    },
+    {
+      id: 'hospital-services',
+      name: 'Hospital Services',
+      icon: Stethoscope,
+      color: 'bg-gradient-to-br from-blue-500 to-cyan-500',
+      avgCost: 'Medicare Part A',
+      details: '1,956 CMS verified hospitals',
+      federalProgram: 'Medicare Part A',
+      coverage: '$1,816 deductible (2025)',
+      keyFeatures: [
+        'Emergency care',
+        'Inpatient services',
+        'Surgery & recovery',
+        'CMS quality ratings'
+      ],
+      linkPath: '/hospitals'
     }
   ];
 
@@ -309,10 +507,10 @@ export const CareServices3DCarousel = () => {
         {/* Header */}
         <div className="text-center pt-4">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-2 drop-shadow-2xl">
-            8 ESSENTIAL CARE SERVICES
+            23 ESSENTIAL CARE SERVICES
           </h2>
           <p className="text-xl md:text-2xl text-gray-200 font-bold drop-shadow-lg mb-4">
-            Professional Healthcare Services Backed by Federal Programs
+            Complete Healthcare Spectrum • Professional Services Backed by Federal Programs
           </p>
           <div className="flex items-center justify-center gap-2 mb-4">
             <Badge className="bg-green-500/20 text-green-300 border-green-400/30">

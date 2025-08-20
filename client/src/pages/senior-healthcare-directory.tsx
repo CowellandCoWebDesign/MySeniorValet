@@ -475,8 +475,512 @@ export default function SeniorHealthcareDirectory() {
         </div>
       </section>
 
-      {/* 3D Care Services Carousel - Showcasing 8 Government-Verified Care Levels */}
+      {/* 3D Care Services Carousel - Showcasing 23 Government-Verified Care Levels */}
       <CareServices3DCarousel />
+
+      {/* Detailed Care Spectrum Sections with Government Research & Citations */}
+      <section className="px-4 py-12 bg-gradient-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Complete Healthcare Services Spectrum
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+              Comprehensive guide to all healthcare services with 2025 Medicare coverage, eligibility requirements, and authoritative government sources
+            </p>
+          </div>
+
+          {/* Medicare Home Health Services */}
+          <Card className="mb-8 shadow-lg border-2 border-teal-200 dark:border-teal-800">
+            <CardHeader className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white">
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Home className="h-6 w-6" />
+                Medicare Home Health Services
+              </CardTitle>
+              <CardDescription className="text-teal-100">
+                Skilled care in your home with specific eligibility requirements
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    Eligibility Requirements (2025)
+                  </h3>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-teal-600">•</span>
+                      <span><strong>Homebound Status:</strong> Must be unable to leave home without considerable effort</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-teal-600">•</span>
+                      <span><strong>Doctor Certification:</strong> Physician must certify need and create care plan</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-teal-600">•</span>
+                      <span><strong>Skilled Care Need:</strong> Requires skilled nursing or therapy services</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-teal-600">•</span>
+                      <span><strong>Intermittent Care:</strong> Part-time or intermittent care (less than 7 days/week)</span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <DollarSign className="h-5 w-5 text-green-600" />
+                    Coverage & Costs
+                  </h3>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>100% Coverage:</strong> No copay for approved services</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>Part B Deductible:</strong> $257 for 2025</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>Services Covered:</strong> Nursing, PT, OT, speech therapy, aide services</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>Medical Equipment:</strong> 80% coverage for DME</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-sm text-blue-800 dark:text-blue-300">
+                  <strong>Source:</strong> Medicare.gov Home Health Services Guide 2025 | CMS.gov Medicare Benefits Policy Manual Chapter 7
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Adult Day Services */}
+          <Card className="mb-8 shadow-lg border-2 border-yellow-200 dark:border-yellow-800">
+            <CardHeader className="bg-gradient-to-r from-yellow-600 to-orange-600 text-white">
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Sun className="h-6 w-6" />
+                Adult Day Services & PACE Programs
+              </CardTitle>
+              <CardDescription className="text-yellow-100">
+                Daytime care with social activities and health services
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-orange-600" />
+                    Medicaid HCBS Waiver Coverage
+                  </h3>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-orange-600">•</span>
+                      <span><strong>Income Limit:</strong> $2,901/month (2025 Federal Poverty Level)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-orange-600">•</span>
+                      <span><strong>Asset Limit:</strong> $2,000 individual / $3,000 couple</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-orange-600">•</span>
+                      <span><strong>Functional Need:</strong> Require nursing home level of care</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-orange-600">•</span>
+                      <span><strong>State Programs:</strong> Varies by state waiver availability</span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <Users className="h-5 w-5 text-orange-600" />
+                    PACE Program Benefits
+                  </h3>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>All-Inclusive Care:</strong> Medical, social, and daily services</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>Transportation:</strong> To/from center and medical appointments</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>Meals:</strong> Nutritious meals and snacks provided</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>260K+ Enrolled:</strong> Nationwide PACE participants</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-sm text-blue-800 dark:text-blue-300">
+                  <strong>Source:</strong> National PACE Association 2025 | Medicaid.gov HCBS Waiver Programs | ACL National Adult Day Services Association
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Palliative vs Hospice Care */}
+          <Card className="mb-8 shadow-lg border-2 border-purple-200 dark:border-purple-800">
+            <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <HeartHandshake className="h-6 w-6" />
+                Palliative Care vs. Hospice Care
+              </CardTitle>
+              <CardDescription className="text-purple-100">
+                Understanding the critical differences in comfort care options
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <Palette className="h-5 w-5 text-purple-600" />
+                    Palliative Care (No Time Limit)
+                  </h3>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-purple-600">•</span>
+                      <span><strong>Any Stage:</strong> Available at any illness stage</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-purple-600">•</span>
+                      <span><strong>With Treatment:</strong> Concurrent with curative care</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-purple-600">•</span>
+                      <span><strong>Medicare Part B:</strong> Covered as medical treatment</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-purple-600">•</span>
+                      <span><strong>Focus:</strong> Symptom management & quality of life</span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <Moon className="h-5 w-5 text-teal-600" />
+                    Hospice Care (6-Month Prognosis)
+                  </h3>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-teal-600">•</span>
+                      <span><strong>Terminal:</strong> 6-month life expectancy</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-teal-600">•</span>
+                      <span><strong>Comfort Only:</strong> No curative treatments</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-teal-600">•</span>
+                      <span><strong>Medicare Hospice:</strong> Comprehensive benefit</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-teal-600">•</span>
+                      <span><strong>$0 Cost:</strong> No deductibles or copays</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-sm text-blue-800 dark:text-blue-300">
+                  <strong>Source:</strong> Center to Advance Palliative Care 2025 | Medicare.gov Hospice Compare | National Hospice and Palliative Care Organization
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Skilled Nursing Facilities */}
+          <Card className="mb-8 shadow-lg border-2 border-blue-200 dark:border-blue-800">
+            <CardHeader className="bg-gradient-to-r from-blue-700 to-teal-600 text-white">
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Shield className="h-6 w-6" />
+                Skilled Nursing Facility (SNF) Coverage
+              </CardTitle>
+              <CardDescription className="text-blue-100">
+                Post-hospital rehabilitation and 24/7 nursing care
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-blue-600" />
+                    Medicare Part A Coverage (2025)
+                  </h3>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600">•</span>
+                      <span><strong>Days 1-20:</strong> $0 copay (100% covered)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600">•</span>
+                      <span><strong>Days 21-100:</strong> $212/day coinsurance</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600">•</span>
+                      <span><strong>After Day 100:</strong> Full cost responsibility</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600">•</span>
+                      <span><strong>3-Day Rule:</strong> Requires 3-day inpatient hospital stay</span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <Stethoscope className="h-5 w-5 text-blue-600" />
+                    Services Included
+                  </h3>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>Nursing:</strong> 24/7 skilled nursing care</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>Therapy:</strong> PT, OT, speech therapy</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>Room & Board:</strong> Semi-private room standard</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>Medications:</strong> All prescribed drugs covered</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-sm text-blue-800 dark:text-blue-300">
+                  <strong>Source:</strong> Medicare.gov SNF Coverage 2025 | CMS Nursing Home Compare | Medicare Rights Center
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Transportation Services */}
+          <Card className="mb-8 shadow-lg border-2 border-green-200 dark:border-green-800">
+            <CardHeader className="bg-gradient-to-r from-green-600 to-teal-600 text-white">
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Car className="h-6 w-6" />
+                Medical Transportation Services
+              </CardTitle>
+              <CardDescription className="text-green-100">
+                Non-emergency medical transportation (NEMT) coverage options
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-green-600" />
+                    Medicaid NEMT Benefits
+                  </h3>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">•</span>
+                      <span><strong>Mandatory Benefit:</strong> Required in all state Medicaid programs</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">•</span>
+                      <span><strong>Covered Trips:</strong> Medical appointments, pharmacy, therapy</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">•</span>
+                      <span><strong>Vehicle Types:</strong> Wheelchair vans, ambulettes, taxis</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">•</span>
+                      <span><strong>Scheduling:</strong> 48-72 hour advance notice typical</span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <DollarSign className="h-5 w-5 text-green-600" />
+                    Medicare Coverage Gaps
+                  </h3>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-orange-600">⚠</span>
+                      <span><strong>Limited Coverage:</strong> Only emergency ambulance</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>Medicare Advantage:</strong> Some plans offer NEMT</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>Community Programs:</strong> Local senior shuttles</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>VA Benefits:</strong> Veterans may qualify for transport</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-sm text-blue-800 dark:text-blue-300">
+                  <strong>Source:</strong> Medicaid.gov NEMT Guidelines 2025 | National Aging and Disability Transportation Center | CMS Transportation Benefits
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Specialty Care Services */}
+          <Card className="mb-8 shadow-lg border-2 border-indigo-200 dark:border-indigo-800">
+            <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Eye className="h-6 w-6" />
+                Specialty Healthcare Services
+              </CardTitle>
+              <CardDescription className="text-indigo-100">
+                Vision, hearing, dental, and podiatry coverage details
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <Eye className="h-5 w-5 text-violet-600" />
+                    Vision & Hearing Services
+                  </h3>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-violet-600">•</span>
+                      <span><strong>Eye Exams:</strong> Medicare Part B for diabetes/glaucoma</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-violet-600">•</span>
+                      <span><strong>Cataract Surgery:</strong> 80% covered after deductible</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-600">•</span>
+                      <span><strong>Hearing Aids:</strong> Not covered by Original Medicare</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-600">•</span>
+                      <span><strong>MA Plans:</strong> Some offer hearing aid benefits</span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <Smile className="h-5 w-5 text-sky-600" />
+                    Dental & Podiatry Coverage
+                  </h3>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-orange-600">⚠</span>
+                      <span><strong>Dental:</strong> Not covered except hospital procedures</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-sky-600">•</span>
+                      <span><strong>MA Dental:</strong> 70% of plans offer coverage</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600">•</span>
+                      <span><strong>Podiatry:</strong> Covered for diabetes/medical need</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600">•</span>
+                      <span><strong>Foot Exams:</strong> Annual diabetes foot exams covered</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-sm text-blue-800 dark:text-blue-300">
+                  <strong>Source:</strong> Medicare.gov Vision Services 2025 | National Eye Institute | American Podiatric Medical Association
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Telehealth Services */}
+          <Card className="mb-8 shadow-lg border-2 border-violet-200 dark:border-violet-800">
+            <CardHeader className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white">
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Video className="h-6 w-6" />
+                Telehealth & Virtual Care Services
+              </CardTitle>
+              <CardDescription className="text-violet-100">
+                Expanded Medicare telehealth coverage post-pandemic
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <Monitor className="h-5 w-5 text-violet-600" />
+                    Medicare Telehealth Coverage
+                  </h3>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-violet-600">•</span>
+                      <span><strong>From Home:</strong> No longer requires healthcare facility</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-violet-600">•</span>
+                      <span><strong>Audio-Only:</strong> Phone visits for mental health</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-violet-600">•</span>
+                      <span><strong>Same Cost:</strong> Same as in-person visit copays</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-violet-600">•</span>
+                      <span><strong>All Providers:</strong> Any Medicare provider can offer</span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <BrainCircuit className="h-5 w-5 text-emerald-600" />
+                    Mental Health Telehealth
+                  </h3>
+                  <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>Therapy Sessions:</strong> Individual & group covered</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>Psychiatric Care:</strong> Medication management visits</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>Crisis Support:</strong> 988 Suicide & Crisis Lifeline</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span><strong>Part B Coverage:</strong> 80% after $257 deductible</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-sm text-blue-800 dark:text-blue-300">
+                  <strong>Source:</strong> CMS Telehealth Services List 2025 | Medicare.gov Telehealth | HHS Telehealth Policy Changes
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
       {/* Search and Filter Interface */}
       <section className="px-4 py-8 bg-gradient-to-b from-blue-50 to-white dark:from-gray-800 dark:to-gray-900">
