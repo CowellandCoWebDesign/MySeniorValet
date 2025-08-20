@@ -10,7 +10,12 @@ import { Search, Heart, MapPin, Filter, Star, Home, ArrowLeft, Settings, Map, Li
 import { Link, useLocation } from "wouter";
 import { PricingTransparencyBadgeList, TransparencyScore } from "@/components/PricingTransparencyBadge";
 import { NavigationHeader } from "@/components/NavigationHeader";
-import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
+import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { SlidersHorizontal } from 'lucide-react';
 
 interface Community {
   id: number;
@@ -145,49 +150,119 @@ export default function MySeniorValetSearch() {
         subtitle="Find your perfect senior living community"
       />
 
-      {/* Filter Pills */}
-      <div className="px-4 py-3 gradient-card border-b border-white/20">
+      {/* Enhanced Filter Bar with Drawer */}
+      <div className="px-4 py-3 bg-white dark:bg-gray-900 border-b">
         <div className="flex items-center justify-between">
-          <div className="flex space-x-2 overflow-x-auto">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-shrink-0 gradient-primary text-white border-0 hover:opacity-90 animate-gradient"
-            >
-              <Filter className="w-4 h-4 mr-2" />
-              Care type
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-shrink-0 gradient-secondary text-white border-0 hover:opacity-90"
-            >
-              Price
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-shrink-0"
-            >
-              Rating
-            </Button>
+          <div className="flex items-center gap-2">
+            <Drawer>
+              <DrawerTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <SlidersHorizontal className="h-4 w-4" />
+                  Filters
+                  {(filters.careTypes.length > 0 || filters.maxPrice || filters.minRating) && (
+                    <Badge variant="secondary" className="ml-1 px-1.5 py-0 h-5 text-xs">
+                      {filters.careTypes.length + (filters.maxPrice ? 1 : 0) + (filters.minRating ? 1 : 0)}
+                    </Badge>
+                  )}
+                </Button>
+              </DrawerTrigger>
+              <DrawerContent>
+                <DrawerHeader>
+                  <DrawerTitle>Search Filters</DrawerTitle>
+                </DrawerHeader>
+                <div className="p-4 space-y-4">
+                  <div>
+                    <Label>Care Types</Label>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      {['Independent Living', 'Assisted Living', 'Memory Care', 'Skilled Nursing'].map(type => (
+                        <div key={type} className="flex items-center space-x-2">
+                          <Checkbox 
+                            checked={filters.careTypes.includes(type)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setFilters(prev => ({
+                                  ...prev,
+                                  careTypes: [...prev.careTypes, type]
+                                }));
+                              } else {
+                                setFilters(prev => ({
+                                  ...prev,
+                                  careTypes: prev.careTypes.filter(t => t !== type)
+                                }));
+                              }
+                            }}
+                          />
+                          <Label className="text-sm">{type}</Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Max Price/Month</Label>
+                    <Select value={filters.maxPrice} onValueChange={(value) => setFilters(prev => ({ ...prev, maxPrice: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Any price" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Any price</SelectItem>
+                        <SelectItem value="2000">$2,000</SelectItem>
+                        <SelectItem value="3000">$3,000</SelectItem>
+                        <SelectItem value="4000">$4,000</SelectItem>
+                        <SelectItem value="5000">$5,000</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Min Rating</Label>
+                    <Select value={filters.minRating} onValueChange={(value) => setFilters(prev => ({ ...prev, minRating: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Any rating" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Any rating</SelectItem>
+                        <SelectItem value="3">3+ Stars</SelectItem>
+                        <SelectItem value="4">4+ Stars</SelectItem>
+                        <SelectItem value="4.5">4.5+ Stars</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </DrawerContent>
+            </Drawer>
+            
+            {/* Active filter badges */}
+            {filters.careTypes.length > 0 && (
+              <Badge variant="secondary" className="gap-1">
+                {filters.careTypes.length} Care Types
+                <button onClick={() => setFilters(prev => ({ ...prev, careTypes: [] }))} className="ml-1">
+                  ×
+                </button>
+              </Badge>
+            )}
+            {filters.maxPrice && (
+              <Badge variant="secondary" className="gap-1">
+                Max ${filters.maxPrice}
+                <button onClick={() => setFilters(prev => ({ ...prev, maxPrice: '' }))} className="ml-1">
+                  ×
+                </button>
+              </Badge>
+            )}
           </div>
-          <div className="flex items-center space-x-2">
+          
+          <div className="flex items-center gap-2">
             <Button
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('list')}
-              className="p-2"
             >
-              <List className="w-4 h-4" />
+              <List className="h-4 w-4" />
             </Button>
             <Button
               variant={viewMode === 'map' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('map')}
-              className="p-2"
             >
-              <Map className="w-4 h-4" />
+              <Map className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -225,28 +300,48 @@ export default function MySeniorValetSearch() {
         </div>
       )}
 
-      {/* Communities List - Enhanced with Better Information Display */}
+      {/* Communities List with PrioritizedCommunityCard */}
       {!isLoading && viewMode === 'list' && (
-        <div className="px-4 py-2 space-y-4">
-          {communities.length > 0 ? (
-            communities.map((community, index) => (
-              <div key={community.id} className="animate-fadeIn" style={{animationDelay: `${Math.min(index, 10) * 0.05}s`}}>
-                <EnhancedCommunityCard
-                  community={community}
-                  variant="list"
-                  index={index}
-                  onSelect={() => window.location.href = `/community/${community.id}`}
-                />
+        <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            {communities.length > 0 ? (
+              <div className="space-y-4">
+                {communities.slice(0, displayedCount).map((community, index) => (
+                  <div key={community.id} className="animate-fadeIn" style={{animationDelay: `${Math.min(index, 10) * 0.05}s`}}>
+                    <PrioritizedCommunityCard
+                      community={community}
+                      variant="list"
+                      onSelect={() => window.location.href = `/community/${community.id}`}
+                    />
+                  </div>
+                ))}
+                
+                {/* Load More Indicator */}
+                {communities.length > displayedCount && (
+                  <div ref={loadMoreRef} className="py-4 text-center">
+                    {isLoadingMore ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <span className="text-gray-500">Loading more communities...</span>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-sm">Scroll for more</span>
+                    )}
+                  </div>
+                )}
               </div>
-            ))
-          ) : (
-            searchQuery && (
-              <div className="text-center py-8">
-                <p className="text-gray-500">No communities found for "{searchQuery}"</p>
-                <p className="text-sm text-gray-400 mt-2">Try searching for a different location or community name</p>
-              </div>
-            )
-          )}
+            ) : (
+              searchQuery && (
+                <div className="text-center py-16">
+                  <div className="max-w-md mx-auto">
+                    <MapPin className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-600 text-lg mb-2">No communities found for "{searchQuery}"</p>
+                    <p className="text-gray-400">Try searching for a different location or adjusting your filters</p>
+                  </div>
+                </div>
+              )
+            )}
+          </div>
         </div>
       )}
 
