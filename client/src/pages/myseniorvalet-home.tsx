@@ -724,9 +724,9 @@ export default function MySeniorValetHome() {
         <div className="relative hero-content min-h-screen pt-2 sm:pt-3 md:pt-4 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col">
           
           {/* Hero Text Section - At the top */}
-          <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8 mb-8 text-center">
+          <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8 mb-4 text-center">
             {/* Main Heading - Animates in first */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 animate-fade-in-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 animate-fade-in-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
               Empowering Families to Find Transparent, Affordable Senior Living and Care
             </h1>
             
@@ -736,8 +736,8 @@ export default function MySeniorValetHome() {
             </p>
           </div>
           
-          {/* Spacer to push search to middle */}
-          <div className="flex-1"></div>
+          {/* Small spacer to position search bar higher */}
+          <div className="h-8 sm:h-12 md:h-16"></div>
           
           {/* Search Container */}
           <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
