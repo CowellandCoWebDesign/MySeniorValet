@@ -355,15 +355,23 @@ export default function MySeniorValetSearch() {
           <div className="max-w-7xl mx-auto px-4 py-4">
             {communities.length > 0 ? (
               <div className="space-y-4">
-                {communities.slice(0, displayedCount).map((community: Community, index: number) => (
-                  <div key={community.id} className="animate-fadeIn" style={{animationDelay: `${Math.min(index, 10) * 0.05}s`}}>
-                    <PrioritizedCommunityCard
-                      community={community}
-                      variant="list"
-                      onSelect={() => window.location.href = `/community/${community.id}`}
-                    />
-                  </div>
-                ))}
+                {communities.slice(0, displayedCount).map((community: any, index: number) => {
+                  // Remove priceRange from the community object to avoid React rendering errors
+                  const { priceRange, ...cleanCommunity } = community;
+                  return (
+                    <div key={community.id} className="animate-fadeIn" style={{animationDelay: `${Math.min(index, 10) * 0.05}s`}}>
+                      <PrioritizedCommunityCard
+                        community={{
+                          ...cleanCommunity,
+                          // Map pricingType to expected values
+                          pricingType: community.pricingType === 'estimated' ? 'market' : community.pricingType
+                        }}
+                        variant="list"
+                        onSelect={() => window.location.href = `/community/${community.id}`}
+                      />
+                    </div>
+                  );
+                })}
                 
                 {/* Load More Indicator */}
                 {communities.length > displayedCount && (
@@ -394,24 +402,56 @@ export default function MySeniorValetSearch() {
         </div>
       )}
 
-      {/* Map View */}
+      {/* Map View with Horizontal Panel */}
       {!isLoading && viewMode === 'map' && (
-        <div className="relative h-[calc(100vh-260px)]">
-          <Suspense fallback={
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-                <p className="text-gray-600">Loading map...</p>
+        <div className="relative h-[calc(100vh-260px)] flex flex-col">
+          {/* Map Container */}
+          <div className="flex-1 relative">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+                  <p className="text-gray-600">Loading map...</p>
+                </div>
+              </div>
+            }>
+              <Map 
+                className="w-full h-full"
+                center={searchLocation ? [searchLocation.lat, searchLocation.lng] : undefined}
+                zoom={searchLocation ? 12 : 5}
+              />
+            </Suspense>
+          </div>
+          
+          {/* Horizontal Scrollable Panel */}
+          {communities.length > 0 && (
+            <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t shadow-lg z-[500] max-h-48">
+              <div className="overflow-x-auto p-4">
+                <div className="flex gap-4 min-w-max">
+                  {communities.slice(0, 10).map((community: any) => {
+                    // Remove priceRange from the community object to avoid React rendering errors
+                    const { priceRange, ...cleanCommunity } = community;
+                    return (
+                      <div 
+                        key={community.id} 
+                        className="w-80 flex-shrink-0 cursor-pointer"
+                        onClick={() => window.location.href = `/community/${community.id}`}
+                      >
+                        <PrioritizedCommunityCard
+                          community={{
+                            ...cleanCommunity,
+                            pricingType: community.pricingType === 'estimated' ? 'market' : community.pricingType
+                          }}
+                          variant="list"
+                          onSelect={() => window.location.href = `/community/${community.id}`}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          }>
-            <Map 
-              communities={communities}
-              className="w-full h-full"
-              center={searchLocation ? [searchLocation.lat, searchLocation.lng] : undefined}
-              zoom={searchLocation ? 12 : 5}
-            />
-          </Suspense>
+          )}
         </div>
       )}
 

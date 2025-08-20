@@ -1368,7 +1368,7 @@ export default function Map({
             maxClusterRadius={80}
             spiderfyOnMaxZoom={false}
             showCoverageOnHover={false}
-            zoomToBoundsOnClick={false}  // Prevent map from jumping when clicking markers
+            zoomToBoundsOnClick={true}  // Allow zooming on cluster click (expected behavior for clusters)
             iconCreateFunction={(cluster) => {
               const count = cluster.getChildCount();
               const size = Math.min(50 + Math.log10(count) * 10, 80);
@@ -1445,10 +1445,8 @@ export default function Map({
                       e.originalEvent.preventDefault();
                       e.originalEvent.stopImmediatePropagation();
                     }
-                    // Add a small delay to ensure map doesn't move
-                    setTimeout(() => {
-                      handleCommunityClick(community);
-                    }, 50);
+                    // Navigate directly to community page
+                    window.location.href = `/community/${community.id}`;
                   } catch (error) {
                     console.warn('Community click error:', error);
                   }
@@ -1500,44 +1498,7 @@ export default function Map({
                 </Tooltip>
               )}
 
-              {/* Enhanced popup using PrioritizedCommunityCard */}
-              <Popup 
-                className="community-popup enhanced-popup" 
-                closeButton={true} 
-                autoPan={false}  // Disable auto-panning to prevent map jumping
-                autoClose={false}
-                keepInView={false} // Don't force popup to stay in view
-                maxWidth={450}
-              >
-                <div className="w-full max-w-md">
-                  <PrioritizedCommunityCard
-                    community={{
-                      ...community,
-                      // Transform priceRange string to object format
-                      priceRange: typeof community.priceRange === 'string' 
-                        ? { min: 0, max: 10000 } 
-                        : community.priceRange,
-                      // Add default occupancy data for display
-                      occupancyRate: Math.floor(Math.random() * 30) + 70,
-                      totalUnits: 100,
-                      availableUnits: Math.floor(Math.random() * 10) + 1,
-                      waitListLength: 0
-                    }}
-                    variant="list"
-                    onSelect={() => window.location.href = `/community/${community.id}`}
-                    onToggleFavorite={() => {
-                      const newFavorites = new Set(favorites);
-                      if (favorites.has(community.id)) {
-                        newFavorites.delete(community.id);
-                      } else {
-                        newFavorites.add(community.id);
-                      }
-                      setFavorites(newFavorites);
-                    }}
-                    isFavorite={favorites.has(community.id)}
-                  />
-                </div>
-                  </Popup>
+              {/* No popup - direct navigation on click */}
                 </Marker>
               );
             })}
