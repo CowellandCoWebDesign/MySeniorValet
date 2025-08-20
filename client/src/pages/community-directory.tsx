@@ -8,9 +8,9 @@ import { NavigationHeader } from "@/components/NavigationHeader";
 import { 
   Building2, Search, MapPin, Home, Users, DollarSign, Shield, 
   Star, Filter, Database, TrendingUp, BarChart3, Globe,
-  ChevronRight, Clock, CheckCircle, Info, Heart,
+  ChevronRight, ChevronLeft, Clock, CheckCircle, Info, Heart,
   HeartHandshake, Brain, Activity, Stethoscope, UserCheck,
-  Calendar, Hotel, Flower2, Sparkles, AlertCircle
+  Calendar, Hotel, Flower2, Sparkles, AlertCircle, Truck, Flag, BookOpen
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -19,6 +19,175 @@ export default function CommunityDirectory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [, setLocation] = useLocation();
+  
+  // 3D Carousel state
+  const [selectedCareType, setSelectedCareType] = useState(2); // Start with 55+ selected
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  
+  // Care types for carousel
+  const careTypes = [
+    { 
+      id: 'hud', 
+      name: 'HUD', 
+      icon: Building2, 
+      color: 'bg-green-500', 
+      description: 'Government-subsidized housing for low-income seniors, offering rent based on 30% of income with verified pricing.',
+      details: 'Income-based rent • Federal oversight • Accessibility features',
+      avgCost: '$300-900/month',
+      keyFeatures: ['Income-based rent (30% of income)', 'Government subsidized', 'Accessible units available']
+    },
+    { 
+      id: 'va', 
+      name: 'VA', 
+      icon: Shield, 
+      color: 'bg-purple-600', 
+      description: 'Veterans Affairs communities providing specialized care and benefits for military veterans and their spouses.',
+      details: 'Military benefits • Medical services • Honor programs',
+      avgCost: 'Varies by service connection',
+      keyFeatures: ['Veterans benefits', 'Specialized medical care', 'Service-connected priority']
+    },
+    { 
+      id: 'mobile', 
+      name: 'RV & Mobile', 
+      icon: Truck, 
+      color: 'bg-orange-500', 
+      description: 'Senior RV and mobile parks offering flexible living for adventurous retirees who enjoy travel and community amenities.',
+      details: 'Lot rent • Community amenities • Flexible lifestyle',
+      avgCost: '$400-1,200/month lot rent',
+      keyFeatures: ['Own your home', 'Community lifestyle', 'Lower maintenance costs']
+    },
+    { 
+      id: '55plus', 
+      name: '55+', 
+      icon: Flag, 
+      color: 'bg-pink-600', 
+      description: 'Age-restricted active adult communities for those 55 and older, focusing on lifestyle and social activities.',
+      details: 'Active lifestyle • Social programs • Age-restricted',
+      avgCost: '$1,500-3,500/month',
+      keyFeatures: ['Age 55+ requirement', 'Active lifestyle focus', 'Golf, pools, activities']
+    },
+    { 
+      id: 'independent', 
+      name: 'Independent', 
+      icon: Home, 
+      color: 'bg-blue-500', 
+      description: 'Maintenance-free senior communities offering social activities and amenities without personal care assistance.',
+      details: 'Social lifestyle • No assistance • Full independence',
+      avgCost: '$2,500-4,500/month',
+      keyFeatures: ['No care services', 'Meals & housekeeping included', 'Social activities & outings']
+    },
+    { 
+      id: 'assisted', 
+      name: 'Assisted', 
+      icon: HeartHandshake, 
+      color: 'bg-green-600', 
+      description: 'Personal care communities helping with daily activities while promoting independence and quality of life.',
+      details: '24/7 staff • Medication management • ADL assistance',
+      avgCost: '$4,000-6,500/month',
+      keyFeatures: ['Help with bathing/dressing', 'Medication reminders', '24-hour emergency response']
+    },
+    { 
+      id: 'memory', 
+      name: 'Memory', 
+      icon: Brain, 
+      color: 'bg-purple-500', 
+      description: 'Specialized secure communities for Alzheimer\'s and dementia care with trained staff and therapeutic programs.',
+      details: 'Secure environment • Specialized training • Memory programs',
+      avgCost: '$5,500-8,500/month',
+      keyFeatures: ['Secure wandering prevention', 'Cognitive therapies', 'Specialized dementia care']
+    },
+    { 
+      id: 'nursing', 
+      name: 'Nursing', 
+      icon: Stethoscope, 
+      color: 'bg-red-600', 
+      description: '24/7 skilled nursing facilities providing medical care and rehabilitation services for complex health needs.',
+      details: 'Medical care • Rehab services • Skilled nursing',
+      avgCost: '$8,000-12,000/month',
+      keyFeatures: ['24/7 nursing care', 'Physical/occupational therapy', 'Complex medical management']
+    },
+    { 
+      id: 'ccrc', 
+      name: 'CCRC', 
+      icon: Activity, 
+      color: 'bg-indigo-600', 
+      description: 'Continuing Care Retirement Communities offering all levels of care on one campus for aging in place.',
+      details: 'All care levels • One campus • Lifetime care',
+      avgCost: 'Entry: $100K-500K + Monthly',
+      keyFeatures: ['Age in place guarantee', 'All care levels available', 'Healthcare continuum']
+    },
+    { 
+      id: 'board', 
+      name: 'Board & Care', 
+      icon: Hotel, 
+      color: 'bg-yellow-600', 
+      description: 'Small residential homes with 4-10 residents offering personalized care in a home-like setting.',
+      details: 'Home setting • Personal attention • Small groups',
+      avgCost: '$2,500-5,000/month',
+      keyFeatures: ['4-10 residents only', 'Home-like atmosphere', 'Personalized attention']
+    }
+  ];
+  
+  // Carousel event handlers
+  const handleCareTypeClick = (index: number) => {
+    setSelectedCareType(index);
+  };
+  
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    
+    const touchEndX = e.touches[0].clientX;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > 50) { // Threshold for swipe
+      if (diff > 0) {
+        // Swipe left - next item
+        setSelectedCareType(prev => (prev + 1) % careTypes.length);
+      } else {
+        // Swipe right - previous item
+        setSelectedCareType(prev => prev === 0 ? careTypes.length - 1 : prev - 1);
+      }
+      setIsDragging(false);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+  
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setTouchStartX(e.clientX);
+    setIsDragging(true);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    
+    const diff = touchStartX - e.clientX;
+    
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        setSelectedCareType(prev => (prev + 1) % careTypes.length);
+      } else {
+        setSelectedCareType(prev => prev === 0 ? careTypes.length - 1 : prev - 1);
+      }
+      setIsDragging(false);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
   
   // Handle hash navigation for care spectrum section
   useEffect(() => {
@@ -280,6 +449,114 @@ export default function CommunityDirectory() {
               <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
                 Navigate the 10 levels of senior care with confidence. Discover little-known facts and critical differences that could save you thousands.
               </p>
+            </div>
+
+            {/* 3D Carousel - Half Size */}
+            <div className="flex justify-center items-center mb-12">
+              <div 
+                className="carousel-wrapper-half select-none"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseLeave}
+                style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+              >
+                <div className="carousel-3d-half">
+                  {careTypes.map((careType, index) => {
+                    const Icon = careType.icon;
+                    const offset = (selectedCareType - index) / 3;
+                    const absOffset = Math.abs(selectedCareType - index) / 3;
+                    const isActive = index === selectedCareType;
+                    
+                    return (
+                      <div
+                        key={careType.id}
+                        className="card-container-3d-half"
+                        style={{
+                          '--offset': offset,
+                          '--abs-offset': absOffset,
+                          '--active': isActive ? 1 : 0,
+                          pointerEvents: 'auto',
+                          opacity: Math.abs(selectedCareType - index) >= 3 ? 0 : 1,
+                          display: Math.abs(selectedCareType - index) > 3 ? 'none' : 'block',
+                        } as React.CSSProperties}
+                        onClick={() => !isDragging && handleCareTypeClick(index)}
+                      >
+                        <div className={`card-3d-half ${careType.color} rounded-xl flex flex-col items-center justify-between p-3 shadow-2xl border-2 border-white/30`}
+                             style={{ 
+                               opacity: isActive ? 1 : 0.7,
+                               transform: isActive ? 'scale(1.05)' : 'scale(1)',
+                               height: '100%'
+                             }}>
+                          <div className="flex flex-col items-center">
+                            <Icon className="w-8 h-8 text-white drop-shadow-lg mb-1" />
+                            <h3 className="text-white font-bold text-center text-sm mb-1 drop-shadow-lg">{careType.name}</h3>
+                            
+                            {/* Average Cost */}
+                            <div className="bg-white/20 rounded-lg px-2 py-0.5 mb-1">
+                              <p className="text-white text-xs font-bold drop-shadow-md">
+                                {careType.avgCost}
+                              </p>
+                            </div>
+                            
+                            {/* Quick Details */}
+                            <p className="text-white/90 text-xs text-center mb-1 drop-shadow-md">
+                              {careType.details}
+                            </p>
+                          </div>
+                          
+                          {/* Key Features - Only show when active */}
+                          <div style={{ 
+                            opacity: isActive ? 1 : 0,
+                            maxHeight: isActive ? '100px' : '0',
+                            overflow: 'hidden',
+                            transition: 'opacity 0.3s ease-out, max-height 0.3s ease-out'
+                          }}>
+                            <div className="space-y-0.5 mb-2">
+                              {careType.keyFeatures.slice(0, 2).map((feature, idx) => (
+                                <div key={idx} className="flex items-start gap-1">
+                                  <CheckCircle className="w-2.5 h-2.5 text-white/80 mt-0.5 flex-shrink-0" />
+                                  <p className="text-white/90 text-xs leading-tight">{feature}</p>
+                                </div>
+                              ))}
+                            </div>
+                            
+                            {/* Learn More Button */}
+                            <button 
+                              className="w-full bg-white/20 hover:bg-white/30 text-white text-xs font-bold py-1.5 px-2 rounded-lg transition-colors flex items-center justify-center gap-1"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <BookOpen className="w-3 h-3" />
+                              Learn More
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {/* Navigation buttons */}
+                  {selectedCareType > 0 && (
+                    <button 
+                      className="nav-3d-half left"
+                      onClick={() => setSelectedCareType(i => i - 1)}
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </button>
+                  )}
+                  {selectedCareType < careTypes.length - 1 && (
+                    <button 
+                      className="nav-3d-half right"
+                      onClick={() => setSelectedCareType(i => i + 1)}
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* Care Types Grid */}
