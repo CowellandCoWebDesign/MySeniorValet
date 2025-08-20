@@ -66,32 +66,44 @@ export default function MySeniorValetSearch() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const q = urlParams.get('q');
+    const state = urlParams.get('state');
+    const city = urlParams.get('city');
+    const careType = urlParams.get('careType');
+    
     if (q) setSearchQuery(q);
+    if (state) setFilters(prev => ({ ...prev, region: state }));
+    if (city) setSearchQuery(city);
+    if (careType) setFilters(prev => ({ ...prev, careTypes: [careType] }));
   }, [location]);
 
-  // Fetch communities with smaller initial limit
-  const { data: communitiesResponse, isLoading } = useQuery({
-    queryKey: ["/api/communities/search", { limit: 500 }], // Reduced from 2000
+  // Build query string for API
+  const buildQueryString = () => {
+    const params = new URLSearchParams();
+    if (searchQuery) params.append('q', searchQuery);
+    if (filters.region) params.append('state', filters.region);
+    if (filters.careTypes.length > 0) params.append('careType', filters.careTypes[0]);
+    if (filters.maxPrice) params.append('priceMax', filters.maxPrice);
+    if (filters.minRating) params.append('minRating', filters.minRating);
+    params.append('limit', '100');
+    return params.toString();
+  };
+
+  // Fetch communities using actual search API with query
+  const { data: searchResponse, isLoading, refetch } = useQuery({
+    queryKey: ["/api/communities/search", searchQuery, filters],
     queryFn: async () => {
-      const response = await fetch("/api/communities/search?limit=500");
+      const queryString = buildQueryString();
+      const response = await fetch(`/api/communities/search?${queryString}`);
       if (!response.ok) throw new Error("Failed to fetch communities");
       return response.json();
     },
     retry: false,
+    enabled: true, // Always enabled to fetch initial data
   });
 
   // Extract communities array from search response
-  const communities = Array.isArray(communitiesResponse) ? communitiesResponse : [];
-
-  const filteredCommunities = communities?.filter(community => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      community.name.toLowerCase().includes(query) ||
-      community.city.toLowerCase().includes(query) ||
-      community.careTypes.some(type => type.toLowerCase().includes(query))
-    );
-  }) || [];
+  const communities = searchResponse?.communities || [];
+  const filteredCommunities = communities;
   
   // Get only the communities to display based on pagination
   const displayedCommunities = filteredCommunities.slice(0, displayedCount);

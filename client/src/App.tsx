@@ -36,6 +36,7 @@ import EmergencyContacts from "@/pages/emergency-contacts";
 import CommunityDetail from "@/pages/community-detail";
 import CommunityContribute from "@/pages/community-contribute";
 import MapSearch from "@/pages/map-search";
+import MySeniorValetSearch from "@/pages/myseniorvalet-search";
 // Rentals page removed - consolidated to use BasicSearch
 // MapboxTest removed
 // Map test pages removed
@@ -168,6 +169,7 @@ function Router() {
       <Route path="/canada" component={CanadaPage} />
       <Route path="/map" component={MapSearch} />
       <Route path="/map-search" component={MapSearch} />
+      <Route path="/myseniorvalet-search" component={MySeniorValetSearch} />
       <Route path="/ai-intelligence" component={AISearchIntelligence} />
       <Route path="/simplified-search" component={SimplifiedSearch} />
       <Route path="/community/:id" component={CommunityDetail} />
