@@ -959,6 +959,25 @@ export class DatabaseStorage implements IStorage {
     })) as Community[];
   }
 
+  async searchCommunitiesByName(name: string): Promise<Community[]> {
+    const searchTerm = name.toLowerCase().trim();
+    const searchPattern = `%${searchTerm}%`;
+    
+    const results = await db
+      .select()
+      .from(communities)
+      .where(
+        or(
+          ilike(communities.name, searchPattern),
+          ilike(communities.city, searchPattern),
+          ilike(communities.state, searchPattern)
+        )
+      )
+      .limit(50);
+    
+    return results;
+  }
+
   async getTrendingCommunities(limit: number = 8): Promise<Community[]> {
     const cacheKey = `trending_communities:${limit}`;
     
