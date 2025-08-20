@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, LayersControl, Circle } from 'react-leaflet';
-import { Icon, LatLngBounds, LatLng } from 'leaflet';
+import { Icon, LatLngBounds, LatLng, DomEvent } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-providers';
 import MarkerClusterGroup from 'react-leaflet-cluster';
@@ -920,7 +920,7 @@ export default function Map({
     };
   }, []);
 
-  // Fetch ALL markers for frontend clustering with react-leaflet-cluster
+  // Fetch markers with better performance limits
   const { data: markerData, isLoading, error, refetch } = useQuery({
     queryKey: ['communities-markers', 
       mapBounds ? {
@@ -940,7 +940,7 @@ export default function Map({
         south: bounds.south.toString(),
         east: bounds.east.toString(),
         north: bounds.north.toString(),
-        limit: '5000' // Get all markers in viewport up to a reasonable limit
+        limit: '100' // Emergency reduction for critical performance fix
       });
 
       // Add search filters to the API request
@@ -1360,18 +1360,18 @@ export default function Map({
           </div>
         )}
 
-        {/* MarkerClusterGroup with proper disableClusteringAtZoom setting */}
+        {/* MarkerClusterGroup with performance optimization */}
         {!isLoading && !error && markerData?.markers && (
           <MarkerClusterGroup
             chunkedLoading
-            disableClusteringAtZoom={12} // NO CLUSTERING at city view (zoom 12+)
-            maxClusterRadius={80}
+            disableClusteringAtZoom={15} // Simplified clustering
+            maxClusterRadius={80} // Larger radius for fewer clusters
             spiderfyOnMaxZoom={false}
             showCoverageOnHover={false}
-            zoomToBoundsOnClick={true}  // Allow zooming on cluster click (expected behavior for clusters)
-            animate={false}  // Disable animations to prevent bouncing
-            animateAddingMarkers={false}  // Disable marker add animations
-            removeOutsideVisibleBounds={false}  // Keep markers stable
+            zoomToBoundsOnClick={false}
+            animate={false}
+            animateAddingMarkers={false}  
+            removeOutsideVisibleBounds={true}
             iconCreateFunction={(cluster) => {
               const count = cluster.getChildCount();
               const size = Math.min(50 + Math.log10(count) * 10, 80);
@@ -1436,16 +1436,18 @@ export default function Map({
 
               return (
                 <Marker
-              key={`community-${properties.id}-zoom-${Math.round(currentZoom)}`}
+              key={`community-${properties.id}`}
               position={[lat, lng]}
               icon={communityIcon}
               eventHandlers={{
-                click: () => {
-                  // Direct navigation without any event handling complexities
-                  // This should make clicks instant and responsive
-                  window.location.href = `/community/${community.id}`;
-                },
-                // Removed hover effects to prevent delays and improve click responsiveness
+                click: (e) => {
+                  // Stop propagation to prevent map from handling the click
+                  DomEvent.stopPropagation(e);
+                  // Use proper navigation
+                  if (community.id) {
+                    window.location.href = `/community/${community.id}`;
+                  }
+                }
               }}
             >
               {/* Enhanced community tooltip */}
@@ -1482,9 +1484,9 @@ export default function Map({
           </MarkerClusterGroup>
         )}
 
-        {/* Hospital markers - show alongside communities */}
-        {!isLoading && hospitalsData?.hospitals && currentZoom >= 8 && hospitalsData.hospitals.map((hospital: any, index: number) => {
-          const isHovered = hoveredCommunity === `hospital-${hospital.id}`.toString();
+        {/* Hospital markers - DISABLED for performance */}
+        {false && hospitalsData?.hospitals && currentZoom >= 8 && hospitalsData.hospitals.map((hospital: any, index: number) => {
+          const isHovered = false; // Disabled hover for performance
           
           // Use red icon for emergency services, orange for urgent care
           const hospitalMarkerIcon = hospital.emergencyServices === true || hospital.emergencyServices === 'true' ? hospitalIcon : urgentCareIcon;
