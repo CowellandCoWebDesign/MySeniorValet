@@ -244,7 +244,7 @@ export function registerVendorStripeRoutes(app: Express) {
   // Stripe webhook handler
   app.post("/api/vendor-stripe/webhook", express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'] as string;
-    const endpointSecret = process.env.STRIPE_VENDOR_WEBHOOK_SECRET;
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
     if (!endpointSecret) {
       console.warn('Stripe webhook secret not configured');

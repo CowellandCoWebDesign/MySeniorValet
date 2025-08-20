@@ -1,12 +1,12 @@
 {
-  "timestamp": "2025-08-20T21:26:32.020Z",
-  "duration": "0.10s",
+  "timestamp": "2025-08-20T22:49:36.747Z",
+  "duration": "3.32s",
   "summary": {
-    "passed": 9,
+    "passed": 11,
     "failed": 0,
-    "warnings": 2,
+    "warnings": 0,
     "total": 11,
-    "score": "82%",
+    "score": "100%",
     "assessment": "READY FOR PRODUCTION"
   },
   "systemStatus": {
@@ -87,18 +87,16 @@
     },
     {
       "name": "Vendor Webhook Endpoint",
-      "status": "warning",
+      "status": "passed",
       "details": {
-        "status": "Available but not configured",
-        "action": "Need to set STRIPE_VENDOR_WEBHOOK_SECRET"
+        "status": "Available and validating signatures"
       }
     },
     {
       "name": "Community Webhook Endpoint",
-      "status": "warning",
+      "status": "passed",
       "details": {
-        "status": "Available but not configured",
-        "action": "Need to set STRIPE_COMMUNITY_WEBHOOK_SECRET"
+        "status": "Available and validating signatures"
       }
     },
     {

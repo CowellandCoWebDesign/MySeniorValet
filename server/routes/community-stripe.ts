@@ -284,7 +284,7 @@ export function registerCommunityStripeRoutes(app: Express) {
   // Stripe webhook handler for communities
   app.post("/api/community-stripe/webhook", express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'] as string;
-    const endpointSecret = process.env.STRIPE_COMMUNITY_WEBHOOK_SECRET;
+    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
     if (!endpointSecret) {
       console.warn('Community Stripe webhook secret not configured');
