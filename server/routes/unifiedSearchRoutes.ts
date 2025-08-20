@@ -81,18 +81,35 @@ export function registerUnifiedSearchRoutes(app: Express) {
         );
       }
       
-      // Handle text search
+      // Handle text search with intelligent parsing
       if (searchQuery) {
-        const searchTerm = `%${searchQuery}%`;
-        whereConditions.push(
-          or(
-            sql`${communities.name} ILIKE ${searchTerm}`,
-            sql`${communities.description} ILIKE ${searchTerm}`,
-            sql`${communities.city} ILIKE ${searchTerm}`,
-            sql`${communities.state} ILIKE ${searchTerm}`,
-            sql`${communities.address} ILIKE ${searchTerm}`
-          )
-        );
+        // Check if query matches "City State" pattern (e.g., "Norman OK", "Laval QC")
+        const cityStatePattern = /^([a-zA-Z\s-]+)\s+([A-Z]{2})$/;
+        const match = searchQuery.trim().match(cityStatePattern);
+        
+        if (match) {
+          // It's a city + state query
+          const [, cityPart, statePart] = match;
+          console.log(`📍 Detected city-state search: city="${cityPart}", state="${statePart}"`);
+          whereConditions.push(
+            and(
+              sql`${communities.city} ILIKE ${`%${cityPart.trim()}%`}`,
+              sql`${communities.state} = ${statePart.toUpperCase()}`
+            )
+          );
+        } else {
+          // Regular text search
+          const searchTerm = `%${searchQuery}%`;
+          whereConditions.push(
+            or(
+              sql`${communities.name} ILIKE ${searchTerm}`,
+              sql`${communities.description} ILIKE ${searchTerm}`,
+              sql`${communities.city} ILIKE ${searchTerm}`,
+              sql`${communities.state} ILIKE ${searchTerm}`,
+              sql`${communities.address} ILIKE ${searchTerm}`
+            )
+          );
+        }
       }
       
       // Handle location search

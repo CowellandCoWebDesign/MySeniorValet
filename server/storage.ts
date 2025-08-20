@@ -1252,8 +1252,15 @@ export class DatabaseStorage implements IStorage {
       return 'state_only';
     }
 
-    // City, State pattern
+    // City, State pattern WITH comma (e.g., "Norman, OK")
     if (location.includes(',')) {
+      return 'city_state';
+    }
+
+    // City State pattern WITHOUT comma (e.g., "Norman OK", "Laval QC")
+    // This is the CRITICAL FIX for user searches
+    const stateCodePattern = /\s+([A-Z]{2})$/i;
+    if (stateCodePattern.test(location)) {
       return 'city_state';
     }
 
@@ -1262,7 +1269,26 @@ export class DatabaseStorage implements IStorage {
   }
 
   private buildCityStateSearch(location: string, distance?: number) {
-    const [cityPart, statePart] = location.split(',').map(s => s.trim());
+    let cityPart: string;
+    let statePart: string;
+    
+    // Handle both "City, State" and "City State" patterns
+    if (location.includes(',')) {
+      [cityPart, statePart] = location.split(',').map(s => s.trim());
+    } else {
+      // Handle "City State" pattern without comma (e.g., "Norman OK")
+      const match = location.match(/^(.+?)\s+([A-Z]{2})$/i);
+      if (match) {
+        cityPart = match[1].trim();
+        statePart = match[2].trim();
+      } else {
+        // Fallback if pattern doesn't match
+        const parts = location.split(' ');
+        statePart = parts.pop() || '';
+        cityPart = parts.join(' ');
+      }
+    }
+    
     const normalizedState = statePart.toUpperCase();
     
     if (distance) {
