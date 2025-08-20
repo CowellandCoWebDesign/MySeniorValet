@@ -26,6 +26,7 @@ import { useQuery } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useSEO, SEOTemplates } from '@/hooks/useSEO';
+import { fuzzySearch, parseSearchQuery } from '@/lib/fuzzySearch';
 
 interface Community {
   id: number;
@@ -110,7 +111,7 @@ export default function MapSearch() {
   const initialQuery = urlParams.get('query') || urlParams.get('location') || urlParams.get('q') || '';
   const budgetParam = urlParams.get('budget') || '';
   const careTypesParam = urlParams.get('careTypes') || '';
-
+  
   // Map budget values from onboarding to filter values
   const getBudgetFilter = (budget: string) => {
     switch(budget) {
@@ -171,6 +172,28 @@ export default function MapSearch() {
     const hasSeenTutorialBefore = localStorage.getItem('map-tutorial-completed');
     setHasSeenTutorial(true); // Always mark as seen to disable tutorial
   }, []);
+
+  // Trigger search when arriving with query from URL
+  useEffect(() => {
+    if (initialQuery && !hasSearched) {
+      console.log('🔍 Initial search query detected:', initialQuery);
+      setSearchQuery(initialQuery);
+      setHasSearched(true);
+      
+      // Open the bottom panel to show results
+      if (!showBottomPanel && initialQuery.length > 0) {
+        setPanelHeight(90);
+        setShowBottomPanel(true);
+      }
+      
+      // If query is a city/state, try to center map there
+      const { city, state } = parseSearchQuery(initialQuery);
+      if (city || state) {
+        // Use geocoding to center map (this would require a geocoding API)
+        console.log('📍 Location search detected:', { city, state });
+      }
+    }
+  }, [initialQuery, hasSearched]);
 
   // Debug mapBounds changes
   useEffect(() => {
@@ -2124,33 +2147,58 @@ export default function MapSearch() {
                 </>
               )}
               
-              {/* Display all results mixed */}
+              {/* Display all results mixed with fuzzy search */}
               {resultType === 'all' && (
                 <>
-                  {/* Communities section */}
-                  {mapCommunities.filter((item: any) => !item.type || item.type === 'community').length > 0 && (
-                    <>
-                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2">
-                        🏠 Communities ({mapCommunities.filter((item: any) => !item.type || item.type === 'community').length})
-                      </h4>
-                      {mapCommunities
-                        .filter((item: any) => !item.type || item.type === 'community')
-                        .slice(0, 5)
-                        .map((community: Community, index: number) => (
-                        <PrioritizedCommunityCard
-                          key={`all-community-${community.id}`}
-                          community={community}
-                          variant="list"
-                          onSelect={() => handleCommunityClick(community)}
-                          onToggleFavorite={() => console.log(`Toggle favorite: ${community.name}`)}
-                          isFavorite={false}
-                        />
-                      ))}
-                    </>
-                  )}
+                  {/* Apply fuzzy search if there's a search query */}
+                  {(() => {
+                    // Filter communities and apply fuzzy search if query exists
+                    const filteredCommunities = searchQuery 
+                      ? fuzzySearch(
+                          mapCommunities.filter((item: any) => !item.type || item.type === 'community'),
+                          searchQuery,
+                          10
+                        )
+                      : mapCommunities.filter((item: any) => !item.type || item.type === 'community');
+                    
+                    // Apply fuzzy search to other result types
+                    const filteredVendors = searchQuery 
+                      ? fuzzySearch(vendors, searchQuery, 5)
+                      : vendors;
+                    
+                    const filteredHealthcare = searchQuery
+                      ? fuzzySearch(healthcareServices, searchQuery, 5)
+                      : healthcareServices;
+                    
+                    const filteredResources = searchQuery
+                      ? fuzzySearch(resources, searchQuery, 5)
+                      : resources;
+                    
+                    return (
+                      <>
+                        {/* Communities section */}
+                        {filteredCommunities.length > 0 && (
+                          <>
+                            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2">
+                              🏠 Communities ({filteredCommunities.length})
+                            </h4>
+                            {filteredCommunities
+                              .slice(0, 5)
+                              .map((community: Community, index: number) => (
+                              <PrioritizedCommunityCard
+                                key={`all-community-${community.id}`}
+                                community={community}
+                                variant="list"
+                                onSelect={() => handleCommunityClick(community)}
+                                onToggleFavorite={() => console.log(`Toggle favorite: ${community.name}`)}
+                                isFavorite={false}
+                              />
+                            ))}
+                          </>
+                        )}
                   
-                  {/* Hospitals section */}
-                  {mapCommunities.filter((item: any) => item.type === 'hospital').length > 0 && (
+                        {/* Hospitals section */}
+                        {mapCommunities.filter((item: any) => item.type === 'hospital').length > 0 && (
                     <>
                       <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2 mt-4">
                         🏥 Hospitals ({mapCommunities.filter((item: any) => item.type === 'hospital').length})
@@ -2197,13 +2245,13 @@ export default function MapSearch() {
                     </>
                   )}
                   
-                  {/* Vendors section */}
-                  {vendors.length > 0 && (
+                        {/* Vendors section */}
+                        {filteredVendors.length > 0 && (
                     <>
-                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2 mt-4">
-                        🛍️ Services & Vendors ({vendors.length})
-                      </h4>
-                      {vendors.slice(0, 3).map((vendor: Vendor, index: number) => (
+                          <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2 mt-4">
+                            🛍️ Services & Vendors ({filteredVendors.length})
+                          </h4>
+                          {filteredVendors.slice(0, 3).map((vendor: Vendor, index: number) => (
                         <EnhancedVendorCard
                           key={`all-vendor-${vendor.id}`}
                           vendor={{
@@ -2221,13 +2269,13 @@ export default function MapSearch() {
                     </>
                   )}
                   
-                  {/* Healthcare section */}
-                  {healthcareServices.length > 0 && (
+                        {/* Healthcare section */}
+                        {filteredHealthcare.length > 0 && (
                     <>
-                      <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2 mt-4">
-                        🏥 Healthcare Marketplace ({healthcareServices.length})
-                      </h4>
-                      {healthcareServices.slice(0, 3).map((service: HealthcareService) => (
+                          <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2 mt-4">
+                            🏥 Healthcare Marketplace ({filteredHealthcare.length})
+                          </h4>
+                          {filteredHealthcare.slice(0, 3).map((service: HealthcareService) => (
                         <HealthcareServiceCard
                           key={`all-healthcare-${service.id}`}
                           service={service}
@@ -2237,29 +2285,29 @@ export default function MapSearch() {
                     </>
                   )}
                   
-                  {/* Resources section - Organized by type */}
-                  {resources.length > 0 && (
+                        {/* Resources section - Organized by type */}
+                        {filteredResources.length > 0 && (
                     <>
                       <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2 mt-4">
-                        📚 Resources & Support ({resources.length})
+                        📚 Resources & Support ({filteredResources.length})
                       </h4>
                       
                       {/* Group resources by type */}
                       {(() => {
                         // Categorize resources
-                        const governmentResources = resources.filter((r: Resource) => 
+                        const governmentResources = filteredResources.filter((r: Resource) => 
                           (r.type || r.category || '').toLowerCase().includes('government') ||
                           (r.type || r.category || '').toLowerCase().includes('social security')
                         );
-                        const supportGroups = resources.filter((r: Resource) => 
+                        const supportGroups = filteredResources.filter((r: Resource) => 
                           (r.type || r.category || '').toLowerCase().includes('support') ||
                           (r.type || r.category || '').toLowerCase().includes('group')
                         );
-                        const healthResources = resources.filter((r: Resource) => 
+                        const healthResources = filteredResources.filter((r: Resource) => 
                           (r.type || r.category || '').toLowerCase().includes('health') ||
                           (r.type || r.category || '').toLowerCase().includes('medical')
                         );
-                        const otherResources = resources.filter((r: Resource) => 
+                        const otherResources = filteredResources.filter((r: Resource) => 
                           !governmentResources.includes(r) && 
                           !supportGroups.includes(r) && 
                           !healthResources.includes(r)
@@ -2351,6 +2399,9 @@ export default function MapSearch() {
                       })()}
                     </>
                   )}
+                      </>
+                    );
+                  })()}
                 </>
               )}
             </div>
