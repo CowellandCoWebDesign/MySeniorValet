@@ -1560,7 +1560,7 @@ export default function CommunityDirectory() {
                         Search All HUD Communities
                         <ChevronRight className="ml-2 h-4 w-4" />
                       </Button>
-                    </div>
+                    </CardContent>
                   </Card>
                 </Link>
               </>
@@ -1917,7 +1917,7 @@ export default function CommunityDirectory() {
                         {language === 'en' ? 'Explore Canadian Communities' : 'Explorer les communautés'}
                         <ChevronRight className="ml-2 h-4 w-4" />
                       </Button>
-                    </div>
+                    </CardContent>
                   </Card>
                 </Link>
               </>
@@ -1931,7 +1931,6 @@ export default function CommunityDirectory() {
                 />
               ))
             )}
-            </div>
           </div>
         </div>
       </section>
