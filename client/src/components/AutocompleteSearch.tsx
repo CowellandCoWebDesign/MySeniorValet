@@ -89,11 +89,9 @@ export function AutocompleteSearch({
     }
     
     if (debouncedValue && debouncedValue.length >= 2) {
-      console.log('Fetching suggestions for:', debouncedValue);
       setLoadingSuggestions(true);
       apiRequest('GET', `/api/autocomplete/suggestions?query=${encodeURIComponent(debouncedValue)}&limit=10`)
         .then(data => {
-          console.log('Received autocomplete data:', data);
           // Ensure suggestions are in the correct format
           const validSuggestions = (data.suggestions || []).filter((s: AutocompleteSuggestion) => {
             // Ensure all fields are strings, not objects
@@ -105,7 +103,6 @@ export function AutocompleteSearch({
             // Show ALL valid suggestions including exact matches
             return isValid;
           });
-          console.log('Valid suggestions:', validSuggestions);
           setSuggestions(validSuggestions);
           setShowSuggestions(validSuggestions.length > 0);
           setLoadingSuggestions(false);
@@ -288,13 +285,8 @@ export function AutocompleteSearch({
     }
   };
 
-  // Debug logging for rendering
-  console.log('Render state:', { 
-    showSuggestions, 
-    suggestionsLength: suggestions.length, 
-    loadingSuggestions,
-    suggestions: suggestions.slice(0, 2) // Show first 2 for debugging
-  });
+  // Remove debug logging in production
+  // Removed excessive console logging for cleaner output
 
   return (
     <div className="relative w-full">
