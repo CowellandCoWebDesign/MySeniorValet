@@ -100,23 +100,24 @@ MySeniorValet is the trusted platform for authentic senior living community info
 
 ## 💼 Business & Revenue Systems
 
-### Subscription Tiers (Stripe Integration)
-1. **Free Tier** - Basic search and 5 saved communities
-2. **Essential ($9.99/mo)** - Unlimited saves, basic analytics
-3. **Professional ($29.99/mo)** - Advanced features, priority support
-4. **Enterprise ($99.99/mo)** - White-label, API access, dedicated support
+### Community/Vendor Subscription Tiers (Stripe Integration)
+1. **Verified (FREE)** - Basic listing with logo, reviews display, tour scheduling
+2. **Standard ($149/mo)** - 10 photos, 1 PDF, respond to reviews, basic analytics
+3. **Featured ($249/mo)** - 25 photos, 1 video, 3 PDFs, AI assist, advanced analytics, featured placement
+4. **Platinum ($349/mo)** - 50 photos, 3 videos, unlimited PDFs, monthly calls, all premium features
 
 ### Vendor Management Portal
 - **Community Claiming System**
   - Verification workflow
   - Profile management
-  - Photo uploads
+  - Photo/video uploads
   - Pricing updates
   - Analytics dashboard
+  - Multi-property management (Platinum)
 
 ### Revenue Streams
-- Consumer subscriptions
-- Vendor premium listings ($299-999/mo)
+- Vendor subscriptions ($149-$349/mo)
+- Consumer features (future development)
 - Sponsored placements
 - Lead generation
 - API licensing
