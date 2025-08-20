@@ -114,7 +114,7 @@ export class EnhancedPlatformStatsService {
       const [photoCount] = await db
         .select({ count: sql<number>`count(*)::int` })
         .from(communities)
-        .where(sql`${communities.photos} IS NOT NULL AND jsonb_array_length(${communities.photos}) > 0`)
+        .where(sql`${communities.photos} IS NOT NULL AND array_length(${communities.photos}, 1) > 0`)
         .execute();
 
       const [availabilityCount] = await db
