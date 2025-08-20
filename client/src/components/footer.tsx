@@ -35,9 +35,10 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-6 mb-6">
-          {/* Logo & Social - Spans 2 columns on desktop */}
-          <div className="col-span-2">
+        {/* Top Row: Logo/Social + Communities */}
+        <div className="flex flex-col md:flex-row justify-between mb-6">
+          {/* Logo & Social - Left side */}
+          <div className="mb-4 md:mb-0">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <Home className="text-white h-4 w-4" />
@@ -47,7 +48,7 @@ export function Footer() {
                 <p className="text-xs text-gray-400">Your Personal Senior Living Concierge</p>
               </div>
             </div>
-            <p className="text-xs text-gray-400 mb-3 pr-4">
+            <p className="text-xs text-gray-400 mb-3 max-w-sm">
               The trusted platform for authentic senior living community information.
             </p>
             <div className="flex space-x-2">
@@ -63,6 +64,20 @@ export function Footer() {
             </div>
           </div>
           
+          {/* For Communities - Right side */}
+          <div className="md:text-right">
+            <h3 className="text-sm font-semibold mb-3 text-white">For Communities</h3>
+            <ul className="space-y-2 text-xs text-gray-300">
+              <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors">Claim Profile</Link></li>
+              <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors">Portal</Link></li>
+              <li><Link href="/mission" className="hover:text-blue-400 transition-colors">Benefits</Link></li>
+              <li><Link href="/ai-support" className="hover:text-blue-400 transition-colors">Support</Link></li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Bottom Row: Other sections */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-6">
           {/* For Families */}
           <div>
             <h3 className="text-sm font-semibold mb-3 text-white">For Families</h3>
@@ -71,17 +86,6 @@ export function Footer() {
               <li><Link href="/map-search" className="hover:text-blue-400 transition-colors">Explore All</Link></li>
               <li><Link href="/about" className="hover:text-blue-400 transition-colors">How it Works</Link></li>
               <li><Link href="/care-guide" className="hover:text-blue-400 transition-colors">Care Guide</Link></li>
-            </ul>
-          </div>
-          
-          {/* For Communities */}
-          <div>
-            <h3 className="text-sm font-semibold mb-3 text-white">For Communities</h3>
-            <ul className="space-y-2 text-xs text-gray-300">
-              <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors">Claim Profile</Link></li>
-              <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors">Portal</Link></li>
-              <li><Link href="/mission" className="hover:text-blue-400 transition-colors">Benefits</Link></li>
-              <li><Link href="/ai-support" className="hover:text-blue-400 transition-colors">Support</Link></li>
             </ul>
           </div>
           
