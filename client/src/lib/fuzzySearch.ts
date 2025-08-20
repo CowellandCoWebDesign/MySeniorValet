@@ -31,12 +31,12 @@ export const createFuseInstance = <T extends SearchableItem>(items: T[], customK
 
   const options: IFuseOptions<T> = {
     keys: customKeys || defaultKeys,
-    threshold: 0.4,              // Lower = more exact (0.4 allows moderate typos)
+    threshold: 0.5,              // Increased to 0.5 to allow for typos like "hemmot" -> "hemet"
     ignoreLocation: true,        // Don't care where in string match occurs
     ignoreFieldNorm: false,      // Consider field length in scoring
     minMatchCharLength: 2,       // Min 2 chars to trigger search
     includeScore: true,          // Include relevance score
-    useExtendedSearch: true,     // Enable advanced patterns
+    useExtendedSearch: false,    // Disable for better fuzzy matching
     findAllMatches: true,        // Find all matching patterns
     shouldSort: true,            // Sort by best match
     fieldNormWeight: 1           // How much field length affects score
@@ -52,11 +52,11 @@ export const parseSearchQuery = (query: string) => {
   // Remove extra spaces and normalize
   const normalized = query.trim().toLowerCase();
 
-  // Check for state abbreviations at the end (e.g., "Dallas, TX")
-  const stateMatch = normalized.match(/,\s*([a-z]{2})$/i);
+  // Check for state abbreviations at the end (e.g., "Dallas, TX" or "hemmot CA")
+  const stateMatch = normalized.match(/[\s,]+([a-z]{2})$/i);
   if (stateMatch) {
     const state = stateMatch[1].toUpperCase();
-    const cityPart = normalized.replace(/,\s*[a-z]{2}$/i, '').trim();
+    const cityPart = normalized.replace(/[\s,]+[a-z]{2}$/i, '').trim();
     return {
       searchTerm: normalized,
       city: cityPart,
