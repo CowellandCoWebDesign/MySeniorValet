@@ -84,7 +84,7 @@ export default function MySeniorValetSearch() {
     if (filters.careTypes.length > 0) params.append('careType', filters.careTypes[0]);
     if (filters.maxPrice) params.append('priceMax', filters.maxPrice);
     if (filters.minRating) params.append('minRating', filters.minRating);
-    params.append('limit', '100');
+    params.append('limit', '20'); // Start with 20 for faster initial load
     return params.toString();
   };
 
@@ -99,6 +99,7 @@ export default function MySeniorValetSearch() {
     },
     retry: false,
     enabled: true, // Always enabled to fetch initial data
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   // Extract communities array from search response
@@ -207,13 +208,20 @@ export default function MySeniorValetSearch() {
         </div>
       </div>
 
-      {/* Loading State */}
+      {/* Loading State - Show skeleton cards while loading */}
       {isLoading && (
-        <div className="px-4 py-8 text-center">
-          <div className="gradient-card p-8 rounded-lg animate-pulse-glow particles">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto animate-gradient"></div>
-            <p className="text-gradient mt-2 font-semibold">Loading communities...</p>
-          </div>
+        <div className="px-4 py-2 space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="animate-pulse">
+              <Card className="overflow-hidden bg-gray-100 dark:bg-gray-800">
+                <CardContent className="p-4">
+                  <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded mb-3"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                </CardContent>
+              </Card>
+            </div>
+          ))}
         </div>
       )}
 
