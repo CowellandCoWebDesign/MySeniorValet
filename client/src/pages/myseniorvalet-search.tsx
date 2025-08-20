@@ -423,31 +423,66 @@ export default function MySeniorValetSearch() {
             </Suspense>
           </div>
           
-          {/* Horizontal Scrollable Panel */}
+          {/* Horizontal Scrollable Panel - Simplified Card Display */}
           {communities.length > 0 && (
-            <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t shadow-lg z-[500] max-h-48">
+            <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t shadow-lg z-[500] max-h-56">
               <div className="overflow-x-auto p-4">
                 <div className="flex gap-4 min-w-max">
-                  {communities.slice(0, 10).map((community: any) => {
-                    // Remove priceRange from the community object to avoid React rendering errors
-                    const { priceRange, ...cleanCommunity } = community;
-                    return (
-                      <div 
-                        key={community.id} 
-                        className="w-80 flex-shrink-0 cursor-pointer"
-                        onClick={() => window.location.href = `/community/${community.id}`}
-                      >
-                        <PrioritizedCommunityCard
-                          community={{
-                            ...cleanCommunity,
-                            pricingType: community.pricingType === 'estimated' ? 'market' : community.pricingType
+                  {communities.slice(0, 10).map((community: any) => (
+                    <div 
+                      key={community.id} 
+                      className="w-72 flex-shrink-0 cursor-pointer bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-all border dark:border-gray-700"
+                      onClick={() => window.location.href = `/community/${community.id}`}
+                    >
+                      <div className="p-4">
+                        {/* Community Name */}
+                        <h3 className="font-semibold text-lg text-gray-900 dark:text-white truncate mb-1">
+                          {community.name}
+                        </h3>
+                        
+                        {/* Location */}
+                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-300 mb-2">
+                          <MapPin className="h-3 w-3 mr-1" />
+                          <span className="truncate">{community.city}, {community.state}</span>
+                        </div>
+                        
+                        {/* Care Types */}
+                        {community.careTypes && community.careTypes.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            {community.careTypes.slice(0, 2).map((type: string, idx: number) => (
+                              <span key={idx} className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                                {type}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {/* Pricing Info - Only show if available */}
+                        {(community.rentPerMonth || community.monthlyRentRangeStart) && (
+                          <div className="text-sm font-medium text-green-600 dark:text-green-400 mb-2">
+                            {community.rentPerMonth 
+                              ? `$${community.rentPerMonth}/mo`
+                              : community.monthlyRentRangeStart 
+                                ? `From $${community.monthlyRentRangeStart}/mo`
+                                : null
+                            }
+                          </div>
+                        )}
+                        
+                        {/* View Details Button */}
+                        <Button 
+                          size="sm" 
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.location.href = `/community/${community.id}`;
                           }}
-                          variant="list"
-                          onSelect={() => window.location.href = `/community/${community.id}`}
-                        />
+                        >
+                          View Details
+                        </Button>
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
