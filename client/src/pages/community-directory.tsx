@@ -19,6 +19,18 @@ export default function CommunityDirectory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [, setLocation] = useLocation();
+  
+  // Handle hash navigation for care spectrum section
+  useEffect(() => {
+    if (window.location.hash === '#care-spectrum') {
+      setTimeout(() => {
+        const element = document.getElementById('care-spectrum');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, []);
 
   // Fetch community stats
   const { data: communityCount } = useQuery({
