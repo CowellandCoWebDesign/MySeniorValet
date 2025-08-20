@@ -984,9 +984,9 @@ export default function MySeniorValetHome() {
                             ))}
                           </div>
                           
-                          {/* Learn More Button */}
+                          {/* Learn More Button - Links to Care Spectrum Section */}
                           <Link 
-                            to={`/care-types/${careType.id}`}
+                            to="/community-directory#care-spectrum"
                             className="block w-full"
                             onClick={(e) => e.stopPropagation()}
                           >
