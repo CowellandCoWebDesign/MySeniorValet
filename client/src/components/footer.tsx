@@ -63,23 +63,25 @@ export function Footer() {
             </div>
           </div>
           
-          {/* For Families & Communities */}
+          {/* For Families */}
           <div>
             <h3 className="text-sm font-semibold mb-2 text-white">For Families</h3>
-            <ul className="space-y-1 text-xs text-gray-300 mb-3">
+            <ul className="space-y-1 text-xs text-gray-300">
               <li><Link href="/map-search" className="hover:text-blue-400 transition-colors">Search Communities</Link></li>
               <li><Link href="/map-search" className="hover:text-blue-400 transition-colors">Explore All</Link></li>
               <li><Link href="/about" className="hover:text-blue-400 transition-colors">How it Works</Link></li>
               <li><Link href="/care-guide" className="hover:text-blue-400 transition-colors">Care Guide</Link></li>
             </ul>
             
-            <h3 className="text-sm font-semibold mb-2 text-white mt-3">For Communities</h3>
-            <ul className="space-y-1 text-xs text-gray-300">
-              <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors">Claim Profile</Link></li>
-              <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors">Community Portal</Link></li>
-              <li><Link href="/mission" className="hover:text-blue-400 transition-colors">Transparency Benefits</Link></li>
-              <li><Link href="/ai-support" className="hover:text-blue-400 transition-colors">Support Center</Link></li>
-            </ul>
+            <div className="mt-3">
+              <h3 className="text-sm font-semibold mb-2 text-white">For Communities</h3>
+              <ul className="space-y-1 text-xs text-gray-300">
+                <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors">Claim Profile</Link></li>
+                <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors">Community Portal</Link></li>
+                <li><Link href="/mission" className="hover:text-blue-400 transition-colors">Transparency Benefits</Link></li>
+                <li><Link href="/ai-support" className="hover:text-blue-400 transition-colors">Support Center</Link></li>
+              </ul>
+            </div>
           </div>
           
           {/* For Vendors */}
