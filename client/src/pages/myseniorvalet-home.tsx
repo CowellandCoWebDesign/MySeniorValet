@@ -800,7 +800,7 @@ export default function MySeniorValetHome() {
             </div>
 
             {/* Search Bar - Full Screen Width - Slimmer Design */}
-            <div className="mb-3 animate-fade-in-up animation-delay-200" style={{ position: 'relative', zIndex: 99999 }}>
+            <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 mb-3 animate-fade-in-up animation-delay-200" style={{ position: 'relative', zIndex: 99999 }}>
               <form onSubmit={(e) => {
                 e.preventDefault();
                 if (searchQuery) {
