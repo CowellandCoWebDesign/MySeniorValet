@@ -3,6 +3,7 @@ import { useLocation } from 'wouter';
 import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Flame, Layers, DollarSign, Sparkles } from 'lucide-react';
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
+import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -163,10 +164,6 @@ export default function MapSearch() {
   const listContentRef = useRef<HTMLDivElement>(null);
   const [pullDownStart, setPullDownStart] = useState<number | null>(null);
   
-  // Autocomplete state
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
-  const searchRef = useRef<HTMLDivElement>(null);
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   // Tutorial disabled - keeping localStorage check for compatibility
@@ -724,93 +721,11 @@ export default function MapSearch() {
     retry: 1,
   });
 
-  interface AutocompleteSuggestion {
-    label: string;
-    value: string;
-    type: string;
-    id?: number;
-    description?: string;
-  }
-  
-  const [suggestions, setSuggestions] = useState<AutocompleteSuggestion[]>([]);
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
-  // Fetch autocomplete suggestions
-  useEffect(() => {
-    const fetchSuggestions = async () => {
-      // Don't show suggestions if we've already searched and are showing results
-      if (hasSearched && showBottomPanel) {
-        setSuggestions([]);
-        setShowSuggestions(false);
-        return;
-      }
-      
-      if (debouncedSearchQuery && debouncedSearchQuery.length >= 2) {
-        setLoadingSuggestions(true);
-        try {
-          const response = await fetch(
-            `/api/autocomplete/suggestions?query=${encodeURIComponent(debouncedSearchQuery)}&limit=8&type=${resultType}`
-          );
-          if (response.ok) {
-            const data = await response.json();
-            setSuggestions(data.suggestions || []);
-            setShowSuggestions(true);
-          }
-        } catch (error) {
-          console.error('Error fetching suggestions:', error);
-        } finally {
-          setLoadingSuggestions(false);
-        }
-      } else {
-        setSuggestions([]);
-        setShowSuggestions(false);
-      }
-    };
 
-    fetchSuggestions();
-  }, [debouncedSearchQuery, resultType, hasSearched, showBottomPanel]);
 
-  // Handle click outside to close suggestions
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setShowSuggestions(false);
-      }
-    };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
-  const handleSuggestionClick = (suggestion: AutocompleteSuggestion | string) => {
-    const value = typeof suggestion === 'string' ? suggestion : suggestion.value;
-    setSearchQuery(value);
-    setShowSuggestions(false);
-    setSelectedSuggestionIndex(-1);
-    handleLocationSearch(value);
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setSelectedSuggestionIndex(prev => 
-        prev < suggestions.length - 1 ? prev + 1 : prev
-      );
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setSelectedSuggestionIndex(prev => prev > 0 ? prev - 1 : -1);
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < suggestions.length) {
-        handleSuggestionClick(suggestions[selectedSuggestionIndex]);
-      } else if (searchQuery) {
-        handleLocationSearch(searchQuery);
-      }
-    } else if (e.key === 'Escape') {
-      setShowSuggestions(false);
-      setSelectedSuggestionIndex(-1);
-    }
-  }
 
   const handleLocationSearch = async (location: string) => {
     if (!location || location.trim() === '') return;
@@ -818,10 +733,6 @@ export default function MapSearch() {
     setHasSearched(true);
     console.log('🔍 Searching for location:', location);
     
-    // Clear suggestions after search is initiated
-    setShowSuggestions(false);
-    setSuggestions([]);
-    setSelectedSuggestionIndex(-1);
     
     // Clear any existing map bounds to force a fresh search
     setMapBounds(null);
@@ -1407,59 +1318,22 @@ export default function MapSearch() {
           <form onSubmit={(e) => {
             e.preventDefault();
             handleLocationSearch(searchQuery);
-            setShowSuggestions(false);
           }} className="flex gap-2">
-            <div className="relative flex-1" ref={searchRef}>
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              type="text"
-              placeholder="Search city, state or ZIP code"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setSelectedSuggestionIndex(-1);
-              }}
-              onKeyDown={handleKeyDown}
-              onFocus={() => {
-                if (suggestions.length > 0) {
-                  setShowSuggestions(true);
-                }
-              }}
-              className={"pl-10 " + (isDarkMode 
-                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500' 
-                : 'bg-white dark:bg-gray-800 border-gray-300 text-gray-900 dark:text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500'
-              )}
-            />
-            
-            {/* Autocomplete Suggestions Dropdown */}
-            {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
-                {loadingSuggestions && (
-                  <div className="px-4 py-2 text-gray-500 dark:text-gray-400 text-sm">
-                    Loading suggestions...
-                  </div>
+            <div className="relative flex-1">
+              <AutocompleteSearch
+                value={searchQuery}
+                onChange={setSearchQuery}
+                onSubmit={(value) => {
+                  handleLocationSearch(value);
+                }}
+                placeholder="Search city, state, ZIP code or community name"
+                hideSearchButton={true}
+                inputClassName={"w-full pl-10 pr-6 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent " + (isDarkMode 
+                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                  : 'bg-white dark:bg-gray-800 border-gray-300 text-gray-900 dark:text-white placeholder-gray-500'
                 )}
-                {!loadingSuggestions && suggestions.map((suggestion, index) => (
-                  <div
-                    key={index}
-                    className={`px-4 py-2.5 cursor-pointer transition-colors ${
-                      index === selectedSuggestionIndex
-                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                        : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100'
-                    } ${index !== suggestions.length - 1 ? 'border-b border-gray-100 dark:border-gray-700' : ''}`}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    onMouseEnter={() => setSelectedSuggestionIndex(index)}
-                  >
-                    <div className="flex items-center">
-                      <MapPin className="w-4 h-4 mr-2 text-gray-400" />
-                      <span className="text-sm">{typeof suggestion === 'string' ? suggestion : suggestion.label}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {/* Removed duplicate autocomplete suggestions - using the one above */}
-          </div>
+              />
+            </div>
           <Button 
             type="submit"
             className="bg-blue-600 hover:bg-blue-700 text-white"
