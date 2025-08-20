@@ -109,6 +109,41 @@ export class EnhancedSearchService {
         }
       };
     }
+    
+    // PRIORITY 1: Try searching by community name first
+    const communityNameResults = await storage.searchCommunitiesByName(location);
+    if (communityNameResults && communityNameResults.length > 0) {
+      console.log(`Found ${communityNameResults.length} communities by name: ${location}`);
+      
+      // Apply additional filters if specified
+      let filteredResults = communityNameResults;
+      if (careType) {
+        filteredResults = filteredResults.filter(c => 
+          c.communitySubtype === careType || 
+          (c.careTypes && c.careTypes.includes(careType))
+        );
+      }
+      if (budget) {
+        filteredResults = filteredResults.filter(c => {
+          const price = c.rentPerMonth || c.monthlyRentRangeStart;
+          return price && price <= budget;
+        });
+      }
+      if (minRating) {
+        filteredResults = filteredResults.filter(c => 
+          (c.rating || c.googleRating || 0) >= minRating
+        );
+      }
+      
+      return {
+        communities: filteredResults,
+        searchMetadata: {
+          originalQuery: location,
+          searchType: 'exact',
+          totalResults: filteredResults.length
+        }
+      };
+    }
 
     // Check if this is a ZIP code that should be expanded
     if (this.isZipCode(location)) {

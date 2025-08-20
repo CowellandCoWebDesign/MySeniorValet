@@ -12,18 +12,97 @@ router.get('/autocomplete/suggestions', async (req, res) => {
     const limit = parseInt(req.query.limit as string) || 10;
     const category = req.query.category as string; // Optional filter: 'all', 'communities', 'healthcare', 'vendors', 'resources'
     
-    if (!query || query.length < 2) {
-      return res.json({ suggestions: [] });
+    // Allow single character searches for better UX
+    if (!query || query.length < 1) {
+      return res.json({ 
+        suggestions: [],
+        _version: 'v4_fast_autocomplete',
+        _timestamp: Date.now()
+      });
     }
 
     const searchTerm = query.toLowerCase().trim();
     const suggestions: any[] = [];
     
+    // Track timing for performance monitoring
+    const startTime = Date.now();
+    
+    // PRIORITY 1: Search communities by name first (fastest)
+    if (!category || category === 'all' || category === 'communities') {
+      const communityNameResults = await db
+        .select({
+          id: communities.id,
+          name: communities.name,
+          city: communities.city,
+          state: communities.state,
+          address: communities.address,
+          communitySubtype: communities.communitySubtype,
+          rating: communities.rating,
+          hudPropertyId: communities.hudPropertyId,
+          rentPerMonth: communities.rentPerMonth
+        })
+        .from(communities)
+        .where(
+          or(
+            ilike(communities.name, `${searchTerm}%`),  // Starts with (fastest)
+            ilike(communities.name, `%${searchTerm}%`)  // Contains (fallback)
+          )
+        )
+        .limit(5);
+      
+      // Add community name matches with priority
+      communityNameResults.forEach(c => {
+        suggestions.push({
+          label: c.name,
+          value: c.name,
+          type: 'community',
+          id: c.id,
+          description: `${c.city}, ${c.state}${c.communitySubtype ? ` - ${c.communitySubtype.replace(/_/g, ' ')}` : ''}`,
+          priority: c.name.toLowerCase().startsWith(searchTerm) ? 1 : 2,
+          city: c.city,
+          state: c.state,
+          address: c.address,
+          rating: c.rating,
+          hudPropertyId: c.hudPropertyId,
+          rentPerMonth: c.rentPerMonth
+        });
+      });
+    }
+    
+    // PRIORITY 2: Search cities (database first for speed)
+    const quickCityResults = await db
+      .selectDistinct({
+        city: communities.city,
+        state: communities.state,
+        count: sql<number>`COUNT(*)::int`.as('count')
+      })
+      .from(communities)
+      .where(
+        or(
+          ilike(communities.city, `${searchTerm}%`),  // Starts with
+          ilike(communities.city, `%${searchTerm}%`)  // Contains
+        )
+      )
+      .groupBy(communities.city, communities.state)
+      .limit(5);
+    
+    // Add city suggestions
+    quickCityResults.forEach(c => {
+      suggestions.push({
+        label: `${c.city}, ${c.state}`,
+        value: c.city,
+        type: 'location',
+        id: null,
+        description: `City - ${c.count} communities`,
+        priority: c.city.toLowerCase().startsWith(searchTerm) ? 3 : 4,
+        city: c.city,
+        state: c.state
+      });
+    });
+    
     // Parse location queries (e.g., "Kingston Ontario" or "San Francisco CA")
     let citySearch = searchTerm;
     let stateSearch: string | null = null;
-    
-    console.log(`🔍 Autocomplete search: "${searchTerm}"`);
     
     // Common state/province patterns
     const stateProvincePatterns = [
@@ -94,114 +173,13 @@ router.get('/autocomplete/suggestions', async (req, res) => {
       console.log(`📍 Parsed location - City: "${citySearch}", State/Province: "${stateSearch}"`);
     }
 
-    // Add city suggestions from Nominatim for comprehensive coverage
-    if (!category || category === 'all' || category === 'locations') {
-      try {
-        const { searchCitySuggestions } = await import('../nominatim-geocoding');
-        const citySuggestions = await searchCitySuggestions(searchTerm, 5);
-        
-        citySuggestions.forEach(city => {
-          suggestions.push({
-            label: city.name,
-            value: city.name,
-            type: 'location',
-            id: null,
-            description: 'City',
-            coordinates: { lat: city.lat, lng: city.lng }
-          });
-        });
-      } catch (error) {
-        console.error('Error fetching city suggestions:', error);
-      }
+    // Only use external API as last resort if we have few results
+    if (suggestions.length < 3 && (!category || category === 'all' || category === 'locations')) {
+      // Skip external API calls for now - too slow
+      // Focus on database results only
     }
 
-    // Search individual communities by name (if category is all or communities)
-    if (!category || category === 'all' || category === 'communities') {
-      // Build where conditions based on parsed location
-      let whereCondition;
-      
-      if (stateSearch && citySearch) {
-        // If we have both city and state, search for communities in that specific location
-        whereCondition = and(
-          or(
-            ilike(communities.name, `%${citySearch}%`),
-            ilike(communities.city, `%${citySearch}%`)
-          ),
-          or(
-            sql`UPPER(${communities.state}) = ${stateSearch}`,
-            ilike(communities.state, `%${stateSearch}%`)
-          )
-        );
-      } else if (stateSearch && !citySearch) {
-        // If only state, show communities in that state
-        whereCondition = or(
-          sql`UPPER(${communities.state}) = ${stateSearch}`,
-          ilike(communities.state, `%${stateSearch}%`)
-        );
-      } else {
-        // Regular search without state filtering
-        whereCondition = or(
-          ilike(communities.name, `%${searchTerm}%`),
-          ilike(communities.city, `%${searchTerm}%`)
-        );
-      }
-      
-      const communityResults = await db
-        .select({
-          id: communities.id,
-          name: communities.name,
-          city: communities.city,
-          state: communities.state,
-          address: communities.address,
-          phone: communities.phone,
-          communitySubtype: communities.communitySubtype,
-          rating: communities.rating,
-          googleRating: communities.googleRating,
-          reviewCount: communities.reviewCount,
-          totalUnits: communities.totalUnits,
-          hudPropertyId: communities.hudPropertyId,
-          rentPerMonth: communities.rentPerMonth,
-          priceRange: communities.priceRange,
-          pricingDetails: communities.pricingDetails,
-          availabilityStatus: communities.availabilityStatus,
-          photos: communities.photos,
-          careTypes: communities.careTypes,
-          type: sql`'community'`.as('type')
-        })
-        .from(communities)
-        .where(whereCondition)
-        .limit(5);
-
-      communityResults.forEach(c => {
-        // Extract price range from JSON if available
-        const priceRange = c.priceRange as { min?: number; max?: number } | null;
-        
-        suggestions.push({
-          label: c.name,
-          value: c.name,
-          type: 'community',
-          id: c.id,
-          description: `${c.city}, ${c.state}${c.communitySubtype ? ` - ${c.communitySubtype.replace(/_/g, ' ')}` : ''}`,
-          // Enhanced fields for rich cards
-          city: c.city,
-          state: c.state,
-          address: c.address,
-          phone: c.phone,
-          rating: c.rating || c.googleRating,
-          reviewCount: c.reviewCount,
-          communitySubtype: c.communitySubtype,
-          totalUnits: c.totalUnits,
-          hudPropertyId: c.hudPropertyId,
-          monthlyRentRangeStart: priceRange?.min,
-          monthlyRentRangeEnd: priceRange?.max,
-          rentPerMonth: c.rentPerMonth,
-          priceRange: priceRange,
-          availabilityStatus: c.availabilityStatus,
-          photos: c.photos,
-          careTypes: c.careTypes
-        });
-      });
-    }
+    // Skip duplicate community search - already done above with better priority
 
     // Search hospitals/healthcare (if category is all or healthcare)
     if (!category || category === 'all' || category === 'healthcare') {
@@ -388,30 +366,40 @@ router.get('/autocomplete/suggestions', async (req, res) => {
       }
     });
 
-    // Sort by relevance and type priority
+    // Sort by priority if available, otherwise by relevance and type
     suggestions.sort((a, b) => {
+      // Use priority if set (from our optimized searches)
+      if (a.priority !== undefined && b.priority !== undefined) {
+        return a.priority - b.priority;
+      }
+      
       // Exact matches first
       const aExact = a.label.toLowerCase() === searchTerm;
       const bExact = b.label.toLowerCase() === searchTerm;
       if (aExact && !bExact) return -1;
       if (!aExact && bExact) return 1;
       
-      // Then by type priority: community > city > healthcare > vendor > care_type > state > county
+      // Then by type priority: community > location > city > healthcare > vendor > care_type > state > county
       const typePriority: Record<string, number> = { 
-        community: 1, 
-        city: 2, 
-        healthcare: 3, 
-        vendor: 4, 
-        care_type: 5, 
-        state: 6, 
-        county: 7 
+        community: 1,
+        location: 2,
+        city: 3, 
+        healthcare: 4, 
+        vendor: 5, 
+        care_type: 6, 
+        state: 7, 
+        county: 8 
       };
-      return (typePriority[a.type] || 8) - (typePriority[b.type] || 8);
+      return (typePriority[a.type] || 9) - (typePriority[b.type] || 9);
     });
+
+    const responseTime = Date.now() - startTime;
+    console.log(`⚡ Autocomplete: ${suggestions.length} results in ${responseTime}ms for "${searchTerm}"`);
 
     res.json({ 
       suggestions: suggestions.slice(0, limit),
-      _version: 'v4_enhanced_autocomplete_1754491863456',
+      responseTime,
+      _version: 'v4_fast_autocomplete',
       _timestamp: Date.now()
     });
   } catch (error) {

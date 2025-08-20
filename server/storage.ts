@@ -49,6 +49,7 @@ export interface IStorage {
   getAllCommunitiesForClustering(): Promise<Community[]>;
   getTrendingCommunities(limit?: number): Promise<Community[]>;
   searchCommunities(params: SearchCommunity): Promise<Community[]>;
+  searchCommunitiesByName(name: string): Promise<Community[]>;
   createCommunity(community: InsertCommunity): Promise<Community>;
   updateCommunity(id: number, updates: Partial<InsertCommunity>): Promise<Community | undefined>;
   deleteCommunity(id: number): Promise<boolean>;
@@ -458,6 +459,14 @@ export class MemStorage implements IStorage {
         return bScore - aScore;
       })
       .slice(0, limit);
+  }
+
+  async searchCommunitiesByName(name: string): Promise<Community[]> {
+    const searchTerm = name.toLowerCase().trim();
+    const results = Array.from(this.communities.values()).filter(community => 
+      community.name.toLowerCase().includes(searchTerm)
+    );
+    return results.slice(0, 10); // Limit to 10 results for performance
   }
 
   async searchCommunities(params: SearchCommunity): Promise<Community[]> {

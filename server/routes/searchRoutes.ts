@@ -648,7 +648,7 @@ export function registerSearchRoutes(app: Express) {
           availability: 'Contact for availability',
           rating: service.rating || 3.5,
           reviewCount: 0, // Golden Data Rule: no synthetic data
-          isPopular: (service.rating || 3.5) > 4,
+          isPopular: Number(service.rating || 3.5) > 4,
           isHospital: false,
           location: `${service.city}, ${service.state}`,
           phone: service.phone,
@@ -761,7 +761,6 @@ export function registerSearchRoutes(app: Express) {
             // Add searchMetadata with coordinates for the frontend
             result.searchMetadata = {
               coordinates: geocoded,
-              searchLocation: searchParams.location,
               searchType: 'exact' as const,
               totalResults: result.communities.length,
               originalQuery: searchParams.location
@@ -774,8 +773,7 @@ export function registerSearchRoutes(app: Express) {
               if (firstCommunity.latitude && firstCommunity.longitude) {
                 console.log('📍 Using first community location as fallback');
                 result.searchMetadata = {
-                  coordinates: { lat: firstCommunity.latitude, lng: firstCommunity.longitude },
-                  searchLocation: searchParams.location,
+                  coordinates: { lat: Number(firstCommunity.latitude), lng: Number(firstCommunity.longitude) },
                   searchType: 'fallback' as const,
                   totalResults: result.communities.length,
                   originalQuery: searchParams.location
@@ -1173,7 +1171,7 @@ export function registerSearchRoutes(app: Express) {
   app.get('/api/communities/clusters/:clusterId/expand', async (req, res) => {
     try {
       const clusterId = parseInt(req.params.clusterId);
-      const communities = await superclusterService.getClusterCommunities(clusterId);
+      const communities = await superclusterService.getClusterChildren(clusterId);
       res.json(communities);
     } catch (error) {
       console.error('Cluster expansion error:', error);
