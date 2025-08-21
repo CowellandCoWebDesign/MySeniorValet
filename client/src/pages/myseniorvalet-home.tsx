@@ -735,8 +735,8 @@ export default function MySeniorValetHome() {
             </p>
           </div>
           
-          {/* Centered positioning for search bar */}
-          <div className="flex-grow flex items-center justify-center">
+          {/* Search bar positioned higher up */}
+          <div className="flex-grow flex items-start justify-center pt-8 md:pt-12">
             <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
               {/* Search Bar - Full Screen Width - Slimmer Design */}
             <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 mb-3 animate-fade-in-up animation-delay-200" style={{ position: 'relative', zIndex: 99999 }}>
