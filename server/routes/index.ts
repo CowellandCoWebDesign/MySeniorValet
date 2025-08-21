@@ -53,9 +53,6 @@ import enhancedWeaviateRoutes from "./enhanced-weaviate-routes";
 import { registerPlatformRoutes } from "./platformRoutes";
 import { registerCommunityOnboardingRoutes } from "./communityOnboardingRoutes";
 import atriaRoutes from "./atria-routes";
-import antiCrawlerRoutes from "./anti-crawler-routes";
-import { antiCrawlerSystem } from "../security/anti-crawler-system";
-import { honeypotSystem } from "../security/honeypot-system";
 // DISABLED: Old Stripe routes - replaced by unifiedPaymentRoutes
 // import { registerStripeTestRoutes } from "./stripe-test";
 // import { registerStripeRealChargeRoutes } from "./stripe-real-charge-test";
@@ -188,19 +185,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/social-media', socialMediaRoutes);
   app.use('/api/email-campaign', emailCampaignRoutes);
   
-  // Apply honeypot traps first to catch scrapers early
-  app.use(honeypotSystem.middleware());
-  console.log('🍯 Honeypot trap system activated');
-  
-  // Apply enterprise anti-crawler protection to all routes
-  app.use(antiCrawlerSystem.middleware());
-  console.log('🛡️ Enterprise anti-crawler protection activated');
-
   // Register Atria expansion routes
   app.use('/api/atria', atriaRoutes);
-  
-  // Register anti-crawler management routes
-  app.use('/api/security/anti-crawler', antiCrawlerRoutes);
 
   return httpServer;
 }
