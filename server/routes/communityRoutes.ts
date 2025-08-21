@@ -798,6 +798,106 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
+  // Get communities by state
+  app.get("/api/communities/by-state", async (req, res) => {
+    try {
+      const { state } = req.query;
+      
+      if (!state) {
+        return res.status(400).json({ error: "State parameter is required" });
+      }
+      
+      const stateCommunities = await db
+        .select()
+        .from(communities)
+        .where(eq(communities.state, state as string))
+        .orderBy(desc(communities.rating))
+        .limit(20);
+      
+      res.json(stateCommunities);
+    } catch (error) {
+      console.error("Error fetching communities by state:", error);
+      res.status(500).json({ error: "Failed to fetch communities by state" });
+    }
+  });
+
+  // Get HUD properties
+  app.get("/api/communities/hud-properties", async (req, res) => {
+    try {
+      const hudProperties = await db
+        .select()
+        .from(communities)
+        .where(isNotNull(communities.hudPropertyId))
+        .orderBy(desc(communities.rating))
+        .limit(20);
+      
+      res.json(hudProperties);
+    } catch (error) {
+      console.error("Error fetching HUD properties:", error);
+      res.status(500).json({ error: "Failed to fetch HUD properties" });
+    }
+  });
+
+  // Get Canadian communities
+  app.get("/api/communities/canadian", async (req, res) => {
+    try {
+      const canadianCommunities = await db
+        .select()
+        .from(communities)
+        .where(
+          or(
+            eq(communities.state, 'ON'),
+            eq(communities.state, 'QC'),
+            eq(communities.state, 'BC'),
+            eq(communities.state, 'AB'),
+            eq(communities.state, 'MB'),
+            eq(communities.state, 'SK'),
+            eq(communities.state, 'NS'),
+            eq(communities.state, 'NB'),
+            eq(communities.state, 'NL'),
+            eq(communities.state, 'PE'),
+            eq(communities.state, 'NT'),
+            eq(communities.state, 'YT'),
+            eq(communities.state, 'NU')
+          )
+        )
+        .orderBy(desc(communities.rating))
+        .limit(20);
+      
+      res.json(canadianCommunities);
+    } catch (error) {
+      console.error("Error fetching Canadian communities:", error);
+      res.status(500).json({ error: "Failed to fetch Canadian communities" });
+    }
+  });
+
+  // Get Mexican communities
+  app.get("/api/communities/mexican", async (req, res) => {
+    try {
+      const mexicanCommunities = await db
+        .select()
+        .from(communities)
+        .where(
+          or(
+            eq(communities.state, 'MX'),
+            sql`LOWER(${communities.city}) LIKE '%tijuana%'`,
+            sql`LOWER(${communities.city}) LIKE '%guadalajara%'`,
+            sql`LOWER(${communities.city}) LIKE '%puerto vallarta%'`,
+            sql`LOWER(${communities.city}) LIKE '%cancun%'`,
+            sql`LOWER(${communities.city}) LIKE '%playa del carmen%'`,
+            sql`LOWER(${communities.city}) LIKE '%mexico%'`
+          )
+        )
+        .orderBy(desc(communities.rating))
+        .limit(20);
+      
+      res.json(mexicanCommunities);
+    } catch (error) {
+      console.error("Error fetching Mexican communities:", error);
+      res.status(500).json({ error: "Failed to fetch Mexican communities" });
+    }
+  });
+
   // Get community statistics
   app.get("/api/communities/stats", async (req, res) => {
     try {

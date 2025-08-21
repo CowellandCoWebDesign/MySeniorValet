@@ -235,7 +235,7 @@ export default function CommunityDirectory() {
 
   // Fetch Hawaii communities
   const { data: hawaiiCommunities, isLoading: hawaiiLoading } = useQuery({
-    queryKey: ['/api/communities/by-state', 'Hawaii'],
+    queryKey: ['/api/communities/by-state?state=HI'],
   });
 
   // Fetch HUD properties
@@ -245,7 +245,7 @@ export default function CommunityDirectory() {
 
   // Fetch Florida communities  
   const { data: floridaCommunities, isLoading: floridaLoading } = useQuery({
-    queryKey: ['/api/communities/by-state', 'Florida'],
+    queryKey: ['/api/communities/by-state?state=FL'],
   });
 
   // Fetch Texas communities (specifically Fort Worth)
@@ -255,7 +255,7 @@ export default function CommunityDirectory() {
 
   // Fetch New York communities
   const { data: newYorkCommunities, isLoading: newYorkLoading } = useQuery({
-    queryKey: ['/api/communities/by-state', 'New York'],
+    queryKey: ['/api/communities/by-state?state=NY'],
   });
 
   // Fetch Canadian communities
