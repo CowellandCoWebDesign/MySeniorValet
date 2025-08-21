@@ -741,13 +741,10 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
                       // If it's not valid JSON, use as-is
                     }
                     
-                    // Only show facts specific to this community
-                    if (factText.toLowerCase().includes('not available') || 
-                        factText.toLowerCase().includes('no information') ||
-                        factText.toLowerCase().includes('cannot verify') ||
-                        factText.toLowerCase().includes('unable to confirm') ||
-                        factText.toLowerCase().includes('general') ||
-                        factText.toLowerCase().includes('typically')) {
+                    // Only filter out completely generic information not about this community
+                    if (factText.toLowerCase().includes('senior living in general') || 
+                        factText.toLowerCase().includes('most communities') ||
+                        factText.toLowerCase().includes('industry standard')) {
                       return null;
                     }
                     
