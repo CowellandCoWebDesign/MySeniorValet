@@ -648,112 +648,41 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
           Live Intelligence Report
         </CardTitle>
         <CardDescription className="text-base">
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center space-x-2">
-              <span className="font-semibold text-blue-700 dark:text-blue-300">AI Orchestra Status:</span>
-              <span className="text-green-600 dark:text-green-400 font-medium">✓ Active</span>
-              <span className="text-gray-600 dark:text-gray-400">•</span>
-              <span>Updated {realTimeData?.lastUpdated ? new Date(realTimeData.lastUpdated).toLocaleTimeString() : 'just now'}</span>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 text-sm">
-              <span className="font-medium text-gray-600 dark:text-gray-400">Powered by:</span>
-              <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-2 py-0.5 text-xs">
-                1. Perplexity AI (Primary - Web Search)
-              </Badge>
-              <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-2 py-0.5 text-xs">
-                2. Claude Sonnet 4.0 (Secondary - Analysis)
-              </Badge>
-              <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-2 py-0.5 text-xs">
-                3. ChatGPT-4o (Backup - Verification)
-              </Badge>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-700 dark:text-gray-300">
+              Real-time information gathered from public sources across the web
+            </span>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                Updated {realTimeData?.lastUpdated ? new Date(realTimeData.lastUpdated).toLocaleTimeString() : 'just now'}
+              </span>
             </div>
           </div>
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
-        {/* Multi-AI Verification Results */}
-        {(localVerificationReport || isVerifying) && (
+        {/* Real-Time Community Insights */}
+        {(localVerificationReport?.consensus?.verifiedFacts?.length > 0 || isVerifying) && (
           <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
             <div className="flex items-center justify-between mb-3">
               <h4 className="font-semibold text-lg flex items-center">
-                <Shield className="w-5 h-5 mr-2 text-indigo-600" />
-                Multi-AI Verification
+                <Sparkles className="w-5 h-5 mr-2 text-indigo-600" />
+                Real-Time Community Insights
               </h4>
-              {localVerificationReport?.consensus && (
-                <Badge className={`${
-                  localVerificationReport.consensus.agreementLevel === 'strong' 
-                    ? 'bg-green-600' 
-                    : localVerificationReport.consensus.agreementLevel === 'moderate'
-                    ? 'bg-yellow-600'
-                    : localVerificationReport.consensus.agreementLevel === 'conflicting'
-                    ? 'bg-red-600'
-                    : 'bg-gray-600'
-                } text-white`}>
-                  {localVerificationReport.consensus.agreementLevel === 'strong' ? '✓ Strong' 
-                    : localVerificationReport.consensus.agreementLevel === 'moderate' ? '⚠ Moderate'
-                    : localVerificationReport.consensus.agreementLevel === 'conflicting' ? '⚡ Conflicting'
-                    : 'Weak'} Agreement
-                </Badge>
-              )}
+              <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
+                Live Web Data
+              </Badge>
             </div>
             
-            {/* AI Orchestra Status */}
-            <div className="grid grid-cols-3 gap-2 mb-3">
-              <div className="bg-white dark:bg-gray-800 p-2 rounded text-center">
-                <div className={`w-3 h-3 mx-auto mb-1 rounded-full ${
-                  localVerificationReport?.aiOrchestra?.perplexity?.status === 'active' 
-                    ? 'bg-green-500 animate-pulse' 
-                    : 'bg-gray-300'
-                }`} />
-                <p className="text-xs font-medium">Perplexity</p>
-                <p className="text-xs text-gray-500">Web Search</p>
-              </div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded text-center">
-                <div className={`w-3 h-3 mx-auto mb-1 rounded-full ${
-                  localVerificationReport?.aiOrchestra?.claude?.status === 'active' 
-                    ? 'bg-green-500 animate-pulse' 
-                    : 'bg-gray-300'
-                }`} />
-                <p className="text-xs font-medium">Claude 4.0</p>
-                <p className="text-xs text-gray-500">Verification</p>
-              </div>
-              <div className="bg-white dark:bg-gray-800 p-2 rounded text-center">
-                <div className={`w-3 h-3 mx-auto mb-1 rounded-full ${
-                  localVerificationReport?.aiOrchestra?.chatgpt?.status === 'active' 
-                    ? 'bg-green-500 animate-pulse' 
-                    : 'bg-gray-300'
-                }`} />
-                <p className="text-xs font-medium">ChatGPT-4o</p>
-                <p className="text-xs text-gray-500">Cross-Check</p>
-              </div>
-            </div>
-            
-            {/* Confidence Score */}
-            {localVerificationReport?.consensus?.confidenceScore > 0 && (
-              <div className="mb-3">
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600 dark:text-gray-400">Verification Confidence</span>
-                  <span className="font-semibold">{localVerificationReport.consensus.confidenceScore}%</span>
-                </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                  <div 
-                    className={`h-2 rounded-full transition-all duration-500 ${
-                      localVerificationReport.consensus.confidenceScore >= 80 ? 'bg-green-500' :
-                      localVerificationReport.consensus.confidenceScore >= 60 ? 'bg-yellow-500' :
-                      'bg-red-500'
-                    }`}
-                    style={{ width: `${localVerificationReport.consensus.confidenceScore}%` }}
-                  />
-                </div>
-              </div>
-            )}
-            
-            {/* Verified Facts */}
+            {/* Key Insights from Web Search */}
             {localVerificationReport?.consensus?.verifiedFacts?.length > 0 && (
-              <div className="mb-3">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">✓ Verified Facts:</p>
-                <ul className="text-xs space-y-1">
-                  {localVerificationReport.consensus.verifiedFacts.slice(0, 3).map((fact: any, idx: number) => {
+              <div>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Latest information gathered from public sources:
+                </p>
+                <div className="space-y-2">
+                  {localVerificationReport.consensus.verifiedFacts.map((fact: any, idx: number) => {
                     // Check if fact is JSON string and parse it
                     let factText = fact;
                     try {
@@ -766,22 +695,31 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
                     } catch (e) {
                       // If it's not valid JSON, use as-is
                     }
+                    
+                    // Filter out generic or non-useful information
+                    if (factText.toLowerCase().includes('not available') || 
+                        factText.toLowerCase().includes('no information') ||
+                        factText.toLowerCase().includes('cannot verify') ||
+                        factText.toLowerCase().includes('unable to confirm')) {
+                      return null;
+                    }
+                    
                     return (
-                      <li key={idx} className="text-green-700 dark:text-green-300 flex items-start">
-                        <CheckCircle className="w-3 h-3 mr-1 mt-0.5 flex-shrink-0" />
-                        <span>{factText}</span>
-                      </li>
+                      <div key={idx} className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                        <div className="flex items-start">
+                          <Info className="w-4 h-4 mr-2 mt-0.5 text-indigo-600 flex-shrink-0" />
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{factText}</p>
+                        </div>
+                      </div>
                     );
-                  })}
-                </ul>
+                  }).filter(Boolean)}
+                </div>
+                
+                {/* Data Source Note */}
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 italic">
+                  Information gathered from public web sources and community websites
+                </p>
               </div>
-            )}
-            
-            {/* Transparency Note */}
-            {localVerificationReport?.consensus?.transparencyNotes && (
-              <p className="text-xs text-gray-600 dark:text-gray-400 italic">
-                {localVerificationReport.consensus.transparencyNotes}
-              </p>
             )}
             
             {/* Loading State */}
@@ -789,7 +727,7 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
               <div className="flex items-center justify-center py-2">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mr-2" />
                 <p className="text-sm text-indigo-700 dark:text-indigo-300">
-                  Verifying with Claude and ChatGPT...
+                  Gathering real-time insights...
                 </p>
               </div>
             )}

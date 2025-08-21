@@ -14,6 +14,7 @@ MySeniorValet is a technology platform connecting families with publicly availab
 - **UI Improvements**: Professional hero section with HeroMascotPanel mimicking community details loading page style
 - **Hero Section**: Features rotating platform messages with gentleman valet mascot and progress bar animation
 - **Admin Dashboard Consolidation** (August 21, 2025): Major consolidation underway - super-admin-analytics.tsx now includes Data Protection and Subscriptions tabs, preserving all unique functionality from 47+ dashboard files
+- **AI Insights Refactoring** (August 21, 2025): Renamed "Multi-AI Verification" to "Real-Time Community Insights" and removed verification mechanics (confidence scores, agreement levels, AI status) to focus on actual useful data from web searches
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
