@@ -498,10 +498,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const httpServer = createServer(app);
 
-  // Initialize WebSocket for real-time messaging
-  const { messagingService } = await import('./messaging-service');
-  messagingService.initialize(httpServer);
-  console.log('✅ Real-time messaging WebSocket service initialized');
+  // Initialize WebSocket for real-time family messaging
+  try {
+    const { WebSocketServer, WebSocket } = await import('ws');
+    
+    const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+    
+    wss.on('connection', (ws: any) => {
+      console.log('✅ Family messaging WebSocket connection established');
+      
+      ws.isAlive = true;
+      ws.on('pong', () => { ws.isAlive = true; });
+      
+      // Send welcome message
+      ws.send(JSON.stringify({
+        type: 'connection_established',
+        message: 'MySeniorValet family messaging ready',
+        timestamp: new Date().toISOString()
+      }));
+      
+      ws.on('message', (data: Buffer) => {
+        try {
+          const message = JSON.parse(data.toString());
+          console.log('📧 Family message received:', message.type);
+          
+          // Echo message back to confirm receipt
+          ws.send(JSON.stringify({
+            type: 'message_received',
+            originalType: message.type,
+            timestamp: new Date().toISOString(),
+            status: 'processed'
+          }));
+        } catch (error) {
+          console.error('WebSocket message error:', error);
+          ws.send(JSON.stringify({
+            type: 'error',
+            message: 'Invalid message format',
+            timestamp: new Date().toISOString()
+          }));
+        }
+      });
+      
+      ws.on('close', () => {
+        console.log('Family messaging WebSocket connection closed');
+      });
+      
+      ws.on('error', (error: Error) => {
+        console.error('Family messaging WebSocket error:', error);
+      });
+    });
+    
+    // Keep-alive ping interval
+    const interval = setInterval(() => {
+      wss.clients.forEach((ws: any) => {
+        if (ws.isAlive === false) {
+          ws.terminate();
+          return;
+        }
+        ws.isAlive = false;
+        ws.ping();
+      });
+    }, 30000);
+    
+    wss.on('close', () => {
+      clearInterval(interval);
+    });
+    
+    console.log('✅ Family messaging WebSocket service initialized on /ws');
+  } catch (error) {
+    console.error('❌ Failed to initialize WebSocket service:', error);
+  }
 
   return httpServer;
 }

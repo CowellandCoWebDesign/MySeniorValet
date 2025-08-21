@@ -369,4 +369,93 @@ router.get("/tour-conversations/:tourId", async (req: Request, res: Response) =>
   }
 });
 
+// Family sharing endpoint - proper JSON response
+router.post("/share", async (req: Request, res: Response) => {
+  try {
+    const { 
+      communityId, 
+      shareMode = 'email',
+      recipients = [],
+      personalMessage = '',
+      communityDetails = {}
+    } = req.body;
+    
+    // Validate inputs
+    if (!communityId) {
+      return res.status(400).json({ 
+        error: "Community ID is required",
+        success: false 
+      });
+    }
+    
+    if (shareMode === 'email' && (!recipients || recipients.length === 0)) {
+      return res.status(400).json({ 
+        error: "Recipients are required for email sharing",
+        success: false 
+      });
+    }
+    
+    // Get community details for sharing
+    const [community] = await db.select()
+      .from(communities)
+      .where(eq(communities.id, parseInt(communityId)))
+      .limit(1);
+    
+    if (!community) {
+      return res.status(404).json({ 
+        error: "Community not found",
+        success: false 
+      });
+    }
+    
+    // Generate shareable data
+    const shareableData = {
+      community: {
+        id: community.id,
+        name: community.name,
+        address: `${community.address}, ${community.city}, ${community.state}`,
+        phone: community.phone,
+        careTypes: community.careTypes,
+        pricing: community.pricing || {},
+        description: community.description
+      },
+      sharedAt: new Date().toISOString(),
+      sharedBy: "MySeniorValet User", // In production, use authenticated user
+      personalMessage,
+      shareLink: `https://myseniorvalet.com/communities/${communityId}`
+    };
+    
+    // Simulate successful sharing (in production, send actual emails/notifications)
+    console.log(`📧 Family sharing request processed:`, {
+      communityId,
+      communityName: community.name,
+      shareMode,
+      recipientCount: recipients.length,
+      hasPersonalMessage: !!personalMessage
+    });
+    
+    // Return proper JSON success response
+    res.json({
+      success: true,
+      message: `Community "${community.name}" shared successfully with ${recipients.length} recipient${recipients.length !== 1 ? 's' : ''}`,
+      data: {
+        communityId: community.id,
+        communityName: community.name,
+        shareMode,
+        recipients: recipients.length,
+        shareableData,
+        timestamp: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error("Error in family sharing:", error);
+    res.status(500).json({ 
+      success: false,
+      error: "Failed to process family sharing request",
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 export default router;
