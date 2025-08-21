@@ -269,6 +269,47 @@ export default function SuperAdminAnalytics() {
     staleTime: 30000
   });
 
+  // Data Protection queries - ESSENTIAL FOR PLATFORM INTEGRITY
+  const { data: dataProtectionStatus } = useQuery({
+    queryKey: ['/api/data-protection/status'],
+    retry: false,
+  });
+
+  const { data: protectionLogs } = useQuery({
+    queryKey: ['/api/data-protection/logs'],
+    retry: false,
+  });
+
+  const { data: protectionMetrics } = useQuery({
+    queryKey: ['/api/data-protection/metrics'],
+    retry: false,
+  });
+
+  // Data Protection mutations
+  const emergencyFreezeMutation = useMutation({
+    mutationFn: () => apiRequest('POST', '/api/data-protection/emergency-freeze'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/data-protection'] });
+      toast({ title: 'Emergency freeze activated', variant: 'destructive' });
+    },
+  });
+
+  const runProtectionCheckMutation = useMutation({
+    mutationFn: () => apiRequest('POST', '/api/data-protection/check'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/data-protection'] });
+      toast({ title: 'Protection check completed' });
+    },
+  });
+
+  const testDetectionMutation = useMutation({
+    mutationFn: () => apiRequest('POST', '/api/data-protection/test-detection'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/data-protection'] });
+      toast({ title: 'Detection test completed' });
+    },
+  });
+
   // Handle manual refresh
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -767,6 +808,8 @@ export default function SuperAdminAnalytics() {
                   <TabsTrigger value="engagement" className="px-4">📱 Engagement</TabsTrigger>
                   <TabsTrigger value="geographic" className="px-4">🌍 Geographic</TabsTrigger>
                   <TabsTrigger value="market-intelligence" className="px-4">🧠 Market Intelligence</TabsTrigger>
+                  <TabsTrigger value="data-protection" className="px-4">🛡️ Data Protection</TabsTrigger>
+                  <TabsTrigger value="subscriptions" className="px-4">💎 Subscriptions</TabsTrigger>
                 </TabsList>
               </div>
 
@@ -3440,6 +3483,375 @@ export default function SuperAdminAnalytics() {
                   </div>
                 </div>
               </TabsContent>
+
+              {/* Data Protection Tab - ESSENTIAL PLATFORM INTEGRITY */}
+              <TabsContent value="data-protection" className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Protection Status */}
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-2">
+                        <Shield className={`h-5 w-5 ${dataProtectionStatus?.isActive ? 'text-green-500' : 'text-red-500'}`} />
+                        <div>
+                          <p className="text-sm font-medium">Protection Status</p>
+                          <p className={`text-2xl font-bold ${dataProtectionStatus?.isActive ? 'text-green-600' : 'text-red-600'}`}>
+                            {dataProtectionStatus?.isActive ? 'Active' : 'Inactive'}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Data Freeze Status */}
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-2">
+                        <AlertCircle className={`h-5 w-5 ${dataProtectionStatus?.isFrozen ? 'text-red-500' : 'text-blue-500'}`} />
+                        <div>
+                          <p className="text-sm font-medium">Data Freeze</p>
+                          <p className={`text-2xl font-bold ${dataProtectionStatus?.isFrozen ? 'text-red-600' : 'text-blue-600'}`}>
+                            {dataProtectionStatus?.isFrozen ? 'FROZEN' : 'Normal'}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Updates Blocked Today */}
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-2">
+                        <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                        <div>
+                          <p className="text-sm font-medium">Blocked Today</p>
+                          <p className="text-2xl font-bold text-yellow-600">
+                            {protectionMetrics?.blockedToday || 0}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Threats Detected */}
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-2">
+                        <AlertTriangle className="h-5 w-5 text-red-500" />
+                        <div>
+                          <p className="text-sm font-medium">Threats Detected</p>
+                          <p className="text-2xl font-bold text-red-600">
+                            {protectionMetrics?.threatsDetected || 0}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Protection Dashboard */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Shield className="h-5 w-5" />
+                        Data Protection Dashboard
+                      </CardTitle>
+                      <CardDescription>
+                        Multi-layered safeguards against synthetic data contamination
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded">
+                          <p className="text-sm font-medium text-green-800 dark:text-green-200">Authentic Sources</p>
+                          <p className="text-xs text-green-600 dark:text-green-400">Google Places, Yelp, State Licensing</p>
+                        </div>
+                        <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
+                          <p className="text-sm font-medium text-blue-800 dark:text-blue-200">Pattern Detection</p>
+                          <p className="text-xs text-blue-600 dark:text-blue-400">AI-powered anomaly detection</p>
+                        </div>
+                        <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded">
+                          <p className="text-sm font-medium text-purple-800 dark:text-purple-200">Source Validation</p>
+                          <p className="text-xs text-purple-600 dark:text-purple-400">API key authentication required</p>
+                        </div>
+                        <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded">
+                          <p className="text-sm font-medium text-orange-800 dark:text-orange-200">Audit Trail</p>
+                          <p className="text-xs text-orange-600 dark:text-orange-400">Complete protection logging</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-start"
+                          onClick={() => runProtectionCheckMutation.mutate()}
+                          disabled={runProtectionCheckMutation.isPending}
+                        >
+                          {runProtectionCheckMutation.isPending ? (
+                            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <Activity className="h-4 w-4 mr-2" />
+                          )}
+                          Check Protection Status
+                        </Button>
+                        
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-start"
+                          onClick={() => {
+                            queryClient.invalidateQueries({ queryKey: ['/api/data-protection/logs'] });
+                          }}
+                        >
+                          <FileText className="h-4 w-4 mr-2" />
+                          Refresh Protection Audit Log
+                        </Button>
+                        
+                        <Button 
+                          variant="outline" 
+                          className="w-full justify-start text-yellow-700 border-yellow-300 hover:bg-yellow-50"
+                          onClick={() => {
+                            if (confirm("Are you sure you want to test synthetic data detection?")) {
+                              testDetectionMutation.mutate();
+                            }
+                          }}
+                          disabled={testDetectionMutation.isPending}
+                        >
+                          {testDetectionMutation.isPending ? (
+                            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <AlertTriangle className="h-4 w-4 mr-2" />
+                          )}
+                          Test Synthetic Data Detection
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Emergency Controls */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-red-600">
+                        <AlertTriangle className="h-5 w-5" />
+                        Emergency Data Protection
+                      </CardTitle>
+                      <CardDescription>
+                        Critical controls for data contamination events
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
+                        <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">Emergency Data Freeze</h4>
+                        <p className="text-sm text-red-600 dark:text-red-400 mb-3">
+                          Immediately stop all data updates across the entire platform. Use only if synthetic data contamination is detected.
+                        </p>
+                        <Button 
+                          variant="destructive" 
+                          className="w-full"
+                          onClick={() => {
+                            if (confirm("⚠️ EMERGENCY: This will freeze ALL data updates across the entire platform. Are you sure?")) {
+                              emergencyFreezeMutation.mutate();
+                            }
+                          }}
+                          disabled={emergencyFreezeMutation.isPending}
+                        >
+                          {emergencyFreezeMutation.isPending ? (
+                            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <Shield className="h-4 w-4 mr-2" />
+                          )}
+                          ACTIVATE EMERGENCY FREEZE
+                        </Button>
+                      </div>
+
+                      {/* Protection Logs */}
+                      {protectionLogs && protectionLogs.length > 0 && (
+                        <div className="space-y-2">
+                          <h4 className="font-medium">Recent Protection Events</h4>
+                          <ScrollArea className="h-48 w-full rounded border">
+                            <div className="p-4 space-y-2">
+                              {protectionLogs.slice(0, 10).map((log: any, index: number) => (
+                                <div key={index} className="text-sm">
+                                  <div className="flex justify-between">
+                                    <span className={`font-medium ${log.severity === 'high' ? 'text-red-600' : 'text-gray-600'}`}>
+                                      {log.action}
+                                    </span>
+                                    <span className="text-xs text-gray-500">{log.timestamp}</span>
+                                  </div>
+                                  {log.details && (
+                                    <p className="text-xs text-gray-500 mt-1">{log.details}</p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </ScrollArea>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              {/* Subscriptions Tab - COMPREHENSIVE SUBSCRIPTION MANAGEMENT */}
+              <TabsContent value="subscriptions" className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">Total MRR</p>
+                          <p className="text-2xl font-bold">${subscriptionMetrics?.totalMrr?.toLocaleString() || 0}</p>
+                        </div>
+                        <TrendingUp className="h-8 w-8 text-green-500" />
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        {subscriptionMetrics?.mrrGrowth > 0 ? '+' : ''}{subscriptionMetrics?.mrrGrowth || 0}% from last month
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">Active Subscriptions</p>
+                          <p className="text-2xl font-bold">{subscriptionMetrics?.activeSubscriptions || 0}</p>
+                        </div>
+                        <Users className="h-8 w-8 text-blue-500" />
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        {subscriptionMetrics?.trialSubscriptions || 0} in trial
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">Churn Rate</p>
+                          <p className="text-2xl font-bold">{subscriptionMetrics?.churnRate || 0}%</p>
+                        </div>
+                        <TrendingDown className="h-8 w-8 text-red-500" />
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">Monthly churn</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">ARPU</p>
+                          <p className="text-2xl font-bold">${subscriptionMetrics?.avgRevenuePerUser || 0}</p>
+                        </div>
+                        <DollarSign className="h-8 w-8 text-purple-500" />
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        LTV: ${subscriptionMetrics?.lifetimeValue || 0}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Subscription Plans Management */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Subscription Plans</CardTitle>
+                    <CardDescription>Manage community subscription tiers and pricing</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {subscriptionPlans?.map((plan: any) => (
+                        <div key={plan.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div>
+                            <h4 className="font-medium">{plan.name}</h4>
+                            <p className="text-sm text-gray-500">
+                              ${plan.price}/{plan.interval} · {plan.subscribers} subscribers
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant={plan.status === 'active' ? 'default' : 'secondary'}>
+                              {plan.status}
+                            </Badge>
+                            <span className="font-medium">${plan.mrr?.toLocaleString()}/mo</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Active Subscriptions Table */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Active Community Subscriptions</CardTitle>
+                    <CardDescription>Monitor and manage all active subscriptions</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ScrollArea className="h-96">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Community</TableHead>
+                            <TableHead>Plan</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead>Next Billing</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {allSubscriptions?.filter((sub: any) => sub.status === 'active').slice(0, 10).map((subscription: any) => (
+                            <TableRow key={subscription.id}>
+                              <TableCell className="font-medium">{subscription.communityName}</TableCell>
+                              <TableCell>{subscription.planName}</TableCell>
+                              <TableCell>
+                                <Badge variant={subscription.status === 'active' ? 'default' : 'secondary'}>
+                                  {subscription.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>${subscription.amount}/mo</TableCell>
+                              <TableCell>{format(new Date(subscription.currentPeriodEnd), 'MMM dd, yyyy')}</TableCell>
+                              <TableCell>
+                                <Button size="sm" variant="outline">Manage</Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
+
+                {/* Payment History */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Recent Payment History</CardTitle>
+                    <CardDescription>Track successful payments and failed transactions</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ScrollArea className="h-64">
+                      <div className="space-y-2">
+                        {paymentHistory?.slice(0, 20).map((payment: any) => (
+                          <div key={payment.id} className="flex items-center justify-between p-2 border-b">
+                            <div>
+                              <p className="font-medium text-sm">{payment.communityName}</p>
+                              <p className="text-xs text-gray-500">{format(new Date(payment.date), 'MMM dd, yyyy HH:mm')}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant={payment.status === 'succeeded' ? 'default' : 'destructive'}>
+                                {payment.status}
+                              </Badge>
+                              <span className="font-medium">${payment.amount}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
             </Tabs>
           </div>
         )}
