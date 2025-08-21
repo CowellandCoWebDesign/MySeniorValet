@@ -702,23 +702,15 @@ export function registerCommunityRoutes(app: Express) {
       let communitySpecificData = realTimeData; // Keep existing data as fallback
       
       try {
-        // Simplified search: community name + city + "senior living" (if not already in name)
-        const needsSeniorLiving = !community.name.toLowerCase().includes('senior') && 
-                                  !community.name.toLowerCase().includes('retirement') &&
-                                  !community.name.toLowerCase().includes('assisted') &&
-                                  !community.name.toLowerCase().includes('nursing') &&
-                                  !community.name.toLowerCase().includes('memory care');
+        // ULTRA-SIMPLIFIED: Just community name + location, nothing else
+        const communitySearchQuery = `"${community.name}" ${community.city} ${community.state}`;
         
-        const communitySearchQuery = needsSeniorLiving 
-          ? `"${community.name}" ${community.city} ${community.state} senior living`
-          : `"${community.name}" ${community.city} ${community.state}`;
-        
-        console.log(`🔍 Optimized search for: ${community.name} (simplified query for better website discovery)`);
+        console.log(`🔍 Ultra-simplified search: "${community.name}" in ${community.city}, ${community.state}`);
         
         // Use Perplexity to search for this SPECIFIC community
         const perplexityResponse = await perplexityService.searchRealTime(
           communitySearchQuery,
-          `Find the official website, contact information, and any online presence for ${community.name} in ${community.city}, ${community.state}. Focus on finding their public website first.`
+          `Find information about ${community.name}`
         );
         
         // Override with community-specific search results
