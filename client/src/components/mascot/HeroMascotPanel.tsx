@@ -101,23 +101,13 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
         <div className="mascot-panel-content">
           {/* Left: Gentleman Valet Mascot */}
           <div className="mascot-icon">
-            <motion.div 
-              className="relative"
-              animate={{ 
-                rotate: [0, -5, 5, -5, 0],
-              }}
-              transition={{ 
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            >
+            <div className="relative">
               <img 
                 src="/assets/gentleman-mascot.png" 
                 alt="Your Personal Senior Living Valet"
                 className="mascot-image"
               />
-            </motion.div>
+            </div>
           </div>
 
           {/* Center: Message Content with fluid typography */}

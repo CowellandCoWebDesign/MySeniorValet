@@ -396,7 +396,6 @@
   height: clamp(2.5rem, 3rem + 1vw, 4rem);
   width: auto;
   object-fit: contain;
-  animation: bounce-subtle 3s ease-in-out infinite;
 }
 
 .mascot-text-content {
