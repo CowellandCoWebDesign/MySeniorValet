@@ -1803,7 +1803,7 @@ export default function CommunityDetail() {
                         const tier = community.subscriptionTier || 'verified';
                         
                         if (tier === 'verified') {
-                          // Verified tier has no messaging access
+                          // Community hasn't claimed profile and opted into messaging
                           return (
                             <div>
                               <Button
@@ -1813,12 +1813,12 @@ export default function CommunityDetail() {
                               >
                                 <MessageSquare className="h-5 w-5 mr-2" />
                                 <span className="flex items-center gap-1">
-                                  Messaging Locked
-                                  <Lock className="h-4 w-4" />
+                                  Direct Messaging Unavailable
+                                  <HelpCircle className="h-4 w-4" />
                                 </span>
                               </Button>
                               <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                                Community needs to upgrade to Standard+ tier to enable messaging
+                                This community hasn't claimed their profile and opted into instant messaging yet
                               </p>
                             </div>
                           );
