@@ -17,7 +17,7 @@ import { eliminateCallForPricing } from "../intelligent-pricing-system";
 import { realDataAnalyzer } from "../real-data-analyzer";
 import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
-import { PerplexityAIService } from "../perplexity-ai-service";
+import { PerplexityAIService, perplexityService } from "../perplexity-ai-service";
 import { multiAIVerificationService } from "../multi-ai-verification-service";
 
 export function registerCommunityRoutes(app: Express) {
@@ -697,12 +697,43 @@ export function registerCommunityRoutes(app: Express) {
         return res.status(404).json({ error: "Community not found" });
       }
 
-      // Run multi-AI verification on the real-time data with full community context
+      // CRITICAL FIX: Search for the SPECIFIC community's public website and management info
+      // Instead of using the city-level realTimeData, search for this exact community
+      let communitySpecificData = realTimeData; // Keep existing data as fallback
+      
+      try {
+        // Search specifically for THIS community's public website and management company
+        const communitySearchQuery = `"${community.name}" official website management company contact information ${community.city} ${community.state}`;
+        
+        console.log(`🔍 Searching for specific community: ${community.name}`);
+        
+        // Use Perplexity to search for this SPECIFIC community
+        const perplexityResponse = await perplexityService.searchRealTime(
+          communitySearchQuery,
+          `Finding public website and management information for ${community.name} senior living community`
+        );
+        
+        // Override with community-specific search results
+        communitySpecificData = {
+          ...realTimeData, // Keep any existing data
+          searchContent: perplexityResponse.summary,
+          sources: perplexityResponse.sources,
+          communityName: community.name, // Ensure exact name is used
+          lastUpdated: new Date().toISOString()
+        };
+        
+        console.log(`✅ Found specific information for ${community.name}`);
+      } catch (searchError) {
+        console.log(`⚠️ Could not search for specific community ${community.name}, using area data`);
+        // Continue with existing realTimeData if search fails
+      }
+
+      // Run multi-AI verification on the community-specific data
       console.log(`🔬 Running Multi-AI Verification for ${community.name}`);
       const verificationReport = await multiAIVerificationService.verifyRealTimeData(
         communityId,
         community.name,
-        realTimeData,
+        communitySpecificData, // Use community-specific data instead of city-level data
         {
           city: community.city,
           state: community.state,
