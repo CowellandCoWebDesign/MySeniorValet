@@ -137,6 +137,24 @@ This is for MySeniorValet's transparent information system. ${context ? `Context
     const matches = text.match(marketRegex);
     return matches ? matches[0] : undefined;
   }
+
+  // Method for enhanced search intelligence compatibility
+  async searchCommunityInfo(query: string): Promise<{ success: boolean; data: string; sources?: string[] }> {
+    try {
+      const result = await this.searchRealTime(query);
+      return {
+        success: true,
+        data: result.summary,
+        sources: result.sources
+      };
+    } catch (error) {
+      console.error('Error searching community info:', error);
+      return {
+        success: false,
+        data: 'Community search temporarily unavailable'
+      };
+    }
+  }
 }
 
 export const perplexityService = new PerplexityAIService();

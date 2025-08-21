@@ -206,4 +206,22 @@ export class AnthropicAIService {
       return 'Analysis unavailable at this time';
     }
   }
+
+  // Static method for enhanced search intelligence compatibility
+  static async analyzeText(prompt: string): Promise<string> {
+    try {
+      const response = await anthropic.messages.create({
+        model: DEFAULT_MODEL_STR,
+        max_tokens: 1024,
+        messages: [
+          { role: 'user', content: prompt }
+        ],
+      });
+      
+      return response.content[0].type === 'text' ? response.content[0].text : '';
+    } catch (error) {
+      console.error('Error in AI text analysis:', error);
+      return 'Analysis unavailable at this time';
+    }
+  }
 }

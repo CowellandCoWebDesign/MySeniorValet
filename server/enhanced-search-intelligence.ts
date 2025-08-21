@@ -2,7 +2,7 @@ import { db } from './db';
 import { communities } from '@shared/schema';
 import { eq, and, desc, like, sql, or } from 'drizzle-orm';
 import { PerplexityAIService } from './perplexity-ai-service';
-import { AnthropicAIService } from './ai-services';
+import { AnthropicAIService } from './anthropic-ai-service';
 
 /**
  * Enhanced Search Intelligence Service
@@ -228,9 +228,8 @@ Extract and return JSON with:
         if (priceRange.min) {
           query = query.where(sql`
             COALESCE(
-              (${communities.pricing}->>'baseRate')::numeric,
-              (${communities.pricing}->>'startingPrice')::numeric,
-              (${communities.pricing}->>'monthlyRate')::numeric,
+              (${communities.priceRange}->>'min')::numeric,
+              (${communities.pricingDetails}->>'basePrice')::numeric,
               0
             ) >= ${priceRange.min}
           `);
@@ -238,9 +237,8 @@ Extract and return JSON with:
         if (priceRange.max) {
           query = query.where(sql`
             COALESCE(
-              (${communities.pricing}->>'baseRate')::numeric,
-              (${communities.pricing}->>'startingPrice')::numeric,
-              (${communities.pricing}->>'monthlyRate')::numeric,
+              (${communities.priceRange}->>'max')::numeric,
+              (${communities.pricingDetails}->>'basePrice')::numeric,
               999999
             ) <= ${priceRange.max}
           `);
@@ -341,7 +339,7 @@ Provide recommendations as an array of strings, each being actionable advice.`;
 
       // Price range suggestions
       const prices = communities
-        .map(c => c.pricing?.baseRate || c.pricing?.startingPrice || 0)
+        .map(c => c.priceRange?.min || c.pricingDetails?.basePrice || 0)
         .filter(p => p > 0)
         .sort((a, b) => a - b);
       
@@ -368,7 +366,7 @@ Provide recommendations as an array of strings, each being actionable advice.`;
   private calculateSearchStats(communities: any[]) {
     try {
       const prices = communities
-        .map(c => c.pricing?.baseRate || c.pricing?.startingPrice || 0)
+        .map(c => c.priceRange?.min || c.pricingDetails?.basePrice || 0)
         .filter(p => p > 0);
 
       const careTypes = communities.flatMap(c => c.careTypes || []);
@@ -425,12 +423,12 @@ Provide recommendations as an array of strings, each being actionable advice.`;
    */
   private async fallbackSearch(request: SmartSearchRequest): Promise<SmartSearchResult> {
     try {
-      const communities = await db.select()
+      const communityResults = await db.select()
         .from(communities)
         .limit(20);
 
       return {
-        communities,
+        communities: communityResults,
         insights: {
           searchInterpretation: `Searching for: ${request.query}`,
           marketIntelligence: 'Market analysis temporarily unavailable',
@@ -439,7 +437,7 @@ Provide recommendations as an array of strings, each being actionable advice.`;
         },
         suggestions: [],
         searchStats: {
-          totalMatches: communities.length,
+          totalMatches: communityResults.length,
           averagePrice: 0,
           popularCareTypes: [],
           availabilityInsight: 'Basic search results displayed'
