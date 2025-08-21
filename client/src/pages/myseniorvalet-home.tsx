@@ -707,8 +707,8 @@ export default function MySeniorValetHome() {
         </div>
       </header>
 
-      {/* Hero Section with Search */}
-      <section className="relative min-h-screen bg-black pt-14">
+      {/* Hero Section with Search - Adjusted heights for better balance */}
+      <section className="relative min-h-[75vh] md:min-h-[80vh] bg-black pt-14">
         <div className="absolute inset-0">
           <img
             src={heroBackgroundImage}
@@ -731,10 +731,10 @@ export default function MySeniorValetHome() {
         </div>
 
         
-        <div className="relative hero-content min-h-screen pt-2 sm:pt-3 md:pt-4 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col">
+        <div className="relative hero-content min-h-[75vh] md:min-h-[80vh] pt-2 sm:pt-3 md:pt-4 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col">
           
-          {/* Hero Text Section - At the top */}
-          <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8 mb-4 text-center">
+          {/* Hero Text Section - Better positioned */}
+          <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8 mt-8 md:mt-12 mb-6 text-center">
             {/* Main Heading - Animates in first */}
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 animate-fade-in-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
               The Clear Path to Senior Living & Care
@@ -746,15 +746,10 @@ export default function MySeniorValetHome() {
             </p>
           </div>
           
-          {/* Small spacer to position search bar higher */}
-          <div className="h-8 sm:h-12 md:h-16"></div>
-          
-          {/* Search Container */}
-          <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
-            
-
-
-            {/* Search Bar - Full Screen Width - Slimmer Design */}
+          {/* Centered positioning for search bar */}
+          <div className="flex-grow flex items-center justify-center">
+            <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+              {/* Search Bar - Full Screen Width - Slimmer Design */}
             <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 mb-3 animate-fade-in-up animation-delay-200" style={{ position: 'relative', zIndex: 99999 }}>
               <form onSubmit={(e) => {
                 e.preventDefault();
@@ -822,12 +817,9 @@ export default function MySeniorValetHome() {
                 </span>
               </div>
             </div>
-            
+            </div>
           </div>
-          {/* End Search Container */}
-          
-          {/* Remaining space at bottom */}
-          <div className="flex-grow"></div>
+          {/* End centered positioning */}
           
         </div>
         {/* End Hero Content */}
