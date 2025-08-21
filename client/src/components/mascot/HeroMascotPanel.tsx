@@ -93,13 +93,14 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
       className={cn(
-        "relative bg-gray-900/95 backdrop-blur-xl border-t border-gray-800",
+        "relative bg-gray-900/90 backdrop-blur-md border-t border-gray-700",
         className
       )}
+      style={{ maxHeight: '25vh' }} // Limit to 25% of viewport height
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
-        <div className="flex flex-col lg:flex-row items-center gap-8">
-          {/* Left: Gentleman Valet Mascot */}
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+        <div className="flex items-center gap-3 sm:gap-4">
+          {/* Left: Gentleman Valet Mascot - Much smaller */}
           <div className="flex-shrink-0">
             <motion.div 
               className="relative"
@@ -115,90 +116,66 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
               <img 
                 src="/assets/gentleman-mascot.png" 
                 alt="Your Personal Senior Living Valet"
-                className="h-32 sm:h-40 lg:h-48 w-auto object-contain"
+                className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
               />
-              {/* Animated sparkles around mascot */}
+              {/* Small sparkles around mascot */}
               <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-4 right-4 w-2 h-2 bg-blue-400 rounded-full animate-ping" />
-                <div className="absolute bottom-4 left-4 w-2 h-2 bg-green-400 rounded-full animate-ping" style={{ animationDelay: '0.5s' }} />
-                <div className="absolute top-1/2 left-2 w-2 h-2 bg-yellow-400 rounded-full animate-ping" style={{ animationDelay: '1s' }} />
-                <div className="absolute top-1/2 right-2 w-2 h-2 bg-purple-400 rounded-full animate-ping" style={{ animationDelay: '1.5s' }} />
+                <div className="absolute top-1 right-1 w-1 h-1 bg-blue-400 rounded-full animate-ping" />
+                <div className="absolute bottom-1 left-1 w-1 h-1 bg-green-400 rounded-full animate-ping" style={{ animationDelay: '0.5s' }} />
               </div>
             </motion.div>
           </div>
 
-          {/* Center/Right: Message Content */}
-          <div className="flex-1 text-center lg:text-left">
+          {/* Center: Compact Message Content */}
+          <div className="flex-1">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentMessageIndex}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="flex flex-col gap-2"
               >
-                {/* Main Title */}
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
-                  {currentMessage.title}
-                </h2>
-                
-                {/* Subtitle */}
-                <h3 className="text-lg sm:text-xl text-blue-400 font-semibold mb-4">
-                  {currentMessage.subtitle}
-                </h3>
-
-                {/* Progress Bar */}
-                <div className="w-full max-w-2xl mx-auto lg:mx-0 mb-4">
-                  <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                    <motion.div 
-                      className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full"
-                      style={{ width: `${progress}%` }}
-                      transition={{ duration: 0.1 }}
-                    />
+                <div className="flex items-center gap-3">
+                  {/* Title and Subtitle on same line */}
+                  <div className="flex-1">
+                    <h3 className="text-sm sm:text-base font-bold text-white">
+                      {currentMessage.title} • <span className="text-blue-400 font-medium">{currentMessage.subtitle}</span>
+                    </h3>
                   </div>
-                </div>
-
-                {/* Description Box */}
-                <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 max-w-2xl mx-auto lg:mx-0 border border-gray-700">
-                  <p className="text-gray-300 text-sm sm:text-base leading-relaxed mb-4">
-                    {currentMessage.description}
-                  </p>
                   
-                  {/* Source Citation */}
-                  <div className="pt-4 border-t border-gray-600">
-                    <p className="text-xs text-gray-400 mb-2">{currentMessage.source}</p>
-                    <a 
-                      href={currentMessage.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-xs text-blue-400 hover:text-blue-300 transition-colors"
-                    >
-                      <span>Learn More</span>
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                    </a>
+                  {/* Progress Bar - Inline and smaller */}
+                  <div className="w-24 sm:w-32">
+                    <div className="h-1 bg-gray-700 rounded-full overflow-hidden">
+                      <motion.div 
+                        className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+                        style={{ width: `${progress}%` }}
+                        transition={{ duration: 0.1 }}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                {/* Message Indicators */}
-                <div className="flex justify-center lg:justify-start gap-2 mt-6">
-                  {messages.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setCurrentMessageIndex(index);
-                        setProgress(0);
-                      }}
-                      className={cn(
-                        "w-2 h-2 rounded-full transition-all duration-300",
-                        index === currentMessageIndex 
-                          ? "w-8 bg-gradient-to-r from-blue-500 to-purple-500" 
-                          : "bg-gray-600 hover:bg-gray-500"
-                      )}
-                      aria-label={`Go to message ${index + 1}`}
-                    />
-                  ))}
+                {/* Compact Description */}
+                <p className="text-xs sm:text-sm text-gray-300 line-clamp-2">
+                  {currentMessage.description}
+                </p>
+                
+                {/* Compact Source */}
+                <div className="flex items-center gap-2 text-[10px] sm:text-xs">
+                  <span className="text-gray-500">{currentMessage.source.split(',')[0]}</span>
+                  <a 
+                    href={currentMessage.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-1"
+                  >
+                    <span>Learn More</span>
+                    <svg className="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
                 </div>
               </motion.div>
             </AnimatePresence>

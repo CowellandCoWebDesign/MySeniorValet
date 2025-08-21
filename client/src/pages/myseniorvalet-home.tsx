@@ -832,8 +832,8 @@ export default function MySeniorValetHome() {
         </div>
         {/* End Hero Content */}
         
-        {/* Hero Mascot Panel - Professional loading-style info panel */}
-        <HeroMascotPanel className="absolute bottom-0 left-0 right-0 z-50" />
+        {/* Hero Mascot Panel - Compact government facts display */}
+        <HeroMascotPanel className="absolute bottom-0 left-0 right-0 z-30" />
         
       </section>
 
