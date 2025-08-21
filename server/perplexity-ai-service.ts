@@ -48,7 +48,7 @@ This is for MySeniorValet's transparent information system. ${context ? `Context
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,
         {
-          model: 'llama-3.1-sonar-large-128k-online',  // Sonar Pro/Large model for best accuracy and real-time data
+          model: 'sonar-pro',  // Perplexity's flagship model (legacy models deprecated Feb 2025)
           messages: [
             {
               role: 'system',
@@ -62,9 +62,6 @@ This is for MySeniorValet's transparent information system. ${context ? `Context
           max_tokens: 2000,  // Increased for comprehensive responses
           temperature: 0.2,
           top_p: 0.9,
-          return_images: false,
-          return_related_questions: false,
-          search_recency_filter: 'month',
           stream: false
         },
         {
