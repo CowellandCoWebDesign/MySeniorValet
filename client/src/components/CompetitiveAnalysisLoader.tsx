@@ -1,51 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import valetGentleman from '@assets/file_00000000eac861fba9e1e2ce393ba5b6 (2)_1755572080854.png';
-
-const facts = [
-  {
-    title: "Understanding Your Market",
-    fact: "We're analyzing real-time pricing data from multiple trusted sources to provide you with the most accurate market insights. This comprehensive search typically takes 15-30 seconds to ensure accuracy."
-  },
-  {
-    title: "Did you know?",
-    fact: "The average American family spends 73 hours researching senior living options. MySeniorValet reduces this to minutes with our comprehensive database of 33,510+ verified communities."
-  },
-  {
-    title: "Senior Living Insight",
-    fact: "Memory care costs typically run 20-30% higher than assisted living due to specialized staffing, secure environments, and personalized programming for residents with dementia."
-  },
-  {
-    title: "Market Transparency",
-    fact: "Less than 15% of senior living communities publicly display their pricing online. MySeniorValet changes this by aggregating available data and providing real market estimates."
-  },
-  {
-    title: "Care Level Education",
-    fact: "Independent Living communities offer maintenance-free living with amenities, while Assisted Living provides help with daily activities like medication management and bathing."
-  },
-  {
-    title: "Financial Planning Tip",
-    fact: "Long-term care insurance can cover 50-70% of assisted living costs, but policies must typically be purchased before age 65 and while in good health."
-  },
-  {
-    title: "Geographic Pricing",
-    fact: "Senior living costs vary by up to 300% across different states. Alaska and Connecticut are the most expensive, while Missouri and Alabama offer more affordable options."
-  },
-  {
-    title: "Community Sizes",
-    fact: "Senior living communities range from intimate 6-bed residential care homes to large continuing care retirement communities (CCRCs) with over 500 residents."
-  },
-  {
-    title: "Medicare Coverage",
-    fact: "Medicare generally doesn't cover long-term assisted living costs, but it may cover short-term skilled nursing care after a hospital stay of 3+ days."
-  },
-  {
-    title: "Veterans Benefits",
-    fact: "Veterans and surviving spouses may qualify for Aid & Attendance benefits, providing up to $2,230/month to help cover senior care costs."
-  }
-];
+import valetGentleman from '@assets/gentleman-mascot.png';
+import { getShuffledFacts } from '@/lib/loadingFacts';
 
 export function CompetitiveAnalysisLoader({ location }: { location: string }) {
+  const [facts] = useState(() => getShuffledFacts());
   const [currentFactIndex, setCurrentFactIndex] = useState(0);
 
   useEffect(() => {
@@ -54,7 +13,7 @@ export function CompetitiveAnalysisLoader({ location }: { location: string }) {
     }, 7000); // Changed from 3 seconds to 7 seconds for better readability
 
     return () => clearInterval(interval);
-  }, []);
+  }, [facts.length]);
 
   const currentFact = facts[currentFactIndex];
 

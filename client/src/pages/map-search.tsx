@@ -23,6 +23,7 @@ import EnhancedVendorCard from '@/components/EnhancedVendorCard';
 import { HealthcareServiceCard } from '@/components/HealthcareServiceCard';
 import { ResourceCard } from '@/components/ResourceCard';
 import { AISearchInsights } from '@/components/AISearchInsights';
+import { MascotLoadingDisplay } from '@/components/MascotLoadingDisplay';
 import { useQuery } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -1917,38 +1918,14 @@ export default function MapSearch() {
               </div>
             </div>
           ) : (isLoadingCommunities || isFetchingCommunities || isInitialLoad || isMapMoving) ? (
-            <div className="space-y-4">
-              {/* Playful loading animation */}
-              <div className="text-center py-8">
-                <div className="relative inline-block">
-                  <div className="w-16 h-16 border-4 border-blue-200 dark:border-blue-700 rounded-full animate-spin"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
-                  </div>
-                </div>
-                <p className="mt-4 text-blue-600 dark:text-blue-400 font-medium">
-                  {isFetchingCommunities ? 'Searching 31,023 communities...' : 'Finding communities in this area...'}
-                </p>
-                {isFetchingCommunities && (
-                  <div className="mt-2 text-xs text-blue-500 dark:text-blue-400">
-                    Large spatial database query in progress (may take up to 8 seconds)
-                  </div>
-                )}
-                <div className="flex justify-center gap-1 mt-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                </div>
-              </div>
-              {/* Skeleton cards */}
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-700">
-                  <div className="h-6 bg-blue-200 dark:bg-blue-700 rounded-lg mb-3"></div>
-                  <div className="h-4 bg-blue-150 dark:bg-blue-600 rounded mb-2 w-3/4"></div>
-                  <div className="h-4 bg-blue-150 dark:bg-blue-600 rounded w-1/2"></div>
-                </div>
-              ))}
-            </div>
+            <MascotLoadingDisplay
+              title={isFetchingCommunities ? "Searching Communities" : "Finding communities in this area"}
+              subtitle={`Analyzing ${mapBounds ? 'communities in your selected area' : 'over 33,560 verified communities nationwide'}`}
+              showProgress={true}
+              progressDuration={8}
+              factRotationSpeed={3000}
+              compact={true}
+            />
           ) : mapCommunities.length === 0 ? (
             <div className="text-center py-12">
               <div className="bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl p-8 mx-4">
