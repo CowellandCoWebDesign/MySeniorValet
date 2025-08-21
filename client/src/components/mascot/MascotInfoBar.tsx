@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { SeniorMascot } from './SeniorMascot';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Info, TrendingUp, Shield, Heart, Star, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -40,14 +39,13 @@ export function MascotInfoBar({ className }: MascotInfoBarProps) {
     )}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between py-2 sm:py-3">
-          {/* Left: Mascot with subtle animation */}
+          {/* Left: Gentleman Valet Mascot with subtle animation */}
           <div className="flex items-center gap-3">
             <div className="relative">
-              <SeniorMascot
-                size="sm"
-                animation="bounce"
-                expression="happy"
-              />
+              {/* Our Gentleman Valet Mascot */}
+              <div className="text-3xl sm:text-4xl animate-bounce">
+                🤵
+              </div>
               {/* Small pulse effect around mascot */}
               <div className="absolute inset-0 rounded-full bg-blue-400 opacity-20 animate-ping" />
             </div>
