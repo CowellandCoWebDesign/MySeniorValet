@@ -580,7 +580,7 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
 };
 
 // Real-time AI Insights Component - Enhanced with Multi-AI Verification
-const RealTimeInsights = ({ community, onVerificationReport }: { community: any, onVerificationReport?: (report: any) => void }) => {
+const RealTimeInsights = ({ community, onVerificationReport, onPhotosUpdate }: { community: any, onVerificationReport?: (report: any) => void, onPhotosUpdate?: (photos: string[]) => void }) => {
   const realTimeData = community?.realTimeData;
   const [localVerificationReport, setLocalVerificationReport] = useState<any>(null);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -825,14 +825,14 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
             onPhotosUpdate={React.useCallback((photos: string[]) => {
               console.log('Updating hero carousel with web photos:', photos);
               try {
-                if (photos && photos.length > 0 && setWebIntelligencePhotos) {
-                  setWebIntelligencePhotos(photos);
+                if (photos && photos.length > 0 && onPhotosUpdate) {
+                  onPhotosUpdate(photos);
                   console.log('✅ Successfully updated hero carousel photos');
                 }
               } catch (error) {
                 console.error('❌ Error updating photos:', error);
               }
-            }, [setWebIntelligencePhotos])}
+            }, [onPhotosUpdate])}
           />
         )}
         
@@ -2855,7 +2855,16 @@ export default function CommunityDetail() {
               {/* Live Market Data Tab */}
               <TabsContent value="market-data" className="space-y-6 mt-6">
                 {/* Real-Time AI Insights */}
-                <RealTimeInsights community={community} onVerificationReport={setVerificationReport} />
+                <RealTimeInsights 
+                  community={community} 
+                  onVerificationReport={setVerificationReport}
+                  onPhotosUpdate={(photos: string[]) => {
+                    console.log('RealTimeInsights photos update:', photos);
+                    if (photos && photos.length > 0) {
+                      setWebIntelligencePhotos(photos);
+                    }
+                  }}
+                />
 
                 {/* Intelligent Pricing Prediction */}
                 <IntelligentPricingPrediction community={community} />
