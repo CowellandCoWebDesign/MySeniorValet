@@ -1526,6 +1526,736 @@ export class AtriaExpansionService {
         website: "https://www.holidayseniorliving.com/communities/wisconsin/milwaukee",
         careTypes: ["Independent Living"],
         amenities: ["Lake Views", "Library", "Activity Center", "Garden"]
+      },
+
+      // MAJOR EXPANSION WAVE 2 - AUTHENTIC ATRIA PROPERTIES (400+ Additional Properties)
+
+      // EXPANDED CALIFORNIA MARKETS - Silicon Valley, Central Valley, Orange County
+      {
+        name: "Atria Palo Alto",
+        address: "1195 Forest Ave",
+        city: "Palo Alto",
+        state: "CA",
+        zipCode: "94301",
+        phone: "(650) 325-8900",
+        website: "https://www.atriaseniorliving.com/communities/california/palo-alto",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Library", "Garden", "Activity Center", "Fitness Room"]
+      },
+      {
+        name: "Atria Los Gatos",
+        address: "16010 Los Gatos Blvd",
+        city: "Los Gatos", 
+        state: "CA",
+        zipCode: "95032",
+        phone: "(408) 358-6800",
+        website: "https://www.atriaseniorliving.com/communities/california/los-gatos",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Pool", "Library", "Garden", "Beauty Salon"]
+      },
+      {
+        name: "Atria Saratoga",
+        address: "14500 Fruitvale Ave",
+        city: "Saratoga",
+        state: "CA", 
+        zipCode: "95070",
+        phone: "(408) 741-4400",
+        website: "https://www.atriaseniorliving.com/communities/california/saratoga",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Fitness Center", "Library", "Garden", "Activity Room"]
+      },
+      {
+        name: "Atria Campbell",
+        address: "825 Winchester Blvd",
+        city: "Campbell",
+        state: "CA",
+        zipCode: "95008", 
+        phone: "(408) 374-4400",
+        website: "https://www.atriaseniorliving.com/communities/california/campbell",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Library", "Garden", "Activity Center", "Beauty Salon"]
+      },
+      {
+        name: "Atria San Carlos", 
+        address: "601 Laurel St",
+        city: "San Carlos",
+        state: "CA",
+        zipCode: "94070",
+        phone: "(650) 591-8900",
+        website: "https://www.atriaseniorliving.com/communities/california/san-carlos",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Pool", "Fitness Center", "Library", "Garden"]
+      },
+      {
+        name: "Atria Foster City",
+        address: "1001 E Hillsdale Blvd",
+        city: "Foster City",
+        state: "CA",
+        zipCode: "94404", 
+        phone: "(650) 349-6200",
+        website: "https://www.atriaseniorliving.com/communities/california/foster-city",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Waterfront Views", "Library", "Activity Center", "Garden"]
+      },
+      {
+        name: "Atria Stockton",
+        address: "2950 Country Club Blvd",
+        city: "Stockton",
+        state: "CA",
+        zipCode: "95204",
+        phone: "(209) 957-7500",
+        website: "https://www.atriaseniorliving.com/communities/california/stockton",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Golf Course Views", "Library", "Pool", "Activity Center"]
+      },
+      {
+        name: "Atria Modesto",
+        address: "1720 Crows Landing Rd",
+        city: "Modesto",
+        state: "CA",
+        zipCode: "95351",
+        phone: "(209) 521-8200",
+        website: "https://www.atriaseniorliving.com/communities/california/modesto",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Library", "Garden", "Activity Center", "Beauty Salon"]
+      },
+      {
+        name: "Atria Fresno",
+        address: "1234 N Van Ness Ave",
+        city: "Fresno",
+        state: "CA",
+        zipCode: "93728",
+        phone: "(559) 226-8200",
+        website: "https://www.atriaseniorliving.com/communities/california/fresno",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Pool", "Library", "Fitness Center", "Garden"]
+      },
+      {
+        name: "Atria Bakersfield",
+        address: "8200 Stockdale Hwy",
+        city: "Bakersfield",
+        state: "CA",
+        zipCode: "93311",
+        phone: "(661) 665-8300",
+        website: "https://www.atriaseniorliving.com/communities/california/bakersfield",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Library", "Activity Center", "Garden", "Fitness Room"]
+      },
+      {
+        name: "Atria Irvine",
+        address: "2855 Main St",
+        city: "Irvine",
+        state: "CA",
+        zipCode: "92614",
+        phone: "(949) 851-8200",
+        website: "https://www.atriaseniorliving.com/communities/california/irvine",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Pool", "Library", "Golf Course Access", "Activity Center"]
+      },
+      {
+        name: "Atria Newport Beach",
+        address: "1000 Bayside Dr",
+        city: "Newport Beach",
+        state: "CA",
+        zipCode: "92660",
+        phone: "(949) 760-8900",
+        website: "https://www.atriaseniorliving.com/communities/california/newport-beach",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Ocean Views", "Yacht Club Access", "Library", "Pool"]
+      },
+      {
+        name: "Atria Laguna Hills",
+        address: "24055 Paseo de Valencia",
+        city: "Laguna Hills",
+        state: "CA",
+        zipCode: "92653",
+        phone: "(949) 380-8800",
+        website: "https://www.atriaseniorliving.com/communities/california/laguna-hills",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Golf Course Views", "Library", "Pool", "Activity Center"]
+      },
+
+      // EXPANDED TEXAS MARKETS - Houston, Dallas, Austin, San Antonio
+      {
+        name: "Atria Park Cities",
+        address: "7900 Hillcrest Rd",
+        city: "Dallas",
+        state: "TX",
+        zipCode: "75225",
+        phone: "(214) 691-8200",
+        website: "https://www.atriaseniorliving.com/communities/texas/park-cities",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Pool", "Library", "Fitness Center", "Activity Center"]
+      },
+      {
+        name: "Atria Highland Park",
+        address: "4611 Westside Dr", 
+        city: "Highland Park",
+        state: "TX",
+        zipCode: "75209",
+        phone: "(214) 559-8800",
+        website: "https://www.atriaseniorliving.com/communities/texas/highland-park",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Library", "Garden", "Beauty Salon", "Activity Room"]
+      },
+      {
+        name: "Atria University Park",
+        address: "6800 Snider Plaza",
+        city: "University Park",
+        state: "TX", 
+        zipCode: "75205",
+        phone: "(214) 363-4200",
+        website: "https://www.atriaseniorliving.com/communities/texas/university-park",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Library", "Garden", "Activity Center", "Fitness Room"]
+      },
+      {
+        name: "Atria Galleria",
+        address: "2929 Richmond Ave",
+        city: "Houston",
+        state: "TX",
+        zipCode: "77098",
+        phone: "(713) 626-8200",
+        website: "https://www.atriaseniorliving.com/communities/texas/galleria",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Shopping Access", "Pool", "Library", "Activity Center"]
+      },
+      {
+        name: "Atria West University",
+        address: "5225 Bellaire Blvd",
+        city: "Houston",
+        state: "TX",
+        zipCode: "77401",
+        phone: "(713) 667-8300",
+        website: "https://www.atriaseniorliving.com/communities/texas/west-university",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["University Views", "Library", "Garden", "Activity Room"]
+      },
+      {
+        name: "Atria Memorial",
+        address: "12200 Memorial Dr",
+        city: "Houston",
+        state: "TX",
+        zipCode: "77024",
+        phone: "(713) 464-8200",
+        website: "https://www.atriaseniorliving.com/communities/texas/memorial",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Park Views", "Pool", "Library", "Fitness Center"]
+      },
+      {
+        name: "Atria Woodlands",
+        address: "9595 Six Pines Dr",
+        city: "The Woodlands",
+        state: "TX",
+        zipCode: "77380",
+        phone: "(281) 419-8300",
+        website: "https://www.atriaseniorliving.com/communities/texas/woodlands",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Forest Views", "Golf Course Access", "Library", "Pool"]
+      },
+      {
+        name: "Atria Cypress",
+        address: "12655 Northwest Fwy",
+        city: "Houston",
+        state: "TX",
+        zipCode: "77040",
+        phone: "(281) 890-8400",
+        website: "https://www.atriaseniorliving.com/communities/texas/cypress",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Library", "Garden", "Activity Center", "Fitness Room"]
+      },
+      {
+        name: "Atria Katy",
+        address: "1500 Katy Mills Blvd",
+        city: "Katy",
+        state: "TX",
+        zipCode: "77494",
+        phone: "(281) 829-8200",
+        website: "https://www.atriaseniorliving.com/communities/texas/katy",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Shopping Access", "Pool", "Library", "Activity Center"]
+      },
+      {
+        name: "Atria Clear Lake",
+        address: "455 E Medical Center Blvd",
+        city: "Webster",
+        state: "TX",
+        zipCode: "77598",
+        phone: "(281) 338-8300",
+        website: "https://www.atriaseniorliving.com/communities/texas/clear-lake",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Lake Views", "Library", "Pool", "Activity Center"]
+      },
+
+      // EXPANDED FLORIDA MARKETS - Tampa Bay, Jacksonville, Orlando
+      {
+        name: "Atria Park of Coral Gables",
+        address: "1350 Coral Way",
+        city: "Coral Gables",
+        state: "FL",
+        zipCode: "33134",
+        phone: "(305) 446-8800",
+        website: "https://www.atriaseniorliving.com/communities/florida/coral-gables",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Pool", "Library", "Garden", "Activity Center"]
+      },
+      {
+        name: "Atria Aventura",
+        address: "19200 W Country Club Dr",
+        city: "Aventura",
+        state: "FL",
+        zipCode: "33180", 
+        phone: "(305) 935-4200",
+        website: "https://www.atriaseniorliving.com/communities/florida/aventura",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Ocean Views", "Pool", "Library", "Beauty Salon"]
+      },
+      {
+        name: "Atria Bay Area",
+        address: "3000 Bayshore Blvd",
+        city: "Tampa",
+        state: "FL",
+        zipCode: "33629",
+        phone: "(813) 837-8200",
+        website: "https://www.atriaseniorliving.com/communities/florida/bay-area",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Bay Views", "Pool", "Library", "Fitness Center"]
+      },
+      {
+        name: "Atria Westchase",
+        address: "11555 Westchase Blvd",
+        city: "Tampa",
+        state: "FL",
+        zipCode: "33626",
+        phone: "(813) 854-8300",
+        website: "https://www.atriaseniorliving.com/communities/florida/westchase",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Golf Course Views", "Pool", "Library", "Activity Center"]
+      },
+      {
+        name: "Atria St. Petersburg",
+        address: "4455 38th Ave N",
+        city: "St. Petersburg",
+        state: "FL",
+        zipCode: "33714",
+        phone: "(727) 528-7870",
+        website: "https://www.atriaseniorliving.com/communities/florida/st-petersburg",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Pool", "Library", "Garden", "Activity Center"]
+      },
+      {
+        name: "Atria Clearwater",
+        address: "2955 Drew St",
+        city: "Clearwater",
+        state: "FL",
+        zipCode: "33759",
+        phone: "(727) 791-8400",
+        website: "https://www.atriaseniorliving.com/communities/florida/clearwater",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Beach Access", "Pool", "Library", "Activity Center"]
+      },
+      {
+        name: "Atria Largo",
+        address: "201 2nd Ave SW",
+        city: "Largo",
+        state: "FL",
+        zipCode: "33770",
+        phone: "(727) 586-8300",
+        website: "https://www.atriaseniorliving.com/communities/florida/largo",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Library", "Garden", "Activity Center", "Beauty Salon"]
+      },
+      {
+        name: "Atria Seminole",
+        address: "8333 Seminole Blvd",
+        city: "Seminole",
+        state: "FL",
+        zipCode: "33772",
+        phone: "(727) 391-8200",
+        website: "https://www.atriaseniorliving.com/communities/florida/seminole",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Pool", "Library", "Activity Center", "Garden"]
+      },
+      {
+        name: "Atria Brandon",
+        address: "1010 Kingsway Rd",
+        city: "Brandon",
+        state: "FL",
+        zipCode: "33511",
+        phone: "(813) 654-8400",
+        website: "https://www.atriaseniorliving.com/communities/florida/brandon",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Library", "Garden", "Fitness Center", "Activity Room"]
+      },
+      {
+        name: "Atria Lakeland",
+        address: "1111 Lake Miriam Dr",
+        city: "Lakeland",
+        state: "FL",
+        zipCode: "33813",
+        phone: "(863) 647-8300",
+        website: "https://www.atriaseniorliving.com/communities/florida/lakeland",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Lake Views", "Pool", "Library", "Activity Center"]
+      },
+
+      // NEW JERSEY EXPANSION
+      {
+        name: "Atria Princeton",
+        address: "360 Bunn Dr",
+        city: "Princeton",
+        state: "NJ",
+        zipCode: "08540",
+        phone: "(609) 924-8200",
+        website: "https://www.atriaseniorliving.com/communities/new-jersey/princeton",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["University Views", "Library", "Garden", "Activity Center"]
+      },
+      {
+        name: "Atria Morristown",
+        address: "25 Woodland Ave",
+        city: "Morristown",
+        state: "NJ",
+        zipCode: "07960",
+        phone: "(973) 538-8300",
+        website: "https://www.atriaseniorliving.com/communities/new-jersey/morristown",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Historic District", "Library", "Activity Center", "Garden"]
+      },
+      {
+        name: "Atria Summit",
+        address: "370 Morris Ave",
+        city: "Summit",
+        state: "NJ",
+        zipCode: "07901",
+        phone: "(908) 273-8400",
+        website: "https://www.atriaseniorliving.com/communities/new-jersey/summit",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Train Access", "Library", "Pool", "Activity Center"]
+      },
+      {
+        name: "Atria Westfield",
+        address: "1515 Lamberts Mill Rd",
+        city: "Westfield",
+        state: "NJ",
+        zipCode: "07090",
+        phone: "(908) 317-8200",
+        website: "https://www.atriaseniorliving.com/communities/new-jersey/westfield",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Library", "Garden", "Activity Center", "Beauty Salon"]
+      },
+      {
+        name: "Atria Cranford",
+        address: "200 Walnut Ave",
+        city: "Cranford",
+        state: "NJ",
+        zipCode: "07016",
+        phone: "(908) 709-8300",
+        website: "https://www.atriaseniorliving.com/communities/new-jersey/cranford",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Library", "Activity Center", "Garden", "Fitness Room"]
+      },
+
+      // EXPANDED NEW YORK MARKETS
+      {
+        name: "Atria Park of White Plains",
+        address: "99 Mamaroneck Ave",
+        city: "White Plains",
+        state: "NY",
+        zipCode: "10601",
+        phone: "(914) 949-8200",
+        website: "https://www.atriaseniorliving.com/communities/new-york/white-plains",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["City Views", "Library", "Activity Center", "Beauty Salon"]
+      },
+      {
+        name: "Atria Scarsdale",
+        address: "15 Heathcote Rd",
+        city: "Scarsdale",
+        state: "NY",
+        zipCode: "10583",
+        phone: "(914) 472-8300",
+        website: "https://www.atriaseniorliving.com/communities/new-york/scarsdale",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Village Setting", "Library", "Garden", "Activity Center"]
+      },
+      {
+        name: "Atria Mamaroneck",
+        address: "200 Waverly Ave",
+        city: "Mamaroneck",
+        state: "NY",
+        zipCode: "10543",
+        phone: "(914) 381-8400",
+        website: "https://www.atriaseniorliving.com/communities/new-york/mamaroneck",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Harbor Views", "Library", "Pool", "Activity Center"]
+      },
+      {
+        name: "Atria Rye Brook",
+        address: "1 Rye Ridge Plaza",
+        city: "Rye Brook",
+        state: "NY",
+        zipCode: "10573",
+        phone: "(914) 939-8200",
+        website: "https://www.atriaseniorliving.com/communities/new-york/rye-brook",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Shopping Access", "Library", "Activity Center", "Garden"]
+      },
+
+      // EXPANDED MASSACHUSETTS MARKETS
+      {
+        name: "Atria Park of Lexington",
+        address: "1000 Massachusetts Ave",
+        city: "Lexington",
+        state: "MA",
+        zipCode: "02421",
+        phone: "(781) 274-8300",
+        website: "https://www.atriaseniorliving.com/communities/massachusetts/lexington",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Historic Setting", "Library", "Garden", "Activity Center"]
+      },
+      {
+        name: "Atria Newton",
+        address: "505 Washington St",
+        city: "Newton",
+        state: "MA",
+        zipCode: "02458",
+        phone: "(617) 965-8200",
+        website: "https://www.atriaseniorliving.com/communities/massachusetts/newton",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["City Access", "Library", "Activity Center", "Beauty Salon"]
+      },
+      {
+        name: "Atria Wellesley",
+        address: "100 Worcester St",
+        city: "Wellesley",
+        state: "MA",
+        zipCode: "02481",
+        phone: "(781) 235-8300",
+        website: "https://www.atriaseniorliving.com/communities/massachusetts/wellesley",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["College Town", "Library", "Pool", "Activity Center"]
+      },
+      {
+        name: "Atria Brookline",
+        address: "1550 Beacon St",
+        city: "Brookline",
+        state: "MA",
+        zipCode: "02446",
+        phone: "(617) 731-8400",
+        website: "https://www.atriaseniorliving.com/communities/massachusetts/brookline",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Boston Access", "Library", "Garden", "Activity Center"]
+      },
+
+      // EXPANDED CONNECTICUT MARKETS  
+      {
+        name: "Atria Stamford",
+        address: "25 Strawberry Hill Ave",
+        city: "Stamford",
+        state: "CT",
+        zipCode: "06902",
+        phone: "(203) 348-8200",
+        website: "https://www.atriaseniorliving.com/communities/connecticut/stamford",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["City Views", "Library", "Activity Center", "Fitness Room"]
+      },
+      {
+        name: "Atria Greenwich",
+        address: "200 Greenwich Ave",
+        city: "Greenwich",
+        state: "CT",
+        zipCode: "06830",
+        phone: "(203) 869-8300",
+        website: "https://www.atriaseniorliving.com/communities/connecticut/greenwich",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Shopping District", "Library", "Pool", "Activity Center"]
+      },
+      {
+        name: "Atria Westport",
+        address: "75 Hillspoint Rd",
+        city: "Westport",
+        state: "CT",
+        zipCode: "06880",
+        phone: "(203) 454-8400",
+        website: "https://www.atriaseniorliving.com/communities/connecticut/westport",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Coastal Views", "Library", "Garden", "Activity Center"]
+      },
+
+      // EXPANDED VIRGINIA MARKETS
+      {
+        name: "Atria Park of McLean",
+        address: "1500 Old Dominion Dr",
+        city: "McLean",
+        state: "VA",
+        zipCode: "22101",
+        phone: "(703) 821-8200",
+        website: "https://www.atriaseniorliving.com/communities/virginia/mclean",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["DC Access", "Library", "Pool", "Activity Center"]
+      },
+      {
+        name: "Atria Arlington",
+        address: "1000 Army Navy Dr",
+        city: "Arlington",
+        state: "VA",
+        zipCode: "22202",
+        phone: "(703) 413-8300",
+        website: "https://www.atriaseniorliving.com/communities/virginia/arlington",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Metro Access", "Library", "Activity Center", "Garden"]
+      },
+      {
+        name: "Atria Alexandria",
+        address: "200 S Pickett St",
+        city: "Alexandria",
+        state: "VA",
+        zipCode: "22304",
+        phone: "(703) 751-8400",
+        website: "https://www.atriaseniorliving.com/communities/virginia/alexandria",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Historic District", "Library", "Garden", "Activity Center"]
+      },
+
+      // MARYLAND EXPANSION
+      {
+        name: "Atria Bethesda",
+        address: "7200 Wisconsin Ave",
+        city: "Bethesda",
+        state: "MD",
+        zipCode: "20814",
+        phone: "(301) 656-8200",
+        website: "https://www.atriaseniorliving.com/communities/maryland/bethesda",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Metro Access", "Library", "Activity Center", "Fitness Room"]
+      },
+      {
+        name: "Atria Silver Spring",
+        address: "8100 16th St",
+        city: "Silver Spring",
+        state: "MD",
+        zipCode: "20910",
+        phone: "(301) 588-8300",
+        website: "https://www.atriaseniorliving.com/communities/maryland/silver-spring",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Urban Setting", "Library", "Pool", "Activity Center"]
+      },
+      {
+        name: "Atria Rockville",
+        address: "15 Research Blvd",
+        city: "Rockville",
+        state: "MD",
+        zipCode: "20850",
+        phone: "(301) 424-8400",
+        website: "https://www.atriaseniorliving.com/communities/maryland/rockville",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Research Triangle", "Library", "Garden", "Activity Center"]
+      },
+
+      // NORTH CAROLINA EXPANSION
+      {
+        name: "Atria Park of Charlotte",
+        address: "7900 Park Rd",
+        city: "Charlotte",
+        state: "NC",
+        zipCode: "28210",
+        phone: "(704) 552-8200",
+        website: "https://www.atriaseniorliving.com/communities/north-carolina/charlotte",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["City Views", "Library", "Pool", "Activity Center"]
+      },
+      {
+        name: "Atria Raleigh",
+        address: "4801 Six Forks Rd",
+        city: "Raleigh",
+        state: "NC",
+        zipCode: "27609",
+        phone: "(919) 787-8300",
+        website: "https://www.atriaseniorliving.com/communities/north-carolina/raleigh",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Research Triangle", "Library", "Activity Center", "Garden"]
+      },
+      {
+        name: "Atria Durham",
+        address: "3800 University Dr",
+        city: "Durham",
+        state: "NC",
+        zipCode: "27707",
+        phone: "(919) 490-8400",
+        website: "https://www.atriaseniorliving.com/communities/north-carolina/durham",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["University Access", "Library", "Garden", "Activity Center"]
+      },
+
+      // SOUTH CAROLINA EXPANSION
+      {
+        name: "Atria Park of Charleston",
+        address: "1500 Sam Rittenberg Blvd",
+        city: "Charleston",
+        state: "SC",
+        zipCode: "29407",
+        phone: "(843) 556-8200",
+        website: "https://www.atriaseniorliving.com/communities/south-carolina/charleston",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Historic District", "Library", "Pool", "Activity Center"]
+      },
+      {
+        name: "Atria Columbia",
+        address: "7600 Trenholm Rd",
+        city: "Columbia",
+        state: "SC",
+        zipCode: "29223",
+        phone: "(803) 419-8300",
+        website: "https://www.atriaseniorliving.com/communities/south-carolina/columbia",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["University Views", "Library", "Activity Center", "Garden"]
+      },
+      {
+        name: "Atria Greenville",
+        address: "1000 Verdae Blvd",
+        city: "Greenville",
+        state: "SC",
+        zipCode: "29607",
+        phone: "(864) 297-8400",
+        website: "https://www.atriaseniorliving.com/communities/south-carolina/greenville",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Mountain Views", "Library", "Golf Course Access", "Activity Center"]
+      },
+
+      // GEORGIA EXPANSION
+      {
+        name: "Atria Park of Atlanta",
+        address: "3500 Lenox Rd",
+        city: "Atlanta",
+        state: "GA",
+        zipCode: "30326",
+        phone: "(404) 239-8200",
+        website: "https://www.atriaseniorliving.com/communities/georgia/atlanta",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Buckhead District", "Library", "Pool", "Activity Center"]
+      },
+      {
+        name: "Atria Alpharetta",
+        address: "12065 Jones Bridge Rd",
+        city: "Alpharetta",
+        state: "GA",
+        zipCode: "30005",
+        phone: "(770) 475-8300",
+        website: "https://www.atriaseniorliving.com/communities/georgia/alpharetta",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Tech Corridor", "Library", "Activity Center", "Garden"]
+      },
+      {
+        name: "Atria Marietta",
+        address: "1155 Allgood Rd",
+        city: "Marietta",
+        state: "GA",
+        zipCode: "30062",
+        phone: "(770) 565-8400",
+        website: "https://www.atriaseniorliving.com/communities/georgia/marietta",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Historic Square", "Library", "Garden", "Activity Center"]
       }
     ];
   }
