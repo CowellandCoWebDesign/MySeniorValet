@@ -100,6 +100,16 @@ class EnterpriseAntiCrawlerSystem {
       const userAgent = req.get('User-Agent') || '';
       const path = req.path;
 
+      // Development mode bypass for localhost testing
+      if (process.env.NODE_ENV === 'development' && 
+          (clientIP === '127.0.0.1' || clientIP === '::1' || clientIP.includes('127.0'))) {
+        // Still log in development for monitoring
+        if (userAgent.includes('curl') || userAgent.includes('postman')) {
+          console.log(`🔍 DEV MODE: Allowing localhost test request from ${userAgent}`);
+        }
+        return next();
+      }
+
       // Check if IP is already blocked
       if (this.blockedIPs.has(clientIP)) {
         return this.blockRequest(res, 'IP_BLOCKED', clientIP);

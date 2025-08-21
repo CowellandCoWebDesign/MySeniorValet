@@ -242,4 +242,28 @@ router.post('/honeypot/clear', (req: Request, res: Response) => {
   }
 });
 
+/**
+ * Emergency reset - clear all blocked IPs
+ * Use with caution - removes all security blocks
+ */
+router.post('/emergency-reset', (req: Request, res: Response) => {
+  try {
+    antiCrawlerSystem.emergencyReset();
+    
+    res.json({
+      success: true,
+      message: 'Emergency reset completed - all IP blocks cleared',
+      warning: 'Protection system reset - monitor for suspicious activity',
+      timestamp: new Date().toISOString(),
+      _version: "v4_enterprise_security_comprehensive"
+    });
+  } catch (error) {
+    console.error('Error performing emergency reset:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
 export default router;
