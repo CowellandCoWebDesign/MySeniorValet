@@ -117,23 +117,15 @@ router.post('/api/competitive-analysis', async (req, res) => {
       trend = 'decreasing';
     }
 
-    // Extract ALL insights from the content - no filtering for transparency
+    // COMPLETELY UNFILTERED - Show ALL content exactly as returned
     const insights = [];
     const sentences = content.split('. ');
     
-    // Include ALL sentences that contain valuable information
+    // Include EVERY sentence - no filtering at all
     for (const sentence of sentences) {
       const trimmed = sentence.trim();
-      if (trimmed.length > 20) { // Minimal filtering - just avoid empty sentences
-        // Prioritize sentences with community names, prices, or specific data
-        if (trimmed.match(/\$[\d,]+/) || // Has pricing
-            trimmed.match(/\b[A-Z][a-z]+\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home)\b/) || // Has community names
-            trimmed.match(/\d+%/) || // Has percentages
-            trimmed.match(/average|cost|price|rate|facility|community/i)) { // Has relevant keywords
-          insights.unshift(trimmed + '.'); // Add high-priority insights to beginning
-        } else {
-          insights.push(trimmed + '.'); // Add other insights to end
-        }
+      if (trimmed.length > 0) { // Only skip completely empty strings
+        insights.push(trimmed + '.');
       }
     }
 

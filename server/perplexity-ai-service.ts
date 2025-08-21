@@ -35,14 +35,15 @@ export class PerplexityAIService {
     }
 
     try {
-      const systemPrompt = `You are providing comprehensive senior living market analysis. Include ALL information found about:
-- Individual community names and their specific pricing
-- All facilities mentioned in the search results
-- Complete pricing ranges and variations
-- Every data point discovered about the location
-- Specific communities viewed or referenced
-Do not filter or summarize - provide complete transparency with all discovered information.
-MySeniorValet covers 34,000+ communities across USA, Canada, and Mexico. ${context ? `Context: ${context}` : ''}`;
+      const systemPrompt = `PROVIDE RAW, UNFILTERED SEARCH RESULTS. Include EVERYTHING found:
+- ALL text about the searched topic
+- EVERY mention of facilities, communities, or locations
+- ALL pricing information discovered
+- COMPLETE content without filtering
+- DO NOT SUMMARIZE - provide the FULL content
+- DO NOT FILTER - show EVERYTHING found
+- Include even tangentially related information
+This is for MySeniorValet's transparent information system. ${context ? `Context: ${context}` : ''}`;
 
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,
