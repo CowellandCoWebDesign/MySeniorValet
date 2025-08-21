@@ -49,7 +49,7 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - **UI Libraries**: `@radix-ui/*`, `tailwindcss`, `lucide-react`
 - **Mapping**: `react-leaflet`
 - **AI Integrations**:
-  - **Perplexity (Primary)**: For real-time web search, verification, and market data.
+  - **Perplexity (Primary)**: For real-time web search, verification, and market data. Using `sonar-pro` model (flagship) - provides comprehensive results with citations, search_results metadata, and detailed community information. Fixed Aug 21, 2025 (was using deprecated llama-3.1-sonar models).
   - **Claude (Secondary)**: For advanced reasoning, complex analysis, and care planning.
   - **ChatGPT (Backup)**: For general purpose fallback and validation.
 - **Email Service**: SendGrid
