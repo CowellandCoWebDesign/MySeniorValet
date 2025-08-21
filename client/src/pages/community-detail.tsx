@@ -58,12 +58,8 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          location: `${community.name}, ${community.city}, ${community.state}`,
-          communityName: community.name,
-          communityAddress: community.address,
-          communityPhone: community.phone,
-          communityWebsite: community.website,
-          type: 'community-specific'
+          location: `${community.city}, ${community.state}`,
+          type: 'city'
         })
       });
       
