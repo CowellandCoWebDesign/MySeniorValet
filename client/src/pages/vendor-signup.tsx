@@ -579,7 +579,7 @@ export default function VendorSignup() {
             Secure payment processing by Stripe
           </p>
           <p>
-            Questions? Contact us at hello@myseniorvalet.com
+            Questions? Contact our partner support team at billing@myseniorvalet.com
           </p>
         </div>
       </div>

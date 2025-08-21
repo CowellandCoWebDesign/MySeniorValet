@@ -821,7 +821,7 @@ export default function VendorMarketplaceTiers() {
               </Button>
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-6">
-              Questions? We're here to help! Our team is passionate about supporting your success.
+              Questions? We're here to help! Contact our partner support team at billing@myseniorvalet.com
             </p>
           </CardContent>
         </Card>

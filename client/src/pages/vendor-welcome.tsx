@@ -234,12 +234,12 @@ export default function VendorWelcome() {
         {/* Support Footer */}
         <div className="mt-12 text-center text-sm text-gray-600 dark:text-gray-400">
           <p className="mb-2">
-            Need help? Contact our vendor support team:
+            Need help? Contact our partner support team:
           </p>
           <div className="flex items-center justify-center gap-4">
-            <a href="mailto:hello@myseniorvalet.com" className="flex items-center gap-1 hover:text-purple-600">
+            <a href="mailto:billing@myseniorvalet.com" className="flex items-center gap-1 hover:text-purple-600">
               <Mail className="w-4 h-4" />
-              hello@myseniorvalet.com
+              billing@myseniorvalet.com
             </a>
             <span className="text-gray-400">|</span>
             <a href="tel:1-800-VENDORS" className="flex items-center gap-1 hover:text-purple-600">
