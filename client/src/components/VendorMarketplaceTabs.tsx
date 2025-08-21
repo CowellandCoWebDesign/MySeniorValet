@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
 import { ShoppingCart, Pill, Car, Stethoscope, Phone, Home, DollarSign, ExternalLink, CheckCircle, Shield, Truck, Building, Users, Scale, Calculator, Scissors, Users2 } from 'lucide-react';
+import { LoadingMascot } from '@/components/mascot/LoadingMascot';
 
 interface MarketplaceCategory {
   id: number;
@@ -60,8 +61,12 @@ export function VendorMarketplaceTabs() {
 
   if (categoriesLoading || vendorsLoading) {
     return (
-      <div className="w-full text-center py-8">
-        <p className="text-gray-500">Loading marketplace...</p>
+      <div className="w-full min-h-[400px] flex items-center justify-center">
+        <LoadingMascot 
+          message="Loading 1,500+ trusted senior service vendors..."
+          variant="loading"
+          size="lg"
+        />
       </div>
     );
   }
