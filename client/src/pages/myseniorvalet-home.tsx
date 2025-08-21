@@ -781,10 +781,10 @@ export default function MySeniorValetHome() {
             {/* Trust Indicators - Below search bar */}
             <div className="animate-fade-in-up animation-delay-300 flex justify-center items-center">
               <div className="flex flex-wrap justify-center items-center gap-2">
-                {/* Government Sources Badge */}
+                {/* Live Pricing Badge */}
                 <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-3 py-1 rounded-full shadow-md whitespace-nowrap">
-                  <Building2 className="h-3 w-3 text-blue-300 flex-shrink-0" />
-                  <span className="text-[10px] font-semibold text-white">Real HUD Pricing</span>
+                  <DollarSign className="h-3 w-3 text-green-400 animate-pulse flex-shrink-0" />
+                  <span className="text-[10px] font-semibold text-white">Live Pricing</span>
                 </span>
                 
                 {/* Community Reported Badge */}
