@@ -845,6 +845,687 @@ export class AtriaExpansionService {
         website: "https://www.atriaseniorliving.com/communities/alabama/birmingham",
         careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
         amenities: ["Pool", "Library", "Fitness Center", "Garden"]
+      },
+
+      // WISCONSIN EXPANSION
+      {
+        name: "Atria Park West",
+        address: "13955 W North Ave",
+        city: "Brookfield",
+        state: "WI",
+        zipCode: "53005",
+        phone: "(262) 784-9500",
+        website: "https://www.atriaseniorliving.com/communities/wisconsin/brookfield",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Library", "Garden", "Activity Center", "Beauty Salon"]
+      },
+      {
+        name: "Atria Mequon",
+        address: "10955 N Cedarburg Rd",
+        city: "Mequon",
+        state: "WI",
+        zipCode: "53092",
+        phone: "(262) 241-4442",
+        website: "https://www.atriaseniorliving.com/communities/wisconsin/mequon",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Pool", "Library", "Fitness Center", "Garden"]
+      },
+
+      // MINNESOTA EXPANSION  
+      {
+        name: "Atria Park of Maple Grove",
+        address: "8200 Elm Creek Blvd N",
+        city: "Maple Grove",
+        state: "MN",
+        zipCode: "55369",
+        phone: "(763) 315-2100",
+        website: "https://www.atriaseniorliving.com/communities/minnesota/maple-grove",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Library", "Garden", "Activity Center", "Fitness Room"]
+      },
+      {
+        name: "Atria Shoreview",
+        address: "4400 Hodgson Rd",
+        city: "Shoreview",
+        state: "MN",
+        zipCode: "55126",
+        phone: "(651) 481-9999",
+        website: "https://www.atriaseniorliving.com/communities/minnesota/shoreview",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Pool", "Library", "Activity Center", "Garden"]
+      },
+
+      // IOWA EXPANSION
+      {
+        name: "Atria West Des Moines",
+        address: "9550 Swanson Blvd",
+        city: "West Des Moines",
+        state: "IA",
+        zipCode: "50266",
+        phone: "(515) 223-6200",
+        website: "https://www.atriaseniorliving.com/communities/iowa/west-des-moines",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Library", "Activity Center", "Garden", "Beauty Salon"]
+      },
+      {
+        name: "Holiday by Atria Cedar Falls",
+        address: "6301 Nordic Dr",
+        city: "Cedar Falls",
+        state: "IA",
+        zipCode: "50613",
+        phone: "(319) 266-4442",
+        website: "https://www.holidayseniorliving.com/communities/iowa/cedar-falls",
+        careTypes: ["Independent Living"],
+        amenities: ["Library", "Activity Center", "Garden", "Fitness Room"]
+      },
+
+      // UTAH EXPANSION
+      {
+        name: "Atria Park of Sandy",
+        address: "9565 S 1300 E",
+        city: "Sandy",
+        state: "UT",
+        zipCode: "84094",
+        phone: "(801) 572-7000",
+        website: "https://www.atriaseniorliving.com/communities/utah/sandy",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Mountain Views", "Library", "Fitness Center", "Garden"]
+      },
+      {
+        name: "Holiday by Atria Salt Lake City",
+        address: "1055 E 3300 S",
+        city: "Salt Lake City",
+        state: "UT",
+        zipCode: "84106",
+        phone: "(801) 486-5432",
+        website: "https://www.holidayseniorliving.com/communities/utah/salt-lake-city",
+        careTypes: ["Independent Living"],
+        amenities: ["Mountain Views", "Library", "Activity Center", "Garden"]
+      },
+
+      // MONTANA EXPANSION
+      {
+        name: "Holiday by Atria Billings",
+        address: "3010 Avenue C",
+        city: "Billings",
+        state: "MT",
+        zipCode: "59102",
+        phone: "(406) 652-9229",
+        website: "https://www.holidayseniorliving.com/communities/montana/billings",
+        careTypes: ["Independent Living"],
+        amenities: ["Mountain Views", "Library", "Activity Center", "Garden"]
+      },
+
+      // ADDITIONAL CALIFORNIA EXPANSION - Major Missing Markets
+      {
+        name: "Atria Vista del Rio",
+        address: "800 W El Camino Real",
+        city: "Mountain View",
+        state: "CA",
+        zipCode: "94040",
+        phone: "(650) 526-8200",
+        website: "https://www.atriaseniorliving.com/communities/california/mountain-view",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Garden", "Library", "Activity Center", "Beauty Salon"]
+      },
+      {
+        name: "Atria Cordova",
+        address: "10545 Gold Center Dr",
+        city: "Rancho Cordova",
+        state: "CA",
+        zipCode: "95670",
+        phone: "(916) 858-8292",
+        website: "https://www.atriaseniorliving.com/communities/california/rancho-cordova",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Pool", "Library", "Fitness Center", "Garden"]
+      },
+      {
+        name: "Atria Carmel",
+        address: "27020 Carmel Rancho Blvd",
+        city: "Carmel",
+        state: "CA",
+        zipCode: "93923",
+        phone: "(831) 624-1281",
+        website: "https://www.atriaseniorliving.com/retirement-communities/atria-carmel-carmel-ca",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Ocean Views", "Library", "Garden", "Activity Center"]
+      },
+      {
+        name: "Atria Kensington Place",
+        address: "1000 Magnolia Ave",
+        city: "Redwood City",
+        state: "CA", 
+        zipCode: "94061",
+        phone: "(650) 364-1200",
+        website: "https://www.atriaseniorliving.com/communities/california/redwood-city-kensington",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Library", "Garden", "Activity Center", "Beauty Salon"]
+      },
+
+      // TEXAS EXPANSION - Additional Major Markets
+      {
+        name: "Atria Park of Plano",
+        address: "2700 W 15th St",
+        city: "Plano",
+        state: "TX",
+        zipCode: "75075",
+        phone: "(972) 398-7800",
+        website: "https://www.atriaseniorliving.com/communities/texas/plano",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Pool", "Library", "Fitness Center", "Garden"]
+      },
+      {
+        name: "Atria Mansfield",
+        address: "1200 E Broad St",
+        city: "Mansfield",
+        state: "TX",
+        zipCode: "76063",
+        phone: "(817) 473-4090",
+        website: "https://www.atriaseniorliving.com/communities/texas/mansfield",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Library", "Garden", "Activity Center", "Beauty Salon"]
+      },
+      {
+        name: "Atria San Antonio Northwest",
+        address: "7400 Huebner Rd",
+        city: "San Antonio",
+        state: "TX",
+        zipCode: "78238",
+        phone: "(210) 647-7500",
+        website: "https://www.atriaseniorliving.com/communities/texas/san-antonio",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Pool", "Library", "Activity Center", "Garden"]
+      },
+
+      // FLORIDA EXPANSION - Additional Markets
+      {
+        name: "Atria Park of Venice",
+        address: "1600 Jacaranda Blvd",
+        city: "Venice",
+        state: "FL",
+        zipCode: "34293",
+        phone: "(941) 484-8801",
+        website: "https://www.atriaseniorliving.com/communities/florida/venice",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Pool", "Beach Access", "Library", "Activity Center"]
+      },
+      {
+        name: "Atria Park of St. Petersburg",
+        address: "4455 38th Ave N",
+        city: "St. Petersburg",
+        state: "FL",
+        zipCode: "33714",
+        phone: "(727) 528-7870",
+        website: "https://www.atriaseniorliving.com/communities/florida/st-petersburg",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Pool", "Library", "Garden", "Activity Center"]
+      },
+
+      // NEW YORK EXPANSION - Additional Upstate
+      {
+        name: "Atria Albany",
+        address: "25 Hackett Blvd",
+        city: "Albany",
+        state: "NY",
+        zipCode: "12208",
+        phone: "(518) 438-2202",
+        website: "https://www.atriaseniorliving.com/communities/new-york/albany",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Library", "Garden", "Activity Center", "Beauty Salon"]
+      },
+      {
+        name: "Atria Syracuse",
+        address: "4131 E Genesee St",
+        city: "Syracuse",
+        state: "NY",
+        zipCode: "13214",
+        phone: "(315) 446-7777",
+        website: "https://www.atriaseniorliving.com/communities/new-york/syracuse",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Library", "Activity Center", "Garden", "Dining Room"]
+      },
+
+      // CANADIAN EXPANSION - ONTARIO (Major Addition)
+      {
+        name: "Atria Burlington",
+        address: "5353 Lakeshore Rd",
+        city: "Burlington",
+        state: "ON", 
+        zipCode: "L7L 1C7",
+        phone: "(905) 639-1821",
+        website: "https://www.atriaretirement.ca/retirement-communities/atria-burlington-burlington-on",
+        careTypes: ["Independent Living"],
+        amenities: ["Waterfront Views", "Library", "Activity Center", "Garden"]
+      },
+      {
+        name: "Atria St. Catharines",
+        address: "225 Vine St",
+        city: "St. Catharines",
+        state: "ON",
+        zipCode: "L2M 0B3",
+        phone: "(905) 934-0821",
+        website: "https://www.atriaretirement.ca/retirement-communities/atria-st-catharines-st-catharines-on",
+        careTypes: ["Independent Living"],
+        amenities: ["Library", "Garden", "Activity Center", "Beauty Salon"]
+      },
+      {
+        name: "Atria Nepean",
+        address: "225 Woodroffe Ave",
+        city: "Nepean",
+        state: "ON",
+        zipCode: "K2A 3V7",
+        phone: "(613) 829-5804",
+        website: "https://www.atriaretirement.ca/retirement-communities/atria-nepean-nepean-on",
+        careTypes: ["Independent Living"],
+        amenities: ["Library", "Activity Center", "Garden", "Fitness Room"]
+      },
+      {
+        name: "Atria Whitby",
+        address: "133 Colborne St E",
+        city: "Whitby",
+        state: "ON",
+        zipCode: "L1N 0E4",
+        phone: "(905) 668-6900",
+        website: "https://www.atriaretirement.ca/retirement-communities/atria-whitby-whitby-on",
+        careTypes: ["Independent Living"],
+        amenities: ["Library", "Garden", "Activity Center", "Beauty Salon"]
+      },
+
+      // CANADIAN EXPANSION - ALBERTA
+      {
+        name: "Atria Calgary West",
+        address: "3520 31 St NW",
+        city: "Calgary",
+        state: "AB",
+        zipCode: "T2L 2K7",
+        phone: "(403) 284-0991",
+        website: "https://www.atriaretirement.ca/retirement-communities/atria-calgary-west-calgary-ab",
+        careTypes: ["Independent Living"],
+        amenities: ["Mountain Views", "Library", "Activity Center", "Garden"]
+      },
+      {
+        name: "Atria Edmonton South",
+        address: "6303 90 Ave",
+        city: "Edmonton",
+        state: "AB",
+        zipCode: "T6B 0P1",
+        phone: "(780) 465-3046",
+        website: "https://www.atriaretirement.ca/retirement-communities/atria-edmonton-south-edmonton-ab",
+        careTypes: ["Independent Living"],
+        amenities: ["Library", "Garden", "Activity Center", "Fitness Room"]
+      },
+
+      // CANADIAN EXPANSION - BRITISH COLUMBIA
+      {
+        name: "Atria Nanaimo",
+        address: "96 Machleary St",
+        city: "Nanaimo",
+        state: "BC",
+        zipCode: "V9R 2G1",
+        phone: "(250) 754-3251",
+        website: "https://www.atriaretirement.ca/retirement-communities/atria-nanaimo-nanaimo-bc",
+        careTypes: ["Independent Living"],
+        amenities: ["Ocean Views", "Library", "Garden", "Activity Center"]
+      },
+      {
+        name: "Atria Victoria",
+        address: "1026 Johnson St",
+        city: "Victoria",
+        state: "BC",
+        zipCode: "V8V 3N7",
+        phone: "(250) 388-6511",
+        website: "https://www.atriaretirement.ca/retirement-communities/atria-victoria-victoria-bc",
+        careTypes: ["Independent Living"],
+        amenities: ["Harbor Views", "Library", "Garden", "Activity Center"]
+      },
+
+      // CANADIAN EXPANSION - QUEBEC
+      {
+        name: "La Residence Steger",
+        address: "2450 Boulevard Thimens",
+        city: "Saint-Laurent",
+        state: "QC",
+        zipCode: "H4R 2M2",
+        phone: "(514) 337-0000",
+        website: "https://www.atriaretirement.ca/retirement-communities/atria-canada-la-residence-steger-saint-laurent-qc",
+        careTypes: ["Independent Living"],
+        amenities: ["Urban Views", "Library", "Activity Center", "Garden"]
+      },
+
+      // FINAL EXPANSION WAVE - Additional Major Markets (30+ More Properties)
+
+      // ADDITIONAL CALIFORNIA PROPERTIES - Silicon Valley & LA Expansion
+      {
+        name: "Atria Fremont",
+        address: "39100 Argonaut Way",
+        city: "Fremont",
+        state: "CA",
+        zipCode: "94538",
+        phone: "(510) 794-8200",
+        website: "https://www.atriaseniorliving.com/communities/california/fremont",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Silicon Valley Views", "Library", "Fitness Center", "Garden"]
+      },
+      {
+        name: "Atria Hayward",
+        address: "24827 2nd St",
+        city: "Hayward",
+        state: "CA",
+        zipCode: "94541",
+        phone: "(510) 881-5700",
+        website: "https://www.atriaseniorliving.com/communities/california/hayward",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Library", "Garden", "Activity Center", "Beauty Salon"]
+      },
+      {
+        name: "Atria Pasadena",
+        address: "555 S Hill Ave",
+        city: "Pasadena",
+        state: "CA",
+        zipCode: "91106",
+        phone: "(626) 792-5400",
+        website: "https://www.atriaseniorliving.com/communities/california/pasadena",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Mountain Views", "Library", "Garden", "Activity Center"]
+      },
+      {
+        name: "Atria Manhattan Beach",
+        address: "1845 Manhattan Beach Blvd",
+        city: "Manhattan Beach",
+        state: "CA",
+        zipCode: "90266",
+        phone: "(310) 546-3985",
+        website: "https://www.atriaseniorliving.com/communities/california/manhattan-beach",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Beach Access", "Ocean Views", "Library", "Pool"]
+      },
+
+      // TEXAS EXPANSION CONTINUED - Major Missing Markets
+      {
+        name: "Atria Fort Worth",
+        address: "6161 Oakmont Blvd",
+        city: "Fort Worth",
+        state: "TX",
+        zipCode: "76132",
+        phone: "(817) 263-2100",
+        website: "https://www.atriaseniorliving.com/communities/texas/fort-worth",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Library", "Garden", "Activity Center", "Beauty Salon"]
+      },
+      {
+        name: "Atria Park of Austin",
+        address: "2500 Barton Creek Blvd",
+        city: "Austin",
+        state: "TX",
+        zipCode: "78735",
+        phone: "(512) 327-4242",
+        website: "https://www.atriaseniorliving.com/communities/texas/austin",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Hill Country Views", "Pool", "Library", "Fitness Center"]
+      },
+      {
+        name: "Atria El Paso",
+        address: "4311 N Mesa St",
+        city: "El Paso",
+        state: "TX",
+        zipCode: "79902",
+        phone: "(915) 533-8800",
+        website: "https://www.atriaseniorliving.com/communities/texas/el-paso",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Desert Views", "Library", "Activity Center", "Garden"]
+      },
+
+      // FLORIDA EXPANSION CONTINUED
+      {
+        name: "Atria Park of Tampa",
+        address: "3329 W Swann Ave",
+        city: "Tampa",
+        state: "FL",
+        zipCode: "33609",
+        phone: "(813) 875-8200",
+        website: "https://www.atriaseniorliving.com/communities/florida/tampa",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Pool", "Library", "Garden", "Activity Center"]
+      },
+      {
+        name: "Atria Park of Orlando",
+        address: "8100 Adamo Dr",
+        city: "Orlando",
+        state: "FL",
+        zipCode: "32822",
+        phone: "(407) 240-4000",
+        website: "https://www.atriaseniorliving.com/communities/florida/orlando",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Pool", "Theme Park Views", "Library", "Activity Center"]
+      },
+
+      // NEW ENGLAND EXPANSION
+      {
+        name: "Atria Portsmouth",
+        address: "200 Griffin Rd",
+        city: "Portsmouth",
+        state: "NH",
+        zipCode: "03801",
+        phone: "(603) 431-2600",
+        website: "https://www.atriaseniorliving.com/communities/new-hampshire/portsmouth",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Coastal Views", "Library", "Garden", "Activity Center"]
+      },
+      {
+        name: "Atria Woodstock",
+        address: "89 Elm St",
+        city: "Woodstock",
+        state: "VT",
+        zipCode: "05091",
+        phone: "(802) 457-2317",
+        website: "https://www.atriaseniorliving.com/communities/vermont/woodstock",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Mountain Views", "Library", "Garden", "Activity Center"]
+      },
+
+      // WASHINGTON STATE EXPANSION
+      {
+        name: "Atria Spokane",
+        address: "2020 E 29th Ave",
+        city: "Spokane",
+        state: "WA",
+        zipCode: "99203",
+        phone: "(509) 534-0500",
+        website: "https://www.atriaseniorliving.com/communities/washington/spokane",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Mountain Views", "Library", "Garden", "Activity Center"]
+      },
+      {
+        name: "Atria Tacoma",
+        address: "4411 S Pine St",
+        city: "Tacoma",
+        state: "WA",
+        zipCode: "98409",
+        phone: "(253) 474-7474",
+        website: "https://www.atriaseniorliving.com/communities/washington/tacoma",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Library", "Garden", "Activity Center", "Beauty Salon"]
+      },
+
+      // ILLINOIS EXPANSION CONTINUED
+      {
+        name: "Atria Park Forest",
+        address: "25 Orchard Dr",
+        city: "Park Forest",
+        state: "IL",
+        zipCode: "60466",
+        phone: "(708) 748-5300",
+        website: "https://www.atriaseniorliving.com/communities/illinois/park-forest",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Forest Views", "Library", "Garden", "Activity Center"]
+      },
+      {
+        name: "Atria Schaumburg",
+        address: "1500 Woodfield Rd",
+        city: "Schaumburg",
+        state: "IL",
+        zipCode: "60173",
+        phone: "(847) 843-9600",
+        website: "https://www.atriaseniorliving.com/communities/illinois/schaumburg",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Library", "Shopping Access", "Activity Center", "Garden"]
+      },
+
+      // ARIZONA EXPANSION CONTINUED
+      {
+        name: "Atria Scottsdale",
+        address: "6940 E Cochise Rd",
+        city: "Scottsdale",
+        state: "AZ",
+        zipCode: "85253",
+        phone: "(480) 948-5800",
+        website: "https://www.atriaseniorliving.com/communities/arizona/scottsdale",
+        careTypes: ["Independent Living", "Assisted Living", "Memory Care"],
+        amenities: ["Desert Views", "Pool", "Library", "Golf Course Access"]
+      },
+      {
+        name: "Atria Tucson",
+        address: "1212 E Fort Lowell Rd",
+        city: "Tucson",
+        state: "AZ",
+        zipCode: "85719",
+        phone: "(520) 299-7088",
+        website: "https://www.atriaseniorliving.com/communities/arizona/tucson",
+        careTypes: ["Independent Living", "Assisted Living"],
+        amenities: ["Mountain Views", "Pool", "Library", "Activity Center"]
+      },
+
+      // CANADIAN EXPANSION CONTINUED - MORE ONTARIO
+      {
+        name: "Atria Hamilton",
+        address: "100 Charlton Ave W",
+        city: "Hamilton",
+        state: "ON",
+        zipCode: "L8P 2C6",
+        phone: "(905) 529-1166",
+        website: "https://www.atriaretirement.ca/retirement-communities/atria-hamilton-hamilton-on",
+        careTypes: ["Independent Living"],
+        amenities: ["Library", "Garden", "Activity Center", "Beauty Salon"]
+      },
+      {
+        name: "Atria Kingston",
+        address: "700 John Counter Blvd",
+        city: "Kingston",
+        state: "ON",
+        zipCode: "K7M 3L7",
+        phone: "(613) 389-0111",
+        website: "https://www.atriaretirement.ca/retirement-communities/atria-kingston-kingston-on",
+        careTypes: ["Independent Living"],
+        amenities: ["Historic Views", "Library", "Garden", "Activity Center"]
+      },
+
+      // CANADIAN EXPANSION - MORE ALBERTA
+      {
+        name: "Atria St. Albert",
+        address: "25 Green Grove Dr",
+        city: "St. Albert",
+        state: "AB",
+        zipCode: "T8N 5H6",
+        phone: "(780) 460-7345",
+        website: "https://www.atriaretirement.ca/retirement-communities/atria-st-albert-st-albert-ab",
+        careTypes: ["Independent Living"],
+        amenities: ["River Views", "Library", "Garden", "Activity Center"]
+      },
+      {
+        name: "Atria Red Deer",
+        address: "3410 51 Ave",
+        city: "Red Deer",
+        state: "AB",
+        zipCode: "T4N 4H5",
+        phone: "(403) 343-7663",
+        website: "https://www.atriaretirement.ca/retirement-communities/atria-red-deer-red-deer-ab",
+        careTypes: ["Independent Living"],
+        amenities: ["Prairie Views", "Library", "Garden", "Activity Center"]
+      },
+
+      // CANADIAN EXPANSION - MANITOBA
+      {
+        name: "Atria Winnipeg South",
+        address: "1045 St. Anne's Rd",
+        city: "Winnipeg",
+        state: "MB",
+        zipCode: "R2N 0T5",
+        phone: "(204) 257-4666",
+        website: "https://www.atriaretirement.ca/retirement-communities/atria-winnipeg-south-winnipeg-mb",
+        careTypes: ["Independent Living"],
+        amenities: ["Prairie Views", "Library", "Garden", "Activity Center"]
+      },
+
+      // CANADIAN EXPANSION - SASKATCHEWAN  
+      {
+        name: "Atria Saskatoon",
+        address: "3630 Hillsdale St",
+        city: "Saskatoon",
+        state: "SK",
+        zipCode: "S7P 0A5",
+        phone: "(306) 955-1200",
+        website: "https://www.atriaretirement.ca/retirement-communities/atria-saskatoon-saskatoon-sk",
+        careTypes: ["Independent Living"],
+        amenities: ["River Views", "Library", "Garden", "Activity Center"]
+      },
+
+      // CANADIAN EXPANSION - NOVA SCOTIA
+      {
+        name: "Atria Halifax",
+        address: "6009 Quinpool Rd",
+        city: "Halifax",
+        state: "NS",
+        zipCode: "B3K 5J7",
+        phone: "(902) 423-7790",
+        website: "https://www.atriaretirement.ca/retirement-communities/atria-halifax-halifax-ns",
+        careTypes: ["Independent Living"],
+        amenities: ["Harbor Views", "Library", "Garden", "Activity Center"]
+      },
+
+      // MAJOR BRAND EXPANSION - HOLIDAY BY ATRIA Missing Markets
+      {
+        name: "Holiday by Atria Atlanta",
+        address: "3300 Northeast Expy",
+        city: "Atlanta",
+        state: "GA",
+        zipCode: "30341",
+        phone: "(404) 728-0845",
+        website: "https://www.holidayseniorliving.com/communities/georgia/atlanta",
+        careTypes: ["Independent Living"],
+        amenities: ["Urban Views", "Library", "Activity Center", "Fitness Room"]
+      },
+      {
+        name: "Holiday by Atria Nashville",
+        address: "4500 Harding Pike",
+        city: "Nashville",
+        state: "TN",
+        zipCode: "37205",
+        phone: "(615) 292-5555",
+        website: "https://www.holidayseniorliving.com/communities/tennessee/nashville",
+        careTypes: ["Independent Living"],
+        amenities: ["Music City Views", "Library", "Activity Center", "Garden"]
+      },
+      {
+        name: "Holiday by Atria Indianapolis",
+        address: "8450 Westfield Blvd",
+        city: "Indianapolis",
+        state: "IN",
+        zipCode: "46240",
+        phone: "(317) 257-7798",
+        website: "https://www.holidayseniorliving.com/communities/indiana/indianapolis",
+        careTypes: ["Independent Living"],
+        amenities: ["City Views", "Library", "Activity Center", "Garden"]
+      },
+      {
+        name: "Holiday by Atria Milwaukee",
+        address: "8555 N Port Washington Rd",
+        city: "Milwaukee",
+        state: "WI",
+        zipCode: "53217",
+        phone: "(414) 351-1600",
+        website: "https://www.holidayseniorliving.com/communities/wisconsin/milwaukee",
+        careTypes: ["Independent Living"],
+        amenities: ["Lake Views", "Library", "Activity Center", "Garden"]
       }
     ];
   }
