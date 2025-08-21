@@ -822,17 +822,7 @@ const RealTimeInsights = ({ community, onVerificationReport, onPhotosUpdate }: {
               }
               console.log('Received fresh web intelligence:', data);
             }}
-            onPhotosUpdate={React.useCallback((photos: string[]) => {
-              console.log('Updating hero carousel with web photos:', photos);
-              try {
-                if (photos && photos.length > 0 && onPhotosUpdate) {
-                  onPhotosUpdate(photos);
-                  console.log('✅ Successfully updated hero carousel photos');
-                }
-              } catch (error) {
-                console.error('❌ Error updating photos:', error);
-              }
-            }, [onPhotosUpdate])}
+            onPhotosUpdate={undefined}
           />
         )}
         
@@ -1267,8 +1257,7 @@ export default function CommunityDetail() {
   const [expandedUnits, setExpandedUnits] = useState<Set<string>>(new Set());
   // Track verification report to show live pricing data from Market Data tab
   const [verificationReport, setVerificationReport] = useState<any>(null);
-  // Track web intelligence photos for the hero carousel
-  const [webIntelligencePhotos, setWebIntelligencePhotos] = useState<string[]>([]);
+  // Removed webIntelligencePhotos - photos now stay in LiveWebIntelligence section only
 
   
   // Debug helper to track when verification report updates
@@ -1624,10 +1613,10 @@ export default function CommunityDetail() {
             <Card>
               <CardContent className="p-0">
                 <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg">
-                  {((community.photos && community.photos.length > 0) || webIntelligencePhotos.length > 0) ? (
+                  {(community.photos && community.photos.length > 0) ? (
                     <>
                       <HeroPhotoCarousel 
-                        photos={[...(community.photos || []), ...webIntelligencePhotos]} 
+                        photos={community.photos} 
                         communityName={community.name}
                       />
                       
@@ -2858,12 +2847,7 @@ export default function CommunityDetail() {
                 <RealTimeInsights 
                   community={community} 
                   onVerificationReport={setVerificationReport}
-                  onPhotosUpdate={(photos: string[]) => {
-                    console.log('RealTimeInsights photos update:', photos);
-                    if (photos && photos.length > 0) {
-                      setWebIntelligencePhotos(photos);
-                    }
-                  }}
+                  onPhotosUpdate={undefined}
                 />
 
                 {/* Intelligent Pricing Prediction */}
