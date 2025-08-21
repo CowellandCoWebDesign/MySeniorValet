@@ -63,12 +63,12 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
     }
   ];
 
-  // Rotate messages every 6 seconds
+  // Rotate messages every 20 seconds - more time to read
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
       setProgress(0); // Reset progress for new message
-    }, 6000);
+    }, 20000);
     
     return () => clearInterval(interval);
   }, [messages.length]);
@@ -80,7 +80,7 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
         if (prev >= 100) return 100;
         return prev + 2;
       });
-    }, 120); // Update every 120ms to reach 100% in 6 seconds
+    }, 400); // Update every 400ms to reach 100% in 20 seconds
     
     return () => clearInterval(progressInterval);
   }, [currentMessageIndex]);
