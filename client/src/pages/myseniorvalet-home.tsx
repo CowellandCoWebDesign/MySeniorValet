@@ -868,7 +868,7 @@ export default function MySeniorValetHome() {
                   </p>
 
                   {/* Community count matching other cards */}
-                  <div className="flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                  <div className="inline-flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
                     <TrendingUp className="h-5 w-5 text-green-500" />
                     <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">34,181+</span>
                     <span className="text-sm text-gray-600 dark:text-gray-400">Communities</span>
