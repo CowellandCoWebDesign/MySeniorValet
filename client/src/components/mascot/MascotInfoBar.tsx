@@ -38,22 +38,27 @@ export function MascotInfoBar({ className }: MascotInfoBarProps) {
       className
     )}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between py-2 sm:py-3">
+        <div className="flex items-center justify-between py-6 sm:py-8 lg:py-10">
           {/* Left: Gentleman Valet Mascot with subtle animation */}
           <div className="flex items-center gap-3">
             <div className="relative">
-              {/* Our Gentleman Valet Mascot */}
-              <div className="text-3xl sm:text-4xl animate-bounce">
-                🤵
-              </div>
+              {/* Our Official Gentleman Valet Mascot */}
+              <img 
+                src="/assets/gentleman-mascot.png" 
+                alt="Your Personal Senior Living Valet"
+                className="h-16 sm:h-20 lg:h-24 w-auto object-contain animate-bounce"
+              />
               {/* Small pulse effect around mascot */}
               <div className="absolute inset-0 rounded-full bg-blue-400 opacity-20 animate-ping" />
             </div>
             
             {/* "Did you know?" label */}
-            <div className="hidden sm:flex items-center gap-1 text-xs font-semibold text-gray-600 dark:text-gray-400">
-              <span className="animate-pulse">💡</span>
-              <span>Did you know?</span>
+            <div className="hidden sm:flex flex-col items-start gap-1">
+              <div className="flex items-center gap-1">
+                <span className="text-lg animate-pulse">💡</span>
+                <span className="text-sm font-bold text-gray-700 dark:text-gray-300">Did you know?</span>
+              </div>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Your Valet has important info</span>
             </div>
           </div>
 
@@ -66,10 +71,10 @@ export function MascotInfoBar({ className }: MascotInfoBarProps) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5 }}
-                className="flex items-center justify-center gap-2"
+                className="flex items-center justify-center gap-3"
               >
-                <Icon className={cn("w-4 h-4 flex-shrink-0", currentMessage.color)} />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
+                <Icon className={cn("w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0", currentMessage.color)} />
+                <span className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-800 dark:text-gray-200 text-center">
                   {currentMessage.text}
                 </span>
               </motion.div>

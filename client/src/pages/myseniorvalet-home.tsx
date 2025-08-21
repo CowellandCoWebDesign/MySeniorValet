@@ -833,7 +833,7 @@ export default function MySeniorValetHome() {
         {/* End Hero Content */}
         
         {/* Mascot Info Bar - At the very bottom of hero */}
-        <MascotInfoBar className="absolute bottom-0 left-0 right-0 z-50" />
+        <MascotInfoBar className="absolute bottom-20 left-0 right-0 z-50" />
         
       </section>
 
