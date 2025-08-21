@@ -721,7 +721,7 @@ export default function MySeniorValetHome() {
         </div>
         
         {/* Gentleman Mascot - Bottom Right */}
-        <div className="absolute bottom-0 right-0 z-20">
+        <div className="absolute bottom-20 right-0 z-20">
           <img
             src="/assets/gentleman-mascot.png"
             alt="Your Personal Senior Living Valet"

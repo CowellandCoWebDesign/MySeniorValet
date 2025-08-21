@@ -39,17 +39,15 @@ export function MascotInfoBar({ className }: MascotInfoBarProps) {
     )}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between py-6 sm:py-8 lg:py-10">
-          {/* Left: Gentleman Valet Mascot with subtle animation */}
+          {/* Left: Gentleman Valet Mascot - Standing Still */}
           <div className="flex items-center gap-3">
             <div className="relative">
               {/* Our Official Gentleman Valet Mascot */}
               <img 
                 src="/assets/gentleman-mascot.png" 
                 alt="Your Personal Senior Living Valet"
-                className="h-16 sm:h-20 lg:h-24 w-auto object-contain animate-bounce"
+                className="h-16 sm:h-20 lg:h-24 w-auto object-contain"
               />
-              {/* Small pulse effect around mascot */}
-              <div className="absolute inset-0 rounded-full bg-blue-400 opacity-20 animate-ping" />
             </div>
             
             {/* "Did you know?" label */}
