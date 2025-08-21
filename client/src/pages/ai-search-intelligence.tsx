@@ -1152,11 +1152,17 @@ export default function AISearchIntelligence() {
             </div>
 
             {/* Filter Bar with Type of Living First */}
-            <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6 mx-4">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mx-4 space-y-6">
               {/* First Row - Complete Care Spectrum */}
-              <div className="w-full pb-4 border-b border-gray-200 dark:border-gray-700">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">Type of Living - Complete Care Spectrum</label>
-                <div className="flex gap-3 items-center overflow-x-auto pb-2">
+              <div className="w-full">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <span className="text-purple-600 dark:text-purple-400">🏠</span>
+                    Type of Living - Complete Care Spectrum
+                  </h3>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Select multiple options</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
                   {/* HUD - Government Subsidized */}
                   <Button
                     variant={simplifiedFilters.typeOfLiving.includes('hud-sponsored') ? 'default' : 'outline'}
@@ -1174,19 +1180,18 @@ export default function AISearchIntelligence() {
                         });
                       }, 100);
                     }}
-                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                    className={`h-[90px] w-full border-2 transition-all duration-200 hover:shadow-lg ${
                       simplifiedFilters.typeOfLiving.includes('hud-sponsored')
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-white dark:bg-gray-900'
+                        ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white border-blue-700 shadow-md'
+                        : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600'
                     }`}
                     title="Government subsidized housing, income-based rent (30% of income), Section 202, Section 8"
                   >
-                    <div className="text-center h-full flex flex-col justify-center">
+                    <div className="text-center h-full flex flex-col justify-center p-2">
                       <div className="text-2xl mb-1">🏛️</div>
-                      <div className="text-xs font-bold leading-tight">HUD Housing</div>
-                      <div className="text-[10px] opacity-90 leading-tight mt-1">Gov Subsidized</div>
-                      <div className="text-[10px] opacity-80">$0-500</div>
-                      <div className="text-[10px] opacity-60">5,936</div>
+                      <div className="text-sm font-bold">HUD</div>
+                      <div className="text-xs opacity-90">$0-500</div>
+                      <div className="text-[10px] opacity-75">5,936 units</div>
                     </div>
                   </Button>
 
@@ -1207,19 +1212,18 @@ export default function AISearchIntelligence() {
                         });
                       }, 100);
                     }}
-                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                    className={`h-[90px] w-full border-2 transition-all duration-200 hover:shadow-lg ${
                       simplifiedFilters.typeOfLiving.includes('va-housing')
-                        ? 'bg-blue-800 text-white hover:bg-blue-900'
-                        : 'bg-white dark:bg-gray-900'
+                        ? 'bg-gradient-to-br from-blue-800 to-blue-900 text-white border-blue-900 shadow-md'
+                        : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600'
                     }`}
                     title="Veterans Affairs housing and support services for military veterans"
                   >
-                    <div className="text-center h-full flex flex-col justify-center">
+                    <div className="text-center h-full flex flex-col justify-center p-2">
                       <div className="text-2xl mb-1">🎖️</div>
-                      <div className="text-xs font-bold leading-tight">VA Housing</div>
-                      <div className="text-[10px] opacity-90 leading-tight mt-1">Veterans</div>
-                      <div className="text-[10px] opacity-80">$0-1k</div>
-                      <div className="text-[10px] opacity-60">320</div>
+                      <div className="text-sm font-bold">VA</div>
+                      <div className="text-xs opacity-90">$0-1k</div>
+                      <div className="text-[10px] opacity-75">320 units</div>
                     </div>
                   </Button>
 
@@ -1240,19 +1244,18 @@ export default function AISearchIntelligence() {
                         });
                       }, 100);
                     }}
-                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                    className={`h-[90px] w-full border-2 transition-all duration-200 hover:shadow-lg ${
                       simplifiedFilters.typeOfLiving.includes('mobile-rv')
-                        ? 'bg-green-600 text-white hover:bg-green-700'
-                        : 'bg-white dark:bg-gray-900'
+                        ? 'bg-gradient-to-br from-green-600 to-green-700 text-white border-green-700 shadow-md'
+                        : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600'
                     }`}
                     title="RV parks, mobile home parks, manufactured home communities, 55+ mobile communities"
                   >
-                    <div className="text-center h-full flex flex-col justify-center">
+                    <div className="text-center h-full flex flex-col justify-center p-2">
                       <div className="text-2xl mb-1">🚐</div>
-                      <div className="text-xs font-bold leading-tight">Mobile & RV</div>
-                      <div className="text-[10px] opacity-90 leading-tight mt-1">Manufactured</div>
-                      <div className="text-[10px] opacity-80">$400-1k</div>
-                      <div className="text-[10px] opacity-60">8,721</div>
+                      <div className="text-sm font-bold">Mobile/RV</div>
+                      <div className="text-xs opacity-90">$400-1k</div>
+                      <div className="text-[10px] opacity-75">8,721 units</div>
                     </div>
                   </Button>
 
@@ -1273,19 +1276,18 @@ export default function AISearchIntelligence() {
                         });
                       }, 100);
                     }}
-                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                    className={`h-[90px] w-full border-2 transition-all duration-200 hover:shadow-lg ${
                       simplifiedFilters.typeOfLiving.includes('55-plus')
-                        ? 'bg-teal-600 text-white hover:bg-teal-700'
-                        : 'bg-white dark:bg-gray-900'
+                        ? 'bg-gradient-to-br from-teal-600 to-teal-700 text-white border-teal-700 shadow-md'
+                        : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600'
                     }`}
                     title="Active adult communities, golf communities, resort-style living for 55+"
                   >
-                    <div className="text-center h-full flex flex-col justify-center">
+                    <div className="text-center h-full flex flex-col justify-center p-2">
                       <div className="text-2xl mb-1">⛳</div>
-                      <div className="text-xs font-bold leading-tight">55+ Active</div>
-                      <div className="text-[10px] opacity-90 leading-tight mt-1">Adult</div>
-                      <div className="text-[10px] opacity-80">$1-3k</div>
-                      <div className="text-[10px] opacity-60">4,100</div>
+                      <div className="text-sm font-bold">55+ Active</div>
+                      <div className="text-xs opacity-90">$1-3k</div>
+                      <div className="text-[10px] opacity-75">4,100 units</div>
                     </div>
                   </Button>
 
@@ -1306,19 +1308,18 @@ export default function AISearchIntelligence() {
                         });
                       }, 100);
                     }}
-                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                    className={`h-[90px] w-full border-2 transition-all duration-200 hover:shadow-lg ${
                       simplifiedFilters.typeOfLiving.includes('independent-living')
-                        ? 'bg-cyan-600 text-white hover:bg-cyan-700'
-                        : 'bg-white dark:bg-gray-900'
+                        ? 'bg-gradient-to-br from-cyan-600 to-cyan-700 text-white border-cyan-700 shadow-md'
+                        : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600'
                     }`}
                     title="Private apartments, housekeeping, meals, social activities, no medical care"
                   >
-                    <div className="text-center h-full flex flex-col justify-center">
+                    <div className="text-center h-full flex flex-col justify-center p-2">
                       <div className="text-2xl mb-1">🏘️</div>
-                      <div className="text-xs font-bold leading-tight">Independent</div>
-                      <div className="text-[10px] opacity-90 leading-tight mt-1">Living</div>
-                      <div className="text-[10px] opacity-80">$2-4k</div>
-                      <div className="text-[10px] opacity-60">5,800</div>
+                      <div className="text-sm font-bold">Independent</div>
+                      <div className="text-xs opacity-90">$2-4k</div>
+                      <div className="text-[10px] opacity-75">5,800 units</div>
                     </div>
                   </Button>
 
@@ -1339,19 +1340,18 @@ export default function AISearchIntelligence() {
                         });
                       }, 100);
                     }}
-                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                    className={`h-[90px] w-full border-2 transition-all duration-200 hover:shadow-lg ${
                       simplifiedFilters.typeOfLiving.includes('board-care')
-                        ? 'bg-orange-600 text-white hover:bg-orange-700'
-                        : 'bg-white dark:bg-gray-900'
+                        ? 'bg-gradient-to-br from-orange-600 to-orange-700 text-white border-orange-700 shadow-md'
+                        : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600'
                     }`}
                     title="Small home-like settings, 6-10 residents, personalized care"
                   >
-                    <div className="text-center h-full flex flex-col justify-center">
+                    <div className="text-center h-full flex flex-col justify-center p-2">
                       <div className="text-2xl mb-1">🏡</div>
-                      <div className="text-xs font-bold leading-tight">Board & Care</div>
-                      <div className="text-[10px] opacity-90 leading-tight mt-1">Small Home</div>
-                      <div className="text-[10px] opacity-80">$2.5-5k</div>
-                      <div className="text-[10px] opacity-60">1,800</div>
+                      <div className="text-sm font-bold">Board & Care</div>
+                      <div className="text-xs opacity-90">$2.5-5k</div>
+                      <div className="text-[10px] opacity-75">1,800 units</div>
                     </div>
                   </Button>
 
@@ -1372,19 +1372,18 @@ export default function AISearchIntelligence() {
                         });
                       }, 100);
                     }}
-                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                    className={`h-[90px] w-full border-2 transition-all duration-200 hover:shadow-lg ${
                       simplifiedFilters.typeOfLiving.includes('assisted-living')
-                        ? 'bg-amber-600 text-white hover:bg-amber-700'
-                        : 'bg-white dark:bg-gray-900'
+                        ? 'bg-gradient-to-br from-amber-600 to-amber-700 text-white border-amber-700 shadow-md'
+                        : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600'
                     }`}
                     title="Daily assistance with activities, medication management, 24/7 staff"
                   >
-                    <div className="text-center h-full flex flex-col justify-center">
+                    <div className="text-center h-full flex flex-col justify-center p-2">
                       <div className="text-2xl mb-1">🏢</div>
-                      <div className="text-xs font-bold leading-tight">Assisted</div>
-                      <div className="text-[10px] opacity-90 leading-tight mt-1">Living</div>
-                      <div className="text-[10px] opacity-80">$3-6k</div>
-                      <div className="text-[10px] opacity-60">4,100</div>
+                      <div className="text-sm font-bold">Assisted</div>
+                      <div className="text-xs opacity-90">$3-6k</div>
+                      <div className="text-[10px] opacity-75">4,100 units</div>
                     </div>
                   </Button>
 
@@ -1405,19 +1404,18 @@ export default function AISearchIntelligence() {
                         });
                       }, 100);
                     }}
-                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                    className={`h-[90px] w-full border-2 transition-all duration-200 hover:shadow-lg ${
                       simplifiedFilters.typeOfLiving.includes('memory-care')
-                        ? 'bg-purple-600 text-white hover:bg-purple-700'
-                        : 'bg-white dark:bg-gray-900'
+                        ? 'bg-gradient-to-br from-purple-600 to-purple-700 text-white border-purple-700 shadow-md'
+                        : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600'
                     }`}
                     title="Specialized dementia and Alzheimer's care, secure environment, structured activities"
                   >
-                    <div className="text-center h-full flex flex-col justify-center">
+                    <div className="text-center h-full flex flex-col justify-center p-2">
                       <div className="text-2xl mb-1">🧠</div>
-                      <div className="text-xs font-bold leading-tight">Memory</div>
-                      <div className="text-[10px] opacity-90 leading-tight mt-1">Care</div>
-                      <div className="text-[10px] opacity-80">$4-8k</div>
-                      <div className="text-[10px] opacity-60">2,200</div>
+                      <div className="text-sm font-bold">Memory</div>
+                      <div className="text-xs opacity-90">$4-8k</div>
+                      <div className="text-[10px] opacity-75">2,200 units</div>
                     </div>
                   </Button>
 
@@ -1438,19 +1436,18 @@ export default function AISearchIntelligence() {
                         });
                       }, 100);
                     }}
-                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                    className={`h-[90px] w-full border-2 transition-all duration-200 hover:shadow-lg ${
                       simplifiedFilters.typeOfLiving.includes('ccrc')
-                        ? 'bg-red-600 text-white hover:bg-red-700'
-                        : 'bg-white dark:bg-gray-900'
+                        ? 'bg-gradient-to-br from-red-600 to-red-700 text-white border-red-700 shadow-md'
+                        : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600'
                     }`}
                     title="Life plan communities with independent, assisted, and skilled nursing on one campus"
                   >
-                    <div className="text-center h-full flex flex-col justify-center">
+                    <div className="text-center h-full flex flex-col justify-center p-2">
                       <div className="text-2xl mb-1">🏛️</div>
-                      <div className="text-xs font-bold leading-tight">CCRC</div>
-                      <div className="text-[10px] opacity-90 leading-tight mt-1">Continuing</div>
-                      <div className="text-[10px] opacity-80">$5-10k</div>
-                      <div className="text-[10px] opacity-60">1,100</div>
+                      <div className="text-sm font-bold">CCRC</div>
+                      <div className="text-xs opacity-90">$5-10k</div>
+                      <div className="text-[10px] opacity-75">1,100 units</div>
                     </div>
                   </Button>
 
@@ -1471,28 +1468,33 @@ export default function AISearchIntelligence() {
                         });
                       }, 100);
                     }}
-                    className={`h-[120px] min-w-[140px] px-3 py-3 flex-shrink-0 ${
+                    className={`h-[90px] w-full border-2 transition-all duration-200 hover:shadow-lg ${
                       simplifiedFilters.typeOfLiving.includes('skilled-nursing')
-                        ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                        : 'bg-white dark:bg-gray-900'
+                        ? 'bg-gradient-to-br from-indigo-600 to-indigo-700 text-white border-indigo-700 shadow-md'
+                        : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600'
                     }`}
                     title="24/7 medical care, rehabilitation services, wound care, IV therapy, physical therapy"
                   >
-                    <div className="text-center h-full flex flex-col justify-center">
+                    <div className="text-center h-full flex flex-col justify-center p-2">
                       <div className="text-2xl mb-1">🏥</div>
-                      <div className="text-xs font-bold leading-tight">Skilled</div>
-                      <div className="text-[10px] opacity-90 leading-tight mt-1">Nursing</div>
-                      <div className="text-[10px] opacity-80">$6-12k</div>
-                      <div className="text-[10px] opacity-60">2,300</div>
+                      <div className="text-sm font-bold">Skilled</div>
+                      <div className="text-xs opacity-90">$6-12k</div>
+                      <div className="text-[10px] opacity-75">2,300 units</div>
                     </div>
                   </Button>
                 </div>
               </div>
 
               {/* Second Row - Unit/Room Type - Full Width */}
-              <div className="w-full mb-4 pt-4">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">Unit/Room Type</label>
-                <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
+              <div className="w-full pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <span className="text-blue-600 dark:text-blue-400">🏠</span>
+                    Unit/Room Type
+                  </h3>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Select your preference</span>
+                </div>
+                <div className="flex gap-3 overflow-x-auto pb-2">
                   <Button
                     variant={simplifiedFilters.unitType.includes('studio') ? 'default' : 'outline'}
                     onClick={() => {
