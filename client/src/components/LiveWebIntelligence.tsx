@@ -385,7 +385,7 @@ function extractStructuredData(content: string) {
   }
 
   // Extract care types
-  const careTypes = [];
+  const careTypes: string[] = [];
   const careTypePatterns = [
     /memory care/gi,
     /assisted living/gi,
@@ -401,7 +401,7 @@ function extractStructuredData(content: string) {
   careTypePatterns.forEach(pattern => {
     if (pattern.test(content)) {
       const match = pattern.source.replace(/\\/g, '').replace(/gi$/, '');
-      careTypes.push(match.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
+      careTypes.push(match.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
     }
   });
   
@@ -410,7 +410,7 @@ function extractStructuredData(content: string) {
   }
 
   // Extract features
-  const features = [];
+  const features: string[] = [];
   const featurePatterns = [
     /24\/7 (?:staff|support|care)/gi,
     /secure environment/gi,
@@ -439,8 +439,8 @@ function extractStructuredData(content: string) {
   });
 
   if (features.length > 0) {
-    data.features = [...new Set(features.map(f => 
-      f.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+    data.features = [...new Set(features.map((f: string) => 
+      f.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
     ))];
   }
 
@@ -476,7 +476,7 @@ function extractStructuredData(content: string) {
     
     if (relatedMatches) {
       // Try to extract individual community names and addresses
-      const communities = [];
+      const communities: Array<{name: string, address: string, type: string}> = [];
       const communityBlocks = content.split(/\n\n|\n-/);
       
       communityBlocks.forEach(block => {
