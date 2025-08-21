@@ -163,8 +163,8 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
                   </div>
                 </div>
 
-                {/* Compact Description */}
-                <p className="text-xs sm:text-sm text-gray-300 line-clamp-2">
+                {/* Compact Description - 3 lines allowed */}
+                <p className="text-xs sm:text-sm text-gray-300 line-clamp-3">
                   {currentMessage.description}
                 </p>
                 
