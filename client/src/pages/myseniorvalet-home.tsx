@@ -720,17 +720,6 @@ export default function MySeniorValetHome() {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-90% to-black/30"></div>
         </div>
         
-        {/* Gentleman Mascot - Bottom Right */}
-        <div className="absolute bottom-20 right-0 z-20">
-          <img
-            src="/assets/gentleman-mascot.png"
-            alt="Your Personal Senior Living Valet"
-            className="h-[20vh] w-auto object-contain"
-            loading="eager"
-          />
-        </div>
-
-        
         <div className="relative hero-content min-h-[75vh] md:min-h-[80vh] pt-2 sm:pt-3 md:pt-4 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col">
           
           {/* Hero Text Section - Better positioned */}

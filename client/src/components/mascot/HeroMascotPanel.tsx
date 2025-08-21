@@ -99,8 +99,19 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
     >
       <div className="mascot-panel-inner">
         <div className="mascot-panel-content">
-          {/* Message Content with fluid typography */}
-          <div className="mascot-text-content" style={{ marginLeft: '0' }}>
+          {/* Left: Gentleman Valet Mascot */}
+          <div className="mascot-icon">
+            <div className="relative">
+              <img 
+                src="/assets/gentleman-mascot.png" 
+                alt="Your Personal Senior Living Valet"
+                className="mascot-image"
+              />
+            </div>
+          </div>
+
+          {/* Center: Message Content with fluid typography */}
+          <div className="mascot-text-content">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentMessageIndex}
