@@ -1,0 +1,492 @@
+/* ========================================
+   MODERN RESPONSIVE DESIGN ENHANCEMENTS
+   Platform-Wide Improvements - August 2025
+   ======================================== */
+
+/* ========================================
+   1. FLUID TYPOGRAPHY WITH CLAMP()
+   Replace fixed breakpoint-based font sizes
+   ======================================== */
+@layer base {
+  /* Fluid Typography Scale - Smooth scaling across all devices */
+  :root {
+    /* Base font size that scales smoothly */
+    --font-size-base: clamp(0.9375rem, 0.875rem + 0.3125vw, 1rem);
+    
+    /* Heading sizes with fluid scaling */
+    --font-size-h1: clamp(1.75rem, 1.5rem + 2.5vw, 3.5rem);
+    --font-size-h2: clamp(1.5rem, 1.25rem + 2vw, 2.5rem);
+    --font-size-h3: clamp(1.25rem, 1.125rem + 1.5vw, 2rem);
+    --font-size-h4: clamp(1.125rem, 1rem + 1vw, 1.5rem);
+    --font-size-h5: clamp(1rem, 0.95rem + 0.5vw, 1.25rem);
+    --font-size-h6: clamp(0.9375rem, 0.9rem + 0.25vw, 1.125rem);
+    
+    /* Body text sizes */
+    --font-size-sm: clamp(0.8125rem, 0.75rem + 0.25vw, 0.875rem);
+    --font-size-md: clamp(0.9375rem, 0.875rem + 0.3125vw, 1rem);
+    --font-size-lg: clamp(1rem, 0.95rem + 0.5vw, 1.125rem);
+    --font-size-xl: clamp(1.125rem, 1rem + 1vw, 1.25rem);
+    
+    /* Fluid spacing scale */
+    --space-xs: clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem);
+    --space-sm: clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem);
+    --space-md: clamp(1rem, 0.875rem + 0.625vw, 1.5rem);
+    --space-lg: clamp(1.5rem, 1.25rem + 1.25vw, 2rem);
+    --space-xl: clamp(2rem, 1.5rem + 2.5vw, 3rem);
+    --space-2xl: clamp(3rem, 2rem + 5vw, 4rem);
+    
+    /* Fluid container widths */
+    --container-xs: clamp(300px, 90vw, 480px);
+    --container-sm: clamp(480px, 90vw, 640px);
+    --container-md: clamp(640px, 90vw, 768px);
+    --container-lg: clamp(768px, 90vw, 1024px);
+    --container-xl: clamp(1024px, 90vw, 1280px);
+    --container-2xl: clamp(1280px, 90vw, 1536px);
+  }
+  
+  /* Apply fluid typography to elements */
+  body {
+    font-size: var(--font-size-base);
+    line-height: clamp(1.4, 1.3 + 0.5vw, 1.6);
+  }
+  
+  h1 { font-size: var(--font-size-h1); }
+  h2 { font-size: var(--font-size-h2); }
+  h3 { font-size: var(--font-size-h3); }
+  h4 { font-size: var(--font-size-h4); }
+  h5 { font-size: var(--font-size-h5); }
+  h6 { font-size: var(--font-size-h6); }
+  
+  /* Fluid padding for sections */
+  .section-padding {
+    padding: var(--space-lg) var(--space-md);
+  }
+  
+  /* Fluid margins */
+  .content-spacing > * + * {
+    margin-top: var(--space-md);
+  }
+}
+
+/* ========================================
+   2. MODERN VIEWPORT UNITS
+   Better mobile support with browser chrome
+   ======================================== */
+@layer utilities {
+  /* Small viewport height - accounts for mobile browser UI */
+  .h-screen-safe {
+    height: 100vh;
+    height: 100svh; /* Small viewport height */
+  }
+  
+  /* Dynamic viewport height - adjusts as browser chrome shows/hides */
+  .h-screen-dynamic {
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height */
+  }
+  
+  /* Large viewport height - maximum possible height */
+  .h-screen-large {
+    height: 100vh;
+    height: 100lvh; /* Large viewport height */
+  }
+  
+  /* Min-height versions */
+  .min-h-screen-safe {
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+  
+  .min-h-screen-dynamic {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  
+  /* Hero sections with safe heights */
+  .hero-height {
+    min-height: clamp(400px, 60svh, 100svh);
+  }
+  
+  /* Mobile keyboard-aware heights */
+  .mobile-keyboard-safe {
+    min-height: 100vh;
+    min-height: 100dvh;
+    
+    @supports (height: 100dvh) {
+      min-height: calc(100dvh - env(keyboard-inset-height, 0px));
+    }
+  }
+}
+
+/* ========================================
+   3. CONTAINER QUERIES
+   Component-level responsive design
+   ======================================== */
+@layer components {
+  /* Container setup for cards */
+  .responsive-container {
+    container-type: inline-size;
+    container-name: card;
+  }
+  
+  /* Container query responsive cards */
+  @container card (min-width: 300px) {
+    .container-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1rem;
+    }
+    
+    .container-card-title {
+      font-size: 1.25rem;
+    }
+  }
+  
+  @container card (min-width: 500px) {
+    .container-card {
+      grid-template-columns: 150px 1fr;
+      gap: 1.5rem;
+    }
+    
+    .container-card-title {
+      font-size: 1.5rem;
+    }
+    
+    .container-card-description {
+      display: block;
+    }
+  }
+  
+  /* Responsive component panels */
+  .panel-container {
+    container-type: inline-size;
+    container-name: panel;
+  }
+  
+  @container panel (max-width: 400px) {
+    .panel-content {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .panel-title {
+      font-size: 0.875rem;
+    }
+  }
+  
+  @container panel (min-width: 600px) {
+    .panel-content {
+      flex-direction: row;
+      gap: 1.5rem;
+    }
+    
+    .panel-title {
+      font-size: 1.125rem;
+    }
+  }
+}
+
+/* ========================================
+   4. FLUID GRID LAYOUTS
+   Auto-responsive without media queries
+   ======================================== */
+@layer utilities {
+  /* Auto-fit grid with fluid sizing */
+  .grid-auto-fluid {
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(clamp(250px, 30vw, 350px), 1fr)
+    );
+    gap: var(--space-md);
+  }
+  
+  /* Responsive card grid */
+  .card-grid-fluid {
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(clamp(280px, 25vw, 320px), 1fr)
+    );
+    gap: clamp(1rem, 2vw, 1.5rem);
+  }
+  
+  /* Service grid with fluid columns */
+  .service-grid-fluid {
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(clamp(200px, 20vw, 250px), 1fr)
+    );
+    gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  }
+}
+
+/* ========================================
+   5. ASPECT RATIO UTILITIES
+   Native aspect ratio support
+   ======================================== */
+@layer utilities {
+  /* Common aspect ratios */
+  .aspect-square { aspect-ratio: 1 / 1; }
+  .aspect-video { aspect-ratio: 16 / 9; }
+  .aspect-photo { aspect-ratio: 4 / 3; }
+  .aspect-card { aspect-ratio: 3 / 2; }
+  .aspect-golden { aspect-ratio: 1.618 / 1; }
+  
+  /* Responsive images with aspect ratio */
+  .img-responsive {
+    width: 100%;
+    height: auto;
+    aspect-ratio: attr(width) / attr(height);
+    object-fit: cover;
+  }
+}
+
+/* ========================================
+   6. LOGICAL PROPERTIES
+   Better internationalization support
+   ======================================== */
+@layer utilities {
+  /* Logical padding */
+  .padding-inline {
+    padding-inline: var(--space-md);
+  }
+  
+  .padding-block {
+    padding-block: var(--space-lg);
+  }
+  
+  /* Logical margins */
+  .margin-block-start {
+    margin-block-start: var(--space-md);
+  }
+  
+  .margin-inline-end {
+    margin-inline-end: var(--space-sm);
+  }
+  
+  /* Logical borders */
+  .border-block-end {
+    border-block-end: 1px solid var(--border);
+  }
+  
+  .border-inline-start {
+    border-inline-start: 4px solid var(--primary);
+  }
+}
+
+/* ========================================
+   7. ENHANCED TOUCH TARGETS
+   Better mobile interaction
+   ======================================== */
+@layer utilities {
+  /* Minimum touch target with fluid scaling */
+  .touch-target {
+    min-height: max(44px, 2.75rem);
+    min-width: max(44px, 2.75rem);
+    padding: clamp(0.5rem, 1vw, 0.75rem);
+  }
+  
+  /* Enhanced button sizing */
+  .btn-fluid {
+    padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1rem, 2vw, 1.5rem);
+    font-size: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+    min-height: max(44px, 2.75rem);
+  }
+}
+
+/* ========================================
+   8. RESPONSIVE TEXT UTILITIES
+   Smart text handling
+   ======================================== */
+@layer utilities {
+  /* Fluid text truncation */
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  
+  /* Responsive line clamping */
+  .line-clamp-fluid {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+  }
+  
+  @container (min-width: 400px) {
+    .line-clamp-fluid {
+      -webkit-line-clamp: 3;
+    }
+  }
+  
+  @container (min-width: 600px) {
+    .line-clamp-fluid {
+      -webkit-line-clamp: 4;
+    }
+  }
+}
+
+/* ========================================
+   9. PERFORMANCE OPTIMIZATIONS
+   Smooth responsive behavior
+   ======================================== */
+@layer base {
+  /* Optimize font loading */
+  @media screen and (max-width: 640px) {
+    body {
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+  }
+  
+  /* Reduce motion for performance */
+  @media (prefers-reduced-motion: no-preference) {
+    .smooth-resize {
+      transition: font-size 200ms ease-out,
+                  padding 200ms ease-out,
+                  margin 200ms ease-out;
+    }
+  }
+  
+  /* GPU acceleration for transforms */
+  .gpu-accelerated {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+}
+
+/* ========================================
+   10. RESPONSIVE HERO MASCOT PANEL FIX
+   Specific fix for positioning issues
+   ======================================== */
+.hero-mascot-panel {
+  container-type: inline-size;
+  container-name: mascot-panel;
+  width: 100%;
+  background: linear-gradient(to right, 
+    rgb(30 58 138 / 0.95), 
+    rgb(67 56 202 / 0.95));
+  backdrop-filter: blur(4px);
+  border-top: 1px solid rgb(96 165 250 / 0.3);
+  box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.mascot-panel-inner {
+  max-width: min(1536px, 100%);
+  margin: 0 auto;
+  padding: clamp(0.75rem, 1.5vw, 1rem) clamp(1rem, 2vw, 1.5rem);
+}
+
+.mascot-panel-content {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 1.5vw, 1rem);
+}
+
+.mascot-icon {
+  flex-shrink: 0;
+}
+
+.mascot-emoji {
+  font-size: clamp(1.75rem, 2rem + 1vw, 2.5rem);
+  animation: bounce-subtle 3s ease-in-out infinite;
+}
+
+.mascot-text-content {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.mascot-title-row {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.5rem, 1vw, 0.75rem);
+  margin-bottom: 0.25rem;
+}
+
+.mascot-title {
+  font-size: clamp(0.875rem, 0.8rem + 0.5vw, 1rem);
+  font-weight: bold;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.mascot-progress-bar {
+  flex-grow: 1;
+  background: rgb(30 58 138 / 0.5);
+  height: clamp(4px, 0.375rem, 6px);
+  border-radius: 9999px;
+  overflow: hidden;
+  min-width: 60px;
+}
+
+.mascot-progress-fill {
+  height: 100%;
+  background: linear-gradient(to right, 
+    rgb(74 222 128),
+    rgb(96 165 250));
+  transition: width 200ms ease-out;
+}
+
+.mascot-description {
+  font-size: clamp(0.75rem, 0.7rem + 0.375vw, 0.875rem);
+  color: rgb(219 234 254);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.mascot-source {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.source-label,
+.source-value {
+  font-size: clamp(0.625rem, 0.6rem + 0.25vw, 0.75rem);
+}
+
+.source-label {
+  color: rgb(191 219 254);
+}
+
+.source-value {
+  color: rgb(147 197 253);
+  font-weight: 500;
+}
+
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Container queries for mascot panel */
+@container mascot-panel (max-width: 400px) {
+  .mascot-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .mascot-progress-bar {
+    width: 100%;
+  }
+}
+
+@container mascot-panel (min-width: 600px) {
+  .mascot-description {
+    -webkit-line-clamp: 2;
+  }
+}

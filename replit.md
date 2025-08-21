@@ -37,6 +37,14 @@ MySeniorValet is a technology platform connecting families with publicly availab
 ## System Architecture
 The platform is built with a modern web stack, emphasizing transparency and user engagement.
 - **Frontend**: React with TypeScript, Tailwind CSS, and shadcn/ui components. Features include community cards with subtype badges, an interactive Care Spectrum Slider, and dynamic occupancy displays. Map pins are circular with bold colored borders. Dark mode is fully supported.
+  - **Responsive Design System (August 21, 2025)**: Platform-wide modern CSS patterns implementation:
+    - Container queries for component-level responsiveness (fixes HeroMascotPanel positioning issues)  
+    - CSS clamp() for fluid typography and spacing without breakpoints
+    - New viewport units (svh, lvh, dvh) for better mobile keyboard handling
+    - Aspect-ratio property for native image aspect ratio support
+    - Logical properties for internationalization support
+    - Fluid grid layouts that auto-adapt without media queries
+    - responsive-enhancements.css imported globally for consistent responsive behavior
 - **Backend**: Express.js with TypeScript.
 - **Database**: PostgreSQL, managed with Drizzle ORM, supporting multiple senior living types and a robust services management system, including pricing history, community claims, and verification logs.
 - **Build System**: Vite for the frontend and esbuild for the backend.

@@ -93,15 +93,14 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
       className={cn(
-        "relative bg-gray-900/90 backdrop-blur-md border-t border-gray-700",
+        "hero-mascot-panel",
         className
       )}
-      style={{ maxHeight: '25vh' }} // Limit to 25% of viewport height
     >
-      <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
-        <div className="flex items-center gap-3 sm:gap-4">
-          {/* Left: Gentleman Valet Mascot - Much smaller */}
-          <div className="flex-shrink-0">
+      <div className="mascot-panel-inner">
+        <div className="mascot-panel-content">
+          {/* Left: Gentleman Valet Mascot */}
+          <div className="mascot-icon">
             <motion.div 
               className="relative"
               animate={{ 
@@ -113,21 +112,12 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
                 ease: "easeInOut"
               }}
             >
-              <img 
-                src="/assets/gentleman-mascot.png" 
-                alt="Your Personal Senior Living Valet"
-                className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
-              />
-              {/* Small sparkles around mascot */}
-              <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-1 right-1 w-1 h-1 bg-blue-400 rounded-full animate-ping" />
-                <div className="absolute bottom-1 left-1 w-1 h-1 bg-green-400 rounded-full animate-ping" style={{ animationDelay: '0.5s' }} />
-              </div>
+              <span className="mascot-emoji">🤵</span>
             </motion.div>
           </div>
 
-          {/* Center: Compact Message Content */}
-          <div className="flex-1">
+          {/* Center: Message Content with fluid typography */}
+          <div className="mascot-text-content">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentMessageIndex}
@@ -135,49 +125,38 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
-                className="flex flex-col gap-2"
               >
-                <div className="flex items-center gap-2">
-                  {/* Title and Subtitle - responsive text sizing */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-white truncate">
-                      <span className="text-[10px] sm:text-xs lg:text-sm whitespace-nowrap">
-                        {currentMessage.title}
-                      </span>
-                      <span className="text-[10px] sm:text-xs lg:text-sm"> • </span>
-                      <span className="text-[10px] sm:text-xs lg:text-sm text-blue-400 font-medium whitespace-nowrap">
-                        {currentMessage.subtitle}
-                      </span>
-                    </h3>
-                  </div>
+                <div className="mascot-title-row">
+                  {/* Title and Subtitle */}
+                  <h3 className="mascot-title">
+                    {currentMessage.title} • {currentMessage.subtitle}
+                  </h3>
                   
-                  {/* Progress Bar - Fixed width */}
-                  <div className="w-20 sm:w-24 flex-shrink-0">
-                    <div className="h-1 bg-gray-700 rounded-full overflow-hidden">
-                      <motion.div 
-                        className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
-                        style={{ width: `${progress}%` }}
-                        transition={{ duration: 0.1 }}
-                      />
-                    </div>
+                  {/* Progress Bar */}
+                  <div className="mascot-progress-bar">
+                    <motion.div 
+                      className="mascot-progress-fill"
+                      style={{ width: `${progress}%` }}
+                      transition={{ duration: 0.1 }}
+                    />
                   </div>
                 </div>
 
-                {/* Compact Description - 3 lines allowed */}
-                <p className="text-xs sm:text-sm text-gray-300 line-clamp-3">
+                {/* Description */}
+                <p className="mascot-description">
                   {currentMessage.description}
                 </p>
                 
-                {/* Compact Source */}
-                <div className="flex items-center gap-2 text-[10px] sm:text-xs">
-                  <span className="text-gray-500">{currentMessage.source.split(',')[0]}</span>
+                {/* Source */}
+                <div className="mascot-source">
+                  <span className="source-label">Source:</span>
                   <a 
                     href={currentMessage.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-1"
+                    className="source-value hover:text-blue-300 transition-colors inline-flex items-center gap-1"
                   >
-                    <span>Learn More</span>
+                    <span>{currentMessage.source.split(',')[0]}</span>
                     <svg className="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
