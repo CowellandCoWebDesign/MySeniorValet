@@ -53,6 +53,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register Perplexity test route
   const testPerplexityRoutes = await import('./routes/test-perplexity');
   app.use(testPerplexityRoutes.default);
+  
+  // Register Atria expansion routes
+  const { atriaRoutes } = await import('./routes/atria-routes');
+  app.use('/api/atria', atriaRoutes);
 
   // Register pricing and claims routes
   const pricingHistoryRoutes = await import('./routes/pricing-history');
