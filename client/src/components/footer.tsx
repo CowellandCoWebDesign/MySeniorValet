@@ -89,7 +89,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Row: Other sections */}
-        <div className="grid grid-cols-2 gap-6 mb-6">
+        <div className="flex gap-8 mb-6">
           
           {/* For Vendors */}
           <div>
