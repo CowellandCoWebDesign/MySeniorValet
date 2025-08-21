@@ -182,7 +182,8 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 (async () => {
-  const server = await registerRoutes(app);
+  try {
+    const server = await registerRoutes(app);
 
   // NO SEEDING - GOLDEN DATA RULE ENFORCED
   // seedDatabase() is permanently disabled to prevent fake data
@@ -332,4 +333,12 @@ if (process.env.NODE_ENV === 'development') {
     console.log('');
     console.log('🌟 MySeniorValet now has Fortune 500-level infrastructure!');
   });
-})();
+  
+  } catch (error) {
+    console.error('❌ CRITICAL SERVER STARTUP ERROR:', error);
+    process.exit(1);
+  }
+})().catch(error => {
+  console.error('❌ UNHANDLED STARTUP ERROR:', error);
+  process.exit(1);
+});
