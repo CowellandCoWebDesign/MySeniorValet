@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { MapPin, Settings, Activity } from "lucide-react";
 import { useQuery } from '@tanstack/react-query';
 import type { AvailabilityHeatmapData } from "@shared/schema";
+import { Header } from "@/components/header";
 
 export default function AvailabilityHeatmapPage() {
   const [customBounds, setCustomBounds] = useState({
@@ -66,7 +67,9 @@ export default function AvailabilityHeatmapPage() {
   const currentBounds = useCustomBounds ? customBounds : predefinedRegions[0].bounds;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <Header />
+      <div className="p-4">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-4">
@@ -248,6 +251,7 @@ export default function AvailabilityHeatmapPage() {
             </div>
           </CardContent>
         </Card>
+      </div>
       </div>
     </div>
   );

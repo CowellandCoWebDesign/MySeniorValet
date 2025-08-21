@@ -10,6 +10,7 @@ import { TrendingUp, TrendingDown, Minus, MapPin, Building2, DollarSign, Search,
 import { Link } from 'wouter';
 import { useSEO } from '@/hooks/useSEO';
 import { CompetitiveAnalysisLoader } from '@/components/CompetitiveAnalysisLoader';
+import { Header } from '@/components/header';
 
 interface MarketAnalysis {
   location: string;
@@ -98,6 +99,7 @@ export default function CompetitiveAnalysis() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-emerald-50/20 dark:from-gray-900 dark:via-blue-900/30 dark:to-emerald-900/20">
+      <Header />
       {/* Animated Background Pattern */}
       <div className="fixed inset-0 opacity-[0.03] dark:opacity-[0.02] pointer-events-none">
         <div className="absolute inset-0" style={{
