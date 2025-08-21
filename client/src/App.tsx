@@ -172,6 +172,7 @@ function Router() {
 
       <Route path="/ai-intelligence" component={AISearchIntelligence} />
       <Route path="/simplified-search" component={SimplifiedSearch} />
+      <Route path="/enhanced-search-demo" component={() => import('./components/EnhancedSearchDemo')} />
       <Route path="/community/:id" component={CommunityDetail} />
       <Route path="/communities/:id" component={CommunityDetail} />
       <Route path="/red-tag-example/:communitySlug" component={RedTagExample} />
