@@ -822,12 +822,17 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
               }
               console.log('Received fresh web intelligence:', data);
             }}
-            onPhotosUpdate={(photos) => {
+            onPhotosUpdate={React.useCallback((photos: string[]) => {
               console.log('Updating hero carousel with web photos:', photos);
-              if (photos && photos.length > 0) {
-                setWebIntelligencePhotos(photos);
+              try {
+                if (photos && photos.length > 0 && setWebIntelligencePhotos) {
+                  setWebIntelligencePhotos(photos);
+                  console.log('✅ Successfully updated hero carousel photos');
+                }
+              } catch (error) {
+                console.error('❌ Error updating photos:', error);
               }
-            }}
+            }, [setWebIntelligencePhotos])}
           />
         )}
         
