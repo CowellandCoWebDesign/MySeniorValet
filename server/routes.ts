@@ -70,6 +70,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const analyticsIntelligenceRoutes = await import('./routes/analytics-intelligence-routes');
   app.use(analyticsIntelligenceRoutes.default);
   
+  // Register web intelligence routes (Perplexity AI-powered)
+  const webIntelligenceRoutes = await import('./routes/webIntelligenceRoutes');
+  app.use(webIntelligenceRoutes.default);
+  
   // Register remaining special routes
   app.use('/api', autocompleteRoutes);
   app.use('/api/subscriptions', subscriptionRoutes);

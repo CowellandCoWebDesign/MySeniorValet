@@ -39,6 +39,7 @@ import { MessageCommunityButton } from "@/components/message-community-button";
 import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
 import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
 import { PricingHistory } from "@/components/pricing-history";
+import { LiveWebIntelligence } from "@/components/LiveWebIntelligence";
 
 // Community Competitive Analysis Component
 const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
@@ -808,7 +809,20 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
           </div>
         )}
         
-        <div className="space-y-6">
+        {/* Live Web Intelligence - NEW Perplexity-powered section */}
+        {community && (
+          <LiveWebIntelligence 
+            communityName={community.name}
+            city={community.city}
+            state={community.state}
+            onDataUpdate={(data) => {
+              // Update local state with fresh data if needed
+              console.log('Received fresh web intelligence:', data);
+            }}
+          />
+        )}
+        
+        <div className="space-y-6 mt-6">
           {/* Current Availability & Pricing */}
           {(realTimeData?.currentAvailability || realTimeData?.currentPricing || realTimeData?.waitlistStatus) && (
             <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-4 rounded-lg">
