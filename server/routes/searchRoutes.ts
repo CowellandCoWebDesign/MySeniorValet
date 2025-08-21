@@ -109,7 +109,7 @@ export function registerSearchRoutes(app: Express) {
       const { swLat, swLng, neLat, neLng, limit = '50' } = req.query;
       
       // Query marketplace vendors (which have more data than regular vendors)
-      const vendorResults = await db
+      let vendorResults = await db
         .select({
           id: marketplaceVendors.id,
           name: marketplaceVendors.name,
@@ -125,6 +125,62 @@ export function registerSearchRoutes(app: Express) {
         .leftJoin(marketplaceCategories, eq(marketplaceVendors.categoryId, marketplaceCategories.id))
         .where(eq(marketplaceVendors.isHidden, false))
         .limit(parseInt(limit as string));
+      
+      // Filter out charitable organizations and senior resources that should only appear in resources section
+      const charitableAndResourceNames = [
+        // Government resources
+        'Social Security Administration',
+        'Adult Protective Services (APS)',
+        'Long-Term Care Ombudsman',
+        'Senior Centers',
+        'National Council on Aging - Senior Centers',
+        'Disability Action Centers',
+        'AARP',
+        'AARP Technology Training',
+        "Alzheimer's Association",
+        "Parkinson's Foundation",
+        'American Cancer Society',
+        'Elder Abuse Hotline',
+        'Meals on Wheels',
+        'PACE Programs',
+        'MediGap/Supplemental',
+        'Area Agency on Aging',
+        'SHIP (Medicare Counseling)',
+        'Veterans Crisis Line',
+        'OLLI (Lifelong Learning)',
+        'Senior Planet',
+        'Relay Services (711)',
+        'Language Line',
+        'NEMT Services',
+        'Medicare.gov',
+        'VA Benefits & Healthcare',
+        'Health Education for Seniors',
+        // Charitable organizations
+        'OneSAFE Place',
+        'Salvation Army',
+        'Rescue Missions Directory',
+        "Nation's Finest",
+        'Goodwill',
+        'St. Vincent de Paul',
+        'Catholic Charities',
+        'United Way',
+        'Red Cross',
+        'Food Banks',
+        'Habitat for Humanity',
+        'Boys & Girls Club',
+        'YMCA',
+        'YWCA',
+        'Community Action Agencies',
+        'Homeless Shelters',
+        'Crisis Centers',
+        'Domestic Violence Resources',
+        'Substance Abuse Resources',
+        'Mental Health Resources'
+      ];
+      
+      vendorResults = vendorResults.filter(vendor => 
+        !charitableAndResourceNames.includes(vendor.name)
+      );
 
       // Transform to match expected vendor format for VendorCard
       const transformedVendors = vendorResults.map(vendor => ({
