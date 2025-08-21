@@ -112,7 +112,16 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
                 ease: "easeInOut"
               }}
             >
-              <span className="mascot-emoji">🤵</span>
+              <img 
+                src="/assets/gentleman-mascot.png" 
+                alt="Your Personal Senior Living Valet"
+                className="mascot-image"
+              />
+              {/* Small sparkles around mascot */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-1 right-1 w-1 h-1 bg-blue-400 rounded-full animate-ping" />
+                <div className="absolute bottom-1 left-1 w-1 h-1 bg-green-400 rounded-full animate-ping" style={{ animationDelay: '0.5s' }} />
+              </div>
             </motion.div>
           </div>
 

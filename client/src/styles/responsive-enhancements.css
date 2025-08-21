@@ -392,8 +392,10 @@
   flex-shrink: 0;
 }
 
-.mascot-emoji {
-  font-size: clamp(1.75rem, 2rem + 1vw, 2.5rem);
+.mascot-image {
+  height: clamp(2.5rem, 3rem + 1vw, 4rem);
+  width: auto;
+  object-fit: contain;
   animation: bounce-subtle 3s ease-in-out infinite;
 }
 
