@@ -1,5 +1,6 @@
 import { db } from "./db";
 import { communities } from "@shared/schema";
+import { or, like } from "drizzle-orm";
 
 interface AtriaProperty {
   name: string;
@@ -674,10 +675,10 @@ export class AtriaStateExpansionService {
     }).from(communities)
     .where(
       // Look for various Atria naming patterns
-      db.or(
-        db.like(communities.name, '%Atria%'),
-        db.like(communities.name, '%Holiday by Atria%'),
-        db.like(communities.name, '%La Residence%')
+      or(
+        like(communities.name, '%Atria%'),
+        like(communities.name, '%Holiday by Atria%'),
+        like(communities.name, '%La Residence%')
       )
     );
 

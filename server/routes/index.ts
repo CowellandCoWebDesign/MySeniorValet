@@ -52,6 +52,7 @@ import weaviateRoutes from "./weaviate-routes";
 import enhancedWeaviateRoutes from "./enhanced-weaviate-routes";
 import { registerPlatformRoutes } from "./platformRoutes";
 import { registerCommunityOnboardingRoutes } from "./communityOnboardingRoutes";
+import atriaRoutes from "./atria-routes";
 // DISABLED: Old Stripe routes - replaced by unifiedPaymentRoutes
 // import { registerStripeTestRoutes } from "./stripe-test";
 // import { registerStripeRealChargeRoutes } from "./stripe-real-charge-test";
@@ -69,6 +70,7 @@ import seniorServicesRoutes from "./senior-services";
 import realDataRoutes from "./real-data-api";
 import socialMediaRoutes from "./social-media-api";
 import emailCampaignRoutes from "./email-campaign-api";
+import { atriaRoutes } from "./atria-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Note: Replit Auth is already initialized in server/routes.ts
@@ -182,6 +184,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/real-data', realDataRoutes);
   app.use('/api/social-media', socialMediaRoutes);
   app.use('/api/email-campaign', emailCampaignRoutes);
+  
+  // Register Atria expansion routes
+  app.use('/api/atria', atriaRoutes);
 
   return httpServer;
 }
