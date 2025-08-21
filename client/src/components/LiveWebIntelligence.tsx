@@ -76,12 +76,12 @@ export function LiveWebIntelligence({
       const extracted = extractStructuredData(webData.content);
       setExtractedData(extracted);
       
-      // Notify parent component of new data including any found images
+      // Notify parent component of new data (optional callback)
       if (onDataUpdate) {
         onDataUpdate({
           ...extracted,
           citations: webData.citations,
-          images: webData.images || [],  // Pass actual community photos found online
+          images: webData.images || [],
           lastUpdated: new Date().toISOString()
         });
       }
@@ -273,6 +273,36 @@ export function LiveWebIntelligence({
                     <p className="mt-1 text-sm">{extractedData.pricing}</p>
                   </AlertDescription>
                 </Alert>
+              )}
+
+              {/* Community Photos Found */}
+              {webData?.images && webData.images.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center">
+                    <Building className="w-4 h-4 mr-2 text-orange-600" />
+                    Community Photos Found Online
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {webData.images.slice(0, 6).map((imageUrl: string, idx: number) => (
+                      <div key={idx} className="relative group">
+                        <img
+                          src={imageUrl}
+                          alt={`${communityName} photo ${idx + 1}`}
+                          className="w-full h-24 object-cover rounded-lg border shadow-sm group-hover:shadow-md transition-shadow"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-colors" />
+                      </div>
+                    ))}
+                  </div>
+                  {webData.images.length > 6 && (
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                      +{webData.images.length - 6} more photos found
+                    </p>
+                  )}
+                </div>
               )}
             </div>
           )}
