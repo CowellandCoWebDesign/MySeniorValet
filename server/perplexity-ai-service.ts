@@ -10,6 +10,7 @@ export interface PerplexityResponse {
     };
   }>;
   citations?: string[];
+  images?: string[];  // URLs of relevant images found
   usage: {
     prompt_tokens: number;
     completion_tokens: number;
@@ -29,7 +30,7 @@ export class PerplexityAIService {
     return !!this.apiKey;
   }
 
-  async searchRealTime(query: string, context?: string): Promise<{ summary: string; sources: string[] }> {
+  async searchRealTime(query: string, context?: string): Promise<{ summary: string; sources: string[]; images?: string[] }> {
     if (!this.isConfigured()) {
       throw new Error('Perplexity API key not configured');
     }
@@ -62,6 +63,8 @@ This is for MySeniorValet's transparent information system. ${context ? `Context
           max_tokens: 2000,  // Increased for comprehensive responses
           temperature: 0.2,
           top_p: 0.9,
+          return_images: true,  // Request actual images from search results
+          search_recency_filter: 'month',  // Get fresh data from last 30 days
           stream: false
         },
         {
@@ -74,8 +77,9 @@ This is for MySeniorValet's transparent information system. ${context ? `Context
 
       const summary = response.data.choices[0]?.message?.content || 'No results found';
       const sources = response.data.citations || [];
+      const images = response.data.images || [];
       
-      return { summary, sources };
+      return { summary, sources, images };
     } catch (error: any) {
       console.error('Perplexity API error:', error.response?.data || error.message);
       throw new Error('Failed to search real-time data');

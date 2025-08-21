@@ -816,7 +816,11 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
             city={community.city}
             state={community.state}
             onDataUpdate={(data) => {
-              // Update local state with fresh data if needed
+              // Capture actual community photos found by Perplexity
+              if (data.images && data.images.length > 0) {
+                console.log('Found actual community photos:', data.images);
+                setWebFoundImages(data.images);
+              }
               console.log('Received fresh web intelligence:', data);
             }}
           />
@@ -1253,6 +1257,8 @@ export default function CommunityDetail() {
   const [expandedUnits, setExpandedUnits] = useState<Set<string>>(new Set());
   // Track verification report to show live pricing data from Market Data tab
   const [verificationReport, setVerificationReport] = useState<any>(null);
+  // Store actual community photos found by Perplexity web search
+  const [webFoundImages, setWebFoundImages] = useState<string[]>([]);
   
   // Debug helper to track when verification report updates
   React.useEffect(() => {
@@ -1607,10 +1613,10 @@ export default function CommunityDetail() {
             <Card>
               <CardContent className="p-0">
                 <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg">
-                  {community.photos && community.photos.length > 0 ? (
+                  {(community.photos && community.photos.length > 0) || webFoundImages.length > 0 ? (
                     <>
                       <HeroPhotoCarousel 
-                        photos={community.photos} 
+                        photos={[...(community.photos || []), ...webFoundImages]} 
                         communityName={community.name}
                       />
                       
@@ -1618,7 +1624,11 @@ export default function CommunityDetail() {
                       <div className="absolute bottom-4 left-4 z-10">
                         <Badge className="bg-green-600 text-white border-0 backdrop-blur-sm">
                           <Shield className="h-3 w-3 mr-1" />
-                          Authentic Community Photos
+                          {webFoundImages.length > 0 && (!community.photos || community.photos.length === 0) 
+                            ? 'Photos Found Online via Perplexity AI' 
+                            : community.photos && community.photos.length > 0 && webFoundImages.length > 0
+                            ? 'Community & Web Photos'
+                            : 'Authentic Community Photos'}
                         </Badge>
                       </div>
                     </>

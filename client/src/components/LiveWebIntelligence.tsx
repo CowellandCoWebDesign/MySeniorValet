@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 interface PerplexityResponse {
   content: string;
   citations?: string[];
+  images?: string[];  // URLs of actual community photos found online
   search_results?: Array<{
     title: string;
     url: string;
@@ -75,11 +76,12 @@ export function LiveWebIntelligence({
       const extracted = extractStructuredData(webData.content);
       setExtractedData(extracted);
       
-      // Notify parent component of new data
+      // Notify parent component of new data including any found images
       if (onDataUpdate) {
         onDataUpdate({
           ...extracted,
           citations: webData.citations,
+          images: webData.images || [],  // Pass actual community photos found online
           lastUpdated: new Date().toISOString()
         });
       }

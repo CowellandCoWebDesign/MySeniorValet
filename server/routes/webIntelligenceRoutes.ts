@@ -19,15 +19,14 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
     
     console.log(`🔍 Fetching web intelligence for: ${communityName} in ${city}, ${state}`);
     
-    // Use Perplexity's sonar-pro model to get comprehensive results
-    const response = await perplexityService.search(searchQuery);
+    // Use Perplexity's sonar-pro model to get comprehensive results with images
+    const response = await perplexityService.searchRealTime(searchQuery);
     
-    // Parse the response to extract structured data
+    // Parse the response to extract structured data including images
     const structuredResponse = {
-      content: response.content || '',
-      citations: response.citations || [],
-      search_results: response.search_results || [],
-      usage: response.usage || {},
+      content: response.summary || '',
+      citations: response.sources || [],
+      images: response.images || [],  // Real community photos found online
       timestamp: new Date().toISOString()
     };
     
@@ -59,12 +58,12 @@ router.post('/api/communities/comparative-intelligence', async (req, res) => {
     
     console.log(`📊 Fetching comparative intelligence for: ${location}`);
     
-    const response = await perplexityService.searchCommunity(searchQuery);
+    const response = await perplexityService.searchRealTime(searchQuery);
     
     res.json({
-      content: response.content || '',
-      citations: response.citations || [],
-      search_results: response.search_results || [],
+      content: response.summary || '',
+      citations: response.sources || [],
+      images: response.images || [],
       location,
       careType,
       timestamp: new Date().toISOString()
@@ -94,10 +93,10 @@ router.post('/api/communities/verify-information', async (req, res) => {
     
     console.log(`🔍 Verifying information for: ${communityName}`);
     
-    const response = await perplexityService.searchCommunity(verificationQuery);
+    const response = await perplexityService.searchRealTime(verificationQuery);
     
     // Extract verification results
-    const content = response.content || '';
+    const content = response.summary || '';
     const verificationResults = {
       communityId,
       verified: content.toLowerCase().includes(communityName.toLowerCase()),
@@ -105,7 +104,8 @@ router.post('/api/communities/verify-information', async (req, res) => {
       phoneConfirmed: phone ? content.includes(phone.replace(/\D/g, '').slice(-7)) : null,
       websiteConfirmed: website ? content.includes(website.replace(/https?:\/\//, '')) : null,
       additionalInfo: extractAdditionalInfo(content),
-      sources: response.citations || [],
+      sources: response.sources || [],
+      images: response.images || [],  // Include found images
       timestamp: new Date().toISOString()
     };
     
