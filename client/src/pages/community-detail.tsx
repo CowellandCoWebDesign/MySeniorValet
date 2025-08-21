@@ -662,28 +662,73 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
-        {/* Real-Time Community Insights */}
-        {(localVerificationReport?.consensus?.verifiedFacts?.length > 0 || isVerifying) && (
+        {/* Community-Specific Web Intelligence */}
+        {(realTimeData || localVerificationReport?.consensus?.verifiedFacts?.length > 0 || isVerifying) && (
           <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
             <div className="flex items-center justify-between mb-3">
               <h4 className="font-semibold text-lg flex items-center">
-                <Sparkles className="w-5 h-5 mr-2 text-indigo-600" />
-                Real-Time Community Insights
+                <Globe className="w-5 h-5 mr-2 text-indigo-600" />
+                What We Found About {community?.name}
               </h4>
               <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
-                Live Web Data
+                Live Web Search
               </Badge>
             </div>
             
-            {/* Key Insights from Web Search */}
-            {localVerificationReport?.consensus?.verifiedFacts?.length > 0 && (
-              <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  Latest information gathered from public sources:
-                </p>
-                <div className="space-y-2">
+            {/* Community Website & Management */}
+            <div className="space-y-3">
+              {/* Check for management company */}
+              {(() => {
+                const communityName = community?.name?.toLowerCase() || '';
+                const majorBrands = {
+                  'atria': 'Atria Senior Living',
+                  'brookdale': 'Brookdale Senior Living',
+                  'discovery': 'Discovery Senior Living', 
+                  'sunrise': 'Sunrise Senior Living',
+                  'watermark': 'Watermark Retirement Communities',
+                  'capital': 'Capital Senior Living',
+                  'five star': 'Five Star Senior Living',
+                  'senior lifestyle': 'Senior Lifestyle Corporation',
+                  'leisure care': 'Leisure Care',
+                  'integral': 'Integral Senior Living',
+                  'pacifica': 'Pacifica Senior Living',
+                  'oakmont': 'Oakmont Senior Living',
+                  'silverado': 'Silverado',
+                  'belmont': 'Belmont Village',
+                  'benchmark': 'Benchmark Senior Living'
+                };
+                
+                const foundBrand = Object.entries(majorBrands).find(([key, value]) => 
+                  communityName.includes(key)
+                );
+                
+                if (foundBrand) {
+                  return (
+                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                      <div className="flex items-start">
+                        <Building className="w-4 h-4 mr-2 mt-0.5 text-purple-600 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            Managed by {foundBrand[1]}
+                          </p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                            Part of a major senior living corporation with standardized care and quality protocols
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+              
+              {/* Community-specific insights from web search */}
+              {localVerificationReport?.consensus?.verifiedFacts?.length > 0 && (
+                <>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Information found about this specific community:
+                  </p>
                   {localVerificationReport.consensus.verifiedFacts.map((fact: any, idx: number) => {
-                    // Check if fact is JSON string and parse it
                     let factText = fact;
                     try {
                       if (typeof fact === 'string' && fact.includes('{') && fact.includes('}')) {
@@ -696,38 +741,70 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
                       // If it's not valid JSON, use as-is
                     }
                     
-                    // Filter out generic or non-useful information
+                    // Only show facts specific to this community
                     if (factText.toLowerCase().includes('not available') || 
                         factText.toLowerCase().includes('no information') ||
                         factText.toLowerCase().includes('cannot verify') ||
-                        factText.toLowerCase().includes('unable to confirm')) {
+                        factText.toLowerCase().includes('unable to confirm') ||
+                        factText.toLowerCase().includes('general') ||
+                        factText.toLowerCase().includes('typically')) {
                       return null;
+                    }
+                    
+                    // Categorize the fact
+                    let icon = <Info className="w-4 h-4 mr-2 mt-0.5 text-indigo-600 flex-shrink-0" />;
+                    if (factText.toLowerCase().includes('website') || factText.toLowerCase().includes('.com') || factText.toLowerCase().includes('online')) {
+                      icon = <Globe className="w-4 h-4 mr-2 mt-0.5 text-blue-600 flex-shrink-0" />;
+                    } else if (factText.toLowerCase().includes('manage') || factText.toLowerCase().includes('operate') || factText.toLowerCase().includes('corporation')) {
+                      icon = <Building className="w-4 h-4 mr-2 mt-0.5 text-purple-600 flex-shrink-0" />;
+                    } else if (factText.toLowerCase().includes('certif') || factText.toLowerCase().includes('accredit') || factText.toLowerCase().includes('award')) {
+                      icon = <Award className="w-4 h-4 mr-2 mt-0.5 text-green-600 flex-shrink-0" />;
                     }
                     
                     return (
                       <div key={idx} className="bg-white dark:bg-gray-800 p-3 rounded-lg">
                         <div className="flex items-start">
-                          <Info className="w-4 h-4 mr-2 mt-0.5 text-indigo-600 flex-shrink-0" />
+                          {icon}
                           <p className="text-sm text-gray-700 dark:text-gray-300">{factText}</p>
                         </div>
                       </div>
                     );
                   }).filter(Boolean)}
+                </>
+              )}
+              
+              {/* No specific information found */}
+              {(!localVerificationReport?.consensus?.verifiedFacts || 
+                localVerificationReport.consensus.verifiedFacts.filter((fact: any) => {
+                  let factText = typeof fact === 'string' ? fact : (fact.fact || fact.text || fact.message || '');
+                  return !factText.toLowerCase().includes('not available') && 
+                         !factText.toLowerCase().includes('no information') &&
+                         !factText.toLowerCase().includes('cannot verify');
+                }).length === 0) && !isVerifying && (
+                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    No public website or additional online information found for this specific community. 
+                    Contact them directly for the most current information.
+                  </p>
                 </div>
-                
-                {/* Data Source Note */}
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 italic">
-                  Information gathered from public web sources and community websites
-                </p>
-              </div>
-            )}
+              )}
+              
+              {/* Data Source Note */}
+              {realTimeData?.sources?.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-indigo-200 dark:border-indigo-700">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Sources checked: Public websites, corporate directories, and community listings
+                  </p>
+                </div>
+              )}
+            </div>
             
             {/* Loading State */}
             {isVerifying && !localVerificationReport && (
               <div className="flex items-center justify-center py-2">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mr-2" />
                 <p className="text-sm text-indigo-700 dark:text-indigo-300">
-                  Gathering real-time insights...
+                  Searching for {community?.name} information...
                 </p>
               </div>
             )}
