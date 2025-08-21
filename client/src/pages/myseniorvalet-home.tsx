@@ -36,6 +36,7 @@ import HospitalCarousel from "@/components/HospitalCarousel";
 import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
+import { MascotInfoBar } from '@/components/mascot/MascotInfoBar';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 
@@ -821,6 +822,9 @@ export default function MySeniorValetHome() {
           
         </div>
         {/* End Hero Content */}
+        
+        {/* Mascot Info Bar - At the very bottom of hero */}
+        <MascotInfoBar className="absolute bottom-0 left-0 right-0 z-50" />
         
       </section>
 
