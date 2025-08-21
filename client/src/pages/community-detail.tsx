@@ -822,7 +822,6 @@ const RealTimeInsights = ({ community, onVerificationReport, onPhotosUpdate }: {
               }
               console.log('Received fresh web intelligence:', data);
             }}
-            onPhotosUpdate={undefined}
           />
         )}
         
@@ -1257,8 +1256,7 @@ export default function CommunityDetail() {
   const [expandedUnits, setExpandedUnits] = useState<Set<string>>(new Set());
   // Track verification report to show live pricing data from Market Data tab
   const [verificationReport, setVerificationReport] = useState<any>(null);
-  // Removed webIntelligencePhotos - photos now stay in LiveWebIntelligence section only
-
+  // Photos now stay in LiveWebIntelligence section only
   
   // Debug helper to track when verification report updates
   React.useEffect(() => {
@@ -1622,19 +1620,9 @@ export default function CommunityDetail() {
                       
                       {/* PHOTO SOURCE TRANSPARENCY OVERLAY */}
                       <div className="absolute bottom-4 left-4 z-10">
-                        <Badge className={`text-white border-0 backdrop-blur-sm ${
-                          webIntelligencePhotos.length > 0 && (!community.photos || community.photos.length === 0)
-                            ? 'bg-orange-600'
-                            : community.photos && community.photos.length > 0 && webIntelligencePhotos.length > 0
-                            ? 'bg-blue-600'
-                            : 'bg-green-600'
-                        }`}>
+                        <Badge className="text-white border-0 backdrop-blur-sm bg-green-600">
                           <Shield className="h-3 w-3 mr-1" />
-                          {webIntelligencePhotos.length > 0 && (!community.photos || community.photos.length === 0)
-                            ? 'Photos Pending — Not Verified'
-                            : community.photos && community.photos.length > 0 && webIntelligencePhotos.length > 0
-                            ? 'Verified + Web Photos'
-                            : 'Authentic Community Photos'}
+                          Authentic Community Photos
                         </Badge>
                       </div>
                     </>
