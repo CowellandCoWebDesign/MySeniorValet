@@ -193,48 +193,12 @@ export default function AISearchIntelligence() {
     immediateAvailability: false
   });
 
-  // Check URL parameters to auto-switch to simplified search and execute search
+  // Check URL parameters to auto-switch to simplified search
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode');
-    const location = urlParams.get('location');
-    const careType = urlParams.get('careType');
-    const budget = urlParams.get('budget');
-    
-    // If mode is specified, switch to that tab
     if (mode === 'simplified') {
       setActiveTab('simplified');
-    }
-    
-    // If location is provided, automatically execute a search
-    if (location && location.trim()) {
-      console.log('🚀 Auto-executing search from URL params:', { location, careType, budget });
-      
-      // Set the search query for the AI search
-      setSearchQuery(location);
-      
-      // Prepare the search string with additional context if available
-      let searchString = location;
-      if (careType && careType !== 'All Types') {
-        searchString += ` ${careType}`;
-      }
-      if (budget && budget !== 'Any Budget') {
-        searchString += ` budget ${budget}`;
-      }
-      
-      // Execute AI search after a short delay to ensure component is mounted
-      setTimeout(() => {
-        console.log('🔍 Executing auto-search with query:', searchString);
-        setIsAnalyzing(true);
-        aiSearchMutation.mutate(
-          { query: searchString, type: 'housing' },
-          {
-            onSettled: () => {
-              setIsAnalyzing(false);
-            }
-          }
-        );
-      }, 100);
     }
   }, []);
 
@@ -922,12 +886,6 @@ export default function AISearchIntelligence() {
                       {searchType === 'marketplace' && `${searchResults.data?.vendors?.length || 0} Marketplace Vendors`}
                       {searchType === 'resources' && `${searchResults.data?.resources?.length || 0} Healthcare Resources Available`}
                     </h3>
-                    {/* Show search location context */}
-                    {searchQuery && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        Showing results for: <span className="font-medium">{searchQuery}</span>
-                      </p>
-                    )}
                   </div>
                   
                   {/* No Exact Match - Show Suggestions */}
