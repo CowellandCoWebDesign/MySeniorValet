@@ -979,7 +979,12 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
 
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                  <Button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.location.href = '/community-directory';
+                    }}
+                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
                     <span className="font-semibold">Explore Directory</span>
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
