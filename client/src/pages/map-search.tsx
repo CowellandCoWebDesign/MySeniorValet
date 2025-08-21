@@ -44,7 +44,7 @@ interface Community {
   reviewCount: number;
   phone: string;
   website: string;
-  priceRange?: { min: number; max: number };
+  priceRange?: { min: number; max: number } | string;
   availability: string;
   photos: string[];
   description: string;
@@ -210,7 +210,7 @@ export default function MapSearch() {
               .then(data => {
                 if (data.communities && data.communities.length > 0) {
                   // Group communities by city/state to find the most common location
-                  const locationCounts = new Map();
+                  const locationCounts = new Map<string, {count: number, lat: number, lng: number}>();
                   data.communities.forEach((comm: Community) => {
                     const key = `${comm.city}, ${comm.state}`;
                     const current = locationCounts.get(key) || { count: 0, lat: comm.latitude, lng: comm.longitude };
@@ -219,8 +219,8 @@ export default function MapSearch() {
                   
                   // Find the most common location
                   let maxCount = 0;
-                  let bestLocation = null;
-                  locationCounts.forEach((value, key) => {
+                  let bestLocation: {count: number, lat: number, lng: number, location: string} | null = null;
+                  locationCounts.forEach((value: {count: number, lat: number, lng: number}, key: string) => {
                     if (value.count > maxCount) {
                       maxCount = value.count;
                       bestLocation = { ...value, location: key };
