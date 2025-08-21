@@ -48,7 +48,7 @@ This is for MySeniorValet's transparent information system. ${context ? `Context
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,
         {
-          model: 'sonar',  // Sonar Pro model for best accuracy and real-time data
+          model: 'llama-3.1-sonar-large-128k-online',  // Sonar Pro/Large model for best accuracy and real-time data
           messages: [
             {
               role: 'system',
