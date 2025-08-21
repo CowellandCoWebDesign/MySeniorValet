@@ -186,46 +186,73 @@ export default function MapSearch() {
         setShowBottomPanel(true);
       }
       
-      // Perform actual search for the query
-      fetch(`/api/communities/search?q=${encodeURIComponent(initialQuery)}&limit=50`)
+      // First, try to geocode the location to get coordinates
+      console.log('📍 Attempting to geocode location:', initialQuery);
+      fetch(`/api/geocode?location=${encodeURIComponent(initialQuery.toLowerCase())}`)
         .then(res => res.json())
-        .then(data => {
-          if (data.communities && data.communities.length > 0) {
-            const firstCommunity = data.communities[0];
-            console.log('📍 Found community, centering map:', firstCommunity.name, firstCommunity.city, firstCommunity.state);
+        .then(geocodeData => {
+          if (geocodeData.success && geocodeData.lat && geocodeData.lng) {
+            // Successfully geocoded - center map on those coordinates
+            console.log('✅ Geocoding successful! Centering map on:', geocodeData.location, 
+                       'at coordinates:', geocodeData.lat, geocodeData.lng);
+            setMapCenter([geocodeData.lat, geocodeData.lng]);
+            setMapZoom(12); // City-level zoom for geocoded locations
             
-            // Center map on the first result
-            if (firstCommunity.latitude && firstCommunity.longitude) {
-              setMapCenter([firstCommunity.latitude, firstCommunity.longitude]);
-              setMapZoom(14); // Zoom in to show the community clearly
-            }
+            // Now search for communities in this area
+            // The map bounds will update and trigger the community fetch
           } else {
-            // Try parsing as city/state if no direct community match
-            const { city, state } = parseSearchQuery(initialQuery);
-            if (city || state) {
-              console.log('📍 Searching by location:', { city, state });
-              const locationQuery = new URLSearchParams({
-                ...(city && { city }),
-                ...(state && { state }),
-                limit: '50'
-              });
-              
-              fetch(`/api/communities/search?${locationQuery}`)
-                .then(res => res.json())
-                .then(locationData => {
-                  if (locationData.communities && locationData.communities.length > 0) {
-                    const firstCommunity = locationData.communities[0];
+            // Geocoding failed - fall back to search-based approach
+            console.log('⚠️ Geocoding failed, falling back to community search');
+            
+            // Perform search for communities matching the query
+            fetch(`/api/communities/search?q=${encodeURIComponent(initialQuery)}&limit=50`)
+              .then(res => res.json())
+              .then(data => {
+                if (data.communities && data.communities.length > 0) {
+                  // Group communities by city/state to find the most common location
+                  const locationCounts = new Map();
+                  data.communities.forEach((comm: Community) => {
+                    const key = `${comm.city}, ${comm.state}`;
+                    const current = locationCounts.get(key) || { count: 0, lat: comm.latitude, lng: comm.longitude };
+                    locationCounts.set(key, { count: current.count + 1, lat: comm.latitude, lng: comm.longitude });
+                  });
+                  
+                  // Find the most common location
+                  let maxCount = 0;
+                  let bestLocation = null;
+                  locationCounts.forEach((value, key) => {
+                    if (value.count > maxCount) {
+                      maxCount = value.count;
+                      bestLocation = { ...value, location: key };
+                    }
+                  });
+                  
+                  if (bestLocation && bestLocation.lat && bestLocation.lng) {
+                    console.log('📍 Most communities found in:', bestLocation.location, 
+                               '- centering map there');
+                    setMapCenter([bestLocation.lat, bestLocation.lng]);
+                    setMapZoom(12); // City-level zoom
+                  } else {
+                    // Use first result as fallback
+                    const firstCommunity = data.communities[0];
                     if (firstCommunity.latitude && firstCommunity.longitude) {
+                      console.log('📍 Using first result location:', firstCommunity.city, firstCommunity.state);
                       setMapCenter([firstCommunity.latitude, firstCommunity.longitude]);
-                      setMapZoom(12); // City-level zoom
+                      setMapZoom(12);
                     }
                   }
-                })
-                .catch(err => console.error('Location search failed:', err));
-            }
+                } else {
+                  console.log('❌ No communities found for query:', initialQuery);
+                }
+              })
+              .catch(err => console.error('Community search failed:', err));
           }
         })
-        .catch(err => console.error('Initial search failed:', err));
+        .catch(err => {
+          console.error('Geocoding request failed:', err);
+          // Fall back to default San Francisco if all else fails
+          console.log('⚠️ All location detection failed, using default location');
+        });
     }
   }, [initialQuery, hasSearched]);
 
@@ -734,12 +761,34 @@ export default function MapSearch() {
     setHasSearched(true);
     console.log('🔍 Searching for location:', location);
     
-    
     // Clear any existing map bounds to force a fresh search
     setMapBounds(null);
     setShowBottomPanel(false); // Hide panel during search
 
-    // Try to geocode the location using enhanced API
+    // FIRST: Try to geocode the location directly
+    try {
+      console.log('📍 Attempting to geocode location:', location);
+      const geocodeResponse = await fetch(`/api/geocode?location=${encodeURIComponent(location.toLowerCase())}`);
+      const geocodeData = await geocodeResponse.json();
+      
+      if (geocodeData.success && geocodeData.lat && geocodeData.lng) {
+        console.log('✅ Geocoding successful! Centering map on:', geocodeData.location, 
+                   'at coordinates:', geocodeData.lat, geocodeData.lng);
+        setMapCenter([geocodeData.lat, geocodeData.lng]);
+        setMapZoom(12); // City-level zoom for geocoded locations
+        
+        // Delay showing panel to allow map to update first
+        setTimeout(() => {
+          setPanelHeight(90);
+          setShowBottomPanel(true);
+        }, 500);
+        return;
+      }
+    } catch (error) {
+      console.error('Geocoding error:', error);
+    }
+
+    // SECOND: Try to geocode the location using enhanced API
     try {
       // First try the enhanced API with filters if we have them
       const careTypeFilter = filters.careType !== 'All Types' ? `&careType=${encodeURIComponent(filters.careType)}` : '';

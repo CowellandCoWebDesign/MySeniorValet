@@ -33,6 +33,41 @@ interface SearchParams {
 }
 
 export function registerUnifiedSearchRoutes(app: Express) {
+  // Geocoding endpoint for location searches
+  app.get("/api/geocode", async (req, res) => {
+    try {
+      const { location } = req.query;
+      if (!location) {
+        return res.status(400).json({ error: "Location parameter required" });
+      }
+      
+      // Import geocoding function
+      const { geocodeLocation } = await import('../geocoding-data');
+      const coords = geocodeLocation(location as string);
+      
+      if (coords) {
+        console.log(`📍 Geocoded "${location}" to:`, coords);
+        return res.json({ 
+          success: true,
+          location: location,
+          coordinates: coords,
+          lat: coords.lat,
+          lng: coords.lng
+        });
+      } else {
+        console.log(`❌ Could not geocode "${location}"`);
+        return res.json({ 
+          success: false,
+          location: location,
+          message: "Location not found in geocoding database"
+        });
+      }
+    } catch (error) {
+      console.error("Geocoding error:", error);
+      res.status(500).json({ error: "Geocoding failed" });
+    }
+  });
+
   // Main search handler function
   const handleUnifiedSearch = async (req: any, res: any) => {
     try {
