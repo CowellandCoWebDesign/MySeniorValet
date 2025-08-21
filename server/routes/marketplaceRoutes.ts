@@ -28,7 +28,7 @@ router.get("/vendors", async (req: Request, res: Response) => {
     
     let vendors = await storage.getMarketplaceVendors(params);
     
-    // Filter out senior resources that should only appear in the Senior Resources section
+    // Filter out senior resources and charitable organizations that should only appear in the Senior Resources section
     const seniorResourceNames = [
       'Social Security Administration',
       'Adult Protective Services (APS)',
@@ -55,7 +55,28 @@ router.get("/vendors", async (req: Request, res: Response) => {
       'NEMT Services',
       'Medicare.gov',
       'VA Benefits & Healthcare',
-      'Health Education for Seniors'
+      'Health Education for Seniors',
+      // Charitable organizations and resource directories
+      'OneSAFE Place',
+      'Salvation Army',
+      'Rescue Missions Directory',
+      "Nation's Finest",
+      'Goodwill',
+      'St. Vincent de Paul',
+      'Catholic Charities',
+      'United Way',
+      'Red Cross',
+      'Food Banks',
+      'Habitat for Humanity',
+      'Boys & Girls Club',
+      'YMCA',
+      'YWCA',
+      'Community Action Agencies',
+      'Homeless Shelters',
+      'Crisis Centers',
+      'Domestic Violence Resources',
+      'Substance Abuse Resources',
+      'Mental Health Resources'
     ];
     
     vendors = vendors.filter(vendor => 
