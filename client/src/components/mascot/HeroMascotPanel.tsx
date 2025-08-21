@@ -117,11 +117,6 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
                 alt="Your Personal Senior Living Valet"
                 className="mascot-image"
               />
-              {/* Small sparkles around mascot */}
-              <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-1 right-1 w-1 h-1 bg-blue-400 rounded-full animate-ping" />
-                <div className="absolute bottom-1 left-1 w-1 h-1 bg-green-400 rounded-full animate-ping" style={{ animationDelay: '0.5s' }} />
-              </div>
             </motion.div>
           </div>
 
