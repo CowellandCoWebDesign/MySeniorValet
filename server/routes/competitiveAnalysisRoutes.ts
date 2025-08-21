@@ -10,7 +10,7 @@ const perplexityService = new PerplexityAIService();
 // Competitive Analysis endpoint
 router.post('/api/competitive-analysis', async (req, res) => {
   try {
-    const { location, type } = req.body;
+    const { location, type, communityName, communityAddress, communityPhone, communityWebsite } = req.body;
     
     if (!location || !type) {
       return res.status(400).json({ error: 'Location and type are required' });
@@ -21,6 +21,26 @@ router.post('/api/competitive-analysis', async (req, res) => {
     let contextQuery = '';
     
     switch(type) {
+      case 'community-specific':
+        // When searching for specific community information
+        const phoneStr = communityPhone ? ` phone ${communityPhone}` : '';
+        const websiteStr = communityWebsite ? ` website ${communityWebsite}` : '';
+        const addressStr = communityAddress ? ` located at ${communityAddress}` : '';
+        
+        searchQuery = `"${communityName}"${addressStr}${phoneStr}${websiteStr} senior living community pricing availability reviews services`;
+        contextQuery = `Find specific information about ${communityName} senior living community in ${location}. Look for:
+        1. The community's official website or public information
+        2. Current pricing and availability for ${communityName}
+        3. Services and amenities offered by ${communityName}
+        4. Recent news, reviews, or updates about ${communityName}
+        5. Management company or corporation that operates ${communityName}
+        6. Any specific information about THIS community, not generic senior living information
+        ${addressStr ? `Address: ${communityAddress}` : ''}
+        ${phoneStr ? `Phone: ${communityPhone}` : ''}
+        ${websiteStr ? `Website: ${communityWebsite}` : ''}
+        
+        Focus ONLY on information specifically about ${communityName}, not general information about senior living in the area.`;
+        break;
       case 'city':
         searchQuery = `average senior living costs assisted living memory care nursing home prices in ${location} current 2025 monthly rates`;
         contextQuery = `List ALL senior living communities in ${location} with their specific pricing. Include every facility name you find, individual community pricing, assisted living costs, memory care costs, nursing home costs. Provide complete data on each community mentioned. Compare to national averages. Include all facilities viewed or referenced.`;
@@ -121,25 +141,67 @@ router.post('/api/competitive-analysis', async (req, res) => {
     const insights = [];
     const sentences = content.split('. ');
     
-    // Include ALL sentences that contain valuable information
-    for (const sentence of sentences) {
-      const trimmed = sentence.trim();
-      if (trimmed.length > 20) { // Minimal filtering - just avoid empty sentences
-        // Prioritize sentences with community names, prices, or specific data
-        if (trimmed.match(/\$[\d,]+/) || // Has pricing
-            trimmed.match(/\b[A-Z][a-z]+\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home)\b/) || // Has community names
-            trimmed.match(/\d+%/) || // Has percentages
-            trimmed.match(/average|cost|price|rate|facility|community/i)) { // Has relevant keywords
-          insights.unshift(trimmed + '.'); // Add high-priority insights to beginning
-        } else {
-          insights.push(trimmed + '.'); // Add other insights to end
+    // For community-specific searches, include ALL information about the community
+    if (type === 'community-specific') {
+      for (const sentence of sentences) {
+        const trimmed = sentence.trim();
+        if (trimmed.length > 10) { // Keep almost everything for specific communities
+          // Filter out only truly generic statements that don't mention the community
+          const isGeneric = !trimmed.includes(communityName) && 
+                          (trimmed.match(/^(Most|Many|Typically|Generally|Usually|Senior living|Industry)\s/i) ||
+                           trimmed.match(/in general|on average|standard practice/i));
+          
+          if (!isGeneric) {
+            // Include everything specific to this community, even "no website found" type messages
+            insights.push(trimmed + '.');
+          }
+        }
+      }
+    } else {
+      // For city/state/region searches, use the existing logic
+      for (const sentence of sentences) {
+        const trimmed = sentence.trim();
+        if (trimmed.length > 20) { // Minimal filtering - just avoid empty sentences
+          // Prioritize sentences with community names, prices, or specific data
+          if (trimmed.match(/\$[\d,]+/) || // Has pricing
+              trimmed.match(/\b[A-Z][a-z]+\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home)\b/) || // Has community names
+              trimmed.match(/\d+%/) || // Has percentages
+              trimmed.match(/average|cost|price|rate|facility|community/i)) { // Has relevant keywords
+            insights.unshift(trimmed + '.'); // Add high-priority insights to beginning
+          } else {
+            insights.push(trimmed + '.'); // Add other insights to end
+          }
         }
       }
     }
 
     // Also query our database for actual data in the location
     let dbInsight = '';
-    if (type === 'city') {
+    if (type === 'community-specific' && communityName) {
+      // For specific community searches, look for that exact community
+      const specificCommunity = await db
+        .select({
+          id: communities.id,
+          name: communities.name,
+          city: communities.city,
+          state: communities.state,
+          rentPerMonth: communities.rentPerMonth,
+          hudPropertyId: communities.hudPropertyId
+        })
+        .from(communities)
+        .where(sql`lower(${communities.name}) LIKE lower(${'%' + communityName + '%'})`)
+        .limit(1);
+      
+      if (specificCommunity.length > 0) {
+        const comm = specificCommunity[0];
+        if (comm.rentPerMonth) {
+          dbInsight = `Verified pricing for ${comm.name}: $${comm.rentPerMonth}/month${comm.hudPropertyId ? ' (HUD property)' : ''}.`;
+        } else {
+          dbInsight = `${comm.name} is in our database (${comm.city}, ${comm.state})${comm.hudPropertyId ? ' as a HUD property' : ''}.`;
+        }
+        insights.unshift(dbInsight);
+      }
+    } else if (type === 'city') {
       const localCommunities = await db
         .select({
           count: sql<number>`count(*)`,
