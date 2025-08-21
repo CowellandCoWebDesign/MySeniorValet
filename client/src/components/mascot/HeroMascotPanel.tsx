@@ -15,37 +15,51 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
     {
       title: "Did You Know?",
       subtitle: "HUD Section 202 Fact",
-      description: "The average HUD-subsidized senior apartment costs just $336/month nationwide. Over 400,000 seniors qualify but don't know these programs exist."
+      description: "The average HUD-subsidized senior apartment costs just $336/month nationwide. Over 400,000 seniors qualify but don't know these programs exist.",
+      source: "Source: U.S. Department of Housing and Urban Development, Section 202 Program Report 2024",
+      link: "https://www.hud.gov/program_offices/housing/mfh/progdesc/eld202"
     },
     {
       title: "Hidden Senior Benefit",
       subtitle: "Medicare Coverage Insight",
-      description: "Medicare covers up to 100 days of skilled nursing care after a hospital stay - but 67% of families pay out-of-pocket unnecessarily because they weren't informed."
+      description: "Medicare covers up to 100 days of skilled nursing care after a hospital stay - but 67% of families pay out-of-pocket unnecessarily because they weren't informed.",
+      source: "Source: Centers for Medicare & Medicaid Services, Medicare.gov Benefit Guide",
+      link: "https://www.medicare.gov/coverage/skilled-nursing-facility-snf-care"
     },
     {
       title: "Little-Known Resource",
       subtitle: "State Assistance Programs",
-      description: "42 states offer home modification grants up to $15,000 for seniors to age in place safely. Less than 3% of eligible seniors have applied."
+      description: "42 states offer home modification grants up to $15,000 for seniors to age in place safely. Less than 3% of eligible seniors have applied.",
+      source: "Source: Administration for Community Living, State Assistance Programs Database",
+      link: "https://acl.gov/programs/support-people-disabilities/centers-independent-living"
     },
     {
       title: "Government Database Insight",
       subtitle: "Waitlist Reality Check",
-      description: "HUD data shows the average wait for subsidized senior housing is 9-12 months. Starting your search early can save thousands in unnecessary private-pay costs."
+      description: "HUD data shows the average wait for subsidized senior housing is 9-12 months. Starting your search early can save thousands in unnecessary private-pay costs.",
+      source: "Source: HUD Office of Policy Development and Research, Waiting List Study 2024",
+      link: "https://www.huduser.gov/portal/datasets/assthsg.html"
     },
     {
       title: "Critical Coverage Gap",
       subtitle: "Long-Term Care Statistics",
-      description: "70% of seniors will need long-term care, but Medicare doesn't cover it. The average cost is $4,500/month - planning ahead with Medicaid can protect your assets."
+      description: "70% of seniors will need long-term care, but Medicare doesn't cover it. The average cost is $4,500/month - planning ahead with Medicaid can protect your assets.",
+      source: "Source: U.S. Department of Health & Human Services, LongTermCare.gov",
+      link: "https://acl.gov/ltc/basic-needs/how-much-care-will-you-need"
     },
     {
       title: "Veterans' Hidden Benefit",
       subtitle: "Aid & Attendance Program",
-      description: "Veterans and surviving spouses can receive up to $2,295/month for assisted living through the VA's Aid & Attendance benefit - yet 2/3 of eligible veterans never apply."
+      description: "Veterans and surviving spouses can receive up to $2,295/month for assisted living through the VA's Aid & Attendance benefit - yet 2/3 of eligible veterans never apply.",
+      source: "Source: U.S. Department of Veterans Affairs, Pension Benefits",
+      link: "https://www.va.gov/pension/aid-attendance-housebound/"
     },
     {
       title: "Surprising Database Finding",
       subtitle: "Rural vs Urban Pricing",
-      description: "Government data reveals rural senior living costs 40% less than urban facilities while often providing higher staff-to-resident ratios and satisfaction scores."
+      description: "Government data reveals rural senior living costs 40% less than urban facilities while often providing higher staff-to-resident ratios and satisfaction scores.",
+      source: "Source: CMS Nursing Home Compare Database & USDA Rural Development Reports",
+      link: "https://www.medicare.gov/care-compare/"
     }
   ];
 
@@ -146,9 +160,25 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
 
                 {/* Description Box */}
                 <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-6 max-w-2xl mx-auto lg:mx-0 border border-gray-700">
-                  <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
+                  <p className="text-gray-300 text-sm sm:text-base leading-relaxed mb-4">
                     {currentMessage.description}
                   </p>
+                  
+                  {/* Source Citation */}
+                  <div className="pt-4 border-t border-gray-600">
+                    <p className="text-xs text-gray-400 mb-2">{currentMessage.source}</p>
+                    <a 
+                      href={currentMessage.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                    >
+                      <span>Learn More</span>
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                  </div>
                 </div>
 
                 {/* Message Indicators */}
