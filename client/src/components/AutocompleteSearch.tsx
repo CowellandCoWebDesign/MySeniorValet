@@ -91,8 +91,14 @@ export function AutocompleteSearch({
     if (debouncedValue && debouncedValue.length >= 2) {
       setLoadingSuggestions(true);
       apiRequest('GET', `/api/autocomplete/suggestions?query=${encodeURIComponent(debouncedValue)}&limit=10`)
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
         .then(data => {
+          console.log('Autocomplete response:', data);
           // Ensure suggestions are in the correct format
           const validSuggestions = (data.suggestions || []).filter((s: AutocompleteSuggestion) => {
             // Ensure all fields are strings, not objects
@@ -104,12 +110,14 @@ export function AutocompleteSearch({
             // Show ALL valid suggestions including exact matches
             return isValid;
           });
+          console.log('Valid suggestions:', validSuggestions);
           setSuggestions(validSuggestions);
           setShowSuggestions(validSuggestions.length > 0);
           setLoadingSuggestions(false);
         })
         .catch(error => {
           console.error('Autocomplete error:', error);
+          console.error('Error details:', error.message);
           setSuggestions([]);
           setShowSuggestions(false);
           setLoadingSuggestions(false);
