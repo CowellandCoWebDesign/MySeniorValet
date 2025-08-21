@@ -63,12 +63,12 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
     }
   ];
 
-  // Rotate messages every 20 seconds - more time to read
+  // Rotate messages every 10 seconds - comfortable reading time
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
       setProgress(0); // Reset progress for new message
-    }, 20000);
+    }, 10000);
     
     return () => clearInterval(interval);
   }, [messages.length]);
@@ -80,7 +80,7 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
         if (prev >= 100) return 100;
         return prev + 2;
       });
-    }, 400); // Update every 400ms to reach 100% in 20 seconds
+    }, 200); // Update every 200ms to reach 100% in 10 seconds
     
     return () => clearInterval(progressInterval);
   }, [currentMessageIndex]);
@@ -137,16 +137,22 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
                 transition={{ duration: 0.3 }}
                 className="flex flex-col gap-2"
               >
-                <div className="flex items-center gap-3">
-                  {/* Title and Subtitle on same line */}
-                  <div className="flex-1">
-                    <h3 className="text-sm sm:text-base font-bold text-white">
-                      {currentMessage.title} • <span className="text-blue-400 font-medium">{currentMessage.subtitle}</span>
+                <div className="flex items-center gap-2">
+                  {/* Title and Subtitle - responsive text sizing */}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-white truncate">
+                      <span className="text-[10px] sm:text-xs lg:text-sm whitespace-nowrap">
+                        {currentMessage.title}
+                      </span>
+                      <span className="text-[10px] sm:text-xs lg:text-sm"> • </span>
+                      <span className="text-[10px] sm:text-xs lg:text-sm text-blue-400 font-medium whitespace-nowrap">
+                        {currentMessage.subtitle}
+                      </span>
                     </h3>
                   </div>
                   
-                  {/* Progress Bar - Inline and smaller */}
-                  <div className="w-24 sm:w-32">
+                  {/* Progress Bar - Fixed width */}
+                  <div className="w-20 sm:w-24 flex-shrink-0">
                     <div className="h-1 bg-gray-700 rounded-full overflow-hidden">
                       <motion.div 
                         className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
