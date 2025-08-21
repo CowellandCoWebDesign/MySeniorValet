@@ -37,13 +37,15 @@ interface LiveWebIntelligenceProps {
   city: string;
   state: string;
   onDataUpdate?: (data: any) => void;
+  onPhotosUpdate?: (photos: string[]) => void;
 }
 
 export function LiveWebIntelligence({ 
   communityName, 
   city, 
   state,
-  onDataUpdate 
+  onDataUpdate,
+  onPhotosUpdate 
 }: LiveWebIntelligenceProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [extractedData, setExtractedData] = useState<any>(null);
@@ -85,8 +87,15 @@ export function LiveWebIntelligence({
           lastUpdated: new Date().toISOString()
         });
       }
+      
+      // Pass photos to parent component for hero carousel
+      if (onPhotosUpdate && webData.images?.length > 0) {
+        onPhotosUpdate(webData.images.map((img: any) => 
+          typeof img === 'string' ? img : img.image_url
+        ).filter(Boolean));
+      }
     }
-  }, [webData, onDataUpdate]);
+  }, [webData, onDataUpdate, onPhotosUpdate]);
 
   // Calculate data freshness
   const getFreshnessInfo = () => {

@@ -822,6 +822,10 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
               }
               console.log('Received fresh web intelligence:', data);
             }}
+            onPhotosUpdate={(photos) => {
+              console.log('Updating hero carousel with web photos:', photos);
+              setWebIntelligencePhotos(photos);
+            }}
           />
         )}
         
@@ -1256,7 +1260,8 @@ export default function CommunityDetail() {
   const [expandedUnits, setExpandedUnits] = useState<Set<string>>(new Set());
   // Track verification report to show live pricing data from Market Data tab
   const [verificationReport, setVerificationReport] = useState<any>(null);
-  // Store actual community photos found by Perplexity web search
+  // Track web intelligence photos for the hero carousel
+  const [webIntelligencePhotos, setWebIntelligencePhotos] = useState<string[]>([]);
 
   
   // Debug helper to track when verification report updates
@@ -1612,18 +1617,28 @@ export default function CommunityDetail() {
             <Card>
               <CardContent className="p-0">
                 <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg">
-                  {community.photos && community.photos.length > 0 ? (
+                  {((community.photos && community.photos.length > 0) || webIntelligencePhotos.length > 0) ? (
                     <>
                       <HeroPhotoCarousel 
-                        photos={community.photos} 
+                        photos={[...(community.photos || []), ...webIntelligencePhotos]} 
                         communityName={community.name}
                       />
                       
                       {/* PHOTO SOURCE TRANSPARENCY OVERLAY */}
                       <div className="absolute bottom-4 left-4 z-10">
-                        <Badge className="bg-green-600 text-white border-0 backdrop-blur-sm">
+                        <Badge className={`text-white border-0 backdrop-blur-sm ${
+                          webIntelligencePhotos.length > 0 && (!community.photos || community.photos.length === 0)
+                            ? 'bg-orange-600'
+                            : community.photos && community.photos.length > 0 && webIntelligencePhotos.length > 0
+                            ? 'bg-blue-600'
+                            : 'bg-green-600'
+                        }`}>
                           <Shield className="h-3 w-3 mr-1" />
-                          Authentic Community Photos
+                          {webIntelligencePhotos.length > 0 && (!community.photos || community.photos.length === 0)
+                            ? 'Photos Pending — Not Verified'
+                            : community.photos && community.photos.length > 0 && webIntelligencePhotos.length > 0
+                            ? 'Verified + Web Photos'
+                            : 'Authentic Community Photos'}
                         </Badge>
                       </div>
                     </>
