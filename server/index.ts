@@ -189,12 +189,8 @@ if (process.env.NODE_ENV === 'development') {
   // seedDatabase() is permanently disabled to prevent fake data
   console.log('✅ Database seeding DISABLED - only real data allowed');
 
-  // Create demo user (non-blocking)
-  import('./seed-demo-user').then(({ createDemoUser }) => {
-    createDemoUser().catch(error => {
-      console.error('Failed to create demo user:', error);
-    });
-  });
+  // NO DEMO USERS - Golden Data Rule enforced
+  // Demo users violate platform authenticity principles
   
   // Initialize super admin notification preferences (non-blocking)
   import('./notification-service').then(({ NotificationService }) => {
