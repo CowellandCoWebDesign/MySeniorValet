@@ -321,7 +321,7 @@ export function AutocompleteSearch({
         <Card 
           ref={suggestionsRef}
           className="absolute w-full mt-2 max-h-[400px] overflow-y-auto shadow-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
-          style={{ zIndex: 50, position: 'absolute', top: '100%', left: 0, right: 0 }}
+          style={{ zIndex: 999999, position: 'absolute', top: '100%', left: 0, right: 0 }}
         >
           {loadingSuggestions ? (
             <div className="p-4 text-center">
