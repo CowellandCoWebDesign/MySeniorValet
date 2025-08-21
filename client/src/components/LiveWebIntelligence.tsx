@@ -88,14 +88,24 @@ export function LiveWebIntelligence({
         });
       }
       
-      // Pass photos to parent component for hero carousel
-      if (onPhotosUpdate && webData.images?.length > 0) {
+
+    }
+  }, [webData, onDataUpdate]);
+
+  // Handle photo updates separately - wait for complete data load
+  useEffect(() => {
+    if (!isLoading && webData?.images?.length > 0 && onPhotosUpdate) {
+      // Wait for component to be fully stable before passing photos
+      const timer = setTimeout(() => {
+        console.log('LiveWebIntelligence: Photos ready for hero carousel');
         onPhotosUpdate(webData.images.map((img: any) => 
           typeof img === 'string' ? img : img.image_url
         ).filter(Boolean));
-      }
+      }, 2000);
+      
+      return () => clearTimeout(timer);
     }
-  }, [webData, onDataUpdate, onPhotosUpdate]);
+  }, [isLoading, webData?.images, onPhotosUpdate]);
 
   // Calculate data freshness
   const getFreshnessInfo = () => {

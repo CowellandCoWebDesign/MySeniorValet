@@ -824,7 +824,9 @@ const RealTimeInsights = ({ community, onVerificationReport }: { community: any,
             }}
             onPhotosUpdate={(photos) => {
               console.log('Updating hero carousel with web photos:', photos);
-              setWebIntelligencePhotos(photos);
+              if (photos && photos.length > 0) {
+                setWebIntelligencePhotos(photos);
+              }
             }}
           />
         )}
