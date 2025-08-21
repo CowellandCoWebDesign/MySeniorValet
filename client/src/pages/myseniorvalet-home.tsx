@@ -853,16 +853,9 @@ export default function MySeniorValetHome() {
                     <div className="p-4 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg">
                       <Building2 className="h-8 w-8" />
                     </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2 p-2 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                        <TrendingUp className="h-4 w-4 text-green-500" />
-                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">34,181+</span>
-                        <span className="text-xs text-gray-600 dark:text-gray-400">Communities</span>
-                      </div>
-                      <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1">
-                        PRIMARY DATABASE
-                      </Badge>
-                    </div>
+                    <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1">
+                      PRIMARY DATABASE
+                    </Badge>
                   </div>
                   <CardTitle className="text-2xl mb-2">Community Directory</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -870,14 +863,21 @@ export default function MySeniorValetHome() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10">
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
                     Access all 34,181+ senior living communities across the United States with verified pricing and real-time availability
                   </p>
 
-                  {/* Two-column layout for checkboxes and action buttons */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                  {/* Community count matching other cards */}
+                  <div className="flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                    <TrendingUp className="h-5 w-5 text-green-500" />
+                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">34,181+</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Communities</span>
+                  </div>
+
+                  {/* Two-column layout for checkboxes and vertical action buttons */}
+                  <div className="flex gap-4 mb-6">
                     {/* Left column - Checkboxes */}
-                    <div className="space-y-2">
+                    <div className="flex-1 space-y-2">
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
                         <span className="text-sm text-gray-700 dark:text-gray-300">All U.S. Communities</span>
@@ -896,19 +896,19 @@ export default function MySeniorValetHome() {
                       </div>
                     </div>
 
-                    {/* Right column - 2x2 Action buttons grid */}
-                    <div className="grid grid-cols-2 gap-2">
+                    {/* Right column - Vertical Action buttons */}
+                    <div className="flex flex-col gap-1.5 w-36">
                       {/* Traditional Search */}
                       <Button 
                         onClick={(e) => {
                           e.stopPropagation();
                           window.location.href = '/map-search';
                         }}
-                        className="w-full h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
+                        className="w-full h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-1.5 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
                         <div className="flex flex-col items-center">
-                          <Search className="h-5 w-5 mb-1" />
-                          <div className="text-[10px] font-semibold leading-tight">Traditional Browse</div>
-                          <div className="text-[8px] text-gray-400 leading-tight mt-0.5">Filter & Sort</div>
+                          <Search className="h-4 w-4 mb-0.5" />
+                          <div className="text-[9px] font-semibold leading-tight">Traditional Browse</div>
+                          <div className="text-[7px] text-gray-400 leading-tight">Filter & Sort</div>
                         </div>
                       </Button>
 
@@ -918,11 +918,11 @@ export default function MySeniorValetHome() {
                           e.stopPropagation();
                           window.location.href = '/ai-search-intelligence?mode=simplified';
                         }}
-                        className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                        className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-1.5 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
                         <div className="flex flex-col items-center">
-                          <Sparkles className="h-5 w-5 mb-1" />
-                          <div className="text-[10px] font-semibold leading-tight">AI Assistant</div>
-                          <div className="text-[8px] text-white/80 leading-tight mt-0.5">Ask Questions</div>
+                          <Sparkles className="h-4 w-4 mb-0.5" />
+                          <div className="text-[9px] font-semibold leading-tight">AI Assistant</div>
+                          <div className="text-[7px] text-white/80 leading-tight">Ask Questions</div>
                         </div>
                       </Button>
 
@@ -932,11 +932,11 @@ export default function MySeniorValetHome() {
                           e.stopPropagation();
                           window.location.href = '/availability-heatmap';
                         }}
-                        className="w-full h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 px-2 py-2 rounded-md transform hover:scale-[1.02]">
+                        className="w-full h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white px-2 py-1.5 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
                         <div className="flex flex-col items-center">
-                          <Flame className="h-5 w-5 mb-1 animate-pulse" />
-                          <div className="text-[10px] font-semibold leading-tight">Live Heatmap</div>
-                          <div className="text-[8px] text-white/80 leading-tight mt-0.5">Availability Now</div>
+                          <Flame className="h-4 w-4 mb-0.5 animate-pulse" />
+                          <div className="text-[9px] font-semibold leading-tight">Live Heatmap</div>
+                          <div className="text-[7px] text-white/80 leading-tight">Availability Now</div>
                         </div>
                       </Button>
 
@@ -946,11 +946,11 @@ export default function MySeniorValetHome() {
                           e.stopPropagation();
                           window.location.href = '/competitive-analysis';
                         }}
-                        className="w-full h-auto bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 px-2 py-2 rounded-md transform hover:scale-[1.02]">
+                        className="w-full h-auto bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white px-2 py-1.5 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
                         <div className="flex flex-col items-center">
-                          <TrendingUp className="h-5 w-5 mb-1" />
-                          <div className="text-[10px] font-semibold leading-tight">Market Analysis</div>
-                          <div className="text-[8px] text-white/80 leading-tight mt-0.5">Price Compare</div>
+                          <TrendingUp className="h-4 w-4 mb-0.5" />
+                          <div className="text-[9px] font-semibold leading-tight">Market Analysis</div>
+                          <div className="text-[7px] text-white/80 leading-tight">Price Compare</div>
                         </div>
                       </Button>
                     </div>
