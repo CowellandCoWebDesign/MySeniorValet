@@ -702,15 +702,23 @@ export function registerCommunityRoutes(app: Express) {
       let communitySpecificData = realTimeData; // Keep existing data as fallback
       
       try {
-        // Search specifically for THIS community's public website and management company
-        const communitySearchQuery = `"${community.name}" official website management company contact information ${community.city} ${community.state}`;
+        // Simplified search: community name + city + "senior living" (if not already in name)
+        const needsSeniorLiving = !community.name.toLowerCase().includes('senior') && 
+                                  !community.name.toLowerCase().includes('retirement') &&
+                                  !community.name.toLowerCase().includes('assisted') &&
+                                  !community.name.toLowerCase().includes('nursing') &&
+                                  !community.name.toLowerCase().includes('memory care');
         
-        console.log(`🔍 Searching for specific community: ${community.name}`);
+        const communitySearchQuery = needsSeniorLiving 
+          ? `"${community.name}" ${community.city} ${community.state} senior living`
+          : `"${community.name}" ${community.city} ${community.state}`;
+        
+        console.log(`🔍 Optimized search for: ${community.name} (simplified query for better website discovery)`);
         
         // Use Perplexity to search for this SPECIFIC community
         const perplexityResponse = await perplexityService.searchRealTime(
           communitySearchQuery,
-          `Finding public website and management information for ${community.name} senior living community`
+          `Find the official website, contact information, and any online presence for ${community.name} in ${community.city}, ${community.state}. Focus on finding their public website first.`
         );
         
         // Override with community-specific search results
