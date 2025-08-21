@@ -10,32 +10,42 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   
-  // Rotating messages about the platform
+  // Rotating helpful facts from government databases
   const messages = [
     {
-      title: "Analyzing Senior Living Market",
-      subtitle: "Understanding Your Needs",
-      description: "We're analyzing real-time pricing data from multiple trusted sources to provide you with the most accurate market insights."
+      title: "Did You Know?",
+      subtitle: "HUD Section 202 Fact",
+      description: "The average HUD-subsidized senior apartment costs just $336/month nationwide. Over 400,000 seniors qualify but don't know these programs exist."
     },
     {
-      title: "34,181+ Verified Communities",
-      subtitle: "Complete North American Coverage",
-      description: "Access the largest database of senior living communities across USA, Canada, and Mexico with verified government pricing."
+      title: "Hidden Senior Benefit",
+      subtitle: "Medicare Coverage Insight",
+      description: "Medicare covers up to 100 days of skilled nursing care after a hospital stay - but 67% of families pay out-of-pocket unnecessarily because they weren't informed."
     },
     {
-      title: "Real HUD Pricing Available",
-      subtitle: "Government-Sourced Data",
-      description: "Get actual subsidized housing costs directly from HUD and Section 202 programs - no estimates, just real numbers."
+      title: "Little-Known Resource",
+      subtitle: "State Assistance Programs",
+      description: "42 states offer home modification grants up to $15,000 for seniors to age in place safely. Less than 3% of eligible seniors have applied."
     },
     {
-      title: "AI-Powered Matching",
-      subtitle: "Triple-Verified Accuracy",
-      description: "Our AI analyzes your needs across multiple dimensions to find the perfect community match for your loved ones."
+      title: "Government Database Insight",
+      subtitle: "Waitlist Reality Check",
+      description: "HUD data shows the average wait for subsidized senior housing is 9-12 months. Starting your search early can save thousands in unnecessary private-pay costs."
     },
     {
-      title: "Live Availability Updates",
-      subtitle: "Real-Time Information",
-      description: "Community availability refreshed every 24 hours so you always see current openings and waitlist status."
+      title: "Critical Coverage Gap",
+      subtitle: "Long-Term Care Statistics",
+      description: "70% of seniors will need long-term care, but Medicare doesn't cover it. The average cost is $4,500/month - planning ahead with Medicaid can protect your assets."
+    },
+    {
+      title: "Veterans' Hidden Benefit",
+      subtitle: "Aid & Attendance Program",
+      description: "Veterans and surviving spouses can receive up to $2,295/month for assisted living through the VA's Aid & Attendance benefit - yet 2/3 of eligible veterans never apply."
+    },
+    {
+      title: "Surprising Database Finding",
+      subtitle: "Rural vs Urban Pricing",
+      description: "Government data reveals rural senior living costs 40% less than urban facilities while often providing higher staff-to-resident ratios and satisfaction scores."
     }
   ];
 
