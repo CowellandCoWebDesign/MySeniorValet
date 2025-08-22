@@ -1925,9 +1925,9 @@ export default function CommunityDetail() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6">
+          {/* Main Content - Full Width */}
+          <div className="space-y-6">
             {/* Main Community Card - Integrated KAYAK-Style Design */}
             <Card className="overflow-hidden">
               <CardContent className="relative p-0">
@@ -2196,6 +2196,18 @@ export default function CommunityDetail() {
                       "Live Intelligence" : 
                       "Market Analysis"
                     }
+                  </span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="reviews" 
+                  className="flex flex-col items-center gap-1 py-4 px-6 rounded-lg transition-all duration-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-600 data-[state=active]:to-orange-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:transform data-[state=active]:scale-105 data-[state=active]:border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/30 hover:border-amber-300 dark:hover:border-amber-500 text-gray-700 dark:text-gray-300 font-semibold"
+                >
+                  <div className="flex items-center gap-2">
+                    <Star className="w-5 h-5" />
+                    <span className="text-sm font-bold">Reviews</span>
+                  </div>
+                  <span className="text-xs opacity-75 font-normal">
+                    Ratings & Feedback
                   </span>
                 </TabsTrigger>
               </TabsList>
@@ -4156,23 +4168,18 @@ export default function CommunityDetail() {
                       )}
                     </div>
                   </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Column - Contact & Actions */}
-          <div className="space-y-6">
-            {/* Enhanced Reviews & Ratings with MySeniorValet Composite Score */}
-            <Card id="reviews-section">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <Star className="w-5 h-5 mr-2" />
-                  Reviews & Ratings
-                </CardTitle>
-                <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">Combined external reviews and tour inspections</p>
-              </CardHeader>
-              <CardContent className="space-y-4">
+                  
+                  {/* Reviews Tab Content - Moved from right column */}
+                  <TabsContent value="reviews" className="space-y-6 mt-6">
+                <Card id="reviews-section">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center">
+                      <Star className="w-5 h-5 mr-2" />
+                      Reviews & Ratings
+                    </CardTitle>
+                    <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">Combined external reviews and tour inspections</p>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
                 {/* MySeniorValet Composite Score */}
                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-600">
                   <div className="text-center mb-3">
@@ -4293,14 +4300,15 @@ export default function CommunityDetail() {
                     MySeniorValet Verified Community
                   </Badge>
                 </div>
-              </CardContent>
-            </Card>
-
-
-
-
-          </div>
-        </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
         
         {/* Detailed Pricing Methodology Section */}
         {!hasLiveData && !community.claimedBy && (
