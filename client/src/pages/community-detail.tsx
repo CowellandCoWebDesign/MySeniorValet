@@ -1230,8 +1230,8 @@ const HeroPhotoCarousel = ({
             ))}
           </div>
 
-          {/* Photo counter */}
-          <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
+          {/* Photo counter - moved to top left to avoid share button conflict */}
+          <div className="absolute top-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
             {currentIndex + 1} / {safePhotos.length}
           </div>
 
@@ -1655,7 +1655,7 @@ export default function CommunityDetail() {
                 {/* Enhanced Photo Carousel */}
                 <div className="relative h-80 overflow-hidden">
                   <HeroPhotoCarousel 
-                    photos={community.photos || defaultPhotos}
+                    photos={community.photos && community.photos.length > 0 ? community.photos : defaultPhotos}
                     communityId={community.id}
                     communityName={community.name}
                     community={community}
@@ -3811,7 +3811,7 @@ export default function CommunityDetail() {
                         <div>
                           <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg mb-4">
                             <HeroPhotoCarousel 
-                              photos={community.photos} 
+                              photos={community.photos && community.photos.length > 0 ? community.photos : defaultPhotos} 
                               communityName={community.name}
                               communityId={community.id}
                               community={community}
