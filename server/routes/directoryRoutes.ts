@@ -80,7 +80,7 @@ export function registerDirectoryRoutes(app: Express) {
           count: sql<number>`count(*)::int`
         })
         .from(communities)
-        .where(sql`LOWER(${communities.city}) LIKE ${`${searchTerm || ''}%`}`)
+        .where(sql`LOWER(${communities.city}) LIKE ${(searchTerm || '') + '%'}`)
         .groupBy(communities.city, communities.state)
         .orderBy(desc(sql`count(*)`))
         .limit(10);
@@ -91,7 +91,7 @@ export function registerDirectoryRoutes(app: Express) {
           count: sql<number>`count(*)::int`
         })
         .from(communities)
-        .where(sql`LOWER(${communities.state}) LIKE ${`${searchTerm || ''}%`}`)
+        .where(sql`LOWER(${communities.state}) LIKE ${(searchTerm || '') + '%'}`)
         .groupBy(communities.state)
         .orderBy(desc(sql`count(*)`))
         .limit(5);

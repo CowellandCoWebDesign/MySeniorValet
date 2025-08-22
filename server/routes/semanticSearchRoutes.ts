@@ -143,8 +143,8 @@ export function registerSemanticSearchRoutes(app: Express) {
       const conditions = [];
       if (location) {
         conditions.push(
-          sql`LOWER(${communities.city}) LIKE LOWER(${`%${location || ''}%`}) OR 
-              LOWER(${communities.state}) LIKE LOWER(${`%${location || ''}%`})`
+          sql`LOWER(${communities.city}) LIKE LOWER(${'%' + (location || '') + '%'}) OR 
+              LOWER(${communities.state}) LIKE LOWER(${'%' + (location || '') + '%'})`
         );
       }
 

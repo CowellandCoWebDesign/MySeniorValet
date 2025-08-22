@@ -331,16 +331,16 @@ router.get('/autocomplete/suggestions', async (req, res) => {
     if (stateSearch && citySearch) {
       // Search for counties in specific state
       countyWhereCondition = and(
-        sql`${communities.county} IS NOT NULL AND LOWER(${communities.county}) LIKE LOWER(${`%${citySearch || ''}%`})`,
+        sql`${communities.county} IS NOT NULL AND LOWER(${communities.county}) LIKE LOWER(${'%' + (citySearch || '') + '%'})`,
         or(
           sql`UPPER(${communities.state}) = ${stateSearch}`,
           ilike(communities.state, `%${stateSearch}%`)
         )
       );
     } else if (citySearch) {
-      countyWhereCondition = sql`${communities.county} IS NOT NULL AND LOWER(${communities.county}) LIKE LOWER(${`%${citySearch || ''}%`})`;
+      countyWhereCondition = sql`${communities.county} IS NOT NULL AND LOWER(${communities.county}) LIKE LOWER(${'%' + (citySearch || '') + '%'})`;
     } else {
-      countyWhereCondition = sql`${communities.county} IS NOT NULL AND LOWER(${communities.county}) LIKE LOWER(${`%${searchTerm || ''}%`})`;
+      countyWhereCondition = sql`${communities.county} IS NOT NULL AND LOWER(${communities.county}) LIKE LOWER(${'%' + (searchTerm || '') + '%'})`;
     }
     
     const countyResults = await db

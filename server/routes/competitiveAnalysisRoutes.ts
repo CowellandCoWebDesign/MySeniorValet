@@ -172,7 +172,7 @@ router.post('/api/competitive-analysis', async (req, res) => {
         
         try {
           const sanitizedName = communityName.trim();
-          const searchPattern = `%${sanitizedName}%`;
+          const searchPattern = '%' + sanitizedName + '%';
           
           // Use LIKE for partial matching to catch variations
           const matches = await db

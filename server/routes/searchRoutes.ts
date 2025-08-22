@@ -1250,21 +1250,21 @@ export function registerSearchRoutes(app: Express) {
       const citySuggestions = await db
         .selectDistinct({ city: communities.city, state: communities.state })
         .from(communities)
-        .where(sql`LOWER(${communities.city}) LIKE ${`${searchTerm || ''}%`}`)
+        .where(sql`LOWER(${communities.city}) LIKE ${(searchTerm || '') + '%'}`)
         .limit(5);
 
       // Get state suggestions
       const stateSuggestions = await db
         .selectDistinct({ state: communities.state })
         .from(communities)
-        .where(sql`LOWER(${communities.state}) LIKE ${`${searchTerm || ''}%`}`)
+        .where(sql`LOWER(${communities.state}) LIKE ${(searchTerm || '') + '%'}`)
         .limit(3);
 
       // Get community name suggestions
       const communitySuggestions = await db
         .select({ id: communities.id, name: communities.name, city: communities.city, state: communities.state })
         .from(communities)
-        .where(sql`LOWER(${communities.name}) LIKE ${`%${searchTerm || ''}%`}`)
+        .where(sql`LOWER(${communities.name}) LIKE ${'%' + (searchTerm || '') + '%'}`)
         .limit(5);
 
       const suggestions = [
