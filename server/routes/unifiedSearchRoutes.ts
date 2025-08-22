@@ -3,6 +3,7 @@ import { db } from "../db";
 import { communities } from "@shared/schema";
 import { eq, and, or, desc, sql, isNotNull, gte } from "drizzle-orm";
 import { enhancedSearchService } from "../enhanced-search-service";
+import { enterpriseSearchService } from "../services/enterprise-search-service";
 import { cache } from "../cache";
 import { eliminateCallForPricing } from "../intelligent-pricing-system";
 
@@ -33,6 +34,135 @@ interface SearchParams {
 }
 
 export function registerUnifiedSearchRoutes(app: Express) {
+  // ENTERPRISE SEARCH ENDPOINT - Primary search with advanced features
+  app.get("/api/search/enterprise", async (req, res) => {
+    try {
+      const startTime = Date.now();
+      
+      // Parse all possible search parameters
+      const {
+        q, query, location, state, city,
+        careTypes, bounds, radius,
+        priceMin, priceMax, minRating,
+        amenities, hasPhotos, hudOnly,
+        limit = '1000', offset = '0',
+        sortBy = 'relevance', sortOrder = 'desc',
+        debug = 'false'
+      } = req.query;
+
+      // Parse bounds if provided
+      let parsedBounds;
+      if (bounds) {
+        const [west, south, east, north] = (bounds as string).split(',').map(Number);
+        parsedBounds = { west, south, east, north };
+      }
+
+      // Parse radius if provided
+      let parsedRadius;
+      if (radius && req.query.lat && req.query.lng) {
+        parsedRadius = {
+          lat: parseFloat(req.query.lat as string),
+          lng: parseFloat(req.query.lng as string),
+          miles: parseFloat(radius as string)
+        };
+      }
+
+      // Use enterprise search service
+      const results = await enterpriseSearchService.search({
+        query: (q || query) as string,
+        location: location as string,
+        state: state as string,
+        city: city as string,
+        careTypes: careTypes ? (careTypes as string).split(',') : [],
+        bounds: parsedBounds,
+        radius: parsedRadius,
+        priceRange: {
+          min: priceMin ? parseFloat(priceMin as string) : undefined,
+          max: priceMax ? parseFloat(priceMax as string) : undefined
+        },
+        rating: {
+          min: minRating ? parseFloat(minRating as string) : undefined
+        },
+        amenities: amenities ? (amenities as string).split(',') : [],
+        limit: parseInt(limit as string),
+        offset: parseInt(offset as string),
+        sortBy: sortBy as any,
+        sortOrder: sortOrder as any,
+        includeHudOnly: hudOnly === 'true',
+        hasPhotos: hasPhotos === 'true',
+        debug: debug === 'true'
+      });
+
+      // Apply pricing intelligence
+      results.communities = results.communities.map(c => eliminateCallForPricing(c));
+
+      // Add performance metrics
+      const totalTime = Date.now() - startTime;
+      
+      res.json({
+        ...results,
+        performance: {
+          totalTime,
+          cached: false,
+          version: 'enterprise_v1'
+        }
+      });
+      
+    } catch (error) {
+      console.error('Enterprise search error:', error);
+      res.status(500).json({
+        error: 'Search failed',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        fallback: '/api/communities/search'
+      });
+    }
+  });
+
+  // AI-powered natural language search
+  app.get("/api/search/ai", async (req, res) => {
+    try {
+      const { q } = req.query;
+      
+      if (!q) {
+        return res.status(400).json({ error: 'Query required' });
+      }
+
+      const results = await enterpriseSearchService.searchWithAI(q as string);
+      results.communities = results.communities.map(c => eliminateCallForPricing(c));
+      
+      res.json(results);
+    } catch (error) {
+      console.error('AI search error:', error);
+      res.status(500).json({ error: 'AI search failed' });
+    }
+  });
+
+  // Find similar communities
+  app.get("/api/search/similar/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const results = await enterpriseSearchService.searchSimilar(parseInt(id));
+      results.communities = results.communities.map(c => eliminateCallForPricing(c));
+      
+      res.json(results);
+    } catch (error) {
+      console.error('Similar search error:', error);
+      res.status(500).json({ error: 'Similar search failed' });
+    }
+  });
+
+  // Get trending communities
+  app.get("/api/search/trending", async (req, res) => {
+    try {
+      const results = await enterpriseSearchService.getTrending();
+      results.communities = results.communities.map(c => eliminateCallForPricing(c));
+      
+      res.json(results);
+    } catch (error) {
+      console.error('Trending search error:', error);
+      res.status(500).json({ error: 'Trending search failed' });
+    }
+  });
   // Geocoding endpoint for location searches
   app.get("/api/geocode", async (req, res) => {
     try {
@@ -74,7 +204,7 @@ export function registerUnifiedSearchRoutes(app: Express) {
       const params = req.query as unknown as SearchParams;
       const { 
         q, query, location, careType, state, city, bounds,
-        limit = 50, offset = 0,
+        limit = 500, offset = 0,  // ENTERPRISE: Default to 500 results for comprehensive coverage
         minRating, priceMin, priceMax,
         hasPhotos, hudOnly,
         sortBy = 'relevance', sortOrder = 'desc'
@@ -287,13 +417,15 @@ export function registerUnifiedSearchRoutes(app: Express) {
       const [{ count }] = await countQuery;
       const totalCount = Number(count);
       
-      // Apply pagination
+      // Apply pagination with enterprise-grade limits
+      const maxLimit = 2000; // Maximum results per query for performance
+      const effectiveLimit = Math.min(Number(limit), maxLimit);
       const results = await dbQuery
-        .limit(Number(limit))
+        .limit(effectiveLimit)
         .offset(Number(offset));
       
-      // For text searches with few results, try enhanced search
-      if (isTextSearch && results.length < 5 && (searchQuery || location)) {
+      // For text searches with few results, try enhanced search  
+      if (isTextSearch && results.length < 50 && (searchQuery || location)) { // ENTERPRISE: More aggressive fallback
         console.log('Few results found, trying enhanced search...');
         try {
           const enhancedResults = await enhancedSearchService.searchCommunities({
@@ -373,7 +505,7 @@ export function registerUnifiedSearchRoutes(app: Express) {
         })
         .from(communities)
         .where(sql`${communities.city} ILIKE ${searchTerm}`)
-        .limit(5);
+        .limit(20); // ENTERPRISE: More city suggestions
       
       const stateResults = await db
         .selectDistinct({ 
@@ -382,7 +514,7 @@ export function registerUnifiedSearchRoutes(app: Express) {
         })
         .from(communities)
         .where(sql`${communities.state} ILIKE ${searchTerm}`)
-        .limit(3);
+        .limit(10); // ENTERPRISE: More state suggestions
       
       const communityResults = await db
         .select({ 
@@ -391,7 +523,7 @@ export function registerUnifiedSearchRoutes(app: Express) {
         })
         .from(communities)
         .where(sql`${communities.name} ILIKE ${searchTerm}`)
-        .limit(5);
+        .limit(25); // ENTERPRISE: More community suggestions
       
       const suggestions = [
         ...cityResults,

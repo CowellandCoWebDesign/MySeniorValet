@@ -106,7 +106,7 @@ export function registerSearchRoutes(app: Express) {
   // Vendor spatial search endpoint for map
   app.get('/api/vendors/search/spatial', async (req, res) => {
     try {
-      const { swLat, swLng, neLat, neLng, limit = '50' } = req.query;
+      const { swLat, swLng, neLat, neLng, limit = '200' } = req.query; // ENTERPRISE: Higher vendor limit
       
       // Query marketplace vendors (which have more data than regular vendors)
       let vendorResults = await db
@@ -209,7 +209,7 @@ export function registerSearchRoutes(app: Express) {
   // Hospitals map endpoint - fetch hospitals within map bounds  
   app.get('/api/healthcare/hospitals-map', async (req, res) => {
     try {
-      const { west, south, east, north, limit = '100' } = req.query;
+      const { west, south, east, north, limit = '500' } = req.query; // ENTERPRISE: Show all hospitals in view
       
       // Validate bounds
       if (!west || !south || !east || !north) {
@@ -274,7 +274,7 @@ export function registerSearchRoutes(app: Express) {
     try {
       const { 
         q, 
-        limit = '5000',  // Show ALL healthcare facilities - full database access
+        limit = '10000',  // ENTERPRISE: Show ALL healthcare facilities - full database access
         swLat, swLng, neLat, neLng,  // Map bounds filtering
         radius, centerLat, centerLng  // Radius filtering
       } = req.query;
@@ -725,7 +725,7 @@ export function registerSearchRoutes(app: Express) {
   // Resources search endpoint (combining marketplace vendors and community resources)
   app.get('/api/resources/search', async (req, res) => {
     try {
-      const { q, limit = '20' } = req.query;
+      const { q, limit = '100' } = req.query; // ENTERPRISE: More search results by default
       const searchTerm = q as string || '';
       
       // Build where conditions
@@ -868,7 +868,7 @@ export function registerSearchRoutes(app: Express) {
         centerLat,
         centerLng,
         // Common parameters
-        limit = 4000,
+        limit = 10000,  // ENTERPRISE: Allow massive result sets for comprehensive coverage
         careTypes,
         priceRanges,
         livePricing,
@@ -1139,7 +1139,7 @@ export function registerSearchRoutes(app: Express) {
         lat,
         lng,
         radius = 100, // Default 100km radius
-        limit = 20
+        limit = 100  // ENTERPRISE: More community results
       } = req.query;
 
       // Validate required parameters
@@ -1227,7 +1227,8 @@ export function registerSearchRoutes(app: Express) {
   app.get('/api/communities/clusters/:clusterId/expand', async (req, res) => {
     try {
       const clusterId = parseInt(req.params.clusterId);
-      const communities = await superclusterService.getClusterChildren(clusterId);
+      const zoom = parseInt(req.query.zoom as string || '10'); // Default zoom level
+      const communities = await superclusterService.getClusterChildren(clusterId, zoom);
       res.json(communities);
     } catch (error) {
       console.error('Cluster expansion error:', error);
