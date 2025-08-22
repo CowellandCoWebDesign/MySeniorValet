@@ -165,7 +165,15 @@ router.post('/api/competitive-analysis', async (req, res) => {
     const matchedCommunities = [];
     if (communityMentions.length > 0) {
       for (const communityName of communityMentions) {
+        // STABILITY FIX: Validate community name before database query
+        if (!communityName || typeof communityName !== 'string' || communityName.trim().length < 3) {
+          continue; // Skip invalid names
+        }
+        
         try {
+          const sanitizedName = communityName.trim();
+          const searchPattern = `%${sanitizedName}%`;
+          
           // Use LIKE for partial matching to catch variations
           const matches = await db
             .select({
@@ -176,7 +184,7 @@ router.post('/api/competitive-analysis', async (req, res) => {
               type: communities.type
             })
             .from(communities)
-            .where(sql`lower(${communities.name}) LIKE lower(${'%' + communityName + '%'})`)
+            .where(sql`lower(${communities.name}) LIKE lower(${searchPattern})`)
             .limit(5); // Get up to 5 matches per community name
           
           // Add unique matches only
