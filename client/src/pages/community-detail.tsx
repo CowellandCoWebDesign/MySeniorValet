@@ -1407,8 +1407,8 @@ const HeroPhotoCarousel = ({
             <ChevronRight className="w-6 h-6 text-gray-900 dark:text-gray-100" />
           </button>
 
-          {/* Photo indicator dots */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+          {/* Photo indicator dots - positioned higher to make room for swipe instruction */}
+          <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
             {safePhotos.map((_, index) => (
               <button
                 key={index}
@@ -1425,8 +1425,8 @@ const HeroPhotoCarousel = ({
             {currentIndex + 1} / {safePhotos.length}
           </div>
 
-          {/* Swipe instruction on mobile */}
-          <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-xs opacity-70 md:hidden">
+          {/* Swipe instruction on mobile - now properly at the bottom */}
+          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-xs opacity-70 md:hidden z-10">
             Swipe to browse photos
           </div>
         </>
