@@ -12,6 +12,14 @@ MySeniorValet is a technology platform that connects families with publicly avai
 - Prevented community name from bleeding into pricing area with proper width constraints
 - Cleaned address formatting to remove redundant "United States" text and improve visual alignment
 
+**Photo Loading User Experience**: Enhanced photo carousel with clear loading indicators:
+- Added prominent "🔍 Searching Live Web for Real Photos" message when loading
+- Animated globe icon with pulsing effects to show active search
+- "Finding authentic community photos from verified sources" explanatory text
+- Overlay indicator when showing placeholder photos: "Loading real photos from live web searches..."
+- "This may take a few seconds - it's worth the wait!" retention message
+- Users now understand photos are being fetched from live web intelligence and will wait for results
+
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
 - **Notification Email Configuration**:

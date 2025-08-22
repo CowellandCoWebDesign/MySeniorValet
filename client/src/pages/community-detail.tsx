@@ -1357,13 +1357,30 @@ const HeroPhotoCarousel = ({
       <div className="w-full h-full bg-gray-100 dark:bg-gray-800">
         {/* Show loading state for photos */}
         {hasDefaultPhotos && isLoadingWebPhotos ? (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
-                <Camera className="w-8 h-8 text-gray-500 dark:text-gray-400" />
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20">
+            <div className="text-center p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg">
+              <div className="relative">
+                <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center animate-pulse">
+                  <Globe className="w-10 h-10 text-white animate-bounce" />
+                </div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center animate-ping">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
               </div>
-              <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-2" />
-              <p className="text-gray-500 dark:text-gray-400 text-sm">Loading photos...</p>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                🔍 Searching Live Web for Real Photos
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 max-w-xs mx-auto">
+                Finding authentic community photos from verified sources across the internet...
+              </p>
+              <div className="flex items-center justify-center gap-1">
+                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+                <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                <div className="w-2 h-2 bg-pink-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-3 font-medium">
+                This may take a few seconds - it's worth the wait!
+              </p>
             </div>
           </div>
         ) : (
@@ -1391,6 +1408,28 @@ const HeroPhotoCarousel = ({
                 />
               ))}
             </div>
+            
+            {/* Show loading indicator overlay when showing placeholder photos */}
+            {hasDefaultPhotos && !verificationReport && (
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end justify-center pb-20 pointer-events-none">
+                <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-lg p-4 shadow-xl animate-pulse">
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <Globe className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-spin" />
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-ping" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                        🔄 Loading real photos from live web searches...
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Finding authentic community images
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
