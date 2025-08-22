@@ -1213,6 +1213,8 @@ const HeroPhotoCarousel = ({
   const safePhotos = getAllPhotos();
   
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [translateX, setTranslateX] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
   // Reset to first photo when photos change (like when web intelligence arrives)
   useEffect(() => {
@@ -1235,64 +1237,94 @@ const HeroPhotoCarousel = ({
   const [isDragging, setIsDragging] = useState(false);
 
   const nextPhoto = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
     setCurrentIndex((prev) => (prev + 1) % safePhotos.length);
+    setTimeout(() => setIsTransitioning(false), 300);
   };
 
   const prevPhoto = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
     setCurrentIndex((prev) => (prev - 1 + safePhotos.length) % safePhotos.length);
+    setTimeout(() => setIsTransitioning(false), 300);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.targetTouches[0].clientX);
     setIsDragging(true);
+    setIsTransitioning(false);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    if (!isDragging) return;
+    const currentX = e.targetTouches[0].clientX;
+    setTouchEnd(currentX);
+    const diff = currentX - touchStart;
+    setTranslateX(diff);
   };
 
   const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
+    if (!touchStart || !touchEnd) {
+      setTranslateX(0);
+      setIsDragging(false);
+      return;
+    }
 
     const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
+    const threshold = 50;
 
-    if (isLeftSwipe && safePhotos.length > 1) {
-      nextPhoto();
-    }
-    if (isRightSwipe && safePhotos.length > 1) {
-      prevPhoto();
+    if (Math.abs(distance) > threshold && safePhotos.length > 1) {
+      if (distance > 0) {
+        nextPhoto();
+      } else {
+        prevPhoto();
+      }
     }
 
+    setTranslateX(0);
     setIsDragging(false);
+    setIsTransitioning(true);
+    setTimeout(() => setIsTransitioning(false), 300);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
     setTouchStart(e.clientX);
     setIsDragging(true);
+    setIsTransitioning(false);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging) return;
-    setTouchEnd(e.clientX);
+    const currentX = e.clientX;
+    setTouchEnd(currentX);
+    const diff = currentX - touchStart;
+    setTranslateX(diff);
   };
 
   const handleMouseUp = () => {
-    if (!touchStart || !touchEnd) return;
+    if (!touchStart || !touchEnd) {
+      setTranslateX(0);
+      setIsDragging(false);
+      return;
+    }
 
     const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
+    const threshold = 50;
 
-    if (isLeftSwipe && safePhotos.length > 1) {
-      nextPhoto();
-    }
-    if (isRightSwipe && safePhotos.length > 1) {
-      prevPhoto();
+    if (Math.abs(distance) > threshold && safePhotos.length > 1) {
+      if (distance > 0) {
+        nextPhoto();
+      } else {
+        prevPhoto();
+      }
     }
 
+    setTranslateX(0);
     setIsDragging(false);
+    setIsTransitioning(true);
+    setTimeout(() => setIsTransitioning(false), 300);
   };
 
   // Debug logging - check both paths
@@ -1332,19 +1364,31 @@ const HeroPhotoCarousel = ({
           </div>
         </div>
       ) : (
-        <img
-          src={safePhotos[currentIndex]}
-          alt={`${communityName} - View ${currentIndex + 1}`}
-          className="w-full h-full object-cover select-none"
-          draggable={false}
-          onError={(e) => {
-            console.log('Image failed to load:', safePhotos[currentIndex]);
-            // Try next photo if current fails
-            if (currentIndex < safePhotos.length - 1) {
-              setCurrentIndex(currentIndex + 1);
-            }
-          }}
-        />
+        <div className="w-full h-full overflow-hidden">
+          <div 
+            className="flex h-full"
+            style={{
+              transform: `translateX(calc(-${currentIndex * 100}% + ${translateX}px))`,
+              transition: isTransitioning || !isDragging ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+            }}
+          >
+            {safePhotos.map((photo, index) => (
+              <img
+                key={index}
+                src={photo}
+                alt={`${communityName} - View ${index + 1}`}
+                className="w-full h-full object-cover select-none flex-shrink-0"
+                draggable={false}
+                onError={(e) => {
+                  console.log('Image failed to load:', photo);
+                  // Replace with placeholder if image fails
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/api/placeholder/600/400';
+                }}
+              />
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Navigation arrows - only show if more than 1 photo */}
