@@ -43,9 +43,9 @@ import { LiveWebIntelligence } from "@/components/LiveWebIntelligence";
 
 // Default photos for communities without images
 const defaultPhotos = [
-  "/api/placeholder/600/400",
-  "/api/placeholder/600/401", 
-  "/api/placeholder/600/402"
+  "/hero-senior-community.svg",
+  "/hero-gentleman-stars.jpg",
+  "/starry-night-hero.png"
 ];
 
 // Community Competitive Analysis Component
@@ -3355,17 +3355,16 @@ export default function CommunityDetail() {
                         )}
                       </div>
                       
-                      {community.photos && community.photos.length > 0 ? (
-                        <div>
-                          <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg mb-4">
-                            <HeroPhotoCarousel 
-                              photos={community.photos && community.photos.length > 0 ? community.photos : defaultPhotos} 
-                              communityName={community.name}
-                              communityId={community.id}
-                              community={community}
-                              verificationReport={verificationReport}
-                            />
-                          </div>
+                      <div>
+                        <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg mb-4">
+                          <HeroPhotoCarousel 
+                            photos={(community.photos && community.photos.length > 0) ? community.photos : defaultPhotos} 
+                            communityName={community.name}
+                            communityId={community.id}
+                            community={community}
+                            verificationReport={verificationReport}
+                          />
+                        </div>
                           
                           {/* Photo limit reached warning */}
                           {community.claimedBy && (() => {
@@ -3386,18 +3385,20 @@ export default function CommunityDetail() {
                             }
                             return null;
                           })()}
-                        </div>
-                      ) : (
-                        <div className="text-center py-12">
-                          <img 
-                            src="/assets/gentleman-mascot.png" 
-                            alt="MySeniorValet Mascot" 
-                            className="h-24 w-24 mx-auto mb-4 opacity-60"
-                          />
-                          <p className="text-gray-500 dark:text-gray-400">No photos available yet</p>
-                          <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">This community can add photos once claimed</p>
-                        </div>
-                      )}
+                        
+                        {/* Show message only if no photos and no web intelligence photos */}
+                        {(!community.photos || community.photos.length === 0) && 
+                         (!verificationReport?.webIntelligence?.images || verificationReport.webIntelligence.images.length === 0) && (
+                          <div className="text-center py-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              🔍 Searching Live Web for Real Photos
+                            </p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                              Finding authentic community photos from verified sources
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </TabsContent>
                   
