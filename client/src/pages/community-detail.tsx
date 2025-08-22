@@ -1950,52 +1950,27 @@ export default function CommunityDetail() {
                         })()}
                       </div>
                       
-                      {/* Enhanced Market Data Call-to-Action - Show for all communities */}
-                      <div className="mt-3 p-4 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 rounded-lg border-2 border-blue-200 dark:border-blue-800">
-                        <div className="flex items-start gap-3">
-                          <div className="flex-shrink-0 mt-0.5">
-                            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-                              <TrendingUp className="h-4 w-4 text-white" />
-                            </div>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h4 className="font-semibold text-gray-900 dark:text-white">
-                                {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) ? 
-                                  "Live Pricing & Market Intelligence" : 
-                                  "Complete Market Intelligence Report"
-                                }
-                              </h4>
-                              {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
-                                <Badge className="bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200 text-xs px-2 py-0.5">
-                                  <CheckCircle className="h-3 w-3 mr-1" />
-                                  Live Data
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                      {/* Market Data Tab Promotion - Simplified reference to centralized tab */}
+                      <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                            <span className="text-sm font-medium text-gray-900 dark:text-white">
                               {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) ? 
-                                "See detailed competitive analysis, market trends, and pricing breakdown with live data verification." :
-                                "View comprehensive market analysis, competitive pricing estimates, and detailed methodology for how we calculate market rates."
+                                "Live Market Intelligence Available" : 
+                                "Market Analysis Available"
                               }
-                            </p>
-                            <button
-                              onClick={() => {
-                                const marketTab = document.querySelector('[data-tab="market-data"]') as HTMLElement;
-                                if (marketTab) {
-                                  marketTab.click();
-                                  setTimeout(() => {
-                                    marketTab.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                  }, 100);
-                                }
-                              }}
-                              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-md font-medium transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
-                            >
-                              <BarChart3 className="h-4 w-4" />
-                              <span>View Market Data Report</span>
-                              <ChevronRight className="h-4 w-4" />
-                            </button>
+                            </span>
+                            {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
+                              <Badge className="bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200 text-xs px-1.5 py-0.5">
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Live
+                              </Badge>
+                            )}
                           </div>
+                          <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                            See Market Data tab below
+                          </span>
                         </div>
                       </div>
                       
@@ -2886,6 +2861,27 @@ export default function CommunityDetail() {
 
               {/* Live Market Data Tab */}
               <TabsContent value="market-data" className="space-y-6 mt-6">
+                {/* Market Data Tab Header - Centralized Hub */}
+                <Card className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-800">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-2xl font-bold flex items-center justify-center gap-3">
+                      <BarChart3 className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                      <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                        Market Intelligence Center
+                      </span>
+                    </CardTitle>
+                    <CardDescription className="text-lg mt-2">
+                      Complete market analysis, competitive pricing, and real-time intelligence for {community.name}
+                    </CardDescription>
+                    {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
+                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200 mx-auto mt-3">
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Live Market Data Available
+                      </Badge>
+                    )}
+                  </CardHeader>
+                </Card>
+
                 {/* Real-Time AI Insights */}
                 <RealTimeInsights 
                   community={community} 
