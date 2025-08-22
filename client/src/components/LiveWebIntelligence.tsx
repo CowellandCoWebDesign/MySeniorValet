@@ -47,7 +47,7 @@ export function LiveWebIntelligence({
   onDataUpdate,
   onPhotosUpdate 
 }: LiveWebIntelligenceProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true); // Auto-expand intelligence report
   const [extractedData, setExtractedData] = useState<any>(null);
 
   // Fetch live data from Perplexity

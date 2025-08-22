@@ -590,6 +590,7 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
 const RealTimeInsights = ({ community, onVerificationReport, onPhotosUpdate }: { community: any, onVerificationReport?: (report: any) => void, onPhotosUpdate?: (photos: string[]) => void }) => {
   const realTimeData = community?.realTimeData;
   const [localVerificationReport, setLocalVerificationReport] = useState<any>(null);
+  const [webIntelligenceData, setWebIntelligenceData] = useState<any>(null);
   const [isVerifying, setIsVerifying] = useState(false);
 
   // Trigger Multi-AI verification when real-time data is available
@@ -823,11 +824,20 @@ const RealTimeInsights = ({ community, onVerificationReport, onPhotosUpdate }: {
             city={community.city}
             state={community.state}
             onDataUpdate={(data) => {
-              // Log web intelligence data for debugging
+              // Store web intelligence data for carousel access
               if (data.images && data.images.length > 0) {
                 console.log('Found actual community photos:', data.images);
               }
               console.log('Received fresh web intelligence:', data);
+              setWebIntelligenceData(data);
+              
+              // Also update parent verification report to include these photos
+              if (onVerificationReport && data.images && data.images.length > 0) {
+                onVerificationReport({
+                  ...localVerificationReport,
+                  webIntelligence: data
+                });
+              }
             }}
           />
         )}
@@ -1172,19 +1182,24 @@ const HeroPhotoCarousel = ({
       allPhotos.push(...dbPhotos);
     }
     
-    // Add live web intelligence photos when they arrive - check multiple possible paths
+    // Add live web intelligence photos when they arrive - check all possible paths
     let webImages = null;
     
-    // Check the correct path based on console logs
-    if (verificationReport?.verificationResults?.webIntelligence?.images) {
-      webImages = verificationReport.verificationResults.webIntelligence.images;
-    } else if (verificationReport?.webIntelligence?.images) {
+    // Check multiple paths where photos might be stored
+    if (verificationReport?.webIntelligence?.images) {
+      // Direct from LiveWebIntelligence component
       webImages = verificationReport.webIntelligence.images;
+    } else if (verificationReport?.verificationResults?.webIntelligence?.images) {
+      // From multi-AI verification
+      webImages = verificationReport.verificationResults.webIntelligence.images;
     }
     
     if (webImages && webImages.length > 0) {
       console.log('Adding web intelligence photos to carousel:', webImages);
-      const webPhotos = webImages.map((img: any) => img.image_url);
+      const webPhotos = webImages.map((img: any) => {
+        // Handle both string URLs and object format
+        return typeof img === 'string' ? img : (img.image_url || img.url || img);
+      });
       allPhotos.push(...webPhotos);
     }
     
@@ -1206,14 +1221,15 @@ const HeroPhotoCarousel = ({
     }
   }, [safePhotos.length, currentIndex]);
   
-  // Force re-render when verification report changes with new photos - FIXED PATH
+  // Force re-render when verification report changes with new photos - check both paths
   useEffect(() => {
-    const webImages = verificationReport?.verificationResults?.webIntelligence?.images;
+    const webImages = verificationReport?.webIntelligence?.images || 
+                     verificationReport?.verificationResults?.webIntelligence?.images;
     if (webImages && webImages.length > 0) {
       console.log('New photos detected from web intelligence, updating carousel...', webImages.length, 'photos');
       setCurrentIndex(0);
     }
-  }, [verificationReport?.verificationResults?.webIntelligence?.images]);
+  }, [verificationReport?.webIntelligence?.images, verificationReport?.verificationResults?.webIntelligence?.images]);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -1279,14 +1295,14 @@ const HeroPhotoCarousel = ({
     setIsDragging(false);
   };
 
-  // Debug logging - FIXED PATH
+  // Debug logging - check both paths
   console.log('HeroPhotoCarousel debug:', {
     communityPhotos: community?.photos,
-    webIntelligenceImages: verificationReport?.verificationResults?.webIntelligence?.images,
+    webIntelligenceImages: verificationReport?.webIntelligence?.images || verificationReport?.verificationResults?.webIntelligence?.images,
     safePhotos: safePhotos,
     currentIndex,
     verificationReportExists: !!verificationReport,
-    webIntelligenceExists: !!verificationReport?.verificationResults?.webIntelligence?.images
+    webIntelligenceExists: !!(verificationReport?.webIntelligence?.images || verificationReport?.verificationResults?.webIntelligence?.images)
   });
 
   // Check if we're still loading photos from web intelligence
@@ -1753,16 +1769,30 @@ export default function CommunityDetail() {
       photos.push(...community.photos);
     }
     
-    // Add live web intelligence photos - FIXED PATH
-    const webImages = verificationReport?.verificationResults?.webIntelligence?.images;
+    // Add live web intelligence photos - check all possible paths
+    let webImages = null;
+    if (verificationReport?.webIntelligence?.images) {
+      // Direct from LiveWebIntelligence component
+      webImages = verificationReport.webIntelligence.images;
+    } else if (verificationReport?.verificationResults?.webIntelligence?.images) {
+      // From multi-AI verification
+      webImages = verificationReport.verificationResults.webIntelligence.images;
+    }
+    
     if (webImages && webImages.length > 0) {
       console.log('[getCombinedPhotos] Found web intelligence images:', webImages.length);
-      const webPhotos = webImages.map((img: any) => ({
-        image_url: img.image_url,
-        origin_url: img.origin_url,
-        width: img.width,
-        height: img.height
-      }));
+      const webPhotos = webImages.map((img: any) => {
+        // Handle both string URLs and object format
+        if (typeof img === 'string') {
+          return { image_url: img };
+        }
+        return {
+          image_url: img.image_url || img.url || img,
+          origin_url: img.origin_url,
+          width: img.width,
+          height: img.height
+        };
+      });
       photos.push(...webPhotos);
     }
     
