@@ -2229,6 +2229,25 @@ export default function CommunityDetail() {
                     Ratings & Feedback
                   </span>
                 </TabsTrigger>
+                <TabsTrigger 
+                  value="photos" 
+                  className="flex flex-col items-center gap-1 py-4 px-6 rounded-lg transition-all duration-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-600 data-[state=active]:to-rose-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:transform data-[state=active]:scale-105 data-[state=active]:border-pink-300 hover:bg-pink-50 dark:hover:bg-pink-900/30 hover:border-pink-300 dark:hover:border-pink-500 text-gray-700 dark:text-gray-300 font-semibold"
+                >
+                  <div className="flex items-center gap-2">
+                    <Camera className="w-4 h-4" />
+                    <div className="text-center">
+                      <div className="text-xs font-bold">Photos</div>
+                      {verificationReport?.webIntelligence?.images?.length > 0 && (
+                        <div className="text-[10px] opacity-75">
+                          Real Photos Found
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {verificationReport?.webIntelligence?.images?.length > 0 && (
+                    <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
+                  )}
+                </TabsTrigger>
               </TabsList>
 
               {/* Community Information Tab */}
