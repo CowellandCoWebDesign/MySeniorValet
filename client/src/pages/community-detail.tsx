@@ -1206,13 +1206,14 @@ const HeroPhotoCarousel = ({
     }
   }, [safePhotos.length, currentIndex]);
   
-  // Force re-render when verification report changes with new photos
+  // Force re-render when verification report changes with new photos - FIXED PATH
   useEffect(() => {
-    if (verificationReport?.webIntelligence?.images) {
-      console.log('New photos detected from web intelligence, updating carousel...');
+    const webImages = verificationReport?.verificationResults?.webIntelligence?.images;
+    if (webImages && webImages.length > 0) {
+      console.log('New photos detected from web intelligence, updating carousel...', webImages.length, 'photos');
       setCurrentIndex(0);
     }
-  }, [verificationReport?.webIntelligence?.images]);
+  }, [verificationReport?.verificationResults?.webIntelligence?.images]);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -1278,14 +1279,14 @@ const HeroPhotoCarousel = ({
     setIsDragging(false);
   };
 
-  // Debug logging
+  // Debug logging - FIXED PATH
   console.log('HeroPhotoCarousel debug:', {
     communityPhotos: community?.photos,
-    webIntelligenceImages: verificationReport?.webIntelligence?.images,
+    webIntelligenceImages: verificationReport?.verificationResults?.webIntelligence?.images,
     safePhotos: safePhotos,
     currentIndex,
     verificationReportExists: !!verificationReport,
-    webIntelligenceExists: !!verificationReport?.webIntelligence
+    webIntelligenceExists: !!verificationReport?.verificationResults?.webIntelligence?.images
   });
 
   // Check if we're still loading photos from web intelligence
@@ -1752,9 +1753,11 @@ export default function CommunityDetail() {
       photos.push(...community.photos);
     }
     
-    // Add live web intelligence photos
-    if (verificationReport?.webIntelligence?.images) {
-      const webPhotos = verificationReport.webIntelligence.images.map((img: any) => ({
+    // Add live web intelligence photos - FIXED PATH
+    const webImages = verificationReport?.verificationResults?.webIntelligence?.images;
+    if (webImages && webImages.length > 0) {
+      console.log('[getCombinedPhotos] Found web intelligence images:', webImages.length);
+      const webPhotos = webImages.map((img: any) => ({
         image_url: img.image_url,
         origin_url: img.origin_url,
         width: img.width,
