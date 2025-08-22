@@ -1196,13 +1196,13 @@ const HeroPhotoCarousel = ({
     }
   }, [safePhotos.length, currentIndex]);
   
-  // Also reset when verification report changes to refresh with new photos
+  // Force re-render when verification report changes with new photos
   useEffect(() => {
-    if (verificationReport?.webIntelligence?.images && safePhotos.length > defaultPhotos.length) {
-      // New photos from web intelligence have arrived, reset carousel to show them
+    if (verificationReport?.webIntelligence?.images) {
+      console.log('New photos detected from web intelligence, updating carousel...');
       setCurrentIndex(0);
     }
-  }, [verificationReport]);
+  }, [verificationReport?.webIntelligence?.images]);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -1273,7 +1273,9 @@ const HeroPhotoCarousel = ({
     communityPhotos: community?.photos,
     webIntelligenceImages: verificationReport?.webIntelligence?.images,
     safePhotos: safePhotos,
-    currentIndex
+    currentIndex,
+    verificationReportExists: !!verificationReport,
+    webIntelligenceExists: !!verificationReport?.webIntelligence
   });
 
   // Check if we're still loading photos from web intelligence
