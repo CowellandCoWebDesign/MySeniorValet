@@ -1154,23 +1154,55 @@ const HeroPhotoCarousel = ({
   community,
   verificationReport
 }: { 
-  photos: string[], 
+  photos: any[], 
   communityName: string, 
   communityId?: number,
   community?: Community,
   verificationReport?: any
 }) => {
-  // Ensure photos is never null/undefined
-  const safePhotos = photos && photos.length > 0 ? photos : defaultPhotos;
+  // Dynamically get all available photos
+  const getAllPhotos = () => {
+    const allPhotos = [];
+    
+    // Add database photos first
+    if (community?.photos && community.photos.length > 0) {
+      const dbPhotos = community.photos.map((photo: any) => 
+        typeof photo === 'string' ? photo : photo.image_url || photo.url
+      );
+      allPhotos.push(...dbPhotos);
+    }
+    
+    // Add live web intelligence photos when they arrive
+    if (verificationReport?.webIntelligence?.images) {
+      const webPhotos = verificationReport.webIntelligence.images.map((img: any) => img.image_url);
+      allPhotos.push(...webPhotos);
+    }
+    
+    // Remove duplicates
+    const uniquePhotos = [...new Set(allPhotos)];
+    
+    // Return unique photos or default if none
+    return uniquePhotos.length > 0 ? uniquePhotos : defaultPhotos;
+  };
+  
+  const safePhotos = getAllPhotos();
   
   const [currentIndex, setCurrentIndex] = useState(0);
   
-  // Ensure currentIndex is always within bounds
+  // Reset to first photo when photos change (like when web intelligence arrives)
   useEffect(() => {
-    if (currentIndex >= safePhotos.length) {
+    if (safePhotos.length > 0 && currentIndex >= safePhotos.length) {
       setCurrentIndex(0);
     }
   }, [safePhotos.length, currentIndex]);
+  
+  // Also reset when verification report changes to refresh with new photos
+  useEffect(() => {
+    if (verificationReport?.webIntelligence?.images && safePhotos.length > defaultPhotos.length) {
+      // New photos from web intelligence have arrived, reset carousel to show them
+      setCurrentIndex(0);
+    }
+  }, [verificationReport]);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -1721,7 +1753,7 @@ export default function CommunityDetail() {
                 {/* Enhanced Photo Carousel */}
                 <div className="relative h-80 overflow-hidden">
                   <HeroPhotoCarousel 
-                    photos={community.photos && community.photos.length > 0 ? community.photos : defaultPhotos}
+                    photos={getCombinedPhotos()}
                     communityId={community.id}
                     communityName={community.name}
                     community={community}
