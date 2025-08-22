@@ -3166,6 +3166,7 @@ export default function CommunityDetail() {
                       <div className="flex items-center">
                         <Star className="w-4 h-4 text-yellow-500 fill-current mr-1" />
                         <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{community.yelpRating || '4.0'}</span>
+                      </div>
                     </div>
                     <p className="text-xs text-gray-900 dark:text-gray-100 mb-2">{community.yelpReviewCount || '23'} reviews</p>
                     <div className="text-xs text-gray-900 dark:text-gray-100">
@@ -3173,6 +3174,7 @@ export default function CommunityDetail() {
                       <p className="text-gray-900 dark:text-gray-100 mt-1">- 1 month ago</p>
                     </div>
                   </div>
+                </div>
 
                 {/* Tour Tracker Reports Section */}
                 <div className="mt-6">
@@ -3457,154 +3459,11 @@ export default function CommunityDetail() {
                     <div>
                       {/* Amenity Grading Header */}
                       <div className="flex items-center justify-between mb-6">
-                      {/* Amenity Grading Header */}
-                      <div className="flex items-center justify-between mb-6">
                         <div>
                           <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Amenities & Features</h3>
                           <p className="text-base text-gray-600 dark:text-gray-400 mt-1">
                             Comprehensive amenity assessment with quality ratings
                           </p>
-                        </div>
-                        <div className="text-right">
-                                    </div>
-                                    
-                                    <div className="grid grid-cols-4 gap-2 text-center">
-                                      <div>
-                                        <div className="flex items-center justify-center mb-1">
-                                          <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
-                                        </div>
-                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Confirmed</p>
-                                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{amenityStats.confirmed}</p>
-                                      </div>
-                                      <div>
-                                        <div className="flex items-center justify-center mb-1">
-                                          <div className="w-2 h-2 bg-amber-500 rounded-full mr-1"></div>
-                                        </div>
-                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Reported</p>
-                                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{amenityStats.reported}</p>
-                                      </div>
-                                      <div>
-                                        <div className="flex items-center justify-center mb-1">
-                                          <div className="w-2 h-2 bg-red-500 rounded-full mr-1"></div>
-                                        </div>
-                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Not Offered</p>
-                                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{amenityStats.notOffered}</p>
-                                      </div>
-                                      <div>
-                                        <div className="flex items-center justify-center mb-1">
-                                          <div className="w-2 h-2 bg-gray-400 rounded-full mr-1"></div>
-                                        </div>
-                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Pending</p>
-                                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{amenityStats.pending}</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Care Services Card */}
-                                <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg shadow-md">
-                                  <div className="flex items-center justify-between mb-3">
-                                    <div className="flex items-center">
-                                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center mr-3">
-                                        <Heart className="w-6 h-6 text-white" />
-                                      </div>
-                                      <div>
-                                        <h5 className="text-base font-semibold text-gray-900 dark:text-gray-100">Care Services</h5>
-                                        <p className="text-xs text-gray-600 dark:text-gray-400">{servicesData.length} services evaluated</p>
-                                      </div>
-                                    </div>
-                                    <div className="text-right">
-                                      <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{serviceConfirmedPercent}%</div>
-                                      <p className="text-xs text-gray-600 dark:text-gray-400">Confirmed</p>
-                                    </div>
-                                  </div>
-                                  
-                                  <div className="space-y-3">
-                                    <div className="relative h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                      <div 
-                                        className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-700"
-                                        style={{ width: `${(serviceStats.confirmed / servicesData.length) * 100}%` }}
-                                      />
-                                      <div 
-                                        className="absolute top-0 h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-700"
-                                        style={{ left: `${(serviceStats.confirmed / servicesData.length) * 100}%`, width: `${(serviceStats.reported / servicesData.length) * 100}%` }}
-                                      />
-                                      <div 
-                                        className="absolute top-0 h-full bg-gradient-to-r from-red-400 to-red-500 transition-all duration-700"
-                                        style={{ left: `${((serviceStats.confirmed + serviceStats.reported) / servicesData.length) * 100}%`, width: `${(serviceStats.notOffered / servicesData.length) * 100}%` }}
-                                      />
-                                    </div>
-                                    
-                                    <div className="grid grid-cols-4 gap-2 text-center">
-                                      <div>
-                                        <div className="flex items-center justify-center mb-1">
-                                          <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
-                                        </div>
-                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Confirmed</p>
-                                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{serviceStats.confirmed}</p>
-                                      </div>
-                                      <div>
-                                        <div className="flex items-center justify-center mb-1">
-                                          <div className="w-2 h-2 bg-amber-500 rounded-full mr-1"></div>
-                                        </div>
-                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Reported</p>
-                                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{serviceStats.reported}</p>
-                                      </div>
-                                      <div>
-                                        <div className="flex items-center justify-center mb-1">
-                                          <div className="w-2 h-2 bg-red-500 rounded-full mr-1"></div>
-                                        </div>
-                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Not Offered</p>
-                                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{serviceStats.notOffered}</p>
-                                      </div>
-                                      <div>
-                                        <div className="flex items-center justify-center mb-1">
-                                          <div className="w-2 h-2 bg-gray-400 rounded-full mr-1"></div>
-                                        </div>
-                                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Pending</p>
-                                        <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{serviceStats.pending}</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })()}
-                        </div>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="amenities" className="space-y-6">
-                    <div>
-                      {/* Amenity Grading Header */}
-                      <div className="flex items-center justify-between mb-6">
-                        <div>
-                          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Amenities & Features</h3>
-                          <p className="text-base text-gray-600 dark:text-gray-400 mt-1">
-                            Comprehensive amenity assessment with quality ratings
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                            {/* Calculate overall amenity grade */}
-                            {(() => {
-                              const totalAmenities = (community.amenities?.length || 0) + 
-                                                   ((community as any).healthcareServices?.length || 0) +
-                                                   ((community as any).fitnessServices?.length || 0) +
-                                                   ((community as any).diningServices?.length || 0) +
-                                                   ((community as any).transportationServices?.length || 0) +
-                                                   ((community as any).socialServices?.length || 0);
-                              if (totalAmenities >= 20) return 'A+';
-                              if (totalAmenities >= 15) return 'A';
-                              if (totalAmenities >= 12) return 'B+';
-                              if (totalAmenities >= 10) return 'B';
-                              if (totalAmenities >= 8) return 'C+';
-                              if (totalAmenities >= 6) return 'C';
-                              if (totalAmenities >= 4) return 'D';
-                              return 'F';
-                            })()}
-                          </div>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Overall Grade</p>
                         </div>
                       </div>
 
@@ -4214,10 +4073,9 @@ export default function CommunityDetail() {
                   </TabsContent>
                   
             </Tabs>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
-    </div>
     
     {/* Advanced Reservation Modal */}
     {showAdvancedReservation && (
