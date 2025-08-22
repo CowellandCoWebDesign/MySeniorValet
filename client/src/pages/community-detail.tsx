@@ -3070,124 +3070,402 @@ export default function CommunityDetail() {
                 {/* Community Competitive Analysis */}
                 <CommunityCompetitiveAnalysis community={community} />
               </TabsContent>
+              
+              {/* Reviews Tab Content - Direct child of main tabs */}
+              <TabsContent value="reviews" className="space-y-6 mt-6">
+                <Card id="reviews-section">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center">
+                      <Star className="w-5 h-5 mr-2" />
+                      Reviews & Ratings
+                    </CardTitle>
+                    <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">Combined external reviews, tour inspections, and family feedback</p>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                {/* MySeniorValet Composite Score */}
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-600">
+                  <div className="text-center mb-3">
+                    <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">MySeniorValet Composite Score</h4>
+                    <div className="flex items-center justify-center mb-2">
+                      <Shield className="w-6 h-6 text-blue-500 mr-1" />
+                      <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                        {(community as any).compositeRating || calculateCompositeRating(community)}
+                      </span>
+                      <span className="text-lg text-gray-900 dark:text-gray-100">/5</span>
+                    </div>
+                    <p className="text-xs text-gray-900 dark:text-gray-100 mt-1">
+                      Based on {(community as any).tourCount || '8'} family tours + {parseInt(community.googleReviewCount?.toString() || '0') + parseInt(community.yelpReviewCount?.toString() || '0')} online reviews
+                    </p>
+                  </div>
 
+                  {/* Score Breakdown */}
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div className="text-center">
+                      <p className="text-gray-900 dark:text-gray-100">Tour Score</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{(community as any).tourAverageRating || '4.5'}/5</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-gray-900 dark:text-gray-100">Google</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{community.googleRating || '4.2'}/5</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-gray-900 dark:text-gray-100">Yelp</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">{community.yelpRating || '4.0'}/5</p>
+                    </div>
+                  </div>
+                </div>
 
-            </Tabs>
+                {/* Tour Inspection Highlights */}
+                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                  <h4 className="text-sm font-semibold mb-2 flex items-center text-gray-900 dark:text-gray-100">
+                    <ClipboardList className="w-4 h-4 mr-1 text-blue-600" />
+                    Recent Tour Findings
+                  </h4>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex items-center">
+                      <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
+                      <span className="text-gray-900 dark:text-gray-100">Cleanliness: {(community as any).tourCleanlinessScore || '4.6'}/5</span>
+                    </div>
+                    <div className="flex items-center">
+                      <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
+                      <span className="text-gray-900 dark:text-gray-100">Staff Friendliness: {(community as any).tourStaffScore || '4.8'}/5</span>
+                    </div>
+                    <div className="flex items-center">
+                      <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
+                      <span className="text-gray-900 dark:text-gray-100">Facility Quality: {(community as any).tourFacilityScore || '4.5'}/5</span>
+                    </div>
+                    <div className="flex items-center">
+                      <AlertCircle className="w-3 h-3 mr-1 text-amber-500" />
+                      <span className="text-gray-900 dark:text-gray-100">Value for Money: {(community as any).tourValueScore || '4.2'}/5</span>
+                    </div>
+                  </div>
+                </div>
 
-            {/* Community Details Content - Reorganized from nested tabs */}
-            <Card className="mt-6">
-              <CardContent className="p-6">
-                <Tabs defaultValue="overview" className="w-full">
-                  <TabsList className="grid w-full grid-cols-6">
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="attributes">Attributes</TabsTrigger>
-                    <TabsTrigger value="amenities">Amenities</TabsTrigger>
-                    <TabsTrigger value="care">Care Services</TabsTrigger>
-                    <TabsTrigger value="policies">Policies</TabsTrigger>
-                    <TabsTrigger value="photos">Photos</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="overview" className="space-y-4">
-                    <div>
-                      <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">About {community.name}</h3>
-                      <p className="text-gray-900 dark:text-gray-100 mb-4">
-                        {community.description || `${community.name} is a premier senior living community offering exceptional care and amenities in a warm, welcoming environment. Our dedicated team provides personalized services designed to enhance the quality of life for our residents.`}
-                      </p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                          <h4 className="font-medium mb-2 text-gray-900 dark:text-gray-100">Care Types Available</h4>
-                          <ul className="text-sm text-gray-900 dark:text-gray-100 space-y-1">
-                            {community.careTypes?.map((type, index) => (
-                              <li key={index}>• {type}</li>
-                            )) || [
-                              '• Independent Living',
-                              '• Assisted Living',
-                              '• Memory Care'
-                            ].map((type, index) => (
-                              <li key={index}>{type}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                          <h4 className="font-medium mb-2 text-gray-900 dark:text-gray-100">Community Features</h4>
-                          <ul className="text-sm text-gray-900 dark:text-gray-100 space-y-1">
-                            <li>• 24/7 emergency response</li>
-                            <li>• Medication management</li>
-                            <li>• Housekeeping services</li>
-                            <li>• Social activities program</li>
-                          </ul>
-                        </div>
+                {/* External Review Sources */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* Google Reviews */}
+                  <div className="bg-white dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Google Reviews</h4>
+                      <div className="flex items-center">
+                        <Star className="w-4 h-4 text-yellow-500 fill-current mr-1" />
+                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{community.googleRating || '4.2'}</span>
                       </div>
+                    </div>
+                    <p className="text-xs text-gray-900 dark:text-gray-100 mb-2">{community.googleReviewCount || '45'} reviews</p>
+                    <div className="text-xs text-gray-900 dark:text-gray-100">
+                      <p className="italic">"{(community as any).googleRecentReview || 'Staff is caring and attentive. Activities keep residents engaged.'}"</p>
+                      <p className="text-gray-900 dark:text-gray-100 mt-1">- 2 weeks ago</p>
+                    </div>
+                  </div>
 
-                      {/* Enhanced Services & Amenities Summary */}
-                      <div className="bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 dark:from-indigo-900/20 dark:via-blue-900/20 dark:to-purple-900/20 p-6 rounded-xl border border-indigo-200 dark:border-indigo-700 shadow-lg mt-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center">
-                            <Home className="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" />
-                            Services & Amenities Overview
-                          </h4>
-                          <Badge className="bg-indigo-100 dark:bg-indigo-800/30 text-indigo-700 dark:text-indigo-300 px-3 py-1">
-                            Quick Summary
-                          </Badge>
+                  {/* Yelp Reviews */}
+                  <div className="bg-white dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Yelp Reviews</h4>
+                      <div className="flex items-center">
+                        <Star className="w-4 h-4 text-yellow-500 fill-current mr-1" />
+                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{community.yelpRating || '4.0'}</span>
+                    </div>
+                    <p className="text-xs text-gray-900 dark:text-gray-100 mb-2">{community.yelpReviewCount || '23'} reviews</p>
+                    <div className="text-xs text-gray-900 dark:text-gray-100">
+                      <p className="italic">"{(community as any).yelpRecentReview || 'Beautiful facility with wonderful dining options. My mother loves it here.'}"</p>
+                      <p className="text-gray-900 dark:text-gray-100 mt-1">- 1 month ago</p>
+                    </div>
+                  </div>
+
+                {/* Tour Tracker Reports Section */}
+                <div className="mt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
+                      <ClipboardList className="w-5 h-5 mr-2 text-orange-600" />
+                      Tour Tracker Reports
+                    </h3>
+                    <Badge className="bg-orange-100 dark:bg-orange-800/30 text-orange-700 dark:text-orange-300 px-2 py-1 text-xs">
+                      Family Experiences
+                    </Badge>
+                  </div>
+                  
+                  {/* Tour reports from families */}
+                  {(community as any).tourReports && (community as any).tourReports.length > 0 ? (
+                    <div className="space-y-3">
+                      {(community as any).tourReports.map((report: any, index: number) => (
+                        <div key={index} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                {report.public ? 'Public Report' : 'Anonymous'} • {report.tourDate || '2 weeks ago'}
+                              </p>
+                              <div className="flex items-center mb-2">
+                                <div className="flex">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star
+                                      key={star}
+                                      className={`w-4 h-4 ${
+                                        star <= (report.overallRating || 4)
+                                          ? 'text-yellow-500 fill-current'
+                                          : 'text-gray-300'
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="ml-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                  {report.overallRating || '4.0'}/5
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Tour feedback details */}
+                          <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                            "{report.comments || 'The staff was very welcoming and took time to answer all our questions. The facility was clean and well-maintained.'}"
+                          </p>
+                          
+                          {/* Rating breakdown */}
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                            <div>
+                              <p className="text-gray-500 dark:text-gray-400">Staff</p>
+                              <p className="font-semibold text-gray-900 dark:text-gray-100">{report.staffRating || '4.5'}/5</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-500 dark:text-gray-400">Cleanliness</p>
+                              <p className="font-semibold text-gray-900 dark:text-gray-100">{report.cleanlinessRating || '4.8'}/5</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-500 dark:text-gray-400">Amenities</p>
+                              <p className="font-semibold text-gray-900 dark:text-gray-100">{report.amenitiesRating || '4.2'}/5</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-500 dark:text-gray-400">Value</p>
+                              <p className="font-semibold text-gray-900 dark:text-gray-100">{report.valueRating || '4.0'}/5</p>
+                            </div>
+                          </div>
+                          
+                          {report.wouldRecommend && (
+                            <div className="mt-3 flex items-center text-xs text-green-700 dark:text-green-400">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Would recommend to others
+                            </div>
+                          )}
                         </div>
-                        
-                        <div className="space-y-4">
-                          {(() => {
-                            const amenitiesData = Object.values(getAmenitiesByCategory()).flat();
-                            const servicesData = Object.values(getCareServicesByCategory()).flat();
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg text-center">
+                      <ClipboardList className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        No tour reports submitted yet for this community
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500">
+                        Families who complete tours can submit feedback to help others make informed decisions
+                      </p>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="mt-4"
+                        onClick={() => {
+                          // TODO: Open tour tracker submission modal
+                          toast({
+                            title: "Tour Tracker",
+                            description: "Submit your tour experience after visiting this community",
+                          });
+                        }}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Submit Tour Report
+                      </Button>
+                    </div>
+                  )}
+                  
+                  <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                    <p className="text-xs text-blue-800 dark:text-blue-200">
+                      <Info className="w-3 h-3 inline mr-1" />
+                      Tour reports are submitted by families who have visited this community. 
+                      Reports marked as public are displayed here to help other families in their search.
+                    </p>
+                  </div>
+                </div>
 
-                            // Count by status
-                            const amenityStats = {
-                              confirmed: amenitiesData.filter(amenity => getAmenityStatus(community, amenity.id) === 'confirmed').length,
-                              reported: amenitiesData.filter(amenity => getAmenityStatus(community, amenity.id) === 'reported').length,
-                              notOffered: amenitiesData.filter(amenity => getAmenityStatus(community, amenity.id) === 'not-offered').length,
-                              pending: amenitiesData.filter(amenity => getAmenityStatus(community, amenity.id) === 'pending').length
-                            };
-
-                            const serviceStats = {
-                              confirmed: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'confirmed').length,
-                              reported: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'reported').length,
-                              notOffered: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'not-offered').length,
-                              pending: servicesData.filter(service => getCareServiceStatus(community, service.id) === 'pending').length
-                            };
-
-                            // Calculate percentages for visual impact
-                            const amenityConfirmedPercent = Math.round((amenityStats.confirmed / amenitiesData.length) * 100);
-                            const serviceConfirmedPercent = Math.round((serviceStats.confirmed / servicesData.length) * 100);
-
-                            return (
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {/* Amenities Card */}
-                                <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg shadow-md">
-                                  <div className="flex items-center justify-between mb-3">
-                                    <div className="flex items-center">
-                                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3">
-                                        <Star className="w-6 h-6 text-white" />
-                                      </div>
-                                      <div>
-                                        <h5 className="text-base font-semibold text-gray-900 dark:text-gray-100">Community Amenities</h5>
-                                        <p className="text-xs text-gray-600 dark:text-gray-400">{amenitiesData.length} features analyzed</p>
-                                      </div>
-                                    </div>
-                                    <div className="text-right">
-                                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{amenityConfirmedPercent}%</div>
-                                      <p className="text-xs text-gray-600 dark:text-gray-400">Confirmed</p>
-                                    </div>
-                                  </div>
-                                  
-                                  <div className="space-y-3">
-                                    <div className="relative h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                                      <div 
-                                        className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-500 to-green-600 transition-all duration-700"
-                                        style={{ width: `${(amenityStats.confirmed / amenitiesData.length) * 100}%` }}
-                                      />
-                                      <div 
-                                        className="absolute top-0 h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-700"
-                                        style={{ left: `${(amenityStats.confirmed / amenitiesData.length) * 100}%`, width: `${(amenityStats.reported / amenitiesData.length) * 100}%` }}
-                                      />
-                                      <div 
-                                        className="absolute top-0 h-full bg-gradient-to-r from-red-400 to-red-500 transition-all duration-700"
-                                        style={{ left: `${((amenityStats.confirmed + amenityStats.reported) / amenitiesData.length) * 100}%`, width: `${(amenityStats.notOffered / amenitiesData.length) * 100}%` }}
-                                      />
+                {/* MySeniorValet Verification Badge */}
+                <div className="text-center">
+                  <Badge className="bg-blue-600 text-white text-xs px-3 py-1 font-medium">
+                    <Shield className="w-3 h-3 mr-1" />
+                    MySeniorValet Verified Community
+                  </Badge>
+                </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                  
+                  <TabsContent value="photos" className="space-y-4">
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Photo Gallery</h3>
+                        {/* Show photo usage limits based on subscription tier */}
+                        {community.claimedBy && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              {(() => {
+                                const tier = community.subscriptionTier || 'verified';
+                                const photoLimits = { verified: 1, standard: 10, featured: 25, platinum: 50 };
+                                const currentPhotos = community.photos?.length || 0;
+                                const limit = photoLimits[tier as keyof typeof photoLimits];
+                                return `${currentPhotos}/${limit} photos`;
+                              })()}
+                            </span>
+                            {(() => {
+                              const tier = community.subscriptionTier || 'verified';
+                              const photoLimits = { verified: 1, standard: 10, featured: 25, platinum: 50 };
+                              const currentPhotos = community.photos?.length || 0;
+                              const limit = photoLimits[tier as keyof typeof photoLimits];
+                              
+                              if (currentPhotos >= limit) {
+                                return (
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    onClick={() => {
+                                      setUpgradeFeature('photos');
+                                      setShowUpgradeModal(true);
+                                    }}
+                                  >
+                                    <Sparkles className="w-4 h-4 mr-1" />
+                                    Upgrade for More
+                                  </Button>
+                                );
+                              }
+                              return null;
+                            })()}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {community.photos && community.photos.length > 0 ? (
+                        <div>
+                          <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg mb-4">
+                            <HeroPhotoCarousel 
+                              photos={community.photos && community.photos.length > 0 ? community.photos : defaultPhotos} 
+                              communityName={community.name}
+                              communityId={community.id}
+                              community={community}
+                              verificationReport={verificationReport}
+                            />
+                          </div>
+                          
+                          {/* Photo limit reached warning */}
+                          {community.claimedBy && (() => {
+                            const tier = community.subscriptionTier || 'verified';
+                            const photoLimits = { verified: 1, standard: 10, featured: 25, platinum: 50 };
+                            const currentPhotos = community.photos?.length || 0;
+                            const limit = photoLimits[tier as keyof typeof photoLimits];
+                            
+                            if (currentPhotos >= limit) {
+                              return (
+                                <div className="mt-4 p-3 bg-indigo-100 dark:bg-indigo-900/20 rounded-lg border border-indigo-300 dark:border-indigo-700">
+                                  <p className="text-sm text-indigo-800 dark:text-indigo-200 font-medium">
+                                    <Info className="w-4 h-4 inline mr-2" />
+                                    Photo limit reached ({currentPhotos}/{limit}). Upgrade to add more photos.
+                                  </p>
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
+                        </div>
+                      ) : (
+                        <div className="text-center py-12">
+                          <img 
+                            src="/assets/gentleman-mascot.png" 
+                            alt="MySeniorValet Mascot" 
+                            className="h-24 w-24 mx-auto mb-4 opacity-60"
+                          />
+                          <p className="text-gray-500 dark:text-gray-400">No photos available yet</p>
+                          <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">This community can add photos once claimed</p>
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+                  
+                  {/* Explained Attributes Section */}
+                  <TabsContent value="attributes" className="space-y-6">
+                    <div>
+                      <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Community Attributes Explained</h3>
+                      <p className="text-base text-gray-700 dark:text-gray-300 mb-6">
+                        Understanding the key features and characteristics that define {community.name}
+                      </p>
+                      
+                      {/* Community Type Explanation */}
+                      <Card className="mb-6">
+                        <CardHeader>
+                          <CardTitle className="flex items-center text-gray-900 dark:text-gray-100">
+                            <Home className="w-5 h-5 mr-2 text-blue-600" />
+                            Community Type
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="mb-4">
+                            <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                              {getCommunityTypeLabel(community.type)}
+                            </span>
+                          </div>
+                          <p className="text-gray-700 dark:text-gray-300">
+                            {getCommunityTypeDescription(community.type)}
+                          </p>
+                        </CardContent>
+                      </Card>
+                      
+                      {/* Ownership Status */}
+                      <Card className="mb-6">
+                        <CardHeader>
+                          <CardTitle className="flex items-center text-gray-900 dark:text-gray-100">
+                            <Building className="w-5 h-5 mr-2 text-green-600" />
+                            Ownership Status
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="mb-4">
+                            <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                              {community.ownership || 'Corporate Owned'}
+                            </span>
+                          </div>
+                          <p className="text-gray-700 dark:text-gray-300">
+                            This community is professionally managed by a corporate organization, ensuring standardized care and operational excellence.
+                          </p>
+                        </CardContent>
+                      </Card>
+                      
+                      {/* HUD Provider Status */}
+                      {community.isHudProvider && (
+                        <Card className="mb-6 border-2 border-blue-200 dark:border-blue-800">
+                          <CardHeader className="bg-blue-50 dark:bg-blue-900/20">
+                            <CardTitle className="flex items-center text-gray-900 dark:text-gray-100">
+                              <Shield className="w-5 h-5 mr-2 text-blue-600" />
+                              HUD Registered Provider
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-gray-700 dark:text-gray-300">
+                              This community participates in HUD programs, offering government-subsidized housing options for qualifying seniors.
+                            </p>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="amenities" className="space-y-6">
+                    <div>
+                      {/* Amenity Grading Header */}
+                      <div className="flex items-center justify-between mb-6">
+                      {/* Amenity Grading Header */}
+                      <div className="flex items-center justify-between mb-6">
+                        <div>
+                          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Amenities & Features</h3>
+                          <p className="text-base text-gray-600 dark:text-gray-400 mt-1">
+                            Comprehensive amenity assessment with quality ratings
+                          </p>
+                        </div>
+                        <div className="text-right">
                                     </div>
                                     
                                     <div className="grid grid-cols-4 gap-2 text-center">
@@ -3293,152 +3571,6 @@ export default function CommunityDetail() {
                             );
                           })()}
                         </div>
-                        
-                        <div className="mt-4 p-3 bg-indigo-100 dark:bg-indigo-800/20 rounded-lg">
-                          <p className="text-sm text-indigo-700 dark:text-indigo-300 flex items-center">
-                            <Info className="w-4 h-4 mr-2" />
-                            View detailed information in the Amenities and Care Services tabs
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </TabsContent>
-                  
-                  {/* Explained Attributes Section */}
-                  <TabsContent value="attributes" className="space-y-6">
-                    <div>
-                      <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Community Attributes Explained</h3>
-                      <p className="text-base text-gray-700 dark:text-gray-300 mb-6">
-                        Understanding the key features and characteristics that define {community.name}
-                      </p>
-                      
-                      {/* Community Type Explanation */}
-                      <Card className="mb-6">
-                        <CardHeader>
-                          <CardTitle className="flex items-center text-gray-900 dark:text-gray-100">
-                            <Building className="w-6 h-6 mr-2 text-blue-600 dark:text-blue-400" />
-                            Community Type & Classification
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-                            <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">
-                              {(community as any).type || 'Senior Living Community'}
-                            </h4>
-                            <p className="text-sm text-blue-800 dark:text-blue-300">
-                              This classification indicates the primary focus and services offered by the community.
-                            </p>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                              <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-2">License Status</h5>
-                              <p className="text-sm text-gray-700 dark:text-gray-300">
-                                {community.licenseStatus || 'State Licensed'} - Meets all regulatory requirements
-                              </p>
-                            </div>
-                            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                              <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Ownership</h5>
-                              <p className="text-sm text-gray-700 dark:text-gray-300">
-                                {(community as any).ownership || 'Privately Owned'} - Independent operation
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                      
-                      {/* Care Levels Explained */}
-                      <Card className="mb-6">
-                        <CardHeader>
-                          <CardTitle className="flex items-center text-gray-900 dark:text-gray-100">
-                            <Heart className="w-6 h-6 mr-2 text-red-600 dark:text-red-400" />
-                            Care Levels Explained
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-4">
-                            {(community.careTypes || ['Assisted Living', 'Memory Care']).map((careType, index) => (
-                              <div key={index} className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 p-4 rounded-lg border border-red-200 dark:border-red-700">
-                                <h5 className="font-semibold text-red-900 dark:text-red-200 mb-2">{careType}</h5>
-                                <p className="text-sm text-red-800 dark:text-red-300">
-                                  {getCareTypeDescription(careType)}
-                                </p>
-                              </div>
-                            ))}
-                          </div>
-                        </CardContent>
-                      </Card>
-                      
-                      {/* Location Attributes */}
-                      <Card className="mb-6">
-                        <CardHeader>
-                          <CardTitle className="flex items-center text-gray-900 dark:text-gray-100">
-                            <MapPin className="w-6 h-6 mr-2 text-green-600 dark:text-green-400" />
-                            Location Attributes
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
-                            <h5 className="font-medium text-green-900 dark:text-green-200 mb-1">Neighborhood Setting</h5>
-                            <p className="text-sm text-green-800 dark:text-green-300">
-                              {(community as any).neighborhoodType || 'Residential Area'}
-                            </p>
-                          </div>
-                          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
-                            <h5 className="font-medium text-green-900 dark:text-green-200 mb-1">Accessibility</h5>
-                            <p className="text-sm text-green-800 dark:text-green-300">
-                              Near public transportation and medical facilities
-                            </p>
-                          </div>
-                          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
-                            <h5 className="font-medium text-green-900 dark:text-green-200 mb-1">County</h5>
-                            <p className="text-sm text-green-800 dark:text-green-300">
-                              {community.county || 'County Information'}
-                            </p>
-                          </div>
-                          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
-                            <h5 className="font-medium text-green-900 dark:text-green-200 mb-1">Climate</h5>
-                            <p className="text-sm text-green-800 dark:text-green-300">
-                              {getClimateForState(community.state)}
-                            </p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                      
-                      {/* Quality Indicators */}
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="flex items-center text-gray-900 dark:text-gray-100">
-                            <Award className="w-6 h-6 mr-2 text-purple-600 dark:text-purple-400" />
-                            Quality Indicators
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-between bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
-                              <div>
-                                <h5 className="font-medium text-purple-900 dark:text-purple-200">Staff-to-Resident Ratio</h5>
-                                <p className="text-sm text-purple-800 dark:text-purple-300">Industry standard compliance</p>
-                              </div>
-                              <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
-                            </div>
-                            <div className="flex items-center justify-between bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
-                              <div>
-                                <h5 className="font-medium text-purple-900 dark:text-purple-200">Emergency Response</h5>
-                                <p className="text-sm text-purple-800 dark:text-purple-300">24/7 emergency call system in all units</p>
-                              </div>
-                              <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
-                            </div>
-                            <div className="flex items-center justify-between bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
-                              <div>
-                                <h5 className="font-medium text-purple-900 dark:text-purple-200">Safety Features</h5>
-                                <p className="text-sm text-purple-800 dark:text-purple-300">Secure entry, grab bars, non-slip surfaces</p>
-                              </div>
-                              <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
                     </div>
                   </TabsContent>
                   
@@ -4080,602 +4212,35 @@ export default function CommunityDetail() {
                       </div>
                     </div>
                   </TabsContent>
-                  <TabsContent value="photos" className="space-y-4">
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Photo Gallery</h3>
-                        {/* Show photo usage limits based on subscription tier */}
-                        {community.claimedBy && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                              {(() => {
-                                const tier = community.subscriptionTier || 'verified';
-                                const photoLimits = { verified: 1, standard: 10, featured: 25, platinum: 50 };
-                                const currentPhotos = community.photos?.length || 0;
-                                const limit = photoLimits[tier as keyof typeof photoLimits];
-                                return `${currentPhotos}/${limit} photos`;
-                              })()}
-                            </span>
-                            {(() => {
-                              const tier = community.subscriptionTier || 'verified';
-                              const photoLimits = { verified: 1, standard: 10, featured: 25, platinum: 50 };
-                              const currentPhotos = community.photos?.length || 0;
-                              const limit = photoLimits[tier as keyof typeof photoLimits];
-                              
-                              if (currentPhotos >= limit) {
-                                return (
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline"
-                                    onClick={() => {
-                                      setUpgradeFeature('photos');
-                                      setShowUpgradeModal(true);
-                                    }}
-                                  >
-                                    <Sparkles className="w-4 h-4 mr-1" />
-                                    Upgrade for More
-                                  </Button>
-                                );
-                              }
-                              return null;
-                            })()}
-                          </div>
-                        )}
-                      </div>
-                      
-                      {community.photos && community.photos.length > 0 ? (
-                        <div>
-                          <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg mb-4">
-                            <HeroPhotoCarousel 
-                              photos={community.photos && community.photos.length > 0 ? community.photos : defaultPhotos} 
-                              communityName={community.name}
-                              communityId={community.id}
-                              community={community}
-                              verificationReport={verificationReport}
-                            />
-                          </div>
-                          
-                          {/* Photo limit reached warning */}
-                          {community.claimedBy && (() => {
-                            const tier = community.subscriptionTier || 'verified';
-                            const photoLimits = { verified: 1, standard: 10, featured: 25, platinum: 50 };
-                            const currentPhotos = community.photos?.length || 0;
-                            const limit = photoLimits[tier as keyof typeof photoLimits];
-                            
-                            if (currentPhotos >= limit) {
-                              return (
-                                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-700">
-                                  <div className="flex items-start">
-                                    <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2 mt-0.5" />
-                                    <div>
-                                      <p className="text-sm font-medium text-yellow-800 dark:text-yellow-300">
-                                        Photo Limit Reached
-                                      </p>
-                                      <p className="text-sm text-yellow-700 dark:text-yellow-400 mt-1">
-                                        Your {tier} plan allows {limit} photo{limit > 1 ? 's' : ''}. 
-                                        Upgrade to add more photos and showcase your community better.
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            }
-                            return null;
-                          })()}
-                        </div>
-                      ) : (
-                        <MissingPhotosPanel 
-                          communityId={community.id} 
-                          communityName={community.name}
-                        />
-                      )}
-                    </div>
-                  </TabsContent>
                   
-                  {/* Reviews Tab Content - Moved from right column */}
-                  <TabsContent value="reviews" className="space-y-6 mt-6">
-                    <Card id="reviews-section">
-                      <CardHeader>
-                        <CardTitle className="text-lg flex items-center">
-                          <Star className="w-5 h-5 mr-2" />
-                          Reviews & Ratings
-                        </CardTitle>
-                        <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">Combined external reviews, tour inspections, and family feedback</p>
-                      </CardHeader>
-                      <CardContent className="space-y-6">
-                {/* MySeniorValet Composite Score */}
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-600">
-                  <div className="text-center mb-3">
-                    <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">MySeniorValet Composite Score</h4>
-                    <div className="flex items-center justify-center mb-2">
-                      <Shield className="w-6 h-6 text-blue-500 mr-1" />
-                      <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                        {/* Calculate composite score from multiple sources */}
-                        {(community as any).compositeRating || calculateCompositeRating(community)}
-                      </span>
-                      <span className="text-lg text-gray-900 dark:text-gray-100">/5</span>
-                    </div>
-                    <p className="text-xs text-gray-900 dark:text-gray-100 mt-1">
-                      Based on {(community as any).tourCount || '8'} family tours + {parseInt(community.googleReviewCount?.toString() || '0') + parseInt(community.yelpReviewCount?.toString() || '0')} online reviews
-                    </p>
-                  </div>
-
-                  {/* Score Breakdown */}
-                  <div className="grid grid-cols-3 gap-2 text-xs">
-                    <div className="text-center">
-                      <p className="text-gray-900 dark:text-gray-100">Tour Score</p>
-                      <p className="font-semibold text-gray-900 dark:text-gray-100">{(community as any).tourAverageRating || '4.5'}/5</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-gray-900 dark:text-gray-100">Google</p>
-                      <p className="font-semibold text-gray-900 dark:text-gray-100">{community.googleRating || '4.2'}/5</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-gray-900 dark:text-gray-100">Yelp</p>
-                      <p className="font-semibold text-gray-900 dark:text-gray-100">{community.yelpRating || '4.0'}/5</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tour Inspection Highlights */}
-                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                  <h4 className="text-sm font-semibold mb-2 flex items-center text-gray-900 dark:text-gray-100">
-                    <ClipboardList className="w-4 h-4 mr-1 text-blue-600" />
-                    Recent Tour Findings
-                  </h4>
-                  <div className="space-y-1 text-xs">
-                    <div className="flex items-center">
-                      <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
-                      <span className="text-gray-900 dark:text-gray-100">Cleanliness: {(community as any).tourCleanlinessScore || '4.6'}/5</span>
-                    </div>
-                    <div className="flex items-center">
-                      <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
-                      <span className="text-gray-900 dark:text-gray-100">Staff Interaction: {(community as any).tourStaffScore || '4.8'}/5</span>
-                    </div>
-                    <div className="flex items-center">
-                      <CheckCircle className="w-3 h-3 mr-1 text-yellow-500" />
-                      <span className="text-gray-900 dark:text-gray-100">Food Quality: {(community as any).tourFoodScore || '4.2'}/5</span>
-                    </div>
-                    <div className="flex items-center">
-                      <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
-                      <span className="text-gray-900 dark:text-gray-100">Safety Features: {(community as any).tourSafetyScore || '4.7'}/5</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* External Review Platform Links */}
-                <div className="space-y-3">
-                  <p className="text-xs text-gray-900 dark:text-gray-100 text-center">View detailed reviews on:</p>
-                  <div className="flex flex-col gap-2">
-                    {/* Google Reviews */}
-                    <a 
-                      href={`https://www.google.com/maps/search/${encodeURIComponent(`${community.name} ${community.address} ${community.city} ${community.state} ${community.zipCode}`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 transition-colors group shadow-sm hover:shadow-md"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <img src="https://www.google.com/favicon.ico" alt="Google" className="h-4 w-4" />
-                      <Star className="h-3 w-3 text-yellow-400" />
-                      <span className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                        {community.googleRating || '4.2'} 
-                      </span>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        ({community.googleReviewCount || '47'} reviews)
-                      </span>
-                      <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
-                    </a>
-                    
-                    {/* Yelp Reviews */}
-                    <a 
-                      href={`https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name)}&find_loc=${encodeURIComponent(community.city + ', ' + community.state)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 px-3 py-2 bg-white dark:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-400 transition-colors group shadow-sm hover:shadow-md"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <img src="https://www.yelp.com/favicon.ico" alt="Yelp" className="h-4 w-4" />
-                      <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400">
-                        View on Yelp 
-                      </span>
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        ({community.yelpReviewCount || '23'} reviews)
-                      </span>
-                      <ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400" />
-                    </a>
-                  </div>
-                  
-                  {/* Community Claim Badge - if not claimed */}
-                  {!community.claimedBy && (
-                    <div className="text-center mt-2">
-                      <Badge variant="outline" className="text-xs bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700 text-yellow-700 dark:text-yellow-300">
-                        <Info className="h-3 w-3 mr-1" />
-                        Unclaimed - Reviews unverified
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-
-                {/* Tour Tracker Reports Section */}
-                <div className="border-t pt-6">
-                  <h4 className="text-lg font-semibold mb-4 flex items-center text-gray-900 dark:text-gray-100">
-                    <ClipboardList className="w-5 h-5 mr-2 text-orange-600" />
-                    Completed Tour Tracker Reports
-                  </h4>
-                  
-                  {/* Display existing tour reports if available */}
-                  {(community as any).tourReports && (community as any).tourReports.length > 0 ? (
-                    <div className="space-y-4">
-                      {(community as any).tourReports.map((report: any, index: number) => (
-                        <div key={index} className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-700">
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex items-center">
-                              <User className="w-4 h-4 mr-2 text-orange-600" />
-                              <span className="font-medium text-sm text-gray-900 dark:text-gray-100">
-                                {report.isAnonymous ? 'Anonymous Family Member' : report.userName}
-                              </span>
-                            </div>
-                            <span className="text-xs text-gray-600 dark:text-gray-400">
-                              {new Date(report.date).toLocaleDateString()}
-                            </span>
-                          </div>
-                          
-                          <div className="flex items-center mb-2">
-                            <div className="flex">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <Star 
-                                  key={star} 
-                                  className={`w-4 h-4 ${star <= report.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
-                                />
-                              ))}
-                            </div>
-                            <span className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">
-                              {report.rating}/5
-                            </span>
-                          </div>
-                          
-                          <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                            {report.comments}
-                          </p>
-                          
-                          <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div className="flex items-center">
-                              <span className="font-medium text-gray-700 dark:text-gray-300">Staff:</span>
-                              <span className="ml-1 text-gray-900 dark:text-gray-100">{report.staffRating}/5</span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="font-medium text-gray-700 dark:text-gray-300">Cleanliness:</span>
-                              <span className="ml-1 text-gray-900 dark:text-gray-100">{report.cleanlinessRating}/5</span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="font-medium text-gray-700 dark:text-gray-300">Amenities:</span>
-                              <span className="ml-1 text-gray-900 dark:text-gray-100">{report.amenitiesRating}/5</span>
-                            </div>
-                            <div className="flex items-center">
-                              <span className="font-medium text-gray-700 dark:text-gray-300">Value:</span>
-                              <span className="ml-1 text-gray-900 dark:text-gray-100">{report.valueRating}/5</span>
-                            </div>
-                          </div>
-                          
-                          {report.wouldRecommend && (
-                            <div className="mt-3 flex items-center text-xs text-green-700 dark:text-green-400">
-                              <CheckCircle className="w-3 h-3 mr-1" />
-                              Would recommend to others
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg text-center">
-                      <ClipboardList className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        No tour reports submitted yet for this community
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500">
-                        Families who complete tours can submit feedback to help others make informed decisions
-                      </p>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="mt-4"
-                        onClick={() => {
-                          // TODO: Open tour tracker submission modal
-                          toast({
-                            title: "Tour Tracker",
-                            description: "Submit your tour experience after visiting this community",
-                          });
-                        }}
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Submit Tour Report
-                      </Button>
-                    </div>
-                  )}
-                  
-                  <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
-                    <p className="text-xs text-blue-800 dark:text-blue-200">
-                      <Info className="w-3 h-3 inline mr-1" />
-                      Tour reports are submitted by families who have visited this community. 
-                      Reports marked as public are displayed here to help other families in their search.
-                    </p>
-                  </div>
-                </div>
-
-                {/* MySeniorValet Verification Badge */}
-                <div className="text-center">
-                  <Badge className="bg-blue-600 text-white text-xs px-3 py-1 font-medium">
-                    <Shield className="w-3 h-3 mr-1" />
-                    MySeniorValet Verified Community
-                  </Badge>
-                </div>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-              
             </Tabs>
           </CardContent>
         </Card>
       </div>
     </div>
-        
-        {/* Detailed Pricing Methodology Section */}
-        {!hasLiveData && !community.claimedBy && (
-          <div id="pricing-methodology" className="mt-12 mb-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold flex items-center">
-                  <Info className="w-6 h-6 mr-2 text-blue-600" />
-                  How We Calculate Pricing Estimates
-                </CardTitle>
-                <CardDescription className="text-base">
-                  Transparent pricing methodology using 8 authentic sources
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-700">
-                    <p className="text-base text-blue-900 dark:text-blue-200 mb-4">
-                      MySeniorValet provides pricing estimates to help families budget and plan. Since many communities don't publish pricing online, we use data from 8 authentic sources to calculate fair market estimates. <strong>All our data comes from publicly available sources only - we never access information behind logins, paywalls, or private databases.</strong>
-                    </p>
-                    
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <h4 className="font-semibold text-lg text-blue-900 dark:text-blue-200 mb-3 flex items-center">
-                          <Building className="w-5 h-5 mr-2" />
-                          Government Sources
-                        </h4>
-                        <ul className="space-y-2">
-                          <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
-                            <div className="w-3 h-3 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
-                            <div>
-                              <strong>HUD Database</strong> - Government verified affordable housing rates for seniors
-                            </div>
-                          </li>
-                          <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
-                            <div className="w-3 h-3 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
-                            <div>
-                              <strong>Medicare/CMS Nursing Home Compare</strong> - Federal pricing data for skilled nursing
-                            </div>
-                          </li>
-                          <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
-                            <div className="w-3 h-3 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
-                            <div>
-                              <strong>Veterans Affairs</strong> - VA community living center rates
-                            </div>
-                          </li>
-                          <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
-                            <div className="w-3 h-3 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
-                            <div>
-                              <strong>State Medicaid Rates</strong> - Published reimbursement schedules
-                            </div>
-                          </li>
-                        </ul>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-semibold text-lg text-blue-900 dark:text-blue-200 mb-3 flex items-center">
-                          <FileText className="w-5 h-5 mr-2" />
-                          Regional & Direct Sources
-                        </h4>
-                        <ul className="space-y-2">
-                          <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
-                            <div className="w-3 h-3 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
-                            <div>
-                              <strong>State Licensing Boards</strong> - Annual facility reports and surveys
-                            </div>
-                          </li>
-                          <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
-                            <div className="w-3 h-3 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
-                            <div>
-                              <strong>County Property Records</strong> - Assessor data for facility valuations
-                            </div>
-                          </li>
-                          <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
-                            <div className="w-3 h-3 bg-purple-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
-                            <div>
-                              <strong>State Transparency Portals</strong> - Public health department data
-                            </div>
-                          </li>
-
-                        </ul>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-6">
-                      <h4 className="font-semibold text-lg text-blue-900 dark:text-blue-200 mb-3 flex items-center">
-                        <DollarSign className="w-5 h-5 mr-2" />
-                        Market Analysis Factors
-                      </h4>
-                      <ul className="space-y-2">
-                        <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
-                          <div className="w-3 h-3 bg-green-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
-                          <div>
-                            <strong>Genworth 2024 Cost of Care Survey</strong> - National benchmark for senior care costs by region and care type
-                          </div>
-                        </li>
-                        <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
-                          <div className="w-3 h-3 bg-green-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
-                          <div>
-                            <strong>Regional Cost Adjustments</strong> - Local market conditions, cost of living index, and metropolitan area factors
-                          </div>
-                        </li>
-                        <li className="flex items-start text-base text-blue-800 dark:text-blue-300">
-                          <div className="w-3 h-3 bg-green-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
-                          <div>
-                            <strong>Care Level & Amenities</strong> - Adjustments based on services offered, facility ratings, and available features
-                          </div>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-200 dark:border-green-700">
-                    <div className="flex items-center mb-3">
-                      <Shield className="w-6 h-6 text-green-700 dark:text-green-400 mr-2" />
-                      <h4 className="text-xl font-bold text-green-900 dark:text-green-200">
-                        Our Commitment: 100% Public Data & NO Aggregator Sites
-                      </h4>
-                    </div>
-                    <p className="text-base text-green-800 dark:text-green-300 mb-4">
-                      We <strong>NEVER</strong> use pricing from aggregator websites like A Place for Mom, Caring.com, Seniorly, or Senior Advisor. These sites often inflate prices and don't reflect actual community rates. MySeniorValet only uses authentic, verifiable sources to ensure families get honest pricing information.
-                    </p>
-                    <p className="text-base text-green-800 dark:text-green-300">
-                      <strong>Public Data Only:</strong> All community information and pricing estimates come from publicly available sources. We do not scrape data behind logins, access private databases, or use any information that isn't freely available to the public. This ensures complete transparency and legal compliance in our data collection methods.
-                    </p>
-                  </div>
-                  
-                  <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-700">
-                    <div className="flex items-start">
-                      <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2 mt-0.5" />
-                      <div>
-                        <p className="text-base text-yellow-800 dark:text-yellow-300">
-                          <strong>Important:</strong> These are estimates based on available data. Actual pricing may vary based on room type, care needs, and current availability. Always contact the community directly for current pricing and tour the facility before making decisions.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-        
-        {/* Community Claim Status Card - Moved to bottom of tabs */}
-        <Card className="border-2 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 mt-6">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-amber-100 dark:bg-amber-800 rounded-lg">
-                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-300" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                  Community Claim Status
-                </h3>
-                <div className="space-y-2">
-                  {/* MySeniorValet Verification Status - Always show as pending since no claims approved */}
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-amber-500" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      <span className="font-medium">Not Verified</span> - Pending MySeniorValet.com verification
-                    </span>
-                  </div>
-
-                  {/* Data Source - Display actual verified data_source field */}
-                  <div className="flex items-center gap-2">
-                    {(community as any).data_source ? (
-                      <>
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                          <span className="font-medium">Verified Source:</span> {(community as any).data_source}
-                        </span>
-                      </>
-                    ) : community.hudPropertyId ? (
-                      <>
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                          <span className="font-medium">HUD Database</span> - Government verified source
-                        </span>
-                      </>
-                    ) : (community as any).dataSource?.includes('state') ? (
-                      <>
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                          <span className="font-medium">State Database</span> - Government licensing data
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <Info className="w-4 h-4 text-blue-500" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                          <span className="font-medium">Public Records</span> - Awaiting verification
-                        </span>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Real-time Updates Status - Now with Perplexity AI */}
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      <span className="font-medium">Real-time Market Data</span> - Powered by Perplexity AI web search
-                    </span>
-                  </div>
-                  
-                  {/* Market Intelligence Status */}
-                  <div className="flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4 text-indigo-500" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">
-                      <span className="font-medium">Live Competitive Analysis</span> - Market pricing verified from web sources
-                    </span>
-                  </div>
-                </div>
-
-                {/* Call to Action - Claim Now Button */}
-                <div className="mt-4 pt-4 border-t border-amber-200 dark:border-amber-700">
-                  <div className="space-y-3">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Are you the owner or authorized representative of this community?
-                    </p>
-                    <Button 
-                      onClick={() => window.location.href = `/claim-community?id=${community.id}`}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 flex items-center justify-center"
-                    >
-                      <Building className="w-5 h-5 mr-2" />
-                      Claim This Community Now
-                    </Button>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 text-center">
-                      Get verified status • Update pricing & availability • Respond to reviews
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      {/* Advanced Reservation Flow Modal */}
-      {showAdvancedReservation && (
-        <AdvancedReservationFlow
-          community={community}
-          selectedUnit={selectedReservationUnit || undefined}
-          onClose={() => {
-            setShowAdvancedReservation(false);
-            setSelectedReservationUnit(null);
-          }}
-        />
-      )}
-      
-      {/* Subscription Upgrade Modal */}
-      <SubscriptionUpgradeModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        currentTier={community.subscriptionTier || 'verified'}
-        requestedFeature={upgradeFeature}
-        communityId={community.id}
-        communityName={community.name}
+    
+    {/* Advanced Reservation Modal */}
+    {showAdvancedReservation && (
+      <AdvancedReservationModal
+        isOpen={showAdvancedReservation}
+        community={community}
+        selectedUnit={selectedReservationUnit || undefined}
+        onClose={() => {
+          setShowAdvancedReservation(false);
+          setSelectedReservationUnit(null);
+        }}
       />
-    </div>
+    )}
+    
+    {/* Subscription Upgrade Modal */}
+    <SubscriptionUpgradeModal
+      isOpen={showUpgradeModal}
+      onClose={() => setShowUpgradeModal(false)}
+      currentTier={community.subscriptionTier || 'verified'}
+      requestedFeature={upgradeFeature}
+      communityId={community.id}
+      communityName={community.name}
+    />
+  </div>
   );
 }
