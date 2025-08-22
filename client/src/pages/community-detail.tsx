@@ -1172,9 +1172,19 @@ const HeroPhotoCarousel = ({
       allPhotos.push(...dbPhotos);
     }
     
-    // Add live web intelligence photos when they arrive
-    if (verificationReport?.webIntelligence?.images) {
-      const webPhotos = verificationReport.webIntelligence.images.map((img: any) => img.image_url);
+    // Add live web intelligence photos when they arrive - check multiple possible paths
+    let webImages = null;
+    
+    // Check the correct path based on console logs
+    if (verificationReport?.verificationResults?.webIntelligence?.images) {
+      webImages = verificationReport.verificationResults.webIntelligence.images;
+    } else if (verificationReport?.webIntelligence?.images) {
+      webImages = verificationReport.webIntelligence.images;
+    }
+    
+    if (webImages && webImages.length > 0) {
+      console.log('Adding web intelligence photos to carousel:', webImages);
+      const webPhotos = webImages.map((img: any) => img.image_url);
       allPhotos.push(...webPhotos);
     }
     
