@@ -2023,7 +2023,7 @@ export default function CommunityDetail() {
               <TabsList className="grid w-full grid-cols-3 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 p-2 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
                 <TabsTrigger 
                   value="community-info" 
-                  className="flex flex-col items-center gap-1 py-4 px-6 rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:transform data-[state=active]:scale-105 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-gray-700 dark:text-gray-300 font-semibold"
+                  className="flex flex-col items-center gap-1 py-4 px-6 rounded-lg transition-all duration-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:transform data-[state=active]:scale-105 data-[state=active]:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:border-blue-300 dark:hover:border-blue-500 text-gray-700 dark:text-gray-300 font-semibold"
                 >
                   <div className="flex items-center gap-2">
                     <Building className="w-5 h-5" />
@@ -2035,7 +2035,7 @@ export default function CommunityDetail() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="availability" 
-                  className="flex flex-col items-center gap-1 py-4 px-6 rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:transform data-[state=active]:scale-105 hover:bg-green-50 dark:hover:bg-green-900/30 text-gray-700 dark:text-gray-300 font-semibold"
+                  className="flex flex-col items-center gap-1 py-4 px-6 rounded-lg transition-all duration-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:transform data-[state=active]:scale-105 data-[state=active]:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/30 hover:border-green-300 dark:hover:border-green-500 text-gray-700 dark:text-gray-300 font-semibold"
                 >
                   <div className="flex items-center gap-2">
                     <Home className="w-5 h-5" />
@@ -2048,7 +2048,7 @@ export default function CommunityDetail() {
                 <TabsTrigger 
                   value="market-data" 
                   data-tab="market-data"
-                  className="flex flex-col items-center gap-1 py-4 px-6 rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:transform data-[state=active]:scale-105 hover:bg-purple-50 dark:hover:bg-purple-900/30 text-gray-700 dark:text-gray-300 font-semibold"
+                  className="flex flex-col items-center gap-1 py-4 px-6 rounded-lg transition-all duration-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:transform data-[state=active]:scale-105 data-[state=active]:border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:border-purple-300 dark:hover:border-purple-500 text-gray-700 dark:text-gray-300 font-semibold"
                 >
                   <div className="flex items-center gap-2">
                     <TrendingUp className="w-5 h-5" />
