@@ -1924,11 +1924,12 @@ export default function CommunityDetail() {
                         </h1>
 
                       </div>
-                      <div className="flex items-center text-white/90 mb-2">
-                        <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-                        <span>
-                          {community.address.replace(', United States', '')}{community.city && `, ${community.city}`}, {community.state} {community.zip}
-                        </span>
+                      <div className="flex items-start text-white/90 mb-2">
+                        <MapPin className="w-4 h-4 mr-1 flex-shrink-0 mt-0.5" />
+                        <div className="flex flex-col">
+                          <span>{community.address}</span>
+                          <span>{community.city}, {community.state} {community.zip}</span>
+                        </div>
                       </div>
                       <div className="flex items-center text-white/90 mb-4">
                         <span className="text-lg mr-1">☎️</span>
