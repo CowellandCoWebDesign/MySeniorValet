@@ -2148,95 +2148,95 @@ export default function CommunityDetail() {
                                 </div>
                               ) : null;
                             })()}
-                            
-                            {/* Key Services Section - Inside hero card */}
-                            <div className="mt-6 pt-4 border-t border-white/20">
-                              <h3 className="text-lg font-bold text-white mb-3">Key Services:</h3>
-                              <div className="space-y-2">
-                                {/* 24/7 Medical Staff */}
-                                <div className="flex items-center gap-3">
-                                  <div className={`w-3 h-3 rounded-full ${
-                                    verificationReport?.webIntelligence?.features?.some((f: string) => 
-                                      f.toLowerCase().includes('medical') || 
-                                      f.toLowerCase().includes('nursing') || 
-                                      f.toLowerCase().includes('24/7') ||
-                                      f.toLowerCase().includes('nurse')
-                                    ) || 
-                                    community.careTypes?.includes('skilled_nursing') || 
-                                    community.careTypes?.includes('assisted_living')
-                                      ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
-                                      : 'bg-red-500 shadow-red-500/50 shadow-sm'
-                                  }`} />
-                                  <span className="text-sm font-medium text-white">
-                                    24/7 Medical Staff
-                                  </span>
-                                </div>
-
-                                {/* Medication Management */}
-                                <div className="flex items-center gap-3">
-                                  <div className={`w-3 h-3 rounded-full ${
-                                    verificationReport?.webIntelligence?.features?.some((f: string) => 
-                                      f.toLowerCase().includes('medication') || 
-                                      f.toLowerCase().includes('med management') ||
-                                      f.toLowerCase().includes('pharmacy')
-                                    ) || 
-                                    community.careTypes?.includes('assisted_living') || 
-                                    community.careTypes?.includes('memory_care')
-                                      ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
-                                      : 'bg-red-500 shadow-red-500/50 shadow-sm'
-                                  }`} />
-                                  <span className="text-sm font-medium text-white">
-                                    Medication Management
-                                  </span>
-                                </div>
-
-                                {/* Housekeeping Included */}
-                                <div className="flex items-center gap-3">
-                                  <div className={`w-3 h-3 rounded-full ${
-                                    verificationReport?.webIntelligence?.features?.some((f: string) => 
-                                      f.toLowerCase().includes('housekeeping') || 
-                                      f.toLowerCase().includes('cleaning') ||
-                                      f.toLowerCase().includes('maintenance')
-                                    ) || 
-                                    community.careTypes?.includes('assisted_living') || 
-                                    community.careTypes?.includes('independent_living')
-                                      ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
-                                      : 'bg-red-500 shadow-red-500/50 shadow-sm'
-                                  }`} />
-                                  <span className="text-sm font-medium text-white">
-                                    Housekeeping Included
-                                  </span>
-                                </div>
-
-                                {/* Transportation Included */}
-                                <div className="flex items-center gap-3">
-                                  <div className={`w-3 h-3 rounded-full ${
-                                    verificationReport?.webIntelligence?.features?.some((f: string) => 
-                                      f.toLowerCase().includes('transportation') || 
-                                      f.toLowerCase().includes('shuttle') ||
-                                      f.toLowerCase().includes('transport')
-                                    ) || 
-                                    community.careTypes?.includes('assisted_living') || 
-                                    community.careTypes?.includes('independent_living')
-                                      ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
-                                      : 'bg-red-500 shadow-red-500/50 shadow-sm'
-                                  }`} />
-                                  <span className="text-sm font-medium text-white">
-                                    Transportation Included
-                                  </span>
-                                </div>
-                              </div>
-                              
-                              {/* Contact for service details */}
-                              <div className="mt-3 pt-2 border-t border-white/20">
-                                <p className="text-xs text-white/70 italic">
-                                  Contact for service details
-                                </p>
-                              </div>
-                            </div>
                           </div>
                         );
                       })()}
+                    </div>
+                  </div>
+                  
+                  {/* Key Services Section - Bottom of hero card */}
+                  <div className="mt-6 pt-4 border-t border-white/20">
+                    <h3 className="text-lg font-bold text-white mb-3">Key Services:</h3>
+                    <div className="space-y-2">
+                      {/* 24/7 Medical Staff */}
+                      <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full ${
+                          verificationReport?.webIntelligence?.features?.some((f: string) => 
+                            f.toLowerCase().includes('medical') || 
+                            f.toLowerCase().includes('nursing') || 
+                            f.toLowerCase().includes('24/7') ||
+                            f.toLowerCase().includes('nurse')
+                          ) || 
+                          community.careTypes?.includes('skilled_nursing') || 
+                          community.careTypes?.includes('assisted_living')
+                            ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
+                            : 'bg-red-500 shadow-red-500/50 shadow-sm'
+                        }`} />
+                        <span className="text-sm font-medium text-white">
+                          24/7 Medical Staff
+                        </span>
+                      </div>
+
+                      {/* Medication Management */}
+                      <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full ${
+                          verificationReport?.webIntelligence?.features?.some((f: string) => 
+                            f.toLowerCase().includes('medication') || 
+                            f.toLowerCase().includes('med management') ||
+                            f.toLowerCase().includes('pharmacy')
+                          ) || 
+                          community.careTypes?.includes('assisted_living') || 
+                          community.careTypes?.includes('memory_care')
+                            ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
+                            : 'bg-red-500 shadow-red-500/50 shadow-sm'
+                        }`} />
+                        <span className="text-sm font-medium text-white">
+                          Medication Management
+                        </span>
+                      </div>
+
+                      {/* Housekeeping Included */}
+                      <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full ${
+                          verificationReport?.webIntelligence?.features?.some((f: string) => 
+                            f.toLowerCase().includes('housekeeping') || 
+                            f.toLowerCase().includes('cleaning') ||
+                            f.toLowerCase().includes('maintenance')
+                          ) || 
+                          community.careTypes?.includes('assisted_living') || 
+                          community.careTypes?.includes('independent_living')
+                            ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
+                            : 'bg-red-500 shadow-red-500/50 shadow-sm'
+                        }`} />
+                        <span className="text-sm font-medium text-white">
+                          Housekeeping Included
+                        </span>
+                      </div>
+
+                      {/* Transportation Included */}
+                      <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full ${
+                          verificationReport?.webIntelligence?.features?.some((f: string) => 
+                            f.toLowerCase().includes('transportation') || 
+                            f.toLowerCase().includes('shuttle') ||
+                            f.toLowerCase().includes('transport')
+                          ) || 
+                          community.careTypes?.includes('assisted_living') || 
+                          community.careTypes?.includes('independent_living')
+                            ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
+                            : 'bg-red-500 shadow-red-500/50 shadow-sm'
+                        }`} />
+                        <span className="text-sm font-medium text-white">
+                          Transportation Included
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Contact for service details */}
+                    <div className="mt-3 pt-2 border-t border-white/20">
+                      <p className="text-xs text-white/70 italic">
+                        Contact for service details
+                      </p>
                     </div>
                   </div>
                 </div>
