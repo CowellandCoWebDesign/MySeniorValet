@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FamilyShareButton } from './family-share-button';
-import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead, ChevronDown, ChevronUp, ImageIcon, ShieldCheck, Circle } from "lucide-react";
+import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead, ChevronDown, ChevronUp, ImageIcon, ShieldCheck } from "lucide-react";
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 import { PhotoCarousel } from "@/components/photo-carousel";
@@ -553,7 +553,6 @@ export function CommunityCard({ community }: CommunityCardProps) {
             </div>
           </div>
         </div>
-
 
         {/* 3. AVAILABILITY STATUS - Third Priority */}
         <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">

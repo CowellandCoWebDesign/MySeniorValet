@@ -454,8 +454,65 @@ function CommunityCard({
 
 
 
-        {/* Live Intelligence Report */}
-        <div className="bg-gradient-to-br from-blue-900/50 to-purple-900/50 rounded-lg p-3 border border-blue-700/30 mb-3">
+        {/* Key Services and Live Intelligence Side by Side */}
+        <div className="flex gap-3 mb-3">
+          {/* Key Services Section - Left Side */}
+          <div className="bg-gray-800 rounded-lg p-3 flex-1">
+            <div className="text-sm text-gray-400 mb-2">Key Services:</div>
+            <div className="space-y-1">
+              {/* Check if amenities data confirms each service */}
+              <div className="flex items-center text-sm text-white">
+                {(community.amenities?.includes('24_7_staff') || 
+                  community.amenities?.includes('nursing_staff') ||
+                  community.amenities?.includes('medical_staff')) ? (
+                  <span className="text-green-400 mr-2">✓</span>
+                ) : (
+                  <span className="text-gray-600 mr-2">○</span>
+                )}
+                <span>24/7 Medical Staff</span>
+              </div>
+              
+              <div className="flex items-center text-sm text-white">
+                {(community.amenities?.includes('medication_management') || 
+                  community.amenities?.includes('medication_assistance')) ? (
+                  <span className="text-green-400 mr-2">✓</span>
+                ) : (
+                  <span className="text-gray-600 mr-2">○</span>
+                )}
+                <span>Medication Management</span>
+              </div>
+              
+              <div className="flex items-center text-sm text-white">
+                {(community.amenities?.includes('housekeeping') || 
+                  community.amenities?.includes('cleaning') ||
+                  community.amenities?.includes('housekeeping_included')) ? (
+                  <span className="text-green-400 mr-2">✓</span>
+                ) : (
+                  <span className="text-gray-600 mr-2">○</span>
+                )}
+                <span>Housekeeping Included</span>
+              </div>
+              
+              <div className="flex items-center text-sm text-white">
+                {(community.amenities?.includes('transportation') || 
+                  community.amenities?.includes('shuttle') ||
+                  community.amenities?.includes('transportation_services')) ? (
+                  <span className="text-green-400 mr-2">✓</span>
+                ) : (
+                  <span className="text-gray-600 mr-2">○</span>
+                )}
+                <span>Transportation Included</span>
+              </div>
+            </div>
+            {(!community.amenities || community.amenities.length === 0) && (
+              <div className="text-xs text-gray-500 mt-2">
+                Contact for service details
+              </div>
+            )}
+          </div>
+
+          {/* Live Intelligence Report - Right Side */}
+          <div className="bg-gradient-to-br from-blue-900/50 to-purple-900/50 rounded-lg p-3 border border-blue-700/30 flex-1">
             {/* Header with AI Status */}
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center">

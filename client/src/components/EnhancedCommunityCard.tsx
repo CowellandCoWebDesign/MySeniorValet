@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink, Languages, Activity, MessageCircle, Share2, Mail, Info, ClipboardCheck, AlertTriangle, Calendar, UserCheck, Stethoscope, Clock, Circle } from "lucide-react";
+import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink, Languages, Activity, MessageCircle, Share2, Mail, Info, ClipboardCheck, AlertTriangle, Calendar, UserCheck, Stethoscope, Clock } from "lucide-react";
 import { Link } from "wouter";
 import { MarketIntelligenceModal } from "@/components/MarketIntelligenceModal";
 
