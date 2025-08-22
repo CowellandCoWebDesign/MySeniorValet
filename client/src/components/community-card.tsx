@@ -363,9 +363,9 @@ export function CommunityCard({ community }: CommunityCardProps) {
 
       <CardContent className="p-6 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
         {/* Header: Name, Rating & Location */}
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex-1">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 hover:text-blue-600 transition-colors duration-300">{community.name}</h3>
+        <div className="flex justify-between items-start mb-4 gap-4">
+          <div className="flex-1 min-w-0 max-w-[calc(100%-140px)]">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 hover:text-blue-600 transition-colors duration-300 truncate">{community.name}</h3>
             
             {/* Housing Type Badge */}
             {community.communitySubtype && (
@@ -378,7 +378,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
             
             <div className="flex items-center text-gray-600 dark:text-gray-400 text-sm mb-3 hover:text-gray-800 dark:text-gray-200 transition-colors duration-200">
               <MapPin className="h-4 w-4 mr-1 hover:text-blue-500 transition-colors duration-200" />
-              {community.address}, {community.city}, {community.state}
+              {community.address}, {community.state}
             </div>
           </div>
           
