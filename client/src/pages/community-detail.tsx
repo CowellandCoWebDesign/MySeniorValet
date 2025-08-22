@@ -5,7 +5,7 @@ import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSig
          Mail, Globe, Users, User, Plus, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, Lock,
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
-         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3, Loader2, Camera } from 'lucide-react';
+         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3, Loader2, Camera, Circle } from 'lucide-react';
 import type { Community } from '@shared/schema';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
