@@ -731,7 +731,7 @@ export default function MySeniorValetHome() {
             
             {/* Subheading - Better mobile sizing */}
             <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-200 max-w-3xl mx-auto animate-fade-in-up animation-delay-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed px-2">
-              The only senior living platform that never sells your info. Search 34,000+ communities with real pricing, live availability, and trusted reviews—all in one transparent place.
+              The only senior living platform that never sells your info. Search 34,000+ communities, move-in services, healthcare providers, vendors, and support resources with real pricing and trusted reviews—all in one transparent place.
             </p>
           </div>
           
