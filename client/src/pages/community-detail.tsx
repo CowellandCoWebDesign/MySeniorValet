@@ -1798,14 +1798,6 @@ export default function CommunityDetail() {
                         
                         return (
                           <div className="mb-3">
-                            {!isEstimate && (
-                              <div className="flex items-center justify-end mb-1">
-                                <Badge className="bg-green-500/20 border-green-400 text-green-100 mr-2">
-                                  <div className="w-2 h-2 bg-green-400 rounded-full mr-1 animate-pulse"></div>
-                                  Live Pricing
-                                </Badge>
-                              </div>
-                            )}
                             <div className="text-xl font-bold text-white mb-1">
                               {(() => {
                                 // Check for AI verified pricing from Multi-AI report - show starting price only
