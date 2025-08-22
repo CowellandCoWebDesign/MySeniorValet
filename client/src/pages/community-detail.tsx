@@ -41,6 +41,13 @@ import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal"
 import { PricingHistory } from "@/components/pricing-history";
 import { LiveWebIntelligence } from "@/components/LiveWebIntelligence";
 
+// Default photos for communities without images
+const defaultPhotos = [
+  "/api/placeholder/600/400",
+  "/api/placeholder/600/401", 
+  "/api/placeholder/600/402"
+];
+
 // Community Competitive Analysis Component
 const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
   const [analysis, setAnalysis] = useState<any>(null);
@@ -1090,17 +1097,27 @@ const hasVerifiedPricing = (community: Community): boolean => {
 
 // Hero Photo Carousel Component with Touch Support
 const HeroPhotoCarousel = ({ photos, communityName, communityId }: { photos: string[], communityName: string, communityId?: number }) => {
+  // Ensure photos is never null/undefined
+  const safePhotos = photos && photos.length > 0 ? photos : defaultPhotos;
+  
   const [currentIndex, setCurrentIndex] = useState(0);
+  
+  // Ensure currentIndex is always within bounds
+  useEffect(() => {
+    if (currentIndex >= safePhotos.length) {
+      setCurrentIndex(0);
+    }
+  }, [safePhotos.length, currentIndex]);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
   const nextPhoto = () => {
-    setCurrentIndex((prev) => (prev + 1) % photos.length);
+    setCurrentIndex((prev) => (prev + 1) % safePhotos.length);
   };
 
   const prevPhoto = () => {
-    setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
+    setCurrentIndex((prev) => (prev - 1 + safePhotos.length) % safePhotos.length);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -1119,10 +1136,10 @@ const HeroPhotoCarousel = ({ photos, communityName, communityId }: { photos: str
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
 
-    if (isLeftSwipe && photos.length > 1) {
+    if (isLeftSwipe && safePhotos.length > 1) {
       nextPhoto();
     }
-    if (isRightSwipe && photos.length > 1) {
+    if (isRightSwipe && safePhotos.length > 1) {
       prevPhoto();
     }
 
@@ -1146,10 +1163,10 @@ const HeroPhotoCarousel = ({ photos, communityName, communityId }: { photos: str
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
 
-    if (isLeftSwipe && photos.length > 1) {
+    if (isLeftSwipe && safePhotos.length > 1) {
       nextPhoto();
     }
-    if (isRightSwipe && photos.length > 1) {
+    if (isRightSwipe && safePhotos.length > 1) {
       prevPhoto();
     }
 
@@ -1168,14 +1185,14 @@ const HeroPhotoCarousel = ({ photos, communityName, communityId }: { photos: str
       onMouseLeave={handleMouseUp}
     >
       <img
-        src={photos[currentIndex]}
+        src={safePhotos[currentIndex]}
         alt={`${communityName} - View ${currentIndex + 1}`}
         className="w-full h-full object-cover select-none"
         draggable={false}
       />
 
       {/* Navigation arrows - only show if more than 1 photo */}
-      {photos.length > 1 && (
+      {safePhotos.length > 1 && (
         <>
           <button
             onClick={prevPhoto}
@@ -1612,8 +1629,8 @@ export default function CommunityDetail() {
               <CardContent className="relative p-0">
                 {/* Enhanced Photo Carousel */}
                 <div className="relative h-80 overflow-hidden">
-                  <EnhancedPhotoCarousel 
-                    photos={community.photos}
+                  <HeroPhotoCarousel 
+                    photos={community.photos || defaultPhotos}
                     communityId={community.id}
                     communityName={community.name}
                   />
