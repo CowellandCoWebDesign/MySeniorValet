@@ -2162,7 +2162,7 @@ export default function CommunityDetail() {
               <TabsList className="grid w-full grid-cols-5 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 gap-1">
                 <TabsTrigger 
                   value="community-info" 
-                  className="flex flex-col items-center gap-1 py-3 px-3 rounded-lg transition-all duration-300 bg-white/90 dark:bg-gray-700/90 border border-gray-200 dark:border-gray-600 shadow-md hover:shadow-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:border-blue-300 dark:hover:border-blue-500 text-gray-700 dark:text-gray-300 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-blue-600 data-[state=active]:!to-indigo-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-blue-400 data-[state=active]:!font-bold"
+                  className="flex flex-col items-center gap-1 py-3 px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-blue-100 !to-indigo-100 dark:!from-blue-900/40 dark:!to-indigo-900/40 border border-blue-200 dark:border-blue-600 shadow-md hover:shadow-lg hover:!from-blue-200 hover:!to-indigo-200 dark:hover:!from-blue-800/60 dark:hover:!to-indigo-800/60 hover:border-blue-300 dark:hover:border-blue-500 text-blue-700 dark:text-blue-300 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-blue-600 data-[state=active]:!to-indigo-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-blue-400 data-[state=active]:!font-bold"
                 >
                   <div className="flex items-center gap-2">
                     <Building className="w-5 h-5" />
@@ -2174,7 +2174,7 @@ export default function CommunityDetail() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="availability" 
-                  className="flex flex-col items-center gap-1 py-3 px-3 rounded-lg transition-all duration-300 bg-white/90 dark:bg-gray-700/90 border border-gray-200 dark:border-gray-600 shadow-md hover:shadow-lg hover:bg-green-50 dark:hover:bg-green-900/30 hover:border-green-300 dark:hover:border-green-500 text-gray-700 dark:text-gray-300 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-green-600 data-[state=active]:!to-emerald-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-green-400 data-[state=active]:!font-bold"
+                  className="flex flex-col items-center gap-1 py-3 px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-green-100 !to-emerald-100 dark:!from-green-900/40 dark:!to-emerald-900/40 border border-green-200 dark:border-green-600 shadow-md hover:shadow-lg hover:!from-green-200 hover:!to-emerald-200 dark:hover:!from-green-800/60 dark:hover:!to-emerald-800/60 hover:border-green-300 dark:hover:border-green-500 text-green-700 dark:text-green-300 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-green-600 data-[state=active]:!to-emerald-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-green-400 data-[state=active]:!font-bold"
                 >
                   <div className="flex items-center gap-2">
                     <Home className="w-5 h-5" />
@@ -2187,7 +2187,7 @@ export default function CommunityDetail() {
                 <TabsTrigger 
                   value="market-data" 
                   data-tab="market-data"
-                  className="flex flex-col items-center gap-1 py-3 px-3 rounded-lg transition-all duration-300 bg-white/90 dark:bg-gray-700/90 border border-gray-200 dark:border-gray-600 shadow-md hover:shadow-lg hover:bg-purple-50 dark:hover:bg-purple-900/30 hover:border-purple-300 dark:hover:border-purple-500 text-gray-700 dark:text-gray-300 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-purple-600 data-[state=active]:!to-indigo-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-purple-400 data-[state=active]:!font-bold"
+                  className="flex flex-col items-center gap-1 py-3 px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-purple-100 !to-indigo-100 dark:!from-purple-900/40 dark:!to-indigo-900/40 border border-purple-200 dark:border-purple-600 shadow-md hover:shadow-lg hover:!from-purple-200 hover:!to-indigo-200 dark:hover:!from-purple-800/60 dark:hover:!to-indigo-800/60 hover:border-purple-300 dark:hover:border-purple-500 text-purple-700 dark:text-purple-300 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-purple-600 data-[state=active]:!to-indigo-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-purple-400 data-[state=active]:!font-bold"
                 >
                   <div className="flex items-center gap-2">
                     <TrendingUp className="w-5 h-5" />
@@ -2205,7 +2205,7 @@ export default function CommunityDetail() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="reviews" 
-                  className="flex flex-col items-center gap-1 py-3 px-3 rounded-lg transition-all duration-300 bg-white/90 dark:bg-gray-700/90 border border-gray-200 dark:border-gray-600 shadow-md hover:shadow-lg hover:bg-orange-50 dark:hover:bg-orange-900/30 hover:border-orange-300 dark:hover:border-orange-500 text-gray-700 dark:text-gray-300 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-orange-600 data-[state=active]:!to-amber-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-orange-400 data-[state=active]:!font-bold"
+                  className="flex flex-col items-center gap-1 py-3 px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-orange-100 !to-amber-100 dark:!from-orange-900/40 dark:!to-amber-900/40 border border-orange-200 dark:border-orange-600 shadow-md hover:shadow-lg hover:!from-orange-200 hover:!to-amber-200 dark:hover:!from-orange-800/60 dark:hover:!to-amber-800/60 hover:border-orange-300 dark:hover:border-orange-500 text-orange-700 dark:text-orange-300 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-orange-600 data-[state=active]:!to-amber-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-orange-400 data-[state=active]:!font-bold"
                 >
                   <div className="flex items-center gap-2">
                     <Star className="w-5 h-5" />
@@ -2220,7 +2220,7 @@ export default function CommunityDetail() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="photos" 
-                  className="flex flex-col items-center gap-1 py-3 px-3 rounded-lg transition-all duration-300 bg-white/90 dark:bg-gray-700/90 border border-gray-200 dark:border-gray-600 shadow-md hover:shadow-lg hover:bg-pink-50 dark:hover:bg-pink-900/30 hover:border-pink-300 dark:hover:border-pink-500 text-gray-700 dark:text-gray-300 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-pink-600 data-[state=active]:!to-rose-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-pink-400 data-[state=active]:!font-bold"
+                  className="flex flex-col items-center gap-1 py-3 px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-pink-100 !to-rose-100 dark:!from-pink-900/40 dark:!to-rose-900/40 border border-pink-200 dark:border-pink-600 shadow-md hover:shadow-lg hover:!from-pink-200 hover:!to-rose-200 dark:hover:!from-pink-800/60 dark:hover:!to-rose-800/60 hover:border-pink-300 dark:hover:border-pink-500 text-pink-700 dark:text-pink-300 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-pink-600 data-[state=active]:!to-rose-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-pink-400 data-[state=active]:!font-bold"
                 >
                   <div className="flex items-center gap-2">
                     <Camera className="w-4 h-4" />
