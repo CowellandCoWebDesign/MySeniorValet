@@ -2015,43 +2015,6 @@ export default function CommunityDetail() {
                         </Badge>
                       </div>
                     
-                    {/* In-App Messaging Button - Bottom Left */}
-                    <div className="mt-4">
-                      {/* Check subscription tier for messaging access */}
-                      {(() => {
-                        const tier = community.subscriptionTier || 'verified';
-                        
-                        if (tier === 'verified') {
-                          // Community hasn't claimed profile and opted into messaging
-                          return (
-                            <div>
-                              <Button
-                                variant="outline"
-                                disabled
-                                className="bg-gray-50 border-gray-300 text-gray-500 font-semibold px-6 py-3 shadow-sm cursor-not-allowed opacity-70"
-                              >
-                                <MessageSquare className="h-5 w-5 mr-2" />
-                                <span className="flex items-center gap-1">
-                                  Direct Messaging Unavailable
-                                  <HelpCircle className="h-4 w-4" />
-                                </span>
-                              </Button>
-                              <p className="text-xs text-gray-900 dark:text-gray-400 mt-2">
-                                This community hasn't claimed their profile and opted into instant messaging yet
-                              </p>
-                            </div>
-                          );
-                        }
-                        
-                        // Standard tier and above have messaging access
-                        return (
-                          <MessageCommunityButton
-                            communityId={community.id}
-                            communityName={community.name}
-                          />
-                        );
-                      })()}
-                    </div>
                     </div>
                     
                     {/* Right side - Pricing Information */}
