@@ -708,7 +708,7 @@ export default function MySeniorValetHome() {
       </header>
 
       {/* Hero Section with Search - Mobile optimized */}
-      <section className="relative min-h-[70vh] sm:min-h-[75vh] md:min-h-[80vh] bg-black pt-12 sm:pt-14">
+      <section className="relative min-h-screen bg-black pt-12 sm:pt-14">
         <div className="absolute inset-0">
           <img
             src={heroBackgroundImage}
@@ -720,7 +720,7 @@ export default function MySeniorValetHome() {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-90% to-black/30"></div>
         </div>
         
-        <div className="relative hero-content min-h-[70vh] sm:min-h-[75vh] md:min-h-[80vh] pt-2 sm:pt-3 md:pt-4 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col px-2 sm:px-4">
+        <div className="relative hero-content min-h-screen pt-2 sm:pt-3 md:pt-4 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col px-2 sm:px-4">
           
           {/* Hero Text Section - Mobile optimized */}
           <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8 mt-4 sm:mt-8 md:mt-12 mb-4 sm:mb-6 text-center">
