@@ -2166,7 +2166,7 @@ export default function CommunityDetail() {
                     {/* 24/7 Medical Staff */}
                     <div className="flex items-center gap-3">
                       <div className={`w-3 h-3 rounded-full ${
-                        verificationReport?.webIntelligence?.features?.some(f => 
+                        verificationReport?.webIntelligence?.features?.some((f: string) => 
                           f.toLowerCase().includes('medical') || 
                           f.toLowerCase().includes('nursing') || 
                           f.toLowerCase().includes('24/7') ||
@@ -2185,7 +2185,7 @@ export default function CommunityDetail() {
                     {/* Medication Management */}
                     <div className="flex items-center gap-3">
                       <div className={`w-3 h-3 rounded-full ${
-                        verificationReport?.webIntelligence?.features?.some(f => 
+                        verificationReport?.webIntelligence?.features?.some((f: string) => 
                           f.toLowerCase().includes('medication') || 
                           f.toLowerCase().includes('med management') ||
                           f.toLowerCase().includes('pharmacy')
@@ -2203,7 +2203,7 @@ export default function CommunityDetail() {
                     {/* Housekeeping Included */}
                     <div className="flex items-center gap-3">
                       <div className={`w-3 h-3 rounded-full ${
-                        verificationReport?.webIntelligence?.features?.some(f => 
+                        verificationReport?.webIntelligence?.features?.some((f: string) => 
                           f.toLowerCase().includes('housekeeping') || 
                           f.toLowerCase().includes('cleaning') ||
                           f.toLowerCase().includes('maintenance')
@@ -2221,7 +2221,7 @@ export default function CommunityDetail() {
                     {/* Transportation Included */}
                     <div className="flex items-center gap-3">
                       <div className={`w-3 h-3 rounded-full ${
-                        verificationReport?.webIntelligence?.features?.some(f => 
+                        verificationReport?.webIntelligence?.features?.some((f: string) => 
                           f.toLowerCase().includes('transportation') || 
                           f.toLowerCase().includes('shuttle') ||
                           f.toLowerCase().includes('transport')
