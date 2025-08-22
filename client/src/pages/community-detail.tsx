@@ -1343,7 +1343,8 @@ const HeroPhotoCarousel = ({
 
   return (
     <div 
-      className="relative w-full h-full min-h-[320px] group cursor-grab active:cursor-grabbing bg-gray-100 dark:bg-gray-800"
+      className="absolute inset-0 group cursor-grab active:cursor-grabbing"
+      style={{ height: '320px' }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -1352,44 +1353,47 @@ const HeroPhotoCarousel = ({
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* Show loading state for photos */}
-      {hasDefaultPhotos && isLoadingWebPhotos ? (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-          <div className="text-center">
-            <div className="w-16 h-16 mx-auto mb-4 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
-              <Camera className="w-8 h-8 text-gray-500 dark:text-gray-400" />
+      {/* Always render a container that maintains height */}
+      <div className="w-full h-full bg-gray-100 dark:bg-gray-800">
+        {/* Show loading state for photos */}
+        {hasDefaultPhotos && isLoadingWebPhotos ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                <Camera className="w-8 h-8 text-gray-500 dark:text-gray-400" />
+              </div>
+              <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-2" />
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Loading photos...</p>
             </div>
-            <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-2" />
-            <p className="text-gray-500 dark:text-gray-400 text-sm">Loading photos...</p>
           </div>
-        </div>
-      ) : (
-        <div className="absolute inset-0 overflow-hidden">
-          <div 
-            className="flex h-full"
-            style={{
-              transform: `translateX(calc(-${currentIndex * 100}% + ${translateX}px))`,
-              transition: isTransitioning || !isDragging ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
-            }}
-          >
-            {safePhotos.map((photo, index) => (
-              <img
-                key={index}
-                src={photo}
-                alt={`${communityName} - View ${index + 1}`}
-                className="w-full h-full object-cover select-none flex-shrink-0"
-                draggable={false}
-                onError={(e) => {
-                  console.log('Image failed to load:', photo);
-                  // Replace with placeholder if image fails
-                  const target = e.target as HTMLImageElement;
-                  target.src = '/api/placeholder/600/400';
-                }}
-              />
-            ))}
+        ) : (
+          <div className="w-full h-full overflow-hidden relative">
+            <div 
+              className="flex h-full"
+              style={{
+                transform: `translateX(calc(-${currentIndex * 100}% + ${translateX}px))`,
+                transition: isTransitioning || !isDragging ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+              }}
+            >
+              {safePhotos.map((photo, index) => (
+                <img
+                  key={index}
+                  src={photo}
+                  alt={`${communityName} - View ${index + 1}`}
+                  className="w-full h-full object-cover select-none flex-shrink-0"
+                  draggable={false}
+                  onError={(e) => {
+                    console.log('Image failed to load:', photo);
+                    // Replace with placeholder if image fails
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/api/placeholder/600/400';
+                  }}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Navigation arrows - only show if more than 1 photo */}
       {safePhotos.length > 1 && (
@@ -1873,7 +1877,7 @@ export default function CommunityDetail() {
             <Card className="overflow-hidden">
               <CardContent className="relative p-0">
                 {/* Enhanced Photo Carousel - Fixed height to prevent layout shift */}
-                <div className="relative h-80 min-h-[320px] overflow-hidden bg-gray-100 dark:bg-gray-800">
+                <div className="relative block w-full" style={{ height: '320px', minHeight: '320px', maxHeight: '320px' }}>
                   <HeroPhotoCarousel 
                     photos={getCombinedPhotos()}
                     communityId={community.id}
@@ -1922,7 +1926,7 @@ export default function CommunityDetail() {
                       </div>
                       <div className="flex items-center text-white/90 mb-2">
                         <MapPin className="w-4 h-4 mr-1" />
-                        <span>{community.address}, {community.city}, {community.state}</span>
+                        <span>{community.address}, {community.state}</span>
                       </div>
                       <div className="flex items-center text-white/90 mb-4">
                         <span className="text-lg mr-1">☎️</span>
