@@ -5,7 +5,7 @@ import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSig
          Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, Lock,
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
-         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3, Loader2 } from 'lucide-react';
+         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3, Loader2, Camera } from 'lucide-react';
 import type { Community } from '@shared/schema';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -1268,6 +1268,18 @@ const HeroPhotoCarousel = ({
     setIsDragging(false);
   };
 
+  // Debug logging
+  console.log('HeroPhotoCarousel debug:', {
+    communityPhotos: community?.photos,
+    webIntelligenceImages: verificationReport?.webIntelligence?.images,
+    safePhotos: safePhotos,
+    currentIndex
+  });
+
+  // Check if we're still loading photos from web intelligence
+  const isLoadingWebPhotos = !verificationReport?.webIntelligence?.images && verificationReport?.timestamp;
+  const hasDefaultPhotos = safePhotos.every(photo => defaultPhotos.includes(photo));
+
   return (
     <div 
       className="relative w-full h-full group cursor-grab active:cursor-grabbing"
@@ -1279,12 +1291,32 @@ const HeroPhotoCarousel = ({
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      <img
-        src={safePhotos[currentIndex]}
-        alt={`${communityName} - View ${currentIndex + 1}`}
-        className="w-full h-full object-cover select-none"
-        draggable={false}
-      />
+      {/* Show loading state for photos */}
+      {hasDefaultPhotos && isLoadingWebPhotos ? (
+        <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
+              <Camera className="w-8 h-8 text-gray-500 dark:text-gray-400" />
+            </div>
+            <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-2" />
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Loading photos...</p>
+          </div>
+        </div>
+      ) : (
+        <img
+          src={safePhotos[currentIndex]}
+          alt={`${communityName} - View ${currentIndex + 1}`}
+          className="w-full h-full object-cover select-none"
+          draggable={false}
+          onError={(e) => {
+            console.log('Image failed to load:', safePhotos[currentIndex]);
+            // Try next photo if current fails
+            if (currentIndex < safePhotos.length - 1) {
+              setCurrentIndex(currentIndex + 1);
+            }
+          }}
+        />
+      )}
 
       {/* Navigation arrows - only show if more than 1 photo */}
       {safePhotos.length > 1 && (
