@@ -1607,34 +1607,17 @@ export default function CommunityDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Hero Photo Carousel */}
-            <Card>
-              <CardContent className="p-0">
-                <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg">
-                  {(community.photos && community.photos.length > 0) ? (
-                    <>
-                      <HeroPhotoCarousel 
-                        photos={community.photos} 
-                        communityName={community.name}
-                        communityId={community.id}
-                      />
-                      
-                      {/* PHOTO SOURCE TRANSPARENCY OVERLAY */}
-                      <div className="absolute bottom-4 left-4 z-10">
-                        <Badge className="text-white border-0 backdrop-blur-sm bg-green-600">
-                          <Shield className="h-3 w-3 mr-1" />
-                          Authentic Community Photos
-                        </Badge>
-                      </div>
-                    </>
-                  ) : (
-                    <MissingPhotosPanel 
-                      communityId={community.id} 
-                      communityName={community.name}
-                      size="small"
-                    />
-                  )}
-
+            {/* Main Community Card - Integrated KAYAK-Style Design */}
+            <Card className="overflow-hidden">
+              <CardContent className="relative p-0">
+                {/* Enhanced Photo Carousel */}
+                <div className="relative h-80 overflow-hidden">
+                  <EnhancedPhotoCarousel 
+                    photos={community.photos}
+                    communityId={community.id}
+                    communityName={community.name}
+                  />
+                  
                   {/* Action Buttons */}
                   <div className="absolute top-4 right-4 flex space-x-2">
                     <button
@@ -1662,170 +1645,41 @@ export default function CommunityDetail() {
                     />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-
-
-            {/* Community Header */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                        {community.name}
-                      </CardTitle>
-                      {/* Subscription Tier Badge */}
-                      {(() => {
-                        const tierBadge = getSubscriptionTierBadge(community.subscriptionTier || 'verified');
-                        const TierIcon = tierBadge.icon;
-                        return (
-                          <Badge className={`flex items-center gap-1 px-3 py-1 border ${tierBadge.className}`}>
-                            <TierIcon className="w-4 h-4" />
-                            <span className="font-medium">{tierBadge.label}</span>
+                
+                {/* Solid background section with community info - Integrated seamlessly */}
+                <div className="bg-gradient-to-br from-slate-800 via-blue-900 to-indigo-900 text-white p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h1 className="text-2xl font-bold text-white">
+                          {community.name}
+                        </h1>
+                        {/* Show data source verification instead of fake tier badges */}
+                        {(community as any).data_source && (
+                          <Badge className="bg-green-500/20 border-green-400 text-green-100">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            <span className="text-xs font-medium">Verified</span>
                           </Badge>
-                        );
-                      })()}
-                    </div>
-                    <div className="flex items-center text-gray-900 dark:text-gray-100 mb-2">
-                      <MapPin className="w-4 h-4 mr-1" />
-                      <span>{community.address}, {community.city}, {community.state} {community.zipCode}</span>
-                    </div>
-                    <div className="flex items-center text-gray-900 dark:text-gray-100 mb-2">
-                      <Phone className="w-4 h-4 mr-1" />
-                      <span className="font-medium">{community.phone || generatePhoneNumber(community.state, community.id)}</span>
-                    </div>
-                    {/* Data Source Badge - Prominent display */}
-                    {(community as any).data_source && (
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="outline" className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
-                          <CheckCircle className="w-3 h-3 mr-1 text-green-600 dark:text-green-400" />
-                          <span className="text-xs font-medium text-green-700 dark:text-green-300">
-                            Data Source: {(community as any).data_source}
-                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center text-white/90 mb-2">
+                        <MapPin className="w-4 h-4 mr-1" />
+                        <span>{community.address}, {community.city}, {community.state}</span>
+                      </div>
+                      <div className="flex items-center text-white/90 mb-4">
+                        <Phone className="w-4 h-4 mr-1" />
+                        <span className="font-medium">{community.phone || generatePhoneNumber(community.state, community.id)}</span>
+                      </div>
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="flex items-center">
+                          <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+                          <span className="font-medium text-white">{community.googleRating || '4.2'}</span>
+                          <span className="text-white/90 ml-1">({community.googleReviewCount || '47'} reviews)</span>
+                        </div>
+                        <Badge className="bg-blue-500/20 border-blue-400 text-blue-100">
+                          {community.careTypes?.[0] || 'Senior Living'}
                         </Badge>
                       </div>
-                    )}
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="flex items-center">
-                        <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                        <span className="font-medium">{community.googleRating || '4.2'}</span>
-                        <span className="text-gray-900 dark:text-gray-100 ml-1">({community.googleReviewCount || '47'} reviews)</span>
-                      </div>
-                      <Badge className="bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200">
-                        {community.careTypes?.[0] || 'Senior Living'}
-                      </Badge>
-                    </div>
-
-
-
-                    {/* Achievement Badges */}
-                    <div className="flex items-center flex-wrap gap-2 mb-4">
-                      {(() => {
-                        const badges = [];
-
-                        // Featured Community Badge (top communities)
-                        if (community.id % 5 === 0) {
-                          badges.push({
-                            level: 'Featured',
-                            color: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-                            icon: '⭐',
-                            type: 'featured'
-                          });
-                        }
-
-                        // Pricing Transparency Badges
-                        const hasBasicPricing = (community as any).monthlyRent || community.id;
-                        const hasLivePricing = community.id % 2 === 0;
-                        const hasMultipleCareTypes = community.careTypes && community.careTypes.length > 1;
-                        const hasRecentUpdates = community.id % 3 === 0;
-                        const hasSpecialRates = community.id % 4 === 0;
-
-                        let totalPoints = 0;
-
-                        // Calculate achievement level based on available data
-                        if (hasBasicPricing) totalPoints += 10;
-                        if (hasLivePricing) totalPoints += 25;
-                        if (hasMultipleCareTypes) totalPoints += 25;
-                        if (hasRecentUpdates) totalPoints += 40;
-                        if (hasSpecialRates) totalPoints += 150;
-
-                        // Determine pricing transparency badge level
-                        if (totalPoints >= 250) {
-                          badges.push({
-                            level: 'Transparency Legend',
-                            color: 'bg-purple-100 text-purple-800 border-purple-300',
-                            icon: '👑',
-                            type: 'pricing'
-                          });
-                        } else if (totalPoints >= 100) {
-                          badges.push({
-                            level: 'Price Master',
-                            color: 'bg-orange-100 text-orange-800 border-orange-300',
-                            icon: '🏆',
-                            type: 'pricing'
-                          });
-                        } else if (totalPoints >= 50) {
-                          badges.push({
-                            level: 'Pricing Pro',
-                            color: 'bg-blue-100 text-blue-800 border-blue-300',
-                            icon: '💎',
-                            type: 'pricing'
-                          });
-                        } else if (totalPoints >= 25) {
-                          badges.push({
-                            level: 'Transparency Champion',
-                            color: 'bg-green-100 text-green-800 border-green-300',
-                            icon: '🌟',
-                            type: 'pricing'
-                          });
-                        } else if (totalPoints >= 10) {
-                          badges.push({
-                            level: 'Price Pioneer',
-                            color: 'bg-gray-100 text-gray-800 border-gray-300',
-                            icon: '🏅',
-                            type: 'pricing'
-                          });
-                        }
-
-                        // Quality Achievement Badges
-                        if (parseFloat(community.googleRating || '4.2') >= 4.5) {
-                          badges.push({
-                            level: 'Excellence Award',
-                            color: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-                            icon: '🎖️',
-                            type: 'quality'
-                          });
-                        }
-
-                        // Special Recognition Badges
-                        if (community.id % 7 === 0) {
-                          badges.push({
-                            level: 'Community Choice',
-                            color: 'bg-pink-100 text-pink-800 border-pink-300',
-                            icon: '💖',
-                            type: 'recognition'
-                          });
-                        }
-
-                        if (community.id % 6 === 0) {
-                          badges.push({
-                            level: 'Verified',
-                            color: 'bg-cyan-100 text-cyan-800 border-cyan-300',
-                            icon: '✅',
-                            type: 'verification'
-                          });
-                        }
-
-                        return badges.map((badge, index) => (
-                          <div key={index} className={`px-3 py-1 rounded-full text-xs font-medium border ${badge.color} flex items-center flex-shrink-0`}>
-                            <span className="mr-1">{badge.icon}</span>
-                            {badge.level}
-                          </div>
-                        ));
-                      })()}
-                    </div>
                     
                     {/* In-App Messaging Button - Bottom Left */}
                     <div className="mt-4">
@@ -1864,158 +1718,97 @@ export default function CommunityDetail() {
                         );
                       })()}
                     </div>
-                  </div>
-                  <div className="text-right">
-                    {/* Live Pricing with Badge - Now with Real-time Market Data */}
-                    <div className="mb-3">
-                      <div className="flex items-center justify-end mb-1">
-                        <Badge className="bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200 mr-2">
-                          <div className="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full mr-1 animate-pulse"></div>
-                          Real-time Market Pricing
-                        </Badge>
-                      </div>
-                      <div className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                        {(() => {
-                          // Check for AI verified pricing from Multi-AI report
-                          if (verificationReport?.pricing?.verified && verificationReport.pricing.amount) {
-                            const amount = verificationReport.pricing.amount;
-                            const minMax = verificationReport.pricing.minMax;
-                            if (minMax && minMax.min && minMax.max) {
-                              return `$${minMax.min.toLocaleString()} - $${minMax.max.toLocaleString()}`;
-                            } else if (amount) {
-                              return `$${amount.toLocaleString()}/month`;
-                            }
-                          }
-                          
-                          // Then check traditional price sources
-                          if (community.priceRange && community.priceRange.min > 0) {
-                            return `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}`;
-                          }
-                          
-                          if ((community as any).rentPerMonth) {
-                            return `$${(community as any).rentPerMonth}/month`;
-                          }
-                          
-                          // Show market intelligence estimates as fallback
-                          if (community.communitySubtype === 'hud_senior_housing') {
-                            return "$200 - $800";
-                          }
-                          if (community.careTypes?.includes('memory_care')) {
-                            return "$5,000 - $8,000";
-                          }
-                          if (community.careTypes?.includes('assisted_living')) {
-                            return "$3,500 - $5,500";
-                          }
-                          if (community.careTypes?.includes('independent_living')) {
-                            return "$2,500 - $4,500";
-                          }
-                          return "$2,000 - $6,000";
-                        })()}
-                      </div>
-                      <div className="text-sm text-gray-900 dark:text-gray-100">
-                        {(() => {
-                          const hasEstimate = !community.priceRange?.min && !(community as any).rentPerMonth && !verificationReport?.pricing?.verified;
-                          
-                          if (verificationReport?.pricing?.verified && verificationReport.pricing.source) {
-                            return `AI Verified - ${verificationReport.pricing.source}`;
-                          } else if (community.priceRange && community.priceRange.min > 0) {
-                            return "per month starting rate";
-                          } else if ((community as any).rentPerMonth) {
-                            return "HUD verified monthly rent";
-                          } else if (!community.claimedBy) {
-                            return (
-                              <div className="flex items-center gap-2">
-                                <span>Market Intelligence Estimate</span>
-                                <button 
-                                  onClick={() => {
-                                    const marketTab = document.querySelector('[data-tab="market-data"]') as HTMLElement;
-                                    if (marketTab) {
-                                      marketTab.click();
-                                      setTimeout(() => {
-                                        const howWeCalculate = document.querySelector('#how-we-calculate');
-                                        if (howWeCalculate) {
-                                          howWeCalculate.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                        }
-                                      }, 100);
-                                    }
-                                  }}
-                                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline text-xs font-medium"
-                                >
-                                  How we calculate this estimate
-                                </button>
+                    </div>
+                    
+                    {/* Right side - Pricing Information */}
+                    <div className="text-right">
+                      {(() => {
+                        const hasVerifiedPricing = (community.priceRange && community.priceRange.min > 0) || 
+                                                   (community as any).rentPerMonth || 
+                                                   (verificationReport?.pricing?.verified);
+                        const isEstimate = !hasVerifiedPricing;
+                        
+                        return (
+                          <div className="mb-3">
+                            {!isEstimate && (
+                              <div className="flex items-center justify-end mb-1">
+                                <Badge className="bg-green-500/20 border-green-400 text-green-100 mr-2">
+                                  <div className="w-2 h-2 bg-green-400 rounded-full mr-1 animate-pulse"></div>
+                                  Live Pricing
+                                </Badge>
                               </div>
-                            );
-                          } else {
-                            return "Pricing available upon request";
-                          }
-                        })()}
-                      </div>
-                      
-                      {/* Market Data Tab Promotion - Simplified reference to centralized tab */}
-                      <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                            <span className="text-sm font-medium text-gray-900 dark:text-white">
-                              {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) ? 
-                                "Live Market Intelligence Available" : 
-                                "Market Analysis Available"
-                              }
-                            </span>
-                            {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
-                              <Badge className="bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200 text-xs px-1.5 py-0.5">
-                                <CheckCircle className="h-3 w-3 mr-1" />
-                                Live
-                              </Badge>
                             )}
+                            <div className="text-xl font-bold text-white mb-1">
+                              {(() => {
+                                // Check for AI verified pricing from Multi-AI report
+                                if (verificationReport?.pricing?.verified && verificationReport.pricing.amount) {
+                                  const amount = verificationReport.pricing.amount;
+                                  const minMax = verificationReport.pricing.minMax;
+                                  if (minMax && minMax.min && minMax.max) {
+                                    return `$${minMax.min.toLocaleString()} - $${minMax.max.toLocaleString()}`;
+                                  } else if (amount) {
+                                    return `$${amount.toLocaleString()}/month`;
+                                  }
+                                }
+                                
+                                // Then check traditional price sources
+                                if (community.priceRange && community.priceRange.min > 0) {
+                                  return `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}`;
+                                }
+                                
+                                if ((community as any).rentPerMonth) {
+                                  return `$${(community as any).rentPerMonth}/month`;
+                                }
+                                
+                                // Show market intelligence estimates as fallback
+                                if (community.communitySubtype === 'hud_senior_housing') {
+                                  return "$200 - $800";
+                                }
+                                if (community.careTypes?.includes('memory_care')) {
+                                  return "$5,000 - $8,000";
+                                }
+                                if (community.careTypes?.includes('assisted_living')) {
+                                  return "$3,500 - $5,500";
+                                }
+                                if (community.careTypes?.includes('independent_living')) {
+                                  return "$2,500 - $4,500";
+                                }
+                                return "$2,000 - $6,000";
+                              })()}
+                            </div>
+                            <div className="text-sm text-white/80">
+                              {isEstimate ? (
+                                <div className="flex items-center gap-2 justify-end">
+                                  <span>Market Estimate</span>
+                                  <button 
+                                    onClick={() => {
+                                      const marketTab = document.querySelector('[data-tab="market-data"]') as HTMLElement;
+                                      if (marketTab) {
+                                        marketTab.click();
+                                        setTimeout(() => {
+                                          const howWeCalculate = document.querySelector('#how-we-calculate');
+                                          if (howWeCalculate) {
+                                            howWeCalculate.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                          }
+                                        }, 100);
+                                      }
+                                    }}
+                                    className="text-blue-300 hover:text-blue-100 underline text-xs font-medium"
+                                  >
+                                    How we calculate
+                                  </button>
+                                </div>
+                              ) : (
+                                "per month starting rate"
+                              )}
+                            </div>
                           </div>
-                          <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                            See Market Data tab below
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {/* Compact Pricing Attribution for Estimates */}
-                      {!hasLiveData && !community.claimedBy && (
-                        <div className="mt-2 flex items-center justify-end gap-2 text-xs">
-                          <Info className="h-3 w-3 text-blue-600 dark:text-blue-400" />
-                          <a 
-                            href="#pricing-methodology" 
-                            className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300"
-                          >
-                            How we calculate this estimate
-                          </a>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Authentic Pricing Sources Display */}
-                    <div className="mt-4">
-                      <AuthenticPricingDisplay communityId={community.id} />
-                    </div>
-
-                    {/* Availability Status - No fake numbers */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-end">
-                        <div className="w-3 h-3 rounded-full mr-2 bg-gray-400"></div>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-400">
-                          Contact for Availability
-                        </span>
-                      </div>
-
-                      {/* No Unit Information Until Verified */}
-                      <div className="bg-gray-50 dark:bg-gray-900/20 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          Real-time availability pending verification
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                          Contact community directly for current availability
-                        </div>
-                      </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
-              </CardHeader>
+              </CardContent>
             </Card>
 
             {/* Tabbed Content Section - Clean layout without overlapping borders */}
