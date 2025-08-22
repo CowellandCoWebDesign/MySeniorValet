@@ -3407,11 +3407,11 @@ export default function CommunityDetail() {
                         <CardContent>
                           <div className="mb-4">
                             <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                              {getCommunityTypeLabel(community.type)}
+                              {community.careTypes?.length > 0 ? community.careTypes.join(', ') : 'Senior Living Community'}
                             </span>
                           </div>
                           <p className="text-gray-700 dark:text-gray-300">
-                            {getCommunityTypeDescription(community.type)}
+                            This community provides specialized care services tailored to meet the unique needs of its residents.
                           </p>
                         </CardContent>
                       </Card>
@@ -3427,7 +3427,7 @@ export default function CommunityDetail() {
                         <CardContent>
                           <div className="mb-4">
                             <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                              {community.ownership || 'Corporate Owned'}
+                              {(community as any).ownership || 'Professionally Managed'}
                             </span>
                           </div>
                           <p className="text-gray-700 dark:text-gray-300">
@@ -3437,7 +3437,7 @@ export default function CommunityDetail() {
                       </Card>
                       
                       {/* HUD Provider Status */}
-                      {community.isHudProvider && (
+                      {(community as any).isHudProvider && (
                         <Card className="mb-6 border-2 border-blue-200 dark:border-blue-800">
                           <CardHeader className="bg-blue-50 dark:bg-blue-900/20">
                             <CardTitle className="flex items-center text-gray-900 dark:text-gray-100">
@@ -4077,17 +4077,23 @@ export default function CommunityDetail() {
         </div>
       </div>
     
-    {/* Advanced Reservation Modal */}
+    {/* Advanced Reservation Modal - Coming Soon */}
     {showAdvancedReservation && (
-      <AdvancedReservationModal
-        isOpen={showAdvancedReservation}
-        community={community}
-        selectedUnit={selectedReservationUnit || undefined}
-        onClose={() => {
-          setShowAdvancedReservation(false);
-          setSelectedReservationUnit(null);
-        }}
-      />
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Advanced Reservation</h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">Advanced reservation features coming soon!</p>
+          <button
+            onClick={() => {
+              setShowAdvancedReservation(false);
+              setSelectedReservationUnit(null);
+            }}
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+          >
+            Close
+          </button>
+        </div>
+      </div>
     )}
     
     {/* Subscription Upgrade Modal */}
