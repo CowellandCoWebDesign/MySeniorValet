@@ -1096,7 +1096,17 @@ const hasVerifiedPricing = (community: Community): boolean => {
 };
 
 // Hero Photo Carousel Component with Touch Support
-const HeroPhotoCarousel = ({ photos, communityName, communityId }: { photos: string[], communityName: string, communityId?: number }) => {
+const HeroPhotoCarousel = ({ 
+  photos, 
+  communityName, 
+  communityId, 
+  community 
+}: { 
+  photos: string[], 
+  communityName: string, 
+  communityId?: number,
+  community?: Community 
+}) => {
   // Ensure photos is never null/undefined
   const safePhotos = photos && photos.length > 0 ? photos : defaultPhotos;
   
@@ -1209,7 +1219,7 @@ const HeroPhotoCarousel = ({ photos, communityName, communityId }: { photos: str
 
           {/* Photo indicator dots */}
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
-            {photos.map((_, index) => (
+            {safePhotos.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
@@ -1222,7 +1232,7 @@ const HeroPhotoCarousel = ({ photos, communityName, communityId }: { photos: str
 
           {/* Photo counter */}
           <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
-            {currentIndex + 1} / {photos.length}
+            {currentIndex + 1} / {safePhotos.length}
           </div>
 
           {/* Swipe instruction on mobile */}
@@ -1230,6 +1240,21 @@ const HeroPhotoCarousel = ({ photos, communityName, communityId }: { photos: str
             Swipe to browse photos
           </div>
         </>
+      )}
+
+      {/* Care Type Badge - Bottom Left */}
+      {community && community.careTypes && (
+        <div className="absolute bottom-4 left-4 bg-emerald-600/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-lg z-20">
+          {Array.isArray(community.careTypes) ? community.careTypes.join(', ') : community.careTypes}
+        </div>
+      )}
+
+      {/* Verified Badge - Bottom Right */}
+      {community && hasVerifiedPricing(community) && (
+        <div className="absolute bottom-4 right-4 bg-blue-600/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-lg z-20 flex items-center gap-1">
+          <Shield className="w-4 h-4" />
+          Verified Pricing
+        </div>
       )}
     </div>
   );
@@ -1633,6 +1658,7 @@ export default function CommunityDetail() {
                     photos={community.photos || defaultPhotos}
                     communityId={community.id}
                     communityName={community.name}
+                    community={community}
                   />
                   
                   {/* Action Buttons */}
@@ -3788,6 +3814,7 @@ export default function CommunityDetail() {
                               photos={community.photos} 
                               communityName={community.name}
                               communityId={community.id}
+                              community={community}
                             />
                           </div>
                           
