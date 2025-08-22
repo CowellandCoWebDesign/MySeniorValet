@@ -452,10 +452,10 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     
     return (
       <Card 
-        className="group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+        className="group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg w-full"
         onClick={onSelect}
       >
-        <CardContent className="p-4">
+        <CardContent className="p-3 sm:p-4">
           {/* Top Row: HUD Badge and Occupancy */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -490,45 +490,52 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
 
           {/* Community Name and Location */}
           <div className="mb-3">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-1 line-clamp-2">
               {community.name}
             </h3>
-            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-              <MapPin className="h-4 w-4 mr-1" />
-              <span>{community.city}, {community.state} {community.zipCode || ''}</span>
+            <div className="flex items-center text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+              <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+              <span className="truncate">{community.city}, {community.state} {community.zipCode || ''}</span>
             </div>
           </div>
 
           {/* Care Types and Medical Restrictions */}
-          <div className="flex flex-wrap gap-2 mb-3">
-            {community.careTypes?.map((careType, idx) => (
-              <Badge key={idx} variant="secondary" className="text-xs">
+          <div className="flex flex-wrap gap-1 sm:gap-2 mb-3">
+            {community.careTypes?.slice(0, 3).map((careType, idx) => (
+              <Badge key={idx} variant="secondary" className="text-xs px-2 py-1">
                 {careType}
               </Badge>
             ))}
-            {/* Medical Restrictions Badges */}
-            <Badge variant="outline" className="text-xs border-red-300 text-red-600">
+            {community.careTypes && community.careTypes.length > 3 && (
+              <Badge variant="outline" className="text-xs px-2 py-1">
+                +{community.careTypes.length - 3} more
+              </Badge>
+            )}
+            {/* Medical Restrictions Badge - Only show on larger screens */}
+            <Badge variant="outline" className="text-xs border-red-300 text-red-600 hidden sm:inline-flex">
               <Stethoscope className="h-3 w-3 mr-1" />
               Medical Restrictions
             </Badge>
           </div>
 
           {/* Pricing Display */}
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 mb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 sm:p-3 mb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white truncate">
                   {priceDisplay || marketPricing?.display || 'Contact for Pricing'}
                 </div>
-                {community.pricingType === 'live' && (
-                  <div className="text-xs text-green-600 font-medium">Live Pricing</div>
-                )}
-                {(community.pricingType === 'market' || marketPricing) && (
-                  <div className="text-xs text-purple-600 font-medium">Market Intelligence</div>
-                )}
+                <div className="flex flex-col sm:flex-row sm:gap-2">
+                  {community.pricingType === 'live' && (
+                    <div className="text-xs text-green-600 font-medium">Live Pricing</div>
+                  )}
+                  {(community.pricingType === 'market' || marketPricing) && (
+                    <div className="text-xs text-purple-600 font-medium">Market Intelligence</div>
+                  )}
+                </div>
               </div>
               {community.specialOffers && community.specialOffers.length > 0 && (
-                <Badge className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">
+                <Badge className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 text-xs px-2 py-1 self-start sm:self-center">
                   Special Offer
                 </Badge>
               )}

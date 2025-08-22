@@ -707,8 +707,8 @@ export default function MySeniorValetHome() {
         </div>
       </header>
 
-      {/* Hero Section with Search - Adjusted heights for better balance */}
-      <section className="relative min-h-[75vh] md:min-h-[80vh] bg-black pt-14">
+      {/* Hero Section with Search - Mobile optimized */}
+      <section className="relative min-h-[70vh] sm:min-h-[75vh] md:min-h-[80vh] bg-black pt-12 sm:pt-14">
         <div className="absolute inset-0">
           <img
             src={heroBackgroundImage}
@@ -720,26 +720,26 @@ export default function MySeniorValetHome() {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-90% to-black/30"></div>
         </div>
         
-        <div className="relative hero-content min-h-[75vh] md:min-h-[80vh] pt-2 sm:pt-3 md:pt-4 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col">
+        <div className="relative hero-content min-h-[70vh] sm:min-h-[75vh] md:min-h-[80vh] pt-2 sm:pt-3 md:pt-4 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col px-2 sm:px-4">
           
-          {/* Hero Text Section - Better positioned */}
-          <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8 mt-8 md:mt-12 mb-6 text-center">
-            {/* Main Heading - Animates in first */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 animate-fade-in-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
+          {/* Hero Text Section - Mobile optimized */}
+          <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8 mt-4 sm:mt-8 md:mt-12 mb-4 sm:mb-6 text-center">
+            {/* Main Heading - Better mobile sizing */}
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-2 sm:mb-4 animate-fade-in-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] leading-tight">
               The Clear Path to Senior Living & Care
             </h1>
             
-            {/* Subheading - Animates in second with delay */}
-            <p className="text-sm sm:text-base md:text-lg text-gray-200 max-w-3xl mx-auto animate-fade-in-up animation-delay-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+            {/* Subheading - Better mobile sizing */}
+            <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-200 max-w-3xl mx-auto animate-fade-in-up animation-delay-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed px-2">
               Find communities, services, and resources with real pricing, live availability, and trusted reviews—all in one place.
             </p>
           </div>
           
-          {/* Search bar positioned higher up */}
-          <div className="flex-grow flex items-start justify-center pt-8 md:pt-12">
-            <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
-              {/* Search Bar - Full Screen Width - Slimmer Design */}
-            <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 mb-3 animate-fade-in-up animation-delay-200" style={{ position: 'relative', zIndex: 99999 }}>
+          {/* Search bar positioned higher up - Mobile optimized */}
+          <div className="flex-grow flex items-start justify-center pt-4 sm:pt-8 md:pt-12">
+            <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 md:px-8">
+              {/* Search Bar - Mobile responsive */}
+            <div className="w-full max-w-2xl mx-auto px-2 sm:px-4 md:px-6 mb-2 sm:mb-3 animate-fade-in-up animation-delay-200" style={{ position: 'relative', zIndex: 99999 }}>
               <form onSubmit={(e) => {
                 e.preventDefault();
                 if (searchQuery) {
@@ -778,29 +778,30 @@ export default function MySeniorValetHome() {
               </form>
             </div>
 
-            {/* Trust Indicators - Below search bar */}
-            <div className="animate-fade-in-up animation-delay-300 flex justify-center items-center">
-              <div className="flex flex-wrap justify-center items-center gap-2">
+            {/* Trust Indicators - Mobile responsive */}
+            <div className="animate-fade-in-up animation-delay-300 flex justify-center items-center px-2">
+              <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
                 {/* Live Pricing Badge */}
-                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-3 py-1 rounded-full shadow-md whitespace-nowrap">
-                  <DollarSign className="h-3 w-3 text-green-400 animate-pulse flex-shrink-0" />
-                  <span className="text-[10px] font-semibold text-white">Live Pricing</span>
+                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                  <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Pricing</span>
                 </span>
                 
                 {/* Community Reported Badge */}
-                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-3 py-1 rounded-full shadow-md whitespace-nowrap">
-                  <Users2 className="h-3 w-3 text-green-300 flex-shrink-0" />
-                  <span className="text-[10px] font-semibold text-white">Family Reviews</span>
+                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                  <Users2 className="h-2 w-2 sm:h-3 sm:w-3 text-green-300 flex-shrink-0" />
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Family Reviews</span>
                 </span>
                 
-                {/* AI Orchestration Badge */}
-                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-3 py-1 rounded-full shadow-md whitespace-nowrap">
-                  <Brain className="h-3 w-3 text-purple-300 animate-pulse flex-shrink-0" />
-                  <span className="text-[10px] font-semibold text-white">Live Availability</span>
+                {/* AI Orchestration Badge - Hide on very small screens */}
+                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                  <Brain className="h-2 w-2 sm:h-3 sm:w-3 text-purple-300 animate-pulse flex-shrink-0" />
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-white hidden xs:inline">Live Availability</span>
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-white xs:hidden">Live</span>
                 </span>
                 
-                {/* AI Orchestra Badge - Attribution to the 3 AIs */}
-                <span className="inline-flex items-center space-x-1 bg-gradient-to-r from-purple-800/90 to-indigo-800/90 backdrop-blur-md px-3 py-1 rounded-full shadow-md whitespace-nowrap border border-purple-400/30">
+                {/* AI Orchestra Badge - Hide on mobile */}
+                <span className="hidden sm:inline-flex items-center space-x-1 bg-gradient-to-r from-purple-800/90 to-indigo-800/90 backdrop-blur-md px-3 py-1 rounded-full shadow-md border border-purple-400/30">
                   <Music className="h-3 w-3 text-yellow-300 animate-pulse flex-shrink-0" />
                   <span className="text-[10px] font-semibold text-white">AI Triple-Verified</span>
                 </span>

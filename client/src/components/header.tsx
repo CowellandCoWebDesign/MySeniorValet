@@ -23,18 +23,18 @@ export function Header() {
       <div className="absolute top-0 left-1/4 w-32 h-16 bg-gradient-to-r from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute top-0 right-1/4 w-24 h-16 bg-gradient-to-r from-cyan-400/10 to-teal-400/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
       
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-12">
-          <div className="flex items-center space-x-8">
-            <Link href="/" className="flex items-center space-x-3 group" aria-label="MySeniorValet Home - Senior Living Community Search">
-              <div className="relative w-10 h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 overflow-hidden" aria-hidden="true">
-                <Home className="text-white h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
+      <div className="relative z-10 max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+        <div className="flex justify-between items-center h-14 sm:h-16">
+          <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-8">
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group" aria-label="MySeniorValet Home - Senior Living Community Search">
+              <div className="relative w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110 overflow-hidden" aria-hidden="true">
+                <Home className="text-white h-4 w-4 sm:h-5 sm:w-5 group-hover:scale-110 transition-transform duration-300" />
                 <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
+                <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-yellow-400 rounded-full opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-display font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transform transition-all duration-300">MySeniorValet</span>
-                <span className="text-xs text-gray-500 font-medium -mt-1 group-hover:text-gray-600 dark:text-gray-400 transition-colors duration-300">Your Personal Senior Living Concierge</span>
+                <span className="text-base sm:text-xl font-display font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:scale-105 transform transition-all duration-300">MySeniorValet</span>
+                <span className="text-xs text-gray-500 font-medium -mt-1 group-hover:text-gray-600 dark:text-gray-400 transition-colors duration-300 hidden sm:block">Your Personal Senior Living Concierge</span>
               </div>
             </Link>
             <nav className="hidden lg:flex space-x-1">
@@ -58,17 +58,21 @@ export function Header() {
               })}
             </nav>
           </div>
-          <div className="flex items-center space-x-3">
-            <ThemeToggle />
-            <NotificationCenter />
+          <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3">
+            <div className="hidden sm:block">
+              <ThemeToggle />
+            </div>
+            <div className="hidden sm:block">
+              <NotificationCenter />
+            </div>
             <Link href="/community-portal" className="hidden lg:block">
               <Button variant="ghost" className="text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-gray-50 dark:hover:bg-gray-700 font-medium">
                 <Building2 className="h-4 w-4 mr-2" />
                 Community Portal
               </Button>
             </Link>
-            <Link href="/login">
-              <Button className="shadow-sm hover:shadow-md transition-shadow" aria-label="Sign in to MySeniorValet">
+            <Link href="/login" className="hidden sm:block">
+              <Button size="sm" className="shadow-sm hover:shadow-md transition-shadow" aria-label="Sign in to MySeniorValet">
                 Sign In
               </Button>
             </Link>
@@ -76,15 +80,15 @@ export function Header() {
               <SheetTrigger asChild>
                 <Button 
                   variant="outline" 
-                  size="default" 
-                  className="lg:hidden px-3 py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 shadow-md hover:shadow-lg transition-all" 
+                  size="sm" 
+                  className="lg:hidden px-2 py-1.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 shadow-sm hover:shadow-md transition-all" 
                   aria-label="Open navigation menu"
                 >
-                  <Menu className="h-6 w-6 text-gray-700 dark:text-gray-300 mr-2" aria-hidden="true" />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Menu</span>
+                  <Menu className="h-5 w-5 text-gray-700 dark:text-gray-300" aria-hidden="true" />
+                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300 ml-1">Menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent className="w-80">
+              <SheetContent className="w-[85vw] max-w-sm">
                 <div className="flex flex-col space-y-6 mt-8">
                   <div className="flex items-center space-x-3 pb-4 border-b border-gray-200 dark:border-gray-700">
                     <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
