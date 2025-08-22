@@ -508,15 +508,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Initialize WebSocket for real-time family messaging
   try {
-    const { WebSocketServer, WebSocket } = await import('ws');
+    const { WebSocketServer } = await import('ws');
     
     const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
     
-    wss.on('connection', (ws: any) => {
+    // Track connection states separately to avoid property conflicts
+    const connectionStates = new WeakMap();
+    
+    wss.on('connection', (ws) => {
       console.log('✅ Family messaging WebSocket connection established');
       
-      ws.isAlive = true;
-      ws.on('pong', () => { ws.isAlive = true; });
+      // Use WeakMap to track connection state instead of setting properties directly
+      connectionStates.set(ws, { isAlive: true });
+      
+      ws.on('pong', () => { 
+        const state = connectionStates.get(ws);
+        if (state) state.isAlive = true;
+      });
       
       // Send welcome message
       ws.send(JSON.stringify({
@@ -549,6 +557,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       ws.on('close', () => {
         console.log('Family messaging WebSocket connection closed');
+        connectionStates.delete(ws);
       });
       
       ws.on('error', (error: Error) => {
@@ -558,12 +567,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     // Keep-alive ping interval
     const interval = setInterval(() => {
-      wss.clients.forEach((ws: any) => {
-        if (ws.isAlive === false) {
+      wss.clients.forEach((ws) => {
+        const state = connectionStates.get(ws);
+        if (!state || state.isAlive === false) {
           ws.terminate();
+          connectionStates.delete(ws);
           return;
         }
-        ws.isAlive = false;
+        state.isAlive = false;
         ws.ping();
       });
     }, 30000);
