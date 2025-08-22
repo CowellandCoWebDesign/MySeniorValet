@@ -1287,14 +1287,13 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                 <div className="flex items-center text-xs">
                   <Circle 
                     className={`h-2 w-2 mr-1 ${
-                      community.careTypes?.some(type => 
+                      (community.careTypes?.some(type => 
                         type.toLowerCase().includes('assisted') || 
-                        type.toLowerCase().includes('memory') ||
-                        community.amenities?.some(amenity => 
-                          amenity.toLowerCase().includes('medication') ||
-                          amenity.toLowerCase().includes('pharmacy')
-                        )
-                      ) ? 'text-green-600 fill-green-600' : 'text-red-600 fill-red-600'
+                        type.toLowerCase().includes('memory')
+                      ) || community.amenities?.some(amenity => 
+                        amenity.toLowerCase().includes('medication') ||
+                        amenity.toLowerCase().includes('pharmacy')
+                      )) ? 'text-green-600 fill-green-600' : 'text-red-600 fill-red-600'
                     }`} 
                   />
                   <span className="text-gray-600 dark:text-gray-400">Medication Mgmt</span>
