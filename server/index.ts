@@ -28,6 +28,21 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
+// Global error handlers to prevent crashes
+process.on('uncaughtException', (error) => {
+  console.error('❌ UNCAUGHT EXCEPTION:', error);
+  console.error('Stack:', error.stack);
+  // Don't exit in production, try to keep serving
+  if (process.env.NODE_ENV === 'development') {
+    process.exit(1);
+  }
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ UNHANDLED REJECTION at:', promise, 'reason:', reason);
+  // Don't exit, just log the error
+});
+
 // Production mode - caches enabled for performance
 if (process.env.NODE_ENV === 'development') {
   clearViteCache();
@@ -288,18 +303,19 @@ if (process.env.NODE_ENV === 'development') {
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5000', 10);
   
+  // Add error event handler for the server
+  server.on('error', (error: any) => {
+    console.error('❌ Server error:', error);
+    if (error.code === 'EADDRINUSE') {
+      console.error(`Port ${port} is already in use. Trying to restart...`);
+      process.exit(1);
+    }
+  });
+  
   server.listen({
     port,
     host: "0.0.0.0",
-  }, (error: any) => {
-    if (error) {
-      console.error('Failed to start server:', error);
-      if (error.code === 'EADDRINUSE') {
-        console.error(`Port ${port} is already in use. Trying to restart...`);
-        process.exit(1);
-      }
-      throw error;
-    }
+  }, () => {
     log(`serving on port ${port}`);
     
     // Initialize simple WebSocket communication

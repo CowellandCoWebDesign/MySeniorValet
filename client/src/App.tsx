@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { OnboardingProvider } from "@/contexts/OnboardingContext";
 import { VoiceGuidanceProvider } from "@/components/VoiceGuidanceProvider";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 
 // Import Leaflet CSS globally for map functionality
@@ -378,9 +379,11 @@ function AppContent() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppContent />
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AppContent />
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
