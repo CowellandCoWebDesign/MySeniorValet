@@ -1343,7 +1343,7 @@ const HeroPhotoCarousel = ({
 
   return (
     <div 
-      className="relative w-full h-full group cursor-grab active:cursor-grabbing"
+      className="relative w-full h-full min-h-[320px] group cursor-grab active:cursor-grabbing bg-gray-100 dark:bg-gray-800"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -1354,7 +1354,7 @@ const HeroPhotoCarousel = ({
     >
       {/* Show loading state for photos */}
       {hasDefaultPhotos && isLoadingWebPhotos ? (
-        <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
               <Camera className="w-8 h-8 text-gray-500 dark:text-gray-400" />
@@ -1364,7 +1364,7 @@ const HeroPhotoCarousel = ({
           </div>
         </div>
       ) : (
-        <div className="w-full h-full overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden">
           <div 
             className="flex h-full"
             style={{
@@ -1872,8 +1872,8 @@ export default function CommunityDetail() {
             {/* Main Community Card - Integrated KAYAK-Style Design */}
             <Card className="overflow-hidden">
               <CardContent className="relative p-0">
-                {/* Enhanced Photo Carousel */}
-                <div className="relative h-80 overflow-hidden">
+                {/* Enhanced Photo Carousel - Fixed height to prevent layout shift */}
+                <div className="relative h-80 min-h-[320px] overflow-hidden bg-gray-100 dark:bg-gray-800">
                   <HeroPhotoCarousel 
                     photos={getCombinedPhotos()}
                     communityId={community.id}
