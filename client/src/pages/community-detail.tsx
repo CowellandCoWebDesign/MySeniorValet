@@ -1933,13 +1933,26 @@ export default function CommunityDetail() {
               <CardContent className="relative p-0">
                 {/* Enhanced Photo Carousel - Fixed height to prevent layout shift */}
                 <div className="relative block w-full" style={{ height: '320px', minHeight: '320px', maxHeight: '320px' }}>
-                  <HeroPhotoCarousel 
-                    photos={getCombinedPhotos()}
-                    communityId={community.id}
-                    communityName={community.name}
-                    community={community}
-                    verificationReport={verificationReport}
-                  />
+                  <div className="w-full h-full bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                    {getCombinedPhotos().length > 0 ? (
+                      <img 
+                        src={getCombinedPhotos()[0].url}
+                        alt={community.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = '/assets/gentleman-mascot.png';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <img 
+                          src="/assets/gentleman-mascot.png" 
+                          alt="MySeniorValet Mascot" 
+                          className="h-24 w-24 opacity-60"
+                        />
+                      </div>
+                    )}
+                  </div>
                   
                   {/* Action Buttons */}
                   <div className="absolute top-4 right-4 flex space-x-2">
