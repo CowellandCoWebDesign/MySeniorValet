@@ -1274,18 +1274,7 @@ const HeroPhotoCarousel = ({
 
 
 
-      {/* Dynamic Pricing Badge - Bottom Right */}
-      {community && (() => {
-        const badgeInfo = getPricingBadgeInfo(community, verificationReport);
-        const IconComponent = badgeInfo.icon;
-        
-        return badgeInfo.show ? (
-          <div className={`absolute bottom-4 right-4 ${badgeInfo.bgColor} backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-lg z-20 flex items-center gap-1`}>
-            {IconComponent && <IconComponent className="w-4 h-4" />}
-            {badgeInfo.text}
-          </div>
-        ) : null;
-      })()}
+
     </div>
   );
 };
@@ -1862,6 +1851,21 @@ export default function CommunityDetail() {
                                 "estimated starting rate"
                               )}
                             </div>
+                            
+                            {/* Smart Pricing Badge */}
+                            {(() => {
+                              const badgeInfo = getPricingBadgeInfo(community, verificationReport);
+                              const IconComponent = badgeInfo.icon;
+                              
+                              return badgeInfo.show ? (
+                                <div className="flex justify-end mt-2">
+                                  <div className={`${badgeInfo.bgColor} text-white px-2 py-1 rounded-full text-xs font-medium shadow-sm flex items-center gap-1`}>
+                                    {IconComponent && <IconComponent className="w-3 h-3" />}
+                                    {badgeInfo.text}
+                                  </div>
+                                </div>
+                              ) : null;
+                            })()}
                           </div>
                         );
                       })()}
