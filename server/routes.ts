@@ -510,28 +510,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
   try {
     const { WebSocketServer } = await import('ws');
     
-    const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+    const wss = new WebSocketServer({ 
+      server: httpServer, 
+      path: '/ws',
+      perMessageDeflate: false, // Disable compression for production stability
+      maxPayload: 1024 * 1024, // 1MB max message size
+      clientTracking: true // Enable built-in client tracking
+    });
     
     // Track connection states separately to avoid property conflicts
     const connectionStates = new WeakMap();
     
-    wss.on('connection', (ws) => {
+    wss.on('connection', (ws, req) => {
       console.log('✅ Family messaging WebSocket connection established');
       
       // Use WeakMap to track connection state instead of setting properties directly
-      connectionStates.set(ws, { isAlive: true });
+      connectionStates.set(ws, { 
+        isAlive: true, 
+        ip: req.socket.remoteAddress,
+        connectedAt: Date.now()
+      });
       
+      // Set up pong handler with error protection
       ws.on('pong', () => { 
         const state = connectionStates.get(ws);
         if (state) state.isAlive = true;
       });
       
-      // Send welcome message
-      ws.send(JSON.stringify({
-        type: 'connection_established',
-        message: 'MySeniorValet family messaging ready',
-        timestamp: new Date().toISOString()
-      }));
+      // Send welcome message with error handling
+      try {
+        ws.send(JSON.stringify({
+          type: 'connection_established',
+          message: 'MySeniorValet family messaging ready',
+          timestamp: new Date().toISOString()
+        }));
+      } catch (sendError) {
+        console.error('Error sending welcome message:', sendError);
+      }
       
       ws.on('message', (data: Buffer) => {
         try {
@@ -539,43 +554,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log('📧 Family message received:', message.type);
           
           // Echo message back to confirm receipt
-          ws.send(JSON.stringify({
-            type: 'message_received',
-            originalType: message.type,
-            timestamp: new Date().toISOString(),
-            status: 'processed'
-          }));
+          if (ws.readyState === ws.OPEN) {
+            ws.send(JSON.stringify({
+              type: 'message_received',
+              originalType: message.type,
+              timestamp: new Date().toISOString(),
+              status: 'processed'
+            }));
+          }
         } catch (error) {
           console.error('WebSocket message error:', error);
-          ws.send(JSON.stringify({
-            type: 'error',
-            message: 'Invalid message format',
-            timestamp: new Date().toISOString()
-          }));
+          if (ws.readyState === ws.OPEN) {
+            try {
+              ws.send(JSON.stringify({
+                type: 'error',
+                message: 'Invalid message format',
+                timestamp: new Date().toISOString()
+              }));
+            } catch (sendError) {
+              console.error('Error sending error message:', sendError);
+            }
+          }
         }
       });
       
-      ws.on('close', () => {
-        console.log('Family messaging WebSocket connection closed');
+      ws.on('close', (code, reason) => {
+        console.log(`Family messaging WebSocket connection closed: ${code} ${reason}`);
         connectionStates.delete(ws);
       });
       
       ws.on('error', (error: Error) => {
         console.error('Family messaging WebSocket error:', error);
+        connectionStates.delete(ws);
       });
     });
     
-    // Keep-alive ping interval
+    // Keep-alive ping interval with better error handling
     const interval = setInterval(() => {
       wss.clients.forEach((ws) => {
         const state = connectionStates.get(ws);
         if (!state || state.isAlive === false) {
-          ws.terminate();
+          try {
+            ws.terminate();
+          } catch (terminateError) {
+            console.error('Error terminating WebSocket:', terminateError);
+          }
           connectionStates.delete(ws);
           return;
         }
         state.isAlive = false;
-        ws.ping();
+        try {
+          if (ws.readyState === ws.OPEN) {
+            ws.ping();
+          }
+        } catch (pingError) {
+          console.error('Error pinging WebSocket:', pingError);
+          connectionStates.delete(ws);
+        }
       });
     }, 30000);
     
@@ -583,9 +618,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       clearInterval(interval);
     });
     
+    wss.on('error', (error: Error) => {
+      console.error('WebSocket server error:', error);
+    });
+    
     console.log('✅ Family messaging WebSocket service initialized on /ws');
   } catch (error) {
     console.error('❌ Failed to initialize WebSocket service:', error);
+    // Don't throw - let the server continue without WebSocket
   }
 
   return httpServer;

@@ -286,12 +286,20 @@ if (process.env.NODE_ENV === 'development') {
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = 5000;
+  const port = parseInt(process.env.PORT || '5000', 10);
+  
   server.listen({
     port,
     host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
+  }, (error: any) => {
+    if (error) {
+      console.error('Failed to start server:', error);
+      if (error.code === 'EADDRINUSE') {
+        console.error(`Port ${port} is already in use. Trying to restart...`);
+        process.exit(1);
+      }
+      throw error;
+    }
     log(`serving on port ${port}`);
     
     // Initialize simple WebSocket communication
