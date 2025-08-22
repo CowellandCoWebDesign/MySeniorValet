@@ -1961,12 +1961,6 @@ export default function CommunityDetail() {
 
               {/* Community Information Tab */}
               <TabsContent value="community-info" className="space-y-6 mt-6">
-                {/* Pricing History & Transparency - Moved from Availability Tab */}
-                <PricingHistory 
-                  communityId={community.id} 
-                  communityName={community.name} 
-                />
-
                 {/* Contact & Tour Section */}
             <Card>
               <CardContent className="p-0">
@@ -2317,6 +2311,12 @@ export default function CommunityDetail() {
                 </div>
               </CardContent>
             </Card>
+
+                {/* Pricing History & Transparency - Moved to bottom of community tab */}
+                <PricingHistory 
+                  communityId={community.id} 
+                  communityName={community.name} 
+                />
               </TabsContent>
 
               {/* Availability Tab */}
