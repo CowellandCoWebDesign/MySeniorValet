@@ -1908,6 +1908,7 @@ export default function CommunityDetail() {
   };
 
   return (
+    <>
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NavigationHeader 
         title={community?.name || "Community Details"} 
@@ -1971,7 +1972,7 @@ export default function CommunityDetail() {
                       className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow"
                     />
                   </div>
-                </div>
+                </CardContent>
                 
                 {/* Solid background section with community info - Integrated seamlessly */}
                 <div className="bg-gradient-to-br from-slate-800 via-blue-900 to-indigo-900 text-white p-6">
@@ -2153,8 +2154,8 @@ export default function CommunityDetail() {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </Card>
+            </div>
 
             {/* Tabbed Content Section - Clean layout without overlapping borders */}
             <Tabs defaultValue="market-data" className="w-full mt-6">
@@ -4104,9 +4105,9 @@ export default function CommunityDetail() {
           </div>
         </div>
       </div>
-    
-    {/* Advanced Reservation Modal - Coming Soon */}
-    {showAdvancedReservation && (
+
+      {/* Advanced Reservation Modal - Coming Soon */}
+      {showAdvancedReservation && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
           <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Advanced Reservation</h3>
@@ -4122,17 +4123,17 @@ export default function CommunityDetail() {
           </button>
         </div>
       </div>
-    )}
+      )}
     
-    {/* Subscription Upgrade Modal */}
-    <SubscriptionUpgradeModal
+      {/* Subscription Upgrade Modal */}
+      <SubscriptionUpgradeModal
       isOpen={showUpgradeModal}
       onClose={() => setShowUpgradeModal(false)}
-      currentTier={community.subscriptionTier || 'verified'}
+      currentTier={community?.subscriptionTier || 'verified'}
       requestedFeature={upgradeFeature}
-      communityId={community.id}
-      communityName={community.name}
-    />
-  </div>
+      communityId={community?.id || 0}
+      communityName={community?.name || ''}
+      />
+    </>
   );
 }
