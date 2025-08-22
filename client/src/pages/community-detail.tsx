@@ -1667,6 +1667,30 @@ export default function CommunityDetail() {
     return `(${areaCode}) ${number.slice(0, 3)}-${number.slice(3)}`;
   };
 
+  // Combine database photos with live web intelligence photos
+  const getCombinedPhotos = () => {
+    const photos = [];
+    
+    // Add database photos first
+    if (community.photos && community.photos.length > 0) {
+      photos.push(...community.photos);
+    }
+    
+    // Add live web intelligence photos
+    if (verificationReport?.webIntelligence?.images) {
+      const webPhotos = verificationReport.webIntelligence.images.map((img: any) => ({
+        image_url: img.image_url,
+        origin_url: img.origin_url,
+        width: img.width,
+        height: img.height
+      }));
+      photos.push(...webPhotos);
+    }
+    
+    // If still no photos, use default
+    return photos.length > 0 ? photos : defaultPhotos;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NavigationHeader 
