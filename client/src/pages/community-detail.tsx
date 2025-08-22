@@ -2170,7 +2170,7 @@ export default function CommunityDetail() {
 
             {/* Tabbed Content Section - Clean layout without overlapping borders */}
             <Tabs defaultValue="market-data" className="w-full mt-6">
-              <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 p-2 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+              <TabsList className="grid w-full grid-cols-5 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 p-2 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
                 <TabsTrigger 
                   value="community-info" 
                   className="flex flex-col items-center gap-1 py-4 px-6 rounded-lg transition-all duration-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:transform data-[state=active]:scale-105 data-[state=active]:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:border-blue-300 dark:hover:border-blue-500 text-gray-700 dark:text-gray-300 font-semibold"
