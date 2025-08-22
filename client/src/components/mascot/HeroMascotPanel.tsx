@@ -155,11 +155,11 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
     >
       <div className="mascot-panel-inner">
         <div className="mascot-panel-content">
-          {/* Left: Gentleman Valet Mascot */}
+          {/* Left: Realistic Valet Mascot */}
           <div className="mascot-icon">
             <div className="relative">
               <img 
-                src="/assets/gentleman-mascot.png" 
+                src="/assets/realistic-valet.png" 
                 alt="Your Personal Senior Living Valet"
                 className="mascot-image"
               />
