@@ -87,16 +87,12 @@ export function useEnterpriseSearch() {
       
       let response;
       try {
-        response = await apiRequest('GET', endpoint, null, {
-          signal: abortController.signal
-        });
+        response = await apiRequest('GET', endpoint);
       } catch (err) {
         // Fallback to unified search if enterprise fails
         console.log('Enterprise search failed, trying unified search...');
         endpoint = `/api/communities/search/unified?${queryParams}`;
-        response = await apiRequest('GET', endpoint, null, {
-          signal: abortController.signal
-        });
+        response = await apiRequest('GET', endpoint);
       }
 
       if (!abortController.signal.aborted) {
@@ -121,9 +117,7 @@ export function useEnterpriseSearch() {
           
           const fallbackResponse = await apiRequest(
             'GET', 
-            `/api/communities/search?${fallbackParams}`,
-            null,
-            { signal: abortController.signal }
+            `/api/communities/search?${fallbackParams}`
           );
           
           if (!abortController.signal.aborted) {

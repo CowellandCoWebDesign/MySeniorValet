@@ -364,7 +364,7 @@ export function registerUnifiedSearchRoutes(app: Express) {
       }
       
       // Build the database query
-      let dbQuery = db.select().from(communities);
+      let dbQuery: any = db.select().from(communities);
       
       if (whereConditions.length > 0) {
         dbQuery = dbQuery.where(and(...whereConditions));

@@ -44,12 +44,12 @@ interface Community {
   reviewCount: number;
   phone: string;
   website: string;
-  priceRange?: { min: number; max: number } | string;
+  priceRange?: { min: number; max: number };
   availability: string;
   photos: string[];
   description: string;
   hudPropertyId?: string;
-  rentPerMonth?: string;
+  rentPerMonth?: number;
 }
 
 interface Vendor {
