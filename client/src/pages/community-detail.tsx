@@ -1407,9 +1407,9 @@ const HeroPhotoCarousel = ({
                     draggable={false}
                     onError={(e) => {
                       console.log('Image failed to load:', photo.url);
-                      // Replace with placeholder if image fails
+                      // Replace with working fallback image
                       const target = e.target as HTMLImageElement;
-                      target.src = '/api/placeholder/600/400';
+                      target.src = '/hero-senior-community.svg';
                     }}
                   />
                   {/* Attribution for web-sourced photos */}
