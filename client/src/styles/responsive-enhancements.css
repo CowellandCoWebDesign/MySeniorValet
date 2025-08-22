@@ -379,7 +379,7 @@
 .mascot-panel-inner {
   max-width: min(1536px, 100%);
   margin: 0 auto;
-  padding: clamp(0.75rem, 1.5vw, 1rem) clamp(1rem, 2vw, 1.5rem);
+  padding: clamp(1rem, 2vw, 1.5rem) clamp(1rem, 2vw, 1.5rem);
 }
 
 .mascot-panel-content {
@@ -407,7 +407,7 @@
   display: flex;
   align-items: center;
   gap: clamp(0.5rem, 1vw, 0.75rem);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .mascot-title {
@@ -441,10 +441,10 @@
 .mascot-description {
   font-size: clamp(0.75rem, 0.7rem + 0.375vw, 0.875rem);
   color: rgb(219 234 254);
-  line-height: 1.4;
+  line-height: 1.5;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
   overflow: hidden;
 }
 
