@@ -6,6 +6,12 @@ MySeniorValet is a technology platform that connects families with publicly avai
 ## Recent Enhancement - August 22, 2025
 **Hero Panel Competitive Differentiation**: Enhanced HeroMascotPanel component with 12 research-backed platform differentiator facts sourced from Washington Post investigation, Senate probe, and Medicaid attorney analysis. Features dynamic randomized ordering, clickable source links, and Anti-A Place for Mom positioning based on documented $10K+ referral fees, 37% safety violations among award winners, and fake review manipulation. Addresses real competitor pain points with transparency-first messaging.
 
+**Layout & Display Improvements**: Fixed critical layout issues in community cards and detail pages:
+- Resolved photo carousel layout shift by enforcing 320px fixed height container
+- Fixed duplicate city display in address lines by removing redundant location data
+- Prevented community name from bleeding into pricing area with proper width constraints
+- Cleaned address formatting to remove redundant "United States" text and improve visual alignment
+
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
 - **Notification Email Configuration**:
