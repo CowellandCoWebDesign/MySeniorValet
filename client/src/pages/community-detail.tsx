@@ -1927,8 +1927,9 @@ export default function CommunityDetail() {
                       <div className="flex items-start text-white/90 mb-2">
                         <MapPin className="w-4 h-4 mr-1 flex-shrink-0 mt-0.5" />
                         <div className="flex flex-col">
-                          <span>{community.address}</span>
+                          <span>{community.address.split(',')[0]}</span>
                           <span>{community.city}, {community.state} {community.zip}</span>
+                          <span>United States</span>
                         </div>
                       </div>
                       <div className="flex items-center text-white/90 mb-4">
