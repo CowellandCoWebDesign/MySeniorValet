@@ -724,13 +724,13 @@ export default function MySeniorValetHome() {
           
           {/* Hero Text Section - Mobile optimized */}
           <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8 mt-4 sm:mt-8 md:mt-12 mb-4 sm:mb-6 text-center">
-            {/* Main Heading - Better mobile sizing */}
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-2 sm:mb-4 animate-fade-in-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] leading-tight">
+            {/* Main Heading - Better sizing for all screens */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 animate-fade-in-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] leading-tight">
               Clear. Honest. No Pressure.
             </h1>
             
-            {/* Subheading - Better mobile sizing */}
-            <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-200 max-w-3xl mx-auto animate-fade-in-up animation-delay-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed px-2">
+            {/* Subheading - Better sizing for all screens */}
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-200 max-w-4xl mx-auto animate-fade-in-up animation-delay-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed px-2">
               The only senior living platform that never sells your info. Search 34,000+ communities, move-in services, healthcare providers, vendors, and support resources with real pricing and trusted reviews—all in one transparent place.
             </p>
           </div>
@@ -815,7 +815,7 @@ export default function MySeniorValetHome() {
         {/* End Hero Content */}
         
         {/* Hero Mascot Panel - Compact government facts display */}
-        <HeroMascotPanel className="absolute bottom-0 left-0 right-0 z-30" />
+        <HeroMascotPanel className="absolute bottom-4 left-0 right-0 z-30" />
         
       </section>
 
