@@ -2019,27 +2019,49 @@ export default function CommunityDetail() {
 
             {/* Tabbed Content Section - Clean layout without overlapping borders */}
             <Tabs defaultValue="market-data" className="w-full mt-6">
-              <TabsList className="grid w-full grid-cols-3 bg-white dark:bg-gray-800 p-1 rounded-lg shadow-md">
+              <TabsList className="grid w-full grid-cols-3 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 p-2 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
                 <TabsTrigger 
                   value="community-info" 
-                  className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-600 dark:text-gray-300 font-medium"
+                  className="flex flex-col items-center gap-1 py-4 px-6 rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:transform data-[state=active]:scale-105 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-gray-700 dark:text-gray-300 font-semibold"
                 >
-                  <Building className="w-4 h-4 mr-2" />
-                  Community Info
+                  <div className="flex items-center gap-2">
+                    <Building className="w-5 h-5" />
+                    <span className="text-sm font-bold">Community Info</span>
+                  </div>
+                  <span className="text-xs opacity-75 font-normal">
+                    Details & Overview
+                  </span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="availability" 
-                  className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-600 dark:text-gray-300 font-medium"
+                  className="flex flex-col items-center gap-1 py-4 px-6 rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-600 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:transform data-[state=active]:scale-105 hover:bg-green-50 dark:hover:bg-green-900/30 text-gray-700 dark:text-gray-300 font-semibold"
                 >
-                  <Home className="w-4 h-4 mr-2" />
-                  Availability
+                  <div className="flex items-center gap-2">
+                    <Home className="w-5 h-5" />
+                    <span className="text-sm font-bold">Availability</span>
+                  </div>
+                  <span className="text-xs opacity-75 font-normal">
+                    Units & Tours
+                  </span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="market-data" 
-                  className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-600 dark:text-gray-300 font-medium"
+                  data-tab="market-data"
+                  className="flex flex-col items-center gap-1 py-4 px-6 rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:transform data-[state=active]:scale-105 hover:bg-purple-50 dark:hover:bg-purple-900/30 text-gray-700 dark:text-gray-300 font-semibold"
                 >
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Market Data
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5" />
+                    <span className="text-sm font-bold">Market Data</span>
+                    {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse ml-1"></div>
+                    )}
+                  </div>
+                  <span className="text-xs opacity-75 font-normal">
+                    {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) ? 
+                      "Live Intelligence" : 
+                      "Market Analysis"
+                    }
+                  </span>
                 </TabsTrigger>
               </TabsList>
 
