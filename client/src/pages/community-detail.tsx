@@ -1747,11 +1747,24 @@ export default function CommunityDetail() {
                         <span>{community.address}, {community.city}, {community.state}</span>
                       </div>
                       <div className="flex items-center text-white/90 mb-4">
-                        <Phone className="w-4 h-4 mr-1" />
-                        <span className="font-medium">{community.phone || generatePhoneNumber(community.state, community.id)}</span>
+                        <span className="text-lg mr-1">☎️</span>
+                        <a 
+                          href={`tel:${community.phone || generatePhoneNumber(community.state, community.id)}`}
+                          className="font-medium text-white hover:text-blue-200 transition-colors cursor-pointer"
+                        >
+                          {community.phone || generatePhoneNumber(community.state, community.id)}
+                        </a>
                       </div>
                       <div className="flex items-center gap-4 mb-4">
-                        <div className="flex items-center">
+                        <div 
+                          className="flex items-center cursor-pointer hover:bg-white/10 rounded-lg px-2 py-1 transition-colors"
+                          onClick={() => {
+                            const reviewsSection = document.querySelector('#reviews-section');
+                            if (reviewsSection) {
+                              reviewsSection.scrollIntoView({ behavior: 'smooth' });
+                            }
+                          }}
+                        >
                           <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
                           <span className="font-medium text-white">{community.googleRating || '4.2'}</span>
                           <span className="text-white/90 ml-1">({community.googleReviewCount || '47'} reviews)</span>
@@ -3907,7 +3920,7 @@ export default function CommunityDetail() {
           {/* Right Column - Contact & Actions */}
           <div className="space-y-6">
             {/* Enhanced Reviews & Ratings with MySeniorValet Composite Score */}
-            <Card>
+            <Card id="reviews-section">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center">
                   <Star className="w-5 h-5 mr-2" />
