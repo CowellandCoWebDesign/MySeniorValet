@@ -48,23 +48,6 @@ const defaultPhotos = [
   "/api/placeholder/600/402"
 ];
 
-// Helper function to get community type label
-const getCommunityTypeLabel = (type: string): string => {
-  const typeLabels: Record<string, string> = {
-    'hud_senior_housing': 'HUD Senior Housing',
-    'independent_living': 'Independent Living',
-    'assisted_living': 'Assisted Living',
-    'memory_care': 'Memory Care',
-    'nursing_home': 'Nursing Home',
-    'ccrc': 'Continuing Care Retirement Community',
-    'senior_apartments': 'Senior Apartments',
-    '55_plus': '55+ Community',
-    'hospice': 'Hospice Care',
-    'respite_care': 'Respite Care'
-  };
-  return typeLabels[type] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-};
-
 // Community Competitive Analysis Component
 const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
   const [analysis, setAnalysis] = useState<any>(null);
