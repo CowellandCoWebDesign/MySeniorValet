@@ -1808,40 +1808,40 @@ export default function CommunityDetail() {
                             )}
                             <div className="text-xl font-bold text-white mb-1">
                               {(() => {
-                                // Check for AI verified pricing from Multi-AI report
+                                // Check for AI verified pricing from Multi-AI report - show starting price only
                                 if (verificationReport?.pricing?.verified && verificationReport.pricing.amount) {
                                   const amount = verificationReport.pricing.amount;
                                   const minMax = verificationReport.pricing.minMax;
-                                  if (minMax && minMax.min && minMax.max) {
-                                    return `$${minMax.min.toLocaleString()} - $${minMax.max.toLocaleString()}`;
+                                  if (minMax && minMax.min) {
+                                    return `Starting at $${minMax.min.toLocaleString()}`;
                                   } else if (amount) {
-                                    return `$${amount.toLocaleString()}/month`;
+                                    return `Starting at $${amount.toLocaleString()}`;
                                   }
                                 }
                                 
-                                // Then check traditional price sources
+                                // Then check traditional price sources - show starting price only
                                 if (community.priceRange && community.priceRange.min > 0) {
-                                  return `$${community.priceRange.min.toLocaleString()} - $${community.priceRange.max.toLocaleString()}`;
+                                  return `Starting at $${community.priceRange.min.toLocaleString()}`;
                                 }
                                 
                                 if ((community as any).rentPerMonth) {
-                                  return `$${(community as any).rentPerMonth}/month`;
+                                  return `Starting at $${(community as any).rentPerMonth}`;
                                 }
                                 
-                                // Show market intelligence estimates as fallback
+                                // Show market intelligence estimates as starting prices
                                 if (community.communitySubtype === 'hud_senior_housing') {
-                                  return "$200 - $800";
+                                  return "Starting at $200";
                                 }
                                 if (community.careTypes?.includes('memory_care')) {
-                                  return "$5,000 - $8,000";
+                                  return "Starting at $5,000";
                                 }
                                 if (community.careTypes?.includes('assisted_living')) {
-                                  return "$3,500 - $5,500";
+                                  return "Starting at $3,500";
                                 }
                                 if (community.careTypes?.includes('independent_living')) {
-                                  return "$2,500 - $4,500";
+                                  return "Starting at $2,500";
                                 }
-                                return "$2,000 - $6,000";
+                                return "Starting at $2,000";
                               })()}
                             </div>
                             <div className="text-sm text-white/80">
@@ -1867,7 +1867,7 @@ export default function CommunityDetail() {
                                   </button>
                                 </div>
                               ) : (
-                                "per month starting rate"
+                                "estimated starting rate"
                               )}
                             </div>
                           </div>
