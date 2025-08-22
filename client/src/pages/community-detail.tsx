@@ -1211,6 +1211,7 @@ const HeroPhotoCarousel = ({
     
     // Return unique photos or default placeholders if none
     if (uniquePhotos.length === 0) {
+      console.log('No photos found, using defaultPhotos:', defaultPhotos);
       return defaultPhotos.map(url => ({ url, source: 'placeholder' as const }));
     }
     return uniquePhotos;
@@ -1346,11 +1347,17 @@ const HeroPhotoCarousel = ({
   // Check if we're still loading photos from web intelligence
   const isLoadingWebPhotos = !verificationReport?.webIntelligence?.images && verificationReport?.timestamp;
   const hasDefaultPhotos = safePhotos.every(photo => defaultPhotos.includes(photo.url));
+  
+  console.log('Photo loading state:', {
+    isLoadingWebPhotos,
+    hasDefaultPhotos,
+    safePhotos,
+    verificationReport: !!verificationReport
+  });
 
   return (
     <div 
       className="absolute inset-0 group cursor-grab active:cursor-grabbing"
-      style={{ height: '320px' }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -1359,142 +1366,83 @@ const HeroPhotoCarousel = ({
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* Always render a container that maintains height */}
-      <div className="w-full h-full bg-gray-100 dark:bg-gray-800">
-        {/* Show loading state for photos */}
-        {hasDefaultPhotos && isLoadingWebPhotos ? (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20">
-            <div className="text-center p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg">
-              <div className="relative">
-                <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center animate-pulse">
-                  <Globe className="w-10 h-10 text-white animate-bounce" />
-                </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center animate-ping">
-                  <Sparkles className="w-5 h-5 text-white" />
-                </div>
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
-                🔍 Searching Live Web for Real Photos
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 max-w-xs mx-auto">
-                Finding authentic community photos from verified sources across the internet...
-              </p>
-              <div className="flex items-center justify-center gap-1">
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-                <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                <div className="w-2 h-2 bg-pink-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-500 mt-3 font-medium">
-                This may take a few seconds - it's worth the wait!
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="w-full h-full overflow-hidden relative">
-            <div 
-              className="flex h-full"
-              style={{
-                transform: `translateX(calc(-${currentIndex * 100}% + ${translateX}px))`,
-                transition: isTransitioning || !isDragging ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
-              }}
-            >
-              {safePhotos.map((photo, index) => (
-                <div key={index} className="relative w-full h-full flex-shrink-0">
-                  <img
-                    src={photo.url}
-                    alt={`${communityName} - View ${index + 1}`}
-                    className="w-full h-full object-cover select-none"
-                    draggable={false}
-                    onError={(e) => {
-                      console.log('Image failed to load:', photo.url);
-                      // Replace with working fallback image
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/hero-senior-community.svg';
-                    }}
-                  />
-                  {/* Attribution for web-sourced photos */}
-                  {photo.source === 'web' && (
-                    <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs backdrop-blur-sm">
-                      <div className="flex items-center gap-1">
-                        <Globe className="w-3 h-3" />
-                        <span>Sourced from public web</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-            
-            {/* Show loading indicator overlay when showing placeholder photos */}
-            {hasDefaultPhotos && !verificationReport && (
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end justify-center pb-20 pointer-events-none">
-                <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-lg p-4 shadow-xl animate-pulse">
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <Globe className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-spin" />
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-ping" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                        🔄 Loading real photos from live web searches...
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Finding authentic community images
-                      </p>
-                    </div>
+      {/* Always show photos - simplified logic */}
+      <div className="w-full h-full bg-gray-100 dark:bg-gray-800 overflow-hidden relative">
+        <div 
+          className="flex h-full"
+          style={{
+            transform: `translateX(calc(-${currentIndex * 100}% + ${translateX}px))`,
+            transition: isTransitioning || !isDragging ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+          }}
+        >
+          {safePhotos.map((photo, index) => (
+            <div key={index} className="relative w-full h-full flex-shrink-0">
+              <img
+                src={photo.url}
+                alt={`${communityName} - View ${index + 1}`}
+                className="w-full h-full object-cover select-none"
+                draggable={false}
+                onError={(e) => {
+                  console.log('Image failed to load:', photo.url);
+                  // Replace with working fallback image
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/hero-senior-community.svg';
+                }}
+              />
+              {/* Attribution for web-sourced photos */}
+              {photo.source === 'web' && (
+                <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs backdrop-blur-sm">
+                  <div className="flex items-center gap-1">
+                    <Globe className="w-3 h-3" />
+                    <span>Sourced from public web</span>
                   </div>
                 </div>
+              )}
+            </div>
+          ))}
+        </div>
+        
+        {/* Show overlay message when using default photos and still searching */}
+        {hasDefaultPhotos && verificationReport?.timestamp && (
+          <div className="absolute bottom-4 left-4 right-4">
+            <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-lg p-3 shadow-xl text-center border">
+              <div className="flex items-center justify-center gap-2">
+                <Globe className="w-4 h-4 text-blue-600 dark:text-blue-400 animate-spin" />
+                <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                  🔍 Searching for real photos...
+                </span>
               </div>
-            )}
+            </div>
+          </div>
+        )}
+        
+        {/* Navigation arrows */}
+        {safePhotos.length > 1 && (
+          <>
+            <button
+              onClick={prevPhoto}
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100"
+              aria-label="Previous photo"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              onClick={nextPhoto}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100"
+              aria-label="Next photo"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </>
+        )}
+        
+        {/* Photo counter */}
+        {safePhotos.length > 1 && (
+          <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs backdrop-blur-sm">
+            {currentIndex + 1} / {safePhotos.length}
           </div>
         )}
       </div>
-
-      {/* Navigation arrows - only show if more than 1 photo */}
-      {safePhotos.length > 1 && (
-        <>
-          <button
-            onClick={prevPhoto}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
-          >
-            <ChevronLeft className="w-6 h-6 text-gray-900 dark:text-gray-100" />
-          </button>
-          <button
-            onClick={nextPhoto}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
-          >
-            <ChevronRight className="w-6 h-6 text-gray-900 dark:text-gray-100" />
-          </button>
-
-          {/* Photo indicator dots - fixed size to prevent stretching */}
-          <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 flex gap-1.5 z-10">
-            {safePhotos.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`block w-2 h-2 min-w-[8px] min-h-[8px] max-w-[8px] max-h-[8px] rounded-full transition-colors ${
-                  index === currentIndex ? 'bg-white' : 'bg-white/50'
-                }`}
-                aria-label={`Go to photo ${index + 1}`}
-              />
-            ))}
-          </div>
-
-          {/* Photo counter - moved to top left to avoid share button conflict */}
-          <div className="absolute top-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
-            {currentIndex + 1} / {safePhotos.length}
-          </div>
-
-          {/* Swipe instruction on mobile - now properly at the bottom */}
-          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-xs opacity-70 md:hidden z-10">
-            Swipe to browse photos
-          </div>
-        </>
-      )}
-
-
-
-
     </div>
   );
 };
@@ -3356,7 +3304,7 @@ export default function CommunityDetail() {
                       </div>
                       
                       <div>
-                        <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg mb-4">
+                        <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg mb-4 bg-gray-100 dark:bg-gray-800">
                           <HeroPhotoCarousel 
                             photos={(community.photos && community.photos.length > 0) ? community.photos : defaultPhotos} 
                             communityName={community.name}
