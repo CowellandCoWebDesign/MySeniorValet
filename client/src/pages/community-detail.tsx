@@ -2157,6 +2157,96 @@ export default function CommunityDetail() {
               </Card>
             </div>
 
+            {/* Key Services Section */}
+            <div className="w-full mt-6 mb-4">
+              <Card className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-lg">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Key Services:</h3>
+                  <div className="space-y-3">
+                    {/* 24/7 Medical Staff */}
+                    <div className="flex items-center gap-3">
+                      <div className={`w-3 h-3 rounded-full ${
+                        verificationReport?.webIntelligence?.features?.some(f => 
+                          f.toLowerCase().includes('medical') || 
+                          f.toLowerCase().includes('nursing') || 
+                          f.toLowerCase().includes('24/7') ||
+                          f.toLowerCase().includes('nurse')
+                        ) || 
+                        community.careTypes?.includes('skilled_nursing') || 
+                        community.careTypes?.includes('assisted_living')
+                          ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
+                          : 'bg-red-500 shadow-red-500/50 shadow-sm'
+                      }`} />
+                      <span className="text-base font-medium text-gray-900 dark:text-gray-100">
+                        24/7 Medical Staff
+                      </span>
+                    </div>
+
+                    {/* Medication Management */}
+                    <div className="flex items-center gap-3">
+                      <div className={`w-3 h-3 rounded-full ${
+                        verificationReport?.webIntelligence?.features?.some(f => 
+                          f.toLowerCase().includes('medication') || 
+                          f.toLowerCase().includes('med management') ||
+                          f.toLowerCase().includes('pharmacy')
+                        ) || 
+                        community.careTypes?.includes('assisted_living') || 
+                        community.careTypes?.includes('memory_care')
+                          ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
+                          : 'bg-red-500 shadow-red-500/50 shadow-sm'
+                      }`} />
+                      <span className="text-base font-medium text-gray-900 dark:text-gray-100">
+                        Medication Management
+                      </span>
+                    </div>
+
+                    {/* Housekeeping Included */}
+                    <div className="flex items-center gap-3">
+                      <div className={`w-3 h-3 rounded-full ${
+                        verificationReport?.webIntelligence?.features?.some(f => 
+                          f.toLowerCase().includes('housekeeping') || 
+                          f.toLowerCase().includes('cleaning') ||
+                          f.toLowerCase().includes('maintenance')
+                        ) || 
+                        community.careTypes?.includes('assisted_living') || 
+                        community.careTypes?.includes('independent_living')
+                          ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
+                          : 'bg-red-500 shadow-red-500/50 shadow-sm'
+                      }`} />
+                      <span className="text-base font-medium text-gray-900 dark:text-gray-100">
+                        Housekeeping Included
+                      </span>
+                    </div>
+
+                    {/* Transportation Included */}
+                    <div className="flex items-center gap-3">
+                      <div className={`w-3 h-3 rounded-full ${
+                        verificationReport?.webIntelligence?.features?.some(f => 
+                          f.toLowerCase().includes('transportation') || 
+                          f.toLowerCase().includes('shuttle') ||
+                          f.toLowerCase().includes('transport')
+                        ) || 
+                        community.careTypes?.includes('assisted_living') || 
+                        community.careTypes?.includes('independent_living')
+                          ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
+                          : 'bg-red-500 shadow-red-500/50 shadow-sm'
+                      }`} />
+                      <span className="text-base font-medium text-gray-900 dark:text-gray-100">
+                        Transportation Included
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Contact for service details */}
+                  <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                      Contact for service details
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
             {/* Tabbed Content Section - Clean layout without overlapping borders */}
             <Tabs defaultValue="market-data" className="w-full mt-6">
               <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 gap-1">
