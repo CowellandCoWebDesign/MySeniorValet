@@ -2157,6 +2157,172 @@ export default function CommunityDetail() {
               </Card>
             </div>
 
+            {/* Key Services Section - Right sidebar under pricing */}
+            <div className="mt-6 lg:max-w-md lg:ml-auto">
+              <Card className="border-gray-200 dark:border-gray-700 shadow-lg">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <UserCheck className="h-5 w-5 text-blue-600" />
+                    Key Services
+                  </CardTitle>
+                  <CardDescription className="text-sm">
+                    Available services and care options
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {/* 24/7 Medical Staff */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Circle 
+                        className={`h-3 w-3 ${
+                          community?.careTypes?.some(type => 
+                            type.toLowerCase().includes('assisted') || 
+                            type.toLowerCase().includes('memory') ||
+                            type.toLowerCase().includes('skilled') ||
+                            type.toLowerCase().includes('nursing')
+                          ) ? 'text-green-600 fill-green-600' : 'text-red-600 fill-red-600'
+                        }`} 
+                      />
+                      <span className="font-medium text-gray-900 dark:text-gray-100">24/7 Medical Staff</span>
+                    </div>
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      community?.careTypes?.some(type => 
+                        type.toLowerCase().includes('assisted') || 
+                        type.toLowerCase().includes('memory') ||
+                        type.toLowerCase().includes('skilled') ||
+                        type.toLowerCase().includes('nursing')
+                      ) ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
+                          'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                    }`}>
+                      {community?.careTypes?.some(type => 
+                        type.toLowerCase().includes('assisted') || 
+                        type.toLowerCase().includes('memory') ||
+                        type.toLowerCase().includes('skilled') ||
+                        type.toLowerCase().includes('nursing')
+                      ) ? 'Available' : 'Contact for details'}
+                    </div>
+                  </div>
+
+                  {/* Medication Management */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Circle 
+                        className={`h-3 w-3 ${
+                          (community?.careTypes?.some(type => 
+                            type.toLowerCase().includes('assisted') || 
+                            type.toLowerCase().includes('memory')
+                          ) || community?.amenities?.some(amenity => 
+                            amenity.toLowerCase().includes('medication') ||
+                            amenity.toLowerCase().includes('pharmacy')
+                          )) ? 'text-green-600 fill-green-600' : 'text-red-600 fill-red-600'
+                        }`} 
+                      />
+                      <span className="font-medium text-gray-900 dark:text-gray-100">Medication Management</span>
+                    </div>
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      (community?.careTypes?.some(type => 
+                        type.toLowerCase().includes('assisted') || 
+                        type.toLowerCase().includes('memory')
+                      ) || community?.amenities?.some(amenity => 
+                        amenity.toLowerCase().includes('medication') ||
+                        amenity.toLowerCase().includes('pharmacy')
+                      )) ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
+                          'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                    }`}>
+                      {(community?.careTypes?.some(type => 
+                        type.toLowerCase().includes('assisted') || 
+                        type.toLowerCase().includes('memory')
+                      ) || community?.amenities?.some(amenity => 
+                        amenity.toLowerCase().includes('medication') ||
+                        amenity.toLowerCase().includes('pharmacy')
+                      )) ? 'Available' : 'Contact for details'}
+                    </div>
+                  </div>
+
+                  {/* Housekeeping Included */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Circle 
+                        className={`h-3 w-3 ${
+                          community?.careTypes?.some(type => 
+                            !type.toLowerCase().includes('hud') &&
+                            !type.toLowerCase().includes('mobile') &&
+                            !type.toLowerCase().includes('55+')
+                          ) ? 'text-green-600 fill-green-600' : 'text-red-600 fill-red-600'
+                        }`} 
+                      />
+                      <span className="font-medium text-gray-900 dark:text-gray-100">Housekeeping Included</span>
+                    </div>
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      community?.careTypes?.some(type => 
+                        !type.toLowerCase().includes('hud') &&
+                        !type.toLowerCase().includes('mobile') &&
+                        !type.toLowerCase().includes('55+')
+                      ) ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
+                          'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                    }`}>
+                      {community?.careTypes?.some(type => 
+                        !type.toLowerCase().includes('hud') &&
+                        !type.toLowerCase().includes('mobile') &&
+                        !type.toLowerCase().includes('55+')
+                      ) ? 'Available' : 'Contact for details'}
+                    </div>
+                  </div>
+
+                  {/* Transportation Included */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Circle 
+                        className={`h-3 w-3 ${
+                          (community?.amenities?.some(amenity => 
+                            amenity.toLowerCase().includes('transport') ||
+                            amenity.toLowerCase().includes('shuttle') ||
+                            amenity.toLowerCase().includes('bus')
+                          ) || community?.careTypes?.some(type => 
+                            type.toLowerCase().includes('assisted') || 
+                            type.toLowerCase().includes('memory')
+                          )) ? 'text-green-600 fill-green-600' : 'text-red-600 fill-red-600'
+                        }`} 
+                      />
+                      <span className="font-medium text-gray-900 dark:text-gray-100">Transportation Included</span>
+                    </div>
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      (community?.amenities?.some(amenity => 
+                        amenity.toLowerCase().includes('transport') ||
+                        amenity.toLowerCase().includes('shuttle') ||
+                        amenity.toLowerCase().includes('bus')
+                      ) || community?.careTypes?.some(type => 
+                        type.toLowerCase().includes('assisted') || 
+                        type.toLowerCase().includes('memory')
+                      )) ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
+                          'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                    }`}>
+                      {(community?.amenities?.some(amenity => 
+                        amenity.toLowerCase().includes('transport') ||
+                        amenity.toLowerCase().includes('shuttle') ||
+                        amenity.toLowerCase().includes('bus')
+                      ) || community?.careTypes?.some(type => 
+                        type.toLowerCase().includes('assisted') || 
+                        type.toLowerCase().includes('memory')
+                      )) ? 'Available' : 'Contact for details'}
+                    </div>
+                  </div>
+
+                  {/* Legend */}
+                  <div className="flex items-center justify-center gap-4 pt-3 border-t border-gray-200 dark:border-gray-600">
+                    <div className="flex items-center gap-2">
+                      <Circle className="h-3 w-3 text-green-600 fill-green-600" />
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Available</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Circle className="h-3 w-3 text-red-600 fill-red-600" />
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Contact for details</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
             {/* Tabbed Content Section - Clean layout without overlapping borders */}
             <Tabs defaultValue="market-data" className="w-full mt-6">
               <TabsList className="grid w-full grid-cols-5 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 p-2 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
