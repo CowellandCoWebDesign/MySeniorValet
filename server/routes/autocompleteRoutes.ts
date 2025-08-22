@@ -9,7 +9,7 @@ const router = Router();
 router.get('/autocomplete/suggestions', async (req, res) => {
   try {
     const query = req.query.query as string;
-    const limit = parseInt(req.query.limit as string) || 20; // Increased from 10 to 20
+    const limit = parseInt(req.query.limit as string) || 100; // ENTERPRISE: 100 results for comprehensive coverage
     const category = req.query.category as string; // Optional filter: 'all', 'communities', 'healthcare', 'vendors', 'resources'
     
     // Allow single character searches for better UX
@@ -52,10 +52,12 @@ router.get('/autocomplete/suggestions', async (req, res) => {
             ilike(communities.name, `${searchTerm}%`),  // Starts with (highest priority)
             ilike(communities.name, `%${searchTerm}%`), // Contains (medium priority)
             ilike(communities.city, `${searchTerm}%`),  // City starts with
-            ilike(communities.city, `%${searchTerm}%`)  // City contains
+            ilike(communities.city, `%${searchTerm}%`),  // City contains
+            ilike(communities.state, `${searchTerm}%`), // State starts with (for "North Carolina")
+            ilike(communities.country, `${searchTerm}%`) // Country starts with (for "Mexico")
           )
         )
-        .limit(15); // INCREASED FROM 5 TO 15 for comprehensive results
+        .limit(50); // ENTERPRISE: 50 community results for complete coverage
       
       // Add community name matches with priority and ALL needed data
       communityNameResults.forEach(c => {
@@ -93,11 +95,13 @@ router.get('/autocomplete/suggestions', async (req, res) => {
       .where(
         or(
           ilike(communities.city, `${searchTerm}%`),  // Starts with
-          ilike(communities.city, `%${searchTerm}%`)  // Contains
+          ilike(communities.city, `%${searchTerm}%`),  // Contains
+          ilike(communities.state, `${searchTerm}%`), // State search (North Carolina, etc)
+          sql`CONCAT(${communities.city}, ' ', ${communities.state}) ILIKE ${searchTerm + '%'}` // Combined city+state
         )
       )
       .groupBy(communities.city, communities.state)
-      .limit(8); // Increased from 5 to 8 for better city coverage
+      .limit(30); // ENTERPRISE: 30 cities for North American coverage
     
     // Add city suggestions with improved data
     quickCityResults.forEach(c => {
@@ -212,7 +216,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
             ilike(hospitals.city, `%${searchTerm}%`)
           )
         )
-        .limit(5); // Increased from 3 to 5
+        .limit(15); // ENTERPRISE: 15 healthcare results
 
       hospitalResults.forEach(h => {
         suggestions.push({
@@ -510,7 +514,7 @@ router.get('/autocomplete/communities', async (req, res) => {
 router.get('/autocomplete', async (req, res) => {
   try {
     const query = req.query.q as string;
-    const limit = parseInt(req.query.limit as string) || 20; // Increased from 6 to 20
+    const limit = parseInt(req.query.limit as string) || 100; // ENTERPRISE: Match new standard // Increased from 6 to 20
     
     if (!query || query.length < 2) {
       return res.json({ suggestions: [] });
