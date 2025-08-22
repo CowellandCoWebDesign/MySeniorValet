@@ -726,12 +726,12 @@ export default function MySeniorValetHome() {
           <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8 mt-4 sm:mt-8 md:mt-12 mb-4 sm:mb-6 text-center">
             {/* Main Heading - Better mobile sizing */}
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-2 sm:mb-4 animate-fade-in-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] leading-tight">
-              The Clear Path to Senior Living & Care
+              Clear. Honest. No Pressure.
             </h1>
             
             {/* Subheading - Better mobile sizing */}
             <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-200 max-w-3xl mx-auto animate-fade-in-up animation-delay-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed px-2">
-              Find communities, services, and resources with real pricing, live availability, and trusted reviews—all in one place.
+              The only senior living platform that never sells your info. Search 34,000+ communities with real pricing, live availability, and trusted reviews—all in one transparent place.
             </p>
           </div>
           
