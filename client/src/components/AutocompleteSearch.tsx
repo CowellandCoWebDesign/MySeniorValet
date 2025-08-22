@@ -90,7 +90,7 @@ export function AutocompleteSearch({
     
     if (debouncedValue && debouncedValue.length >= 2) {
       setLoadingSuggestions(true);
-      apiRequest('GET', `/api/autocomplete/suggestions?query=${encodeURIComponent(debouncedValue)}&limit=10`)
+      apiRequest('GET', `/api/autocomplete/suggestions?query=${encodeURIComponent(debouncedValue)}&limit=20`)
         .then(data => {
           console.log('Autocomplete response:', data);
           // Ensure suggestions are in the correct format

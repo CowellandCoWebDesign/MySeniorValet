@@ -9,14 +9,14 @@ const router = Router();
 router.get('/autocomplete/suggestions', async (req, res) => {
   try {
     const query = req.query.query as string;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const limit = parseInt(req.query.limit as string) || 20; // Increased from 10 to 20
     const category = req.query.category as string; // Optional filter: 'all', 'communities', 'healthcare', 'vendors', 'resources'
     
     // Allow single character searches for better UX
     if (!query || query.length < 1) {
       return res.json({ 
         suggestions: [],
-        _version: 'v4_fast_autocomplete',
+        _version: 'v5_comprehensive_autocomplete',
         _timestamp: Date.now()
       });
     }
@@ -27,7 +27,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
     // Track timing for performance monitoring
     const startTime = Date.now();
     
-    // PRIORITY 1: Search communities by name first (fastest)
+    // PRIORITY 1: COMPREHENSIVE community search - this is what users need most!
     if (!category || category === 'all' || category === 'communities') {
       const communityNameResults = await db
         .select({
@@ -39,18 +39,25 @@ router.get('/autocomplete/suggestions', async (req, res) => {
           communitySubtype: communities.communitySubtype,
           rating: communities.rating,
           hudPropertyId: communities.hudPropertyId,
-          rentPerMonth: communities.rentPerMonth
+          rentPerMonth: communities.rentPerMonth,
+          priceRange: communities.priceRange,
+          totalUnits: communities.totalUnits,
+          phone: communities.phone,
+          careTypes: communities.careTypes,
+          reviewCount: communities.reviewCount
         })
         .from(communities)
         .where(
           or(
-            ilike(communities.name, `${searchTerm}%`),  // Starts with (fastest)
-            ilike(communities.name, `%${searchTerm}%`)  // Contains (fallback)
+            ilike(communities.name, `${searchTerm}%`),  // Starts with (highest priority)
+            ilike(communities.name, `%${searchTerm}%`), // Contains (medium priority)
+            ilike(communities.city, `${searchTerm}%`),  // City starts with
+            ilike(communities.city, `%${searchTerm}%`)  // City contains
           )
         )
-        .limit(5);
+        .limit(15); // INCREASED FROM 5 TO 15 for comprehensive results
       
-      // Add community name matches with priority
+      // Add community name matches with priority and ALL needed data
       communityNameResults.forEach(c => {
         suggestions.push({
           label: c.name,
@@ -64,7 +71,13 @@ router.get('/autocomplete/suggestions', async (req, res) => {
           address: c.address,
           rating: c.rating,
           hudPropertyId: c.hudPropertyId,
-          rentPerMonth: c.rentPerMonth
+          rentPerMonth: c.rentPerMonth,
+          priceRange: c.priceRange,
+          totalUnits: c.totalUnits,
+          phone: c.phone,
+          careTypes: c.careTypes,
+          reviewCount: c.reviewCount,
+          communitySubtype: c.communitySubtype
         });
       });
     }
@@ -84,9 +97,9 @@ router.get('/autocomplete/suggestions', async (req, res) => {
         )
       )
       .groupBy(communities.city, communities.state)
-      .limit(5);
+      .limit(8); // Increased from 5 to 8 for better city coverage
     
-    // Add city suggestions
+    // Add city suggestions with improved data
     quickCityResults.forEach(c => {
       suggestions.push({
         label: `${c.city}, ${c.state}`,
@@ -96,7 +109,8 @@ router.get('/autocomplete/suggestions', async (req, res) => {
         description: `City - ${c.count} communities`,
         priority: c.city.toLowerCase().startsWith(searchTerm) ? 3 : 4,
         city: c.city,
-        state: c.state
+        state: c.state,
+        count: c.count
       });
     });
     
@@ -198,7 +212,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
             ilike(hospitals.city, `%${searchTerm}%`)
           )
         )
-        .limit(3);
+        .limit(5); // Increased from 3 to 5
 
       hospitalResults.forEach(h => {
         suggestions.push({
@@ -221,7 +235,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
         })
         .from(vendors)
         .where(ilike(vendors.businessName, `%${searchTerm}%`))
-        .limit(3);
+        .limit(5); // Increased from 3 to 5
 
       vendorResults.forEach(v => {
         suggestions.push({
@@ -246,7 +260,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
         .where(
           ilike(vendorServices.serviceName, `%${searchTerm}%`)
         )
-        .limit(3);
+        .limit(5); // Increased from 3 to 5
 
       serviceResults.forEach(s => {
         suggestions.push({
@@ -399,7 +413,8 @@ router.get('/autocomplete/suggestions', async (req, res) => {
     res.json({ 
       suggestions: suggestions.slice(0, limit),
       responseTime,
-      _version: 'v4_fast_autocomplete',
+      totalFound: suggestions.length,
+      _version: 'v5_comprehensive_autocomplete',
       _timestamp: Date.now()
     });
   } catch (error) {
@@ -408,11 +423,94 @@ router.get('/autocomplete/suggestions', async (req, res) => {
   }
 });
 
+// High-performance community-focused search endpoint for maximum coverage
+router.get('/autocomplete/communities', async (req, res) => {
+  try {
+    const query = req.query.query as string;
+    const limit = parseInt(req.query.limit as string) || 30; // Even higher limit for community-focused search
+    
+    if (!query || query.length < 1) {
+      return res.json({ suggestions: [], _version: 'v5_community_focused', _timestamp: Date.now() });
+    }
+
+    const searchTerm = query.toLowerCase().trim();
+    const startTime = Date.now();
+    
+    // ULTRA-COMPREHENSIVE community search
+    const communityResults = await db
+      .select({
+        id: communities.id,
+        name: communities.name,
+        city: communities.city,
+        state: communities.state,
+        address: communities.address,
+        communitySubtype: communities.communitySubtype,
+        rating: communities.rating,
+        hudPropertyId: communities.hudPropertyId,
+        rentPerMonth: communities.rentPerMonth,
+        priceRange: communities.priceRange,
+        totalUnits: communities.totalUnits,
+        phone: communities.phone,
+        careTypes: communities.careTypes,
+        reviewCount: communities.reviewCount
+      })
+      .from(communities)
+      .where(
+        or(
+          ilike(communities.name, `${searchTerm}%`),    // Name starts with
+          ilike(communities.name, `%${searchTerm}%`),   // Name contains
+          ilike(communities.city, `${searchTerm}%`),    // City starts with  
+          ilike(communities.city, `%${searchTerm}%`),   // City contains
+          ilike(communities.address, `%${searchTerm}%`) // Address contains
+        )
+      )
+      .limit(limit);
+
+    const suggestions = communityResults.map(c => ({
+      label: c.name,
+      value: c.name,
+      type: 'community',
+      id: c.id,
+      description: `${c.city}, ${c.state}${c.communitySubtype ? ` - ${c.communitySubtype.replace(/_/g, ' ')}` : ''}`,
+      priority: c.name.toLowerCase().startsWith(searchTerm) ? 1 : 2,
+      city: c.city,
+      state: c.state,
+      address: c.address,
+      rating: c.rating,
+      hudPropertyId: c.hudPropertyId,
+      rentPerMonth: c.rentPerMonth,
+      priceRange: c.priceRange,
+      totalUnits: c.totalUnits,
+      phone: c.phone,
+      careTypes: c.careTypes,
+      reviewCount: c.reviewCount,
+      communitySubtype: c.communitySubtype
+    }));
+
+    // Sort by priority (exact name matches first)
+    suggestions.sort((a, b) => a.priority - b.priority);
+
+    const responseTime = Date.now() - startTime;
+    console.log(`🏆 Community-focused search: ${suggestions.length} results in ${responseTime}ms for "${searchTerm}"`);
+
+    res.json({ 
+      suggestions,
+      responseTime,
+      totalFound: suggestions.length,
+      _version: 'v5_community_focused',
+      _timestamp: Date.now()
+    });
+  } catch (error) {
+    console.error('Community-focused autocomplete error:', error);
+    res.status(500).json({ error: 'Failed to fetch community suggestions' });
+  }
+});
+
 // Legacy endpoint for compatibility - returns simple string array
 router.get('/autocomplete', async (req, res) => {
   try {
     const query = req.query.q as string;
-    const limit = parseInt(req.query.limit as string) || 6;
+    const limit = parseInt(req.query.limit as string) || 20; // Increased from 6 to 20
     
     if (!query || query.length < 2) {
       return res.json({ suggestions: [] });
@@ -424,7 +522,7 @@ router.get('/autocomplete', async (req, res) => {
     
     res.json({ 
       suggestions: data.suggestions || [],
-      _version: 'v4_legacy_wrapper_1754491863456'
+      _version: 'v5_legacy_wrapper_comprehensive'
     });
   } catch (error) {
     console.error('Legacy autocomplete error:', error);
