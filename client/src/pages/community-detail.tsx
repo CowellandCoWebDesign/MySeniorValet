@@ -1071,12 +1071,30 @@ const getSubscriptionTierBadge = (tier?: string) => {
   }
 };
 
-// Determine if community has verified pricing data
-const hasVerifiedPricing = (community: Community): boolean => {
+// Determine pricing verification type and return badge info
+const getPricingBadgeInfo = (community: Community, verificationReport?: any): { show: boolean; icon: any; text: string; bgColor: string } => {
+  // Check if live pricing was found via web search
+  if (verificationReport?.verificationResults?.perplexityData?.searchContent?.includes('$') ||
+      verificationReport?.verificationResults?.chatgptData?.pricing ||
+      (verificationReport?.verificationResults?.perplexityData && 
+       verificationReport.verificationResults.perplexityData.searchContent?.match(/\$\d+/))) {
+    return {
+      show: true,
+      icon: Globe,
+      text: 'Live Web Pricing',
+      bgColor: 'bg-green-600/90'
+    };
+  }
+  
   // Government verified with actual pricing (HUD properties)
   if ((community.hudPropertyId && (community as any).rentPerMonth) ||
       ((community as any).governmentSourced && community.priceRange?.min)) {
-    return true;
+    return {
+      show: true,
+      icon: Shield,
+      text: 'Government Verified',
+      bgColor: 'bg-blue-600/90'
+    };
   }
   
   // Vendor verified with recent confirmation (within 30 days)
@@ -1084,15 +1102,25 @@ const hasVerifiedPricing = (community: Community): boolean => {
       (community as any).pricing_type === 'live' && 
       (community as any).pricingLastVerified &&
       new Date((community as any).pricingLastVerified) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)) {
-    return true;
+    return {
+      show: true,
+      icon: CheckCircle,
+      text: 'Community Verified',
+      bgColor: 'bg-purple-600/90'
+    };
   }
   
   // Community has verified market research pricing
   if (community.priceRange && community.priceRange.min > 0) {
-    return true;
+    return {
+      show: true,
+      icon: TrendingUp,
+      text: 'Market Research',
+      bgColor: 'bg-orange-600/90'
+    };
   }
   
-  return false;
+  return { show: false, icon: null, text: '', bgColor: '' };
 };
 
 // Hero Photo Carousel Component with Touch Support
@@ -1100,12 +1128,14 @@ const HeroPhotoCarousel = ({
   photos, 
   communityName, 
   communityId, 
-  community 
+  community,
+  verificationReport
 }: { 
   photos: string[], 
   communityName: string, 
   communityId?: number,
-  community?: Community 
+  community?: Community,
+  verificationReport?: any
 }) => {
   // Ensure photos is never null/undefined
   const safePhotos = photos && photos.length > 0 ? photos : defaultPhotos;
@@ -1244,13 +1274,18 @@ const HeroPhotoCarousel = ({
 
 
 
-      {/* Verified Badge - Bottom Right */}
-      {community && hasVerifiedPricing(community) && (
-        <div className="absolute bottom-4 right-4 bg-blue-600/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-lg z-20 flex items-center gap-1">
-          <Shield className="w-4 h-4" />
-          Verified Pricing
-        </div>
-      )}
+      {/* Dynamic Pricing Badge - Bottom Right */}
+      {community && (() => {
+        const badgeInfo = getPricingBadgeInfo(community, verificationReport);
+        const IconComponent = badgeInfo.icon;
+        
+        return badgeInfo.show ? (
+          <div className={`absolute bottom-4 right-4 ${badgeInfo.bgColor} backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-lg z-20 flex items-center gap-1`}>
+            {IconComponent && <IconComponent className="w-4 h-4" />}
+            {badgeInfo.text}
+          </div>
+        ) : null;
+      })()}
     </div>
   );
 };
@@ -1654,6 +1689,7 @@ export default function CommunityDetail() {
                     communityId={community.id}
                     communityName={community.name}
                     community={community}
+                    verificationReport={verificationReport}
                   />
                   
                   {/* Action Buttons */}
@@ -3804,6 +3840,7 @@ export default function CommunityDetail() {
                               communityName={community.name}
                               communityId={community.id}
                               community={community}
+                              verificationReport={verificationReport}
                             />
                           </div>
                           
