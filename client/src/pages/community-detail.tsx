@@ -1697,13 +1697,7 @@ export default function CommunityDetail() {
                         <h1 className="text-2xl font-bold text-white">
                           {community.name}
                         </h1>
-                        {/* Show data source verification instead of fake tier badges */}
-                        {(community as any).data_source && (
-                          <Badge className="bg-green-500/20 border-green-400 text-green-100">
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            <span className="text-xs font-medium">Verified</span>
-                          </Badge>
-                        )}
+
                       </div>
                       <div className="flex items-center text-white/90 mb-2">
                         <MapPin className="w-4 h-4 mr-1" />
