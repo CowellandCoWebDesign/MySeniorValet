@@ -1089,7 +1089,7 @@ const hasVerifiedPricing = (community: Community): boolean => {
 };
 
 // Hero Photo Carousel Component with Touch Support
-const HeroPhotoCarousel = ({ photos, communityName }: { photos: string[], communityName: string }) => {
+const HeroPhotoCarousel = ({ photos, communityName, communityId }: { photos: string[], communityName: string, communityId?: number }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
@@ -1616,6 +1616,7 @@ export default function CommunityDetail() {
                       <HeroPhotoCarousel 
                         photos={community.photos} 
                         communityName={community.name}
+                        communityId={community.id}
                       />
                       
                       {/* PHOTO SOURCE TRANSPARENCY OVERLAY */}
@@ -3976,6 +3977,7 @@ export default function CommunityDetail() {
                             <HeroPhotoCarousel 
                               photos={community.photos} 
                               communityName={community.name}
+                              communityId={community.id}
                             />
                           </div>
                           

@@ -1,5 +1,5 @@
 import { Switch, Route, useLocation } from "wouter";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -73,6 +73,7 @@ import VendorMarketplace from "@/pages/vendor-marketplace";
 import VendorMarketplaceTiers from "@/pages/vendor-marketplace-tiers";
 import FamilyConnect from "@/pages/family-connect";
 import CommunityPaymentProgram from "@/pages/community-payment-program";
+import PhotoQualityAdmin from "@/pages/photo-quality-admin";
 import CommunitySubscriptionCheckout from "@/pages/community-subscription-checkout";
 import ResidentOnboarding from "@/pages/resident-onboarding";
 import LeaseDocumentManagement from "@/pages/lease-document-management";
@@ -172,7 +173,12 @@ function Router() {
 
       <Route path="/ai-intelligence" component={AISearchIntelligence} />
       <Route path="/simplified-search" component={SimplifiedSearch} />
-      <Route path="/enhanced-search-demo" component={() => import('./components/EnhancedSearchDemo')} />
+      <Route path="/enhanced-search-demo">
+        {() => {
+          const Component = lazy(() => import('./components/EnhancedSearchDemo'));
+          return <Component />;
+        }}
+      </Route>
       <Route path="/community/:id" component={CommunityDetail} />
       <Route path="/communities/:id" component={CommunityDetail} />
       <Route path="/red-tag-example/:communitySlug" component={RedTagExample} />
@@ -202,6 +208,7 @@ function Router() {
       <Route path="/admin/api-keys" component={SuperAdminAnalytics} />
       <Route path="/admin/users" component={SuperAdminAnalytics} />
       <Route path="/admin/data-quality" component={DataQualityDashboard} />
+      <Route path="/admin/photo-quality" component={PhotoQualityAdmin} />
       <Route path="/admin/audit-logs" component={LegalDocumentHistory} />
       <Route path="/admin/notifications" component={SuperAdminAnalytics} />
       <Route path="/admin/vendor-dashboard" component={VendorDashboard} />

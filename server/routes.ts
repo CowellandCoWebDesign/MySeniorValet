@@ -17,7 +17,7 @@ import { quizRouter } from "./routes/quiz";
 import subscriptionRoutes from "./routes/subscriptionRoutes";
 import autocompleteRoutes from "./routes/autocompleteRoutes";
 import { db } from "./db";
-import { eq, or, like, desc } from "drizzle-orm";
+import { eq, or, like, desc, and } from "drizzle-orm";
 import cookieParser from "cookie-parser";
 import { isAuthenticated } from "./replitAuth";
 import { storage } from "./storage";
@@ -73,6 +73,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register analytics intelligence routes
   const analyticsIntelligenceRoutes = await import('./routes/analytics-intelligence-routes');
   app.use(analyticsIntelligenceRoutes.default);
+  
+  // Register photo validation routes
+  const photoValidationRoutes = await import('./routes/photoValidationRoutes');
+  app.use('/api', photoValidationRoutes.default);
   
   // Register web intelligence routes (Perplexity AI-powered)
   const webIntelligenceRoutes = await import('./routes/webIntelligenceRoutes');
@@ -321,20 +325,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limit = 20;
       const offset = (pageNum - 1) * limit;
       
-      // Build query - only selecting columns that exist in our schema
-      let query = db.select({
-        id: users.id,
-        email: users.email,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        role: users.role,
-        isActive: users.isActive,
-        createdAt: users.createdAt
-      }).from(users);
-
-      // Apply filters
+      // Build filters
+      const conditions = [];
+      
       if (search) {
-        query = query.where(
+        conditions.push(
           or(
             like(users.email, `%${search}%`),
             like(users.firstName, `%${search}%`),
@@ -344,10 +339,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (role !== 'all') {
-        query = query.where(eq(users.role, role as string));
+        conditions.push(eq(users.role, role as string));
       }
 
-      const allUsers = await query.orderBy(desc(users.createdAt));
+      // Execute query with proper chaining
+      const allUsers = conditions.length > 0 
+        ? await db.select({
+            id: users.id,
+            email: users.email,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            role: users.role,
+            isActive: users.isActive,
+            createdAt: users.createdAt
+          })
+          .from(users)
+          .where(conditions.length === 1 ? conditions[0] : and(...conditions))
+          .orderBy(desc(users.createdAt))
+        : await db.select({
+            id: users.id,
+            email: users.email,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            role: users.role,
+            isActive: users.isActive,
+            createdAt: users.createdAt
+          })
+          .from(users)
+          .orderBy(desc(users.createdAt));
       
       res.json(allUsers);
     } catch (error) {
