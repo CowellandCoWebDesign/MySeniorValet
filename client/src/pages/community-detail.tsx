@@ -2159,7 +2159,7 @@ export default function CommunityDetail() {
 
             {/* Tabbed Content Section - Clean layout without overlapping borders */}
             <Tabs defaultValue="market-data" className="w-full mt-6">
-              <TabsList className="grid w-full grid-cols-5 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 gap-1">
+              <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 gap-1">
                 <TabsTrigger 
                   value="community-info" 
                   className="flex flex-col items-center gap-1 py-3 px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-blue-100 !to-indigo-100 dark:!from-blue-900/40 dark:!to-indigo-900/40 border border-blue-200 dark:border-blue-600 shadow-md hover:shadow-lg hover:!from-blue-200 hover:!to-indigo-200 dark:hover:!from-blue-800/60 dark:hover:!to-indigo-800/60 hover:border-blue-300 dark:hover:border-blue-500 text-blue-700 dark:text-blue-300 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-blue-600 data-[state=active]:!to-indigo-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-blue-400 data-[state=active]:!font-bold"
@@ -2217,25 +2217,6 @@ export default function CommunityDetail() {
                   <span className="text-xs opacity-75 font-normal">
                     Ratings & Feedback
                   </span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="photos" 
-                  className="flex flex-col items-center gap-1 py-3 px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-pink-100 !to-rose-100 dark:!from-pink-900/40 dark:!to-rose-900/40 border border-pink-200 dark:border-pink-600 shadow-md hover:shadow-lg hover:!from-pink-200 hover:!to-rose-200 dark:hover:!from-pink-800/60 dark:hover:!to-rose-800/60 hover:border-pink-300 dark:hover:border-pink-500 text-pink-700 dark:text-pink-300 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-pink-600 data-[state=active]:!to-rose-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-pink-400 data-[state=active]:!font-bold"
-                >
-                  <div className="flex items-center gap-2">
-                    <Camera className="w-4 h-4" />
-                    <div className="text-center">
-                      <div className="text-xs font-bold">Photos</div>
-                      {verificationReport?.webIntelligence?.images?.length > 0 && (
-                        <div className="text-[10px] opacity-75">
-                          Real Photos Found
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  {verificationReport?.webIntelligence?.images?.length > 0 && (
-                    <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
-                  )}
                 </TabsTrigger>
               </TabsList>
 
@@ -3323,99 +3304,6 @@ export default function CommunityDetail() {
                     </Card>
                   </TabsContent>
                   
-                  <TabsContent value="photos" className="space-y-4">
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Photo Gallery</h3>
-                        {/* Show photo usage limits based on subscription tier */}
-                        {community.claimedBy && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                              {(() => {
-                                const tier = community.subscriptionTier || 'verified';
-                                const photoLimits = { verified: 1, standard: 10, featured: 25, platinum: 50 };
-                                const currentPhotos = community.photos?.length || 0;
-                                const limit = photoLimits[tier as keyof typeof photoLimits];
-                                return `${currentPhotos}/${limit} photos`;
-                              })()}
-                            </span>
-                            {(() => {
-                              const tier = community.subscriptionTier || 'verified';
-                              const photoLimits = { verified: 1, standard: 10, featured: 25, platinum: 50 };
-                              const currentPhotos = community.photos?.length || 0;
-                              const limit = photoLimits[tier as keyof typeof photoLimits];
-                              
-                              if (currentPhotos >= limit) {
-                                return (
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline"
-                                    onClick={() => {
-                                      setUpgradeFeature('photos');
-                                      setShowUpgradeModal(true);
-                                    }}
-                                  >
-                                    <Sparkles className="w-4 h-4 mr-1" />
-                                    Upgrade for More
-                                  </Button>
-                                );
-                              }
-                              return null;
-                            })()}
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div>
-                        <div className="text-center py-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                          <Camera className="w-12 h-12 mx-auto text-gray-400 mb-3" />
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Photos</h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                            Real community photos are displayed in the main carousel above
-                          </p>
-                          <div className="text-xs text-gray-500 dark:text-gray-500">
-                            {verificationReport?.webIntelligence?.images?.length > 0 
-                              ? `✅ ${verificationReport.webIntelligence.images.length} authentic photos found from verified sources`
-                              : "🔍 Searching for authentic community photos..."
-                            }
-                          </div>
-                        </div>
-                          
-                          {/* Photo limit reached warning */}
-                          {community.claimedBy && (() => {
-                            const tier = community.subscriptionTier || 'verified';
-                            const photoLimits = { verified: 1, standard: 10, featured: 25, platinum: 50 };
-                            const currentPhotos = community.photos?.length || 0;
-                            const limit = photoLimits[tier as keyof typeof photoLimits];
-                            
-                            if (currentPhotos >= limit) {
-                              return (
-                                <div className="mt-4 p-3 bg-indigo-100 dark:bg-indigo-900/20 rounded-lg border border-indigo-300 dark:border-indigo-700">
-                                  <p className="text-sm text-indigo-800 dark:text-indigo-200 font-medium">
-                                    <Info className="w-4 h-4 inline mr-2" />
-                                    Photo limit reached ({currentPhotos}/{limit}). Upgrade to add more photos.
-                                  </p>
-                                </div>
-                              );
-                            }
-                            return null;
-                          })()}
-                        
-                        {/* Show message only if no photos and no web intelligence photos */}
-                        {(!community.photos || community.photos.length === 0) && 
-                         (!verificationReport?.webIntelligence?.images || verificationReport.webIntelligence.images.length === 0) && (
-                          <div className="text-center py-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              🔍 Searching Live Web for Real Photos
-                            </p>
-                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                              Finding authentic community photos from verified sources
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </TabsContent>
                   
                   {/* Explained Attributes Section */}
                   <TabsContent value="attributes" className="space-y-6">
