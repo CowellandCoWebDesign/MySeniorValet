@@ -1242,12 +1242,7 @@ const HeroPhotoCarousel = ({
         </>
       )}
 
-      {/* Care Type Badge - Bottom Left */}
-      {community && community.careTypes && (
-        <div className="absolute bottom-4 left-4 bg-emerald-600/90 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-lg z-20">
-          {Array.isArray(community.careTypes) ? community.careTypes.join(', ') : community.careTypes}
-        </div>
-      )}
+
 
       {/* Verified Badge - Bottom Right */}
       {community && hasVerifiedPricing(community) && (
