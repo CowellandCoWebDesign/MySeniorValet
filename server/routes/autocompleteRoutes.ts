@@ -9,7 +9,7 @@ const router = Router();
 router.get('/autocomplete/suggestions', async (req, res) => {
   try {
     const query = req.query.query as string;
-    const limit = parseInt(req.query.limit as string) || 100; // ENTERPRISE: 100 results for comprehensive coverage
+    const limit = parseInt(req.query.limit as string) || 250; // MAXIMUM: 250 results to handle LA's 207 communities
     const category = req.query.category as string; // Optional filter: 'all', 'communities', 'healthcare', 'vendors', 'resources'
     
     // Allow single character searches for better UX
@@ -57,7 +57,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
             ilike(communities.country, `${searchTerm}%`) // Country starts with (for "Mexico")
           )
         )
-        .limit(50); // ENTERPRISE: 50 community results for complete coverage
+        .limit(200); // FULL COVERAGE: 200+ communities for major cities like LA (207 communities)
       
       // Add community name matches with priority and ALL needed data
       communityNameResults.forEach(c => {
@@ -101,7 +101,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
         )
       )
       .groupBy(communities.city, communities.state)
-      .limit(30); // ENTERPRISE: 30 cities for North American coverage
+      .limit(50); // EXPANDED: 50 cities for complete coverage
     
     // Add city suggestions with improved data
     quickCityResults.forEach(c => {
