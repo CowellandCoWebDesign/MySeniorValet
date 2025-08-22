@@ -2237,6 +2237,8 @@ export default function CommunityDetail() {
                           </div>
                         );
                       })()}
+                    </div>
+                  </div>
                 </div>
               </Card>
             </div>
