@@ -1170,15 +1170,16 @@ const HeroPhotoCarousel = ({
   community?: Community,
   verificationReport?: any
 }) => {
-  // Dynamically get all available photos
+  // Dynamically get all available photos with source tracking
   const getAllPhotos = () => {
-    const allPhotos = [];
+    const allPhotos: { url: string; source: 'database' | 'web' | 'placeholder' }[] = [];
     
     // Add database photos first
     if (community?.photos && community.photos.length > 0) {
-      const dbPhotos = community.photos.map((photo: any) => 
-        typeof photo === 'string' ? photo : photo.image_url || photo.url
-      );
+      const dbPhotos = community.photos.map((photo: any) => ({
+        url: typeof photo === 'string' ? photo : photo.image_url || photo.url,
+        source: 'database' as const
+      }));
       allPhotos.push(...dbPhotos);
     }
     
@@ -1196,18 +1197,23 @@ const HeroPhotoCarousel = ({
     
     if (webImages && webImages.length > 0) {
       console.log('Adding web intelligence photos to carousel:', webImages);
-      const webPhotos = webImages.map((img: any) => {
-        // Handle both string URLs and object format
-        return typeof img === 'string' ? img : (img.image_url || img.url || img);
-      });
+      const webPhotos = webImages.map((img: any) => ({
+        url: typeof img === 'string' ? img : (img.image_url || img.url || img),
+        source: 'web' as const
+      }));
       allPhotos.push(...webPhotos);
     }
     
-    // Remove duplicates
-    const uniquePhotos = [...new Set(allPhotos)];
+    // Remove duplicates based on URL
+    const uniquePhotos = allPhotos.filter((photo, index, self) =>
+      index === self.findIndex((p) => p.url === photo.url)
+    );
     
-    // Return unique photos or default if none
-    return uniquePhotos.length > 0 ? uniquePhotos : defaultPhotos;
+    // Return unique photos or default placeholders if none
+    if (uniquePhotos.length === 0) {
+      return defaultPhotos.map(url => ({ url, source: 'placeholder' as const }));
+    }
+    return uniquePhotos;
   };
   
   const safePhotos = getAllPhotos();
@@ -1339,7 +1345,7 @@ const HeroPhotoCarousel = ({
 
   // Check if we're still loading photos from web intelligence
   const isLoadingWebPhotos = !verificationReport?.webIntelligence?.images && verificationReport?.timestamp;
-  const hasDefaultPhotos = safePhotos.every(photo => defaultPhotos.includes(photo));
+  const hasDefaultPhotos = safePhotos.every(photo => defaultPhotos.includes(photo.url));
 
   return (
     <div 
@@ -1393,19 +1399,29 @@ const HeroPhotoCarousel = ({
               }}
             >
               {safePhotos.map((photo, index) => (
-                <img
-                  key={index}
-                  src={photo}
-                  alt={`${communityName} - View ${index + 1}`}
-                  className="w-full h-full object-cover select-none flex-shrink-0"
-                  draggable={false}
-                  onError={(e) => {
-                    console.log('Image failed to load:', photo);
-                    // Replace with placeholder if image fails
-                    const target = e.target as HTMLImageElement;
-                    target.src = '/api/placeholder/600/400';
-                  }}
-                />
+                <div key={index} className="relative w-full h-full flex-shrink-0">
+                  <img
+                    src={photo.url}
+                    alt={`${communityName} - View ${index + 1}`}
+                    className="w-full h-full object-cover select-none"
+                    draggable={false}
+                    onError={(e) => {
+                      console.log('Image failed to load:', photo.url);
+                      // Replace with placeholder if image fails
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/api/placeholder/600/400';
+                    }}
+                  />
+                  {/* Attribution for web-sourced photos */}
+                  {photo.source === 'web' && (
+                    <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs backdrop-blur-sm">
+                      <div className="flex items-center gap-1">
+                        <Globe className="w-3 h-3" />
+                        <span>Sourced from public web</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
             
@@ -1967,7 +1983,7 @@ export default function CommunityDetail() {
                         <MapPin className="w-4 h-4 mr-1 flex-shrink-0 mt-0.5" />
                         <div className="flex flex-col">
                           <span>{community.address.split(',')[0]}</span>
-                          <span>{community.city}, {community.state} {community.zip}</span>
+                          <span>{community.city}, {community.state} {community.zipCode}</span>
                           <span>United States</span>
                         </div>
                       </div>

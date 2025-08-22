@@ -20,6 +20,13 @@ MySeniorValet is a technology platform that connects families with publicly avai
 - "This may take a few seconds - it's worth the wait!" retention message
 - Users now understand photos are being fetched from live web intelligence and will wait for results
 
+**Photo Attribution for Legal Protection**: Added attribution overlay for web-sourced photos:
+- Photos sourced from live web searches now display "Sourced from public web" attribution
+- Attribution appears in bottom-right corner with globe icon
+- Semi-transparent black background ensures readability over any image
+- Only appears on web-sourced photos, not database photos or placeholders
+- Provides legal protection by clearly identifying third-party content sources
+
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
 - **Notification Email Configuration**:
