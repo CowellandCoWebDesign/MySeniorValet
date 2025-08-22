@@ -1407,15 +1407,16 @@ const HeroPhotoCarousel = ({
             <ChevronRight className="w-6 h-6 text-gray-900 dark:text-gray-100" />
           </button>
 
-          {/* Photo indicator dots - positioned higher to make room for swipe instruction */}
-          <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+          {/* Photo indicator dots - fixed size to prevent stretching */}
+          <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 flex gap-1.5 z-10">
             {safePhotos.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
-                className={`w-2 h-2 rounded-full transition-colors ${
+                className={`block w-2 h-2 min-w-[8px] min-h-[8px] max-w-[8px] max-h-[8px] rounded-full transition-colors ${
                   index === currentIndex ? 'bg-white' : 'bg-white/50'
                 }`}
+                aria-label={`Go to photo ${index + 1}`}
               />
             ))}
           </div>
@@ -1972,7 +1973,7 @@ export default function CommunityDetail() {
                                   <HelpCircle className="h-4 w-4" />
                                 </span>
                               </Button>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                              <p className="text-xs text-gray-900 dark:text-gray-400 mt-2">
                                 This community hasn't claimed their profile and opted into instant messaging yet
                               </p>
                             </div>
@@ -2330,7 +2331,7 @@ export default function CommunityDetail() {
                         
                         <Button 
                           variant="outline" 
-                          className="py-4 text-base font-semibold border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                          className="py-4 text-base font-semibold border-2 border-blue-600 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
                           onClick={() => window.open(`tel:${community.phone || generatePhoneNumber(community.state, community.id)}`, '_self')}
                         >
                           <Phone className="w-5 h-5 mr-2" />
@@ -2407,43 +2408,46 @@ export default function CommunityDetail() {
                           </DialogHeader>
                           <div className="space-y-4">
                             <div>
-                              <Label htmlFor="waitlist-name">Your Name</Label>
+                              <Label htmlFor="waitlist-name" className="text-gray-900 dark:text-gray-100">Your Name</Label>
                               <Input
                                 id="waitlist-name"
                                 placeholder="Enter your full name"
                                 value={waitlistName}
                                 onChange={(e) => setWaitlistName(e.target.value)}
+                                className="text-gray-900 dark:text-gray-100"
                               />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
                               <div>
-                                <Label htmlFor="waitlist-email">Email</Label>
+                                <Label htmlFor="waitlist-email" className="text-gray-900 dark:text-gray-100">Email</Label>
                                 <Input
                                   id="waitlist-email"
                                   type="email"
                                   placeholder="your.email@example.com"
                                   value={waitlistEmail}
                                   onChange={(e) => setWaitlistEmail(e.target.value)}
+                                  className="text-gray-900 dark:text-gray-100"
                                 />
                               </div>
                               <div>
-                                <Label htmlFor="waitlist-phone">Phone</Label>
+                                <Label htmlFor="waitlist-phone" className="text-gray-900 dark:text-gray-100">Phone</Label>
                                 <Input
                                   id="waitlist-phone"
                                   type="tel"
                                   placeholder="(555) 123-4567"
                                   value={waitlistPhone}
                                   onChange={(e) => setWaitlistPhone(e.target.value)}
+                                  className="text-gray-900 dark:text-gray-100"
                                 />
                               </div>
                             </div>
 
                             <div>
-                              <Label htmlFor="waitlist-preferences">Preferred Unit Type & Other Preferences</Label>
+                              <Label htmlFor="waitlist-preferences" className="text-gray-900 dark:text-gray-100">Preferred Unit Type & Other Preferences</Label>
                               <textarea
                                 id="waitlist-preferences"
-                                className="w-full p-3 border border-gray-300 rounded-md"
+                                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                                 placeholder={selectedUnitType ? 
                                   `Interested in ${selectedUnitType} units. Add any additional preferences...` :
                                   "e.g., 1 bedroom, ground floor, pet-friendly..."
@@ -2479,7 +2483,7 @@ export default function CommunityDetail() {
                         <ClipboardList className="w-4 h-4 mr-2" />
                         Start Comprehensive Tour Grading
                       </Button>
-                      <p className="text-xs text-center text-blue-700 dark:text-blue-300 mt-2">
+                      <p className="text-xs text-center text-gray-700 dark:text-gray-300 mt-2">
                         Grade 10+ categories with A-F scoring • Your evaluations help future families make informed decisions
                       </p>
                     </div>
