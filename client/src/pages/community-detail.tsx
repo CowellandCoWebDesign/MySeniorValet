@@ -1071,6 +1071,29 @@ const getSubscriptionTierBadge = (tier?: string) => {
   }
 };
 
+// Format care type for display
+const formatCareType = (careTypes?: string[]): string => {
+  if (!careTypes || careTypes.length === 0) return 'Senior Living';
+  
+  // Map care type codes to display names
+  const careTypeMap: { [key: string]: string } = {
+    'independent_living': 'Independent Living',
+    'assisted_living': 'Assisted Living', 
+    'memory_care': 'Memory Care',
+    'skilled_nursing': 'Skilled Nursing',
+    'continuing_care': 'Continuing Care',
+    'senior_housing': 'Senior Housing',
+    'active_adult': 'Active Adult',
+    'respite_care': 'Respite Care',
+    'adult_day_care': 'Adult Day Care',
+    'home_care': 'Home Care'
+  };
+  
+  // Get the primary care type and format it
+  const primaryCareType = careTypes[0];
+  return careTypeMap[primaryCareType] || primaryCareType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Senior Living';
+};
+
 // Determine pricing verification type and return badge info
 const getPricingBadgeInfo = (community: Community, verificationReport?: any): { show: boolean; icon: any; text: string; bgColor: string } => {
   // Check if live pricing was found via web search
@@ -1734,7 +1757,7 @@ export default function CommunityDetail() {
                           <span className="text-white/90 ml-1">({community.googleReviewCount || '47'} reviews)</span>
                         </div>
                         <Badge className="bg-blue-500/20 border-blue-400 text-blue-100">
-                          {community.careTypes?.[0] || 'Senior Living'}
+                          {formatCareType(community.careTypes)}
                         </Badge>
                       </div>
                     
