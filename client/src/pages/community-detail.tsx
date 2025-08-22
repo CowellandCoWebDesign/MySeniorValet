@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
-         Mail, Globe, Users, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
+         Mail, Globe, Users, User, Plus, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, Lock,
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
          ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3, Loader2, Camera } from 'lucide-react';
@@ -4174,15 +4174,15 @@ export default function CommunityDetail() {
                   
                   {/* Reviews Tab Content - Moved from right column */}
                   <TabsContent value="reviews" className="space-y-6 mt-6">
-                <Card id="reviews-section">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center">
-                      <Star className="w-5 h-5 mr-2" />
-                      Reviews & Ratings
-                    </CardTitle>
-                    <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">Combined external reviews and tour inspections</p>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
+                    <Card id="reviews-section">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center">
+                          <Star className="w-5 h-5 mr-2" />
+                          Reviews & Ratings
+                        </CardTitle>
+                        <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">Combined external reviews, tour inspections, and family feedback</p>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
                 {/* MySeniorValet Composite Score */}
                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-600">
                   <div className="text-center mb-3">
@@ -4296,6 +4296,112 @@ export default function CommunityDetail() {
                   )}
                 </div>
 
+                {/* Tour Tracker Reports Section */}
+                <div className="border-t pt-6">
+                  <h4 className="text-lg font-semibold mb-4 flex items-center text-gray-900 dark:text-gray-100">
+                    <ClipboardList className="w-5 h-5 mr-2 text-orange-600" />
+                    Completed Tour Tracker Reports
+                  </h4>
+                  
+                  {/* Display existing tour reports if available */}
+                  {(community as any).tourReports && (community as any).tourReports.length > 0 ? (
+                    <div className="space-y-4">
+                      {(community as any).tourReports.map((report: any, index: number) => (
+                        <div key={index} className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-700">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex items-center">
+                              <User className="w-4 h-4 mr-2 text-orange-600" />
+                              <span className="font-medium text-sm text-gray-900 dark:text-gray-100">
+                                {report.isAnonymous ? 'Anonymous Family Member' : report.userName}
+                              </span>
+                            </div>
+                            <span className="text-xs text-gray-600 dark:text-gray-400">
+                              {new Date(report.date).toLocaleDateString()}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center mb-2">
+                            <div className="flex">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star 
+                                  key={star} 
+                                  className={`w-4 h-4 ${star <= report.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
+                                />
+                              ))}
+                            </div>
+                            <span className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {report.rating}/5
+                            </span>
+                          </div>
+                          
+                          <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                            {report.comments}
+                          </p>
+                          
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div className="flex items-center">
+                              <span className="font-medium text-gray-700 dark:text-gray-300">Staff:</span>
+                              <span className="ml-1 text-gray-900 dark:text-gray-100">{report.staffRating}/5</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="font-medium text-gray-700 dark:text-gray-300">Cleanliness:</span>
+                              <span className="ml-1 text-gray-900 dark:text-gray-100">{report.cleanlinessRating}/5</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="font-medium text-gray-700 dark:text-gray-300">Amenities:</span>
+                              <span className="ml-1 text-gray-900 dark:text-gray-100">{report.amenitiesRating}/5</span>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="font-medium text-gray-700 dark:text-gray-300">Value:</span>
+                              <span className="ml-1 text-gray-900 dark:text-gray-100">{report.valueRating}/5</span>
+                            </div>
+                          </div>
+                          
+                          {report.wouldRecommend && (
+                            <div className="mt-3 flex items-center text-xs text-green-700 dark:text-green-400">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Would recommend to others
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg text-center">
+                      <ClipboardList className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        No tour reports submitted yet for this community
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500">
+                        Families who complete tours can submit feedback to help others make informed decisions
+                      </p>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="mt-4"
+                        onClick={() => {
+                          // TODO: Open tour tracker submission modal
+                          toast({
+                            title: "Tour Tracker",
+                            description: "Submit your tour experience after visiting this community",
+                          });
+                        }}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Submit Tour Report
+                      </Button>
+                    </div>
+                  )}
+                  
+                  <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                    <p className="text-xs text-blue-800 dark:text-blue-200">
+                      <Info className="w-3 h-3 inline mr-1" />
+                      Tour reports are submitted by families who have visited this community. 
+                      Reports marked as public are displayed here to help other families in their search.
+                    </p>
+                  </div>
+                </div>
+
                 {/* MySeniorValet Verification Badge */}
                 <div className="text-center">
                   <Badge className="bg-blue-600 text-white text-xs px-3 py-1 font-medium">
@@ -4303,9 +4409,9 @@ export default function CommunityDetail() {
                     MySeniorValet Verified Community
                   </Badge>
                 </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
               
             </Tabs>
           </CardContent>

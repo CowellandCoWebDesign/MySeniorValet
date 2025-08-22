@@ -8,6 +8,8 @@ MySeniorValet is a technology platform that connects families with publicly avai
 
 **Reviews Tab Positioning & Styling**: Positioned Reviews as the 4th tab after Market Data with unique orange-to-amber gradient styling (from-orange-600 to-amber-600). Features yellow pulse indicator when reviews are available. Grid updated to 4 columns to accommodate Community Info, Availability, Market Data, and Reviews tabs with distinct color schemes for each.
 
+**Tour Tracker Reports Integration**: Added comprehensive Tour Tracker Reports section within Reviews tab to display family tour experiences. Features include public/anonymous submission options, detailed rating breakdowns (staff, cleanliness, amenities, value), recommendation indicators, and submit button for new reports. Families who complete tours can elect to share feedback publicly to help others make informed decisions.
+
 **Hero Panel Competitive Differentiation**: Enhanced HeroMascotPanel component with 12 research-backed platform differentiator facts sourced from Washington Post investigation, Senate probe, and Medicaid attorney analysis. Features dynamic randomized ordering, clickable source links, and Anti-A Place for Mom positioning based on documented $10K+ referral fees, 37% safety violations among award winners, and fake review manipulation. Addresses real competitor pain points with transparency-first messaging.
 
 **Layout & Display Improvements**: Fixed critical layout issues in community cards and detail pages:
