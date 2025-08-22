@@ -1913,36 +1913,91 @@ export default function CommunityDetail() {
                       </div>
                       <div className="text-sm text-gray-900 dark:text-gray-100">
                         {(() => {
-                          return verificationReport?.pricing?.verified && verificationReport.pricing.source ? 
-                            `AI Verified - ${verificationReport.pricing.source}` :
-                            community.priceRange && community.priceRange.min > 0 ? 
-                            "per month starting rate" : 
-                            (community as any).rentPerMonth ? 
-                            "HUD verified monthly rent" : 
-                            // Show market intelligence source instead of generic text
-                            !community.claimedBy ? 
-                            "Market Intelligence Estimate" :
-                            "Pricing available upon request";
+                          const hasEstimate = !community.priceRange?.min && !(community as any).rentPerMonth && !verificationReport?.pricing?.verified;
+                          
+                          if (verificationReport?.pricing?.verified && verificationReport.pricing.source) {
+                            return `AI Verified - ${verificationReport.pricing.source}`;
+                          } else if (community.priceRange && community.priceRange.min > 0) {
+                            return "per month starting rate";
+                          } else if ((community as any).rentPerMonth) {
+                            return "HUD verified monthly rent";
+                          } else if (!community.claimedBy) {
+                            return (
+                              <div className="flex items-center gap-2">
+                                <span>Market Intelligence Estimate</span>
+                                <button 
+                                  onClick={() => {
+                                    const marketTab = document.querySelector('[data-tab="market-data"]') as HTMLElement;
+                                    if (marketTab) {
+                                      marketTab.click();
+                                      setTimeout(() => {
+                                        const howWeCalculate = document.querySelector('#how-we-calculate');
+                                        if (howWeCalculate) {
+                                          howWeCalculate.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        }
+                                      }, 100);
+                                    }
+                                  }}
+                                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline text-xs font-medium"
+                                >
+                                  How we calculate this estimate
+                                </button>
+                              </div>
+                            );
+                          } else {
+                            return "Pricing available upon request";
+                          }
                         })()}
                       </div>
                       
-                      {/* Live Web Price Info - Show when we have any price data */}
-                      {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
-                        <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/30 dark:to-blue-900/30 rounded-lg border border-green-300 dark:border-green-700">
-                          <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-300">
-                            <CheckCircle className="h-4 w-4 flex-shrink-0" />
-                            <div>
-                              <span className="font-semibold">Live pricing data available!</span>
-                              {verificationReport?.pricing?.verified && (
-                                <span className="ml-2 text-xs">• Web verified by AI</span>
-                              )}
+                      {/* Enhanced Market Data Call-to-Action - Show for all communities */}
+                      <div className="mt-3 p-4 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 rounded-lg border-2 border-blue-200 dark:border-blue-800">
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0 mt-0.5">
+                            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                              <TrendingUp className="h-4 w-4 text-white" />
                             </div>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                            💡 See the <span className="font-semibold text-blue-600 dark:text-blue-400">Market Data</span> tab below for detailed competitive analysis and market insights
-                          </p>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h4 className="font-semibold text-gray-900 dark:text-white">
+                                {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) ? 
+                                  "Live Pricing & Market Intelligence" : 
+                                  "Complete Market Intelligence Report"
+                                }
+                              </h4>
+                              {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
+                                <Badge className="bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200 text-xs px-2 py-0.5">
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Live Data
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                              {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) ? 
+                                "See detailed competitive analysis, market trends, and pricing breakdown with live data verification." :
+                                "View comprehensive market analysis, competitive pricing estimates, and detailed methodology for how we calculate market rates."
+                              }
+                            </p>
+                            <button
+                              onClick={() => {
+                                const marketTab = document.querySelector('[data-tab="market-data"]') as HTMLElement;
+                                if (marketTab) {
+                                  marketTab.click();
+                                  setTimeout(() => {
+                                    marketTab.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                  }, 100);
+                                }
+                              }}
+                              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-md font-medium transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
+                            >
+                              <BarChart3 className="h-4 w-4" />
+                              <span>View Market Data Report</span>
+                              <ChevronRight className="h-4 w-4" />
+                            </button>
+                          </div>
                         </div>
-                      )}
+                      </div>
                       
                       {/* Compact Pricing Attribution for Estimates */}
                       {!hasLiveData && !community.claimedBy && (
