@@ -1934,28 +1934,16 @@ export default function CommunityDetail() {
             {/* Main Community Card - Integrated KAYAK-Style Design */}
             <Card className="overflow-hidden">
               <CardContent className="relative p-0">
-                {/* Enhanced Photo Carousel - Fixed height to prevent layout shift */}
+                {/* Enhanced Photo Carousel - Full carousel with real photos prominently displayed */}
                 <div className="relative block w-full" style={{ height: '320px', minHeight: '320px', maxHeight: '320px' }}>
-                  <div className="w-full h-full bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
-                    {getCombinedPhotos().length > 0 ? (
-                      <img 
-                        src={getCombinedPhotos()[0].url}
-                        alt={community.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = '/assets/gentleman-mascot.png';
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <img 
-                          src="/assets/gentleman-mascot.png" 
-                          alt="MySeniorValet Mascot" 
-                          className="h-24 w-24 opacity-60"
-                        />
-                      </div>
-                    )}
-                  </div>
+                  <HeroPhotoCarousel 
+                    photos={(community.photos && community.photos.length > 0) ? community.photos : defaultPhotos} 
+                    communityName={community.name}
+                    communityId={community.id}
+                    community={community}
+                    verificationReport={verificationReport}
+                  />
+                </div>
                   
                   {/* Action Buttons */}
                   <div className="absolute top-4 right-4 flex space-x-2">
@@ -3378,14 +3366,18 @@ export default function CommunityDetail() {
                       </div>
                       
                       <div>
-                        <div className="relative h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg mb-4 bg-gray-100 dark:bg-gray-800">
-                          <HeroPhotoCarousel 
-                            photos={(community.photos && community.photos.length > 0) ? community.photos : defaultPhotos} 
-                            communityName={community.name}
-                            communityId={community.id}
-                            community={community}
-                            verificationReport={verificationReport}
-                          />
+                        <div className="text-center py-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                          <Camera className="w-12 h-12 mx-auto text-gray-400 mb-3" />
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Photos</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                            Real community photos are displayed in the main carousel above
+                          </p>
+                          <div className="text-xs text-gray-500 dark:text-gray-500">
+                            {verificationReport?.webIntelligence?.images?.length > 0 
+                              ? `✅ ${verificationReport.webIntelligence.images.length} authentic photos found from verified sources`
+                              : "🔍 Searching for authentic community photos..."
+                            }
+                          </div>
                         </div>
                           
                           {/* Photo limit reached warning */}
