@@ -220,10 +220,13 @@ export default function CommunityDirectory() {
     queryKey: ['/api/communities/hud-count']
   });
   
-  // Fetch top states for browsing
-  const { data: topStates = [] } = useQuery({
-    queryKey: ['/api/communities/top-states']
+  // Fetch community stats including top states
+  const { data: communityStats } = useQuery({
+    queryKey: ['/api/communities/stats']
   });
+  
+  // Extract topStates from stats
+  const topStates = communityStats?.topStates || [];
   
   // Fetch Hawaii communities
   const { data: hawaiiCommunities, isLoading: hawaiiLoading } = useQuery({
