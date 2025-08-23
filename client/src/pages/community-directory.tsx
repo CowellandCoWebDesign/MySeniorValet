@@ -553,7 +553,7 @@ export default function CommunityDirectory() {
                 {(topStates as any[]).slice(0, 15).map((state: any) => {
                   const displayName = stateNames[state.state] || state.state;
                   return (
-                    <Link key={state.state} href={`/search?state=${displayName}`}>
+                    <Link key={state.state} href={`/map-search?state=${state.state}`}>
                       <Card className="hover:shadow-lg transition-all cursor-pointer bg-white/90 dark:bg-gray-800/90 border hover:border-blue-400 group hover:scale-105">
                         <CardContent className="p-3 text-center">
                           <div className="font-bold text-sm md:text-base text-gray-900 dark:text-gray-100 group-hover:text-blue-600">
@@ -597,7 +597,7 @@ export default function CommunityDirectory() {
                 Paradise living with world-class senior care in the Hawaiian Islands
               </p>
             </div>
-            <Link href="/search?location=Hawaii">
+            <Link href="/map-search?state=HI">
               <Button variant="outline" className="flex items-center gap-2">
                 View All Hawaii
                 <ArrowRight className="w-4 h-4" />
