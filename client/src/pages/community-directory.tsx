@@ -315,7 +315,7 @@ export default function CommunityDirectory() {
             </h1>
             
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Access our complete database of {((communityCount as any)?.count || '34,181').toLocaleString()}+ senior living communities across the United States
+              Access our complete database of {((communityCount as any)?.count || '35,232').toLocaleString()}+ senior living communities across the United States, Canada, Mexico & Puerto Rico
             </p>
             
             {/* Key Stats */}
@@ -334,8 +334,8 @@ export default function CommunityDirectory() {
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-3xl font-bold text-white">50</div>
-                  <div className="text-xs text-blue-100">States Covered</div>
+                  <div className="text-3xl font-bold text-white">4</div>
+                  <div className="text-xs text-blue-100">Countries Covered</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
