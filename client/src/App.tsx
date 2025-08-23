@@ -109,6 +109,8 @@ import AISearchComparison from "@/pages/AISearchComparison";
 import { useAuth } from "@/hooks/useAuth";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { EmergencyButton } from "@/components/EmergencyButton";
+import { initGA } from "@/lib/analytics";
+import { useAnalytics } from "@/hooks/use-analytics";
 import CanadaPage from "@/pages/canada";
 import RedTagExample from "@/pages/red-tag-example";
 import HospitalDetails from "@/pages/hospital-details";
@@ -155,10 +157,14 @@ import ClevelandClinicPage from "@/pages/providers/cleveland-clinic";
 import WalgreensPage from "@/pages/vendors/walgreens";
 import CVSPharmacyPage from "@/pages/vendors/cvs-pharmacy";
 import MedicareGuidePage from "@/pages/resources/medicare-guide";
+import LocationLanding from "@/pages/location-landing";
 
 function Router() {
   const [location] = useLocation();
   const { isAuthenticated, isLoading } = useAuth();
+  
+  // Track page views with Google Analytics
+  useAnalytics();
 
   // Scroll to top on route change
   useEffect(() => {
@@ -171,6 +177,9 @@ function Router() {
       <Route path="/canada" component={CanadaPage} />
       <Route path="/map" component={MapSearch} />
       <Route path="/map-search" component={MapSearch} />
+      
+      {/* SEO Location Landing Pages */}
+      <Route path="/senior-living/:state/:city?" component={LocationLanding} />
 
       <Route path="/ai-intelligence" component={AISearchIntelligence} />
       <Route path="/simplified-search" component={SimplifiedSearch} />
@@ -378,6 +387,17 @@ function AppContent() {
 }
 
 function App() {
+  // Initialize Google Analytics when app loads
+  useEffect(() => {
+    // Verify required environment variable is present
+    if (!import.meta.env.VITE_GA_MEASUREMENT_ID) {
+      console.warn('Missing Google Analytics key: VITE_GA_MEASUREMENT_ID - analytics disabled');
+    } else {
+      initGA();
+      console.log('✅ Google Analytics initialized');
+    }
+  }, []);
+  
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>

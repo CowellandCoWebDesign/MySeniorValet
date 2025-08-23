@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client";
+import { HelmetProvider } from "react-helmet-async";
 import App from "./App";
 import "./index.css";
 
@@ -13,7 +14,11 @@ if (import.meta.hot) {
 const root = document.getElementById("root");
 if (root) {
   // Loading the REAL MySeniorValet application
-  createRoot(root).render(<App />);
+  createRoot(root).render(
+    <HelmetProvider>
+      <App />
+    </HelmetProvider>
+  );
 } else {
   console.error("Root element not found!");
 }

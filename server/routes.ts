@@ -50,6 +50,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { registerTestRoutes } = await import('./test-system');
   registerTestRoutes(app);
   
+  // Register location routes for SEO
+  const locationRoutes = await import('./routes/locationRoutes');
+  app.use(locationRoutes.default);
+  
   // Register Perplexity test route
   const testPerplexityRoutes = await import('./routes/test-perplexity');
   app.use(testPerplexityRoutes.default);
@@ -65,6 +69,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', pricingHistoryRoutes.default);
   app.use('/api', communityClaimsRoutes.default);
   app.use('/api', verifiedProfilesRoutes.default);
+  
+  // Register sitemap generation for SEO
+  const sitemapGenerator = await import('./sitemap-generator');
+  app.get('/sitemap.xml', sitemapGenerator.generateSitemap);
   
   // Register admin subscription management routes
   const adminSubscriptionRoutes = await import('./routes/admin-subscription-routes');
