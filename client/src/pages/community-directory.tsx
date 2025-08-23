@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { AutocompleteSearch } from "@/components/AutocompleteSearch";
+import { NaturalLanguageSearchBar } from "@/components/NaturalLanguageSearchBar";
 import { 
   Building2, Search, MapPin, Home, Users, DollarSign, Shield, 
   Star, Filter, Database, TrendingUp, BarChart3, Globe,
@@ -354,8 +355,29 @@ export default function CommunityDirectory() {
         <div className="max-w-6xl mx-auto">
           <div className="mb-4 text-center">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              Search Our Complete Database
+              🚀 Wave 1: Natural Language Search
             </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-2">
+              Ask naturally! Try: "Memory care under $3,000 in Dallas with good reviews"
+            </p>
+          </div>
+          
+          {/* Natural Language Search Bar - Wave 1 Enhancement */}
+          <div className="mb-6">
+            <NaturalLanguageSearchBar className="mb-4" />
+          </div>
+          
+          <div className="text-center mb-4">
+            <div className="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+              <span>or use</span>
+              <ChevronRight className="h-4 w-4" />
+            </div>
+          </div>
+          
+          <div className="mb-4 text-center">
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
+              Traditional Search
+            </h3>
             <p className="text-gray-600 dark:text-gray-400">
               35,000+ Communities • Live Pricing • Real Reviews • Instant Results
             </p>
