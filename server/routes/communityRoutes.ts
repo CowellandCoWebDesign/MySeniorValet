@@ -845,10 +845,43 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(desc(communities.rating))
         .limit(20);
       
-      res.json(stateCommunities);
+      res.json({ communities: stateCommunities });
     } catch (error) {
       console.error("Error fetching communities by state:", error);
       res.status(500).json({ error: "Failed to fetch communities by state" });
+    }
+  });
+
+  // Get communities by city
+  app.get("/api/communities/by-city", async (req, res) => {
+    try {
+      const { city, state } = req.query;
+      
+      if (!city) {
+        return res.status(400).json({ error: "City parameter is required" });
+      }
+      
+      let query = db.select().from(communities);
+      
+      if (city && state) {
+        query = query.where(
+          and(
+            eq(communities.city, city as string),
+            eq(communities.state, state as string)
+          )
+        );
+      } else {
+        query = query.where(eq(communities.city, city as string));
+      }
+      
+      const cityCommunities = await query
+        .orderBy(desc(communities.rating))
+        .limit(20);
+      
+      res.json({ communities: cityCommunities });
+    } catch (error) {
+      console.error("Error fetching communities by city:", error);
+      res.status(500).json({ error: "Failed to fetch communities by city" });
     }
   });
 
@@ -895,7 +928,7 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(desc(communities.rating))
         .limit(20);
       
-      res.json(canadianCommunities);
+      res.json({ communities: canadianCommunities });
     } catch (error) {
       console.error("Error fetching Canadian communities:", error);
       res.status(500).json({ error: "Failed to fetch Canadian communities" });
@@ -922,7 +955,7 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(desc(communities.rating))
         .limit(20);
       
-      res.json(mexicanCommunities);
+      res.json({ communities: mexicanCommunities });
     } catch (error) {
       console.error("Error fetching Mexican communities:", error);
       res.status(500).json({ error: "Failed to fetch Mexican communities" });

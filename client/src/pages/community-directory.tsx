@@ -250,7 +250,7 @@ export default function CommunityDirectory() {
 
   // Fetch Texas communities (specifically Fort Worth)
   const { data: texasCommunities, isLoading: texasLoading } = useQuery({
-    queryKey: ['/api/communities/by-city', 'Fort Worth', 'Texas'],
+    queryKey: ['/api/communities/by-city?city=Fort Worth&state=TX'],
   });
 
   // Fetch New York communities
@@ -1409,8 +1409,8 @@ export default function CommunityDirectory() {
             </Link>
           </div>
           
-          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style={{height: '44rem'}}>
-            {(hawaiiLoading || !hawaiiCommunities || (hawaiiCommunities as any[]).length === 0) ? (
+          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{height: '32rem', scrollBehavior: 'smooth'}}>
+            {(hawaiiLoading || !hawaiiCommunities || !(hawaiiCommunities as any)?.communities?.length) ? (
               Array.from({ length: 6 }).map((_, index) => (
                 <Card key={index} className="overflow-hidden flex-shrink-0 w-64 h-80 animate-pulse">
                   <div className="aspect-[4/3] bg-gradient-to-br from-blue-200 to-teal-200 dark:bg-gray-700"></div>
@@ -1422,7 +1422,7 @@ export default function CommunityDirectory() {
                 </Card>
               ))
             ) : (
-              (hawaiiCommunities as any[]).slice(0, 8).map((community: any, index) => (
+              ((hawaiiCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
                 <EnhancedCommunityCard
                   key={`hawaii-${community.id}-${index}`}
                   community={community}
@@ -1485,7 +1485,7 @@ export default function CommunityDirectory() {
             </p>
           </div>
         
-          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', height: '44rem'}}>
+          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth', height: '32rem'}}>
             {/* Show HUD communities */}
             {(!hudProperties || (hudProperties as any[]).length === 0) ? (
               // Loading skeleton cards
@@ -1634,7 +1634,7 @@ export default function CommunityDirectory() {
             </div>
           ) : (
             <div className="relative">
-              <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style={{height: '32rem'}}>
+              <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{height: '32rem', scrollBehavior: 'smooth'}}>
                 {((floridaCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => (
                   <EnhancedCommunityCard
                     key={`florida-${community.id}-${index}`}
@@ -1711,7 +1711,7 @@ export default function CommunityDirectory() {
                 </Button>
               </div>
             ) : (
-              <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style={{height: '32rem'}}>
+              <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{height: '32rem', scrollBehavior: 'smooth'}}>
                 {((texasCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => (
                   <EnhancedCommunityCard
                     key={`texas-${community.id}-${index}`}
@@ -1762,7 +1762,7 @@ export default function CommunityDirectory() {
             Empire State senior living excellence
           </p>
         
-          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', height: '44rem'}}>
+          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth', height: '32rem'}}>
             {/* Show New York communities */}
             {newYorkLoading ? (
               // Loading skeleton cards
@@ -1843,7 +1843,7 @@ export default function CommunityDirectory() {
               : '24 communautés dans les 13 provinces et territoires • 10 avec services bilingues français/anglais'}
           </p>
         
-          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', height: '44rem'}}>
+          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth', height: '32rem'}}>
             {/* Show Canadian communities */}
             {canadianLoading ? (
               // Loading skeleton cards
@@ -1962,9 +1962,9 @@ export default function CommunityDirectory() {
             </div>
           </div>
           
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{(mexicoCommunities as any[] || []).length || 101} authentic facilities • Ciudad de México, Cuernavaca, Guadalajara, Querétaro across 13 states</p>
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{((mexicoCommunities as any)?.communities || []).length || 101} authentic facilities • Ciudad de México, Cuernavaca, Guadalajara, Querétaro across 13 states</p>
         
-          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth', height: '32rem'}}>
             {mexicoLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
@@ -1979,7 +1979,7 @@ export default function CommunityDirectory() {
                 </Card>
               ))
             ) : (
-              ((mexicoCommunities as any[] || []).slice(0, 12)).map((community: any, index: number) => (
+              ((mexicoCommunities as any)?.communities || []).slice(0, 12).map((community: any, index: number) => (
                 <EnhancedCommunityCard
                   key={`mexico-${community.id}-${index}`}
                   community={community}
