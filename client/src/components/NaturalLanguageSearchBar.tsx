@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
-import { useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 
 interface ParsedIntent {
   careTypes?: string[];
@@ -43,7 +43,7 @@ export function NaturalLanguageSearchBar({
   const [parsedIntent, setParsedIntent] = useState<ParsedIntent | null>(null);
   const [explanation, setExplanation] = useState<string>('');
   const { toast } = useToast();
-  const [, navigate] = useNavigate();
+  const [, navigate] = useLocation();
 
   const exampleQueries = [
     "Memory care under $3,000 in Dallas",
