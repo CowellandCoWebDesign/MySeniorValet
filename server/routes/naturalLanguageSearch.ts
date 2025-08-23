@@ -24,18 +24,19 @@ const CARE_TYPE_KEYWORDS: Record<string, string[]> = {
   'independent_living': ['independent living', 'independent', 'active adult', '55+', 'senior living'],
   'skilled_nursing': ['skilled nursing', 'nursing home', 'rehabilitation', 'rehab', 'nursing'],
   'continuing_care': ['continuing care', 'ccrc', 'life care'],
-  'hud_senior_housing': ['hud', 'affordable', 'subsidized', 'low income', 'section 8'],
+  'hud_senior_housing': ['hud', 'subsidized', 'low income', 'section 8'],  // Removed 'affordable' to prevent false positives
   'mobile_home_park': ['mobile home', 'manufactured', 'trailer park'],
   'active_adult_55_plus': ['55 plus', '55+', 'active adult', 'retirement community']
 };
 
-// Amenity keywords
+// Amenity keywords - Enhanced with synonym support
 const AMENITY_KEYWORDS: Record<string, string[]> = {
   'pet_friendly': ['pet', 'pets', 'dog', 'cat', 'pet-friendly', 'pet friendly'],
   'pool': ['pool', 'swimming', 'aquatic'],
   'transportation': ['transportation', 'shuttle', 'transport', 'bus'],
   'meals': ['meals', 'dining', 'food', 'restaurant'],
-  'fitness': ['gym', 'fitness', 'exercise', 'workout'],
+  'fitness': ['fitness', 'exercise', 'workout'],
+  'gym': ['gym'], // Separate gym for exact matching
   'garden': ['garden', 'outdoor', 'nature'],
   'activities': ['activities', 'social', 'entertainment', 'events'],
   'library': ['library', 'reading', 'books'],
@@ -43,9 +44,9 @@ const AMENITY_KEYWORDS: Record<string, string[]> = {
   'parking': ['parking', 'garage', 'car']
 };
 
-// Quality indicators
+// Quality indicators - Enhanced
 const QUALITY_KEYWORDS = {
-  high: ['good reviews', 'highly rated', '5 star', 'five star', 'excellent', 'best', 'top rated', 'premium'],
+  high: ['good reviews', 'highly rated', '5 star', 'five star', 'excellent', 'best', 'top rated', 'premium', 'high quality', 'quality care'],
   verified: ['verified', 'certified', 'accredited', 'licensed']
 };
 
@@ -103,8 +104,8 @@ function parseNaturalLanguageQuery(query: string) {
     }
   }
   
-  // WAVE 2: Handle "cheap" or "expensive" keywords
-  if (lowerQuery.includes('cheap') || lowerQuery.includes('inexpensive') || lowerQuery.includes('low cost')) {
+  // WAVE 2: Handle "cheap" or "expensive" keywords - Enhanced with budget and affordable
+  if (lowerQuery.includes('cheap') || lowerQuery.includes('inexpensive') || lowerQuery.includes('low cost') || lowerQuery.includes('budget') || lowerQuery.includes('affordable')) {
     if (!priceRange.max) priceRange.max = 3000; // Default budget-friendly threshold
   }
   if (lowerQuery.includes('expensive') || lowerQuery.includes('luxury') || lowerQuery.includes('high end')) {
@@ -205,17 +206,20 @@ function parseNaturalLanguageQuery(query: string) {
   const requiresHighQuality = QUALITY_KEYWORDS.high.some(keyword => lowerQuery.includes(keyword));
   const requiresVerified = QUALITY_KEYWORDS.verified.some(keyword => lowerQuery.includes(keyword));
   
-  // Extract availability preference
-  let availability: 'available' | 'waitlist' | 'any' = 'any';
+  // Extract availability preference - Enhanced
+  let availability: 'immediate' | 'available' | 'waitlist' | 'any' = 'any';
   if (lowerQuery.includes('available now') || lowerQuery.includes('immediate')) {
+    availability = 'immediate';  // Use 'immediate' for urgent availability
+  } else if (lowerQuery.includes('available')) {
     availability = 'available';
   } else if (lowerQuery.includes('waitlist') || lowerQuery.includes('wait list')) {
     availability = 'waitlist';
   }
 
-  // Special keywords
-  const isVeteran = lowerQuery.includes('veteran') || lowerQuery.includes('va ') || lowerQuery.includes('vets');
-  const needsHUD = lowerQuery.includes('hud') || lowerQuery.includes('affordable') || lowerQuery.includes('subsidized');
+  // Special keywords - Enhanced with military recognition
+  const isVeteran = lowerQuery.includes('veteran') || lowerQuery.includes('va ') || lowerQuery.includes('vets') || lowerQuery.includes('military');
+  // Only trigger HUD for explicit HUD mentions or subsidized, not just "affordable"
+  const needsHUD = lowerQuery.includes('hud') || lowerQuery.includes('subsidized') || lowerQuery.includes('section 8');
 
   // WAVE 2: Ensure all parsed values are included in the return object
   return {
@@ -260,9 +264,10 @@ function calculateConfidence(
 router.post('/search', async (req, res) => {
   let parsed: any = null;  // Declare parsed at function scope
   let filters: any = {};   // Declare filters at function scope
+  let query: string = '';  // Declare query at function scope
   
   try {
-    const { query } = req.body;
+    query = req.body.query;
     
     if (!query || typeof query !== 'string') {
       return res.status(400).json({
