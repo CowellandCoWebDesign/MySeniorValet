@@ -752,13 +752,13 @@ export default function CommunityDirectory() {
             </p>
           </div>
         
-          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth', height: '32rem'}}>
-            {/* Show HUD communities */}
+          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+            {/* Show HUD communities with critical information */}
             {(!hudProperties || (hudProperties as any[]).length === 0) ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[26rem] border border-gray-200 animate-pulse">
-                  <div className="aspect-[4/3] bg-gray-200"></div>
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-80 h-[520px] border border-gray-200 animate-pulse">
+                  <div className="h-48 bg-gray-200"></div>
                   <CardContent className="p-3">
                     <div className="h-6 bg-gray-200 rounded mb-2"></div>
                     <div className="h-4 bg-gray-200 rounded mb-1"></div>
@@ -769,14 +769,143 @@ export default function CommunityDirectory() {
               ))
             ) : (
               <>
-                {/* Display first 10 HUD properties in slider */}
+                {/* Display first 10 HUD properties with complete information */}
                 {((hudProperties as any[]) || []).slice(0, 10).map((community: any, index: number) => (
-                  <EnhancedCommunityCard
-                    key={`hud-${community.id}-${index}`}
-                    community={community}
-                    index={index}
-                    variant='featured'
-                  />
+                  <Link key={`hud-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-green-300 dark:border-green-600 rounded-xl h-[520px]">
+                      <div className="relative">
+                        {/* Image Section with HUD Theme */}
+                        <div className="h-48 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 flex items-center justify-center relative">
+                          {community.photos && community.photos.length > 0 ? (
+                            <img 
+                              src={community.photos[0]} 
+                              alt={community.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="text-center">
+                              <Building2 className="w-16 h-16 text-green-600 dark:text-green-400 mx-auto mb-2" />
+                              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400">Verifying authentic images</div>
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                        </div>
+                        
+                        {/* HUD Price Badge - Prominent Display */}
+                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
+                          <Badge className="bg-green-600 text-white text-xs px-2 py-1 font-semibold">
+                            🏛️ HUD Official
+                          </Badge>
+                          
+                          <div className="bg-blue-700 text-white rounded-lg px-4 py-2 shadow-lg">
+                            <div className="text-2xl font-bold">
+                              ${community.rentPerMonth || community.priceRange?.min || '0'}
+                            </div>
+                            <div className="text-xs font-medium">
+                              HUD Verified
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Property ID Badge */}
+                        {community.hudPropertyId && (
+                          <Badge className="absolute bottom-3 right-3 bg-gray-800 text-white text-xs px-2 py-1 font-medium">
+                            ID: {community.hudPropertyId}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {/* Card Body with Critical Information */}
+                      <CardContent className="p-4 space-y-3">
+                        <div>
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
+                            {community.name}
+                          </h3>
+                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                            <span>{community.city}, {community.state}</span>
+                          </div>
+                        </div>
+                        
+                        {/* HUD Housing Type Badge */}
+                        <Badge variant="outline" className="bg-green-50 dark:bg-green-900/20 border-green-600 text-green-700 dark:text-green-300">
+                          HUD Housing
+                        </Badge>
+                        
+                        {/* Critical Information Grid */}
+                        <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
+                          {/* Income Limits */}
+                          <div className="flex items-start gap-2">
+                            <DollarSign className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                              <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Income Limit:</div>
+                              <div className="text-sm text-gray-900 dark:text-white font-medium">
+                                {community.incomeLimit || '30% of Income'}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Phone Number */}
+                          <div className="flex items-start gap-2">
+                            <svg className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <div className="flex-1">
+                              <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Contact:</div>
+                              <div className="text-sm text-gray-900 dark:text-white font-medium">
+                                {community.phone || '1-800-HUD-INFO'}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Waitlist Status */}
+                          <div className="flex items-start gap-2">
+                            <Clock className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                              <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Waitlist:</div>
+                              <div className="text-sm text-gray-900 dark:text-white font-medium">
+                                {community.waitlistStatus || 'Call for Status'}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Age Requirements */}
+                          <div className="flex items-start gap-2">
+                            <UserCheck className="h-4 w-4 text-purple-600 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                              <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Age:</div>
+                              <div className="text-sm text-gray-900 dark:text-white font-medium">
+                                {community.ageRestriction || '62+ or Disabled'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Key Metrics */}
+                        <div className="grid grid-cols-2 gap-3 py-2 border-t border-gray-100 dark:border-gray-800">
+                          <div className="text-center">
+                            <div className="flex items-center justify-center">
+                              <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                              <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                                {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
+                              </div>
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">Rating</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="flex items-center justify-center">
+                              <Building className="h-4 w-4 text-blue-500 mr-1" />
+                              <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                                {community.totalUnitsHud || community.totalUnits || 'N/A'}
+                              </div>
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">Units</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))}
                 
                 {/* Action Card at the end */}
