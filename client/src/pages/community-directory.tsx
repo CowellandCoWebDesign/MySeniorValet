@@ -1435,14 +1435,7 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* Red Tag Deals Promotional Section */}
-      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
-        <div className="max-w-7xl mx-auto">
-          <RedTagDeals />
-        </div>
-      </section>
-
-      {/* HUD Communities Showcase */}
+      {/* HUD Communities Showcase - MOVED UP FOR AFFORDABILITY VISIBILITY */}
       <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
         {/* Background Government Building Image */}
         <div className="absolute inset-0 z-0">
@@ -1569,34 +1562,7 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* Compact Benefits Bar */}
-      <section className="px-4 py-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-wrap justify-center items-center gap-4 text-sm">
-            <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-700/80 px-3 py-2 rounded-full">
-              <Brain className="w-4 h-4 text-blue-600" />
-              <span className="font-medium text-gray-900 dark:text-white">3-AI Verification</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-700/80 px-3 py-2 rounded-full">
-              <Shield className="w-4 h-4 text-green-600" />
-              <span className="font-medium text-gray-900 dark:text-white">HUD Verified</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-700/80 px-3 py-2 rounded-full">
-              <BarChart3 className="w-4 h-4 text-purple-600" />
-              <span className="font-medium text-gray-900 dark:text-white">34,171+ Communities</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Market Intelligence Section */}
-      <section className="px-4 py-12 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <MarketIntelligence />
-        </div>
-      </section>
-
-      {/* Florida Communities Section - Authentic Data */}
+      {/* Florida Communities Section - SUNSHINE STATE ADVENTURE */}
       <section ref={floridaSectionRef} className="px-4 py-12 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
@@ -1659,21 +1625,7 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* Move-In Cost Calculator Section */}
-      <section className="px-4 py-12 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <MoveInCostCalculator />
-        </div>
-      </section>
-
-      {/* Cost Comparison Worksheet Section */}
-      <section className="px-4 py-12 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <CostComparisonWorksheet />
-        </div>
-      </section>
-
-      {/* Fort Worth, Texas Communities Promotional Section */}
+      {/* Fort Worth, Texas Communities - TEXAS SIZED LIVING */}
       <section ref={texasSectionRef} className="px-4 py-12 bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
@@ -1726,7 +1678,7 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* Featured & Coastal Communities Section */}
+      {/* New York Communities - EMPIRE STATE EXCELLENCE */}
       <section ref={newYorkSectionRef} className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
         {/* Background New York Skyline Image */}
         <div className="absolute inset-0 z-0">
@@ -1796,7 +1748,7 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* Canadian Communities Section */}
+      {/* Canadian Communities - INTERNATIONAL ADVENTURE */}
       <section ref={canadianSectionRef} className="px-4 py-12 relative dark:bg-gray-800">
         {/* Background Canadian-themed styling */}
         <div className="absolute inset-0 z-0">
@@ -1935,7 +1887,7 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* Featured Mexican Communities Section */}
+      {/* Mexican Communities - AFFORDABLE PARADISE */}
       <section ref={californiaSectionRef} className="px-4 py-8 relative overflow-hidden">
         {/* Background with Mexican flag colors styling */}
         <div className="absolute inset-0 z-0">
@@ -1988,6 +1940,63 @@ export default function CommunityDirectory() {
                 />
               ))
             )}
+          </div>
+        </div>
+      </section>
+
+      {/* === TOOLS & FEATURES SECTION === */}
+      
+      {/* Red Tag Deals Promotional Section */}
+      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
+        <div className="max-w-7xl mx-auto">
+          <RedTagDeals />
+        </div>
+      </section>
+
+      {/* Hero Mascot Panel - Platform Differentiators */}
+      <section className="px-4 py-8">
+        <div className="max-w-7xl mx-auto">
+          <HeroMascotPanel />
+        </div>
+      </section>
+
+      {/* Market Intelligence Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <MarketIntelligence />
+        </div>
+      </section>
+
+      {/* Move-In Cost Calculator Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <MoveInCostCalculator />
+        </div>
+      </section>
+
+      {/* Cost Comparison Worksheet Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <CostComparisonWorksheet />
+        </div>
+      </section>
+
+      {/* Compact Benefits Bar */}
+      <section className="px-4 py-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-wrap justify-center items-center gap-4 text-sm">
+            <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-700/80 px-3 py-2 rounded-full">
+              <Brain className="w-4 h-4 text-blue-600" />
+              <span className="font-medium text-gray-900 dark:text-white">3-AI Verification</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-700/80 px-3 py-2 rounded-full">
+              <Shield className="w-4 h-4 text-green-600" />
+              <span className="font-medium text-gray-900 dark:text-white">HUD Verified</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-700/80 px-3 py-2 rounded-full">
+              <BarChart3 className="w-4 h-4 text-purple-600" />
+              <span className="font-medium text-gray-900 dark:text-white">35,182+ Communities</span>
+            </div>
           </div>
         </div>
       </section>
