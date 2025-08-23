@@ -263,25 +263,45 @@ export default function CommunityDirectory() {
   
   // Fetch Hawaii communities
   const { data: hawaiiCommunities, isLoading: hawaiiLoading } = useQuery({
-    queryKey: ['/api/communities/by-state?state=HI'],
+    queryKey: ['/api/communities/by-state', { state: 'HI' }],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=HI');
+      if (!response.ok) throw new Error('Failed to fetch Hawaii communities');
+      return response.json();
+    },
     enabled: true
   });
   
   // Fetch Florida communities
   const { data: floridaCommunities, isLoading: floridaLoading } = useQuery({
-    queryKey: ['/api/communities/by-state?state=FL'],
+    queryKey: ['/api/communities/by-state', { state: 'FL' }],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=FL');
+      if (!response.ok) throw new Error('Failed to fetch Florida communities');
+      return response.json();
+    },
     enabled: true
   });
   
   // Fetch Texas communities (Fort Worth)
   const { data: texasCommunities, isLoading: texasLoading } = useQuery({
-    queryKey: ['/api/communities/by-city?city=Fort Worth&state=TX'],
+    queryKey: ['/api/communities/by-city', { city: 'Fort Worth', state: 'TX' }],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-city?city=Fort%20Worth&state=TX');
+      if (!response.ok) throw new Error('Failed to fetch Texas communities');
+      return response.json();
+    },
     enabled: true
   });
   
   // Fetch New York communities
   const { data: newYorkCommunities, isLoading: newYorkLoading } = useQuery({
-    queryKey: ['/api/communities/by-state?state=NY'],
+    queryKey: ['/api/communities/by-state', { state: 'NY' }],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=NY');
+      if (!response.ok) throw new Error('Failed to fetch New York communities');
+      return response.json();
+    },
     enabled: true
   });
   
