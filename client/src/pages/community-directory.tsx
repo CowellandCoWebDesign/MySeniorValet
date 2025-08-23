@@ -349,41 +349,111 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* Search Section */}
-      <section className="px-4 py-8 bg-white dark:bg-gray-800 shadow-lg">
+      {/* Search Section - Powered by AI */}
+      <section className="px-4 py-8 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 shadow-lg">
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <AutocompleteSearch
-                value={searchTerm}
-                onChange={setSearchTerm}
-                onSubmit={(value) => setLocation(`/search?q=${encodeURIComponent(value)}`)}
-                placeholder="Search communities by name, city, state, zip code..."
-                inputClassName="py-6 text-lg border-2 border-gray-200 focus:border-blue-500"
-                hideSearchButton={false}
-              />
+          <div className="mb-4 text-center">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              Search Our Complete Database
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              35,000+ Communities • Live Pricing • Real Reviews • Instant Results
+            </p>
+          </div>
+          <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-2">
+            <div className="flex items-center">
+              <div className="flex-1">
+                <AutocompleteSearch
+                  value={searchTerm}
+                  onChange={setSearchTerm}
+                  onSubmit={(value) => {
+                    if (value) {
+                      setLocation(`/map-search?q=${encodeURIComponent(value)}`);
+                    }
+                  }}
+                  placeholder="Search communities by name, city, state, zip code, or care type..."
+                  inputClassName="w-full pl-10 pr-3 py-4 text-lg border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                  hideSearchButton={true}
+                />
+              </div>
+              <div className="flex items-center gap-2 mr-2">
+                <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs px-3 py-1 font-semibold">
+                  AI-Powered
+                </Badge>
+                <Button
+                  type="submit"
+                  onClick={() => {
+                    if (searchTerm) {
+                      setLocation(`/map-search?q=${encodeURIComponent(searchTerm)}`);
+                    }
+                  }}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-3 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
+                >
+                  <Search className="w-5 h-5" />
+                </Button>
+              </div>
             </div>
           </div>
           
+          {/* Trust Indicators */}
+          <div className="flex flex-wrap justify-center items-center gap-3 mt-6">
+            <span className="inline-flex items-center space-x-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md">
+              <DollarSign className="h-3 w-3 text-green-500 animate-pulse" />
+              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Live Pricing</span>
+            </span>
+            <span className="inline-flex items-center space-x-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md">
+              <Users className="h-3 w-3 text-blue-500" />
+              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Family Reviews</span>
+            </span>
+            <span className="inline-flex items-center space-x-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md">
+              <Brain className="h-3 w-3 text-purple-500 animate-pulse" />
+              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Live Availability</span>
+            </span>
+            <span className="inline-flex items-center space-x-1 bg-gradient-to-r from-purple-800/80 to-indigo-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md border border-purple-400/30">
+              <Shield className="h-3 w-3 text-yellow-300 animate-pulse" />
+              <span className="text-xs font-semibold text-white">AI Triple-Verified</span>
+            </span>
+          </div>
+
           {/* Quick Filters */}
-          <div className="flex flex-wrap gap-2 mt-4">
-            <Badge variant="outline" className="cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20">
+          <div className="flex flex-wrap gap-2 mt-6 justify-center">
+            <Badge 
+              variant="outline" 
+              className="cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+              onClick={() => setLocation('/map-search?filter=hud')}
+            >
               <Shield className="h-3 w-3 mr-1" />
               HUD Verified
             </Badge>
-            <Badge variant="outline" className="cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20">
+            <Badge 
+              variant="outline" 
+              className="cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+              onClick={() => setLocation('/map-search?filter=pricing')}
+            >
               <DollarSign className="h-3 w-3 mr-1" />
               With Pricing
             </Badge>
-            <Badge variant="outline" className="cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/20">
+            <Badge 
+              variant="outline" 
+              className="cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
+              onClick={() => setLocation('/map-search?filter=5star')}
+            >
               <Star className="h-3 w-3 mr-1" />
               5-Star Rated
             </Badge>
-            <Badge variant="outline" className="cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900/20">
+            <Badge 
+              variant="outline" 
+              className="cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
+              onClick={() => setLocation('/map-search?filter=memory')}
+            >
               <Home className="h-3 w-3 mr-1" />
               Memory Care
             </Badge>
-            <Badge variant="outline" className="cursor-pointer hover:bg-pink-50 dark:hover:bg-pink-900/20">
+            <Badge 
+              variant="outline" 
+              className="cursor-pointer hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors"
+              onClick={() => setLocation('/map-search?filter=assisted')}
+            >
               <Users className="h-3 w-3 mr-1" />
               Assisted Living
             </Badge>
