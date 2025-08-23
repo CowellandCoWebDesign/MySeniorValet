@@ -605,11 +605,11 @@ export default function CommunityDirectory() {
             </Link>
           </div>
           
-          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{height: '32rem', scrollBehavior: 'smooth'}}>
+          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
             {(hawaiiLoading || !hawaiiCommunities || !(hawaiiCommunities as any)?.communities?.length) ? (
               Array.from({ length: 6 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-64 h-80 animate-pulse">
-                  <div className="aspect-[4/3] bg-gradient-to-br from-blue-200 to-teal-200 dark:bg-gray-700"></div>
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-72 h-[420px] border border-gray-200 animate-pulse">
+                  <div className="h-48 bg-gradient-to-br from-blue-200 to-teal-200 dark:bg-gray-700"></div>
                   <CardContent className="p-4">
                     <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
                     <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
@@ -619,12 +619,90 @@ export default function CommunityDirectory() {
               ))
             ) : (
               ((hawaiiCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
-                <EnhancedCommunityCard
-                  key={`hawaii-${community.id}-${index}`}
-                  community={community}
-                  index={index}
-                  variant='featured'
-                />
+                <Link key={`hawaii-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                  <Card className="w-72 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl h-[420px]">
+                    <div className="relative">
+                      {/* Image Section with Hawaii Theme */}
+                      <div className="h-48 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 flex items-center justify-center relative">
+                        {community.photos && community.photos.length > 0 ? (
+                          <img 
+                            src={community.photos[0]} 
+                            alt={community.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="text-center">
+                            <div className="text-4xl mb-2">🌺</div>
+                            <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                      </div>
+                      
+                      {/* Badges Overlay */}
+                      <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
+                        <Badge className="bg-green-600 text-white text-xs px-2 py-1 font-semibold">
+                          🌺 Hawaii
+                        </Badge>
+                        
+                        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
+                          <div className="text-lg font-bold text-gray-900 dark:text-white">
+                            {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
+                             community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
+                          </div>
+                          {community.hudPropertyId && (
+                            <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                              HUD Verified
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Island Life Badge */}
+                      <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
+                        🌊 Island Life
+                      </Badge>
+                    </div>
+                    
+                    {/* Card Body */}
+                    <CardContent className="p-4 space-y-3">
+                      <div>
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
+                          {community.name}
+                        </h3>
+                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                          <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                          <span>{community.city}, HI</span>
+                        </div>
+                      </div>
+                      
+                      {/* Care Types */}
+                      <div className="flex flex-wrap gap-1">
+                        {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
+                          <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
+                            {careType}
+                          </Badge>
+                        ))}
+                      </div>
+                      
+                      {/* Key Metrics */}
+                      <div className="grid grid-cols-2 gap-3 py-2 border-t border-gray-100 dark:border-gray-800">
+                        <div className="text-center">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Rating</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {community.totalUnits || community.totalUnitsHud || 'N/A'}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Units</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))
             )}
           </div>
@@ -859,14 +937,87 @@ export default function CommunityDirectory() {
                 </Button>
               </div>
             ) : (
-              <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{height: '32rem', scrollBehavior: 'smooth'}}>
-                {((texasCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => (
-                  <EnhancedCommunityCard
-                    key={`texas-${community.id}-${index}`}
-                    community={community}
-                    index={index}
-                    variant='featured'
-                  />
+              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-orange-500 dark:scrollbar-thumb-orange-400 hover:scrollbar-thumb-orange-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+                {((texasCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                  <Link key={`texas-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <Card className="w-72 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl h-[420px]">
+                      <div className="relative">
+                        {/* Image Section with Texas Theme */}
+                        <div className="h-48 bg-gradient-to-br from-amber-100 to-red-100 dark:from-amber-900 dark:to-red-900 flex items-center justify-center relative">
+                          {community.photos && community.photos.length > 0 ? (
+                            <img 
+                              src={community.photos[0]} 
+                              alt={community.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="text-center">
+                              <div className="text-4xl mb-2">⭐</div>
+                              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                        </div>
+                        
+                        {/* Badges Overlay */}
+                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
+                          <Badge className="bg-amber-600 text-white text-xs px-2 py-1 font-semibold">
+                            ⭐ Texas
+                          </Badge>
+                          
+                          <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
+                            <div className="text-lg font-bold text-gray-900 dark:text-white">
+                              {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
+                               community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
+                            </div>
+                            {community.hudPropertyId && (
+                              <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                                HUD Verified
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Card Body */}
+                      <CardContent className="p-4 space-y-3">
+                        <div>
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
+                            {community.name}
+                          </h3>
+                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                            <span>{community.city}, TX</span>
+                          </div>
+                        </div>
+                        
+                        {/* Care Types */}
+                        <div className="flex flex-wrap gap-1">
+                          {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
+                            <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
+                              {careType}
+                            </Badge>
+                          ))}
+                        </div>
+                        
+                        {/* Key Metrics */}
+                        <div className="grid grid-cols-2 gap-3 py-2 border-t border-gray-100 dark:border-gray-800">
+                          <div className="text-center">
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">Rating</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">Units</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))}
               </div>
             )}
@@ -910,13 +1061,13 @@ export default function CommunityDirectory() {
             Empire State senior living excellence
           </p>
         
-          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth', height: '32rem'}}>
+          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-purple-500 dark:scrollbar-thumb-purple-400 hover:scrollbar-thumb-purple-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
             {/* Show New York communities */}
             {newYorkLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
-                  <div className="aspect-[4/3] bg-gray-200"></div>
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-72 h-[420px] border border-gray-200 animate-pulse">
+                  <div className="h-48 bg-gray-200"></div>
                   <CardContent className="p-3">
                     <div className="h-6 bg-gray-200 rounded mb-2"></div>
                     <div className="h-4 bg-gray-200 rounded mb-1"></div>
@@ -931,13 +1082,86 @@ export default function CommunityDirectory() {
                 <p>No New York communities available at this time.</p>
               </div>
             ) : (
-              ((newYorkCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => (
-                <EnhancedCommunityCard
-                  key={`newyork-${community.id}-${index}`}
-                  community={community}
-                  index={index}
-                  variant='featured'
-                />
+              ((newYorkCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                <Link key={`newyork-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                  <Card className="w-72 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl h-[420px]">
+                    <div className="relative">
+                      {/* Image Section with New York Theme */}
+                      <div className="h-48 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900 flex items-center justify-center relative">
+                        {community.photos && community.photos.length > 0 ? (
+                          <img 
+                            src={community.photos[0]} 
+                            alt={community.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="text-center">
+                            <div className="text-4xl mb-2">🗽</div>
+                            <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                      </div>
+                      
+                      {/* Badges Overlay */}
+                      <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
+                        <Badge className="bg-purple-600 text-white text-xs px-2 py-1 font-semibold">
+                          🗽 New York
+                        </Badge>
+                        
+                        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
+                          <div className="text-lg font-bold text-gray-900 dark:text-white">
+                            {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
+                             community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
+                          </div>
+                          {community.hudPropertyId && (
+                            <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                              HUD Verified
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Card Body */}
+                    <CardContent className="p-4 space-y-3">
+                      <div>
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
+                          {community.name}
+                        </h3>
+                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                          <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                          <span>{community.city}, NY</span>
+                        </div>
+                      </div>
+                      
+                      {/* Care Types */}
+                      <div className="flex flex-wrap gap-1">
+                        {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
+                          <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
+                            {careType}
+                          </Badge>
+                        ))}
+                      </div>
+                      
+                      {/* Key Metrics */}
+                      <div className="grid grid-cols-2 gap-3 py-2 border-t border-gray-100 dark:border-gray-800">
+                        <div className="text-center">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Rating</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {community.totalUnits || community.totalUnitsHud || 'N/A'}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Units</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))
             )}
           </div>
@@ -991,13 +1215,13 @@ export default function CommunityDirectory() {
               : '24 communautés dans les 13 provinces et territoires • 10 avec services bilingues français/anglais'}
           </p>
         
-          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth', height: '32rem'}}>
+          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-red-500 dark:scrollbar-thumb-red-400 hover:scrollbar-thumb-red-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
             {/* Show Canadian communities */}
             {canadianLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
-                  <div className="aspect-[4/3] bg-gray-200"></div>
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-72 h-[420px] border border-gray-200 animate-pulse">
+                  <div className="h-48 bg-gray-200"></div>
                   <CardContent className="p-3">
                     <div className="h-6 bg-gray-200 rounded mb-2"></div>
                     <div className="h-4 bg-gray-200 rounded mb-1"></div>
@@ -1063,13 +1287,94 @@ export default function CommunityDirectory() {
                 </Link>
               </>
             ) : (
-              ((canadianCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => (
-                <EnhancedCommunityCard
-                  key={`canadian-${community.id}-${index}`}
-                  community={community}
-                  index={index}
-                  variant='featured'
-                />
+              ((canadianCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                <Link key={`canadian-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                  <Card className="w-72 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl h-[420px]">
+                    <div className="relative">
+                      {/* Image Section with Canadian Theme */}
+                      <div className="h-48 bg-gradient-to-br from-red-100 to-white dark:from-red-900 dark:to-gray-800 flex items-center justify-center relative">
+                        {community.photos && community.photos.length > 0 ? (
+                          <img 
+                            src={community.photos[0]} 
+                            alt={community.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="text-center">
+                            <div className="text-4xl mb-2">🍁</div>
+                            <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                      </div>
+                      
+                      {/* Badges Overlay */}
+                      <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
+                        <Badge className="bg-red-600 text-white text-xs px-2 py-1 font-semibold">
+                          🍁 {community.state || 'Canada'}
+                        </Badge>
+                        
+                        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
+                          <div className="text-lg font-bold text-gray-900 dark:text-white">
+                            {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
+                             community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
+                          </div>
+                          {community.hudPropertyId && (
+                            <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                              HUD Verified
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Bilingual Badge if applicable */}
+                      {['QC', 'NB', 'ON'].includes(community.state) && (
+                        <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium flex items-center gap-1">
+                          <Languages className="w-3 h-3" />
+                          {language === 'en' ? 'Bilingual' : 'Bilingue'}
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    {/* Card Body */}
+                    <CardContent className="p-4 space-y-3">
+                      <div>
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
+                          {community.name}
+                        </h3>
+                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                          <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                          <span>{community.city}, {community.state}</span>
+                        </div>
+                      </div>
+                      
+                      {/* Care Types */}
+                      <div className="flex flex-wrap gap-1">
+                        {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
+                          <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
+                            {careType}
+                          </Badge>
+                        ))}
+                      </div>
+                      
+                      {/* Key Metrics */}
+                      <div className="grid grid-cols-2 gap-3 py-2 border-t border-gray-100 dark:border-gray-800">
+                        <div className="text-center">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Rating</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {community.totalUnits || community.totalUnitsHud || 'N/A'}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Units</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))
             )}
           </div>
@@ -1126,14 +1431,92 @@ export default function CommunityDirectory() {
             </div>
           ) : (
             <div className="relative">
-              <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{height: '32rem', scrollBehavior: 'smooth'}}>
-                {((puertoRicoCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <EnhancedCommunityCard
-                    key={`pr-${community.id}-${index}`}
-                    community={community}
-                    index={index}
-                    variant='featured'
-                  />
+              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+                {((puertoRicoCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                  <Link key={`pr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <Card className="w-72 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl h-[420px]">
+                      <div className="relative">
+                        {/* Image Section with Puerto Rico Theme */}
+                        <div className="h-48 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900 dark:to-blue-900 flex items-center justify-center relative">
+                          {community.photos && community.photos.length > 0 ? (
+                            <img 
+                              src={community.photos[0]} 
+                              alt={community.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="text-center">
+                              <div className="text-4xl mb-2">🌴</div>
+                              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                        </div>
+                        
+                        {/* Badges Overlay */}
+                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
+                          <Badge className="bg-cyan-600 text-white text-xs px-2 py-1 font-semibold">
+                            🌴 Puerto Rico
+                          </Badge>
+                          
+                          <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
+                            <div className="text-lg font-bold text-gray-900 dark:text-white">
+                              {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
+                               community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
+                            </div>
+                            {community.hudPropertyId && (
+                              <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                                HUD Verified
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Caribbean Paradise Badge */}
+                        <Badge className="absolute bottom-3 right-3 bg-teal-600 text-white text-xs px-2 py-1 font-medium">
+                          🏝️ Caribbean Living
+                        </Badge>
+                      </div>
+                      
+                      {/* Card Body */}
+                      <CardContent className="p-4 space-y-3">
+                        <div>
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
+                            {community.name}
+                          </h3>
+                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                            <span>{community.city}, PR</span>
+                          </div>
+                        </div>
+                        
+                        {/* Care Types */}
+                        <div className="flex flex-wrap gap-1">
+                          {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
+                            <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
+                              {careType}
+                            </Badge>
+                          ))}
+                        </div>
+                        
+                        {/* Key Metrics */}
+                        <div className="grid grid-cols-2 gap-3 py-2 border-t border-gray-100 dark:border-gray-800">
+                          <div className="text-center">
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">Rating</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">Units</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))}
               </div>
               
@@ -1186,13 +1569,13 @@ export default function CommunityDirectory() {
             Expat-friendly locations with modern amenities
           </p>
         
-          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth', height: '32rem'}}>
+          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
             {/* Show Mexican communities */}
             {mexicoLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
-                  <div className="aspect-[4/3] bg-gray-200"></div>
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-72 h-[420px] border border-gray-200 animate-pulse">
+                  <div className="h-48 bg-gray-200"></div>
                   <CardContent className="p-3">
                     <div className="h-6 bg-gray-200 rounded mb-2"></div>
                     <div className="h-4 bg-gray-200 rounded mb-1"></div>
@@ -1202,13 +1585,91 @@ export default function CommunityDirectory() {
                 </Card>
               ))
             ) : (
-              ((mexicoCommunities as any)?.communities || []).slice(0, 12).map((community: any, index: number) => (
-                <EnhancedCommunityCard
-                  key={`mexico-${community.id}-${index}`}
-                  community={community}
-                  index={index}
-                  variant='featured'
-                />
+              ((mexicoCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                <Link key={`mexico-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                  <Card className="w-72 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl h-[420px]">
+                    <div className="relative">
+                      {/* Image Section with Mexico Theme */}
+                      <div className="h-48 bg-gradient-to-br from-green-100 to-red-100 dark:from-green-900 dark:to-red-900 flex items-center justify-center relative">
+                        {community.photos && community.photos.length > 0 ? (
+                          <img 
+                            src={community.photos[0]} 
+                            alt={community.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="text-center">
+                            <div className="text-4xl mb-2">🌵</div>
+                            <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                      </div>
+                      
+                      {/* Badges Overlay */}
+                      <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
+                        <Badge className="bg-green-600 text-white text-xs px-2 py-1 font-semibold">
+                          🌵 {community.state || 'Mexico'}
+                        </Badge>
+                        
+                        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
+                          <div className="text-lg font-bold text-gray-900 dark:text-white">
+                            {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
+                             community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
+                          </div>
+                          {community.hudPropertyId && (
+                            <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                              HUD Verified
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Expat Paradise Badge */}
+                      <Badge className="absolute bottom-3 right-3 bg-red-600 text-white text-xs px-2 py-1 font-medium">
+                        ✨ Expat Paradise
+                      </Badge>
+                    </div>
+                    
+                    {/* Card Body */}
+                    <CardContent className="p-4 space-y-3">
+                      <div>
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
+                          {community.name}
+                        </h3>
+                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                          <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                          <span>{community.city}, {community.state || 'MX'}</span>
+                        </div>
+                      </div>
+                      
+                      {/* Care Types */}
+                      <div className="flex flex-wrap gap-1">
+                        {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
+                          <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
+                            {careType}
+                          </Badge>
+                        ))}
+                      </div>
+                      
+                      {/* Key Metrics */}
+                      <div className="grid grid-cols-2 gap-3 py-2 border-t border-gray-100 dark:border-gray-800">
+                        <div className="text-center">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Rating</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {community.totalUnits || community.totalUnitsHud || 'N/A'}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Units</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))
             )}
           </div>
