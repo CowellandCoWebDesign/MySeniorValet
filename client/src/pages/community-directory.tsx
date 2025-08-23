@@ -261,48 +261,44 @@ export default function CommunityDirectory() {
   // Extract topStates from stats
   const topStates = communityStats?.topStates || [];
   
-  // Fetch Hawaii communities
+  // Fetch Hawaii communities - with explicit queryFn
   const { data: hawaiiCommunities, isLoading: hawaiiLoading } = useQuery({
-    queryKey: ['/api/communities/by-state', { state: 'HI' }],
+    queryKey: ['hawaiiCommunities'],
     queryFn: async () => {
       const response = await fetch('/api/communities/by-state?state=HI');
-      if (!response.ok) throw new Error('Failed to fetch Hawaii communities');
+      if (!response.ok) throw new Error('Failed to fetch');
       return response.json();
-    },
-    enabled: true
+    }
   });
   
-  // Fetch Florida communities
+  // Fetch Florida communities - with explicit queryFn
   const { data: floridaCommunities, isLoading: floridaLoading } = useQuery({
-    queryKey: ['/api/communities/by-state', { state: 'FL' }],
+    queryKey: ['floridaCommunities'],
     queryFn: async () => {
       const response = await fetch('/api/communities/by-state?state=FL');
-      if (!response.ok) throw new Error('Failed to fetch Florida communities');
+      if (!response.ok) throw new Error('Failed to fetch');
       return response.json();
-    },
-    enabled: true
+    }
   });
   
-  // Fetch Texas communities (Fort Worth)
+  // Fetch Texas communities (Fort Worth) - with explicit queryFn
   const { data: texasCommunities, isLoading: texasLoading } = useQuery({
-    queryKey: ['/api/communities/by-city', { city: 'Fort Worth', state: 'TX' }],
+    queryKey: ['texasCommunities'],
     queryFn: async () => {
       const response = await fetch('/api/communities/by-city?city=Fort%20Worth&state=TX');
-      if (!response.ok) throw new Error('Failed to fetch Texas communities');
+      if (!response.ok) throw new Error('Failed to fetch');
       return response.json();
-    },
-    enabled: true
+    }
   });
   
-  // Fetch New York communities
+  // Fetch New York communities - with explicit queryFn
   const { data: newYorkCommunities, isLoading: newYorkLoading } = useQuery({
-    queryKey: ['/api/communities/by-state', { state: 'NY' }],
+    queryKey: ['newYorkCommunities'],
     queryFn: async () => {
       const response = await fetch('/api/communities/by-state?state=NY');
-      if (!response.ok) throw new Error('Failed to fetch New York communities');
+      if (!response.ok) throw new Error('Failed to fetch');
       return response.json();
-    },
-    enabled: true
+    }
   });
   
   // Fetch Canadian communities
