@@ -417,7 +417,7 @@ export default function CommunityDirectory() {
             </div>
           </div>
           
-          {/* Trust Indicators */}
+          {/* Database Features & Trust Indicators */}
           <div className="flex flex-wrap justify-center items-center gap-3 mt-6">
             <span className="inline-flex items-center space-x-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md">
               <DollarSign className="h-3 w-3 text-green-500 animate-pulse" />
@@ -437,153 +437,94 @@ export default function CommunityDirectory() {
             </span>
           </div>
 
-          {/* Quick Filters */}
+          {/* Quick Filters & Database Features */}
           <div className="flex flex-wrap gap-2 mt-6 justify-center">
             <Badge 
               variant="outline" 
-              className="cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+              className="cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors border-green-300 dark:border-green-600"
               onClick={() => setLocation('/map-search?filter=hud')}
             >
-              <Shield className="h-3 w-3 mr-1" />
-              HUD Verified
+              <Shield className="h-3 w-3 mr-1 text-green-600" />
+              <span className="text-gray-700 dark:text-gray-300">HUD Verified</span>
             </Badge>
             <Badge 
               variant="outline" 
-              className="cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+              className="cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border-blue-300 dark:border-blue-600"
               onClick={() => setLocation('/map-search?filter=pricing')}
             >
-              <DollarSign className="h-3 w-3 mr-1" />
-              With Pricing
+              <DollarSign className="h-3 w-3 mr-1 text-blue-600" />
+              <span className="text-gray-700 dark:text-gray-300">With Pricing</span>
             </Badge>
             <Badge 
               variant="outline" 
-              className="cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors"
+              className="cursor-pointer hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors border-yellow-300 dark:border-yellow-600"
               onClick={() => setLocation('/map-search?filter=5star')}
             >
-              <Star className="h-3 w-3 mr-1" />
-              5-Star Rated
+              <Star className="h-3 w-3 mr-1 text-yellow-600" />
+              <span className="text-gray-700 dark:text-gray-300">5-Star Rated</span>
             </Badge>
             <Badge 
               variant="outline" 
-              className="cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors"
+              className="cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors border-purple-300 dark:border-purple-600"
               onClick={() => setLocation('/map-search?filter=memory')}
             >
-              <Home className="h-3 w-3 mr-1" />
-              Memory Care
+              <Brain className="h-3 w-3 mr-1 text-purple-600" />
+              <span className="text-gray-700 dark:text-gray-300">Memory Care</span>
             </Badge>
             <Badge 
               variant="outline" 
-              className="cursor-pointer hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors"
+              className="cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border-red-300 dark:border-red-600"
               onClick={() => setLocation('/map-search?filter=assisted')}
             >
-              <Users className="h-3 w-3 mr-1" />
-              Assisted Living
+              <HeartHandshake className="h-3 w-3 mr-1 text-red-600" />
+              <span className="text-gray-700 dark:text-gray-300">Assisted Living</span>
             </Badge>
           </div>
         </div>
       </section>
 
-      {/* Browse by State and Database Features */}
-      <section className="px-4 py-12 bg-gray-50 dark:bg-gray-900">
+      {/* Browse by State */}
+      <section className="px-4 py-12 bg-gradient-to-br from-blue-900 to-indigo-900 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            {/* Browse by State */}
-            <Card className="lg:col-span-2 border-2 border-blue-200 dark:border-blue-700">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="h-6 w-6 text-blue-600" />
-                  Browse by State
-                </CardTitle>
-                <CardDescription>
-                  Select a state to explore communities in that region
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
-                  {(topStates as any[]).slice(0, 15).map((state: any) => (
-                    <Link key={state.state} href={`/search?state=${state.state}`}>
-                      <Card className="hover:shadow-lg transition-all cursor-pointer border hover:border-blue-400 group">
-                        <CardContent className="p-3 text-center">
-                          <div className="font-bold text-lg text-gray-900 dark:text-gray-100 group-hover:text-blue-600">
-                            {state.state}
-                          </div>
-                          <div className="text-xs text-gray-600 dark:text-gray-400">
-                            {state.count.toLocaleString()} communities
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                  <Link href="/map-search">
-                    <Card className="hover:shadow-lg transition-all cursor-pointer border hover:border-blue-400 group bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-                      <CardContent className="p-3 text-center flex flex-col justify-center h-full">
-                        <div className="font-bold text-sm text-blue-600">
-                          View All 50 States
+          <Card className="bg-white/10 backdrop-blur-md border-2 border-white/20 dark:border-gray-700/50">
+            <CardHeader className="text-center">
+              <CardTitle className="flex items-center justify-center gap-2 text-2xl text-white">
+                <Globe className="h-7 w-7 text-blue-300" />
+                Browse by State
+              </CardTitle>
+              <CardDescription className="text-gray-200">
+                Select a state to explore communities in that region
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-2">
+                {(topStates as any[]).slice(0, 15).map((state: any) => (
+                  <Link key={state.state} href={`/search?state=${state.state}`}>
+                    <Card className="hover:shadow-lg transition-all cursor-pointer bg-white/90 dark:bg-gray-800/90 border hover:border-blue-400 group hover:scale-105">
+                      <CardContent className="p-3 text-center">
+                        <div className="font-bold text-lg text-gray-900 dark:text-gray-100 group-hover:text-blue-600">
+                          {state.state}
                         </div>
-                        <ChevronRight className="h-4 w-4 mx-auto mt-1 text-blue-600" />
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          {state.count.toLocaleString()}
+                        </div>
                       </CardContent>
                     </Card>
                   </Link>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Database Features */}
-            <Card className="border-2 border-purple-200 dark:border-purple-700">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Database className="h-6 w-6 text-purple-600" />
-                  Database Features
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div>
-                    <div className="font-semibold text-sm">Real-Time Updates</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">
-                      Live pricing and availability
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div>
-                    <div className="font-semibold text-sm">HUD Verified Pricing</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">
-                      5,936+ government properties
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div>
-                    <div className="font-semibold text-sm">Advanced Filtering</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">
-                      Search by care type, price, location
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div>
-                    <div className="font-semibold text-sm">Complete Details</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">
-                      Photos, amenities, reviews
-                    </div>
-                  </div>
-                </div>
-                <Button 
-                  className="w-full mt-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
-                  onClick={() => setLocation('/map-search')}
-                >
-                  <Search className="mr-2 h-4 w-4" />
-                  Start Searching
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+                ))}
+                <Link href="/map-search">
+                  <Card className="hover:shadow-lg transition-all cursor-pointer border hover:border-blue-400 group bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/50 dark:to-indigo-900/50 hover:scale-105">
+                    <CardContent className="p-3 text-center flex flex-col justify-center h-full">
+                      <div className="font-bold text-sm text-blue-600">
+                        View All
+                      </div>
+                      <ChevronRight className="h-4 w-4 mx-auto mt-1 text-blue-600" />
+                    </CardContent>
+                  </Card>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
