@@ -281,7 +281,7 @@ export default function CommunityDirectory() {
   
   // Show mascot loading display while loading
   if (isLoading) {
-    return <MascotLoadingDisplay pageTitle="Community Directory" />;
+    return <MascotLoadingDisplay />;
   }
   
   return (
@@ -419,7 +419,7 @@ export default function CommunityDirectory() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
-                  {topStates.slice(0, 15).map((state: any) => (
+                  {(topStates as any[]).slice(0, 15).map((state: any) => (
                     <Link key={state.state} href={`/search?state=${state.state}`}>
                       <Card className="hover:shadow-lg transition-all cursor-pointer border hover:border-blue-400 group">
                         <CardContent className="p-3 text-center">
@@ -1549,7 +1549,7 @@ export default function CommunityDirectory() {
                   <span>100% Free Access</span>
                 </div>
               </div>
-            </div>
+            </CardContent>
           </Card>
         </div>
       </section>
