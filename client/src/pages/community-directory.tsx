@@ -608,7 +608,7 @@ export default function CommunityDirectory() {
           <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
             {(hawaiiLoading || !hawaiiCommunities || !(hawaiiCommunities as any)?.communities?.length) ? (
               Array.from({ length: 6 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-72 h-[420px] border border-gray-200 animate-pulse">
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-80 h-[520px] border border-gray-200 animate-pulse">
                   <div className="h-48 bg-gradient-to-br from-blue-200 to-teal-200 dark:bg-gray-700"></div>
                   <CardContent className="p-4">
                     <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
@@ -620,7 +620,7 @@ export default function CommunityDirectory() {
             ) : (
               ((hawaiiCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
                 <Link key={`hawaii-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                  <Card className="w-72 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl h-[420px]">
+                  <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-cyan-300 dark:border-cyan-600 rounded-xl h-[520px]">
                     <div className="relative">
                       {/* Image Section with Hawaii Theme */}
                       <div className="h-48 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 flex items-center justify-center relative">
@@ -634,6 +634,7 @@ export default function CommunityDirectory() {
                           <div className="text-center">
                             <div className="text-4xl mb-2">🌺</div>
                             <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400">Verifying authentic images</div>
                           </div>
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
@@ -645,13 +646,13 @@ export default function CommunityDirectory() {
                           🌺 Hawaii
                         </Badge>
                         
-                        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
-                          <div className="text-lg font-bold text-gray-900 dark:text-white">
+                        <div className="bg-blue-700 text-white rounded-lg px-4 py-2 shadow-lg">
+                          <div className="text-xl font-bold">
                             {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
                              community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
                           </div>
                           {community.hudPropertyId && (
-                            <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                            <div className="text-xs font-medium">
                               HUD Verified
                             </div>
                           )}
@@ -664,7 +665,7 @@ export default function CommunityDirectory() {
                       </Badge>
                     </div>
                     
-                    {/* Card Body */}
+                    {/* Card Body with Critical Information */}
                     <CardContent className="p-4 space-y-3">
                       <div>
                         <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
@@ -685,17 +686,61 @@ export default function CommunityDirectory() {
                         ))}
                       </div>
                       
+                      {/* Critical Information */}
+                      <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
+                        {/* Phone Number */}
+                        <div className="flex items-start gap-2">
+                          <svg className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                          <div className="flex-1">
+                            <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Contact:</div>
+                            <div className="text-sm text-gray-900 dark:text-white font-medium">
+                              {community.phone || 'Call for Info'}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Availability */}
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Availability:</div>
+                            <div className="text-sm text-gray-900 dark:text-white font-medium">
+                              {community.availableUnits ? `${community.availableUnits} Units` : 'Contact for Status'}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Age Requirements */}
+                        <div className="flex items-start gap-2">
+                          <UserCheck className="h-4 w-4 text-purple-600 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Age:</div>
+                            <div className="text-sm text-gray-900 dark:text-white font-medium">
+                              {community.ageRestriction || '55+ Community'}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
                       {/* Key Metrics */}
                       <div className="grid grid-cols-2 gap-3 py-2 border-t border-gray-100 dark:border-gray-800">
                         <div className="text-center">
-                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                            {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
+                          <div className="flex items-center justify-center">
+                            <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
+                            </div>
                           </div>
                           <div className="text-xs text-gray-500 dark:text-gray-400">Rating</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                            {community.totalUnits || community.totalUnitsHud || 'N/A'}
+                          <div className="flex items-center justify-center">
+                            <Building className="h-4 w-4 text-blue-500 mr-1" />
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
+                            </div>
                           </div>
                           <div className="text-xs text-gray-500 dark:text-gray-400">Units</div>
                         </div>
@@ -1563,7 +1608,7 @@ export default function CommunityDirectory() {
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
                 {((puertoRicoCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
                   <Link key={`pr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <Card className="w-72 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl h-[420px]">
+                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-cyan-300 dark:border-cyan-600 rounded-xl h-[520px]">
                       <div className="relative">
                         {/* Image Section with Puerto Rico Theme */}
                         <div className="h-48 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900 dark:to-blue-900 flex items-center justify-center relative">
@@ -1577,6 +1622,7 @@ export default function CommunityDirectory() {
                             <div className="text-center">
                               <div className="text-4xl mb-2">🌴</div>
                               <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400">Verifying authentic images</div>
                             </div>
                           )}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
@@ -1588,13 +1634,13 @@ export default function CommunityDirectory() {
                             🌴 Puerto Rico
                           </Badge>
                           
-                          <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
-                            <div className="text-lg font-bold text-gray-900 dark:text-white">
+                          <div className="bg-blue-700 text-white rounded-lg px-4 py-2 shadow-lg">
+                            <div className="text-xl font-bold">
                               {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
                                community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
                             </div>
                             {community.hudPropertyId && (
-                              <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                              <div className="text-xs font-medium">
                                 HUD Verified
                               </div>
                             )}
@@ -1607,7 +1653,7 @@ export default function CommunityDirectory() {
                         </Badge>
                       </div>
                       
-                      {/* Card Body */}
+                      {/* Card Body with Critical Information */}
                       <CardContent className="p-4 space-y-3">
                         <div>
                           <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
@@ -1628,17 +1674,61 @@ export default function CommunityDirectory() {
                           ))}
                         </div>
                         
+                        {/* Critical Information */}
+                        <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
+                          {/* Phone Number */}
+                          <div className="flex items-start gap-2">
+                            <svg className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <div className="flex-1">
+                              <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Contact:</div>
+                              <div className="text-sm text-gray-900 dark:text-white font-medium">
+                                {community.phone || 'Call for Info'}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Language Support */}
+                          <div className="flex items-start gap-2">
+                            <Languages className="h-4 w-4 text-cyan-600 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                              <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Languages:</div>
+                              <div className="text-sm text-gray-900 dark:text-white font-medium">
+                                English / Español
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Age Requirements */}
+                          <div className="flex items-start gap-2">
+                            <UserCheck className="h-4 w-4 text-purple-600 flex-shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                              <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Age:</div>
+                              <div className="text-sm text-gray-900 dark:text-white font-medium">
+                                {community.ageRestriction || '55+ Community'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
                         {/* Key Metrics */}
                         <div className="grid grid-cols-2 gap-3 py-2 border-t border-gray-100 dark:border-gray-800">
                           <div className="text-center">
-                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
+                            <div className="flex items-center justify-center">
+                              <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                              <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                                {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
+                              </div>
                             </div>
                             <div className="text-xs text-gray-500 dark:text-gray-400">Rating</div>
                           </div>
                           <div className="text-center">
-                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
+                            <div className="flex items-center justify-center">
+                              <Building className="h-4 w-4 text-blue-500 mr-1" />
+                              <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                                {community.totalUnits || community.totalUnitsHud || 'N/A'}
+                              </div>
                             </div>
                             <div className="text-xs text-gray-500 dark:text-gray-400">Units</div>
                           </div>
@@ -1699,11 +1789,11 @@ export default function CommunityDirectory() {
           </p>
         
           <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
-            {/* Show Mexican communities */}
+            {/* Show Mexican communities with critical information */}
             {mexicoLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-72 h-[420px] border border-gray-200 animate-pulse">
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-80 h-[520px] border border-gray-200 animate-pulse">
                   <div className="h-48 bg-gray-200"></div>
                   <CardContent className="p-3">
                     <div className="h-6 bg-gray-200 rounded mb-2"></div>
@@ -1716,7 +1806,7 @@ export default function CommunityDirectory() {
             ) : (
               ((mexicoCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
                 <Link key={`mexico-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                  <Card className="w-72 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl h-[420px]">
+                  <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-red-300 dark:border-red-600 rounded-xl h-[520px]">
                     <div className="relative">
                       {/* Image Section with Mexico Theme */}
                       <div className="h-48 bg-gradient-to-br from-green-100 to-red-100 dark:from-green-900 dark:to-red-900 flex items-center justify-center relative">
@@ -1730,6 +1820,7 @@ export default function CommunityDirectory() {
                           <div className="text-center">
                             <div className="text-4xl mb-2">🌵</div>
                             <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400">Verifying authentic images</div>
                           </div>
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
@@ -1741,13 +1832,13 @@ export default function CommunityDirectory() {
                           🌵 {community.state || 'Mexico'}
                         </Badge>
                         
-                        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
-                          <div className="text-lg font-bold text-gray-900 dark:text-white">
+                        <div className="bg-blue-700 text-white rounded-lg px-4 py-2 shadow-lg">
+                          <div className="text-xl font-bold">
                             {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
                              community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
                           </div>
                           {community.hudPropertyId && (
-                            <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                            <div className="text-xs font-medium">
                               HUD Verified
                             </div>
                           )}
@@ -1760,7 +1851,7 @@ export default function CommunityDirectory() {
                       </Badge>
                     </div>
                     
-                    {/* Card Body */}
+                    {/* Card Body with Critical Information */}
                     <CardContent className="p-4 space-y-3">
                       <div>
                         <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
@@ -1781,17 +1872,61 @@ export default function CommunityDirectory() {
                         ))}
                       </div>
                       
+                      {/* Critical Information */}
+                      <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
+                        {/* Phone Number */}
+                        <div className="flex items-start gap-2">
+                          <svg className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                          <div className="flex-1">
+                            <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Contact:</div>
+                            <div className="text-sm text-gray-900 dark:text-white font-medium">
+                              {community.phone || 'Call for Info'}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Language Support */}
+                        <div className="flex items-start gap-2">
+                          <Languages className="h-4 w-4 text-red-600 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Languages:</div>
+                            <div className="text-sm text-gray-900 dark:text-white font-medium">
+                              English / Español
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Cost of Living Advantage */}
+                        <div className="flex items-start gap-2">
+                          <DollarSign className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Cost Advantage:</div>
+                            <div className="text-sm text-gray-900 dark:text-white font-medium">
+                              30-50% Lower Cost
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
                       {/* Key Metrics */}
                       <div className="grid grid-cols-2 gap-3 py-2 border-t border-gray-100 dark:border-gray-800">
                         <div className="text-center">
-                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                            {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
+                          <div className="flex items-center justify-center">
+                            <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
+                            </div>
                           </div>
                           <div className="text-xs text-gray-500 dark:text-gray-400">Rating</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                            {community.totalUnits || community.totalUnitsHud || 'N/A'}
+                          <div className="flex items-center justify-center">
+                            <Building className="h-4 w-4 text-blue-500 mr-1" />
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
+                            </div>
                           </div>
                           <div className="text-xs text-gray-500 dark:text-gray-400">Units</div>
                         </div>
