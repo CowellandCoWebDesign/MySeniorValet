@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 import { 
   Building2, Search, MapPin, Home, Users, DollarSign, Shield, 
   Star, Filter, Database, TrendingUp, BarChart3, Globe,
@@ -354,25 +354,15 @@ export default function CommunityDirectory() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <Input
-                  type="text"
-                  placeholder="Search communities by name, city, or zip code..."
-                  className="pl-10 pr-4 py-6 text-lg border-2 border-gray-200 focus:border-blue-500"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+              <AutocompleteSearch
+                value={searchTerm}
+                onChange={setSearchTerm}
+                onSubmit={(value) => setLocation(`/search?q=${encodeURIComponent(value)}`)}
+                placeholder="Search communities by name, city, state, zip code..."
+                inputClassName="py-6 text-lg border-2 border-gray-200 focus:border-blue-500"
+                hideSearchButton={false}
+              />
             </div>
-            <Button 
-              size="lg"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90 px-8"
-              onClick={() => setLocation(`/search?q=${encodeURIComponent(searchTerm)}`)}
-            >
-              <Search className="mr-2 h-5 w-5" />
-              Search Database
-            </Button>
           </div>
           
           {/* Quick Filters */}
