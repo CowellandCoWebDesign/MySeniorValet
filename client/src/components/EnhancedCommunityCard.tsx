@@ -592,7 +592,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                 )}
                 {subtypeBadge && (
                   <div className="flex items-center gap-1">
-                    <span className="text-lg">{subtypeBadge.icon}</span>
+                    <span className="text-lg">{subtypeBadge.emoji}</span>
                     <span className="hidden sm:inline">{subtypeBadge.label}</span>
                   </div>
                 )}
@@ -1074,9 +1074,10 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
 
     return (
       <Link href={`/community/${community.id}`}>
-        <Card className={`${cardClass} hover:shadow-xl transition-all border border-gray-200 dark:border-gray-700`} style={{animationDelay: `${index * 0.2}s`}}>
+        <Card className="flex-shrink-0 w-64 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl" style={{animationDelay: `${index * 0.2}s`}}>
           <div className="relative">
-            <div className={`aspect-[4/3] bg-gradient-to-br ${getBackgroundGradient()} flex items-center justify-center`}>
+            {/* Image Section with Gradient Background */}
+            <div className={`aspect-[4/3] bg-gradient-to-br ${getBackgroundGradient()} flex items-center justify-center relative`}>
               {community.photos && community.photos.length > 0 ? (
                 <img 
                   src={community.photos[0]} 
@@ -1085,49 +1086,38 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                 />
               ) : (
                 <div className="text-center">
-                  <div className="text-2xl mb-2">
-                    {locationBadge?.emoji || '📷'}
+                  <div className="text-4xl mb-2">
+                    {locationBadge?.emoji || '🌺'}
                   </div>
                   <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
                   <div className="text-xs text-gray-600 dark:text-gray-300">Verifying authentic images</div>
                 </div>
               )}
+              
+              {/* Gradient Overlay for better text readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
             </div>
             
-            {/* Location Type Badge - Top Left */}
-            {locationBadge && (
-              <Badge className={`absolute top-3 left-3 ${locationBadge.color} text-white text-xs px-2 py-1 font-medium`}>
-                {locationBadge.emoji} {locationBadge.label}
-              </Badge>
-            )}
-            
-            {/* Heart Icon */}
-            <div className="absolute top-3 right-3">
-              <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
-                <Heart className="w-4 h-4 text-gray-600" />
-              </div>
-            </div>
-            
-            {/* Pricing Badge - Top Right Corner */}
-            <div className="absolute top-2 right-2 z-10">
-              {priceDisplay ? (
-                <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-2.5 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
-                  <div className="text-sm font-bold text-gray-900 dark:text-white">
-                    {priceDisplay}
-                  </div>
-                  {isHudProperty && (
-                    <div className="text-xs text-green-600 dark:text-green-400 font-medium">
-                      HUD
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-2.5 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
-                  <div className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-                    Contact for pricing
-                  </div>
-                </div>
+            {/* Badges Overlay on Image */}
+            <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
+              {/* Location Badge */}
+              {locationBadge && (
+                <Badge className={`${locationBadge.color} text-white text-xs px-2 py-1 font-semibold`}>
+                  {locationBadge.emoji} {locationBadge.label}
+                </Badge>
               )}
+              
+              {/* HUD/Price Badge */}
+              <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div className="text-lg font-bold text-gray-900 dark:text-white">
+                  {priceDisplay || 'Contact'}
+                </div>
+                {isHudProperty && (
+                  <div className="text-xs text-green-600 dark:text-green-400 font-medium">
+                    HUD Verified
+                  </div>
+                )}
+              </div>
             </div>
             
             {/* HUD Badge - Bottom Right ONLY for actual HUD properties */}
@@ -1152,156 +1142,95 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
             )}
           </div>
           
-          <CardContent className="p-3 flex flex-col flex-1 overflow-y-auto">
-            {/* Header Section */}
-            <div className="mb-2">
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-1 text-sm mb-1">
+          {/* CARD BODY */}
+          <CardContent className="p-4 space-y-3">
+            {/* Header Section with Name and Location */}
+            <div>
+              <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
                 {community.name}
               </h3>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
-                {community.careTypes && community.careTypes.length > 0 ? community.careTypes[0] : 'Senior Living'}
-              </div>
-              <div className="text-xs text-gray-700 dark:text-gray-300">
-                {community.city}, {community.state} {community.zipCode || ''}
+              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                <span>{community.city}, {community.state}</span>
               </div>
             </div>
             
-            {/* Key Metrics Grid - Always show 6 items */}
-            <div className="grid grid-cols-2 gap-x-2 gap-y-1 mb-2 text-xs bg-gray-50 dark:bg-gray-800/50 p-1.5 rounded">
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <Building className="h-3 w-3 mr-1 text-gray-500" />
-                <span>{community.totalUnits || community.totalUnitsHud || 'N/A'} units</span>
-              </div>
-              
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <Star className="h-3 w-3 mr-1 text-yellow-400" />
-                <span>{community.rating ? (typeof community.rating === 'number' ? community.rating.toFixed(1) : parseFloat(community.rating).toFixed(1)) : 'No rating'}</span>
-              </div>
-              
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <Shield className="h-3 w-3 mr-1 text-gray-500" />
-                <span>ID: {community.id}</span>
-              </div>
-              
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <Users className="h-3 w-3 mr-1 text-gray-500" />
-                <span>{community.occupancyRate ? `${Math.round(Number(community.occupancyRate))}% full` : 'Check avail.'}</span>
-              </div>
-              
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <Home className="h-3 w-3 mr-1 text-gray-500" />
-                <span className="capitalize">{community.sizeCategory || 'Standard'}</span>
-              </div>
-              
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <CheckCircle className="h-3 w-3 mr-1 text-gray-500" />
-                <span>{community.dataQuality?.qualityScore ? `${Math.round(community.dataQuality.qualityScore)}% verified` : 'Pending'}</span>
-              </div>
-            </div>
-            
-            {/* Status & Verification Badges */}
-            <div className="flex flex-wrap gap-1 mb-2">
-              {/* Status Badge */}
-              {index % 4 === 0 && (
-                <Badge className="text-xs px-1.5 py-0.5 bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300">
-                  🏆 Featured
+            {/* Care Types */}
+            <div className="flex flex-wrap gap-1">
+              {community.careTypes?.slice(0, 2).map((careType, idx) => (
+                <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
+                  {careType}
                 </Badge>
-              )}
-              {index % 4 === 1 && (
-                <Badge className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-                  ⭐ Top Rated
-                </Badge>
-              )}
-              {index % 4 === 2 && (
-                <Badge className="text-xs px-1.5 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-                  💎 Premium
-                </Badge>
-              )}
-              {index % 4 === 3 && (
-                <Badge className="text-xs px-1.5 py-0.5 bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300">
-                  ✨ Popular
-                </Badge>
-              )}
-              
-              {/* Verified Badge */}
-              {community.dataQuality?.qualityScore && community.dataQuality.qualityScore >= 80 && (
-                <Badge className="text-xs px-1.5 py-0.5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-                  ✓ Verified
-                </Badge>
-              )}
-              
-              {/* Community subtype badge */}
-              {community.communitySubtype && (
-                <Badge className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-                  {community.communitySubtype}
+              ))}
+              {community.careTypes && community.careTypes.length > 2 && (
+                <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gray-50 dark:bg-gray-800">
+                  +{community.careTypes.length - 2}
                 </Badge>
               )}
             </div>
             
-            {/* Special Features Section - Always show something */}
-            <div className="space-y-1 text-xs mb-2 border-t dark:border-gray-700 pt-2">
-              <div className="font-medium text-gray-700 dark:text-gray-300 mb-1">Special Features:</div>
-              
-              {/* Show HUD if available */}
-              {community.hudPropertyId ? (
-                <div className="text-green-600 dark:text-green-400 flex items-center">
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  HUD Official Pricing Available
+            {/* Key Metrics Grid - Clean Stats Display */}
+            <div className="grid grid-cols-2 gap-3 py-3 border-y border-gray-100 dark:border-gray-800">
+              <div className="text-center">
+                <div className="flex items-center justify-center text-yellow-500 mb-1">
+                  <Star className="h-4 w-4 fill-current" />
                 </div>
-              ) : null}
-              
-              {/* Show care types */}
-              <div className="text-gray-600 dark:text-gray-400">
-                <Sparkles className="h-3 w-3 inline mr-1" />
-                {community.careTypes && community.careTypes.length > 1 
-                  ? `${community.careTypes.length} care levels available`
-                  : 'Specialized senior care'}
-              </div>
-              
-              {/* Show amenities or default message */}
-              <div className="text-gray-600 dark:text-gray-400">
-                <Home className="h-3 w-3 inline mr-1" />
-                {community.amenities && community.amenities.length > 0
-                  ? `${community.amenities.length} amenities available`
-                  : 'Full amenity list available'}
-              </div>
-              
-              {/* Island life for Hawaii */}
-              {community.state === 'HI' && (
-                <div className="text-blue-600 dark:text-blue-400">
-                  <Sparkles className="h-3 w-3 inline mr-1" />
-                  Island senior living lifestyle
+                <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                  {community.rating ? (typeof community.rating === 'number' ? community.rating.toFixed(1) : parseFloat(community.rating).toFixed(1)) : 'N/A'}
                 </div>
-              )}
+                <div className="text-xs text-gray-500 dark:text-gray-400">Rating</div>
+              </div>
+              
+              <div className="text-center">
+                <div className="flex items-center justify-center text-blue-500 mb-1">
+                  <Building className="h-4 w-4" />
+                </div>
+                <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                  {community.totalUnits || community.totalUnitsHud || 'N/A'}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Units</div>
+              </div>
             </div>
             
-            {/* Contact Section */}
-            <div className="mt-auto space-y-2">
-              {/* Always show contact status */}
-              <div className="text-xs text-gray-700 dark:text-gray-300 bg-emerald-50 dark:bg-emerald-900/20 p-2 rounded">
-                <Phone className="h-3 w-3 inline mr-1" />
-                <span className="font-medium">
-                  {displayPrice === 'Contact for Pricing' 
-                    ? 'Call for availability'
-                    : community.phone || 'Contact available'}
-                </span>
+            {/* Status Indicators */}
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-1">
+                {community.dataQuality?.qualityScore && community.dataQuality.qualityScore >= 80 && (
+                  <Badge className="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5">
+                    <CheckCircle className="h-3 w-3 mr-1 inline" />
+                    Verified
+                  </Badge>
+                )}
+                {community.occupancyRate && (
+                  <Badge variant="outline" className="px-2 py-0.5">
+                    {Math.round(Number(community.occupancyRate))}% Full
+                  </Badge>
+                )}
               </div>
-              
-              {/* Direct Message Button - Disabled until verified */}
-              <button 
-                className="w-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 py-2 px-3 rounded-lg cursor-not-allowed opacity-75 flex items-center justify-center gap-1 text-xs"
-                disabled={true}
-                title="Direct messaging available after community verification"
-              >
-                <MessageCircle className="h-3 w-3" />
-                <span>Direct Message - Verification Required</span>
-              </button>
-              
-              {/* View Details Button */}
-              <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 px-3 rounded-lg font-semibold text-xs transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                View Full Details →
-              </button>
+              <div className="text-gray-500 dark:text-gray-400">
+                ID: {community.id}
+              </div>
             </div>
+            
+            {/* Quick Features */}
+            {(community.amenities && community.amenities.length > 0) && (
+              <div className="space-y-1">
+                <div className="flex items-center text-xs text-gray-600 dark:text-gray-400">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  {community.careTypes && community.careTypes.length > 1 
+                    ? `${community.careTypes.length} care levels available`
+                    : 'Specialized senior care'}
+                </div>
+                
+                {/* Island life for Hawaii */}
+                {community.state === 'HI' && (
+                  <div className="flex items-center text-xs text-blue-600 dark:text-blue-400">
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    Island senior living lifestyle
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </Link>
