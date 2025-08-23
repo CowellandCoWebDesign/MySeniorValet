@@ -25,6 +25,32 @@ import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import { HeroMascotPanel } from "@/components/mascot/HeroMascotPanel";
 import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
 
+// State abbreviation to full name mapping
+const stateNames: Record<string, string> = {
+  // US States
+  'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas',
+  'CA': 'California', 'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware',
+  'FL': 'Florida', 'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho',
+  'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas',
+  'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+  'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi',
+  'MO': 'Missouri', 'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada',
+  'NH': 'New Hampshire', 'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York',
+  'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 'OK': 'Oklahoma',
+  'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+  'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah',
+  'VT': 'Vermont', 'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia',
+  'WI': 'Wisconsin', 'WY': 'Wyoming', 'DC': 'Washington DC',
+  // Canadian Provinces
+  'AB': 'Alberta', 'BC': 'British Columbia', 'MB': 'Manitoba',
+  'NB': 'New Brunswick', 'NL': 'Newfoundland', 'NS': 'Nova Scotia',
+  'NT': 'Northwest Territories', 'NU': 'Nunavut', 'ON': 'Ontario',
+  'PE': 'Prince Edward Island', 'QC': 'Quebec', 'SK': 'Saskatchewan',
+  'YT': 'Yukon',
+  // US Territories
+  'PR': 'Puerto Rico', 'VI': 'Virgin Islands', 'GU': 'Guam'
+};
+
 export default function CommunityDirectory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedState, setSelectedState] = useState("");
@@ -221,7 +247,14 @@ export default function CommunityDirectory() {
   });
   
   // Fetch community stats including top states
-  const { data: communityStats } = useQuery({
+  const { data: communityStats } = useQuery<{
+    totalCommunities: string;
+    avgRating: number;
+    totalWithPhotos: string;
+    totalHUD: string;
+    stateCount: string;
+    topStates: Array<{ state: string; count: string }>;
+  }>({
     queryKey: ['/api/communities/stats']
   });
   
@@ -501,20 +534,23 @@ export default function CommunityDirectory() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-2">
-                {(topStates as any[]).slice(0, 15).map((state: any) => (
-                  <Link key={state.state} href={`/search?state=${state.state}`}>
-                    <Card className="hover:shadow-lg transition-all cursor-pointer bg-white/90 dark:bg-gray-800/90 border hover:border-blue-400 group hover:scale-105">
-                      <CardContent className="p-3 text-center">
-                        <div className="font-bold text-lg text-gray-900 dark:text-gray-100 group-hover:text-blue-600">
-                          {state.state}
-                        </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">
-                          {state.count.toLocaleString()}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
+                {(topStates as any[]).slice(0, 15).map((state: any) => {
+                  const displayName = stateNames[state.state] || state.state;
+                  return (
+                    <Link key={state.state} href={`/search?state=${displayName}`}>
+                      <Card className="hover:shadow-lg transition-all cursor-pointer bg-white/90 dark:bg-gray-800/90 border hover:border-blue-400 group hover:scale-105">
+                        <CardContent className="p-3 text-center">
+                          <div className="font-bold text-sm md:text-base text-gray-900 dark:text-gray-100 group-hover:text-blue-600">
+                            {displayName}
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400">
+                            {parseInt(state.count).toLocaleString()}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  );
+                })}
                 <Link href="/map-search">
                   <Card className="hover:shadow-lg transition-all cursor-pointer border hover:border-blue-400 group bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/50 dark:to-indigo-900/50 hover:scale-105">
                     <CardContent className="p-3 text-center flex flex-col justify-center h-full">
