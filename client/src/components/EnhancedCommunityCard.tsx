@@ -452,203 +452,182 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     
     return (
       <Card 
-        className="group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg w-full"
+        className="group cursor-pointer hover:shadow-2xl transition-all duration-300 overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl w-full"
         onClick={onSelect}
       >
-        <CardContent className="p-3 sm:p-4">
-          {/* Top Row: HUD Badge and Occupancy */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              {isHudProperty && (
-                <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 border-0 font-semibold">
-                  <Shield className="h-3 w-3 mr-1" />
-                  HUD Verified
-                </Badge>
-              )}
-              {hasTransparencyChampion && !isHudProperty && (
-                <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 border-0">
-                  <Award className="h-3 w-3 mr-1" />
-                  Transparency Champion
-                </Badge>
-              )}
-            </div>
-            
-            {/* Occupancy Display */}
-            {hasOccupancyData && (
-              <div className="text-sm font-medium">
-                <span className={`${occupancyRate >= 85 ? 'text-orange-600' : 'text-green-600'}`}>
-                  {occupancyRate}% occupied
-                </span>
-                {availableUnits > 0 && (
-                  <span className="text-gray-500 ml-1">
-                    • {availableUnits} available
-                  </span>
+        <CardContent className="p-0">
+          {/* HEADER SECTION WITH GRADIENT BACKGROUND */}
+          <div className="relative bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 p-4 border-b border-gray-200 dark:border-gray-700">
+            {/* Badge Row */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                {isHudProperty && (
+                  <Badge className="bg-green-600 text-white border-0 font-semibold text-xs px-2 py-1">
+                    <Shield className="h-3 w-3 mr-1" />
+                    HUD VERIFIED
+                  </Badge>
+                )}
+                {hasTransparencyChampion && !isHudProperty && (
+                  <Badge className="bg-blue-600 text-white border-0 text-xs px-2 py-1">
+                    <Award className="h-3 w-3 mr-1" />
+                    LIVE PRICING
+                  </Badge>
                 )}
               </div>
-            )}
-          </div>
-
-          {/* Community Name and Location */}
-          <div className="mb-3">
-            <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-1 line-clamp-2">
-              {community.name}
-            </h3>
-            <div className="flex items-center text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-              <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
-              <span className="truncate">{community.city}, {community.state} {community.zipCode || ''}</span>
-            </div>
-          </div>
-
-          {/* Care Types and Medical Restrictions */}
-          <div className="flex flex-wrap gap-1 sm:gap-2 mb-3">
-            {community.careTypes?.slice(0, 3).map((careType, idx) => (
-              <Badge key={idx} variant="secondary" className="text-xs px-2 py-1">
-                {careType}
-              </Badge>
-            ))}
-            {community.careTypes && community.careTypes.length > 3 && (
-              <Badge variant="outline" className="text-xs px-2 py-1">
-                +{community.careTypes.length - 3} more
-              </Badge>
-            )}
-            {/* Medical Restrictions Badge - Only show on larger screens */}
-            <Badge variant="outline" className="text-xs border-red-300 text-red-600 hidden sm:inline-flex">
-              <Stethoscope className="h-3 w-3 mr-1" />
-              Medical Restrictions
-            </Badge>
-          </div>
-
-          {/* Pricing Display */}
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 sm:p-3 mb-3">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div className="flex-1 min-w-0">
-                <div className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white truncate">
-                  {priceDisplay || marketPricing?.display || 'Contact for Pricing'}
-                </div>
-                <div className="flex flex-col sm:flex-row sm:gap-2">
-                  {community.pricingType === 'live' && (
-                    <div className="text-xs text-green-600 font-medium">Live Pricing</div>
-                  )}
-                  {(community.pricingType === 'market' || marketPricing) && (
-                    <div className="text-xs text-purple-600 font-medium">Market Intelligence</div>
-                  )}
-                </div>
-              </div>
-              {community.specialOffers && community.specialOffers.length > 0 && (
-                <Badge className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 text-xs px-2 py-1 self-start sm:self-center">
-                  Special Offer
+              
+              {/* Occupancy Badge */}
+              {hasOccupancyData && (
+                <Badge className={`${occupancyRate >= 85 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300' : 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300'} border-0 text-xs px-2 py-1`}>
+                  {occupancyRate}% Full
                 </Badge>
               )}
             </div>
+
+            {/* Community Name */}
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1 line-clamp-1">
+              {community.name}
+            </h3>
+            
+            {/* Location */}
+            <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
+              <MapPin className="h-4 w-4 mr-1 flex-shrink-0 text-gray-500 dark:text-gray-400" />
+              <span className="truncate font-medium">{community.city}, {community.state}</span>
+            </div>
           </div>
 
-          {/* Reviews Section */}
-          {community.rating && (
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+          {/* BODY SECTION */}
+          <div className="p-4 space-y-3">
+
+            {/* Care Types */}
+            <div className="flex flex-wrap gap-1">
+              {community.careTypes?.slice(0, 2).map((careType, idx) => (
+                <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
+                  {careType}
+                </Badge>
+              ))}
+              {community.careTypes && community.careTypes.length > 2 && (
+                <Badge variant="outline" className="text-xs px-2 py-0.5 bg-gray-50 dark:bg-gray-800">
+                  +{community.careTypes.length - 2}
+                </Badge>
+              )}
+            </div>
+
+            {/* PRICING SECTION WITH GRADIENT */}
+            <div className={`rounded-lg p-3 ${
+              isHudProperty 
+                ? 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800'
+                : community.pricingType === 'live'
+                ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800'
+                : 'bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border border-purple-200 dark:border-purple-800'
+            }`}>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {priceDisplay || marketPricing?.display || 'Contact for Pricing'}
+                  </div>
+                  <div className="text-xs font-medium mt-0.5">
+                    {isHudProperty ? (
+                      <span className="text-green-700 dark:text-green-300">HUD Verified Pricing</span>
+                    ) : community.pricingType === 'live' ? (
+                      <span className="text-blue-700 dark:text-blue-300">Live Community Pricing</span>
+                    ) : marketPricing ? (
+                      <span className="text-purple-700 dark:text-purple-300">Market Intelligence</span>
+                    ) : (
+                      <span className="text-gray-600 dark:text-gray-400">Contact for current rates</span>
+                    )}
+                  </div>
+                </div>
+                {community.specialOffers && community.specialOffers.length > 0 && (
+                  <Badge className="bg-red-600 text-white text-xs px-2 py-0.5 animate-pulse">
+                    SPECIAL
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            {/* RATINGS & AVAILABILITY ROW */}
+            <div className="flex items-center justify-between">
+              {/* Reviews */}
+              {community.rating ? (
+                <div className="flex items-center gap-1.5">
                   <div className="flex items-center">
                     {[...Array(5)].map((_, i) => (
                       <Star 
                         key={i} 
-                        className={`h-4 w-4 ${i < Math.floor(community.rating || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
+                        className={`h-3.5 w-3.5 ${i < Math.floor(community.rating || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
                       />
                     ))}
                   </div>
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">
                     {community.rating.toFixed(1)}
                   </span>
-                  {community.reviewCount && (
-                    <span className="text-sm text-gray-500">
-                      ({community.reviewCount} reviews)
-                    </span>
-                  )}
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    ({community.reviewCount || 0})
+                  </span>
                 </div>
-                <Button variant="link" className="text-xs text-blue-600 p-0">
-                  Read Reviews →
+              ) : (
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  No reviews yet
+                </div>
+              )}
+              
+              {/* Available Units */}
+              {availableUnits > 0 && (
+                <Badge className="bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300 border-0 text-xs px-2 py-0.5">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  {availableUnits} Available
+                </Badge>
+              )}
+            </div>
+
+            {/* FOOTER SECTION WITH ACTIONS */}
+            <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+              {/* Community Size & Type */}
+              <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
+                {community.totalUnits && (
+                  <div className="flex items-center gap-1">
+                    <Building className="h-3.5 w-3.5" />
+                    <span>{community.totalUnits} units</span>
+                  </div>
+                )}
+                {subtypeBadge && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-lg">{subtypeBadge.icon}</span>
+                    <span className="hidden sm:inline">{subtypeBadge.label}</span>
+                  </div>
+                )}
+              </div>
+              
+              {/* Quick Actions */}
+              <div className="flex items-center gap-1">
+                {community.phone && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.location.href = `tel:${community.phone}`;
+                    }}
+                  >
+                    <Phone className="h-4 w-4" />
+                  </Button>
+                )}
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Add to favorites logic here
+                  }}
+                >
+                  <Heart className="h-4 w-4" />
                 </Button>
               </div>
             </div>
-          )}
-
-          {/* Inspections Section */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ClipboardCheck className="h-4 w-4 text-green-600" />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  Last Inspection: <span className="font-medium">Passed</span>
-                </span>
-              </div>
-              <span className="text-xs text-gray-500">3 months ago</span>
-            </div>
           </div>
 
-          {/* Stats Row */}
-          <div className="grid grid-cols-3 gap-2 mb-4 text-center">
-            <div className="bg-gray-50 dark:bg-gray-900 rounded p-2">
-              <Building className="h-4 w-4 mx-auto mb-1 text-gray-500" />
-              <div className="text-sm font-medium text-gray-900 dark:text-white">
-                {totalUnits}
-              </div>
-              <div className="text-xs text-gray-500">Units</div>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-900 rounded p-2">
-              <Calendar className="h-4 w-4 mx-auto mb-1 text-gray-500" />
-              <div className="text-sm font-medium text-gray-900 dark:text-white">
-                2010
-              </div>
-              <div className="text-xs text-gray-500">Built</div>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-900 rounded p-2">
-              <Users className="h-4 w-4 mx-auto mb-1 text-gray-500" />
-              <div className="text-sm font-medium text-gray-900 dark:text-white">
-                {community.sizeCategory || 'Medium'}
-              </div>
-              <div className="text-xs text-gray-500">Size</div>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            {/* Call Button */}
-            <Button 
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg flex items-center justify-center gap-2"
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                if (community.phone) {
-                  window.open(`tel:${community.phone}`, '_self');
-                }
-              }}
-            >
-              <Phone className="h-4 w-4" />
-              Call
-            </Button>
-
-            {/* Message Button */}
-            <Button 
-              variant="outline"
-              className="border-gray-300 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold py-2 rounded-lg flex items-center justify-center gap-2"
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-              }}
-            >
-              <MessageCircle className="h-4 w-4" />
-              Message
-            </Button>
-          </div>
-
-          {/* View Full Details Link */}
-          <Button 
-            variant="ghost"
-            className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-gray-700 text-sm font-medium"
-            onClick={(e: React.MouseEvent) => {
-              e.stopPropagation();
-              onSelect?.();
-            }}
-          >
-            View Full Details →
-          </Button>
         </CardContent>
       </Card>
     );
