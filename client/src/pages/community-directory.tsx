@@ -263,25 +263,25 @@ export default function CommunityDirectory() {
   
   // Fetch Hawaii communities
   const { data: hawaiiCommunities, isLoading: hawaiiLoading } = useQuery({
-    queryKey: ['/api/communities/by-location', 'Hawaii'],
+    queryKey: ['/api/communities/by-state?state=HI'],
     enabled: true
   });
   
   // Fetch Florida communities
   const { data: floridaCommunities, isLoading: floridaLoading } = useQuery({
-    queryKey: ['/api/communities/by-state', 'Florida', 6],
+    queryKey: ['/api/communities/by-state?state=FL'],
     enabled: true
   });
   
   // Fetch Texas communities (Fort Worth)
   const { data: texasCommunities, isLoading: texasLoading } = useQuery({
-    queryKey: ['/api/communities/by-city', 'Fort Worth', 'Texas', 6],
+    queryKey: ['/api/communities/by-city?city=Fort Worth&state=TX'],
     enabled: true
   });
   
   // Fetch New York communities
   const { data: newYorkCommunities, isLoading: newYorkLoading } = useQuery({
-    queryKey: ['/api/communities/by-state', 'New York', 6],
+    queryKey: ['/api/communities/by-state?state=NY'],
     enabled: true
   });
   
