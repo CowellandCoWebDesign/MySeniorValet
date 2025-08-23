@@ -21,6 +21,7 @@ import { RedTagDeals } from "@/components/RedTagDeals";
 import { MarketIntelligence } from "@/components/MarketIntelligence";
 import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
 import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
+import { HeroMascotPanel } from "@/components/mascot/HeroMascotPanel";
 
 export default function CommunityDirectory() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -261,6 +262,11 @@ export default function CommunityDirectory() {
   // Fetch Canadian communities
   const { data: canadianCommunities, isLoading: canadianLoading } = useQuery({
     queryKey: ['/api/communities/canadian'],
+  });
+
+  // Fetch Puerto Rico communities
+  const { data: puertoRicoCommunities, isLoading: puertoRicoLoading } = useQuery({
+    queryKey: ['/api/communities/puerto-rico'],
   });
 
   // Fetch Mexican communities
@@ -1877,6 +1883,96 @@ export default function CommunityDirectory() {
               ((canadianCommunities as any)?.communities || []).slice(0, 10).map((community: any, index: number) => (
                 <EnhancedCommunityCard
                   key={`canadian-${community.id}-${index}`}
+                  community={community}
+                  index={index}
+                  variant='featured'
+                />
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Puerto Rico Communities - CARIBBEAN PARADISE */}
+      <section className="px-4 py-8 bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 dark:from-blue-950/30 dark:via-cyan-950/30 dark:to-teal-950/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                🏝️ Puerto Rico Communities
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300">
+                Caribbean paradise with US Medicare benefits and tropical living
+              </p>
+            </div>
+            <Link href="/search?location=Puerto Rico">
+              <Button variant="outline" className="flex items-center gap-2">
+                View All Puerto Rico
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
+          
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">US Territory benefits • No passport required • Bilingual services (English/Spanish)</p>
+          
+          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 hover:scrollbar-thumb-blue-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth', height: '32rem'}}>
+            {puertoRicoLoading ? (
+              // Loading skeleton cards
+              Array.from({ length: 4 }).map((_, index) => (
+                <Card key={index} className="overflow-hidden flex-shrink-0 w-64 h-80 animate-pulse">
+                  <div className="aspect-[4/3] bg-gradient-to-br from-blue-200 to-cyan-200 dark:bg-gray-700"></div>
+                  <CardContent className="p-4">
+                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : !(puertoRicoCommunities as any)?.communities?.length ? (
+              // Puerto Rico promotional card when no data
+              <Card className="overflow-hidden flex-shrink-0 w-[400px] h-[30rem] snap-start group hover:shadow-2xl transition-all duration-300 border-blue-300 dark:border-blue-600">
+                <div className="relative h-48 bg-gradient-to-br from-blue-400 via-cyan-400 to-teal-400">
+                  <div className="absolute inset-0 bg-black/20"></div>
+                  <div className="absolute bottom-4 left-4 text-white">
+                    <h3 className="text-xl font-bold">Puerto Rico Senior Living</h3>
+                    <p className="text-sm opacity-90">Caribbean Paradise with US Benefits</p>
+                  </div>
+                </div>
+                <CardContent className="p-6">
+                  <div className="space-y-3 mb-6">
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-blue-100 text-blue-700">US Territory</Badge>
+                      <Badge className="bg-green-100 text-green-700">Medicare Accepted</Badge>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      Discover senior living in Puerto Rico - enjoy tropical weather year-round, US Medicare coverage, 
+                      and no passport required. Communities in San Juan, Ponce, and Bayamón offer bilingual services 
+                      with the perfect blend of Caribbean culture and American conveniences.
+                    </p>
+                  </div>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center text-sm">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                      <span>Average cost: $2,500-$3,500/month</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      <span>US Medicare & Social Security</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-2 h-2 bg-cyan-500 rounded-full mr-2"></div>
+                      <span>Year-round tropical climate</span>
+                    </div>
+                  </div>
+                  <Button className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white">
+                    Explore Puerto Rico Options
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              ((puertoRicoCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                <EnhancedCommunityCard
+                  key={`puerto-rico-${community.id}-${index}`}
                   community={community}
                   index={index}
                   variant='featured'

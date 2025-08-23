@@ -935,6 +935,33 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
+  // Get Puerto Rico communities
+  app.get("/api/communities/puerto-rico", async (req, res) => {
+    try {
+      const puertoRicoCommunities = await db
+        .select()
+        .from(communities)
+        .where(
+          or(
+            eq(communities.state, 'PR'),
+            sql`LOWER(${communities.city}) LIKE '%san juan%'`,
+            sql`LOWER(${communities.city}) LIKE '%ponce%'`,
+            sql`LOWER(${communities.city}) LIKE '%bayamon%'`,
+            sql`LOWER(${communities.city}) LIKE '%carolina%'`,
+            sql`LOWER(${communities.city}) LIKE '%caguas%'`,
+            sql`LOWER(${communities.city}) LIKE '%guaynabo%'`
+          )
+        )
+        .orderBy(desc(communities.rating))
+        .limit(20);
+      
+      res.json({ communities: puertoRicoCommunities });
+    } catch (error) {
+      console.error("Error fetching Puerto Rico communities:", error);
+      res.status(500).json({ error: "Failed to fetch Puerto Rico communities" });
+    }
+  });
+
   // Get Mexican communities
   app.get("/api/communities/mexican", async (req, res) => {
     try {
