@@ -22,6 +22,7 @@ import { MarketIntelligence } from "@/components/MarketIntelligence";
 import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
 import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import { HeroMascotPanel } from "@/components/mascot/HeroMascotPanel";
+import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
 
 export default function CommunityDirectory() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -279,6 +280,27 @@ export default function CommunityDirectory() {
   });
 
   const topStates = (marketOverview as any)?.marketTrends?.topStates || [];
+
+  // Check if main data is still loading
+  const isMainDataLoading = hawaiiLoading || hudLoading || floridaLoading || texasLoading || 
+                           newYorkLoading || canadianLoading || puertoRicoLoading || mexicoLoading;
+
+  // Show mascot loading display while data loads
+  if (isMainDataLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <NavigationHeader />
+        <div className="flex items-center justify-center min-h-[calc(100vh-64px)]">
+          <MascotLoadingDisplay 
+            title="Loading Community Directory"
+            subtitle={`Accessing ${((communityCount as any)?.count || '35,232').toLocaleString()}+ verified senior living communities`}
+            showProgress={true}
+            progressDuration={5}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -1902,7 +1924,7 @@ export default function CommunityDirectory() {
                 🏝️ Puerto Rico Communities
               </h2>
               <p className="text-gray-600 dark:text-gray-300">
-                Caribbean paradise with US Medicare benefits and tropical living
+                50 real communities across 40 cities • Island-wide coverage from Fajardo to Cabo Rojo
               </p>
             </div>
             <Link href="/search?location=Puerto Rico">
@@ -1913,7 +1935,9 @@ export default function CommunityDirectory() {
             </Link>
           </div>
           
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">US Territory benefits • No passport required • Bilingual services (English/Spanish)</p>
+          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
+            {((puertoRicoCommunities as any)?.communities?.length || 0)} communities • US Territory benefits • No passport required • Bilingual services (English/Spanish)
+          </p>
           
           <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 hover:scrollbar-thumb-blue-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth', height: '32rem'}}>
             {puertoRicoLoading ? (
@@ -1928,7 +1952,7 @@ export default function CommunityDirectory() {
                   </CardContent>
                 </Card>
               ))
-            ) : !(puertoRicoCommunities as any)?.communities?.length ? (
+            ) : !((puertoRicoCommunities as any)?.communities?.length) ? (
               // Puerto Rico promotional card when no data
               <Card className="overflow-hidden flex-shrink-0 w-[400px] h-[30rem] snap-start group hover:shadow-2xl transition-all duration-300 border-blue-300 dark:border-blue-600">
                 <div className="relative h-48 bg-gradient-to-br from-blue-400 via-cyan-400 to-teal-400">
@@ -1970,7 +1994,7 @@ export default function CommunityDirectory() {
                 </CardContent>
               </Card>
             ) : (
-              ((puertoRicoCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+              ((puertoRicoCommunities as any)?.communities || []).slice(0, 12).map((community: any, index: number) => (
                 <EnhancedCommunityCard
                   key={`puerto-rico-${community.id}-${index}`}
                   community={community}
