@@ -300,28 +300,30 @@ export default function FamilyCollaborationCenter() {
 
         {/* Main Feature Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-2 lg:grid-cols-5 w-full">
-            <TabsTrigger value="overview">
-              <Lightbulb className="w-4 h-4 mr-2" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="tour-tracker">
-              <FileText className="w-4 h-4 mr-2" />
-              Tour Tracker
-            </TabsTrigger>
-            <TabsTrigger value="tourmate">
-              <Calendar className="w-4 h-4 mr-2" />
-              TourMate™
-            </TabsTrigger>
-            <TabsTrigger value="messages">
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Messages
-            </TabsTrigger>
-            <TabsTrigger value="favorites">
-              <Heart className="w-4 h-4 mr-2" />
-              Favorites
-            </TabsTrigger>
-          </TabsList>
+          <div className="sticky top-[73px] z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-2">
+            <TabsList className="grid grid-cols-2 lg:grid-cols-5 w-full shadow-sm">
+              <TabsTrigger value="overview">
+                <Lightbulb className="w-4 h-4 mr-2" />
+                Overview
+              </TabsTrigger>
+              <TabsTrigger value="tour-tracker">
+                <FileText className="w-4 h-4 mr-2" />
+                Tour Tracker
+              </TabsTrigger>
+              <TabsTrigger value="tourmate">
+                <Calendar className="w-4 h-4 mr-2" />
+                TourMate™
+              </TabsTrigger>
+              <TabsTrigger value="messages">
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Messages
+              </TabsTrigger>
+              <TabsTrigger value="favorites">
+                <Heart className="w-4 h-4 mr-2" />
+                Favorites
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">

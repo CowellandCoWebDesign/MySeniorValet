@@ -2325,3 +2325,50 @@ body {
     filter: blur(0.3px) brightness(1.2);
   }
 }
+
+/* Family Collaboration Center Tabs - Fix bleeding issue */
+.tabs-list-container {
+  position: relative;
+  z-index: 30;
+  background: hsl(var(--background));
+  padding-bottom: 0.5rem;
+}
+
+/* Ensure tabs have proper layering and backgrounds */
+[role="tablist"] {
+  position: relative;
+  z-index: 25;
+  background: hsl(var(--muted));
+  isolation: isolate;
+}
+
+[role="tab"] {
+  position: relative;
+  z-index: 26;
+  background: hsl(var(--muted));
+}
+
+[role="tab"][data-state="active"] {
+  background: hsl(var(--background));
+  z-index: 27;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+[role="tabpanel"] {
+  position: relative;
+  z-index: 10;
+  background: transparent;
+}
+
+/* Dark mode support for tabs */
+.dark [role="tablist"] {
+  background: hsl(var(--muted));
+}
+
+.dark [role="tab"] {
+  background: hsl(var(--muted));
+}
+
+.dark [role="tab"][data-state="active"] {
+  background: hsl(var(--background));
+}
