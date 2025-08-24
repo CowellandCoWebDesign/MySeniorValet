@@ -11,6 +11,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { OnboardingProvider } from "@/contexts/OnboardingContext";
 import { VoiceGuidanceProvider } from "@/components/VoiceGuidanceProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
 
 
 // Import Leaflet CSS globally for map functionality
@@ -364,25 +365,27 @@ function AppContent() {
   const { user } = useAuth();
   
   return (
-    <ThemeProvider defaultTheme="light">
-      <LanguageProvider>
-        <OnboardingProvider>
-          <VoiceGuidanceProvider>
-            <TooltipProvider>
-              <MascotProvider>
-                <Toaster />
-                <Router />
-                {/* Cookie Banner temporarily disabled - was blocking search on mobile */}
-                {/* <CookieConsentBanner /> */}
-                <DisclaimerBanner />
-                {/* Emergency Button disabled - causes React rendering failure */}
-                {/* <EmergencyButton userId={user?.id} /> */}
-                </MascotProvider>
-              </TooltipProvider>
-            </VoiceGuidanceProvider>
-          </OnboardingProvider>
-        </LanguageProvider>
-      </ThemeProvider>
+    <ResponsiveProvider>
+      <ThemeProvider defaultTheme="light">
+        <LanguageProvider>
+          <OnboardingProvider>
+            <VoiceGuidanceProvider>
+              <TooltipProvider>
+                <MascotProvider>
+                  <Toaster />
+                  <Router />
+                  {/* Cookie Banner temporarily disabled - was blocking search on mobile */}
+                  {/* <CookieConsentBanner /> */}
+                  <DisclaimerBanner />
+                  {/* Emergency Button disabled - causes React rendering failure */}
+                  {/* <EmergencyButton userId={user?.id} /> */}
+                  </MascotProvider>
+                </TooltipProvider>
+              </VoiceGuidanceProvider>
+            </OnboardingProvider>
+          </LanguageProvider>
+        </ThemeProvider>
+      </ResponsiveProvider>
   );
 }
 
