@@ -16,7 +16,7 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
     {
       title: "No $10,000+ Referral Fees",
       subtitle: "Anti-A Place for Mom Promise",
-      description: "A Place for Mom charges facilities ~$10,000 per placement, driving up costs for all residents. We're 100% family-funded with zero referral fees - saving families thousands.",
+      description: "A Place for Mom charges facilities ~$10,000 per placement, driving up costs for all residents. We charge fair monthly subscriptions to communities & vendors, keeping family tools 100% FREE forever.",
       source: "Washington Post 2024: A Place for Mom charges ~1 month's rent per referral",
       link: "https://www.washingtonpost.com/business/2024/05/16/place-for-mom-assisted-living-referral/",
       category: "no_referral_fees"
@@ -88,7 +88,7 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
     {
       title: "Transparent Business Model",
       subtitle: "No Hidden Agendas",
-      description: "Harvard professor calls A Place for Mom 'pay-to-play model' with financial incentives that override care quality. Our transparent funding serves families, not facilities.",
+      description: "Harvard professor calls A Place for Mom 'pay-to-play model' with financial incentives that override care quality. Our transparent subscriptions from communities & vendors fund FREE family tools forever.",
       source: "Harvard healthcare policy expert David Grabowski quoted in Washington Post",
       link: "https://www.washingtonpost.com/business/2024/05/16/place-for-mom-assisted-living-referral/",
       category: "transparency"
@@ -108,6 +108,14 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
       source: "Post analysis: A Place for Mom excludes government inspection data from profiles",
       link: "https://www.washingtonpost.com/business/2024/05/16/place-for-mom-assisted-living-referral/",
       category: "verified_data"
+    },
+    {
+      title: "Fair Subscription Model",
+      subtitle: "Communities & Vendors Pay, Families Free",
+      description: "Communities pay $149-$349/month, vendors pay $99-$499/month based on coverage. This funds our platform while keeping ALL family tools 100% FREE - no hidden fees or referral kickbacks.",
+      source: "MySeniorValet transparent pricing model - see our Community Portal & Vendor Marketplace",
+      link: null,
+      category: "business_model"
     }
   ];
 
