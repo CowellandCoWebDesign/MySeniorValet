@@ -304,43 +304,63 @@ export default function FamilyCollaborationCenter() {
 
         {/* Main Feature Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <div className="sticky top-[64px] z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-4 pt-2">
-            <div className="w-full overflow-x-auto">
-              <TabsList className="inline-flex h-auto min-w-full lg:w-full p-1 bg-muted/50 rounded-lg">
+          <div className="sticky top-[64px] z-30 bg-gradient-to-b from-background via-background/98 to-background/95 backdrop-blur-xl pb-6 pt-4 border-b-2 border-primary/10">
+            <div className="w-full overflow-x-auto px-2">
+              <TabsList className="inline-flex h-auto min-w-full lg:w-full p-2 bg-gradient-to-r from-slate-100/90 to-gray-100/90 dark:from-slate-900/90 dark:to-gray-900/90 rounded-xl shadow-lg border border-primary/10">
                 <TabsTrigger 
                   value="overview" 
-                  className="flex-1 min-w-[120px] data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5 px-4 rounded-md transition-all"
+                  className="flex-1 min-w-[130px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
                 >
-                  <Lightbulb className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="whitespace-nowrap">Overview</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-amber-500/0 to-yellow-500/0 group-hover:from-amber-500/10 group-hover:to-yellow-500/10 data-[state=active]:from-amber-500/20 data-[state=active]:to-yellow-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <Lightbulb className="w-5 h-5 mr-2 flex-shrink-0 text-amber-600 dark:text-amber-400 group-data-[state=active]:text-amber-700 dark:group-data-[state=active]:text-amber-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Overview</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-yellow-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
                   value="tour-tracker" 
-                  className="flex-1 min-w-[140px] data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5 px-4 rounded-md transition-all"
+                  className="flex-1 min-w-[150px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
                 >
-                  <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="whitespace-nowrap">Tour Tracker</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-cyan-500/0 group-hover:from-blue-500/10 group-hover:to-cyan-500/10 data-[state=active]:from-blue-500/20 data-[state=active]:to-cyan-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <FileText className="w-5 h-5 mr-2 flex-shrink-0 text-blue-600 dark:text-blue-400 group-data-[state=active]:text-blue-700 dark:group-data-[state=active]:text-blue-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Tour Tracker</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
                   value="tourmate" 
-                  className="flex-1 min-w-[130px] data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5 px-4 rounded-md transition-all"
+                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
                 >
-                  <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="whitespace-nowrap">TourMate™</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 to-pink-500/0 group-hover:from-purple-500/10 group-hover:to-pink-500/10 data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <Calendar className="w-5 h-5 mr-2 flex-shrink-0 text-purple-600 dark:text-purple-400 group-data-[state=active]:text-purple-700 dark:group-data-[state=active]:text-purple-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">TourMate™</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
                   value="messages" 
-                  className="flex-1 min-w-[120px] data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5 px-4 rounded-md transition-all"
+                  className="flex-1 min-w-[130px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
                 >
-                  <MessageCircle className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="whitespace-nowrap">Messages</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500/0 to-emerald-500/0 group-hover:from-green-500/10 group-hover:to-emerald-500/10 data-[state=active]:from-green-500/20 data-[state=active]:to-emerald-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <MessageCircle className="w-5 h-5 mr-2 flex-shrink-0 text-green-600 dark:text-green-400 group-data-[state=active]:text-green-700 dark:group-data-[state=active]:text-green-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Messages</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 to-emerald-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
                   value="favorites" 
-                  className="flex-1 min-w-[120px] data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5 px-4 rounded-md transition-all"
+                  className="flex-1 min-w-[130px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
                 >
-                  <Heart className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="whitespace-nowrap">Favorites</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 to-rose-500/0 group-hover:from-red-500/10 group-hover:to-rose-500/10 data-[state=active]:from-red-500/20 data-[state=active]:to-rose-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <Heart className="w-5 h-5 mr-2 flex-shrink-0 text-red-600 dark:text-red-400 group-data-[state=active]:text-red-700 dark:group-data-[state=active]:text-red-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Favorites</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-rose-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
               </TabsList>
             </div>
