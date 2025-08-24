@@ -174,6 +174,25 @@ export default function FamilyCollaborationCenter() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6">
+        {/* Example Data Notice */}
+        <Card className="mb-6 border-amber-500/50 bg-amber-50/10 dark:bg-amber-950/10">
+          <CardContent className="py-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-full bg-amber-100 dark:bg-amber-900/30">
+                <FileText className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-amber-900 dark:text-amber-100">
+                  Demo Mode - Example Data Only
+                </p>
+                <p className="text-sm text-amber-700 dark:text-amber-300">
+                  The data shown below is example content for demonstration purposes. 
+                  Sign in to access your real family collaboration features.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid grid-cols-2 lg:grid-cols-4 w-full max-w-4xl mx-auto">
             <TabsTrigger value="tour-tracker" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-500 data-[state=active]:text-white">
@@ -201,6 +220,7 @@ export default function FamilyCollaborationCenter() {
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="w-5 h-5 text-orange-500" />
                   Tour Visit Reports
+                  <Badge variant="destructive" className="ml-2">EXAMPLE DATA</Badge>
                 </CardTitle>
                 <CardDescription>Track and review your community visits</CardDescription>
               </CardHeader>
@@ -279,6 +299,7 @@ export default function FamilyCollaborationCenter() {
                 <CardTitle className="flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-blue-500" />
                   TourMate™ Scheduler
+                  <Badge variant="destructive" className="ml-2">EXAMPLE DATA</Badge>
                 </CardTitle>
                 <CardDescription>Schedule and manage community tours</CardDescription>
               </CardHeader>
@@ -386,6 +407,7 @@ export default function FamilyCollaborationCenter() {
                 <CardTitle className="flex items-center gap-2">
                   <MessageCircle className="w-5 h-5 text-purple-500" />
                   Family Messages
+                  <Badge variant="destructive" className="ml-2">EXAMPLE DATA</Badge>
                 </CardTitle>
                 <CardDescription>Private chat for family care discussions</CardDescription>
               </CardHeader>
@@ -459,6 +481,7 @@ export default function FamilyCollaborationCenter() {
                 <CardTitle className="flex items-center gap-2">
                   <Heart className="w-5 h-5 text-rose-500" />
                   Shared Favorites
+                  <Badge variant="destructive" className="ml-2">EXAMPLE DATA</Badge>
                 </CardTitle>
                 <CardDescription>Communities your family is considering</CardDescription>
               </CardHeader>
