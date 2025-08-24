@@ -304,29 +304,46 @@ export default function FamilyCollaborationCenter() {
 
         {/* Main Feature Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <div className="sticky top-[64px] z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-2">
-            <TabsList className="grid grid-cols-2 lg:grid-cols-5 w-full shadow-sm">
-              <TabsTrigger value="overview">
-                <Lightbulb className="w-4 h-4 mr-2" />
-                Overview
-              </TabsTrigger>
-              <TabsTrigger value="tour-tracker">
-                <FileText className="w-4 h-4 mr-2" />
-                Tour Tracker
-              </TabsTrigger>
-              <TabsTrigger value="tourmate">
-                <Calendar className="w-4 h-4 mr-2" />
-                TourMate™
-              </TabsTrigger>
-              <TabsTrigger value="messages">
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Messages
-              </TabsTrigger>
-              <TabsTrigger value="favorites">
-                <Heart className="w-4 h-4 mr-2" />
-                Favorites
-              </TabsTrigger>
-            </TabsList>
+          <div className="sticky top-[64px] z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-4 pt-2">
+            <div className="w-full overflow-x-auto">
+              <TabsList className="inline-flex h-auto min-w-full lg:w-full p-1 bg-muted/50 rounded-lg">
+                <TabsTrigger 
+                  value="overview" 
+                  className="flex-1 min-w-[120px] data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5 px-4 rounded-md transition-all"
+                >
+                  <Lightbulb className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="whitespace-nowrap">Overview</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="tour-tracker" 
+                  className="flex-1 min-w-[140px] data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5 px-4 rounded-md transition-all"
+                >
+                  <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="whitespace-nowrap">Tour Tracker</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="tourmate" 
+                  className="flex-1 min-w-[130px] data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5 px-4 rounded-md transition-all"
+                >
+                  <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="whitespace-nowrap">TourMate™</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="messages" 
+                  className="flex-1 min-w-[120px] data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5 px-4 rounded-md transition-all"
+                >
+                  <MessageCircle className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="whitespace-nowrap">Messages</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="favorites" 
+                  className="flex-1 min-w-[120px] data-[state=active]:bg-background data-[state=active]:shadow-sm py-2.5 px-4 rounded-md transition-all"
+                >
+                  <Heart className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="whitespace-nowrap">Favorites</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
           </div>
 
           {/* Overview Tab */}
