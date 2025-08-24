@@ -1868,39 +1868,6 @@ export default function CommunityDetail() {
     return `(${areaCode}) ${number.slice(0, 3)}-${number.slice(3)}`;
   };
 
-  const getCountryFromState = (state: string) => {
-    // Canadian provinces
-    const canadianProvinces = ['ON', 'QC', 'BC', 'AB', 'MB', 'SK', 'NS', 'NB', 'NL', 'PE', 'NT', 'YT', 'NU'];
-    // Mexican states (using MX as the general code)
-    const mexicanStates = ['MX'];
-    // Puerto Rico
-    const puertoRico = ['PR'];
-    // Latin American countries
-    const peru = ['PE'];
-    const cuba = ['CU'];
-    const costaRica = ['CR'];
-    const panama = ['PA'];
-    
-    if (canadianProvinces.includes(state)) {
-      return 'Canada';
-    } else if (mexicanStates.includes(state)) {
-      return 'Mexico';
-    } else if (puertoRico.includes(state)) {
-      return 'Puerto Rico';
-    } else if (peru.includes(state)) {
-      return 'Peru';
-    } else if (cuba.includes(state)) {
-      return 'Cuba';
-    } else if (costaRica.includes(state)) {
-      return 'Costa Rica';
-    } else if (panama.includes(state)) {
-      return 'Panama';
-    } else {
-      // Default to United States for US states
-      return 'United States';
-    }
-  };
-
   // Combine database photos with live web intelligence photos
   const getCombinedPhotos = () => {
     const photos = [];
@@ -2025,7 +1992,7 @@ export default function CommunityDetail() {
                         <div className="flex flex-col">
                           <span>{community.address.split(',')[0]}</span>
                           <span>{community.city}, {community.state} {community.zipCode}</span>
-                          <span>{getCountryFromState(community.state)}</span>
+                          <span>United States</span>
                         </div>
                       </div>
                       <div className="flex items-center text-white/90 mb-3 text-responsive-base">
@@ -2096,107 +2063,100 @@ export default function CommunityDetail() {
                     </div>
                     </div>
                     
-                    {/* Right side - Pricing and Key Services */}
-                    <div className="flex flex-col gap-4">
-                      {/* Pricing Information - Right Aligned */}
-                      <div className="text-right">
-                        {(() => {
-                          const hasVerifiedPricing = (community.priceRange && community.priceRange.min > 0) || 
-                                                     (community as any).rentPerMonth || 
-                                                     (verificationReport?.pricing?.verified);
-                          const isEstimate = !hasVerifiedPricing;
-                          
-                          return (
-                            <div>
-                              <div className="text-responsive-xl font-bold text-white mb-1">
-                                {(() => {
-                                  // Check for AI verified pricing from Multi-AI report - show starting price only
-                                  if (verificationReport?.pricing?.verified && verificationReport.pricing.amount) {
-                                    const amount = verificationReport.pricing.amount;
-                                    const minMax = verificationReport.pricing.minMax;
-                                    if (minMax && minMax.min) {
-                                      return `Starting at $${minMax.min.toLocaleString()}`;
-                                    } else if (amount) {
-                                      return `Starting at $${amount.toLocaleString()}`;
-                                    }
-                                  }
-                                  
-                                  // Then check traditional price sources - show starting price only
-                                  if (community.priceRange && community.priceRange.min > 0) {
-                                    return `Starting at $${community.priceRange.min.toLocaleString()}`;
-                                  }
-                                  
-                                  if ((community as any).rentPerMonth) {
-                                    return `Starting at $${(community as any).rentPerMonth}`;
-                                  }
-                                  
-                                  // Show market intelligence estimates as starting prices
-                                  if (community.communitySubtype === 'hud_senior_housing') {
-                                    return "Starting at $200";
-                                  }
-                                  if (community.careTypes?.includes('memory_care')) {
-                                    return "Starting at $5,000";
-                                  }
-                                  if (community.careTypes?.includes('assisted_living')) {
-                                    return "Starting at $3,500";
-                                  }
-                                  if (community.careTypes?.includes('independent_living')) {
-                                    return "Starting at $2,500";
-                                  }
-                                  return "Starting at $2,000";
-                                })()}
-                              </div>
-                              <div className="text-responsive-sm text-white/80">
-                                {isEstimate ? (
-                                  <div className="flex items-center gap-2 justify-end">
-                                    <span>Market Estimate</span>
-                                    <button 
-                                      onClick={() => {
-                                        const marketTab = document.querySelector('[data-tab="market-data"]') as HTMLElement;
-                                        if (marketTab) {
-                                          marketTab.click();
-                                          setTimeout(() => {
-                                            const howWeCalculate = document.querySelector('#how-we-calculate');
-                                            if (howWeCalculate) {
-                                              howWeCalculate.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                            }
-                                          }, 100);
-                                        }
-                                      }}
-                                      className="text-blue-300 hover:text-blue-100 underline text-xs font-medium"
-                                    >
-                                      How we calculate
-                                    </button>
-                                  </div>
-                                ) : (
-                                  "estimated starting rate"
-                                )}
-                              </div>
-                              
-                              {/* Smart Pricing Badge */}
+                    {/* Right side - Pricing Information */}
+                    <div className="text-right">
+                      {(() => {
+                        const hasVerifiedPricing = (community.priceRange && community.priceRange.min > 0) || 
+                                                   (community as any).rentPerMonth || 
+                                                   (verificationReport?.pricing?.verified);
+                        const isEstimate = !hasVerifiedPricing;
+                        
+                        return (
+                          <div className="mb-3">
+                            <div className="text-responsive-xl font-bold text-white mb-1">
                               {(() => {
-                                const badgeInfo = getPricingBadgeInfo(community, verificationReport);
-                                const IconComponent = badgeInfo.icon;
+                                // Check for AI verified pricing from Multi-AI report - show starting price only
+                                if (verificationReport?.pricing?.verified && verificationReport.pricing.amount) {
+                                  const amount = verificationReport.pricing.amount;
+                                  const minMax = verificationReport.pricing.minMax;
+                                  if (minMax && minMax.min) {
+                                    return `Starting at $${minMax.min.toLocaleString()}`;
+                                  } else if (amount) {
+                                    return `Starting at $${amount.toLocaleString()}`;
+                                  }
+                                }
                                 
-                                return badgeInfo.show ? (
-                                  <div className="flex justify-end mt-2">
-                                    <div className={`${badgeInfo.bgColor} text-white px-2 py-1 rounded-full text-xs font-medium shadow-sm flex items-center gap-1`}>
-                                      {IconComponent && <IconComponent className="w-3 h-3" />}
-                                      {badgeInfo.text}
-                                    </div>
-                                  </div>
-                                ) : null;
+                                // Then check traditional price sources - show starting price only
+                                if (community.priceRange && community.priceRange.min > 0) {
+                                  return `Starting at $${community.priceRange.min.toLocaleString()}`;
+                                }
+                                
+                                if ((community as any).rentPerMonth) {
+                                  return `Starting at $${(community as any).rentPerMonth}`;
+                                }
+                                
+                                // Show market intelligence estimates as starting prices
+                                if (community.communitySubtype === 'hud_senior_housing') {
+                                  return "Starting at $200";
+                                }
+                                if (community.careTypes?.includes('memory_care')) {
+                                  return "Starting at $5,000";
+                                }
+                                if (community.careTypes?.includes('assisted_living')) {
+                                  return "Starting at $3,500";
+                                }
+                                if (community.careTypes?.includes('independent_living')) {
+                                  return "Starting at $2,500";
+                                }
+                                return "Starting at $2,000";
                               })()}
                             </div>
-                          );
-                        })()}
-                      </div>
-                      
-                      {/* Key Services Section - Left Aligned */}
-                      <div className="text-left">
-                        <div className="border-t border-white/20 pt-2 sm:pt-3">
-                          <h3 className="text-responsive-base font-bold text-white mb-2 sm:mb-3">Key Services:</h3>
-                          <div className="space-y-1 sm:space-y-2">
+                            <div className="text-responsive-sm text-white/80">
+                              {isEstimate ? (
+                                <div className="flex items-center gap-2 justify-end">
+                                  <span>Market Estimate</span>
+                                  <button 
+                                    onClick={() => {
+                                      const marketTab = document.querySelector('[data-tab="market-data"]') as HTMLElement;
+                                      if (marketTab) {
+                                        marketTab.click();
+                                        setTimeout(() => {
+                                          const howWeCalculate = document.querySelector('#how-we-calculate');
+                                          if (howWeCalculate) {
+                                            howWeCalculate.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                          }
+                                        }, 100);
+                                      }
+                                    }}
+                                    className="text-blue-300 hover:text-blue-100 underline text-xs font-medium"
+                                  >
+                                    How we calculate
+                                  </button>
+                                </div>
+                              ) : (
+                                "estimated starting rate"
+                              )}
+                            </div>
+                            
+                            {/* Smart Pricing Badge */}
+                            {(() => {
+                              const badgeInfo = getPricingBadgeInfo(community, verificationReport);
+                              const IconComponent = badgeInfo.icon;
+                              
+                              return badgeInfo.show ? (
+                                <div className="flex justify-end mt-2">
+                                  <div className={`${badgeInfo.bgColor} text-white px-2 py-1 rounded-full text-xs font-medium shadow-sm flex items-center gap-1`}>
+                                    {IconComponent && <IconComponent className="w-3 h-3" />}
+                                    {badgeInfo.text}
+                                  </div>
+                                </div>
+                              ) : null;
+                            })()}
+                            
+                            {/* Key Services Section - Mobile Responsive */}
+                            <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-white/20">
+                              <h3 className="text-responsive-base font-bold text-white mb-2 sm:mb-3">Key Services:</h3>
+                              <div className="space-y-1 sm:space-y-2">
                                 {/* 24/7 Medical Staff */}
                                 <div className="flex items-center gap-3">
                                   <div className={`w-3 h-3 rounded-full ${
@@ -2279,7 +2239,9 @@ export default function CommunityDetail() {
                               </div>
                             </div>
                           </div>
-                      </div>
+                        );
+                      })()}
+                    </div>
                   </div>
                 </div>
               </Card>
