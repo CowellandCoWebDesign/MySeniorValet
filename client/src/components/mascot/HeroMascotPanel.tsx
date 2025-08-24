@@ -11,111 +11,127 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
   const [progress, setProgress] = useState(0);
   const [shuffledMessages, setShuffledMessages] = useState<any[]>([]);
   
-  // Platform differentiator facts based on real documented family feedback and industry investigations
+  // Helpful senior living insights and platform features
   const platformDifferentiators = [
     {
-      title: "No $10,000+ Referral Fees",
-      subtitle: "Anti-A Place for Mom Promise",
-      description: "A Place for Mom charges facilities ~$10,000 per placement, driving up costs for all residents. We charge fair monthly subscriptions to communities & vendors, keeping family tools 100% FREE forever.",
-      source: "Washington Post 2024: A Place for Mom charges ~1 month's rent per referral",
-      link: "https://www.washingtonpost.com/business/2024/05/16/place-for-mom-assisted-living-referral/",
-      category: "no_referral_fees"
+      title: "Save $3,000+ Monthly",
+      subtitle: "HUD Housing Available",
+      description: "Did you know? HUD senior housing charges just 30% of your income for rent. With 5,936 HUD properties in our database, you could save thousands monthly while getting quality care.",
+      source: "HUD.gov - Over 5,936 subsidized senior properties nationwide",
+      link: "https://www.hud.gov/topics/information_for_senior_citizens",
+      category: "cost_savings"
     },
     {
-      title: "Real Safety Information",
-      subtitle: "See What They Hide",
-      description: "Washington Post found 37% of A Place for Mom's 'Best of' award winners had serious care violations. We show state inspection reports, not fake marketing awards.",
-      source: "Washington Post investigation: 324 of 863 award winners had serious violations",
-      link: "https://www.washingtonpost.com/business/2024/05/16/place-for-mom-assisted-living-referral/",
-      category: "safety_transparency"
+      title: "Free VA Benefits",
+      subtitle: "Up to $2,500/Month",
+      description: "Veterans and surviving spouses may qualify for Aid & Attendance benefits worth up to $2,500 monthly for senior care. We help you find VA-contracted communities.",
+      source: "VA.gov - Aid and Attendance enhanced pension benefit",
+      link: "https://www.va.gov/pension/aid-attendance-housebound/",
+      category: "veteran_benefits"
     },
     {
-      title: "No Fake Reviews",
-      subtitle: "Authentic Family Feedback",
-      description: "A Place for Mom facilities routinely solicit fake 5-star reviews - one facility got 40 identical reviews in a single day. We verify all feedback through authenticated families.",
-      source: "Washington Post: StoryPoint Saline had 40 five-star reviews posted on same day",
-      link: "https://www.washingtonpost.com/business/2024/05/16/place-for-mom-assisted-living-referral/",
-      category: "authentic_reviews"
+      title: "Medicare Covers More",
+      subtitle: "100 Days of Skilled Care",
+      description: "Medicare Part A covers up to 100 days of skilled nursing care after a hospital stay. Many families don't know this benefit exists - we show which communities accept Medicare.",
+      source: "Medicare.gov - Skilled nursing facility care coverage",
+      link: "https://www.medicare.gov/coverage/skilled-nursing-facility-snf-care",
+      category: "medicare_coverage"
     },
     {
-      title: "Senate Investigation Proof",
-      subtitle: "Government Scrutiny",
-      description: "Senator Bob Casey launched federal probe of A Place for Mom for 'deceptive marketing practices' and putting seniors at risk. We operate with full transparency.",
-      source: "NBC News 2024: Senate announces probe of A Place for Mom referral service",
-      link: "https://www.nbcnews.com/news/us-news/senate-announces-probe-place-for-mom-referral-service-rcna157282",
-      category: "government_accountability"
-    },
-    {
-      title: "Stop Financial Exploitation",
-      subtitle: "Asset Protection Focus",
-      description: "Medicaid attorney analysis shows A Place for Mom referrals force families to 'go broke faster' by excluding affordable Medicaid facilities to maximize their profits.",
-      source: "Medicaid Planning.org: 'A Place for Mom to Go Broke' - faster asset depletion",
-      link: "https://medicaidplanning.org/a-place-for-mom-to-go-broke/",
-      category: "financial_protection"
-    },
-    {
-      title: "No Harassment Campaigns",
-      subtitle: "Respectful Communication",
-      description: "Families report A Place for Mom calling '20+ times within 24 hours' and sharing contact info with 30+ facilities without consent. We respect your privacy and timeline.",
-      source: "Consumer complaints: 8am-9pm daily calls, information shared without consent",
-      link: "https://www.bbb.org/us/wa/seattle/profile/senior-care/a-place-for-mom-inc-1296-22011038/complaints",
-      category: "no_pressure"
-    },
-    {
-      title: "Include ALL Options",
-      subtitle: "Complete Care Spectrum",
-      description: "Competitors exclude Medicaid facilities and HUD housing because they don't pay referral fees. We show every option including ones that could save you $3,000+ monthly.",
-      source: "Industry analysis: Anti-kickback laws prevent Medicaid referral fees",
-      link: "https://medicaidplanning.org/a-place-for-mom-to-go-broke/",
-      category: "complete_spectrum"
-    },
-    {
-      title: "Real Family Stories",
-      subtitle: "Documented Cases",
-      description: "Judy Bottum's mother died alone at A Place for Mom facility with no showers in final month. We prioritize quality care over marketing relationships.",
-      source: "Washington Post: Kathleen Bottum case at StoryPoint facility",
-      link: "https://www.washingtonpost.com/business/2024/05/16/place-for-mom-assisted-living-referral/",
-      category: "quality_focus"
-    },
-    {
-      title: "No Forced Relocations",
-      subtitle: "Placement Stability",
-      description: "Elder law experts warn A Place for Mom referrals often require expensive private-pay before Medicaid acceptance, forcing traumatic relocations when money runs out.",
-      source: "Medicaid Planning analysis: Forced transitions when private funds exhausted",
-      link: "https://medicaidplanning.org/a-place-for-mom-to-go-broke/",
-      category: "placement_stability"
-    },
-    {
-      title: "Transparent Business Model",
-      subtitle: "No Hidden Agendas",
-      description: "Harvard professor calls A Place for Mom 'pay-to-play model' with financial incentives that override care quality. Our transparent subscriptions from communities & vendors fund FREE family tools forever.",
-      source: "Harvard healthcare policy expert David Grabowski quoted in Washington Post",
-      link: "https://www.washingtonpost.com/business/2024/05/16/place-for-mom-assisted-living-referral/",
-      category: "transparency"
-    },
-    {
-      title: "Professional Advocacy",
-      subtitle: "Real Healthcare Background",
-      description: "Placement agents often lack healthcare training and prioritize quick sales over proper matches. Our team includes certified care coordinators and elder law consultation.",
-      source: "Industry insider: 'Most advisors are sales professionals, not healthcare experts'",
-      link: "https://medicaidplanning.org/a-place-for-mom-to-go-broke/",
-      category: "professional_expertise"
-    },
-    {
-      title: "Government Data Integration",
-      subtitle: "Beyond Marketing Materials",
-      description: "We integrate live HUD databases, CMS star ratings, and state inspection reports. Competitors rely on manipulated reviews and marketing copy that hides problems.",
-      source: "Post analysis: A Place for Mom excludes government inspection data from profiles",
-      link: "https://www.washingtonpost.com/business/2024/05/16/place-for-mom-assisted-living-referral/",
-      category: "verified_data"
-    },
-    {
-      title: "Fair Subscription Model",
-      subtitle: "Communities & Vendors Pay, Families Free",
-      description: "Communities pay $149-$349/month, vendors pay $99-$499/month based on coverage. This funds our platform while keeping ALL family tools 100% FREE - no hidden fees or referral kickbacks.",
-      source: "MySeniorValet transparent pricing model - see our Community Portal & Vendor Marketplace",
+      title: "Tour Smart Strategy",
+      subtitle: "Best Times to Visit",
+      description: "Visit communities during meal times (11:30am or 5pm) to assess food quality and resident engagement. Use our TourMate™ system to schedule and track multiple tours efficiently.",
+      source: "Elder care experts recommend meal-time visits for accurate assessment",
       link: null,
-      category: "business_model"
+      category: "touring_tips"
+    },
+    {
+      title: "Instant Emergency Help",
+      subtitle: "One-Touch Contact System",
+      description: "Our emergency button connects you instantly to trained advisors who can guide you through urgent situations - hospital discharge, eviction notices, or sudden care needs.",
+      source: "MySeniorValet 24/7 emergency support system",
+      link: null,
+      category: "emergency_support"
+    },
+    {
+      title: "35,232 Communities",
+      subtitle: "Complete North America Coverage",
+      description: "Search every licensed community across USA, Canada, Mexico, and Puerto Rico. From luxury resorts to affordable housing - all verified, all transparent, all in one place.",
+      source: "MySeniorValet comprehensive database - updated daily",
+      link: null,
+      category: "complete_coverage"
+    },
+    {
+      title: "Memory Care Insights",
+      subtitle: "Specialized Dementia Support",
+      description: "Memory care averages $6,500/month but varies widely by state. Iowa averages $4,800 while Connecticut reaches $9,000. We show exact pricing for 8,000+ memory care units.",
+      source: "Genworth 2024 Cost of Care Survey - Memory Care Analysis",
+      link: "https://www.genworth.com/aging-and-you/finances/cost-of-care.html",
+      category: "memory_care"
+    },
+    {
+      title: "Medicaid Planning",
+      subtitle: "Protect Your Assets Legally",
+      description: "Most states allow $2,000 in assets for Medicaid, but your home, car, and $137,400 in spousal assets are protected. Start planning 5 years before you need care.",
+      source: "Medicaid.gov - Asset protection and look-back periods",
+      link: "https://www.medicaid.gov/medicaid/eligibility/index.html",
+      category: "medicaid_planning"
+    },
+    {
+      title: "Family Collaboration",
+      subtitle: "Share Research Instantly",
+      description: "Our FREE family tools let you share favorites, compare communities, schedule tours together, and make decisions as a team - even from different cities.",
+      source: "MySeniorValet Family Collaboration Center - 100% Free",
+      link: null,
+      category: "family_tools"
+    },
+    {
+      title: "Red Flag Warnings",
+      subtitle: "What to Watch For",
+      description: "Warning signs: Strong odors, high staff turnover, many residents sleeping midday, empty activity calendars. Our reviews and inspection reports help you spot issues early.",
+      source: "National Center on Elder Abuse - Facility warning signs",
+      link: "https://ncea.acl.gov/",
+      category: "safety_awareness"
+    },
+    {
+      title: "AI-Powered Matching",
+      subtitle: "Natural Language Search",
+      description: "Just describe what you need: 'Memory care near Boston under $5,000 with garden' and our AI finds perfect matches from 35,232 communities instantly.",
+      source: "MySeniorValet AI Search - Powered by advanced language understanding",
+      link: null,
+      category: "ai_technology"
+    },
+    {
+      title: "Real-Time Availability",
+      subtitle: "No More Waiting Lists",
+      description: "See live availability for every community. No more calling 20 places to find they're full. Green pins mean available now, yellow means limited spots, red means waitlist only.",
+      source: "MySeniorValet Real-Time Availability System",
+      link: null,
+      category: "availability"
+    },
+    {
+      title: "Complete Care Spectrum",
+      subtitle: "Every Option Explained",
+      description: "From 55+ active living ($2,000/mo) to skilled nursing ($10,000/mo), we explain all 10 care levels, costs, and services. Find exactly what you need at the right price.",
+      source: "MySeniorValet Care Spectrum Guide - 10 levels of care",
+      link: null,
+      category: "care_education"
+    },
+    {
+      title: "Tax Deductions Available",
+      subtitle: "Save on Care Costs",
+      description: "Medical expenses over 7.5% of income are tax deductible. Assisted living and memory care often qualify as medical expenses - potentially saving thousands annually.",
+      source: "IRS Publication 502 - Medical and Dental Expenses",
+      link: "https://www.irs.gov/publications/p502",
+      category: "tax_benefits"
+    },
+    {
+      title: "Long-Term Care Insurance",
+      subtitle: "Use Your Benefits",
+      description: "60% of people with long-term care insurance never use it. We help you understand your policy and find communities that accept your coverage directly.",
+      source: "American Association for Long-Term Care Insurance",
+      link: "https://www.aaltci.org/",
+      category: "insurance_help"
     }
   ];
 
