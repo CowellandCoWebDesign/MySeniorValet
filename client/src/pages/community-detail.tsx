@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'wouter';
+import { useResponsive } from '@/contexts/ResponsiveContext';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
          Mail, Globe, Users, User, Plus, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
@@ -1907,9 +1908,11 @@ export default function CommunityDetail() {
     return photos.length > 0 ? photos : defaultPhotos;
   };
 
+  const { isMobile, isTablet, isDesktop } = useResponsive();
+  
   return (
     <>
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen-safe bg-gray-50 dark:bg-gray-900">
       <NavigationHeader 
         title={community?.name || "Community Details"} 
         subtitle={`${community?.city || ""}, ${community?.state || ""}`}
@@ -1917,7 +1920,7 @@ export default function CommunityDetail() {
       
       {/* Breadcrumb Navigation */}
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto">
+        <div className="container-responsive">
           <BreadcrumbNavigation 
             items={[
               { label: 'Home', href: '/' },
@@ -1928,15 +1931,15 @@ export default function CommunityDetail() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="space-y-6">
+      <div className="container-responsive py-responsive">
+        <div className="space-y-4 sm:space-y-6">
           {/* Main Content - Full Width */}
           <div className="space-y-6">
             {/* Main Community Card - Integrated KAYAK-Style Design */}
             <Card className="overflow-hidden">
               <CardContent className="relative p-0">
-                {/* Enhanced Photo Carousel - Full carousel with real photos prominently displayed */}
-                <div className="relative block w-full" style={{ height: '320px', minHeight: '320px', maxHeight: '320px' }}>
+                {/* Enhanced Photo Carousel - Responsive heights */}
+                <div className="relative block w-full h-[200px] sm:h-[280px] md:h-[320px] lg:h-[400px]">
                   <HeroPhotoCarousel 
                     photos={(community.photos && community.photos.length > 0) ? community.photos : defaultPhotos} 
                     communityName={community.name}
@@ -1946,13 +1949,13 @@ export default function CommunityDetail() {
                   />
                 </div>
                   
-                  {/* Action Buttons */}
-                  <div className="absolute top-4 right-4 flex space-x-2">
+                  {/* Action Buttons - Mobile Responsive */}
+                  <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex space-x-1 sm:space-x-2">
                     <button
                       onClick={handleFavorite}
-                      className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow"
+                      className="p-1.5 sm:p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow touch-target"
                     >
-                      <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-900 dark:text-gray-100'}`} />
+                      <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-900 dark:text-gray-100'}`} />
                     </button>
 
                     <FamilyShareButton 
@@ -1969,22 +1972,22 @@ export default function CommunityDetail() {
                         phone: community.phone || undefined,
                         website: community.website || undefined
                       }}
-                      className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow"
+                      className="p-1.5 sm:p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow touch-target"
                     />
                   </div>
                 </CardContent>
                 
-                {/* Solid background section with community info - Integrated seamlessly */}
-                <div className="bg-gradient-to-br from-slate-800 via-blue-900 to-indigo-900 text-white p-6">
-                  <div className="flex items-start justify-between">
+                {/* Solid background section with community info - Mobile Responsive */}
+                <div className="bg-gradient-to-br from-slate-800 via-blue-900 to-indigo-900 text-white p-4 sm:p-6">
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h1 className="text-2xl font-bold text-white">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
+                        <h1 className="text-responsive-2xl font-bold text-white break-words">
                           {community.name}
                         </h1>
 
                       </div>
-                      <div className="flex items-start text-white/90 mb-2">
+                      <div className="flex items-start text-white/90 mb-3 text-responsive-sm">
                         <MapPin className="w-4 h-4 mr-1 flex-shrink-0 mt-0.5" />
                         <div className="flex flex-col">
                           <span>{community.address.split(',')[0]}</span>
@@ -1992,18 +1995,18 @@ export default function CommunityDetail() {
                           <span>United States</span>
                         </div>
                       </div>
-                      <div className="flex items-center text-white/90 mb-4">
-                        <span className="text-lg mr-1">☎️</span>
+                      <div className="flex items-center text-white/90 mb-3 text-responsive-base">
+                        <span className="text-base sm:text-lg mr-1">☎️</span>
                         <a 
                           href={`tel:${community.phone || generatePhoneNumber(community.state, community.id)}`}
-                          className="font-medium text-white hover:text-blue-200 transition-colors cursor-pointer"
+                          className="font-medium text-white hover:text-blue-200 transition-colors cursor-pointer break-all"
                         >
                           {community.phone || generatePhoneNumber(community.state, community.id)}
                         </a>
                       </div>
-                      <div className="flex items-center gap-4 mb-4">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-4">
                         <div 
-                          className="flex items-center cursor-pointer hover:bg-white/10 rounded-lg px-2 py-1 transition-colors"
+                          className="flex items-center cursor-pointer hover:bg-white/10 rounded-lg px-2 py-1 transition-colors text-responsive-sm"
                           onClick={() => {
                             const reviewsSection = document.querySelector('#reviews-section');
                             if (reviewsSection) {
@@ -2011,11 +2014,12 @@ export default function CommunityDetail() {
                             }
                           }}
                         >
-                          <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+                          <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-current mr-1" />
                           <span className="font-medium text-white">{community.googleRating || '4.2'}</span>
-                          <span className="text-white/90 ml-1">({community.googleReviewCount || '47'} reviews)</span>
+                          <span className="text-white/90 ml-1 hidden sm:inline">({community.googleReviewCount || '47'} reviews)</span>
+                          <span className="text-white/90 ml-1 sm:hidden">({community.googleReviewCount || '47'})</span>
                         </div>
-                        <Badge className="bg-blue-500/20 border-blue-400 text-blue-100">
+                        <Badge className="bg-blue-500/20 border-blue-400 text-blue-100 text-xs sm:text-sm">
                           {formatCareType(community.careTypes)}
                         </Badge>
                       </div>
@@ -2069,7 +2073,7 @@ export default function CommunityDetail() {
                         
                         return (
                           <div className="mb-3">
-                            <div className="text-xl font-bold text-white mb-1">
+                            <div className="text-responsive-xl font-bold text-white mb-1">
                               {(() => {
                                 // Check for AI verified pricing from Multi-AI report - show starting price only
                                 if (verificationReport?.pricing?.verified && verificationReport.pricing.amount) {
@@ -2107,7 +2111,7 @@ export default function CommunityDetail() {
                                 return "Starting at $2,000";
                               })()}
                             </div>
-                            <div className="text-sm text-white/80">
+                            <div className="text-responsive-sm text-white/80">
                               {isEstimate ? (
                                 <div className="flex items-center gap-2 justify-end">
                                   <span>Market Estimate</span>
@@ -2149,10 +2153,10 @@ export default function CommunityDetail() {
                               ) : null;
                             })()}
                             
-                            {/* Key Services Section - Under price in top right */}
-                            <div className="mt-4 pt-3 border-t border-white/20">
-                              <h3 className="text-lg font-bold text-white mb-3">Key Services:</h3>
-                              <div className="space-y-2">
+                            {/* Key Services Section - Mobile Responsive */}
+                            <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-white/20">
+                              <h3 className="text-responsive-base font-bold text-white mb-2 sm:mb-3">Key Services:</h3>
+                              <div className="space-y-1 sm:space-y-2">
                                 {/* 24/7 Medical Staff */}
                                 <div className="flex items-center gap-3">
                                   <div className={`w-3 h-3 rounded-full ${
@@ -2167,7 +2171,7 @@ export default function CommunityDetail() {
                                       ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
                                       : 'bg-red-500 shadow-red-500/50 shadow-sm'
                                   }`} />
-                                  <span className="text-sm font-medium text-white">
+                                  <span className="text-responsive-sm font-medium text-white">
                                     24/7 Medical Staff
                                   </span>
                                 </div>
@@ -2185,7 +2189,7 @@ export default function CommunityDetail() {
                                       ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
                                       : 'bg-red-500 shadow-red-500/50 shadow-sm'
                                   }`} />
-                                  <span className="text-sm font-medium text-white">
+                                  <span className="text-responsive-sm font-medium text-white">
                                     Medication Management
                                   </span>
                                 </div>
@@ -2203,7 +2207,7 @@ export default function CommunityDetail() {
                                       ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
                                       : 'bg-red-500 shadow-red-500/50 shadow-sm'
                                   }`} />
-                                  <span className="text-sm font-medium text-white">
+                                  <span className="text-responsive-sm font-medium text-white">
                                     Housekeeping Included
                                   </span>
                                 </div>
@@ -2221,7 +2225,7 @@ export default function CommunityDetail() {
                                       ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
                                       : 'bg-red-500 shadow-red-500/50 shadow-sm'
                                   }`} />
-                                  <span className="text-sm font-medium text-white">
+                                  <span className="text-responsive-sm font-medium text-white">
                                     Transportation Included
                                   </span>
                                 </div>
@@ -2243,41 +2247,43 @@ export default function CommunityDetail() {
               </Card>
             </div>
 
-            {/* Tabbed Content Section - Clean layout without overlapping borders */}
-            <Tabs defaultValue="market-data" className="w-full mt-6">
-              <TabsList className="grid w-full grid-cols-4 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 gap-1">
+            {/* Tabbed Content Section - Mobile Responsive */}
+            <Tabs defaultValue="market-data" className="w-full mt-4 sm:mt-6">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 p-0.5 sm:p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 gap-0.5 sm:gap-1">
                 <TabsTrigger 
                   value="community-info" 
-                  className="flex flex-col items-center gap-1 py-3 px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-blue-100 !to-indigo-100 dark:!from-blue-800 dark:!to-indigo-800 border border-blue-200 dark:border-blue-500 shadow-md hover:shadow-lg hover:!from-blue-200 hover:!to-indigo-200 dark:hover:!from-blue-700 dark:hover:!to-indigo-700 hover:border-blue-300 dark:hover:border-blue-400 text-blue-700 dark:text-blue-200 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-blue-600 data-[state=active]:!to-indigo-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-blue-400 data-[state=active]:!font-bold"
+                  className="flex flex-col items-center gap-0.5 sm:gap-1 py-2 sm:py-3 px-1 sm:px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-blue-100 !to-indigo-100 dark:!from-blue-800 dark:!to-indigo-800 border border-blue-200 dark:border-blue-500 shadow-md hover:shadow-lg hover:!from-blue-200 hover:!to-indigo-200 dark:hover:!from-blue-700 dark:hover:!to-indigo-700 hover:border-blue-300 dark:hover:border-blue-400 text-blue-700 dark:text-blue-200 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-blue-600 data-[state=active]:!to-indigo-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-blue-400 data-[state=active]:!font-bold"
                 >
                   <div className="flex items-center gap-2">
-                    <Building className="w-5 h-5" />
-                    <span className="text-sm font-bold">Community Info</span>
+                    <Building className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Community Info</span>
+                    <span className="text-xs sm:text-sm font-bold sm:hidden">Community</span>
                   </div>
-                  <span className="text-xs opacity-75 font-normal">
+                  <span className="text-xs opacity-75 font-normal hidden sm:block">
                     Details & Overview
                   </span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="availability" 
-                  className="flex flex-col items-center gap-1 py-3 px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-green-100 !to-emerald-100 dark:!from-green-800 dark:!to-emerald-800 border border-green-200 dark:border-green-500 shadow-md hover:shadow-lg hover:!from-green-200 hover:!to-emerald-200 dark:hover:!from-green-700 dark:hover:!to-emerald-700 hover:border-green-300 dark:hover:border-green-400 text-green-700 dark:text-green-200 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-green-600 data-[state=active]:!to-emerald-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-green-400 data-[state=active]:!font-bold"
+                  className="flex flex-col items-center gap-0.5 sm:gap-1 py-2 sm:py-3 px-1 sm:px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-green-100 !to-emerald-100 dark:!from-green-800 dark:!to-emerald-800 border border-green-200 dark:border-green-500 shadow-md hover:shadow-lg hover:!from-green-200 hover:!to-emerald-200 dark:hover:!from-green-700 dark:hover:!to-emerald-700 hover:border-green-300 dark:hover:border-green-400 text-green-700 dark:text-green-200 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-green-600 data-[state=active]:!to-emerald-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-green-400 data-[state=active]:!font-bold"
                 >
                   <div className="flex items-center gap-2">
-                    <Home className="w-5 h-5" />
-                    <span className="text-sm font-bold">Availability</span>
+                    <Home className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="text-xs sm:text-sm font-bold">Availability</span>
                   </div>
-                  <span className="text-xs opacity-75 font-normal">
+                  <span className="text-xs opacity-75 font-normal hidden sm:block">
                     Units & Tours
                   </span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="market-data" 
                   data-tab="market-data"
-                  className="flex flex-col items-center gap-1 py-3 px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-purple-100 !to-indigo-100 dark:!from-purple-800 dark:!to-indigo-800 border border-purple-200 dark:border-purple-500 shadow-md hover:shadow-lg hover:!from-purple-200 hover:!to-indigo-200 dark:hover:!from-purple-700 dark:hover:!to-indigo-700 hover:border-purple-300 dark:hover:border-purple-400 text-purple-700 dark:text-purple-200 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-purple-600 data-[state=active]:!to-indigo-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-purple-400 data-[state=active]:!font-bold"
+                  className="flex flex-col items-center gap-0.5 sm:gap-1 py-2 sm:py-3 px-1 sm:px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-purple-100 !to-indigo-100 dark:!from-purple-800 dark:!to-indigo-800 border border-purple-200 dark:border-purple-500 shadow-md hover:shadow-lg hover:!from-purple-200 hover:!to-indigo-200 dark:hover:!from-purple-700 dark:hover:!to-indigo-700 hover:border-purple-300 dark:hover:border-purple-400 text-purple-700 dark:text-purple-200 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-purple-600 data-[state=active]:!to-indigo-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-purple-400 data-[state=active]:!font-bold"
                 >
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5" />
-                    <span className="text-sm font-bold">Market Data</span>
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Market Data</span>
+                    <span className="text-xs sm:text-sm font-bold sm:hidden">Market</span>
                     {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
                       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse ml-1"></div>
                     )}
@@ -2291,11 +2297,11 @@ export default function CommunityDetail() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="reviews" 
-                  className="flex flex-col items-center gap-1 py-3 px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-orange-100 !to-amber-100 dark:!from-orange-800 dark:!to-amber-800 border border-orange-200 dark:border-orange-500 shadow-md hover:shadow-lg hover:!from-orange-200 hover:!to-amber-200 dark:hover:!from-orange-700 dark:hover:!to-amber-700 hover:border-orange-300 dark:hover:border-orange-400 text-orange-700 dark:text-orange-200 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-orange-600 data-[state=active]:!to-amber-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-orange-400 data-[state=active]:!font-bold"
+                  className="flex flex-col items-center gap-0.5 sm:gap-1 py-2 sm:py-3 px-1 sm:px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-orange-100 !to-amber-100 dark:!from-orange-800 dark:!to-amber-800 border border-orange-200 dark:border-orange-500 shadow-md hover:shadow-lg hover:!from-orange-200 hover:!to-amber-200 dark:hover:!from-orange-700 dark:hover:!to-amber-700 hover:border-orange-300 dark:hover:border-orange-400 text-orange-700 dark:text-orange-200 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-orange-600 data-[state=active]:!to-amber-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-orange-400 data-[state=active]:!font-bold"
                 >
                   <div className="flex items-center gap-2">
-                    <Star className="w-5 h-5" />
-                    <span className="text-sm font-bold">Reviews</span>
+                    <Star className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="text-xs sm:text-sm font-bold">Reviews</span>
                     {(community.googleRating || community.yelpRating || (community as any).compositeRating) && (
                       <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse ml-1"></div>
                     )}
@@ -2307,50 +2313,50 @@ export default function CommunityDetail() {
               </TabsList>
 
               {/* Community Information Tab */}
-              <TabsContent value="community-info" className="space-y-6 mt-6">
+              <TabsContent value="community-info" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
                 {/* Contact & Tour Section */}
             <Card>
               <CardContent className="p-0">
-                <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 p-8 rounded-lg border-2 border-blue-100 dark:border-blue-700">
-                  <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Ready to Visit?</h3>
-                    <p className="text-gray-900 dark:text-gray-100">Connect with our community team to schedule your tour</p>
+                <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 p-4 sm:p-6 lg:p-8 rounded-lg border-2 border-blue-100 dark:border-blue-700">
+                  <div className="text-center mb-4 sm:mb-6">
+                    <h3 className="text-responsive-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Ready to Visit?</h3>
+                    <p className="text-responsive-base text-gray-900 dark:text-gray-100">Connect with our community team to schedule your tour</p>
                   </div>
 
                   {/* Community Contact Info */}
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-blue-200 dark:border-blue-700 mb-6">
+                  <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-blue-200 dark:border-blue-700 mb-4 sm:mb-6">
                     <div className="flex items-center mb-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-xl mr-4">
-                        <Phone className="w-8 h-8" />
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-responsive-xl mr-3 sm:mr-4">
+                        <Phone className="w-6 h-6 sm:w-8 sm:h-8" />
                       </div>
                       <div className="flex-1">
                         {/* Show live contact data if available, otherwise show community phone */}
                         {(community as any).salesDirector?.name ? (
                           <>
-                            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                            <h4 className="text-responsive-lg font-bold text-gray-900 dark:text-gray-100">
                               {(community as any).salesDirector.name}
                             </h4>
-                            <p className="text-gray-900 dark:text-gray-100 font-medium">
+                            <p className="text-responsive-base text-gray-900 dark:text-gray-100 font-medium">
                               {(community as any).salesDirector.title || 'Sales Director'}
                             </p>
                             <div className="flex items-center mt-2">
                               <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
-                              <span className="text-gray-900 dark:text-gray-100 font-medium">
+                              <span className="text-responsive-base text-gray-900 dark:text-gray-100 font-medium">
                                 {(community as any).salesDirector.phone || community.phone}
                               </span>
                             </div>
                           </>
                         ) : (
                           <>
-                            <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                            <h4 className="text-responsive-lg font-bold text-gray-900 dark:text-gray-100">
                               Community Main Office
                             </h4>
-                            <p className="text-gray-900 dark:text-gray-100 font-medium">
+                            <p className="text-responsive-base text-gray-900 dark:text-gray-100 font-medium">
                               Call for sales and leasing information
                             </p>
                             <div className="flex items-center mt-2">
                               <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
-                              <span className="text-gray-900 dark:text-gray-100 font-medium">
+                              <span className="text-responsive-base text-gray-900 dark:text-gray-100 font-medium">
                                 {community.phone}
                               </span>
                             </div>
@@ -2382,10 +2388,10 @@ export default function CommunityDetail() {
                           Grade every aspect of your visit with our 360° evaluation system
                         </p>
                         
-                        {/* Main Evaluation Categories */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+                        {/* Main Evaluation Categories - Mobile Responsive */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 mb-4">
                           {/* Units & Living Spaces */}
-                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-green-200 dark:border-green-600">
+                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-green-200 dark:border-green-600">
                             <Home className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Units & Living Spaces</p>
@@ -2394,7 +2400,7 @@ export default function CommunityDetail() {
                           </div>
 
                           {/* Common Areas & Amenities */}
-                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
+                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
                             <Users className="w-4 h-4 text-blue-600 mr-2 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Common Areas</p>
@@ -2403,7 +2409,7 @@ export default function CommunityDetail() {
                           </div>
 
                           {/* Outdoor Spaces */}
-                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-emerald-200 dark:border-emerald-600">
+                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-emerald-200 dark:border-emerald-600">
                             <MapIcon className="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Outdoor Spaces</p>
@@ -2412,7 +2418,7 @@ export default function CommunityDetail() {
                           </div>
 
                           {/* Staff & Care Quality */}
-                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-600">
+                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-600">
                             <UserCheck className="w-4 h-4 text-purple-600 mr-2 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Staff & Care</p>
@@ -2421,7 +2427,7 @@ export default function CommunityDetail() {
                           </div>
 
                           {/* Food & Dining */}
-                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-orange-200 dark:border-orange-600">
+                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-orange-200 dark:border-orange-600">
                             <UtensilsCrossed className="w-4 h-4 text-orange-600 mr-2 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Food & Dining</p>
@@ -2430,7 +2436,7 @@ export default function CommunityDetail() {
                           </div>
 
                           {/* Safety & Security */}
-                          <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg border border-red-200 dark:border-red-600">
+                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-red-200 dark:border-red-600">
                             <Shield className="w-4 h-4 text-red-600 mr-2 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Safety & Security</p>
@@ -2480,8 +2486,8 @@ export default function CommunityDetail() {
                         </div>
                       </div>
 
-                      {/* Main Action Buttons */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Main Action Buttons - Mobile Responsive */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <TourScheduler
                           communityId={community.id}
                           communityName={community.name}
@@ -2500,10 +2506,10 @@ export default function CommunityDetail() {
                         
                         <Button 
                           variant="outline" 
-                          className="py-4 text-base font-semibold border-2 border-blue-600 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                          className="py-3 sm:py-4 text-responsive-base font-semibold border-2 border-blue-600 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 touch-target"
                           onClick={() => window.open(`tel:${community.phone || generatePhoneNumber(community.state, community.id)}`, '_self')}
                         >
-                          <Phone className="w-5 h-5 mr-2" />
+                          <Phone className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                           Call Now
                         </Button>
                       </div>
@@ -2670,12 +2676,12 @@ export default function CommunityDetail() {
               </TabsContent>
 
               {/* Availability Tab */}
-              <TabsContent value="availability" className="space-y-6 mt-6">
-                {/* Available Units Section - Enhanced with Rich Information */}
+              <TabsContent value="availability" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+                {/* Available Units Section - Mobile Responsive */}
                 <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <Home className="w-5 h-5 mr-2" />
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-responsive-lg flex items-center">
+                  <Home className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                   Available Units & Floor Plans
                 </CardTitle>
               </CardHeader>
@@ -2695,8 +2701,8 @@ export default function CommunityDetail() {
                   </div>
                 </div>
 
-                {/* Enhanced Unit Types Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Enhanced Unit Types Grid - Mobile Responsive */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
                   {/* Studio Units */}
                   <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/10 dark:to-gray-800">
                     <div className="flex items-start justify-between mb-3">
