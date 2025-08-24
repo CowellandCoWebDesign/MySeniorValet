@@ -11,6 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Footer } from '@/components/footer';
+import { NavigationHeader } from '@/components/NavigationHeader';
 import { 
   Calendar, 
   MessageCircle, 
@@ -150,9 +151,12 @@ export default function FamilyCollaborationCenter() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      {/* Header */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <div className="container mx-auto px-4 py-4">
+      {/* Navigation Bar */}
+      <NavigationHeader />
+      
+      {/* Page Header */}
+      <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+        <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button
@@ -300,7 +304,7 @@ export default function FamilyCollaborationCenter() {
 
         {/* Main Feature Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <div className="sticky top-[73px] z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-2">
+          <div className="sticky top-[64px] z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pb-2">
             <TabsList className="grid grid-cols-2 lg:grid-cols-5 w-full shadow-sm">
               <TabsTrigger value="overview">
                 <Lightbulb className="w-4 h-4 mr-2" />
