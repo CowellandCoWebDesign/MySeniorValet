@@ -1460,7 +1460,135 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
 
-            {/* Partner With MySeniorValet Section - NEW ROW */}
+            {/* Family & Partner Services Section - NEW ROW */}
+            {/* Family Collaboration Center Card */}
+            <Link href="/family-portal">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-rose-400 relative overflow-hidden group transform hover:scale-105">
+                <div className="absolute inset-0 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 opacity-50"></div>
+                <CardHeader className="relative z-10">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg">
+                      <Users className="h-8 w-8" />
+                    </div>
+                    <Badge className="bg-gradient-to-r from-rose-500 to-pink-500 text-white px-3 py-1">
+                      FAMILIES
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-2xl mb-2">Family Collaboration Center</CardTitle>
+                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Tour Planning & Communication Hub
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    Coordinate senior care decisions with TourMate™ scheduling, Tour Tracker reports, and family messaging.
+                  </p>
+                  
+                  {/* Flex container for side-by-side layout */}
+                  <div className="flex gap-3 mb-6">
+                    {/* Left side - Key Features and Checkmarks */}
+                    <div className="space-y-2 flex-shrink-0 min-w-fit">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Calendar className="h-5 w-5 text-rose-500 animate-pulse" />
+                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">TourMate™</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">System</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Schedule Tours Together</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Tour Tracker Reports</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Instant Messaging</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Share Favorites</span>
+                      </div>
+                    </div>
+                    
+                    {/* Right side - Features Preview */}
+                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-rose-50/50 to-pink-50/50 dark:from-rose-900/10 dark:to-pink-900/10 rounded-lg">
+                      <p className="text-xs font-semibold text-rose-700 dark:text-rose-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                        <span>👨‍👩‍👧‍👦</span> Family Tools
+                      </p>
+                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-rose-300 dark:scrollbar-thumb-rose-600 scrollbar-track-transparent">
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-3 w-3 text-rose-600" />
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Tour Scheduler</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Book tours at multiple communities</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-3 w-3 text-rose-600" />
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Tour Reports</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Compare visits side-by-side</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex items-center gap-2">
+                            <MessageSquare className="h-3 w-3 text-rose-600" />
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Family Chat</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Private family discussions</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex items-center gap-2">
+                            <Heart className="h-3 w-3 text-rose-600" />
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Favorites List</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Save & share top choices</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-3 w-3 text-rose-600" />
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Distance Calculator</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">See drive times for family</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex items-center gap-2">
+                            <DollarSign className="h-3 w-3 text-rose-600" />
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Cost Comparison</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Budget analysis tools</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex items-center gap-2">
+                            <CheckSquare className="h-3 w-3 text-rose-600" />
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Decision Matrix</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Pros & cons for each option</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-3 w-3 text-rose-600" />
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Notifications</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Tour reminders & updates</p>
+                        </div>
+                        <div className="mt-3 p-2 bg-gradient-to-r from-rose-500/20 to-pink-600/20 dark:from-rose-500/10 dark:to-pink-600/10 rounded border border-rose-300 dark:border-rose-700">
+                          <p className="text-xs font-semibold text-rose-700 dark:text-rose-300 text-center">🎯 100% FREE FOR FAMILIES</p>
+                          <p className="text-xs text-rose-600 dark:text-rose-400 text-center mt-1">No fees, ever!</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button className="w-full bg-gradient-to-r from-rose-500 to-pink-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                    <span className="font-semibold">Start Collaborating</span>
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+
             {/* Community Onboarding Card */}
             <Link href="/community-portal">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-emerald-400 relative overflow-hidden group transform hover:scale-105">
