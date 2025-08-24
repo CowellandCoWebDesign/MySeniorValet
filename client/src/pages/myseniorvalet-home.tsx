@@ -58,6 +58,7 @@ export default function MySeniorValetHome() {
   });
   
   const [searchQuery, setSearchQuery] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showProtectionModal, setShowProtectionModal] = useState(false);
   const [protectionSearchQuery, setProtectionSearchQuery] = useState('');
@@ -74,6 +75,18 @@ export default function MySeniorValetHome() {
       return () => clearTimeout(timer);
     }
   }, [toast]);
+  
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // 3D Carousel state
   const [currentRotation, setCurrentRotation] = useState(0);
@@ -708,46 +721,47 @@ export default function MySeniorValetHome() {
       </header>
 
       {/* Hero Section with Search - Mobile optimized */}
-      <section className="relative min-h-screen bg-black pt-12 sm:pt-14">
+      <section className="relative min-h-[600px] sm:min-h-screen bg-black pt-12 sm:pt-14">
         <div className="absolute inset-0">
           <img
             src={heroBackgroundImage}
             alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
-            className="w-full h-full object-contain sm:object-cover object-center sm:object-right"
+            className="w-full h-full object-cover object-top sm:object-center"
             loading="eager"
           />
-          {/* Minimal darkening only at the very bottom for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-90% to-black/30"></div>
+          {/* Enhanced darkening for better text readability on mobile */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
         </div>
         
-        <div className="relative hero-content min-h-screen pt-2 sm:pt-3 md:pt-4 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col px-2 sm:px-4">
+        <div className="relative hero-content min-h-[600px] sm:min-h-screen pt-2 sm:pt-3 md:pt-4 pb-20 sm:pb-4 mobile-keyboard-safe flex flex-col px-2 sm:px-4">
           
           {/* Hero Text Section - Mobile optimized */}
-          <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8 mt-4 sm:mt-8 md:mt-12 mb-4 sm:mb-6 text-center">
+          <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8 mt-2 sm:mt-8 md:mt-12 mb-3 sm:mb-6 text-center">
             {/* Main Heading - Better sizing for all screens */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-2 sm:mb-3 animate-fade-in-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] leading-tight">
-              Clear. Honest. No Pressure.
+            <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-2 sm:mb-3 animate-fade-in-up drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] sm:drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] leading-tight">
+              Clear. Honest.<br className="sm:hidden" /> No Pressure.
             </h1>
             
             {/* FREE FOR FAMILIES ALWAYS Badge */}
-            <div className="mb-4 sm:mb-6 animate-fade-in-up animation-delay-100">
-              <span className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full shadow-lg font-bold text-sm sm:text-base md:text-lg">
-                <Shield className="h-5 w-5 sm:h-6 sm:w-6" />
-                FREE FOR FAMILIES ALWAYS
+            <div className="mb-3 sm:mb-6 animate-fade-in-up animation-delay-100">
+              <span className="inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-1.5 sm:py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full shadow-lg font-bold text-xs sm:text-base md:text-lg">
+                <Shield className="h-4 w-4 sm:h-6 sm:w-6" />
+                <span className="whitespace-nowrap">FREE FOR FAMILIES ALWAYS</span>
               </span>
             </div>
             
             {/* Subheading - Better sizing for all screens */}
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-200 max-w-4xl mx-auto animate-fade-in-up animation-delay-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed px-2">
-              The only senior living platform that never sells your info. Search 34,000+ communities, move-in services, healthcare providers, vendors, and support resources with real pricing and trusted reviews—all in one transparent place. No fees, no subscriptions, no hidden costs for families.
+            <p className="text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-100 sm:text-gray-200 max-w-4xl mx-auto animate-fade-in-up animation-delay-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] sm:drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed px-2">
+              <span className="hidden sm:inline">The only senior living platform that never sells your info. Search 34,000+ communities, move-in services, healthcare providers, vendors, and support resources with real pricing and trusted reviews—all in one transparent place. No fees, no subscriptions, no hidden costs for families.</span>
+              <span className="sm:hidden">Search 34,000+ communities with real pricing and trusted reviews. No fees for families.</span>
             </p>
           </div>
           
           {/* Search bar positioned higher up - Mobile optimized */}
-          <div className="flex-grow flex items-start justify-center pt-4 sm:pt-8 md:pt-12">
+          <div className="flex-grow flex items-start justify-center pt-2 sm:pt-8 md:pt-12">
             <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 md:px-8">
               {/* Search Bar - Mobile responsive */}
-            <div className="w-full max-w-2xl mx-auto px-2 sm:px-4 md:px-6 mb-2 sm:mb-3 animate-fade-in-up animation-delay-200" style={{ position: 'relative', zIndex: 99999 }}>
+            <div className="w-full max-w-xl sm:max-w-2xl mx-auto px-2 sm:px-4 md:px-6 mb-2 sm:mb-3 animate-fade-in-up animation-delay-200" style={{ position: 'relative', zIndex: 99999 }}>
               <form onSubmit={(e) => {
                 e.preventDefault();
                 if (searchQuery) {
@@ -765,21 +779,21 @@ export default function MySeniorValetHome() {
                             window.location.href = `/map-search?q=${encodeURIComponent(value)}`;
                           }
                         }}
-                        placeholder={t('hero.searchPlaceholder')}
+                        placeholder={isMobile ? 'Search communities...' : t('hero.searchPlaceholder')}
                         hideSearchButton={true}
-                        inputClassName="w-full pl-10 pr-3 py-3 text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                        inputClassName="w-full pl-8 sm:pl-10 pr-2 sm:pr-3 py-2 sm:py-3 text-sm sm:text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                       />
                     </div>
-                    <div className="flex items-center mr-2">
+                    <div className="hidden sm:flex items-center mr-2">
                       <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs px-3 py-1 font-semibold">
                         AI-Powered
                       </Badge>
                     </div>
                     <button
                       type="submit"
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-2 m-2 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-1.5 sm:p-2 m-1.5 sm:m-2 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
                     >
-                      <Search className="w-5 h-5" />
+                      <Search className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                   </div>
                 </div>
@@ -822,8 +836,8 @@ export default function MySeniorValetHome() {
         </div>
         {/* End Hero Content */}
         
-        {/* Hero Mascot Panel - Compact government facts display */}
-        <HeroMascotPanel className="absolute bottom-4 left-0 right-0 z-30" />
+        {/* Hero Mascot Panel - Hidden on mobile to prevent overlap */}
+        <HeroMascotPanel className="hidden sm:block absolute bottom-4 left-0 right-0 z-30" />
         
       </section>
 
