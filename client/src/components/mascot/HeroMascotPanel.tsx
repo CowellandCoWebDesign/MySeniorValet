@@ -56,7 +56,7 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
     {
       title: "35,232 Communities",
       subtitle: "Complete North America Coverage",
-      description: "Search every licensed community across USA, Canada, Mexico, Peru, Cuba, and Puerto Rico. From luxury resorts to affordable housing - all verified, all transparent, all in one place.",
+      description: "Search every licensed community across USA, Canada, Mexico, Peru, Cuba, Costa Rica, Panama, and Puerto Rico. From luxury resorts to affordable housing - all verified, all transparent, all in one place.",
       source: "MySeniorValet comprehensive database - updated daily",
       link: null,
       category: "complete_coverage"

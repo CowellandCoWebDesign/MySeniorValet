@@ -341,6 +341,28 @@ export default function CommunityDirectory() {
     enabled: true
   });
   
+  // Fetch Costa Rica communities
+  const { data: costaRicaCommunities, isLoading: costaRicaLoading } = useQuery({
+    queryKey: ['costaRicaCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-country?country=CR');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    },
+    enabled: true
+  });
+  
+  // Fetch Panama communities
+  const { data: panamaCommunities, isLoading: panamaLoading } = useQuery({
+    queryKey: ['panamaCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-country?country=PA');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    },
+    enabled: true
+  });
+  
   // Fetch HUD properties for showcase
   const { data: hudProperties } = useQuery({
     queryKey: ['/api/communities/hud-properties', 10]
@@ -390,7 +412,7 @@ export default function CommunityDirectory() {
             </h1>
             
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Access our complete database of {((communityCount as any)?.count || '35,232').toLocaleString()}+ senior living communities across the United States, Canada, Mexico, Peru, Cuba & Puerto Rico
+              Access our complete database of {((communityCount as any)?.count || '35,232').toLocaleString()}+ senior living communities across the United States, Canada, Mexico, Peru, Cuba, Costa Rica, Panama & Puerto Rico
             </p>
             
             {/* Key Stats */}
@@ -1969,6 +1991,222 @@ export default function CommunityDirectory() {
                   onClick={() => setLocation('/search?location=Cuba')}
                 >
                   Explore All Cuba Communities
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Costa Rica Communities - RETIREMENT PARADISE */}
+      <section className="px-4 py-8 bg-gradient-to-br from-green-50 via-blue-50 to-green-50 dark:from-green-950/30 dark:via-blue-950/30 dark:to-green-950/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                🇨🇷 Costa Rica Communities
+              </h2>
+              <Link href="/search?location=Costa Rica">
+                <Button variant="outline" className="flex items-center gap-2 border-green-300 text-green-700 hover:bg-green-50 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-900/20">
+                  View All Costa Rica
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+            <div className="flex items-center gap-6 mb-6">
+              <p className="text-gray-600 dark:text-gray-300">
+                Top retirement destination with world-class healthcare and perfect climate
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 mb-4">
+              <Badge className="bg-blue-600 text-white px-3 py-1">🏥 CIMA Hospital Network</Badge>
+              <Badge className="bg-green-600 text-white px-3 py-1">🌴 Perfect Climate Year-Round</Badge>
+              <Badge className="bg-purple-600 text-white px-3 py-1">💰 Pensionado Benefits</Badge>
+              <Badge className="bg-yellow-600 text-white px-3 py-1">🏖️ Beach & Mountain Options</Badge>
+            </div>
+          </div>
+          
+          {/* Costa Rica Communities Display */}
+          {costaRicaLoading ? (
+            <div className="flex items-center justify-center h-40">
+              <div className="animate-spin w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full"></div>
+            </div>
+          ) : !(costaRicaCommunities as any)?.communities?.length ? (
+            <div className="text-center text-gray-600 dark:text-gray-400">
+              <p>Loading Costa Rica communities...</p>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => setLocation('/search?location=Costa Rica')}
+              >
+                Search All Costa Rica Communities
+              </Button>
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+                {((costaRicaCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                  <Link key={`cr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-green-300 dark:border-green-600 rounded-xl h-[420px]">
+                      <CardContent className="p-4 space-y-3">
+                        <div>
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1">
+                            {community.name}
+                          </h3>
+                          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <MapPin className="h-3.5 w-3.5" />
+                            <span>{community.city}, Costa Rica</span>
+                          </div>
+                        </div>
+                        
+                        {/* Pricing */}
+                        <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-2">
+                          <div className="text-xl font-bold text-green-700 dark:text-green-300">
+                            {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}/mo` : 'Contact for Pricing'}
+                          </div>
+                        </div>
+                        
+                        {/* Phone & Care Types */}
+                        <div className="text-sm">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Phone className="h-3.5 w-3.5 text-blue-600" />
+                            <span className="font-medium">{community.phone || 'Contact for Info'}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {community.careTypes?.slice(0, 2).map((type: string, idx: number) => (
+                              <Badge key={idx} variant="outline" className="text-xs">
+                                {type}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        {/* Amenities */}
+                        <div className="flex items-center gap-2 text-sm">
+                          <Badge variant="outline" className="text-xs">Healthcare</Badge>
+                          <Badge variant="outline" className="text-xs">Expat Community</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+              
+              <div className="text-center mt-6">
+                <Button 
+                  variant="outline" 
+                  className="border-green-300 text-green-700 hover:bg-green-50 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-900/20"
+                  onClick={() => setLocation('/search?location=Costa Rica')}
+                >
+                  Explore All Costa Rica Communities
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Panama Communities - PENSIONADO PARADISE */}
+      <section className="px-4 py-8 bg-gradient-to-br from-blue-50 via-red-50 to-blue-50 dark:from-blue-950/30 dark:via-red-950/30 dark:to-blue-950/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                🇵🇦 Panama Communities
+              </h2>
+              <Link href="/search?location=Panama">
+                <Button variant="outline" className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20">
+                  View All Panama
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+            <div className="flex items-center gap-6 mb-6">
+              <p className="text-gray-600 dark:text-gray-300">
+                Premier retirement haven with Pensionado visa program and US dollar economy
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 mb-4">
+              <Badge className="bg-blue-600 text-white px-3 py-1">💵 US Dollar Economy</Badge>
+              <Badge className="bg-green-600 text-white px-3 py-1">🏥 Johns Hopkins Affiliate</Badge>
+              <Badge className="bg-purple-600 text-white px-3 py-1">🎫 Pensionado Discounts</Badge>
+              <Badge className="bg-orange-600 text-white px-3 py-1">🏔️ Boquete Mountain Living</Badge>
+            </div>
+          </div>
+          
+          {/* Panama Communities Display */}
+          {panamaLoading ? (
+            <div className="flex items-center justify-center h-40">
+              <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+            </div>
+          ) : !(panamaCommunities as any)?.communities?.length ? (
+            <div className="text-center text-gray-600 dark:text-gray-400">
+              <p>Loading Panama communities...</p>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => setLocation('/search?location=Panama')}
+              >
+                Search All Panama Communities
+              </Button>
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 hover:scrollbar-thumb-blue-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+                {((panamaCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                  <Link key={`pa-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-blue-300 dark:border-blue-600 rounded-xl h-[420px]">
+                      <CardContent className="p-4 space-y-3">
+                        <div>
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1">
+                            {community.name}
+                          </h3>
+                          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <MapPin className="h-3.5 w-3.5" />
+                            <span>{community.city}, Panama</span>
+                          </div>
+                        </div>
+                        
+                        {/* Pricing */}
+                        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2">
+                          <div className="text-xl font-bold text-blue-700 dark:text-blue-300">
+                            {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}/mo` : 'Contact for Pricing'}
+                          </div>
+                        </div>
+                        
+                        {/* Phone & Care Types */}
+                        <div className="text-sm">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Phone className="h-3.5 w-3.5 text-blue-600" />
+                            <span className="font-medium">{community.phone || 'Contact for Info'}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {community.careTypes?.slice(0, 2).map((type: string, idx: number) => (
+                              <Badge key={idx} variant="outline" className="text-xs">
+                                {type}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        {/* Amenities */}
+                        <div className="flex items-center gap-2 text-sm">
+                          <Badge variant="outline" className="text-xs">Healthcare</Badge>
+                          <Badge variant="outline" className="text-xs">US Standards</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+              
+              <div className="text-center mt-6">
+                <Button 
+                  variant="outline" 
+                  className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20"
+                  onClick={() => setLocation('/search?location=Panama')}
+                >
+                  Explore All Panama Communities
                 </Button>
               </div>
             </div>

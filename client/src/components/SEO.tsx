@@ -19,7 +19,7 @@ interface SEOProps {
 
 export function SEO({
   title = "MySeniorValet - Find Senior Living Communities Near You | 35,182+ Verified Locations",
-  description = "Search 35,182+ senior living communities across USA, Canada, Mexico, Peru & Cuba with transparent pricing, verified HUD rates, real availability. Compare assisted living, memory care, nursing homes near you. No hidden fees, no referral markups.",
+  description = "Search 35,182+ senior living communities across USA, Canada, Mexico, Peru, Cuba, Costa Rica & Panama with transparent pricing, verified HUD rates, real availability. Compare assisted living, memory care, nursing homes near you. No hidden fees, no referral markups.",
   keywords = "senior living near me, assisted living costs, memory care facilities, HUD senior housing, nursing home prices, independent living communities, retirement homes, elder care, senior apartments",
   image = "/og-image.jpg",
   url = "https://www.myseniorvalet.com",
