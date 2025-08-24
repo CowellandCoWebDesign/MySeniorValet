@@ -37,7 +37,6 @@ import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
 import { HeroMascotPanel } from '@/components/mascot/HeroMascotPanel';
-import { FamilyCollaborationModal } from '@/components/FamilyCollaborationModal';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 
@@ -64,7 +63,6 @@ export default function MySeniorValetHome() {
   const [showProtectionModal, setShowProtectionModal] = useState(false);
   const [protectionSearchQuery, setProtectionSearchQuery] = useState('');
   const [showRemovalModal, setShowRemovalModal] = useState(false);
-  const [showFamilyCollaborationModal, setShowFamilyCollaborationModal] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const { preferences, togglePreference } = useAccessibilityPreferences();
   
@@ -1486,9 +1484,8 @@ export default function MySeniorValetHome() {
 
             {/* Family & Partner Services Section - NEW ROW */}
             {/* Family Collaboration Center Card */}
-            <Card 
-              onClick={() => setShowFamilyCollaborationModal(true)}
-              className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-rose-400 relative overflow-hidden group transform hover:scale-105">
+            <Link href="/family-collaboration">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-rose-400 relative overflow-hidden group transform hover:scale-105">
                 <div className="absolute inset-0 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 opacity-50"></div>
                 <CardHeader className="relative z-10">
                   <div className="flex justify-between items-start mb-4">
@@ -1606,17 +1603,13 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
 
-                  <Button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowFamilyCollaborationModal(true);
-                    }}
-                    className="w-full bg-gradient-to-r from-rose-500 to-pink-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                  <Button className="w-full bg-gradient-to-r from-rose-500 to-pink-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
                     <span className="font-semibold">Start Collaborating</span>
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </CardContent>
               </Card>
+            </Link>
 
             {/* Community Onboarding Card */}
             <Link href="/community-portal">
@@ -2096,12 +2089,6 @@ export default function MySeniorValetHome() {
       
       {/* Onboarding Wizard - DISABLED: Prototype for future development */}
       {/* <OnboardingWrapper /> */}
-      
-      {/* Family Collaboration Modal */}
-      <FamilyCollaborationModal 
-        isOpen={showFamilyCollaborationModal}
-        onClose={() => setShowFamilyCollaborationModal(false)}
-      />
     </div>
   );
 }
