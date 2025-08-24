@@ -800,7 +800,7 @@ export const communities = pgTable("communities", {
   address: text("address").notNull(),
   city: text("city").notNull(),
   state: text("state").notNull(),
-  country: text("country").default("US"), // Country code: US, MX, CA
+  country: text("country").default("US"), // Country code: US, MX, CA, PE, CU, PR
   zipCode: text("zip_code").notNull(),
   phone: text("phone"),
   email: text("email"),

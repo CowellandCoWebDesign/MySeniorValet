@@ -319,6 +319,28 @@ export default function CommunityDirectory() {
     enabled: true
   });
   
+  // Fetch Peru communities
+  const { data: peruCommunities, isLoading: peruLoading } = useQuery({
+    queryKey: ['peruCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-country?country=PE');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    },
+    enabled: true
+  });
+  
+  // Fetch Cuba communities
+  const { data: cubaCommunities, isLoading: cubaLoading } = useQuery({
+    queryKey: ['cubaCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-country?country=CU');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    },
+    enabled: true
+  });
+  
   // Fetch HUD properties for showcase
   const { data: hudProperties } = useQuery({
     queryKey: ['/api/communities/hud-properties', 10]
@@ -368,7 +390,7 @@ export default function CommunityDirectory() {
             </h1>
             
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Access our complete database of {((communityCount as any)?.count || '35,232').toLocaleString()}+ senior living communities across the United States, Canada, Mexico & Puerto Rico
+              Access our complete database of {((communityCount as any)?.count || '35,232').toLocaleString()}+ senior living communities across the United States, Canada, Mexico, Peru, Cuba & Puerto Rico
             </p>
             
             {/* Key Stats */}
@@ -387,7 +409,7 @@ export default function CommunityDirectory() {
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-3xl font-bold text-white">4</div>
+                  <div className="text-3xl font-bold text-white">6</div>
                   <div className="text-xs text-blue-100">Countries Covered</div>
                 </CardContent>
               </Card>
@@ -1749,6 +1771,204 @@ export default function CommunityDirectory() {
                   onClick={() => setLocation('/search?location=Puerto Rico')}
                 >
                   Explore All 50+ Puerto Rico Communities
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Peru Communities - ANDEAN RETIREMENT */}
+      <section className="px-4 py-8 bg-gradient-to-br from-red-50 via-white to-red-50 dark:from-red-950/30 dark:via-gray-900 dark:to-red-950/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                🇵🇪 Peru Communities
+              </h2>
+              <Link href="/search?location=Peru">
+                <Button variant="outline" className="flex items-center gap-2 border-red-300 text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/20">
+                  View All Peru
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+            <div className="flex items-center gap-6 mb-6">
+              <p className="text-gray-600 dark:text-gray-300">
+                Discover retirement communities in Lima, Cusco, Arequipa, and coastal regions with affordable healthcare
+              </p>
+              <div className="flex items-center gap-2">
+                <div className="text-3xl font-bold text-red-600 dark:text-red-400">25+</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Communities<br/>Nationwide</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 flex-wrap">
+              <Badge className="bg-red-600 text-white px-3 py-1">🏔️ Andean Mountain Views</Badge>
+              <Badge className="bg-yellow-600 text-white px-3 py-1">💰 Low Cost of Living</Badge>
+              <Badge className="bg-green-600 text-white px-3 py-1">🏥 Quality Healthcare</Badge>
+              <Badge className="bg-purple-600 text-white px-3 py-1">🌍 Expat-Friendly Culture</Badge>
+            </div>
+          </div>
+          
+          {/* Peru Communities Display */}
+          {peruLoading ? (
+            <div className="flex items-center justify-center h-40">
+              <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full"></div>
+            </div>
+          ) : !(peruCommunities as any)?.communities?.length ? (
+            <div className="text-center text-gray-600 dark:text-gray-400">
+              <p>Loading Peru communities...</p>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => setLocation('/search?location=Peru')}
+              >
+                Search All Peru Communities
+              </Button>
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-red-500 dark:scrollbar-thumb-red-400 hover:scrollbar-thumb-red-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+                {((peruCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                  <Link key={`pe-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-red-300 dark:border-red-600 rounded-xl h-[420px]">
+                      <CardContent className="p-4 space-y-3">
+                        <div>
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
+                            {community.name}
+                          </h3>
+                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                            <span>{community.city}, Peru</span>
+                          </div>
+                        </div>
+                        
+                        {/* Price Display */}
+                        <div className="bg-gradient-to-r from-red-50 to-yellow-50 dark:from-red-900/20 dark:to-yellow-900/20 rounded-lg p-3">
+                          <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                            {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
+                             community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400">Per Month</div>
+                        </div>
+                        
+                        {/* Amenities */}
+                        <div className="flex items-center gap-2 text-sm">
+                          <Badge variant="outline" className="text-xs">24/7 Care</Badge>
+                          <Badge variant="outline" className="text-xs">English Staff</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+              
+              <div className="text-center mt-6">
+                <Button 
+                  variant="outline" 
+                  className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/20"
+                  onClick={() => setLocation('/search?location=Peru')}
+                >
+                  Explore All Peru Communities
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Cuba Communities - CARIBBEAN HERITAGE */}
+      <section className="px-4 py-8 bg-gradient-to-br from-blue-50 via-red-50 to-white dark:from-blue-950/30 dark:via-red-950/30 dark:to-gray-900">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                🇨🇺 Cuba Communities
+              </h2>
+              <Link href="/search?location=Cuba">
+                <Button variant="outline" className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20">
+                  View All Cuba
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+            <div className="flex items-center gap-6 mb-6">
+              <p className="text-gray-600 dark:text-gray-300">
+                Experience retirement in Havana, Varadero, and Trinidad with rich culture and warm hospitality
+              </p>
+              <div className="flex items-center gap-2">
+                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">20+</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Communities<br/>Island-wide</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 flex-wrap">
+              <Badge className="bg-blue-600 text-white px-3 py-1">🏖️ Caribbean Island Living</Badge>
+              <Badge className="bg-red-600 text-white px-3 py-1">🎭 Rich Cultural Heritage</Badge>
+              <Badge className="bg-green-600 text-white px-3 py-1">💚 Warm Community Spirit</Badge>
+              <Badge className="bg-yellow-600 text-white px-3 py-1">☀️ Year-Round Sunshine</Badge>
+            </div>
+          </div>
+          
+          {/* Cuba Communities Display */}
+          {cubaLoading ? (
+            <div className="flex items-center justify-center h-40">
+              <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+            </div>
+          ) : !(cubaCommunities as any)?.communities?.length ? (
+            <div className="text-center text-gray-600 dark:text-gray-400">
+              <p>Loading Cuba communities...</p>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => setLocation('/search?location=Cuba')}
+              >
+                Search All Cuba Communities
+              </Button>
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 hover:scrollbar-thumb-blue-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+                {((cubaCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                  <Link key={`cu-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-blue-300 dark:border-blue-600 rounded-xl h-[420px]">
+                      <CardContent className="p-4 space-y-3">
+                        <div>
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
+                            {community.name}
+                          </h3>
+                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                            <span>{community.city}, Cuba</span>
+                          </div>
+                        </div>
+                        
+                        {/* Price Display */}
+                        <div className="bg-gradient-to-r from-blue-50 to-red-50 dark:from-blue-900/20 dark:to-red-900/20 rounded-lg p-3">
+                          <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                            {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
+                             community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400">Per Month</div>
+                        </div>
+                        
+                        {/* Amenities */}
+                        <div className="flex items-center gap-2 text-sm">
+                          <Badge variant="outline" className="text-xs">Healthcare</Badge>
+                          <Badge variant="outline" className="text-xs">Cultural Activities</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+              
+              <div className="text-center mt-6">
+                <Button 
+                  variant="outline" 
+                  className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20"
+                  onClick={() => setLocation('/search?location=Cuba')}
+                >
+                  Explore All Cuba Communities
                 </Button>
               </div>
             </div>

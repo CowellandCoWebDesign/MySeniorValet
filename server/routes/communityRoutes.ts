@@ -885,6 +885,29 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
+  // Get communities by country
+  app.get("/api/communities/by-country", async (req, res) => {
+    try {
+      const { country } = req.query;
+      
+      if (!country) {
+        return res.status(400).json({ error: "Country parameter is required" });
+      }
+      
+      const countryCommunities = await db
+        .select()
+        .from(communities)
+        .where(eq(communities.country, country as string))
+        .orderBy(desc(communities.rating))
+        .limit(20);
+      
+      res.json({ communities: countryCommunities });
+    } catch (error) {
+      console.error("Error fetching communities by country:", error);
+      res.status(500).json({ error: "Failed to fetch communities by country" });
+    }
+  });
+
   // Get HUD properties
   app.get("/api/communities/hud-properties", async (req, res) => {
     try {

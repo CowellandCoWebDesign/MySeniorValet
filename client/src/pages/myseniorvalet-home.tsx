@@ -52,7 +52,7 @@ export default function MySeniorValetHome() {
   // Set SEO metadata for home page
   useSEO({
     title: 'Senior Living Made Simple - Find Communities, Real Pricing, No Hidden Fees',
-    description: 'Search 36,000+ senior living communities across USA, Canada & Mexico with transparent pricing, verified HUD rates, and real availability. Compare assisted living, memory care, nursing homes. Free tour scheduling, family sharing tools, and senior resources.',
+    description: 'Search 36,000+ senior living communities across USA, Canada, Mexico, Peru & Cuba with transparent pricing, verified HUD rates, and real availability. Compare assisted living, memory care, nursing homes. Free tour scheduling, family sharing tools, and senior resources.',
     keywords: 'senior living, assisted living, memory care, nursing homes, HUD senior housing, independent living, retirement communities, elder care, senior care facilities, Medicare, Medicaid, VA benefits, Canadian senior homes',
     canonicalUrl: 'https://www.myseniorvalet.com/'
   });
