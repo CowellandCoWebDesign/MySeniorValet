@@ -34,16 +34,22 @@ import {
   Share2,
   Download,
   Filter,
-  Search
+  Search,
+  CheckCircle,
+  Target,
+  Shield,
+  TrendingUp,
+  Lightbulb,
+  UserPlus
 } from 'lucide-react';
 
 export default function FamilyCollaborationCenter() {
   const [, setLocation] = useLocation();
-  const [activeTab, setActiveTab] = useState('tour-tracker');
+  const [activeTab, setActiveTab] = useState('overview');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [newMessage, setNewMessage] = useState('');
 
-  // Mock data for demonstration
+  // Example data for demonstration
   const upcomingTours = [
     {
       id: 1,
@@ -161,7 +167,7 @@ export default function FamilyCollaborationCenter() {
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   Family Collaboration Center
                 </h1>
-                <p className="text-sm text-muted-foreground">Work together to find the perfect care</p>
+                <p className="text-sm text-muted-foreground">Unite your family in finding the perfect senior care</p>
               </div>
             </div>
             <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0">
@@ -174,7 +180,7 @@ export default function FamilyCollaborationCenter() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6">
-        {/* Example Data Notice */}
+        {/* Demo Mode Notice - Only show when not signed in */}
         <Card className="mb-6 border-amber-500/50 bg-amber-50/10 dark:bg-amber-950/10">
           <CardContent className="py-4">
             <div className="flex items-center gap-3">
@@ -183,46 +189,290 @@ export default function FamilyCollaborationCenter() {
               </div>
               <div className="flex-1">
                 <p className="font-semibold text-amber-900 dark:text-amber-100">
-                  Demo Mode - Example Data Only
+                  Preview Mode - Example Data Shown
                 </p>
                 <p className="text-sm text-amber-700 dark:text-amber-300">
-                  The data shown below is example content for demonstration purposes. 
-                  Sign in to access your real family collaboration features.
+                  Sign in to access your family's real collaboration tools and saved information.
                 </p>
+              </div>
+              <Button 
+                size="sm" 
+                className="bg-amber-600 hover:bg-amber-700 text-white"
+                onClick={() => setLocation('/login')}
+              >
+                Sign In
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Value Proposition Hero */}
+        <Card className="mb-8 border-2 border-blue-500/20 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
+          <CardContent className="p-8">
+            <div className="text-center space-y-4">
+              <div className="inline-flex p-3 rounded-full bg-blue-100 dark:bg-blue-900/30">
+                <Users className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h2 className="text-3xl font-bold">
+                Why Use Family Collaboration?
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                Finding senior care is a family decision. Our collaboration tools help you work together, 
+                share research, compare options, and make confident decisions as a united family.
+              </p>
+            </div>
+
+            {/* Key Benefits Grid */}
+            <div className="grid md:grid-cols-4 gap-4 mt-8">
+              <div className="text-center space-y-2">
+                <div className="inline-flex p-2 rounded-lg bg-orange-100 dark:bg-orange-900/30">
+                  <FileText className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                </div>
+                <h3 className="font-semibold">Tour Tracker</h3>
+                <p className="text-sm text-muted-foreground">
+                  Document visits with photos, ratings & detailed notes
+                </p>
+              </div>
+              <div className="text-center space-y-2">
+                <div className="inline-flex p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                  <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="font-semibold">TourMate™</h3>
+                <p className="text-sm text-muted-foreground">
+                  Schedule tours & sync calendars across family
+                </p>
+              </div>
+              <div className="text-center space-y-2">
+                <div className="inline-flex p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
+                  <MessageCircle className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                <h3 className="font-semibold">Private Chat</h3>
+                <p className="text-sm text-muted-foreground">
+                  Discuss options privately with family members
+                </p>
+              </div>
+              <div className="text-center space-y-2">
+                <div className="inline-flex p-2 rounded-lg bg-rose-100 dark:bg-rose-900/30">
+                  <Heart className="w-6 h-6 text-rose-600 dark:text-rose-400" />
+                </div>
+                <h3 className="font-semibold">Shared Lists</h3>
+                <p className="text-sm text-muted-foreground">
+                  Save favorites & compare communities side-by-side
+                </p>
+              </div>
+            </div>
+
+            {/* How It Works */}
+            <div className="mt-8 pt-8 border-t">
+              <h3 className="text-center font-semibold mb-4">How It Works</h3>
+              <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
+                    1
+                  </div>
+                  <span className="text-sm">Invite Family</span>
+                </div>
+                <ChevronRight className="hidden md:block w-4 h-4 text-muted-foreground" />
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
+                    2
+                  </div>
+                  <span className="text-sm">Research Together</span>
+                </div>
+                <ChevronRight className="hidden md:block w-4 h-4 text-muted-foreground" />
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
+                    3
+                  </div>
+                  <span className="text-sm">Visit & Document</span>
+                </div>
+                <ChevronRight className="hidden md:block w-4 h-4 text-muted-foreground" />
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
+                    4
+                  </div>
+                  <span className="text-sm">Decide Together</span>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Main Feature Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-2 lg:grid-cols-4 w-full max-w-4xl mx-auto">
-            <TabsTrigger value="tour-tracker" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-500 data-[state=active]:text-white">
+          <TabsList className="grid grid-cols-2 lg:grid-cols-5 w-full">
+            <TabsTrigger value="overview">
+              <Lightbulb className="w-4 h-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="tour-tracker">
               <FileText className="w-4 h-4 mr-2" />
               Tour Tracker
             </TabsTrigger>
-            <TabsTrigger value="tourmate" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white">
+            <TabsTrigger value="tourmate">
               <Calendar className="w-4 h-4 mr-2" />
               TourMate™
             </TabsTrigger>
-            <TabsTrigger value="messages" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+            <TabsTrigger value="messages">
               <MessageCircle className="w-4 h-4 mr-2" />
               Messages
             </TabsTrigger>
-            <TabsTrigger value="favorites" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-rose-500 data-[state=active]:to-red-500 data-[state=active]:text-white">
+            <TabsTrigger value="favorites">
               <Heart className="w-4 h-4 mr-2" />
               Favorites
             </TabsTrigger>
           </TabsList>
 
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Quick Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-green-500" />
+                    Your Family's Progress
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Communities Viewed</span>
+                    <Badge>12</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Tours Scheduled</span>
+                    <Badge>2</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Tours Completed</span>
+                    <Badge>2</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Family Members</span>
+                    <Badge>3</Badge>
+                  </div>
+                  <Separator className="my-4" />
+                  <Button className="w-full" variant="outline">
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Invite Family Member
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Next Steps */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="w-5 h-5 text-blue-500" />
+                    Recommended Next Steps
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">Schedule Your First Tour</p>
+                      <p className="text-xs text-muted-foreground">
+                        Book visits to your top 3 communities
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full border-2 border-gray-300 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">Complete Tour Reports</p>
+                      <p className="text-xs text-muted-foreground">
+                        Document each visit while details are fresh
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full border-2 border-gray-300 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">Compare Final Options</p>
+                      <p className="text-xs text-muted-foreground">
+                        Use our comparison tool to evaluate top choices
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full border-2 border-gray-300 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">Make Decision Together</p>
+                      <p className="text-xs text-muted-foreground">
+                        Vote and discuss as a family
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Recent Activity */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-purple-500" />
+                  Recent Family Activity
+                  <Badge variant="outline" className="ml-2">Example Data</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback>SJ</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="text-sm">
+                        <span className="font-medium">Sarah</span> completed a tour report for Peaceful Gardens
+                      </p>
+                      <p className="text-xs text-muted-foreground">2 hours ago</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback>MJ</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="text-sm">
+                        <span className="font-medium">Michael</span> added Harmony House to favorites
+                      </p>
+                      <p className="text-xs text-muted-foreground">Yesterday</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback>SJ</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="text-sm">
+                        <span className="font-medium">Sarah</span> scheduled a tour at Golden Years
+                      </p>
+                      <p className="text-xs text-muted-foreground">2 days ago</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Tour Tracker Tab */}
           <TabsContent value="tour-tracker" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-orange-500" />
-                  Tour Visit Reports
-                  <Badge variant="destructive" className="ml-2">EXAMPLE DATA</Badge>
-                </CardTitle>
-                <CardDescription>Track and review your community visits</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-orange-500" />
+                      Tour Visit Reports
+                    </CardTitle>
+                    <CardDescription>
+                      Document your community visits with detailed reports your whole family can review
+                    </CardDescription>
+                  </div>
+                  <Badge variant="outline">Example Data</Badge>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {visitHistory.map((visit) => (
@@ -296,12 +546,18 @@ export default function FamilyCollaborationCenter() {
           <TabsContent value="tourmate" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-blue-500" />
-                  TourMate™ Scheduler
-                  <Badge variant="destructive" className="ml-2">EXAMPLE DATA</Badge>
-                </CardTitle>
-                <CardDescription>Schedule and manage community tours</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Calendar className="w-5 h-5 text-blue-500" />
+                      TourMate™ Scheduler
+                    </CardTitle>
+                    <CardDescription>
+                      Coordinate tour schedules with your family and never miss an appointment
+                    </CardDescription>
+                  </div>
+                  <Badge variant="outline">Example Data</Badge>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
@@ -404,12 +660,18 @@ export default function FamilyCollaborationCenter() {
           <TabsContent value="messages" className="space-y-6">
             <Card className="h-[600px] flex flex-col">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MessageCircle className="w-5 h-5 text-purple-500" />
-                  Family Messages
-                  <Badge variant="destructive" className="ml-2">EXAMPLE DATA</Badge>
-                </CardTitle>
-                <CardDescription>Private chat for family care discussions</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <MessageCircle className="w-5 h-5 text-purple-500" />
+                      Family Messages
+                    </CardTitle>
+                    <CardDescription>
+                      Private, secure chat for your family's care discussions
+                    </CardDescription>
+                  </div>
+                  <Badge variant="outline">Example Data</Badge>
+                </div>
               </CardHeader>
               <CardContent className="flex-1 flex flex-col">
                 <ScrollArea className="flex-1 pr-4">
@@ -478,12 +740,18 @@ export default function FamilyCollaborationCenter() {
           <TabsContent value="favorites" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-rose-500" />
-                  Shared Favorites
-                  <Badge variant="destructive" className="ml-2">EXAMPLE DATA</Badge>
-                </CardTitle>
-                <CardDescription>Communities your family is considering</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Heart className="w-5 h-5 text-rose-500" />
+                      Shared Favorites
+                    </CardTitle>
+                    <CardDescription>
+                      Communities your family is considering - compare and discuss together
+                    </CardDescription>
+                  </div>
+                  <Badge variant="outline">Example Data</Badge>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
