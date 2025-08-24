@@ -75,11 +75,13 @@ export default function Contact() {
                 <div className="mt-8 p-4 bg-blue-50 rounded-lg">
                   <h3 className="font-semibold text-blue-900 mb-2">Why I Built This</h3>
                   <p className="text-blue-800 text-sm">
-                    My mother's senior living journey revealed a shocking truth: no single place showed all available 
-                    options with honest pricing. Families deserve better. MySeniorValet provides complete transparency 
-                    across all senior housing types - from luxury communities to HUD-subsidized options. My mission is 
-                    simple: support families, connect them with trusted vendors, and ensure communities can showcase 
-                    their unique value. Together, we're building a marketplace where everyone wins.
+                    MySeniorValet exists to put power back in families' hands. I watched too many loved ones struggle 
+                    through the overwhelming process of finding senior care, frustrated by hidden costs, fake reviews, 
+                    and incomplete information scattered across dozens of websites. This platform brings everything 
+                    together—34,000+ communities, healthcare facilities, senior services, and government resources—all 
+                    with transparent pricing and authentic information. We never sell your data. We never charge families. 
+                    We never hide communities behind paywalls. Because when families have complete information, they make 
+                    confident decisions. That's the transparency revolution we're leading in senior living.
                   </p>
                 </div>
               </CardContent>
