@@ -1979,7 +1979,7 @@ export default function CommunityDetail() {
                 
                 {/* Solid background section with community info - Mobile Responsive */}
                 <div className="bg-gradient-to-br from-slate-800 via-blue-900 to-indigo-900 text-white p-4 sm:p-6">
-                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between lg:gap-6">
                     {/* Left side - Community Info */}
                     <div className="flex-1">
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
@@ -2024,49 +2024,12 @@ export default function CommunityDetail() {
                           {formatCareType(community.careTypes)}
                         </Badge>
                       </div>
-                    
-                    {/* In-App Messaging Button - Bottom Left */}
-                    <div className="mt-4">
-                      {/* Check subscription tier for messaging access */}
-                      {(() => {
-                        const tier = community.subscriptionTier || 'verified';
-                        
-                        if (tier === 'verified') {
-                          // Community hasn't claimed profile and opted into messaging
-                          return (
-                            <div>
-                              <Button
-                                variant="outline"
-                                disabled
-                                className="bg-gray-50 border-gray-300 text-gray-500 font-semibold px-6 py-3 shadow-sm cursor-not-allowed opacity-70"
-                              >
-                                <MessageSquare className="h-5 w-5 mr-2" />
-                                <span className="flex items-center gap-1">
-                                  Direct Messaging Unavailable
-                                  <HelpCircle className="h-4 w-4" />
-                                </span>
-                              </Button>
-                              <p className="text-xs text-gray-900 dark:text-gray-400 mt-2">
-                                This community hasn't claimed their profile and opted into instant messaging yet
-                              </p>
-                            </div>
-                          );
-                        }
-                        
-                        // Standard tier and above have messaging access
-                        return (
-                          <MessageCommunityButton
-                            communityId={community.id}
-                            communityName={community.name}
-                          />
-                        );
-                      })()}
-                    </div>
                     </div>
                     
                     {/* Right side - Pricing and Key Services */}
-                    <div className="lg:w-80 text-right">
-                      {/* Pricing Section - Top Right */}
+                    <div className="lg:w-80 w-full">
+                      {/* Pricing Section */}
+                      <div className="text-left lg:text-right">
                       {(() => {
                         const hasVerifiedPricing = (community.priceRange && community.priceRange.min > 0) || 
                                                    (community as any).rentPerMonth || 
@@ -2115,7 +2078,7 @@ export default function CommunityDetail() {
                             </div>
                             <div className="text-responsive-sm text-white/80">
                               {isEstimate ? (
-                                <div className="flex items-center gap-2 justify-end">
+                                <div className="flex items-center gap-2 justify-start lg:justify-end">
                                   <span>Market Estimate</span>
                                   <button 
                                     onClick={() => {
@@ -2146,7 +2109,7 @@ export default function CommunityDetail() {
                               const IconComponent = badgeInfo.icon;
                               
                               return badgeInfo.show ? (
-                                <div className="flex justify-end mt-2">
+                                <div className="flex justify-start lg:justify-end mt-2">
                                   <div className={`${badgeInfo.bgColor} text-white px-2 py-1 rounded-full text-xs font-medium shadow-sm flex items-center gap-1`}>
                                     {IconComponent && <IconComponent className="w-3 h-3" />}
                                     {badgeInfo.text}
@@ -2157,13 +2120,14 @@ export default function CommunityDetail() {
                           </div>
                         );
                       })()}
+                      </div>
                       
-                      {/* Key Services Section - Bottom Right */}
-                      <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-white/20">
+                      {/* Key Services Section */}
+                      <div className="mt-4 pt-3 border-t border-white/20 text-left lg:text-right">
                         <h3 className="text-responsive-base font-bold text-white mb-2 sm:mb-3">Key Services:</h3>
                               <div className="space-y-1 sm:space-y-2">
                                 {/* 24/7 Medical Staff */}
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 justify-start lg:justify-end">
                                   <div className={`w-3 h-3 rounded-full ${
                                     verificationReport?.webIntelligence?.features?.some((f: string) => 
                                       f.toLowerCase().includes('medical') || 
@@ -2182,7 +2146,7 @@ export default function CommunityDetail() {
                                 </div>
 
                                 {/* Medication Management */}
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 justify-start lg:justify-end">
                                   <div className={`w-3 h-3 rounded-full ${
                                     verificationReport?.webIntelligence?.features?.some((f: string) => 
                                       f.toLowerCase().includes('medication') || 
@@ -2200,7 +2164,7 @@ export default function CommunityDetail() {
                                 </div>
 
                                 {/* Housekeeping Included */}
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 justify-start lg:justify-end">
                                   <div className={`w-3 h-3 rounded-full ${
                                     verificationReport?.webIntelligence?.features?.some((f: string) => 
                                       f.toLowerCase().includes('housekeeping') || 
@@ -2218,7 +2182,7 @@ export default function CommunityDetail() {
                                 </div>
 
                                 {/* Transportation Included */}
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-3 justify-start lg:justify-end">
                                   <div className={`w-3 h-3 rounded-full ${
                                     verificationReport?.webIntelligence?.features?.some((f: string) => 
                                       f.toLowerCase().includes('transportation') || 
@@ -2245,6 +2209,44 @@ export default function CommunityDetail() {
                         </div>
                       </div>
                     </div>
+                  </div>
+                  
+                  {/* In-App Messaging Button - Below content on mobile, bottom left on desktop */}
+                  <div className="mt-4">
+                    {/* Check subscription tier for messaging access */}
+                    {(() => {
+                      const tier = community.subscriptionTier || 'verified';
+                      
+                      if (tier === 'verified') {
+                        // Community hasn't claimed profile and opted into messaging
+                        return (
+                          <div>
+                            <Button
+                              variant="outline"
+                              disabled
+                              className="bg-gray-50 border-gray-300 text-gray-500 font-semibold px-6 py-3 shadow-sm cursor-not-allowed opacity-70 w-full lg:w-auto"
+                            >
+                              <MessageSquare className="h-5 w-5 mr-2" />
+                              <span className="flex items-center gap-1">
+                                Direct Messaging Unavailable
+                                <HelpCircle className="h-4 w-4" />
+                              </span>
+                            </Button>
+                            <p className="text-xs text-white/70 lg:text-gray-900 lg:dark:text-gray-400 mt-2 text-center lg:text-left">
+                              This community hasn't claimed their profile and opted into instant messaging yet
+                            </p>
+                          </div>
+                        );
+                      }
+                      
+                      // Standard tier and above have messaging access
+                      return (
+                        <MessageCommunityButton
+                          communityId={community.id}
+                          communityName={community.name}
+                        />
+                      );
+                    })()}
                   </div>
                 </div>
               </Card>
