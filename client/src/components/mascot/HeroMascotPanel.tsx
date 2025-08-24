@@ -80,8 +80,8 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
     {
       title: "Family Collaboration",
       subtitle: "Share Research Instantly",
-      description: "Our FREE family tools let you share favorites, compare communities, schedule tours together, and make decisions as a team - even from different cities.",
-      source: "MySeniorValet Family Collaboration Center - 100% Free",
+      description: "MySeniorValet is FREE FOR FAMILIES ALWAYS. Share favorites, compare communities, schedule tours together, and make decisions as a team - even from different cities. No fees, no subscriptions, no hidden costs.",
+      source: "MySeniorValet - Forever FREE for all families",
       link: null,
       category: "family_tools"
     },

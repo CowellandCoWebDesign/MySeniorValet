@@ -725,13 +725,21 @@ export default function MySeniorValetHome() {
           {/* Hero Text Section - Mobile optimized */}
           <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8 mt-4 sm:mt-8 md:mt-12 mb-4 sm:mb-6 text-center">
             {/* Main Heading - Better sizing for all screens */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 animate-fade-in-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-2 sm:mb-3 animate-fade-in-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] leading-tight">
               Clear. Honest. No Pressure.
             </h1>
             
+            {/* FREE FOR FAMILIES ALWAYS Badge */}
+            <div className="mb-4 sm:mb-6 animate-fade-in-up animation-delay-100">
+              <span className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full shadow-lg font-bold text-sm sm:text-base md:text-lg">
+                <Shield className="h-5 w-5 sm:h-6 sm:w-6" />
+                FREE FOR FAMILIES ALWAYS
+              </span>
+            </div>
+            
             {/* Subheading - Better sizing for all screens */}
             <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-200 max-w-4xl mx-auto animate-fade-in-up animation-delay-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed px-2">
-              The only senior living platform that never sells your info. Search 34,000+ communities, move-in services, healthcare providers, vendors, and support resources with real pricing and trusted reviews—all in one transparent place.
+              The only senior living platform that never sells your info. Search 34,000+ communities, move-in services, healthcare providers, vendors, and support resources with real pricing and trusted reviews—all in one transparent place. No fees, no subscriptions, no hidden costs for families.
             </p>
           </div>
           
@@ -1803,7 +1811,7 @@ export default function MySeniorValetHome() {
               <div className="flex flex-col items-center gap-3 mb-6">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white">
                   <Brain className="w-5 h-5" />
-                  <span className="text-sm font-semibold">Powered & Supported by Artificial Intelligence Orchestra</span>
+                  <span className="text-sm font-semibold">AI-Powered Platform • FREE FOR FAMILIES ALWAYS</span>
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-2 px-4">
                   <span className="text-xs text-white/80">Powered by:</span>
