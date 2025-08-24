@@ -1868,6 +1868,39 @@ export default function CommunityDetail() {
     return `(${areaCode}) ${number.slice(0, 3)}-${number.slice(3)}`;
   };
 
+  const getCountryFromState = (state: string) => {
+    // Canadian provinces
+    const canadianProvinces = ['ON', 'QC', 'BC', 'AB', 'MB', 'SK', 'NS', 'NB', 'NL', 'PE', 'NT', 'YT', 'NU'];
+    // Mexican states (using MX as the general code)
+    const mexicanStates = ['MX'];
+    // Puerto Rico
+    const puertoRico = ['PR'];
+    // Latin American countries
+    const peru = ['PE'];
+    const cuba = ['CU'];
+    const costaRica = ['CR'];
+    const panama = ['PA'];
+    
+    if (canadianProvinces.includes(state)) {
+      return 'Canada';
+    } else if (mexicanStates.includes(state)) {
+      return 'Mexico';
+    } else if (puertoRico.includes(state)) {
+      return 'Puerto Rico';
+    } else if (peru.includes(state)) {
+      return 'Peru';
+    } else if (cuba.includes(state)) {
+      return 'Cuba';
+    } else if (costaRica.includes(state)) {
+      return 'Costa Rica';
+    } else if (panama.includes(state)) {
+      return 'Panama';
+    } else {
+      // Default to United States for US states
+      return 'United States';
+    }
+  };
+
   // Combine database photos with live web intelligence photos
   const getCombinedPhotos = () => {
     const photos = [];
@@ -1992,7 +2025,7 @@ export default function CommunityDetail() {
                         <div className="flex flex-col">
                           <span>{community.address.split(',')[0]}</span>
                           <span>{community.city}, {community.state} {community.zipCode}</span>
-                          <span>United States</span>
+                          <span>{getCountryFromState(community.state)}</span>
                         </div>
                       </div>
                       <div className="flex items-center text-white/90 mb-3 text-responsive-base">
