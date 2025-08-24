@@ -843,7 +843,7 @@ export function registerCommunityRoutes(app: Express) {
         .from(communities)
         .where(eq(communities.state, state as string))
         .orderBy(desc(communities.rating))
-        .limit(20);
+        .limit(100);
       
       res.json({ communities: stateCommunities });
     } catch (error) {
@@ -876,7 +876,7 @@ export function registerCommunityRoutes(app: Express) {
       
       const cityCommunities = await query
         .orderBy(desc(communities.rating))
-        .limit(20);
+        .limit(100);
       
       res.json({ communities: cityCommunities });
     } catch (error) {
@@ -899,7 +899,7 @@ export function registerCommunityRoutes(app: Express) {
         .from(communities)
         .where(eq(communities.country, country as string))
         .orderBy(desc(communities.rating))
-        .limit(20);
+        .limit(100);
       
       res.json({ communities: countryCommunities });
     } catch (error) {
@@ -916,7 +916,7 @@ export function registerCommunityRoutes(app: Express) {
         .from(communities)
         .where(isNotNull(communities.hudPropertyId))
         .orderBy(desc(communities.rating))
-        .limit(20);
+        .limit(100);
       
       res.json(hudProperties);
     } catch (error) {
@@ -949,7 +949,7 @@ export function registerCommunityRoutes(app: Express) {
           )
         )
         .orderBy(desc(communities.rating))
-        .limit(20);
+        .limit(100);
       
       res.json({ communities: canadianCommunities });
     } catch (error) {
@@ -965,18 +965,10 @@ export function registerCommunityRoutes(app: Express) {
         .select()
         .from(communities)
         .where(
-          or(
-            eq(communities.state, 'PR'),
-            sql`LOWER(${communities.city}) LIKE '%san juan%'`,
-            sql`LOWER(${communities.city}) LIKE '%ponce%'`,
-            sql`LOWER(${communities.city}) LIKE '%bayamon%'`,
-            sql`LOWER(${communities.city}) LIKE '%carolina%'`,
-            sql`LOWER(${communities.city}) LIKE '%caguas%'`,
-            sql`LOWER(${communities.city}) LIKE '%guaynabo%'`
-          )
+          eq(communities.state, 'PR')
         )
         .orderBy(desc(communities.rating))
-        .limit(20);
+        .limit(100);
       
       res.json({ communities: puertoRicoCommunities });
     } catch (error) {
@@ -992,18 +984,10 @@ export function registerCommunityRoutes(app: Express) {
         .select()
         .from(communities)
         .where(
-          or(
-            eq(communities.state, 'MX'),
-            sql`LOWER(${communities.city}) LIKE '%tijuana%'`,
-            sql`LOWER(${communities.city}) LIKE '%guadalajara%'`,
-            sql`LOWER(${communities.city}) LIKE '%puerto vallarta%'`,
-            sql`LOWER(${communities.city}) LIKE '%cancun%'`,
-            sql`LOWER(${communities.city}) LIKE '%playa del carmen%'`,
-            sql`LOWER(${communities.city}) LIKE '%mexico%'`
-          )
+          eq(communities.state, 'MX')
         )
         .orderBy(desc(communities.rating))
-        .limit(20);
+        .limit(100);
       
       res.json({ communities: mexicanCommunities });
     } catch (error) {

@@ -662,7 +662,7 @@ export default function CommunityDirectory() {
                 </Card>
               ))
             ) : (
-              ((hawaiiCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+              ((hawaiiCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                 <Link key={`hawaii-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                   <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-cyan-300 dark:border-cyan-600 rounded-xl h-[520px]">
                     <div className="relative">
@@ -1152,7 +1152,7 @@ export default function CommunityDirectory() {
           ) : (
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
-                {((floridaCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                {((floridaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`florida-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-cyan-300 dark:border-cyan-600 rounded-xl h-[520px]">
                       <div className="relative">
@@ -1365,7 +1365,7 @@ export default function CommunityDirectory() {
               </div>
             ) : (
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-orange-500 dark:scrollbar-thumb-orange-400 hover:scrollbar-thumb-orange-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
-                {((texasCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                {((texasCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`texas-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-orange-300 dark:border-orange-600 rounded-xl h-[520px]">
                       <div className="relative">
@@ -1586,7 +1586,7 @@ export default function CommunityDirectory() {
                 <p>No New York communities available at this time.</p>
               </div>
             ) : (
-              ((newYorkCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+              ((newYorkCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                 <Link key={`newyork-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                   <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-purple-300 dark:border-purple-600 rounded-xl h-[520px]">
                     <div className="relative">
@@ -1868,7 +1868,7 @@ export default function CommunityDirectory() {
                 </Link>
               </>
             ) : (
-              ((canadianCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+              ((canadianCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                 <Link key={`canadian-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                   <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-red-300 dark:border-red-600 rounded-xl h-[520px]">
                     <div className="relative">
@@ -2090,7 +2090,7 @@ export default function CommunityDirectory() {
           ) : (
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
-                {((puertoRicoCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                {((puertoRicoCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`pr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-cyan-300 dark:border-cyan-600 rounded-xl h-[520px]">
                       <div className="relative">
@@ -2326,7 +2326,7 @@ export default function CommunityDirectory() {
           ) : (
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-red-500 dark:scrollbar-thumb-red-400 hover:scrollbar-thumb-red-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
-                {((peruCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                {((peruCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`pe-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-red-300 dark:border-red-600 rounded-xl h-[520px]">
                       <div className="relative">
@@ -2562,7 +2562,7 @@ export default function CommunityDirectory() {
           ) : (
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 hover:scrollbar-thumb-blue-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
-                {((cubaCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                {((cubaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`cu-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-blue-300 dark:border-blue-600 rounded-xl h-[520px]">
                       <div className="relative">
@@ -2794,7 +2794,7 @@ export default function CommunityDirectory() {
           ) : (
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
-                {((costaRicaCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                {((costaRicaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`cr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-green-300 dark:border-green-600 rounded-xl h-[520px]">
                       <div className="relative">
@@ -3026,7 +3026,7 @@ export default function CommunityDirectory() {
           ) : (
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 hover:scrollbar-thumb-blue-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
-                {((panamaCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+                {((panamaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`pa-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-blue-300 dark:border-blue-600 rounded-xl h-[520px]">
                       <div className="relative">
@@ -3259,7 +3259,7 @@ export default function CommunityDirectory() {
                 </Card>
               ))
             ) : (
-              ((mexicoCommunities as any)?.communities || []).slice(0, 8).map((community: any, index: number) => (
+              ((mexicoCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                 <Link key={`mexico-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                   <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-red-300 dark:border-red-600 rounded-xl h-[520px]">
                     <div className="relative">
