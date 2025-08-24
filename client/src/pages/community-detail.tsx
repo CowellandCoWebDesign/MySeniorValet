@@ -1980,6 +1980,7 @@ export default function CommunityDetail() {
                 {/* Solid background section with community info - Mobile Responsive */}
                 <div className="bg-gradient-to-br from-slate-800 via-blue-900 to-indigo-900 text-white p-4 sm:p-6">
                   <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                    {/* Left side - Community Info */}
                     <div className="flex-1">
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
                         <h1 className="text-responsive-2xl font-bold text-white break-words">
@@ -2063,8 +2064,9 @@ export default function CommunityDetail() {
                     </div>
                     </div>
                     
-                    {/* Right side - Pricing Information */}
-                    <div className="text-right">
+                    {/* Right side - Pricing and Key Services */}
+                    <div className="lg:w-80 text-right">
+                      {/* Pricing Section - Top Right */}
                       {(() => {
                         const hasVerifiedPricing = (community.priceRange && community.priceRange.min > 0) || 
                                                    (community as any).rentPerMonth || 
@@ -2152,10 +2154,13 @@ export default function CommunityDetail() {
                                 </div>
                               ) : null;
                             })()}
-                            
-                            {/* Key Services Section - Mobile Responsive */}
-                            <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-white/20">
-                              <h3 className="text-responsive-base font-bold text-white mb-2 sm:mb-3">Key Services:</h3>
+                          </div>
+                        );
+                      })()}
+                      
+                      {/* Key Services Section - Bottom Right */}
+                      <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-white/20">
+                        <h3 className="text-responsive-base font-bold text-white mb-2 sm:mb-3">Key Services:</h3>
                               <div className="space-y-1 sm:space-y-2">
                                 {/* 24/7 Medical Staff */}
                                 <div className="flex items-center gap-3">
@@ -2231,16 +2236,14 @@ export default function CommunityDetail() {
                                 </div>
                               </div>
                               
-                              {/* Contact for service details */}
-                              <div className="mt-3 pt-2 border-t border-white/20">
-                                <p className="text-xs text-white/70 italic">
-                                  Contact for service details
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })()}
+                        
+                        {/* Contact for service details */}
+                        <div className="mt-3 pt-2 border-t border-white/20">
+                          <p className="text-xs text-white/70 italic">
+                            Contact for service details
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
