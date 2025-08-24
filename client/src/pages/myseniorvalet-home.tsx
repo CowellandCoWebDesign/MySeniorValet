@@ -1462,7 +1462,7 @@ export default function MySeniorValetHome() {
 
             {/* Family & Partner Services Section - NEW ROW */}
             {/* Family Collaboration Center Card */}
-            <Link href="/family-portal">
+            <Link href="/family-collaboration">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-rose-400 relative overflow-hidden group transform hover:scale-105">
                 <div className="absolute inset-0 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 opacity-50"></div>
                 <CardHeader className="relative z-10">
