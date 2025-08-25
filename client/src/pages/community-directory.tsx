@@ -171,6 +171,36 @@ export default function CommunityDirectory() {
   const newYorkSectionRef = useRef<HTMLElement>(null);
   const canadianSectionRef = useRef<HTMLElement>(null);
   
+  // Slider container refs for navigation
+  const hawaiiSliderRef = useRef<HTMLDivElement>(null);
+  const floridaSliderRef = useRef<HTMLDivElement>(null);
+  const hudSliderRef = useRef<HTMLDivElement>(null);
+  const texasSliderRef = useRef<HTMLDivElement>(null);
+  const newYorkSliderRef = useRef<HTMLDivElement>(null);
+  const canadianSliderRef = useRef<HTMLDivElement>(null);
+  const puertoRicoSliderRef = useRef<HTMLDivElement>(null);
+  const mexicoSliderRef = useRef<HTMLDivElement>(null);
+  const peruSliderRef = useRef<HTMLDivElement>(null);
+  const cubaSliderRef = useRef<HTMLDivElement>(null);
+  const costaRicaSliderRef = useRef<HTMLDivElement>(null);
+  const panamaSliderRef = useRef<HTMLDivElement>(null);
+
+  // Scroll navigation functions
+  const scrollSlider = (ref: React.RefObject<HTMLDivElement>, direction: 'left' | 'right') => {
+    if (ref.current) {
+      const scrollAmount = 320; // Width of one card plus gap
+      const currentScroll = ref.current.scrollLeft;
+      const newScroll = direction === 'left' 
+        ? currentScroll - scrollAmount 
+        : currentScroll + scrollAmount;
+      
+      ref.current.scrollTo({
+        left: newScroll,
+        behavior: 'smooth'
+      });
+    }
+  };
+  
   const [isLoading, setIsLoading] = useState(true);
   const [language, setLanguage] = useState('en');
   
@@ -546,8 +576,27 @@ export default function CommunityDirectory() {
             </Link>
           </div>
           
-          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
-            {(hawaiiLoading || !hawaiiCommunities || !(hawaiiCommunities as any)?.communities?.length) ? (
+          <div className="relative">
+            {/* Navigation Arrows */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
+              onClick={() => scrollSlider(hawaiiSliderRef, 'left')}
+            >
+              <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
+              onClick={() => scrollSlider(hawaiiSliderRef, 'right')}
+            >
+              <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            </Button>
+            
+            <div ref={hawaiiSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
+              {(hawaiiLoading || !hawaiiCommunities || !(hawaiiCommunities as any)?.communities?.length) ? (
               Array.from({ length: 6 }).map((_, index) => (
                 <Card key={index} className="overflow-hidden flex-shrink-0 w-80 h-[520px] border border-gray-200 animate-pulse">
                   <div className="h-48 bg-gradient-to-br from-blue-200 to-teal-200 dark:bg-gray-700"></div>
@@ -726,6 +775,7 @@ export default function CommunityDirectory() {
                 </Link>
               ))
             )}
+            </div>
           </div>
         </div>
       </section>
@@ -768,6 +818,24 @@ export default function CommunityDirectory() {
           
           {/* Fort Worth Communities Slider */}
           <div className="relative">
+            {/* Navigation Arrows */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
+              onClick={() => scrollSlider(texasSliderRef, 'left')}
+            >
+              <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
+              onClick={() => scrollSlider(texasSliderRef, 'right')}
+            >
+              <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            </Button>
+            
             {texasLoading ? (
               <div className="flex items-center justify-center h-40">
                 <div className="animate-spin w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full"></div>
@@ -784,7 +852,7 @@ export default function CommunityDirectory() {
                 </Button>
               </div>
             ) : (
-              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-orange-500 dark:scrollbar-thumb-orange-400 " style={{scrollBehavior: 'smooth'}}>
+              <div ref={texasSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-orange-500 dark:scrollbar-thumb-orange-400 " style={{scrollBehavior: 'smooth'}}>
                 {((texasCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`texas-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-orange-300 dark:border-orange-600 rounded-xl h-[520px]">
@@ -994,7 +1062,25 @@ export default function CommunityDirectory() {
             </div>
           ) : (
             <div className="relative">
-              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
+              {/* Navigation Arrows */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
+                onClick={() => scrollSlider(floridaSliderRef, 'left')}
+              >
+                <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
+                onClick={() => scrollSlider(floridaSliderRef, 'right')}
+              >
+                <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+              </Button>
+              
+              <div ref={floridaSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
                 {((floridaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`florida-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-cyan-300 dark:border-cyan-600 rounded-xl h-[520px]">
@@ -1226,8 +1312,27 @@ export default function CommunityDirectory() {
             </p>
           </div>
         
-          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 " style={{scrollBehavior: 'smooth'}}>
-            {/* Show HUD communities with critical information */}
+          <div className="relative">
+            {/* Navigation Arrows */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
+              onClick={() => scrollSlider(hudSliderRef, 'left')}
+            >
+              <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
+              onClick={() => scrollSlider(hudSliderRef, 'right')}
+            >
+              <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            </Button>
+            
+            <div ref={hudSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 " style={{scrollBehavior: 'smooth'}}>
+              {/* Show HUD communities with critical information */}
             {(!hudProperties || (hudProperties as any[]).length === 0) ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
@@ -1459,6 +1564,7 @@ export default function CommunityDirectory() {
                 </Link>
               </>
             )}
+            </div>
           </div>
         </div>
       </section>
@@ -1501,8 +1607,27 @@ export default function CommunityDirectory() {
             Empire State senior living excellence
           </p>
         
-          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-purple-500 dark:scrollbar-thumb-purple-400 " style={{scrollBehavior: 'smooth'}}>
-            {/* Show New York communities */}
+          <div className="relative">
+            {/* Navigation Arrows */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
+              onClick={() => scrollSlider(newYorkSliderRef, 'left')}
+            >
+              <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
+              onClick={() => scrollSlider(newYorkSliderRef, 'right')}
+            >
+              <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            </Button>
+            
+            <div ref={newYorkSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-purple-500 dark:scrollbar-thumb-purple-400 " style={{scrollBehavior: 'smooth'}}>
+              {/* Show New York communities */}
             {newYorkLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
@@ -1681,6 +1806,7 @@ export default function CommunityDirectory() {
                 </Link>
               ))
             )}
+            </div>
           </div>
         </div>
       </section>
@@ -1732,8 +1858,27 @@ export default function CommunityDirectory() {
               : '24 communautés dans les 13 provinces et territoires • 10 avec services bilingues français/anglais'}
           </p>
         
-          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-red-500 dark:scrollbar-thumb-red-400 " style={{scrollBehavior: 'smooth'}}>
-            {/* Show Canadian communities */}
+          <div className="relative">
+            {/* Navigation Arrows */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
+              onClick={() => scrollSlider(canadianSliderRef, 'left')}
+            >
+              <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
+              onClick={() => scrollSlider(canadianSliderRef, 'right')}
+            >
+              <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            </Button>
+            
+            <div ref={canadianSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-red-500 dark:scrollbar-thumb-red-400 " style={{scrollBehavior: 'smooth'}}>
+              {/* Show Canadian communities */}
             {canadianLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
@@ -1971,6 +2116,7 @@ export default function CommunityDirectory() {
                 </Link>
               ))
             )}
+            </div>
           </div>
         </div>
       </section>
