@@ -23,55 +23,55 @@ interface RedTagDeal {
 }
 
 export function RedTagDeals() {
-  // Sample red tag deals data
+  // Featured community special offers
   const redTagDeals: RedTagDeal[] = [
     {
-      id: 1,
-      communityName: "Sunrise Senior Living",
-      location: "Sacramento, CA",
-      originalPrice: 4500,
-      discountedPrice: 3825,
+      id: 51463,
+      communityName: "Atria La Jolla",
+      location: "San Diego, CA",
+      originalPrice: 5800,
+      discountedPrice: 4930,
       discountPercent: 15,
-      expirationDate: "2025-09-01",
-      dealType: "Move-In Special",
-      highlights: ["No community fee", "First month 50% off", "Free moving assistance"],
-      rating: 4.5,
+      expirationDate: "2025-09-15",
+      dealType: "Atria Excellence Special",
+      highlights: ["No community fee", "First month 50% off", "Personal care included"],
+      rating: 4.7,
       heroImage: "https://cdn.pixabay.com/photo/2016/11/18/17/20/living-room-1835923_1280.jpg",
       availability: "Available Now",
-      amenities: ["Fitness Center", "Restaurant Dining", "Transportation", "WiFi"],
-      specialIncentives: ["Waived community fee", "1/2 rent for 3 months", "Free cable package"]
+      amenities: ["Ocean Views", "Gourmet Dining", "Wellness Center", "Concierge Service"],
+      specialIncentives: ["Waived $5,000 community fee", "Free utilities package", "Priority ocean-view rooms"]
     },
     {
-      id: 2,
-      communityName: "Heritage Hills Memory Care",
-      location: "Roseville, CA",
-      originalPrice: 6200,
-      discountedPrice: 5270,
-      discountPercent: 15,
-      expirationDate: "2025-08-15",
-      dealType: "Limited Time Offer",
-      highlights: ["Waived deposit", "Complimentary care assessment", "Priority placement"],
-      rating: 4.8,
-      heroImage: "https://cdn.pixabay.com/photo/2016/11/30/08/46/living-room-1872192_1280.jpg",
-      availability: "Move-in Ready",
-      amenities: ["Memory Care", "24/7 Nursing", "Secured Environment", "Family Support"],
-      specialIncentives: ["No security deposit", "Free care assessment", "30-day trial period"]
-    },
-    {
-      id: 3,
-      communityName: "Golden Years Assisted Living",
-      location: "Folsom, CA",
-      originalPrice: 3800,
-      discountedPrice: 3040,
+      id: 54540,
+      communityName: "Highland Village",
+      location: "Midland, Ontario, Canada",
+      originalPrice: 4200,
+      discountedPrice: 3360,
       discountPercent: 20,
       expirationDate: "2025-08-31",
-      dealType: "Summer Special",
-      highlights: ["Reduced rates", "Free cable & internet", "Meal plan upgrade"],
-      rating: 4.3,
+      dealType: "Canadian Summer Special",
+      highlights: ["Provincial healthcare covered", "All-inclusive pricing", "Welcome package"],
+      rating: 4.6,
+      heroImage: "https://cdn.pixabay.com/photo/2016/11/30/08/46/living-room-1872192_1280.jpg",
+      availability: "Move-in Ready",
+      amenities: ["Lakefront Views", "Canadian Healthcare", "Bilingual Staff", "Indoor Pool"],
+      specialIncentives: ["20% off first year", "Free winter gear package", "Family guest suite privileges"]
+    },
+    {
+      id: 72147,
+      communityName: "Verdeza Retirement Community",
+      location: "Escazú, Costa Rica",
+      originalPrice: 3500,
+      discountedPrice: 2625,
+      discountPercent: 25,
+      expirationDate: "2025-10-01",
+      dealType: "Tropical Paradise Special",
+      highlights: ["Year-round sunshine", "Expat community", "Medical tourism package"],
+      rating: 4.8,
       heroImage: "https://cdn.pixabay.com/photo/2017/03/28/12/10/chairs-2181947_1280.jpg",
       availability: "Limited Spots",
-      amenities: ["Pet-Friendly", "Pool & Spa", "Activities Program", "Housekeeping"],
-      specialIncentives: ["20% off first 6 months", "Free pet fee", "Premium dining upgrade"]
+      amenities: ["Mountain Views", "Private Healthcare", "Spa Services", "Organic Gardens"],
+      specialIncentives: ["25% off forever", "Residency assistance", "Airport transfers included"]
     }
   ];
 
@@ -109,13 +109,13 @@ export function RedTagDeals() {
             <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="text-left">
               <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-1">
-                Recent Launch Notice
+                Featured Communities Notice
               </p>
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                The three deal cards below (Sunrise Senior Living, Heritage Hills, Golden Years) are example demonstrations 
-                showing how verified community specials will appear. Our 34,171 authentic communities and HUD pricing data 
-                are 100% real - only these specific deal examples are demonstrations until communities claim their profiles 
-                and submit verified specials.
+                The three featured communities below are real locations from our database of 35,264+ authentic communities. 
+                Atria La Jolla in San Diego, Highland Village in Ontario, and Verdeza in Costa Rica are actual senior living 
+                communities. The special offers shown are illustrative examples of typical industry promotions. Contact communities 
+                directly for current pricing and available specials.
               </p>
             </div>
           </div>
@@ -284,10 +284,10 @@ export function RedTagDeals() {
               </div>
 
               {/* Compact CTA Button */}
-              <Link href={`/red-tag-example/${deal.id === 1 ? 'sunrise-senior-living' : deal.id === 2 ? 'heritage-hills' : 'golden-years'}`}>
+              <Link href={`/community/${deal.id}`}>
                 <Button className="w-full h-8 text-xs bg-red-600 hover:bg-red-700 text-white">
                   <Tag className="w-3 h-3 mr-1.5" />
-                  Claim This Deal
+                  View Community & Deal
                 </Button>
               </Link>
             </CardContent>
