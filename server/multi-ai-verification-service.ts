@@ -315,7 +315,11 @@ STEP 1 - IDENTITY VERIFICATION:
 First determine if the web results are about the SAME community:
 1. Do the web results mention "${communityName}" specifically?
 2. Is the location ${location} consistent?
-3. Are we seeing data about a DIFFERENT community with a similar name?
+3. **CRITICAL ADDRESS CHECK**: Are we seeing data about a DIFFERENT community with a similar name?
+   - If database shows "${communityContext?.address || 'Not specified'}" but web results show a DIFFERENT address on the same street, this indicates DIFFERENT communities
+   - Example: "7 Hilltop Dr" vs "451 Hilltop Dr" = DIFFERENT communities (fail verification)
+   - Example: "Hilltop Springs" vs "Hilltop Estates" = DIFFERENT communities (fail verification)
+4. **NAME CONFUSION CHECK**: Look for mentions of other similar communities in the results
 
 STEP 2 - DATA ANALYSIS (only if identity verified):
 If confirmed as the same community, provide market analysis.
@@ -335,10 +339,11 @@ Respond in JSON format:
     "Current availability or status updates"
   ],
   "concerns": [
-    "Name confusion with other communities",
-    "Location mismatches or inconsistencies", 
-    "Missing or contradictory information",
-    "Data quality issues flagged"
+    "Name confusion with other communities (e.g., Hilltop Springs vs Hilltop Estates)",
+    "Address mismatch indicates different community (e.g., 7 Hilltop vs 451 Hilltop)", 
+    "Web results appear to be about similarly named but different property",
+    "Missing ZIP Code and possible address discrepancies",
+    "Generally limited and vague information available"
   ],
   "recommendations": [
     "Suggested verification steps for families",
