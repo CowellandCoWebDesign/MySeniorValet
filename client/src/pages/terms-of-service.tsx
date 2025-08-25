@@ -234,10 +234,10 @@ export default function TermsOfService() {
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
               <ul className="text-gray-700 dark:text-gray-300 space-y-2">
                 <li><strong>General Inquiries:</strong> hello@myseniorvalet.com</li>
-                <li><strong>Administration:</strong> Admin@myseniorvalet.com</li>
+                <li><strong>Administration:</strong> admin@myseniorvalet.com</li>
                 <li><strong>Billing Department:</strong> billing@myseniorvalet.com</li>
-                <li><strong>Founder:</strong> William.cowell01@gmail.com</li>
-                <li><strong>Technical Support:</strong> CowellandCoWebDesign@gmail.com</li>
+                <li><strong>Legal & Compliance:</strong> admin@myseniorvalet.com</li>
+                <li><strong>Technical Support:</strong> hello@myseniorvalet.com</li>
                 <li><strong>Mission:</strong> "The trusted platform for authentic senior living community information. Helping families make informed decisions with verified data and transparent pricing."</li>
               </ul>
             </div>
