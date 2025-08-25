@@ -25,6 +25,7 @@ import {
   Eye,
   BookmarkPlus,
   MessageCircle,
+  MessageSquare,
   Building,
   DollarSign,
   Clock,
@@ -35,7 +36,9 @@ import {
   Award,
   Home,
   ChevronRight,
-  Plus
+  Plus,
+  Camera,
+  Smartphone
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
@@ -93,7 +96,7 @@ export default function Dashboard() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tab = params.get('tab');
-    if (tab && ['overview', 'saved', 'tours', 'messages', 'analytics', 'profile'].includes(tab)) {
+    if (tab && ['overview', 'saved', 'family', 'tours', 'messages', 'analytics', 'profile'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [location]);
@@ -245,20 +248,28 @@ export default function Dashboard() {
                 Find Communities
               </Button>
               <Button 
+                onClick={() => window.location.href = '/family-collaboration'} 
+                className="w-full justify-start text-purple-600 hover:bg-purple-50 dark:text-purple-400"
+                variant="ghost"
+              >
+                <Users className="w-4 h-4 mr-2" />
+                Family Tools
+              </Button>
+              <Button 
+                onClick={() => window.location.href = '/tour-tracker'} 
+                className="w-full justify-start text-green-600 hover:bg-green-50 dark:text-green-400"
+                variant="ghost"
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                Tour Tracker
+              </Button>
+              <Button 
                 onClick={() => window.location.href = '/map'} 
                 className="w-full justify-start"
                 variant="ghost"
               >
                 <MapPin className="w-4 h-4 mr-2" />
                 Explore Map
-              </Button>
-              <Button 
-                onClick={() => window.location.href = '/communities'} 
-                className="w-full justify-start"
-                variant="ghost"
-              >
-                <Building className="w-4 h-4 mr-2" />
-                Browse All
               </Button>
             </CardContent>
           </Card>
@@ -322,7 +333,7 @@ export default function Dashboard() {
         {/* Main Dashboard Content */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <div className="flex justify-center">
-            <TabsList className="grid w-full max-w-4xl grid-cols-6 h-14 bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-2">
+            <TabsList className="grid w-full max-w-5xl grid-cols-7 h-14 bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-2">
               <TabsTrigger value="overview" className="flex items-center space-x-2 h-10 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
                 <TrendingUp className="h-4 w-4" />
                 <span className="hidden md:inline">Overview</span>
@@ -330,6 +341,10 @@ export default function Dashboard() {
               <TabsTrigger value="saved" className="flex items-center space-x-2 h-10 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
                 <Heart className="h-4 w-4" />
                 <span className="hidden md:inline">Saved</span>
+              </TabsTrigger>
+              <TabsTrigger value="family" className="flex items-center space-x-2 h-10 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
+                <Users className="h-4 w-4" />
+                <span className="hidden md:inline">Family</span>
               </TabsTrigger>
               <TabsTrigger value="tours" className="flex items-center space-x-2 h-10 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
                 <Calendar className="h-4 w-4" />
@@ -672,6 +687,158 @@ export default function Dashboard() {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          {/* Family Tab - New Family Collaboration Section */}
+          <TabsContent value="family" className="space-y-6">
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                Family Collaboration Center
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                Share discoveries, coordinate tours, and make decisions together
+              </p>
+            </div>
+
+            {/* TourMate™ & Family Tools Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* TourMate™ Card */}
+              <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-700 shadow-xl hover:shadow-2xl transition-all">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <Calendar className="h-6 w-6 text-purple-600" />
+                    TourMate™ Scheduling
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Coordinate community tours with family members. Share schedules, get reminders, and track visits together.
+                  </p>
+                  <div className="space-y-2">
+                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                      {tourRequests.length} Active Tours
+                    </Badge>
+                  </div>
+                  <Link href="/tours">
+                    <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Manage Tours
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Tour Tracker Card */}
+              <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-700 shadow-xl hover:shadow-2xl transition-all">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <MapPin className="h-6 w-6 text-green-600" />
+                    Tour Tracker Reports
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Document your tour experiences with photos, ratings, and notes. Create detailed reports to share with family.
+                  </p>
+                  <div className="space-y-2">
+                    <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      GPS Location Tracking
+                    </Badge>
+                  </div>
+                  <Link href="/tour-tracker">
+                    <Button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white">
+                      <Camera className="h-4 w-4 mr-2" />
+                      Start Tracking
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Family Sharing Card */}
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-700 shadow-xl hover:shadow-2xl transition-all">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <Share2 className="h-6 w-6 text-blue-600" />
+                    One-Click Sharing
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Share community details instantly via email, text, or social media. Keep everyone in the loop with one click.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                      <Mail className="h-3 w-3 mr-1" />
+                      Email
+                    </Badge>
+                    <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                      <MessageCircle className="h-3 w-3 mr-1" />
+                      SMS
+                    </Badge>
+                    <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                      <Smartphone className="h-3 w-3 mr-1" />
+                      WhatsApp
+                    </Badge>
+                  </div>
+                  <Link href="/family-collaboration">
+                    <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white">
+                      <Users className="h-4 w-4 mr-2" />
+                      Explore Sharing Tools
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Family Connect Card */}
+              <Card className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border-orange-200 dark:border-orange-700 shadow-xl hover:shadow-2xl transition-all">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <MessageSquare className="h-6 w-6 text-orange-600" />
+                    Family Messaging
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Private family discussion space for each community. Share thoughts, concerns, and make decisions together.
+                  </p>
+                  <div className="space-y-2">
+                    <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                      Secure & Private
+                    </Badge>
+                  </div>
+                  <Link href="/family-connect">
+                    <Button className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white">
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Start Discussion
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Quick Stats for Family Activity */}
+            <Card className="bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-xl">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                  <div>
+                    <div className="text-3xl font-bold">{savedCommunities.length}</div>
+                    <div className="text-white/80 text-sm">Communities Saved</div>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold">{tourRequests.filter(t => t.status === 'confirmed').length}</div>
+                    <div className="text-white/80 text-sm">Tours Scheduled</div>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold">5</div>
+                    <div className="text-white/80 text-sm">Family Members</div>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold">12</div>
+                    <div className="text-white/80 text-sm">Items Shared</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Tours Tab */}
