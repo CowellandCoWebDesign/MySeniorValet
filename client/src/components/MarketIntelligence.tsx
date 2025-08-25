@@ -2,7 +2,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { BarChart3, Brain, Shield, Eye, CheckCircle, TrendingUp, AlertCircle, Home, Users, Heart, Stethoscope } from "lucide-react";
-import { CareSpectrumSlider } from "./CareSpectrumSlider";
 
 export function MarketIntelligence() {
   return (
@@ -229,10 +228,6 @@ export function MarketIntelligence() {
         </CardContent>
       </Card>
 
-      {/* Find Your Perfect Care Level - Interactive Slider */}
-      <div className="mt-6">
-        <CareSpectrumSlider />
-      </div>
     </div>
   );
 }

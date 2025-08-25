@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 import { RedTagDeals } from "@/components/RedTagDeals";
 import { MarketIntelligence } from "@/components/MarketIntelligence";
+import { CareSpectrumSlider } from "@/components/CareSpectrumSlider";
 import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
 import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import { HeroMascotPanel } from "@/components/mascot/HeroMascotPanel";
@@ -578,14 +579,14 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* Market Intelligence Section - MOVED UP FROM BEFORE FLORIDA */}
-      <section className="px-4 py-12 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <MarketIntelligence />
+      {/* MOVED COMMUNITY SLIDER SECTIONS - NOW POSITIONED RIGHT AFTER DATABASE FEATURES */}
+      
+      {/* Find Your Perfect Care Level - Moved from Market Intelligence */}
+      <section className="px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <CareSpectrumSlider />
         </div>
       </section>
-
-      {/* MOVED COMMUNITY SLIDER SECTIONS - NOW POSITIONED RIGHT AFTER DATABASE FEATURES */}
       
       {/* Featured Communities Slider - Visual Break */}
       <section ref={hawaiiSectionRef} className="px-4 py-8 bg-white dark:bg-gray-900">
