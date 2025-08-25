@@ -34,6 +34,29 @@ interface SearchParams {
 }
 
 export function registerUnifiedSearchRoutes(app: Express) {
+  // Basic search endpoint for compatibility
+  app.get("/api/search", async (req, res) => {
+    try {
+      const { q, limit = '50' } = req.query;
+      
+      if (!q) {
+        return res.json({ communities: [], total: 0, searchTime: 0 });
+      }
+
+      // Forward to enterprise search
+      const results = await enterpriseSearchService.search({
+        query: q as string,
+        limit: parseInt(limit as string)
+      });
+      
+      results.communities = results.communities.map((c: any) => eliminateCallForPricing(c));
+      res.json(results);
+    } catch (error) {
+      console.error('Basic search error:', error);
+      res.status(500).json({ error: 'Search failed' });
+    }
+  });
+
   // ENTERPRISE SEARCH ENDPOINT - Primary search with advanced features
   app.get("/api/search/enterprise", async (req, res) => {
     try {
