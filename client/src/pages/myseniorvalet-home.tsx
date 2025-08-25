@@ -891,9 +891,10 @@ export default function MySeniorValetHome() {
                     <span className="text-sm text-gray-600 dark:text-gray-400">Communities</span>
                   </div>
 
-                  {/* Checkboxes - Now full width */}
-                  <div className="mb-6">
-                    <div className="space-y-2">
+                  {/* Flex container for side-by-side layout */}
+                  <div className="flex gap-3 mb-6">
+                    {/* Left side - Checkboxes */}
+                    <div className="space-y-2 flex-shrink-0 min-w-fit">
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
                         <span className="text-sm text-gray-700 dark:text-gray-300">All U.S. Communities</span>
@@ -910,6 +911,118 @@ export default function MySeniorValetHome() {
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
                         <span className="text-sm text-gray-700 dark:text-gray-300">Verified Pricing Data</span>
                       </div>
+                    </div>
+                    
+                    {/* Right side - Coverage Areas Preview */}
+                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg">
+                      <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                        <span>🌎</span> Coverage Areas
+                      </p>
+                      <div className="h-44 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-600 scrollbar-track-transparent">
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇺🇸</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">United States</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">⭐</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">California (3,241)</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">⭐</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Florida (2,856)</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">⭐</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Texas (2,134)</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">⭐</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">New York (1,892)</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">⭐</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Pennsylvania (1,543)</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">📍</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Illinois</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">📍</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Ohio</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">📍</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">North Carolina</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">📍</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Georgia</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">📍</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Michigan</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇨🇦</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Canada</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">🍁</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Ontario</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">🍁</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">British Columbia</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">🍁</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Quebec</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">🍁</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Alberta</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇲🇽</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Mexico</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">🌴</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Cancún</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">🌴</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Puerto Vallarta</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors pl-4">
+                          <span className="text-xs">🌴</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Mexico City</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇵🇷</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Puerto Rico</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇵🇪</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Peru</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇨🇺</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Cuba</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇨🇷</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Costa Rica</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇵🇦</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Panama</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-center text-blue-600 dark:text-blue-400 mt-2 font-medium">
+                        8 Countries • 50+ States
+                      </p>
                     </div>
                   </div>
 
