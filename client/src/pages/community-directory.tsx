@@ -546,7 +546,7 @@ export default function CommunityDirectory() {
             </Link>
           </div>
           
-          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
             {(hawaiiLoading || !hawaiiCommunities || !(hawaiiCommunities as any)?.communities?.length) ? (
               Array.from({ length: 6 }).map((_, index) => (
                 <Card key={index} className="overflow-hidden flex-shrink-0 w-80 h-[520px] border border-gray-200 animate-pulse">
@@ -784,7 +784,7 @@ export default function CommunityDirectory() {
                 </Button>
               </div>
             ) : (
-              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-orange-500 dark:scrollbar-thumb-orange-400 hover:scrollbar-thumb-orange-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-orange-500 dark:scrollbar-thumb-orange-400 " style={{scrollBehavior: 'smooth'}}>
                 {((texasCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`texas-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-orange-300 dark:border-orange-600 rounded-xl h-[520px]">
@@ -994,7 +994,7 @@ export default function CommunityDirectory() {
             </div>
           ) : (
             <div className="relative">
-              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
                 {((floridaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`florida-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-cyan-300 dark:border-cyan-600 rounded-xl h-[520px]">
@@ -1226,7 +1226,7 @@ export default function CommunityDirectory() {
             </p>
           </div>
         
-          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 " style={{scrollBehavior: 'smooth'}}>
             {/* Show HUD communities with critical information */}
             {(!hudProperties || (hudProperties as any[]).length === 0) ? (
               // Loading skeleton cards
@@ -1501,7 +1501,7 @@ export default function CommunityDirectory() {
             Empire State senior living excellence
           </p>
         
-          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-purple-500 dark:scrollbar-thumb-purple-400 hover:scrollbar-thumb-purple-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-purple-500 dark:scrollbar-thumb-purple-400 " style={{scrollBehavior: 'smooth'}}>
             {/* Show New York communities */}
             {newYorkLoading ? (
               // Loading skeleton cards
@@ -1732,7 +1732,7 @@ export default function CommunityDirectory() {
               : '24 communautés dans les 13 provinces et territoires • 10 avec services bilingues français/anglais'}
           </p>
         
-          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-red-500 dark:scrollbar-thumb-red-400 hover:scrollbar-thumb-red-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-red-500 dark:scrollbar-thumb-red-400 " style={{scrollBehavior: 'smooth'}}>
             {/* Show Canadian communities */}
             {canadianLoading ? (
               // Loading skeleton cards
@@ -2025,7 +2025,7 @@ export default function CommunityDirectory() {
             </div>
           ) : (
             <div className="relative">
-              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
                 {((puertoRicoCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`pr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-cyan-300 dark:border-cyan-600 rounded-xl h-[520px]">
@@ -2261,7 +2261,7 @@ export default function CommunityDirectory() {
             </div>
           ) : (
             <div className="relative">
-              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-red-500 dark:scrollbar-thumb-red-400 hover:scrollbar-thumb-red-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-red-500 dark:scrollbar-thumb-red-400 " style={{scrollBehavior: 'smooth'}}>
                 {((peruCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`pe-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-red-300 dark:border-red-600 rounded-xl h-[520px]">
@@ -2497,7 +2497,7 @@ export default function CommunityDirectory() {
             </div>
           ) : (
             <div className="relative">
-              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 hover:scrollbar-thumb-blue-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 " style={{scrollBehavior: 'smooth'}}>
                 {((cubaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`cu-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-blue-300 dark:border-blue-600 rounded-xl h-[520px]">
@@ -2729,7 +2729,7 @@ export default function CommunityDirectory() {
             </div>
           ) : (
             <div className="relative">
-              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 " style={{scrollBehavior: 'smooth'}}>
                 {((costaRicaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`cr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-green-300 dark:border-green-600 rounded-xl h-[520px]">
@@ -2961,7 +2961,7 @@ export default function CommunityDirectory() {
             </div>
           ) : (
             <div className="relative">
-              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 hover:scrollbar-thumb-blue-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 " style={{scrollBehavior: 'smooth'}}>
                 {((panamaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`pa-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-blue-300 dark:border-blue-600 rounded-xl h-[520px]">
@@ -3179,7 +3179,7 @@ export default function CommunityDirectory() {
             Expat-friendly locations with modern amenities
           </p>
         
-          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 " style={{scrollBehavior: 'smooth'}}>
             {/* Show Mexican communities with critical information */}
             {mexicoLoading ? (
               // Loading skeleton cards
