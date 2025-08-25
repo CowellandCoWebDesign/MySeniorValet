@@ -30,12 +30,16 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
   try {
     console.log(`Sending email to ${params.to}: ${params.subject}`);
     
+    // Ensure we always have both text and html content
+    const text = params.text || params.html?.replace(/<[^>]*>/g, '') || 'MySeniorValet Notification';
+    const html = params.html || params.text || '<p>MySeniorValet Notification</p>';
+    
     const msg = {
       to: params.to,
       from: params.from,
       subject: params.subject,
-      text: params.text || '',
-      html: params.html || params.text || ''
+      text: text,
+      html: html
     };
 
     const [response] = await sgMail.send(msg);
