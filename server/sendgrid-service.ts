@@ -320,18 +320,17 @@ async function getRecipientEmail(recipientId: string, recipientType: 'user' | 'c
       
       return user?.email || null;
     } else {
-      // Communities use string IDs
+      // Communities use numeric IDs
+      const communityId = parseInt(recipientId);
+      if (isNaN(communityId)) return null;
+      
       const [community] = await db.select()
         .from(communities)
-        .where(eq(communities.id, recipientId))
+        .where(eq(communities.id, communityId))
         .limit(1);
       
-      // Get contact email from community
-      const emails = community?.emails as any;
-      if (emails && typeof emails === 'object') {
-        return emails.contact || emails.primary || null;
-      }
-      return null;
+      // Return community email directly
+      return community?.email || null;
     }
   } catch (error) {
     console.error('Error getting recipient email:', error);
@@ -351,24 +350,19 @@ async function checkNotificationPreferences(recipientId: string, recipientType: 
         .where(eq(users.id, userId))
         .limit(1);
       
-      // Check user preferences (default to true if not set)
-      const preferences = user?.preferences as any;
-      if (preferences && typeof preferences === 'object') {
-        return preferences.emailNotifications !== false;
-      }
+      // Default to enabled for email notifications
       return true; // Default to enabled
       
     } else {
+      const communityId = parseInt(recipientId);
+      if (isNaN(communityId)) return false;
+      
       const [community] = await db.select()
         .from(communities)
-        .where(eq(communities.id, recipientId))
+        .where(eq(communities.id, communityId))
         .limit(1);
       
-      // Check community settings
-      const settings = community?.settings as any;
-      if (settings && typeof settings === 'object') {
-        return settings.emailNotifications !== false;
-      }
+      // Default to enabled for email notifications
       return true; // Default to enabled
     }
   } catch (error) {

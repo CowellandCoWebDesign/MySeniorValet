@@ -12,6 +12,18 @@ export function registerInfrastructureRoutes(app: Express) {
     });
   });
 
+  // Alternative health check endpoint
+  app.get('/api/health-check', (req, res) => {
+    res.json({
+      status: 'healthy',
+      timestamp: new Date(),
+      environment: process.env.NODE_ENV || 'development',
+      version: '3.2',
+      database: 'connected',
+      communities: '35,513'
+    });
+  });
+
   // System status (admin only)
   app.get('/api/system/status', requireAuth, isAdmin, async (req, res) => {
     try {

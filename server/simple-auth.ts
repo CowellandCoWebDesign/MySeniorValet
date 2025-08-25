@@ -23,7 +23,7 @@ export class SimpleAuthService {
     }
 
     // Verify password
-    const isValidPassword = await this.verifyPassword(data.password, user.password);
+    const isValidPassword = await this.verifyPassword(data.password, user.password || '');
     if (!isValidPassword) {
       throw new Error('Invalid email or password');
     }
@@ -69,7 +69,7 @@ export class SimpleAuthService {
   async verifyToken(token: string): Promise<User | null> {
     try {
       const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; username: string };
-      const user = await storage.getUser(decoded.userId);
+      const user = await storage.getUser(decoded.userId.toString());
       return user || null;
     } catch (error) {
       return null;
