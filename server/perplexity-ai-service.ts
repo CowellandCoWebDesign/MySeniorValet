@@ -36,14 +36,16 @@ export class PerplexityAIService {
     }
 
     try {
-      const systemPrompt = `PROVIDE RAW, UNFILTERED SEARCH RESULTS. Include EVERYTHING found:
-- ALL text about the searched topic
+      const systemPrompt = `IMPORTANT: RESPOND ONLY IN ENGLISH regardless of the country or region being searched.
+PROVIDE RAW, UNFILTERED SEARCH RESULTS IN ENGLISH. Include EVERYTHING found:
+- ALL text about the searched topic (translate to English if needed)
 - EVERY mention of facilities, communities, or locations
-- ALL pricing information discovered
+- ALL pricing information discovered (convert to USD if in other currencies)
 - COMPLETE content without filtering
 - DO NOT SUMMARIZE - provide the FULL content
 - DO NOT FILTER - show EVERYTHING found
 - Include even tangentially related information
+- TRANSLATE any non-English content to English
 This is for MySeniorValet's transparent information system. ${context ? `Context: ${context}` : ''}`;
 
       const response = await axios.post<PerplexityResponse>(

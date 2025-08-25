@@ -23,19 +23,19 @@ router.post('/api/competitive-analysis', async (req, res) => {
     switch(type) {
       case 'city':
         searchQuery = `average senior living costs assisted living memory care nursing home prices in ${location} current 2025 monthly rates`;
-        contextQuery = `List ALL senior living communities in ${location} with their specific pricing. Include every facility name you find, individual community pricing, assisted living costs, memory care costs, nursing home costs. Provide complete data on each community mentioned. Compare to national averages. Include all facilities viewed or referenced.`;
+        contextQuery = `RESPOND IN ENGLISH ONLY. List ALL senior living communities in ${location} with their specific pricing. Include every facility name you find, individual community pricing, assisted living costs, memory care costs, nursing home costs. Provide complete data on each community mentioned. Compare to national averages. Include all facilities viewed or referenced. Translate any non-English content to English. Convert all prices to USD if in other currencies.`;
         break;
       case 'state':
         searchQuery = `senior living facility costs ${location} state average prices assisted living memory care 2025`;
-        contextQuery = `List ALL senior living facilities and communities across ${location} with specific pricing data. Include every community name, individual facility costs, different care types, regional variations. Provide all data points found about each community.`;
+        contextQuery = `RESPOND IN ENGLISH ONLY. List ALL senior living facilities and communities across ${location} with specific pricing data. Include every community name, individual facility costs, different care types, regional variations. Provide all data points found about each community. Translate any non-English content to English. Convert all prices to USD if in other currencies.`;
         break;
       case 'region':
         searchQuery = `senior care costs ${location} region United States Canada Mexico pricing trends 2025`;
-        contextQuery = `List ALL senior care facilities in the ${location} region with complete pricing information. Include every community name found, specific costs, pricing trends, variations within the region. Provide comprehensive data on each facility.`;
+        contextQuery = `RESPOND IN ENGLISH ONLY. List ALL senior care facilities in the ${location} region with complete pricing information. Include every community name found, specific costs, pricing trends, variations within the region. Provide comprehensive data on each facility. Translate any non-English content to English. Convert all prices to USD if in other currencies.`;
         break;
       case 'country':
         searchQuery = `national average senior living costs ${location} assisted living memory care pricing 2025`;
-        contextQuery = `Provide comprehensive national data for senior living in ${location}. List specific communities with pricing, include all facility names found, different care types, regional variations. Include every data point discovered.`;
+        contextQuery = `RESPOND IN ENGLISH ONLY. Provide comprehensive national data for senior living in ${location}. List specific communities with pricing, include all facility names found, different care types, regional variations. Include every data point discovered. Translate any non-English content to English. Convert all prices to USD if in other currencies.`;
         break;
     }
 
