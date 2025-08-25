@@ -579,51 +579,244 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* Browse by State */}
-      <section className="px-4 py-12 bg-gradient-to-br from-blue-900 to-indigo-900 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-7xl mx-auto">
-          <Card className="bg-white/10 backdrop-blur-md border-2 border-white/20 dark:border-gray-700/50">
-            <CardHeader className="text-center">
-              <CardTitle className="flex items-center justify-center gap-2 text-2xl text-white">
-                <Globe className="h-7 w-7 text-blue-300" />
-                Browse by State
-              </CardTitle>
-              <CardDescription className="text-gray-200">
-                Select a state to explore communities in that region
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-2">
-                {(topStates as any[]).slice(0, 15).map((state: any) => {
-                  const displayName = stateNames[state.state] || state.state;
-                  return (
-                    <Link key={state.state} href={`/map-search?state=${state.state}`}>
-                      <Card className="hover:shadow-lg transition-all cursor-pointer bg-white/90 dark:bg-gray-800/90 border hover:border-blue-400 group hover:scale-105">
-                        <CardContent className="p-3 text-center">
-                          <div className="font-bold text-sm md:text-base text-gray-900 dark:text-gray-100 group-hover:text-blue-600">
-                            {displayName}
-                          </div>
-                          <div className="text-xs text-gray-600 dark:text-gray-400">
-                            {parseInt(state.count).toLocaleString()}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  );
-                })}
-                <Link href="/map-search">
-                  <Card className="hover:shadow-lg transition-all cursor-pointer border hover:border-blue-400 group bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/50 dark:to-indigo-900/50 hover:scale-105">
-                    <CardContent className="p-3 text-center flex flex-col justify-center h-full">
-                      <div className="font-bold text-sm text-blue-600">
-                        View All
+      {/* 3D Care Spectrum Carousel - Full Size */}
+      <section className="relative py-16 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 overflow-hidden">
+        {/* Background overlay for depth */}
+        <div className="absolute inset-0 bg-black/20"></div>
+        
+        {/* Section Header */}
+        <div className="relative z-10 text-center mb-8 px-4">
+          <Badge className="bg-white/20 text-white px-4 py-1 mb-4">
+            <Sparkles className="h-4 w-4 mr-2" />
+            INTERACTIVE CARE SPECTRUM
+          </Badge>
+          <h2 className="text-4xl font-bold text-white mb-4">
+            Explore All 10 Levels of Senior Care
+          </h2>
+          <p className="text-xl text-gray-200 max-w-3xl mx-auto">
+            Swipe or click through our interactive care spectrum to understand each type of care, average costs, and key features
+          </p>
+        </div>
+        
+        {/* 3D Care Spectrum Carousel */}
+        <div className="flex flex-col items-center justify-center px-1 relative z-10">
+          <div 
+            className="carousel-wrapper select-none"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}
+            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+          >
+            <div className="carousel-3d">
+              {careTypes.map((careType, index) => {
+                const Icon = careType.icon;
+                const offset = (selectedCareType - index) / 3;
+                const absOffset = Math.abs(selectedCareType - index) / 3;
+                const isActive = index === selectedCareType;
+                
+                return (
+                  <div
+                    key={careType.id}
+                    className="card-container-3d"
+                    style={{
+                      '--offset': offset,
+                      '--abs-offset': absOffset,
+                      '--active': isActive ? 1 : 0,
+                      pointerEvents: 'auto',
+                      opacity: Math.abs(selectedCareType - index) >= 3 ? 0 : 1,
+                      display: Math.abs(selectedCareType - index) > 3 ? 'none' : 'block',
+                    } as React.CSSProperties}
+                    onClick={() => !isDragging && handleCareTypeClick(index)}
+                  >
+                    <div className={`card-3d ${careType.color} rounded-xl flex flex-col items-center justify-between p-4 shadow-2xl border-2 border-white/30`}
+                         style={{ 
+                           opacity: isActive ? 1 : 0.7,
+                           transform: isActive ? 'scale(1.05)' : 'scale(1)',
+                           height: '100%'
+                         }}>
+                      <div className="flex flex-col items-center">
+                        <Icon className="w-12 h-12 text-white drop-shadow-lg mb-2" />
+                        <h3 className="text-white font-bold text-center text-lg mb-1 drop-shadow-lg">{careType.name}</h3>
+                        
+                        {/* Average Cost */}
+                        <div className="bg-white/20 rounded-lg px-2 py-1 mb-2">
+                          <p className="text-white text-xs font-bold drop-shadow-md">
+                            {careType.avgCost}
+                          </p>
+                        </div>
+                        
+                        {/* Quick Details */}
+                        <p className="text-white/90 text-xs text-center mb-2 drop-shadow-md">
+                          {careType.details}
+                        </p>
                       </div>
-                      <ChevronRight className="h-4 w-4 mx-auto mt-1 text-blue-600" />
-                    </CardContent>
-                  </Card>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+                      
+                      {/* Key Features - Only show when active */}
+                      <div style={{ 
+                        opacity: isActive ? 1 : 0,
+                        maxHeight: isActive ? '150px' : '0',
+                        overflow: 'hidden',
+                        transition: 'opacity 0.3s ease-out, max-height 0.3s ease-out'
+                      }}>
+                        <div className="space-y-1 mb-3">
+                          {careType.keyFeatures.map((feature, idx) => (
+                            <div key={idx} className="flex items-start gap-1">
+                              <CheckCircle className="w-3 h-3 text-white/80 mt-0.5 flex-shrink-0" />
+                              <p className="text-white/90 text-xs leading-tight">{feature}</p>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {/* Learn More Button - Scrolls to detailed section below */}
+                        <button 
+                          className="w-full bg-white/20 hover:bg-white/30 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors flex items-center justify-center gap-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Scroll to the specific care type in the detailed section below
+                            const element = document.getElementById('care-spectrum');
+                            if (element) {
+                              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                          }}
+                        >
+                          <BookOpen className="w-3 h-3" />
+                          Learn More
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              
+              {/* Navigation buttons */}
+              {selectedCareType > 0 && (
+                <button 
+                  className="nav-3d left"
+                  onClick={() => setSelectedCareType(i => i - 1)}
+                >
+                  <ChevronLeft className="w-8 h-8" />
+                </button>
+              )}
+              {selectedCareType < careTypes.length - 1 && (
+                <button 
+                  className="nav-3d right"
+                  onClick={() => setSelectedCareType(i => i + 1)}
+                >
+                  <ChevronRight className="w-8 h-8" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        {/* Indicator dots */}
+        <div className="flex justify-center gap-2 mt-6 relative z-10">
+          {careTypes.map((_, index) => (
+            <button
+              key={index}
+              className={`w-2 h-2 rounded-full transition-all ${
+                index === selectedCareType ? 'bg-white w-8' : 'bg-white/40'
+              }`}
+              onClick={() => setSelectedCareType(index)}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Comprehensive Care Spectrum Section */}
+      <section id="care-spectrum" className="px-4 py-16 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="text-center mb-12">
+              <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-1 mb-4">
+                <Sparkles className="h-4 w-4 mr-2" />
+                UNDERSTANDING SENIOR CARE
+              </Badge>
+              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                Complete Care Spectrum Guide
+              </h2>
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                From independent living to 24-hour medical care, understand all your options with transparent pricing and features
+              </p>
+            </div>
+            
+            {/* Care Types Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {careTypes.map((type, index) => {
+                const Icon = type.icon;
+                return (
+                  <motion.div
+                    key={type.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Card className="hover:shadow-xl transition-all h-full border-2 hover:border-blue-400">
+                      <CardHeader className={`${type.color} text-white`}>
+                        <div className="flex items-center justify-between">
+                          <Icon className="h-8 w-8" />
+                          <Badge className="bg-white/20 text-white">
+                            Level {index + 1}
+                          </Badge>
+                        </div>
+                        <CardTitle className="text-xl mt-3">{type.name}</CardTitle>
+                        <div className="text-lg font-bold">{type.avgCost}</div>
+                      </CardHeader>
+                      <CardContent className="pt-6">
+                        <p className="text-gray-600 dark:text-gray-300 mb-4">
+                          {type.description}
+                        </p>
+                        <div className="space-y-2">
+                          {type.keyFeatures.map((feature, idx) => (
+                            <div key={idx} className="flex items-start gap-2">
+                              <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-sm text-gray-700 dark:text-gray-300">{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          className="w-full mt-4"
+                          onClick={() => setLocation(`/search?care_type=${type.id}`)}
+                        >
+                          Search {type.name} Communities
+                          <ChevronRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </div>
+            
+            {/* Call to Action */}
+            <div className="text-center mt-12">
+              <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 max-w-2xl mx-auto">
+                <h3 className="text-2xl font-bold mb-4">
+                  Ready to Find the Perfect Community?
+                </h3>
+                <p className="text-lg mb-6 text-blue-100">
+                  Use our AI-powered search to match your needs with the right care level and budget
+                </p>
+                <Button 
+                  size="lg"
+                  className="bg-white text-blue-600 hover:bg-gray-100"
+                  onClick={() => setLocation('/search')}
+                >
+                  <Search className="mr-2 h-5 w-5" />
+                  Start Your Search
+                </Button>
+              </Card>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -3194,40 +3387,6 @@ export default function CommunityDirectory() {
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-start gap-1">
-                              <Languages className="h-3.5 w-3.5 text-cyan-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Languages</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  Spanish/English
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Bottom Metrics Bar */}
-                        <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 dark:border-gray-800">
-                          <div className="text-center">
-                            <div className="flex items-center justify-center">
-                              <Star className="h-3.5 w-3.5 text-yellow-500 mr-0.5" />
-                              <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                                {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
-                              </div>
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Rating</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Total Units</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.occupancy || '94%'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
                           </div>
                         </div>
                       </CardContent>
@@ -3235,202 +3394,8 @@ export default function CommunityDirectory() {
                   </Link>
                 ))}
               </div>
-              
-              <div className="text-center mt-6">
-                <Button 
-                  variant="outline" 
-                  className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20"
-                  onClick={() => setLocation('/search?location=Panama')}
-                >
-                  Explore All Panama Communities
-                </Button>
-              </div>
             </div>
           )}
-        </div>
-      </section>
-
-      {/* Mexican Communities - AFFORDABLE PARADISE */}
-      <section ref={californiaSectionRef} className="px-4 py-8 relative overflow-hidden">
-        {/* Background Mexico-themed styling */}
-        <div className="absolute inset-0 z-0">
-          <div className="w-full h-full bg-gradient-to-br from-green-100 via-white to-red-100 dark:from-green-900/20 dark:via-gray-900 dark:to-red-900/20 opacity-40"></div>
-        </div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1 flex items-center gap-2">
-                <span className="text-2xl">🇲🇽</span>
-                Featured Mexican Communities
-              </h2>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-green-700 dark:text-green-300 font-medium">Affordable retirement paradise</span>
-                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-red-700 dark:text-red-300 font-medium">English-speaking communities</span>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">$1,200 - $3,500 USD</div>
-              <div className="text-sm text-green-600 dark:text-green-300 font-medium">Mexican retirement havens</div>
-            </div>
-          </div>
-          
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-            {((mexicoCommunities as any)?.communities?.length || 0)} premium communities • 
-            Expat-friendly locations with modern amenities
-          </p>
-        
-          <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 hover:scrollbar-thumb-green-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
-            {/* Show Mexican communities with critical information */}
-            {mexicoLoading ? (
-              // Loading skeleton cards
-              Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-80 h-[520px] border border-gray-200 animate-pulse">
-                  <div className="h-48 bg-gray-200"></div>
-                  <CardContent className="p-3">
-                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              ((mexicoCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
-                <Link key={`mexico-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                  <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-red-300 dark:border-red-600 rounded-xl h-[520px]">
-                    <div className="relative">
-                      {/* Image Section with Mexico Theme */}
-                      <div className="h-48 bg-gradient-to-br from-green-100 to-red-100 dark:from-green-900 dark:to-red-900 flex items-center justify-center relative">
-                        {community.photos && community.photos.length > 0 ? (
-                          <img 
-                            src={community.photos[0]} 
-                            alt={community.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="text-center">
-                            <div className="text-4xl mb-2">🌵</div>
-                            <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">Verifying authentic images</div>
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                      </div>
-                      
-                      {/* Badges Overlay */}
-                      <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                        <Badge className="bg-green-600 text-white text-xs px-2 py-1 font-semibold">
-                          🌵 {community.state || 'Mexico'}
-                        </Badge>
-                        
-                        <div className="bg-blue-700 text-white rounded-lg px-4 py-2 shadow-lg">
-                          <div className="text-xl font-bold">
-                            {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
-                             community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
-                          </div>
-                          {community.hudPropertyId && (
-                            <div className="text-xs font-medium">
-                              HUD Verified
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Expat Paradise Badge */}
-                      <Badge className="absolute bottom-3 right-3 bg-red-600 text-white text-xs px-2 py-1 font-medium">
-                        ✨ Expat Paradise
-                      </Badge>
-                    </div>
-                    
-                    {/* Card Body with Critical Information */}
-                    <CardContent className="p-4 space-y-3">
-                      <div>
-                        <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
-                          {community.name}
-                        </h3>
-                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                          <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                          <span>{community.city}, {community.state || 'MX'}</span>
-                        </div>
-                      </div>
-                      
-                      {/* Care Types */}
-                      <div className="flex flex-wrap gap-1">
-                        {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
-                          <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
-                            {careType}
-                          </Badge>
-                        ))}
-                      </div>
-                      
-                      {/* Critical Information */}
-                      <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
-                        {/* Phone Number */}
-                        <div className="flex items-start gap-2">
-                          <svg className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                          </svg>
-                          <div className="flex-1">
-                            <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Contact:</div>
-                            <div className="text-sm text-gray-900 dark:text-white font-medium">
-                              {community.phone || 'Call for Info'}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Language Support */}
-                        <div className="flex items-start gap-2">
-                          <Languages className="h-4 w-4 text-red-600 flex-shrink-0 mt-0.5" />
-                          <div className="flex-1">
-                            <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Languages:</div>
-                            <div className="text-sm text-gray-900 dark:text-white font-medium">
-                              English / Español
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Cost of Living Advantage */}
-                        <div className="flex items-start gap-2">
-                          <DollarSign className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                          <div className="flex-1">
-                            <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Cost Advantage:</div>
-                            <div className="text-sm text-gray-900 dark:text-white font-medium">
-                              30-50% Lower Cost
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Key Metrics */}
-                      <div className="grid grid-cols-2 gap-3 py-2 border-t border-gray-100 dark:border-gray-800">
-                        <div className="text-center">
-                          <div className="flex items-center justify-center">
-                            <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
-                            </div>
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">Rating</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="flex items-center justify-center">
-                            <Building className="h-4 w-4 text-blue-500 mr-1" />
-                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
-                            </div>
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">Units</div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))
-            )}
-          </div>
         </div>
       </section>
 
