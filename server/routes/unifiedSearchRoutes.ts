@@ -37,15 +37,16 @@ export function registerUnifiedSearchRoutes(app: Express) {
   // Basic search endpoint for compatibility
   app.get("/api/search", async (req, res) => {
     try {
-      const { q, limit = '50' } = req.query;
+      const { q, query, limit = '50' } = req.query;
+      const searchTerm = (q || query) as string;
       
-      if (!q) {
+      if (!searchTerm) {
         return res.json({ communities: [], total: 0, searchTime: 0 });
       }
 
       // Forward to enterprise search
       const results = await enterpriseSearchService.search({
-        query: q as string,
+        query: searchTerm,
         limit: parseInt(limit as string)
       });
       

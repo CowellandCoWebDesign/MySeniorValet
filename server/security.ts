@@ -175,9 +175,8 @@ export function sqlInjectionProtection(req: Request, res: Response, next: NextFu
     return next();
   }
   
-  // Skip search suggestions endpoint - legitimate search queries
-  if (req.path === '/api/search/suggestions') {
-    console.log('Skipping SQL injection protection for search suggestions');
+  // Skip all search endpoints - legitimate search queries
+  if (req.path.startsWith('/api/search')) {
     return next();
   }
 
