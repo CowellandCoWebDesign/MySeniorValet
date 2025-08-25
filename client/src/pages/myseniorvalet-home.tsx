@@ -1886,7 +1886,11 @@ export default function MySeniorValetHome() {
                   </div>
                   <CardTitle className="text-2xl mb-2">List Your Community</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Join 34,181+ Communities
+                    {isLoading ? (
+                      <span className="animate-pulse">Loading community count...</span>
+                    ) : (
+                      `Join ${communityStats?.count ? Number(communityStats.count).toLocaleString() : '35,000'}+ Communities`
+                    )}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10">
