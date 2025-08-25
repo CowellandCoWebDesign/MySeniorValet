@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { Link } from 'wouter';
-import { ChevronRight, DollarSign, Heart, Shield, Brain, Home, Users, Stethoscope, CheckCircle, Building2, HeartHandshake } from 'lucide-react';
+import { ChevronRight, DollarSign, Heart, Shield, Brain, Home, Users, Stethoscope, CheckCircle, Building2, HeartHandshake, Building } from 'lucide-react';
 
 interface CareLevel {
   level: number;
@@ -98,6 +98,25 @@ const careLevels: CareLevel[] = [
   },
   {
     level: 5,
+    name: 'Personal Care Home',
+    badge: '🏠 Personal Care',
+    description: 'Small residential homes with personalized support',
+    fullDescription: 'Personal care homes providing help with daily activities in a residential setting with personalized support. These smaller, home-like settings offer assistance with activities of daily living, medication management, and personal care in a more intimate environment.',
+    costRange: '$2,500-5,000/month',
+    icon: <Heart className="w-5 h-5" />,
+    color: 'bg-yellow-500',
+    searchValue: 'personal_care',
+    keyFeatures: [
+      'Help with activities of daily living',
+      'Medication management and reminders',
+      'Smaller, home-like residential setting',
+      'Personalized one-on-one care',
+      'Family-style meals and social interaction'
+    ],
+    idealFor: 'Seniors who prefer a smaller, more intimate care setting with personalized attention'
+  },
+  {
+    level: 6,
     name: 'Assisted Living',
     badge: '🔶 Assisted',
     description: 'Includes ADLs, meds, light nursing, meals',
@@ -116,7 +135,7 @@ const careLevels: CareLevel[] = [
     idealFor: 'Seniors who need help with daily activities but do not require full-time medical care'
   },
   {
-    level: 6,
+    level: 7,
     name: 'Memory Care',
     badge: '🔴 Memory Care',
     description: 'Secured, structured dementia care',
@@ -135,7 +154,7 @@ const careLevels: CareLevel[] = [
     idealFor: "Seniors with Alzheimer's, dementia, or other memory impairments requiring specialized care and security"
   },
   {
-    level: 7,
+    level: 8,
     name: 'Skilled Nursing',
     badge: '🏥 Skilled Nursing',
     description: 'Medical, 24/7 nursing, rehab, often insurance-paid',
@@ -152,6 +171,25 @@ const careLevels: CareLevel[] = [
       'Post-hospital recovery and long-term care'
     ],
     idealFor: 'Seniors with complex medical needs requiring 24-hour nursing care, rehabilitation, or post-hospital recovery'
+  },
+  {
+    level: 9,
+    name: 'CCRC',
+    badge: '🏢 Life Plan Community',
+    description: 'All care levels on one campus with lifetime care',
+    fullDescription: 'Continuing Care Retirement Communities offering all levels of care on one campus with lifetime care contracts. These communities provide the security of knowing that as your care needs change, you can transition through different levels of care without leaving the community.',
+    costRange: 'Entry: $100K-500K + $3-7K/mo',
+    icon: <Building className="w-5 h-5" />,
+    color: 'bg-teal-600',
+    searchValue: 'ccrc',
+    keyFeatures: [
+      'All levels of care on one campus',
+      'Lifetime care guarantee',
+      'Priority access to higher care levels',
+      'Predictable monthly costs',
+      'Single campus convenience for couples'
+    ],
+    idealFor: 'Seniors seeking long-term security with guaranteed access to all care levels as needs change'
   }
 ];
 
@@ -222,7 +260,7 @@ export function CareSpectrumSlider() {
             value={selectedLevel}
             onValueChange={setSelectedLevel}
             min={1}
-            max={7}
+            max={9}
             step={1}
             className="mb-4"
           />
