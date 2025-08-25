@@ -21,6 +21,11 @@ interface VerificationResult {
   findings: string[];
   concerns: string[];
   recommendations: string[];
+  // Enhanced identity verification fields
+  identityVerified?: boolean;
+  nameMatch?: 'exact' | 'partial' | 'different';
+  locationMatch?: boolean;
+  dataQualityScore?: number;
 }
 
 interface MultiAIVerificationReport {
@@ -195,38 +200,39 @@ export class MultiAIVerificationService {
       const careTypes = communityContext?.careTypes?.join(', ') || 'senior living';
       const communityType = communityContext?.communityType || 'senior living community';
 
-      const prompt = `CRITICAL: You are verifying information for "${communityName}" located in ${location}.
+      const prompt = `CRITICAL DATA VERIFICATION TASK:
 
-DO NOT confuse this with similar named communities. Focus ONLY on this specific community.
+🏢 DATABASE COMMUNITY (What we have):
+- Name: "${communityName}"
+- Location: ${location}
+- Care Types: ${careTypes}
+- Address: ${communityContext?.address || 'Not specified'}
 
-Community Context:
-- EXACT NAME: ${communityName}
-- LOCATION: ${location}
-- TYPE: ${communityType}
-- CARE LEVELS: ${careTypes}
-
-Web Search Results:
+🔍 WEB SEARCH RESULTS (What we found):
 ${JSON.stringify(perplexityData, null, 2)}
+
+STEP 1 - IDENTITY VERIFICATION:
+1. Do the web results mention "${communityName}" by this exact name or a clear shortened version?
+2. Is the location ${location} consistent with the web data?
+3. Are we accidentally looking at a DIFFERENT community with a similar name?
+
+STEP 2 - DATA VALIDATION (only if same community verified):
+If confirmed as the same community, analyze the quality and accuracy of the information.
 
 Respond with JSON only:
 {
-  "verified": true/false,
+  "identityVerified": boolean,
+  "nameMatch": "exact/partial/different",
+  "locationMatch": boolean,
+  "verified": boolean,
   "confidence": 0-100,
   "findings": [
-    "Key facts SPECIFIC to ${communityName}",
-    "Pricing details if available",
-    "Services and amenities confirmed",
-    "Contact information verified"
+    "Facts verified ONLY about ${communityName}",
+    "Pricing, services, contact info confirmed for THIS community"
   ],
   "concerns": [
-    "Any data inconsistencies found",
-    "Missing critical information",
-    "Red flags requiring follow-up"
-  ],
-  "recommendations": [
-    "Tour questions specific to this community",
-    "Documents to request",
-    "Timeline considerations"
+    "Name confusion or wrong community data detected",
+    "Data inconsistencies flagged"
   ]
 }`;
 
@@ -294,50 +300,54 @@ Respond with JSON only:
           },
           {
             role: 'user',
-            content: `IMPORTANT: You are analyzing "${communityName}" ONLY. Do NOT confuse this with "Hilltop Springs" or any other similar community.
+            content: `CRITICAL DATA VERIFICATION TASK:
 
-TARGET COMMUNITY: ${communityName}
-LOCATION: ${location}
-TYPE: ${communityType}
+🏢 DATABASE COMMUNITY (What we have):
+- Name: "${communityName}"
+- Location: ${location} 
+- Address: ${communityContext?.address || 'Not specified'}
+- ZIP Code: ${communityContext?.zipCode || 'Not specified'}
 
-CRITICAL: This is NOT "Hilltop Springs" - this is "${communityName}".
-
-Live web search data specifically about ${communityName}:
+🔍 WEB SEARCH RESULTS (What we found):
 ${JSON.stringify(perplexityData, null, 2)}
 
-Community profile:
-- Care types: ${careTypes}
-- Bed count: ${communityContext?.bedCount || 'Unknown'}
-- Year established: ${communityContext?.yearEstablished || 'Unknown'}
+STEP 1 - IDENTITY VERIFICATION:
+First determine if the web results are about the SAME community:
+1. Do the web results mention "${communityName}" specifically?
+2. Is the location ${location} consistent?
+3. Are we seeing data about a DIFFERENT community with a similar name?
 
-Provide market analysis ONLY for ${communityName} in JSON format:
+STEP 2 - DATA ANALYSIS (only if identity verified):
+If confirmed as the same community, provide market analysis.
+
+Respond in JSON format:
 {
-  "verified": boolean (market data validation),
-  "confidence": 0-100 (confidence in analysis),
+  "identityVerified": boolean (true only if web results are about THIS exact community),
+  "nameMatch": "exact/partial/different",
+  "locationMatch": boolean,
+  "dataQualityScore": 0-100,
+  "verified": boolean (overall verification - false if wrong community),
+  "confidence": 0-100,
   "findings": [
-    "How this community's pricing compares to local market rates",
-    "Value proposition relative to similar communities in the area",
-    "Market demand indicators and occupancy trends",
-    "Competitive advantages or unique selling points",
-    "Recent market developments affecting this community",
-    "Financial stability indicators from available data"
+    "ONLY facts about ${communityName} specifically",
+    "Verified pricing information for THIS community",
+    "Contact details and services confirmed",
+    "Current availability or status updates"
   ],
   "concerns": [
-    "Pricing concerns relative to market standards",
-    "Competitive disadvantages to consider",
-    "Market risks or trends affecting long-term value",
-    "Financial red flags or sustainability concerns"
+    "Name confusion with other communities",
+    "Location mismatches or inconsistencies", 
+    "Missing or contradictory information",
+    "Data quality issues flagged"
   ],
   "recommendations": [
-    "Optimal timing for application based on market conditions",
-    "Negotiation strategies based on market position",
-    "Alternative communities offering better value",
-    "Financial planning considerations for this price point",
-    "Questions to validate value proposition during tours"
+    "Suggested verification steps for families",
+    "Red flags to investigate further",
+    "Questions to ask during direct contact"
   ]
 }
 
-Provide actionable market intelligence that helps families maximize value and make confident decisions.`
+REMEMBER: Only verify as true if you're confident the web data is about "${communityName}" in ${location} specifically.`
           }
         ],
         response_format: { type: 'json_object' }
@@ -345,10 +355,17 @@ Provide actionable market intelligence that helps families maximize value and ma
 
       const result = JSON.parse(response.choices[0].message.content || '{}');
       
+      // Enhanced verification with identity checking
+      const identityVerified = result.identityVerified || false;
+      const verified = identityVerified && (result.verified || false);
+      
       return {
         source: 'ChatGPT-4o',
-        verified: result.verified || false,
-        confidence: result.confidence || 0,
+        verified,
+        confidence: verified ? (result.confidence || 0) : Math.max(0, (result.confidence || 0) - 50),
+        identityVerified,
+        nameMatch: result.nameMatch || 'different',
+        locationMatch: result.locationMatch || false,
         findings: result.findings || [],
         concerns: result.concerns || [],
         recommendations: result.recommendations || []
@@ -400,15 +417,21 @@ Provide actionable market intelligence that helps families maximize value and ma
       confidenceScore = Math.round(confidenceScore / activeAIs);
     }
 
-    // ENHANCED: Better consensus building with Perplexity + ChatGPT when Claude is down
+    // ENHANCED: Better consensus building with identity verification
     if (activeAIs >= 1 && chatgptResult) {
-      // ChatGPT + Perplexity data creates stronger consensus than ChatGPT alone
-      if (chatgptResult.verified && perplexityData?.sources?.length > 0) {
-        if (confidenceScore >= 75) {
-          agreementLevel = 'moderate'; // Upgraded from 'weak' due to Perplexity sources
-        } else if (confidenceScore >= 60) {
+      // Check identity verification first
+      const identityVerified = (chatgptResult as any)?.identityVerified || false;
+      const nameMatch = (chatgptResult as any)?.nameMatch === 'exact' || (chatgptResult as any)?.nameMatch === 'partial';
+      
+      if (identityVerified && nameMatch && chatgptResult.verified && perplexityData?.sources?.length > 0) {
+        if (confidenceScore >= 80) {
+          agreementLevel = 'strong'; // High confidence with identity verification
+        } else if (confidenceScore >= 65) {
           agreementLevel = 'moderate';
         }
+      } else if (!identityVerified) {
+        agreementLevel = 'conflicting'; // Flag when identity couldn't be verified
+        disputedFacts.push('Community identity could not be verified from web search results');
       }
       
       // Two AI verification (Claude + ChatGPT)
