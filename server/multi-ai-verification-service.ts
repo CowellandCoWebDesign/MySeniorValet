@@ -277,8 +277,8 @@ Respond with JSON only:
     }
   }
 
-  // Verify with ChatGPT-4o - Focus on MARKET CONTEXT & COMPETITIVE INSIGHTS
-  private async verifyWithChatGPT(
+  // Verify with ChatGPT-4o - Focus on IDENTITY VERIFICATION & DATA VALIDATION
+  async verifyWithChatGPT(
     communityName: string,
     perplexityData: any,
     communityContext?: any

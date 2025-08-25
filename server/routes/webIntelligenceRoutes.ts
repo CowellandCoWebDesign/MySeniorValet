@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { perplexityService } from '../perplexity-ai-service';
+import { MultiAIVerificationService } from '../multi-ai-verification-service';
 
 const router = Router();
 
-// Fetch web intelligence for a community
+// Fetch web intelligence for a community with identity verification
 router.post('/api/communities/web-intelligence', async (req, res) => {
   try {
-    const { communityName, city, state, query } = req.body;
+    const { communityName, city, state, query, address, zipCode } = req.body;
     
     if (!communityName || !city || !state) {
       return res.status(400).json({ 
@@ -19,18 +20,104 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
     
     console.log(`🔍 Fetching web intelligence for: ${communityName} in ${city}, ${state}`);
     
-    // Use Perplexity's sonar-pro model to get comprehensive results with images
+    // Use Perplexity's sonar-pro model to get comprehensive results
     const response = await perplexityService.searchRealTime(searchQuery);
     
-    // Parse the response to extract structured data including images
+    // CRITICAL: Verify this data is about the correct community using ChatGPT
+    let isVerified = false;
+    let isIdentityVerified = false;
+    let isNameMatch = false;
+    let chatgptVerification = null;
+    let verificationError = null;
+    
+    try {
+      const verificationService = new MultiAIVerificationService();
+      
+      const communityContext = {
+        city,
+        state,
+        address: address || 'Not specified',
+        zipCode: zipCode || 'Not specified',
+        careTypes: ['Senior Living']
+      };
+      
+      console.log(`🔍 Running identity verification for ${communityName}...`);
+      
+      chatgptVerification = await verificationService.verifyWithChatGPT(
+        communityName, 
+        response, 
+        communityContext
+      );
+      
+      console.log(`🔍 Identity verification result:`, {
+        identityVerified: chatgptVerification?.identityVerified,
+        nameMatch: chatgptVerification?.nameMatch,
+        verified: chatgptVerification?.verified
+      });
+      
+      // Check if the data is verified to be about the correct community
+      isIdentityVerified = chatgptVerification?.identityVerified === true;
+      isNameMatch = chatgptVerification?.nameMatch === 'exact' || chatgptVerification?.nameMatch === 'partial';
+      isVerified = isIdentityVerified && isNameMatch;
+      
+    } catch (error) {
+      console.error('❌ Identity verification failed:', error);
+      verificationError = error;
+      isVerified = false;
+    }
+    
+    if (!isVerified) {
+      // Return a warning instead of potentially wrong community data
+      console.warn(`⚠️ Identity verification failed for ${communityName} - data may be about different community`);
+      
+      const verificationStatus = {
+        identityVerified: chatgptVerification?.identityVerified || false,
+        nameMatch: chatgptVerification?.nameMatch || 'unknown',
+        concerns: chatgptVerification?.concerns || []
+      };
+      
+      return res.json({
+        content: `**Data Verification Alert**
+
+We found search results for "${communityName}" in ${city}, ${state}, but we cannot verify that the information is specifically about this community. 
+
+**Identity Check Results:**
+- Community Identity Verified: ${chatgptVerification?.identityVerified ? '✅ Yes' : '❌ No'}
+- Name Match: ${chatgptVerification?.nameMatch || 'Unknown'}
+- Data Quality Concerns: ${chatgptVerification?.concerns?.join(', ') || 'None specified'}
+
+**Why This Happens:**
+The web search may have returned information about similarly named communities or properties. To ensure accuracy, we only display verified information.
+
+**Next Steps:**
+- Contact the community directly at their verified phone number
+- Request official documentation and pricing
+- Schedule a tour to confirm details in person
+
+For accurate information about ${communityName}, please contact them directly.`,
+        citations: response.sources || [],
+        images: [],
+        verified: false,
+        identityVerified: chatgptVerification?.identityVerified || false,
+        nameMatch: chatgptVerification?.nameMatch,
+        verificationConcerns: chatgptVerification?.concerns || [],
+        verificationError: verificationError instanceof Error ? verificationError.message : null,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Data is verified - return the intelligence
     const structuredResponse = {
       content: response.summary || '',
       citations: response.sources || [],
-      images: response.images || [],  // Real community photos found online
+      images: response.images || [],
+      verified: true,
+      identityVerified: chatgptVerification?.identityVerified || false,
+      nameMatch: chatgptVerification?.nameMatch,
       timestamp: new Date().toISOString()
     };
     
-    console.log(`✅ Web intelligence retrieved with ${structuredResponse.citations.length} sources`);
+    console.log(`✅ Web intelligence retrieved and verified for ${communityName} with ${structuredResponse.citations.length} sources`);
     
     res.json(structuredResponse);
   } catch (error) {
