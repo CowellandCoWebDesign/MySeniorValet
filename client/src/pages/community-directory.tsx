@@ -489,6 +489,70 @@ export default function CommunityDirectory() {
                 </Button>
               </div>
             </div>
+            
+            {/* Database Features & Trust Indicators */}
+            <div className="flex flex-wrap justify-center items-center gap-3 mt-6">
+              <span className="inline-flex items-center space-x-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md">
+                <DollarSign className="h-3 w-3 text-green-500 animate-pulse" />
+                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Live Pricing</span>
+              </span>
+              <span className="inline-flex items-center space-x-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md">
+                <Users className="h-3 w-3 text-blue-500" />
+                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Family Reviews</span>
+              </span>
+              <span className="inline-flex items-center space-x-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md">
+                <Brain className="h-3 w-3 text-purple-500 animate-pulse" />
+                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Live Availability</span>
+              </span>
+              <span className="inline-flex items-center space-x-1 bg-gradient-to-r from-purple-800/80 to-indigo-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md border border-purple-400/30">
+                <Shield className="h-3 w-3 text-yellow-300 animate-pulse" />
+                <span className="text-xs font-semibold text-white">AI Triple-Verified</span>
+              </span>
+            </div>
+
+            {/* Quick Filters & Database Features */}
+            <div className="flex flex-wrap gap-2 mt-6 justify-center">
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors border-green-300 dark:border-green-600"
+                onClick={() => setLocation('/map-search?filter=hud')}
+              >
+                <Shield className="h-3 w-3 mr-1 text-green-600" />
+                <span className="text-gray-700 dark:text-gray-300">HUD Verified</span>
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border-blue-300 dark:border-blue-600"
+                onClick={() => setLocation('/map-search?filter=pricing')}
+              >
+                <DollarSign className="h-3 w-3 mr-1 text-blue-600" />
+                <span className="text-gray-700 dark:text-gray-300">With Pricing</span>
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors border-yellow-300 dark:border-yellow-600"
+                onClick={() => setLocation('/map-search?filter=5star')}
+              >
+                <Star className="h-3 w-3 mr-1 text-yellow-600" />
+                <span className="text-gray-700 dark:text-gray-300">5-Star Rated</span>
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors border-purple-300 dark:border-purple-600"
+                onClick={() => setLocation('/map-search?filter=memory')}
+              >
+                <Brain className="h-3 w-3 mr-1 text-purple-600" />
+                <span className="text-gray-700 dark:text-gray-300">Memory Care</span>
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border-red-300 dark:border-red-600"
+                onClick={() => setLocation('/map-search?filter=assisted')}
+              >
+                <HeartHandshake className="h-3 w-3 mr-1 text-red-600" />
+                <span className="text-gray-700 dark:text-gray-300">Assisted Living</span>
+              </Badge>
+            </div>
           </div>
           
           {/* Divider */}
@@ -510,70 +574,6 @@ export default function CommunityDirectory() {
             </div>
             
             <NaturalLanguageSearchBar className="max-w-3xl mx-auto" />
-          </div>
-          
-          {/* Database Features & Trust Indicators */}
-          <div className="flex flex-wrap justify-center items-center gap-3 mt-6">
-            <span className="inline-flex items-center space-x-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md">
-              <DollarSign className="h-3 w-3 text-green-500 animate-pulse" />
-              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Live Pricing</span>
-            </span>
-            <span className="inline-flex items-center space-x-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md">
-              <Users className="h-3 w-3 text-blue-500" />
-              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Family Reviews</span>
-            </span>
-            <span className="inline-flex items-center space-x-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md">
-              <Brain className="h-3 w-3 text-purple-500 animate-pulse" />
-              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Live Availability</span>
-            </span>
-            <span className="inline-flex items-center space-x-1 bg-gradient-to-r from-purple-800/80 to-indigo-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md border border-purple-400/30">
-              <Shield className="h-3 w-3 text-yellow-300 animate-pulse" />
-              <span className="text-xs font-semibold text-white">AI Triple-Verified</span>
-            </span>
-          </div>
-
-          {/* Quick Filters & Database Features */}
-          <div className="flex flex-wrap gap-2 mt-6 justify-center">
-            <Badge 
-              variant="outline" 
-              className="cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors border-green-300 dark:border-green-600"
-              onClick={() => setLocation('/map-search?filter=hud')}
-            >
-              <Shield className="h-3 w-3 mr-1 text-green-600" />
-              <span className="text-gray-700 dark:text-gray-300">HUD Verified</span>
-            </Badge>
-            <Badge 
-              variant="outline" 
-              className="cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border-blue-300 dark:border-blue-600"
-              onClick={() => setLocation('/map-search?filter=pricing')}
-            >
-              <DollarSign className="h-3 w-3 mr-1 text-blue-600" />
-              <span className="text-gray-700 dark:text-gray-300">With Pricing</span>
-            </Badge>
-            <Badge 
-              variant="outline" 
-              className="cursor-pointer hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors border-yellow-300 dark:border-yellow-600"
-              onClick={() => setLocation('/map-search?filter=5star')}
-            >
-              <Star className="h-3 w-3 mr-1 text-yellow-600" />
-              <span className="text-gray-700 dark:text-gray-300">5-Star Rated</span>
-            </Badge>
-            <Badge 
-              variant="outline" 
-              className="cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors border-purple-300 dark:border-purple-600"
-              onClick={() => setLocation('/map-search?filter=memory')}
-            >
-              <Brain className="h-3 w-3 mr-1 text-purple-600" />
-              <span className="text-gray-700 dark:text-gray-300">Memory Care</span>
-            </Badge>
-            <Badge 
-              variant="outline" 
-              className="cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border-red-300 dark:border-red-600"
-              onClick={() => setLocation('/map-search?filter=assisted')}
-            >
-              <HeartHandshake className="h-3 w-3 mr-1 text-red-600" />
-              <span className="text-gray-700 dark:text-gray-300">Assisted Living</span>
-            </Badge>
           </div>
         </div>
       </section>
