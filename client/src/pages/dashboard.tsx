@@ -200,32 +200,39 @@ export default function Dashboard() {
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Enhanced Analytics Hero Section */}
         <Card className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white mb-8 overflow-hidden">
-          <CardContent className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 items-center">
-              <div className="lg:col-span-2">
-                <h1 className="text-3xl font-bold mb-2">Welcome back, {user?.email || 'Explorer'}!</h1>
-                <p className="text-blue-100">Your senior living journey at a glance</p>
+          <CardContent className="p-4 sm:p-6 lg:p-8">
+            <div className="space-y-4">
+              {/* Welcome Message */}
+              <div className="text-center sm:text-left">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-1">Welcome back, {user?.email || 'Explorer'}!</h1>
+                <p className="text-blue-100 text-sm sm:text-base">Your senior living journey at a glance</p>
               </div>
-              <div className="text-center transition-all hover:scale-105">
-                <div className="text-4xl font-bold mb-1 animate-fade-in">{savedCommunities.length}</div>
-                <div className="text-blue-100 text-sm">Saved Communities</div>
-                <Badge className="mt-2 bg-white/20 text-white border-white/30 backdrop-blur-sm">
-                  <TrendingUp className="w-3 h-3 mr-1 animate-pulse" />
-                  Active
-                </Badge>
-              </div>
-              <div className="text-center transition-all hover:scale-105">
-                <div className="text-4xl font-bold mb-1 animate-fade-in">{tourRequests.length}</div>
-                <div className="text-blue-100 text-sm">Tour Requests</div>
-                <div className="mt-2 text-xs bg-white/10 px-2 py-1 rounded-full backdrop-blur-sm">
-                  {tourRequests.filter(t => t.status === 'confirmed').length} confirmed
+              
+              {/* Horizontal Stats Grid */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6">
+                <div className="text-center transition-all hover:scale-105 px-2">
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 animate-fade-in">{savedCommunities.length}</div>
+                  <div className="text-blue-100 text-xs sm:text-sm">Saved Communities</div>
+                  <Badge className="mt-1 sm:mt-2 bg-white/20 text-white border-white/30 backdrop-blur-sm text-xs">
+                    <TrendingUp className="w-3 h-3 mr-1 animate-pulse hidden sm:inline-block" />
+                    Active
+                  </Badge>
                 </div>
-              </div>
-              <div className="text-center transition-all hover:scale-105">
-                <div className="text-4xl font-bold mb-1 animate-fade-in">{recentSearches.length}</div>
-                <div className="text-blue-100 text-sm">Recent Searches</div>
-                <div className="mt-2 text-xs bg-white/10 px-2 py-1 rounded-full backdrop-blur-sm">
-                  Last: {recentSearches[0] ? new Date(recentSearches[0].date).toLocaleDateString() : 'Never'}
+                
+                <div className="text-center transition-all hover:scale-105 border-x border-white/20 px-2">
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 animate-fade-in">{tourRequests.length}</div>
+                  <div className="text-blue-100 text-xs sm:text-sm">Tour Requests</div>
+                  <div className="mt-1 sm:mt-2 text-xs bg-white/10 px-1 sm:px-2 py-1 rounded-full backdrop-blur-sm inline-block">
+                    {tourRequests.filter(t => t.status === 'confirmed').length} confirmed
+                  </div>
+                </div>
+                
+                <div className="text-center transition-all hover:scale-105 px-2">
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-1 animate-fade-in">{recentSearches.length}</div>
+                  <div className="text-blue-100 text-xs sm:text-sm">Recent Searches</div>
+                  <div className="mt-1 sm:mt-2 text-xs bg-white/10 px-1 sm:px-2 py-1 rounded-full backdrop-blur-sm inline-block">
+                    <span className="hidden sm:inline">Last: </span>{recentSearches[0] ? new Date(recentSearches[0].date).toLocaleDateString() : 'Never'}
+                  </div>
                 </div>
               </div>
             </div>
