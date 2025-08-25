@@ -1,7 +1,9 @@
 import { sendEmail, notifySuperAdmin } from '../sendgrid-service';
 import { db } from '../db';
-import { users, communities, vendors, communityTours, tourTrackerReports } from '@shared/schema';
+import { users, communities, vendors } from '@shared/schema';
 import { eq } from 'drizzle-orm';
+import { NotificationMonitor } from './notification-monitor';
+import { NotificationPreferencesService } from './notification-preferences';
 
 interface NotificationData {
   type: string;

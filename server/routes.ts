@@ -116,6 +116,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { registerComprehensiveNotificationRoutes } = await import('./routes/comprehensive-notification-routes');
   registerComprehensiveNotificationRoutes(app);
   
+  // Register MONITORING & CONTROL SYSTEM
+  const monitoringRoutes = await import('./routes/monitoring-routes');
+  app.use(monitoringRoutes.default);
+  
+  // Register ADMIN TEST ROUTES (for production testing)
+  const adminTestRoutes = await import('./routes/admin-test-routes');
+  app.use(adminTestRoutes.default);
+  
+  // Register SIMPLE TEST ROUTES (no auth required for testing)
+  const simpleTestRoutes = await import('./routes/simple-test-routes');
+  app.use(simpleTestRoutes.default);
+  
   // Import and register webhook routes
   const webhookRoutes = await import('./routes/webhookRoutes');
   const webhookDevelopment = await import('./routes/webhookDevelopment');
