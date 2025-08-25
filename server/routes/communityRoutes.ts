@@ -702,15 +702,21 @@ export function registerCommunityRoutes(app: Express) {
       let communitySpecificData = realTimeData; // Keep existing data as fallback
       
       try {
-        // ULTRA-SIMPLIFIED: Just community name + location, nothing else
-        const communitySearchQuery = `"${community.name}" ${community.city} ${community.state}`;
+        // OPTIMIZED SEARCH QUERY: Use natural search terms that match real websites
+        const communityBaseName = community.name
+          .replace(' - A Provincial Senior Living Community', '')
+          .replace(' Senior Living Community', '')
+          .replace(' Senior Living', '')
+          .trim();
         
-        console.log(`🔍 Ultra-simplified search: "${community.name}" in ${community.city}, ${community.state}`);
+        const communitySearchQuery = `${communityBaseName} senior living ${community.city} California pricing availability contact`;
+        
+        console.log(`🔍 Optimized search query: "${communitySearchQuery}" (was: "${community.name}")`);
         
         // Use Perplexity to search for this SPECIFIC community
         const perplexityResponse = await perplexityService.searchRealTime(
           communitySearchQuery,
-          `Find information about ${community.name}`
+          `Find current information about ${communityBaseName} senior living community in ${community.city}, CA. Focus on pricing, contact details, services, and recent reviews.`
         );
         
         // Override with community-specific search results

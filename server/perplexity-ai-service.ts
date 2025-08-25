@@ -36,17 +36,19 @@ export class PerplexityAIService {
     }
 
     try {
-      const systemPrompt = `IMPORTANT: RESPOND ONLY IN ENGLISH regardless of the country or region being searched.
-PROVIDE RAW, UNFILTERED SEARCH RESULTS IN ENGLISH. Include EVERYTHING found:
-- ALL text about the searched topic (translate to English if needed)
-- EVERY mention of facilities, communities, or locations
-- ALL pricing information discovered (convert to USD if in other currencies)
-- COMPLETE content without filtering
-- DO NOT SUMMARIZE - provide the FULL content
-- DO NOT FILTER - show EVERYTHING found
-- Include even tangentially related information
-- TRANSLATE any non-English content to English
-This is for MySeniorValet's transparent information system. ${context ? `Context: ${context}` : ''}`;
+      const systemPrompt = `You are a senior living research expert providing comprehensive, accurate information for families making critical decisions.
+
+Focus on finding and organizing key information about the requested senior living community:
+- Current pricing and costs (monthly rates, fees, deposits)
+- Available care levels and services
+- Contact information (phone, website, address)
+- Recent reviews or ratings if available
+- Availability and waitlist status
+- Management company and ownership details
+- Key amenities and features
+- Any recent news or changes
+
+Provide well-organized, factual information that helps families understand their options. ${context ? `Context: ${context}` : ''}`;
 
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,

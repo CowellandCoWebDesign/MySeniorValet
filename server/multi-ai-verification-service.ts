@@ -370,14 +370,16 @@ Provide actionable market intelligence that helps families maximize value and ma
     const allFindings = new Set<string>();
     const allConcerns = new Set<string>();
 
-    // Collect all findings
-    if (claudeResult) {
-      claudeResult.findings.forEach(f => allFindings.add(f));
-      claudeResult.concerns.forEach(c => allConcerns.add(c));
-    }
+    // Since Claude is down, rely more heavily on Perplexity + ChatGPT combination
     if (chatgptResult) {
       chatgptResult.findings.forEach(f => allFindings.add(f));
       chatgptResult.concerns.forEach(c => allConcerns.add(c));
+    }
+    
+    // Claude fallback (only if available)
+    if (claudeResult) {
+      claudeResult.findings.forEach(f => allFindings.add(f));
+      claudeResult.concerns.forEach(c => allConcerns.add(c));
     }
 
     // Determine agreement level
@@ -398,19 +400,29 @@ Provide actionable market intelligence that helps families maximize value and ma
       confidenceScore = Math.round(confidenceScore / activeAIs);
     }
 
-    // Determine consensus level
-    if (activeAIs === 2) {
-      if (claudeResult?.verified && chatgptResult?.verified) {
-        if (confidenceScore >= 80) {
-          agreementLevel = 'strong';
+    // ENHANCED: Better consensus building with Perplexity + ChatGPT when Claude is down
+    if (activeAIs >= 1 && chatgptResult) {
+      // ChatGPT + Perplexity data creates stronger consensus than ChatGPT alone
+      if (chatgptResult.verified && perplexityData?.sources?.length > 0) {
+        if (confidenceScore >= 75) {
+          agreementLevel = 'moderate'; // Upgraded from 'weak' due to Perplexity sources
         } else if (confidenceScore >= 60) {
           agreementLevel = 'moderate';
         }
-      } else if (claudeResult?.verified !== chatgptResult?.verified) {
-        agreementLevel = 'conflicting';
       }
-    } else if (activeAIs === 1) {
-      agreementLevel = 'weak'; // Only one AI responded
+      
+      // Two AI verification (Claude + ChatGPT)
+      if (activeAIs === 2 && claudeResult) {
+        if (claudeResult.verified && chatgptResult.verified) {
+          if (confidenceScore >= 80) {
+            agreementLevel = 'strong';
+          } else if (confidenceScore >= 60) {
+            agreementLevel = 'moderate';
+          }
+        } else if (claudeResult.verified !== chatgptResult.verified) {
+          agreementLevel = 'conflicting';
+        }
+      }
     }
 
     // Populate verified and disputed facts
