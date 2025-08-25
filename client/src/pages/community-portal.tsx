@@ -50,6 +50,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Header } from "@/components/header";
 import { useToast } from "@/hooks/use-toast";
+import { CRMIntegrationPanel } from "@/components/CRMIntegrationPanel";
 
 export default function CommunityPortal() {
   const [selectedTier, setSelectedTier] = useState<string>('featured');
@@ -528,6 +529,13 @@ export default function CommunityPortal() {
             </p>
           </div>
         </div>
+
+        {/* CRM Integration Panel - For existing communities */}
+        {existingCommunityData && (
+          <div className="mb-8">
+            <CRMIntegrationPanel communityId={existingCommunityData.communityId || 1} />
+          </div>
+        )}
 
         {/* Pricing Tiers */}
         <div className="mb-8">

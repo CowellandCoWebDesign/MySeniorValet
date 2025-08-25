@@ -4880,3 +4880,45 @@ export interface HeatmapRegion {
   data: AvailabilityHeatmapData[];
   zoomLevel: number;
 }
+
+// CRM Integrations Table
+export const crmIntegrations = pgTable("crm_integrations", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").notNull().references(() => communities.id),
+  provider: text("provider", { enum: ["aline", "yardi", "vitals"] }).notNull(),
+  configuration: jsonb("configuration").$type<{
+    apiKey: string;
+    apiSecret?: string;
+    baseUrl: string;
+    webhookUrl?: string;
+    syncFrequency?: 'real_time' | 'hourly' | 'daily';
+    dataMapping?: Record<string, string>;
+  }>().notNull(),
+  status: text("status", { enum: ["active", "inactive", "error"] }).notNull().default("active"),
+  lastSync: timestamp("last_sync"),
+  syncCount: integer("sync_count").default(0),
+  lastError: text("last_error"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  unique("unique_community_provider").on(table.communityId, table.provider),
+  index("crm_integrations_community_idx").on(table.communityId),
+  index("crm_integrations_provider_idx").on(table.provider)
+]);
+
+// CRM Integration Relations
+export const crmIntegrationsRelations = relations(crmIntegrations, ({ one }) => ({
+  community: one(communities, {
+    fields: [crmIntegrations.communityId],
+    references: [communities.id],
+  }),
+}));
+
+// CRM Integration Schema Types
+export const insertCrmIntegrationSchema = createInsertSchema(crmIntegrations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertCrmIntegration = z.infer<typeof insertCrmIntegrationSchema>;
+export type CrmIntegration = typeof crmIntegrations.$inferSelect;

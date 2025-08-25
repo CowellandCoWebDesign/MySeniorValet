@@ -53,6 +53,7 @@ import enhancedWeaviateRoutes from "./enhanced-weaviate-routes";
 import naturalLanguageSearchRoutes from "./naturalLanguageSearch";
 import { registerPlatformRoutes } from "./platformRoutes";
 import { registerCommunityOnboardingRoutes } from "./communityOnboardingRoutes";
+import { registerCRMIntegrationRoutes } from "./crmIntegrationRoutes";
 import atriaRoutes from "./atria-routes";
 // DISABLED: Old Stripe routes - replaced by unifiedPaymentRoutes
 // import { registerStripeTestRoutes } from "./stripe-test";
@@ -93,6 +94,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register community onboarding routes
   registerCommunityOnboardingRoutes(app);
+  
+  // Register CRM integration routes
+  registerCRMIntegrationRoutes(app);
   // CRITICAL: Register mapping routes BEFORE community routes to prevent /:id interception
   registerMappingRoutes(app);
   registerMappingFixRoutes(app);
