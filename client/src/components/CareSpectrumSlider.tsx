@@ -100,20 +100,21 @@ const careLevels: CareLevel[] = [
     level: 5,
     name: 'Personal Care Home',
     badge: '🏠 Personal Care',
-    description: 'Small residential homes with personalized support',
-    fullDescription: 'Personal care homes providing help with daily activities in a residential setting with personalized support. These smaller, home-like settings offer assistance with activities of daily living, medication management, and personal care in a more intimate environment.',
+    description: 'Private residential homes limited to 6-10 residents by state regulations',
+    fullDescription: 'Personal care homes are privately owned small residential homes that provide 24-hour supervision and assistance with daily living. Due to state licensing regulations for private owners, these facilities are strictly limited to 6-10 beds maximum, creating an intimate, family-like environment. Also known as Adult Family Homes, Board & Care Homes, or Residential Care Homes depending on the state.',
     costRange: '$2,500-5,000/month',
     icon: <Heart className="w-5 h-5" />,
     color: 'bg-yellow-500',
     searchValue: 'personal_care',
     keyFeatures: [
-      'Help with activities of daily living',
-      'Medication management and reminders',
-      'Smaller, home-like residential setting',
-      'Personalized one-on-one care',
-      'Family-style meals and social interaction'
+      'Maximum 6-10 residents due to licensing regulations',
+      'Privately owned and operated residential homes',
+      '24-hour supervision and personal care assistance',
+      'Higher staff-to-resident ratio (typically 1:3-4)',
+      'Home-cooked meals in a family-style setting',
+      'Located in residential neighborhoods'
     ],
-    idealFor: 'Seniors who prefer a smaller, more intimate care setting with personalized attention'
+    idealFor: 'Seniors who need assistance with daily activities but prefer a small, home-like environment over larger institutional facilities'
   },
   {
     level: 6,
