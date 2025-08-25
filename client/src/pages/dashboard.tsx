@@ -46,8 +46,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { Footer } from "@/components/footer";
 import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
-
 import { MessagingDashboard } from "@/components/messaging/MessagingDashboard";
+import { UserTracker } from "@/components/admin/UserTracker";
 
 interface SavedCommunity {
   id: number;
@@ -987,13 +987,19 @@ export default function Dashboard() {
 
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-8">
+            {/* Show User Tracker for Admin Users */}
+            {(user?.role === 'super_admin' || user?.role === 'admin') && (
+              <UserTracker />
+            )}
+            
+            {/* Regular Analytics for All Users */}
             <Card className="shadow-xl rounded-3xl overflow-hidden border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-800 dark:via-blue-900/20 dark:to-purple-900/20">
               <CardHeader className="p-8 pb-6">
                 <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Your Personal Journey Analytics
+                  {user?.role === 'super_admin' || user?.role === 'admin' ? 'Platform Analytics' : 'Your Personal Journey Analytics'}
                 </CardTitle>
                 <p className="text-gray-600 dark:text-gray-400 mt-2">
-                  Track your search patterns and community preferences
+                  {user?.role === 'super_admin' || user?.role === 'admin' ? 'Monitor platform activity and user engagement' : 'Track your search patterns and community preferences'}
                 </p>
               </CardHeader>
               <CardContent className="p-8 pt-4">

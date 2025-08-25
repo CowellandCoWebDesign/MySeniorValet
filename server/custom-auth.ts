@@ -8,7 +8,8 @@ import bcrypt from 'bcrypt';
 import { Router } from 'express';
 import { db } from './db';
 import { users } from '../shared/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, desc, sql } from 'drizzle-orm';
+import { notifySuperAdmin } from './sendgrid-service';
 import session from 'express-session';
 import connectPg from 'connect-pg-simple';
 import type { Express } from 'express';
@@ -45,7 +46,7 @@ export function setupCustomAuth(app: Express) {
   // Register new user
   router.post('/api/auth/register', async (req, res) => {
     try {
-      const { email, password, firstName, lastName } = req.body;
+      const { email, password, firstName, lastName, accountType = 'family' } = req.body;
       
       // Check if user exists
       const [existingUser] = await db
@@ -63,20 +64,37 @@ export function setupCustomAuth(app: Express) {
       
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
+      const username = email.split('@')[0].toLowerCase();
       
-      // Create user
+      // Create user with proper account type
       const [newUser] = await db
         .insert(users)
         .values({
           email: email.toLowerCase(),
+          username: username,
           password: hashedPassword,
           firstName,
           lastName,
-          role: 'user',
+          role: accountType === 'family' ? 'user' : accountType,
+          accountType: accountType,
+          emailVerified: false,
+          isActive: true,
           createdAt: new Date(),
           updatedAt: new Date(),
         })
         .returning();
+      
+      // Send notification to admin about new registration
+      await notifySuperAdmin(
+        'New User Registration',
+        `A new ${accountType} user has registered on MySeniorValet!`,
+        {
+          name: `${firstName} ${lastName}`,
+          email: email,
+          accountType: accountType,
+          registeredAt: new Date().toISOString()
+        }
+      );
       
       // Create session
       (req.session as any).userId = newUser.id;
@@ -227,6 +245,82 @@ export function setupCustomAuth(app: Express) {
         success: false, 
         message: 'Password reset request failed' 
       });
+    }
+  });
+  
+  // Admin endpoint: Get recent users
+  router.get('/api/admin/users/recent', async (req, res) => {
+    try {
+      // Check if user is admin
+      if (!req.session || !(req.session as any).userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+      
+      const currentUser = (req.session as any).user;
+      if (currentUser?.role !== 'super_admin' && currentUser?.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+      
+      // Get recent users
+      const recentUsers = await db
+        .select({
+          id: users.id,
+          email: users.email,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          accountType: users.accountType,
+          role: users.role,
+          createdAt: users.createdAt,
+          emailVerified: users.emailVerified,
+          lastLoginAt: users.lastLoginAt,
+        })
+        .from(users)
+        .orderBy(desc(users.createdAt))
+        .limit(50);
+      
+      res.json({ 
+        users: recentUsers,
+        total: recentUsers.length 
+      });
+    } catch (error) {
+      console.error('Error fetching recent users:', error);
+      res.status(500).json({ message: 'Failed to fetch users' });
+    }
+  });
+  
+  // Admin endpoint: Get user statistics
+  router.get('/api/admin/users/stats', async (req, res) => {
+    try {
+      // Check if user is admin
+      if (!req.session || !(req.session as any).userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+      
+      const currentUser = (req.session as any).user;
+      if (currentUser?.role !== 'super_admin' && currentUser?.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+      
+      // Get user statistics
+      const stats = await db
+        .select({
+          totalUsers: sql<number>`COUNT(*)::int`,
+          families: sql<number>`COUNT(CASE WHEN account_type = 'family' THEN 1 END)::int`,
+          communities: sql<number>`COUNT(CASE WHEN account_type = 'community' THEN 1 END)::int`,
+          vendors: sql<number>`COUNT(CASE WHEN account_type = 'vendor' THEN 1 END)::int`,
+          admins: sql<number>`COUNT(CASE WHEN account_type = 'admin' THEN 1 END)::int`,
+          verifiedEmails: sql<number>`COUNT(CASE WHEN email_verified = true THEN 1 END)::int`,
+          activeUsers: sql<number>`COUNT(CASE WHEN is_active = true THEN 1 END)::int`,
+          newToday: sql<number>`COUNT(CASE WHEN created_at > CURRENT_DATE THEN 1 END)::int`,
+          newThisWeek: sql<number>`COUNT(CASE WHEN created_at > CURRENT_DATE - INTERVAL '7 days' THEN 1 END)::int`,
+          newThisMonth: sql<number>`COUNT(CASE WHEN created_at > CURRENT_DATE - INTERVAL '30 days' THEN 1 END)::int`,
+        })
+        .from(users);
+      
+      res.json(stats[0]);
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
+      res.status(500).json({ message: 'Failed to fetch stats' });
     }
   });
   
