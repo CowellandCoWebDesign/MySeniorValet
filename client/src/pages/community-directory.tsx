@@ -833,6 +833,43 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
+      {/* === TOOLS & FEATURES SECTION === */}
+      
+      {/* Red Tag Deals Promotional Section */}
+      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
+        <div className="max-w-7xl mx-auto">
+          <RedTagDeals />
+        </div>
+      </section>
+
+      {/* Hero Mascot Panel - Platform Differentiators */}
+      <section className="px-4 py-8">
+        <div className="max-w-7xl mx-auto">
+          <HeroMascotPanel />
+        </div>
+      </section>
+
+      {/* Market Intelligence Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <MarketIntelligence />
+        </div>
+      </section>
+
+      {/* Move-In Cost Calculator Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <MoveInCostCalculator />
+        </div>
+      </section>
+
+      {/* Cost Comparison Worksheet Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <CostComparisonWorksheet />
+        </div>
+      </section>
+
       {/* HUD Communities Showcase - MOVED UP FOR AFFORDABILITY VISIBILITY */}
       <section className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
         {/* Background Government Building Image */}
@@ -3809,43 +3846,6 @@ export default function CommunityDirectory() {
               </div>
             </CardContent>
           </Card>
-        </div>
-      </section>
-
-      {/* === TOOLS & FEATURES SECTION === */}
-      
-      {/* Red Tag Deals Promotional Section */}
-      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
-        <div className="max-w-7xl mx-auto">
-          <RedTagDeals />
-        </div>
-      </section>
-
-      {/* Hero Mascot Panel - Platform Differentiators */}
-      <section className="px-4 py-8">
-        <div className="max-w-7xl mx-auto">
-          <HeroMascotPanel />
-        </div>
-      </section>
-
-      {/* Market Intelligence Section */}
-      <section className="px-4 py-12 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <MarketIntelligence />
-        </div>
-      </section>
-
-      {/* Move-In Cost Calculator Section */}
-      <section className="px-4 py-12 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <MoveInCostCalculator />
-        </div>
-      </section>
-
-      {/* Cost Comparison Worksheet Section */}
-      <section className="px-4 py-12 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <CostComparisonWorksheet />
         </div>
       </section>
 
