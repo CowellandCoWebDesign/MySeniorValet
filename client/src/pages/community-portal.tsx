@@ -157,8 +157,8 @@ export default function CommunityPortal() {
       price: '$349',
       priceValue: 349,
       tier: 'platinum',
-      tagline: 'Complete control',
-      description: 'For communities that want it all',
+      tagline: 'Complete control + CRM',
+      description: 'Full platform access with CRM integrations',
       features: [
         { text: 'Everything in Featured, plus:', header: true },
         { text: 'Upload up to 50 photos', included: true },
@@ -166,6 +166,8 @@ export default function CommunityPortal() {
         { text: 'Unlimited PDFs', included: true },
         { text: 'Staff bios & care philosophy', included: true },
         { text: 'Availability sync', included: true },
+        { text: 'CRM Integration (ALINE, Yardi, Vitals)', included: true },
+        { text: 'Enterprise Market Analysis Tool', included: true },
         { text: 'Admin dashboard', included: true },
         { text: 'Top Concierge Priority', included: true },
         { text: 'Monthly performance review', included: true }

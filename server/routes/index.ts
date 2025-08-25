@@ -54,6 +54,7 @@ import naturalLanguageSearchRoutes from "./naturalLanguageSearch";
 import { registerPlatformRoutes } from "./platformRoutes";
 import { registerCommunityOnboardingRoutes } from "./communityOnboardingRoutes";
 import { registerCRMIntegrationRoutes } from "./crmIntegrationRoutes";
+import { enterpriseMarketRoutes } from "./enterpriseMarketRoutes";
 import atriaRoutes from "./atria-routes";
 // DISABLED: Old Stripe routes - replaced by unifiedPaymentRoutes
 // import { registerStripeTestRoutes } from "./stripe-test";
@@ -195,6 +196,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register Atria expansion routes
   app.use('/api/atria', atriaRoutes);
+  
+  // Register Enterprise Market Analysis routes
+  app.use('/api/enterprise', enterpriseMarketRoutes);
 
   return httpServer;
 }

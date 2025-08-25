@@ -51,6 +51,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { AdvancedAnalytics } from "@/components/analytics/AdvancedAnalytics";
 import EngagementScorecard from "@/components/EngagementScorecard";
+import { EnterpriseMarketAnalysis } from "@/components/EnterpriseMarketAnalysis";
+import { CRMIntegrationPanel } from "@/components/CRMIntegrationPanel";
 
 export default function CommunityDashboard() {
   const { id } = useParams();
@@ -505,13 +507,19 @@ export default function CommunityDashboard() {
 
         {/* Main Dashboard */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className={`grid w-full ${community?.subscriptionTier === 'platinum' ? 'grid-cols-9' : 'grid-cols-7'}`}>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="engagement">Engagement</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="pricing">Pricing</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            {community?.subscriptionTier === 'platinum' && (
+              <>
+                <TabsTrigger value="crm">CRM Integration</TabsTrigger>
+                <TabsTrigger value="market-analysis">Market Analysis</TabsTrigger>
+              </>
+            )}
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -1109,6 +1117,20 @@ export default function CommunityDashboard() {
               <AdvancedAnalytics timeRange="30d" showExport={true} autoRefresh={false} />
             </div>
           </TabsContent>
+
+          {/* CRM Integration Tab - Platinum Only */}
+          {community?.subscriptionTier === 'platinum' && (
+            <TabsContent value="crm" className="space-y-6">
+              <CRMIntegrationPanel />
+            </TabsContent>
+          )}
+
+          {/* Enterprise Market Analysis Tab - Platinum Only */}
+          {community?.subscriptionTier === 'platinum' && (
+            <TabsContent value="market-analysis" className="space-y-6">
+              <EnterpriseMarketAnalysis />
+            </TabsContent>
+          )}
 
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">
