@@ -1,6 +1,8 @@
 import { type Express } from "express";
 import Stripe from 'stripe';
 import sgMail from '@sendgrid/mail';
+import fullNotificationTest from './routes/full-notification-test';
+import simpleTestRoutes from './routes/simple-test-routes';
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -11,6 +13,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
 export function registerTestRoutes(app: Express) {
+  // Register comprehensive notification tests
+  app.use(fullNotificationTest);
+  
+  // Register simple test routes
+  app.use(simpleTestRoutes);
   // Test actual Stripe charge
   app.post('/api/test/stripe-charge', async (req, res) => {
     try {
