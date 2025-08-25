@@ -412,26 +412,26 @@ export default function CommunityDirectory() {
             </h1>
             
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Access our complete database of {((communityCount as any)?.count || '35,232').toLocaleString()}+ senior living communities across the United States, Canada, Mexico, Peru, Cuba, Costa Rica, Panama & Puerto Rico
+              Access our complete database of {((communityCount as any)?.count || '35,264').toLocaleString()}+ senior living communities across the United States, Canada, Mexico, Peru, Cuba, Costa Rica, Panama & Puerto Rico
             </p>
             
             {/* Key Stats */}
             <div className="grid grid-cols-4 gap-4 max-w-3xl mx-auto">
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-3xl font-bold text-white">34,181+</div>
+                  <div className="text-3xl font-bold text-white">{((communityCount as any)?.count || '35,264').toLocaleString()}+</div>
                   <div className="text-xs text-blue-100">Total Communities</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-3xl font-bold text-yellow-300">{((hudCount as any)?.total || '5,936').toLocaleString()}</div>
+                  <div className="text-3xl font-bold text-yellow-300">{((hudCount as any)?.total || '5,077').toLocaleString()}</div>
                   <div className="text-xs text-blue-100">HUD Properties</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-3xl font-bold text-white">6</div>
+                  <div className="text-3xl font-bold text-white">8</div>
                   <div className="text-xs text-blue-100">Countries Covered</div>
                 </CardContent>
               </Card>
@@ -456,7 +456,7 @@ export default function CommunityDirectory() {
                 Search Communities
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                35,000+ Communities • Live Pricing • Real Reviews
+                {((communityCount as any)?.count || '35,264').toLocaleString()}+ Communities • Live Pricing • Real Reviews
               </p>
             </div>
             
