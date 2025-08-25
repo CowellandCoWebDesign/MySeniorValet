@@ -9,98 +9,79 @@ interface RedTagDeal {
   id: number;
   communityName: string;
   location: string;
-  originalPrice: number;
-  discountedPrice: number;
-  discountPercent: number;
-  expirationDate: string;
   dealType: string;
   highlights: string[];
   rating: number;
   heroImage: string;
   availability: "Available Now" | "Move-in Ready" | "Limited Spots" | "Waitlist";
   amenities: string[];
-  specialIncentives: string[];
+  whyFeatured: string[];
 }
 
 export function RedTagDeals() {
-  // Featured community special offers
+  // Featured exceptional communities
   const redTagDeals: RedTagDeal[] = [
     {
       id: 51463,
       communityName: "Atria La Jolla",
       location: "San Diego, CA",
-      originalPrice: 5800,
-      discountedPrice: 4930,
-      discountPercent: 15,
-      expirationDate: "2025-09-15",
-      dealType: "Atria Excellence Special",
-      highlights: ["No community fee", "First month 50% off", "Personal care included"],
+      dealType: "Premium Coastal Living",
+      highlights: ["Ocean views", "Award-winning dining", "Wellness-focused care"],
       rating: 4.7,
       heroImage: "https://cdn.pixabay.com/photo/2016/11/18/17/20/living-room-1835923_1280.jpg",
       availability: "Available Now",
       amenities: ["Ocean Views", "Gourmet Dining", "Wellness Center", "Concierge Service"],
-      specialIncentives: ["Waived $5,000 community fee", "Free utilities package", "Priority ocean-view rooms"]
+      whyFeatured: ["Part of the prestigious Atria network", "Stunning La Jolla location", "Excellence in senior care"]
     },
     {
       id: 54540,
       communityName: "Highland Village",
       location: "Midland, Ontario, Canada",
-      originalPrice: 4200,
-      discountedPrice: 3360,
-      discountPercent: 20,
-      expirationDate: "2025-08-31",
-      dealType: "Canadian Summer Special",
-      highlights: ["Provincial healthcare covered", "All-inclusive pricing", "Welcome package"],
+      dealType: "Canadian Healthcare Excellence",
+      highlights: ["Provincial healthcare integration", "Lakefront setting", "Bilingual services"],
       rating: 4.6,
       heroImage: "https://cdn.pixabay.com/photo/2016/11/30/08/46/living-room-1872192_1280.jpg",
       availability: "Move-in Ready",
       amenities: ["Lakefront Views", "Canadian Healthcare", "Bilingual Staff", "Indoor Pool"],
-      specialIncentives: ["20% off first year", "Free winter gear package", "Family guest suite privileges"]
+      whyFeatured: ["Beautiful Ontario lakefront property", "Full Canadian healthcare benefits", "Strong community reputation"]
     },
     {
       id: 72147,
       communityName: "Verdeza Retirement Community",
       location: "Escazú, Costa Rica",
-      originalPrice: 3500,
-      discountedPrice: 2625,
-      discountPercent: 25,
-      expirationDate: "2025-10-01",
-      dealType: "Tropical Paradise Special",
-      highlights: ["Year-round sunshine", "Expat community", "Medical tourism package"],
+      dealType: "Tropical Paradise Retirement",
+      highlights: ["Year-round perfect weather", "International expat community", "Affordable luxury"],
       rating: 4.8,
       heroImage: "https://cdn.pixabay.com/photo/2017/03/28/12/10/chairs-2181947_1280.jpg",
       availability: "Limited Spots",
       amenities: ["Mountain Views", "Private Healthcare", "Spa Services", "Organic Gardens"],
-      specialIncentives: ["25% off forever", "Residency assistance", "Airport transfers included"]
+      whyFeatured: ["Costa Rica's premier retirement destination", "Exceptional value in paradise", "English-speaking staff & residents"]
     }
   ];
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
-  };
-
-  const getDaysRemaining = (expirationDate: string) => {
-    const today = new Date();
-    const expDate = new Date(expirationDate);
-    const diffTime = Math.abs(expDate.getTime() - today.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+  const getAmenityIcon = (amenity: string) => {
+    if (amenity.toLowerCase().includes('ocean') || amenity.toLowerCase().includes('lake') || amenity.toLowerCase().includes('mountain')) 
+      return <MapPin className="w-2.5 h-2.5 text-blue-600" />;
+    if (amenity.toLowerCase().includes('dining') || amenity.toLowerCase().includes('gourmet')) 
+      return <Utensils className="w-2.5 h-2.5 text-orange-600" />;
+    if (amenity.toLowerCase().includes('wellness') || amenity.toLowerCase().includes('health') || amenity.toLowerCase().includes('spa')) 
+      return <Heart className="w-2.5 h-2.5 text-red-600" />;
+    if (amenity.toLowerCase().includes('pool') || amenity.toLowerCase().includes('fitness')) 
+      return <Activity className="w-2.5 h-2.5 text-green-600" />;
+    if (amenity.toLowerCase().includes('concierge') || amenity.toLowerCase().includes('staff')) 
+      return <Users className="w-2.5 h-2.5 text-purple-600" />;
+    return <CheckCircle className="w-2.5 h-2.5 text-green-600" />;
   };
 
   return (
     <div className="space-y-4">
       <div className="text-center mb-4">
         <div className="flex items-center justify-center gap-3 mb-3">
-          <Tag className="w-7 h-7 text-red-600" />
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Red Tag Deals & Special Offers</h2>
+          <Star className="w-7 h-7 text-orange-600" />
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Featured Excellence Communities</h2>
         </div>
         <p className="text-lg text-gray-700 dark:text-gray-300 font-medium mb-4">
-          Exclusive discounts and move-in specials from top-rated communities
+          Outstanding senior living communities showcasing excellence across three countries
         </p>
         
         {/* Launch Transparency Notice - Compact */}
@@ -109,34 +90,33 @@ export function RedTagDeals() {
             <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="text-left">
               <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-1">
-                Featured Communities Notice
+                Excellence Spotlight
               </p>
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                The three featured communities below are real locations from our database of 35,264+ authentic communities. 
-                Atria La Jolla in San Diego, Highland Village in Ontario, and Verdeza in Costa Rica are actual senior living 
-                communities. The special offers shown are illustrative examples of typical industry promotions. Contact communities 
-                directly for current pricing and available specials.
+                These three exceptional communities from our database of 35,264+ authentic locations represent the best in senior living 
+                across North America and internationally. While many communities offer move-in specials and promotions, these must be 
+                verified directly with each community. Contact them to discover their current availability and any special offers.
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Active Deals Alert - Compact */}
-      <Card className="border-red-200 dark:border-red-800 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950 dark:to-orange-950">
+      {/* Featured Communities Alert - Compact */}
+      <Card className="border-orange-200 dark:border-orange-800 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950 dark:to-amber-950">
         <CardContent className="py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-red-100 dark:bg-red-900 rounded-full">
-                <AlertCircle className="w-4 h-4 text-red-600" />
+              <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-full">
+                <Star className="w-4 h-4 text-orange-600" />
               </div>
               <div>
-                <p className="font-medium text-sm">Limited Time Offers!</p>
-                <p className="text-xs text-muted-foreground">Save up to 20% on select communities</p>
+                <p className="font-medium text-sm">Excellence Showcase</p>
+                <p className="text-xs text-muted-foreground">Premium communities across 3 countries</p>
               </div>
             </div>
-            <Badge className="bg-red-600 text-white text-sm px-2 py-1">
-              {redTagDeals.length} Deals
+            <Badge className="bg-orange-600 text-white text-sm px-2 py-1">
+              {redTagDeals.length} Featured
             </Badge>
           </div>
         </CardContent>
@@ -153,16 +133,16 @@ export function RedTagDeals() {
                 alt={deal.communityName}
                 className="w-full h-full object-cover"
               />
-              {/* Red Tag Overlay */}
+              {/* Excellence Badge */}
               <div className="absolute top-2 left-2">
-                <Badge className="bg-red-600 text-white text-xs font-semibold px-2 py-1">
-                  <Tag className="w-3 h-3 mr-1" />
-                  RED TAG
+                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold px-2 py-1">
+                  <Star className="w-3 h-3 mr-1" />
+                  FEATURED
                 </Badge>
               </div>
-              {/* Discount Badge */}
-              <div className="absolute top-2 right-2 bg-red-600 text-white px-2 py-0.5 rounded text-xs font-bold">
-                {deal.discountPercent}% OFF
+              {/* Deal Type Badge */}
+              <div className="absolute top-2 right-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-2 py-0.5 rounded text-xs font-bold">
+                {deal.dealType}
               </div>
               {/* Availability Badge */}
               <div className="absolute bottom-2 right-2">
@@ -194,25 +174,14 @@ export function RedTagDeals() {
                   </div>
                   <div className="flex items-center gap-3 text-xs">
                     <span className="text-blue-600 hover:underline cursor-pointer">📞 Call</span>
-                    <span className="text-blue-600 hover:underline cursor-pointer">🌐 Web</span>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-orange-500" />
-                      <span className="text-gray-600">{getDaysRemaining(deal.expirationDate)}d</span>
-                    </div>
+                    <span className="text-blue-600 hover:underline cursor-pointer">🌐 Website</span>
+                    <span className="text-green-600 hover:underline cursor-pointer">📅 Tour</span>
                   </div>
                 </div>
 
-                {/* Right: Pricing and rating aligned */}
+                {/* Right: Rating */}
                 <div className="text-right flex-shrink-0">
-                  <div className="flex items-center gap-1 mb-0.5">
-                    <span className="text-lg font-bold text-red-600">
-                      {formatCurrency(deal.discountedPrice)}
-                    </span>
-                    <span className="text-xs text-gray-500 line-through">
-                      {formatCurrency(deal.originalPrice)}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-0.5 justify-end">
+                  <div className="flex items-center gap-0.5 justify-end mb-1">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
@@ -234,33 +203,23 @@ export function RedTagDeals() {
                 <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-2">
                   <h4 className="text-xs font-semibold mb-1.5 text-gray-900 dark:text-gray-100">Amenities</h4>
                   <div className="space-y-0.5">
-                    {deal.amenities.slice(0, 3).map((amenity, index) => {
-                      const getAmenityIcon = (amenity: string) => {
-                        if (amenity.toLowerCase().includes('fitness')) return <Activity className="w-2.5 h-2.5 text-blue-600" />;
-                        if (amenity.toLowerCase().includes('dining')) return <Utensils className="w-2.5 h-2.5 text-orange-600" />;
-                        if (amenity.toLowerCase().includes('wifi')) return <Wifi className="w-2.5 h-2.5 text-green-600" />;
-                        if (amenity.toLowerCase().includes('transport')) return <Car className="w-2.5 h-2.5 text-purple-600" />;
-                        return <CheckCircle className="w-2.5 h-2.5 text-green-600" />;
-                      };
-
-                      return (
-                        <div key={index} className="flex items-center gap-1 text-xs">
-                          {getAmenityIcon(amenity)}
-                          <span className="text-gray-700 dark:text-gray-300 truncate">{amenity}</span>
-                        </div>
-                      );
-                    })}
+                    {deal.amenities.slice(0, 3).map((amenity, index) => (
+                      <div key={index} className="flex items-center gap-1 text-xs">
+                        {getAmenityIcon(amenity)}
+                        <span className="text-gray-700 dark:text-gray-300 truncate">{amenity}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Incentives */}
-                <div className="bg-red-50 dark:bg-red-950/30 rounded-md p-2">
-                  <h4 className="text-xs font-semibold mb-1.5 text-red-800 dark:text-red-200">Specials</h4>
+                {/* Why Featured */}
+                <div className="bg-amber-50 dark:bg-amber-950/30 rounded-md p-2">
+                  <h4 className="text-xs font-semibold mb-1.5 text-amber-800 dark:text-amber-200">Why Featured</h4>
                   <div className="space-y-0.5">
-                    {deal.specialIncentives.slice(0, 3).map((incentive, index) => (
+                    {deal.whyFeatured.slice(0, 3).map((reason, index) => (
                       <div key={index} className="flex items-center gap-1 text-xs">
-                        <Tag className="w-2.5 h-2.5 text-red-600 flex-shrink-0" />
-                        <span className="text-red-700 dark:text-red-300 font-medium truncate">{incentive}</span>
+                        <Star className="w-2.5 h-2.5 text-amber-600 flex-shrink-0" />
+                        <span className="text-amber-700 dark:text-amber-300 font-medium truncate">{reason}</span>
                       </div>
                     ))}
                   </div>
@@ -285,9 +244,9 @@ export function RedTagDeals() {
 
               {/* Compact CTA Button */}
               <Link href={`/community/${deal.id}`}>
-                <Button className="w-full h-8 text-xs bg-red-600 hover:bg-red-700 text-white">
-                  <Tag className="w-3 h-3 mr-1.5" />
-                  View Community & Deal
+                <Button className="w-full h-8 text-xs bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white">
+                  <Star className="w-3 h-3 mr-1.5" />
+                  View Community Details
                 </Button>
               </Link>
             </CardContent>
