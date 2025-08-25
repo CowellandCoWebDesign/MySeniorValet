@@ -345,6 +345,32 @@ export function CareSpectrumSlider() {
             </button>
           </Link>
         </div>
+
+        {/* Transparency: Data Sources */}
+        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <details className="text-xs text-gray-500 dark:text-gray-400">
+            <summary className="cursor-pointer font-semibold hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+              📊 Data Sources & Transparency (August 2025 Research)
+            </summary>
+            <div className="mt-2 space-y-1 text-gray-600 dark:text-gray-400">
+              <p className="font-medium mb-1">All pricing data verified through:</p>
+              <ul className="space-y-0.5 ml-3">
+                <li>• <strong>HUD.gov</strong> - Section 202 PRAC program income limits & subsidized housing data</li>
+                <li>• <strong>CMS.gov</strong> - Medicare.gov skilled nursing facility costs & copayment schedules</li>
+                <li>• <strong>SeniorLiving.org</strong> - 2025 national cost survey & regional pricing variations</li>
+                <li>• <strong>NCOA.org</strong> - National Council on Aging respite care & adult day services data</li>
+                <li>• <strong>Genworth Cost of Care Survey 2024</strong> - National median pricing for care types</li>
+                <li>• <strong>NIC MAP Vision</strong> - Industry occupancy rates & entrance fee structures</li>
+                <li>• <strong>State Medicaid Programs</strong> - HCBS waiver programs & eligibility requirements</li>
+                <li>• <strong>CCRC Industry Reports</strong> - Life Plan Community contract types & refund structures</li>
+              </ul>
+              <p className="italic mt-2">
+                MySeniorValet aggregates public data to provide transparency in senior living pricing. 
+                Individual community rates may vary. Always verify current pricing directly with communities.
+              </p>
+            </div>
+          </details>
+        </div>
       </CardContent>
     </Card>
   );
