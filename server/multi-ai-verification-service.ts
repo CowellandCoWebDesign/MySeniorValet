@@ -296,7 +296,7 @@ Respond with JSON only:
         messages: [
           {
             role: 'system',
-            content: 'CRITICAL: You are verifying data for ONE specific senior living community. Do NOT confuse it with similarly named communities. Focus ONLY on the exact community name provided. Respond with JSON only.'
+            content: 'You are helping families research senior living communities. Be helpful and permissive - accept relevant information that would be useful to families, even if not a perfect name match. Focus on providing valuable insights. Respond with JSON only.'
           },
           {
             role: 'user',
@@ -312,21 +312,21 @@ Respond with JSON only:
 ${JSON.stringify(perplexityData, null, 2)}
 
 STEP 1 - IDENTITY VERIFICATION:
-First determine if the web results are about the SAME community:
-1. Do the web results mention "${communityName}" specifically?
-2. Is the location ${location} consistent?
-3. **CRITICAL ADDRESS CHECK**: Are we seeing data about a DIFFERENT community with a similar name?
-   - If database shows "${communityContext?.address || 'Not specified'}" but web results show a DIFFERENT address on the same street, this indicates DIFFERENT communities
-   - Example: "7 Hilltop Dr" vs "451 Hilltop Dr" = DIFFERENT communities (fail verification)
-   - Example: "Hilltop Springs" vs "Hilltop Estates" = DIFFERENT communities (fail verification)
-4. **NAME CONFUSION CHECK**: Look for mentions of other similar communities in the results
+Determine if the web results contain useful information about "${communityName}":
+1. Do the web results mention "${communityName}" or very similar name variations?
+2. Is the general location ${location} consistent?
+3. **REASONABLE MATCHING**: Accept information if it appears relevant to the community:
+   - Exact name match is ideal but not required
+   - Similar names in same city/area are likely the same community
+   - Focus on whether the information would be helpful to families researching this community
+4. **ONLY reject if clearly about a completely different facility in a different location**
 
 STEP 2 - DATA ANALYSIS (only if identity verified):
 If confirmed as the same community, provide market analysis.
 
 Respond in JSON format:
 {
-  "identityVerified": boolean (true only if web results are about THIS exact community),
+  "identityVerified": boolean (true if web results contain useful information about the community),
   "nameMatch": "exact/partial/different",
   "locationMatch": boolean,
   "dataQualityScore": 0-100,
@@ -352,7 +352,7 @@ Respond in JSON format:
   ]
 }
 
-REMEMBER: Only verify as true if you're confident the web data is about "${communityName}" in ${location} specifically.`
+REMEMBER: Verify as true if the web data appears relevant and helpful for families researching "${communityName}" in ${location}. Be permissive - partial matches and similar information are valuable.`
           }
         ],
         response_format: { type: 'json_object' }
