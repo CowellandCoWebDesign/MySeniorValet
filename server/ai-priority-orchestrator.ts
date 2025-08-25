@@ -1,14 +1,14 @@
 /**
  * AI Priority Orchestrator for MySeniorValet
  * 
- * Priority Order (Updated August 10, 2025):
+ * Priority Order (Updated August 25, 2025):
  * 1. Perplexity (Primary) - Real-time web search and verification of alternative sources
- * 2. Claude (Secondary) - Complex reasoning, analysis, and care planning
- * 3. ChatGPT (Backup) - General purpose fallback
+ * 2. ChatGPT (Secondary) - Complex reasoning, analysis, and care planning
+ * 3. Claude (Backup) - Fallback when ChatGPT unavailable (credit limits affecting Claude)
  * 
  * Note: Gemini and Grok removed from orchestration per user request (Aug 8, 2025)
  * This orchestrator prioritizes Perplexity for web-based verification, 
- * Claude for deep analysis, and ChatGPT as reliable backup.
+ * ChatGPT for reliable analysis, and Claude as backup only.
  */
 
 import Anthropic from '@anthropic-ai/sdk';
@@ -76,8 +76,8 @@ export class AIPriorityOrchestrator {
 
     console.log('🚀 AI Priority Orchestrator initialized:');
     console.log('  1️⃣ Perplexity:', this.aiStatus.perplexity ? '✅ Active (Primary - Web Search)' : '❌ Missing API key');
-    console.log('  2️⃣ Claude:', this.aiStatus.claude ? '✅ Active (Secondary - Analysis)' : '❌ Missing API key');
-    console.log('  3️⃣ ChatGPT:', this.aiStatus.chatgpt ? '✅ Active (Backup)' : '❌ Missing API key');
+    console.log('  2️⃣ ChatGPT:', this.aiStatus.chatgpt ? '✅ Active (Secondary - Analysis)' : '❌ Missing API key');
+    console.log('  3️⃣ Claude:', this.aiStatus.claude ? '✅ Active (Backup)' : '❌ Missing API key');
     console.log('  ❌ Gemini: Removed from orchestration');
     console.log('  ❌ Grok: Removed from orchestration');
   }

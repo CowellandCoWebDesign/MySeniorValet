@@ -333,11 +333,11 @@ if (process.env.NODE_ENV === 'development') {
     console.log('  ✅ Notification System - Multi-channel messaging');
     console.log('  ✅ Integration Manager - 10 external service connections');
     console.log('');
-    console.log('🤖 AI PRIORITY ORCHESTRATOR ACTIVATED (August 10, 2025):');
+    console.log('🤖 AI PRIORITY ORCHESTRATOR ACTIVATED (August 25, 2025):');
     console.log('  1️⃣ Perplexity (Primary - Web Search) - ' + (process.env.PERPLEXITY_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  2️⃣ Claude (Secondary - Analysis) - ' + (process.env.ANTHROPIC_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  3️⃣ ChatGPT (Backup) - ' + (process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  Note: Reordered for optimal web search & verification (Perplexity), analysis (Claude), fallback (ChatGPT)');
+    console.log('  2️⃣ ChatGPT (Secondary - Analysis) - ' + (process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'));
+    console.log('  3️⃣ Claude (Backup) - ' + (process.env.ANTHROPIC_API_KEY ? '✅ Configured' : '❌ Not configured'));
+    console.log('  Note: ChatGPT moved to #2 due to Claude API credit limits - more reliable secondary AI');
     console.log('');
     console.log('📄 DOCUMENSO DOCUMENT SIGNING:');
     console.log('  ' + (process.env.DOCUMENSO_API_KEY ? '✅ Self-hosted document signing ready' : '⚠️ Document signing not configured'));
