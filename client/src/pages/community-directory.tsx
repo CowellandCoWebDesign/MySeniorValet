@@ -778,7 +778,7 @@ export default function CommunityDirectory() {
                 <Button 
                   variant="outline" 
                   className="mt-4"
-                  onClick={() => setLocation('/search?city=Fort Worth&state=Texas')}
+                  onClick={() => setLocation('/map-search?city=Fort Worth&state=Texas')}
                 >
                   Search Fort Worth Communities
                 </Button>
@@ -987,7 +987,7 @@ export default function CommunityDirectory() {
               <Button 
                 variant="outline" 
                 className="mt-4"
-                onClick={() => setLocation('/search?state=Florida')}
+                onClick={() => setLocation('/map-search?state=Florida')}
               >
                 Search All Florida Communities
               </Button>
@@ -1159,7 +1159,7 @@ export default function CommunityDirectory() {
                 <Button 
                   variant="outline" 
                   className="border-cyan-300 text-cyan-700 hover:bg-cyan-50 dark:border-cyan-600 dark:text-cyan-300 dark:hover:bg-cyan-900/20"
-                  onClick={() => setLocation('/search?state=Florida')}
+                  onClick={() => setLocation('/map-search?state=Florida')}
                 >
                   View All Florida Communities
                 </Button>
@@ -2018,7 +2018,7 @@ export default function CommunityDirectory() {
               <Button 
                 variant="outline" 
                 className="mt-4"
-                onClick={() => setLocation('/search?location=Puerto Rico')}
+                onClick={() => setLocation('/map-search?location=Puerto Rico')}
               >
                 Search All Puerto Rico Communities
               </Button>
@@ -2201,7 +2201,7 @@ export default function CommunityDirectory() {
                 <Button 
                   variant="outline" 
                   className="border-cyan-300 text-cyan-700 hover:bg-cyan-50 dark:border-cyan-600 dark:text-cyan-300 dark:hover:bg-cyan-900/20"
-                  onClick={() => setLocation('/search?location=Puerto Rico')}
+                  onClick={() => setLocation('/map-search?location=Puerto Rico')}
                 >
                   Explore All 50+ Puerto Rico Communities
                 </Button>
@@ -2254,7 +2254,7 @@ export default function CommunityDirectory() {
               <Button 
                 variant="outline" 
                 className="mt-4"
-                onClick={() => setLocation('/search?location=Peru')}
+                onClick={() => setLocation('/map-search?location=Peru')}
               >
                 Search All Peru Communities
               </Button>
@@ -2437,7 +2437,7 @@ export default function CommunityDirectory() {
                 <Button 
                   variant="outline" 
                   className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/20"
-                  onClick={() => setLocation('/search?location=Peru')}
+                  onClick={() => setLocation('/map-search?location=Peru')}
                 >
                   Explore All Peru Communities
                 </Button>
@@ -2490,7 +2490,7 @@ export default function CommunityDirectory() {
               <Button 
                 variant="outline" 
                 className="mt-4"
-                onClick={() => setLocation('/search?location=Cuba')}
+                onClick={() => setLocation('/map-search?location=Cuba')}
               >
                 Search All Cuba Communities
               </Button>
@@ -2673,7 +2673,7 @@ export default function CommunityDirectory() {
                 <Button 
                   variant="outline" 
                   className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20"
-                  onClick={() => setLocation('/search?location=Cuba')}
+                  onClick={() => setLocation('/map-search?location=Cuba')}
                 >
                   Explore All Cuba Communities
                 </Button>
@@ -2722,7 +2722,7 @@ export default function CommunityDirectory() {
               <Button 
                 variant="outline" 
                 className="mt-4"
-                onClick={() => setLocation('/search?location=Costa Rica')}
+                onClick={() => setLocation('/map-search?location=Costa Rica')}
               >
                 Search All Costa Rica Communities
               </Button>
@@ -2905,7 +2905,7 @@ export default function CommunityDirectory() {
                 <Button 
                   variant="outline" 
                   className="border-green-300 text-green-700 hover:bg-green-50 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-900/20"
-                  onClick={() => setLocation('/search?location=Costa Rica')}
+                  onClick={() => setLocation('/map-search?location=Costa Rica')}
                 >
                   Explore All Costa Rica Communities
                 </Button>
@@ -2954,7 +2954,7 @@ export default function CommunityDirectory() {
               <Button 
                 variant="outline" 
                 className="mt-4"
-                onClick={() => setLocation('/search?location=Panama')}
+                onClick={() => setLocation('/map-search?location=Panama')}
               >
                 Search All Panama Communities
               </Button>
@@ -3137,7 +3137,7 @@ export default function CommunityDirectory() {
                 <Button 
                   variant="outline" 
                   className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20"
-                  onClick={() => setLocation('/search?location=Panama')}
+                  onClick={() => setLocation('/map-search?location=Panama')}
                 >
                   Explore All Panama Communities
                 </Button>
@@ -3390,7 +3390,7 @@ export default function CommunityDirectory() {
                         <Button 
                           variant="outline" 
                           className="w-full mt-4"
-                          onClick={() => setLocation(`/search?care_type=${type.id}`)}
+                          onClick={() => setLocation(`/map-search?care_type=${type.id}`)}
                         >
                           Search {type.name} Communities
                           <ChevronRight className="ml-2 h-4 w-4" />
@@ -3414,7 +3414,7 @@ export default function CommunityDirectory() {
                 <Button 
                   size="lg"
                   className="bg-white text-blue-600 hover:bg-gray-100"
-                  onClick={() => setLocation('/search')}
+                  onClick={() => setLocation('/simplified-search')}
                 >
                   <Search className="mr-2 h-5 w-5" />
                   Start Your Search
