@@ -739,7 +739,7 @@ export default function MySeniorValetHome() {
           <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8 mt-2 sm:mt-8 md:mt-12 mb-3 sm:mb-6 text-center">
             {/* Main Heading - Better sizing for all screens */}
             <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-2 sm:mb-3 animate-fade-in-up drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] sm:drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] leading-tight">
-              Clear. Honest.<br className="sm:hidden" /> No Pressure.
+              Everything You Need.<br className="sm:hidden" /> Nothing You Pay.
             </h1>
             
             {/* FREE FOR FAMILIES ALWAYS Badge */}
@@ -752,8 +752,8 @@ export default function MySeniorValetHome() {
             
             {/* Subheading - Better sizing for all screens */}
             <p className="text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-100 sm:text-gray-200 max-w-4xl mx-auto animate-fade-in-up animation-delay-300 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] sm:drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-relaxed px-2">
-              <span className="hidden sm:inline">The only senior living platform that never sells your info. Search 34,000+ communities, move-in services, healthcare providers, vendors, and support resources with real pricing and trusted reviews—all in one transparent place. No fees, no subscriptions, no hidden costs for families.</span>
-              <span className="sm:hidden">Search 34,000+ communities with real pricing and trusted reviews. No fees for families.</span>
+              <span className="hidden sm:inline">The only senior living platform that NEVER sells your info, nor requires it in order to show you all of the options available! Search 35,000+ Senior Living Communities across the globe with real pricing, availability, and trusted reviews for FREE! PLUS, access to 1,000's of move-in services to help you get there, Healthcare and Caregiving providers to ensure access to care options during your stay, and also Support Resources to help you stay there—all in one transparent place. Finally, a platform built for families, not profits....Welcome to MySeniorValet 💙</span>
+              <span className="sm:hidden">Search 35,000+ communities with real pricing and trusted reviews. No fees, no data selling. Welcome to MySeniorValet 💙</span>
             </p>
           </div>
           
