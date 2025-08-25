@@ -1810,6 +1810,103 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
+      {/* Hawaii Communities Section */}
+      {hawaiiCommunities && hawaiiCommunities.communities && hawaiiCommunities.communities.length > 0 && (
+        <section className="px-4 py-12 bg-gradient-to-br from-blue-50 to-teal-50 dark:from-gray-900 dark:to-gray-800">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-8 text-center">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                🌺 Hawaii Senior Living Communities
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                Discover paradise living with {hawaiiCommunities.communities.length} communities across the Hawaiian Islands
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {hawaiiCommunities.communities.slice(0, 8).map((community) => (
+                <Card 
+                  key={community.id} 
+                  className="hover:shadow-xl transition-all duration-300 cursor-pointer group"
+                  onClick={() => window.location.href = `/community/${community.id}`}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <Badge className="bg-gradient-to-r from-blue-500 to-teal-500 text-white">
+                        {community.city || 'Hawaii'}
+                      </Badge>
+                      {community.hudProperty && (
+                        <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                          HUD
+                        </Badge>
+                      )}
+                    </div>
+                    <CardTitle className="text-lg line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      {community.name}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <MapPin className="h-4 w-4" />
+                        <span className="line-clamp-1">{community.address}</span>
+                      </div>
+                      {community.startingPrice && (
+                        <div className="flex items-center gap-2 text-sm font-semibold text-green-600 dark:text-green-400">
+                          <DollarSign className="h-4 w-4" />
+                          <span>From ${community.startingPrice}/mo</span>
+                        </div>
+                      )}
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {community.careTypes?.slice(0, 2).map((type, index) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
+                            {type}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            {hawaiiCommunities.communities.length > 8 && (
+              <div className="mt-8 text-center">
+                <Button 
+                  onClick={() => window.location.href = '/map-search?state=HI'}
+                  className="bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white"
+                >
+                  View All {hawaiiCommunities.communities.length} Hawaii Communities
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Red Tag Deals Section */}
+      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
+        <div className="max-w-7xl mx-auto">
+          <RedTagDeals />
+        </div>
+      </section>
+
+      {/* Find Your Perfect Care Level Section */}
+      <section className="px-4 py-12 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8 text-center">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              Find Your Perfect Care Level
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              Explore our Complete Care Spectrum with 10 levels of senior living options
+            </p>
+          </div>
+          <CareSpectrumSlider />
+        </div>
+      </section>
+
       {/* Senior Living Command Center Section - Moved after Resources */}
       <section className="relative overflow-hidden">
         {/* Command Center Header with Beautiful Gradient - matching marketplace page */}
