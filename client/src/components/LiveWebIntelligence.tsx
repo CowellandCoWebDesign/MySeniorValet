@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -391,13 +392,17 @@ export function LiveWebIntelligence({
           <CardContent>
             <div className="grid gap-3">
               {extractedData.relatedCommunities.map((community: any, idx: number) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <Link 
+                  key={idx} 
+                  href={`/search?q=${encodeURIComponent(community.name)}`}
+                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer group"
+                >
                   <div>
-                    <p className="font-medium">{community.name}</p>
+                    <p className="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400">{community.name}</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">{community.address}</p>
                   </div>
                   <Badge variant="outline">{community.type}</Badge>
-                </div>
+                </Link>
               ))}
             </div>
           </CardContent>

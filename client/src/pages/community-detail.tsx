@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'wouter';
+import { useParams, useLocation, Link } from 'wouter';
 import { useResponsive } from '@/contexts/ResponsiveContext';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
@@ -189,10 +189,15 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {analysis.communityMentions.map((communityName: string, index: number) => (
-                  <div key={index} className="flex items-center gap-2 p-3 bg-white/50 dark:bg-gray-900/50 rounded-lg border border-blue-200/50 dark:border-blue-700/50">
-                    <Home className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{communityName}</span>
-                  </div>
+                  <Link 
+                    key={index} 
+                    href={`/search?q=${encodeURIComponent(communityName)}`}
+                    className="flex items-center gap-2 p-3 bg-white/50 dark:bg-gray-900/50 rounded-lg border border-blue-200/50 dark:border-blue-700/50 hover:bg-white/70 dark:hover:bg-gray-900/70 hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer group"
+                  >
+                    <Home className="w-4 h-4 text-blue-500 flex-shrink-0 group-hover:text-blue-600" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">{communityName}</span>
+                    <ExternalLink className="w-3 h-3 text-gray-400 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
                 ))}
               </div>
             </div>
@@ -859,18 +864,32 @@ const RealTimeInsights = ({ community, onVerificationReport, onPhotosUpdate }: {
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
-                {realTimeData.sources.map((source: string, idx: number) => (
-                  <a 
-                    key={idx}
-                    href={source}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors flex items-center"
-                  >
-                    <ExternalLink className="w-3 h-3 mr-1" />
-                    Source {idx + 1}
-                  </a>
-                ))}
+                {realTimeData.sources.map((source: string, idx: number) => {
+                  // Extract domain name from URL
+                  let displayName = 'Source';
+                  try {
+                    const url = new URL(source);
+                    displayName = url.hostname.replace('www.', '').split('.')[0];
+                    // Capitalize first letter
+                    displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+                  } catch (e) {
+                    displayName = `Source ${idx + 1}`;
+                  }
+                  
+                  return (
+                    <a 
+                      key={idx}
+                      href={source}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors flex items-center"
+                      title={source}
+                    >
+                      <ExternalLink className="w-3 h-3 mr-1" />
+                      {displayName}
+                    </a>
+                  );
+                })}
               </div>
             </div>
           )}
