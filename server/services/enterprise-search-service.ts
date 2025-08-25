@@ -107,53 +107,60 @@ class EnterpriseSearchService {
       searchStrategy = 'radius';
     }
 
-    // Text search with multiple strategies
+    // Text search with prioritized strategies (exact matches first)
     if (query) {
       const searchTerms = this.parseSearchQuery(query);
-      const textConditions = [];
-
-      // Strategy 1: Exact match (highest weight)
-      textConditions.push(
+      
+      // Primary search: Exact and prefix matches only (more restrictive)
+      const primaryConditions = [];
+      
+      // Strategy 1: Exact match (highest priority)
+      primaryConditions.push(
         or(
-          ilike(communities.name, query),
+          eq(communities.name, query),
           eq(communities.city, query),
           eq(communities.state, query.toUpperCase())
         )
       );
 
-      // Strategy 2: Prefix match
-      textConditions.push(
+      // Strategy 2: Exact case-insensitive match
+      primaryConditions.push(
+        or(
+          ilike(communities.name, query),
+          ilike(communities.city, query)
+        )
+      );
+
+      // Strategy 3: Prefix match (more restrictive)
+      primaryConditions.push(
         or(
           ilike(communities.name, `${query}%`),
           ilike(communities.city, `${query}%`)
         )
       );
 
-      // Strategy 3: Contains match
-      textConditions.push(
-        or(
-          ilike(communities.name, `%${query}%`),
-          ilike(communities.city, `%${query}%`),
-          ilike(communities.address, `%${query}%`),
-          ilike(communities.description, `%${query}%`)
-        )
-      );
-
-      // Strategy 4: Individual word matching for multi-word queries
-      if (searchTerms.length > 1) {
-        const wordConditions = searchTerms.map(term => 
+      // Only add broader matching if query is long enough to avoid confusion
+      if (query.length >= 5) {
+        // Strategy 4: Contains match (restricted to longer queries)
+        primaryConditions.push(
           or(
-            ilike(communities.name, `%${term}%`),
-            ilike(communities.city, `%${term}%`),
-            ilike(communities.description, `%${term}%`)
+            ilike(communities.name, `%${query}%`),
+            ilike(communities.address, `%${query}%`)
           )
         );
-        textConditions.push(or(...wordConditions));
-        fuzzyMatchesUsed = true;
+        
+        // Strategy 5: Multi-word matching (only for specific cases)
+        if (searchTerms.length > 1 && query.length >= 8) {
+          const wordConditions = searchTerms.map(term => 
+            ilike(communities.name, `%${term}%`)
+          );
+          primaryConditions.push(and(...wordConditions));
+          fuzzyMatchesUsed = true;
+        }
       }
 
-      conditions.push(or(...textConditions));
-      searchStrategy = 'text_search';
+      conditions.push(or(...primaryConditions));
+      searchStrategy = 'precise_text_search';
     }
 
     // Location filters
