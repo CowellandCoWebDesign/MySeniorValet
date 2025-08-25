@@ -578,6 +578,12 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
+      {/* Market Intelligence Section - MOVED UP FROM BEFORE FLORIDA */}
+      <section className="px-4 py-12 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <MarketIntelligence />
+        </div>
+      </section>
 
       {/* MOVED COMMUNITY SLIDER SECTIONS - NOW POSITIONED RIGHT AFTER DATABASE FEATURES */}
       
