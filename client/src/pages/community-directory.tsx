@@ -447,67 +447,66 @@ export default function CommunityDirectory() {
       </section>
 
       {/* Search Section - Powered by AI */}
-      <section className="px-4 py-8 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 shadow-lg">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-4 text-center">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              🚀 Wave 1: Natural Language Search
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-2">
-              Ask naturally! Try: "Memory care under $3,000 in Dallas with good reviews"
-            </p>
-          </div>
-          
-          {/* Natural Language Search Bar - Wave 1 Enhancement */}
-          <div className="mb-6">
-            <NaturalLanguageSearchBar className="mb-4" />
-          </div>
-          
-          <div className="text-center mb-4">
-            <div className="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-              <span>or use</span>
-              <ChevronRight className="h-4 w-4" />
+      <section className="px-4 py-8 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900">
+        <div className="max-w-4xl mx-auto">
+          {/* Natural Language Search */}
+          <div className="mb-8">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                AI-Powered Natural Language Search
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                Just type what you're looking for naturally
+              </p>
             </div>
+            
+            <NaturalLanguageSearchBar className="max-w-3xl mx-auto" />
           </div>
           
-          <div className="mb-4 text-center">
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
-              Traditional Search
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              35,000+ Communities • Live Pricing • Real Reviews • Instant Results
-            </p>
+          {/* Divider */}
+          <div className="flex items-center gap-4 my-8">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
+            <span className="text-sm text-gray-500 dark:text-gray-400 px-3">or</span>
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
           </div>
-          <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-2">
-            <div className="flex items-center">
-              <div className="flex-1">
-                <AutocompleteSearch
-                  value={searchTerm}
-                  onChange={setSearchTerm}
-                  onSubmit={(value) => {
-                    if (value) {
-                      setLocation(`/map-search?q=${encodeURIComponent(value)}`);
-                    }
-                  }}
-                  placeholder="Search communities by name, city, state, zip code, or care type..."
-                  inputClassName="w-full pl-10 pr-3 py-4 text-lg border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                  hideSearchButton={true}
-                />
-              </div>
-              <div className="flex items-center gap-2 mr-2">
-                <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs px-3 py-1 font-semibold">
-                  AI-Powered
-                </Badge>
+          
+          {/* Traditional Search */}
+          <div className="mb-4">
+            <div className="text-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                Traditional Search
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                35,000+ Communities • Live Pricing • Real Reviews
+              </p>
+            </div>
+            
+            <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center p-2">
+                <Search className="ml-3 h-5 w-5 text-gray-400" />
+                <div className="flex-1">
+                  <AutocompleteSearch
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    onSubmit={(value) => {
+                      if (value) {
+                        setLocation(`/map-search?q=${encodeURIComponent(value)}`);
+                      }
+                    }}
+                    placeholder="Search by name, city, state, or zip..."
+                    inputClassName="w-full pl-3 pr-3 py-3 text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                    hideSearchButton={true}
+                  />
+                </div>
                 <Button
-                  type="submit"
                   onClick={() => {
                     if (searchTerm) {
                       setLocation(`/map-search?q=${encodeURIComponent(searchTerm)}`);
                     }
                   }}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-3 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
+                  className="mr-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all"
                 >
-                  <Search className="w-5 h-5" />
+                  Search
                 </Button>
               </div>
             </div>
