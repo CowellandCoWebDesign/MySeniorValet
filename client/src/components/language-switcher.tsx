@@ -129,7 +129,11 @@ export function LanguageSwitcher({
               <div>• 🇨🇦 7,705 Canadian communities</div>
               <div>• 🇲🇽 313 Mexican communities</div>
               <div>• 100% Quebec bilingual</div>
-              <div>• Instant translation available</div>
+              <div>• UI translation available</div>
+              <div className="mt-1 pt-1 border-t border-gray-200 dark:border-gray-700">
+                <div className="font-semibold">Note:</div>
+                <div>AI search results are automatically translated to English for consistency</div>
+              </div>
             </div>
           </div>
         </DropdownMenuContent>
