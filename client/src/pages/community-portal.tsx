@@ -353,72 +353,177 @@ export default function CommunityPortal() {
         </div>
 
         {/* How to Sign Up Guide */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 mb-8 max-w-4xl mx-auto">
-          <h2 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-4 flex items-center gap-2">
+        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 mb-8 max-w-6xl mx-auto">
+          <h2 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-6 flex items-center gap-2">
             <Info className="h-5 w-5" />
-            How to Get Started
+            How to Get Started - Choose Your Path
           </h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                For Existing Communities
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                If your community is already listed on MySeniorValet:
-              </p>
-              <ol className="text-sm space-y-2 text-gray-600 dark:text-gray-300">
-                <li className="flex gap-2">
-                  <span className="text-blue-600 font-semibold">1.</span>
-                  Search for your community on our home page
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-blue-600 font-semibold">2.</span>
-                  Click on your community listing
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-blue-600 font-semibold">3.</span>
-                  Click "Claim This Community" button
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-blue-600 font-semibold">4.</span>
-                  Choose your plan below (Free or Paid)
-                </li>
-              </ol>
-            </div>
-            
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                For New Communities
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                If your community is NOT yet listed:
-              </p>
-              <ol className="text-sm space-y-2 text-gray-600 dark:text-gray-300">
-                <li className="flex gap-2">
-                  <span className="text-blue-600 font-semibold">1.</span>
-                  Choose "Verified Listing (Free)" below
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-blue-600 font-semibold">2.</span>
-                  Fill out the community information form
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-blue-600 font-semibold">3.</span>
-                  Your listing will be created instantly
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-blue-600 font-semibold">4.</span>
-                  Upgrade anytime to unlock more features
-                </li>
-              </ol>
+          
+          <div className="grid md:grid-cols-3 gap-6 mb-6">
+            {/* Existing Communities - Claim */}
+            <Card className="border-2 border-yellow-300 dark:border-yellow-600 bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Crown className="h-6 w-6 text-yellow-600" />
+                  <CardTitle className="text-yellow-800 dark:text-yellow-200">Claim Existing Community</CardTitle>
+                </div>
+                <CardDescription className="text-yellow-700 dark:text-yellow-300">
+                  Your community is already in our database
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <ol className="text-sm space-y-2 text-yellow-800 dark:text-yellow-200">
+                  <li className="flex gap-2">
+                    <span className="text-yellow-600 font-semibold">1.</span>
+                    Search for your community on our home page
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-yellow-600 font-semibold">2.</span>
+                    Click "Claim This Community" button
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-yellow-600 font-semibold">3.</span>
+                    Verify ownership with documentation
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-yellow-600 font-semibold">4.</span>
+                    Choose your tier below
+                  </li>
+                </ol>
+                <Link href="/">
+                  <Button className="w-full bg-yellow-600 hover:bg-yellow-700 text-white">
+                    <Crown className="w-4 h-4 mr-2" />
+                    Search & Claim Now
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* New Communities - Register */}
+            <Card className="border-2 border-green-300 dark:border-green-600 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Building className="h-6 w-6 text-green-600" />
+                  <CardTitle className="text-green-800 dark:text-green-200">Add New Community</CardTitle>
+                </div>
+                <CardDescription className="text-green-700 dark:text-green-300">
+                  Your community is not yet listed
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <ol className="text-sm space-y-2 text-green-800 dark:text-green-200">
+                  <li className="flex gap-2">
+                    <span className="text-green-600 font-semibold">1.</span>
+                    Choose "Verified Listing (Free)" below
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-green-600 font-semibold">2.</span>
+                    Fill out community information form
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-green-600 font-semibold">3.</span>
+                    Upload verification documents
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="text-green-600 font-semibold">4.</span>
+                    Go live instantly with your listing
+                  </li>
+                </ol>
+                <Button
+                  onClick={() => handleUpgrade('Verified Listing')}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <Building className="w-4 h-4 mr-2" />
+                  Register for Free
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Corporate/Multi-Location */}
+            <Card className="border-2 border-purple-300 dark:border-purple-600 bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Building className="h-6 w-6 text-purple-600" />
+                  <CardTitle className="text-purple-800 dark:text-purple-200">Corporate/Multi-Location</CardTitle>
+                </div>
+                <CardDescription className="text-purple-700 dark:text-purple-300">
+                  Manage 10+ communities or chain
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-2 text-sm text-purple-800 dark:text-purple-200">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-purple-600" />
+                    <span>Volume pricing discounts</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-purple-600" />
+                    <span>Centralized dashboard</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-purple-600" />
+                    <span>White-label options</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-purple-600" />
+                    <span>Dedicated support manager</span>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => window.open('mailto:hello@myseniorvalet.com?subject=Corporate Partnership Inquiry', '_blank')}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  Contact Sales
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Verification Process */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+              <Shield className="h-5 w-5 text-blue-600" />
+              Verification & Security Process
+            </h3>
+            <div className="grid md:grid-cols-4 gap-4 text-sm">
+              <div className="text-center">
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <span className="text-xs font-bold text-blue-600">1</span>
+                </div>
+                <p className="font-medium">Submit Request</p>
+                <p className="text-gray-600 dark:text-gray-400">Provide contact & role info</p>
+              </div>
+              <div className="text-center">
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <span className="text-xs font-bold text-blue-600">2</span>
+                </div>
+                <p className="font-medium">Documentation</p>
+                <p className="text-gray-600 dark:text-gray-400">Upload verification documents</p>
+              </div>
+              <div className="text-center">
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <span className="text-xs font-bold text-blue-600">3</span>
+                </div>
+                <p className="font-medium">Review</p>
+                <p className="text-gray-600 dark:text-gray-400">We verify within 24 hours</p>
+              </div>
+              <div className="text-center">
+                <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                </div>
+                <p className="font-medium">Access Granted</p>
+                <p className="text-gray-600 dark:text-gray-400">Dashboard & management tools</p>
+              </div>
             </div>
           </div>
+
           <div className="mt-4 p-3 bg-amber-100 dark:bg-amber-900/20 rounded-md">
             <p className="text-sm text-amber-800 dark:text-amber-200 flex items-start gap-2">
               <Award className="h-4 w-4 mt-0.5 flex-shrink-0" />
               <span>
-                <strong>Free Tier Benefits:</strong> Basic listing with contact info, 1 photo upload, 
-                tour scheduler, and search visibility - perfect for getting started!
+                <strong>Start Free, Scale Smart:</strong> Begin with our free verified listing (contact info, 1 photo, tour scheduler, search visibility) 
+                and upgrade as your needs grow. All tiers include professional support and training.
               </span>
             </p>
           </div>
