@@ -195,49 +195,40 @@ export class MultiAIVerificationService {
       const careTypes = communityContext?.careTypes?.join(', ') || 'senior living';
       const communityType = communityContext?.communityType || 'senior living community';
 
-      const prompt = `You are a senior living verification expert analyzing ${communityName}, a ${communityType} offering ${careTypes} in ${location}.
+      const prompt = `CRITICAL: You are verifying information for "${communityName}" located in ${location}.
 
-Your expertise is crucial for families making life-changing decisions. Provide comprehensive verification and insights.
+DO NOT confuse this with similar named communities. Focus ONLY on this specific community.
 
-Data from live web search:
+Community Context:
+- EXACT NAME: ${communityName}
+- LOCATION: ${location}
+- TYPE: ${communityType}
+- CARE LEVELS: ${careTypes}
+
+Web Search Results:
 ${JSON.stringify(perplexityData, null, 2)}
 
-Community profile:
-- Type: ${communityType}
-- Care levels: ${careTypes}
-- Beds: ${communityContext?.bedCount || 'Unknown'}
-- Year established: ${communityContext?.yearEstablished || 'Unknown'}
-- Ownership: ${communityContext?.ownershipType || 'Unknown'}
-- Certifications: ${communityContext?.certifications?.join(', ') || 'Unknown'}
-
-Provide thorough verification in JSON format:
+Respond with JSON only:
 {
-  "verified": boolean (assessment of data accuracy and completeness),
-  "confidence": 0-100 (your confidence in the verification),
+  "verified": true/false,
+  "confidence": 0-100,
   "findings": [
-    "Verified pricing information with context and implications",
-    "Availability status and waitlist insights",
-    "Recent changes or updates affecting the community",
-    "Quality indicators from the data",
-    "Regulatory compliance observations",
-    "Notable features or services confirmed"
+    "Key facts SPECIFIC to ${communityName}",
+    "Pricing details if available",
+    "Services and amenities confirmed",
+    "Contact information verified"
   ],
   "concerns": [
-    "Data inconsistencies or gaps that need clarification",
-    "Red flags families should investigate",
-    "Missing information that's typically available",
-    "Potential issues based on the data patterns"
+    "Any data inconsistencies found",
+    "Missing critical information",
+    "Red flags requiring follow-up"
   ],
   "recommendations": [
-    "Specific questions families should ask during tours",
-    "Documents to request for verification",
-    "Timeline considerations based on availability",
-    "Financial planning insights specific to this community",
-    "Areas requiring additional research"
+    "Tour questions specific to this community",
+    "Documents to request",
+    "Timeline considerations"
   ]
-}
-
-Be thorough and helpful - your analysis helps families navigate one of life's most important decisions.`;
+}`;
 
       const response = await anthropic.messages.create({
         model: 'claude-sonnet-4-20250514', // Latest Claude model
@@ -299,25 +290,27 @@ Be thorough and helpful - your analysis helps families navigate one of life's mo
         messages: [
           {
             role: 'system',
-            content: 'You are a market analyst specializing in senior living competitive intelligence. Focus on market positioning and comparative analysis. Respond with JSON only.'
+            content: 'CRITICAL: You are verifying data for ONE specific senior living community. Do NOT confuse it with similarly named communities. Focus ONLY on the exact community name provided. Respond with JSON only.'
           },
           {
             role: 'user',
-            content: `Analyze the market position and value proposition for ${communityName}, a ${communityType} in ${location}.
+            content: `IMPORTANT: You are analyzing "${communityName}" ONLY. Do NOT confuse this with "Hilltop Springs" or any other similar community.
 
-You're helping families understand the competitive landscape and make informed financial decisions.
+TARGET COMMUNITY: ${communityName}
+LOCATION: ${location}
+TYPE: ${communityType}
 
-Live web data:
+CRITICAL: This is NOT "Hilltop Springs" - this is "${communityName}".
+
+Live web search data specifically about ${communityName}:
 ${JSON.stringify(perplexityData, null, 2)}
 
 Community profile:
 - Care types: ${careTypes}
 - Bed count: ${communityContext?.bedCount || 'Unknown'}
-- Ownership: ${communityContext?.ownershipType || 'Unknown'}
 - Year established: ${communityContext?.yearEstablished || 'Unknown'}
-- Rating: ${communityContext?.rating || 'Unknown'}
 
-Provide comprehensive market intelligence in JSON format:
+Provide market analysis ONLY for ${communityName} in JSON format:
 {
   "verified": boolean (market data validation),
   "confidence": 0-100 (confidence in analysis),

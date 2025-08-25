@@ -107,60 +107,39 @@ class EnterpriseSearchService {
       searchStrategy = 'radius';
     }
 
-    // Text search with prioritized strategies (exact matches first)
+    // Text search with balanced precision (FIXED VERSION)
     if (query) {
       const searchTerms = this.parseSearchQuery(query);
-      
-      // Primary search: Exact and prefix matches only (more restrictive)
-      const primaryConditions = [];
-      
-      // Strategy 1: Exact match (highest priority)
-      primaryConditions.push(
+      const textConditions = [];
+
+      // Strategy 1: Exact match (highest weight)
+      textConditions.push(
         or(
-          eq(communities.name, query),
+          ilike(communities.name, query),
           eq(communities.city, query),
           eq(communities.state, query.toUpperCase())
         )
       );
 
-      // Strategy 2: Exact case-insensitive match
-      primaryConditions.push(
-        or(
-          ilike(communities.name, query),
-          ilike(communities.city, query)
-        )
-      );
-
-      // Strategy 3: Prefix match (more restrictive)
-      primaryConditions.push(
+      // Strategy 2: Prefix match (good precision)
+      textConditions.push(
         or(
           ilike(communities.name, `${query}%`),
           ilike(communities.city, `${query}%`)
         )
       );
 
-      // Only add broader matching if query is long enough to avoid confusion
-      if (query.length >= 5) {
-        // Strategy 4: Contains match (restricted to longer queries)
-        primaryConditions.push(
-          or(
-            ilike(communities.name, `%${query}%`),
-            ilike(communities.address, `%${query}%`)
-          )
-        );
-        
-        // Strategy 5: Multi-word matching (only for specific cases)
-        if (searchTerms.length > 1 && query.length >= 8) {
-          const wordConditions = searchTerms.map(term => 
-            ilike(communities.name, `%${term}%`)
-          );
-          primaryConditions.push(and(...wordConditions));
-          fuzzyMatchesUsed = true;
-        }
-      }
+      // Strategy 3: Contains match (broader matching)
+      textConditions.push(
+        or(
+          ilike(communities.name, `%${query}%`),
+          ilike(communities.city, `%${query}%`),
+          ilike(communities.address, `%${query}%`)
+        )
+      );
 
-      conditions.push(or(...primaryConditions));
-      searchStrategy = 'precise_text_search';
+      conditions.push(or(...textConditions));
+      searchStrategy = 'balanced_text_search';
     }
 
     // Location filters

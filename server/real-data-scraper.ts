@@ -655,12 +655,8 @@ export class RealDataScraper {
         address: '451 Hilltop Dr, Redding, CA',
         phone: '(530) 241-4444'
       },
-      'Hilltop Springs': {
-        address: '7 Hilltop Dr, Redding, CA',
-        phone: '(530) 395-1777'
-      },
       'Hilltop Springs Senior Living': {
-        name: 'Hilltop Springs',
+        name: 'Hilltop Springs Senior Living',
         address: '7 Hilltop Dr, Redding, CA',
         phone: '(530) 395-1777'
       }
