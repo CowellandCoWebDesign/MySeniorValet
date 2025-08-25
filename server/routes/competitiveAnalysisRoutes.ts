@@ -149,16 +149,45 @@ router.post('/api/competitive-analysis', async (req, res) => {
     // Extract mentioned community names - improved pattern to avoid generic terms
     const rawMatches = content.match(/\b(?:The\s+)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home|Place|House|Terrace|Gardens?|Lodge|Park|Estates?|Court|Heights|Oaks|Pines|Springs|Hills|Valley|Creek|Ridge|Point|Plaza|Square|Tower|Arms|Haven|Crossing|Landing|Station|Walk|Way|Trail|Grove|Meadows?|Fields?|Woods?|Forest|Lake|River|Bay|Beach|Shore|Coast|Harbor|Port|Vista|View|Pointe)\b/g) || [];
     
-    // Filter out generic care type terms
+    // Filter out generic care type terms and descriptive phrases
     const genericTerms = [
       'Assisted Living', 'Memory Care', 'Independent Living', 'Nursing Home',
       'Senior Living', 'Skilled Care', 'Enhanced Care', 'Residential Care',
       'Long Term Care', 'Short Term Care', 'Respite Care', 'Home Care',
-      'Adult Day Care', 'Continuing Care', 'Retirement Community'
+      'Adult Day Care', 'Continuing Care', 'Retirement Community',
+      'Nearby Senior Living', 'Average Assisted Living', 'Local Senior Living',
+      'Area Senior Living', 'Regional Senior Care', 'National Senior Living',
+      'Typical Assisted Living', 'Standard Memory Care', 'Basic Nursing Home',
+      'General Senior Care', 'Common Senior Living', 'Overall Senior Care'
+    ];
+    
+    // Additional filters for generic descriptors
+    const genericDescriptors = [
+      'Nearby', 'Average', 'Local', 'Area', 'Regional', 'National', 
+      'Typical', 'Standard', 'Basic', 'General', 'Common', 'Overall',
+      'Many', 'Most', 'All', 'Some', 'Several', 'Various', 'Multiple'
     ];
     
     const communityMentions = Array.from(new Set(
-      rawMatches.filter(name => !genericTerms.includes(name))
+      rawMatches.filter(name => {
+        // Check if it's in the generic terms list
+        if (genericTerms.includes(name)) return false;
+        
+        // Check if it starts with a generic descriptor
+        const firstWord = name.split(' ')[0];
+        if (genericDescriptors.includes(firstWord)) return false;
+        
+        // Check if it's too short to be a real community name
+        if (name.split(' ').length < 2) return false;
+        
+        // Additional check: must have at least one non-generic word
+        const words = name.split(' ');
+        const hasSpecificName = words.some(word => 
+          !['Senior', 'Assisted', 'Memory', 'Living', 'Care', 'Home', 'Center', 'Community'].includes(word)
+        );
+        
+        return hasSpecificName;
+      })
     ));
 
     // Search our database for mentioned communities
