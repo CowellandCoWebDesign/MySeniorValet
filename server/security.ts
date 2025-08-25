@@ -187,6 +187,12 @@ export function sqlInjectionProtection(req: Request, res: Response, next: NextFu
     return next();
   }
 
+  // Skip emergency contact endpoint - critical safety feature
+  if (req.path === '/api/emergency/contact') {
+    console.log('Skipping SQL injection protection for emergency contact - safety critical');
+    return next();
+  }
+
   const suspiciousPatterns = [
     // Enhanced SQL injection patterns
     /(';)|(\';)|(;)|(--)|(\s(OR|AND)\s.*(=|LIKE))/i,

@@ -112,6 +112,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const feedbackRoutes = await import('./routes/feedbackRoutes');
   app.use('/api/feedback', feedbackRoutes.default);
   
+  // Register COMPREHENSIVE NOTIFICATION SYSTEM
+  const { registerComprehensiveNotificationRoutes } = await import('./routes/comprehensive-notification-routes');
+  registerComprehensiveNotificationRoutes(app);
+  
   // Import and register webhook routes
   const webhookRoutes = await import('./routes/webhookRoutes');
   const webhookDevelopment = await import('./routes/webhookDevelopment');
