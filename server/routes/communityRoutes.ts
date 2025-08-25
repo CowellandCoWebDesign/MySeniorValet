@@ -984,7 +984,7 @@ export function registerCommunityRoutes(app: Express) {
         .select()
         .from(communities)
         .where(
-          eq(communities.state, 'MX')
+          eq(communities.country, 'Mexico')
         )
         .orderBy(desc(communities.rating))
         .limit(100);

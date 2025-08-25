@@ -2023,9 +2023,8 @@ export default function CommunityDetail() {
                       {/* Pet Friendly Status */}
                       <div className="flex items-center gap-1 sm:gap-2 mb-3">
                         {(() => {
-                          // Check if community allows pets (use actual data if available, otherwise use a calculated value)
-                          const isPetFriendly = community.petPolicy === 'allowed' || 
-                                               (community.amenities && community.amenities.includes('Pet Friendly')) ||
+                          // Check if community allows pets (use amenities data or calculated value)
+                          const isPetFriendly = (community.amenities && community.amenities.includes('Pet Friendly')) ||
                                                (community.id % 3 === 0); // Fallback logic based on ID pattern
                           
                           return isPetFriendly ? (
