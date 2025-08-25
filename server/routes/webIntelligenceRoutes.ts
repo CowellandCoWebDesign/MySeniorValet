@@ -67,19 +67,97 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
     }
     
     if (!isVerified) {
-      // Return a warning instead of potentially wrong community data
-      console.warn(`⚠️ Identity verification failed for ${communityName} - data may be about different community`);
+      console.warn(`⚠️ Initial verification failed for ${communityName} - attempting targeted search for correct community`);
       
-      const verificationStatus = {
-        identityVerified: chatgptVerification?.identityVerified || false,
-        nameMatch: chatgptVerification?.nameMatch || 'unknown',
-        concerns: chatgptVerification?.concerns || []
-      };
+      // Try more targeted searches to find the RIGHT community
+      const retryAttempts = [];
+      
+      // Attempt 1: Search with exact name + address
+      if (address) {
+        retryAttempts.push(`"${communityName}" "${address}" senior living`);
+      }
+      
+      // Attempt 2: Search with exact name + city + "senior living community"
+      retryAttempts.push(`"${communityName}" "${city}" "${state}" "senior living community"`);
+      
+      // Attempt 3: Search with management company if mentioned
+      const managementHints = communityName.match(/Provincial Senior Living|Brookdale|Sunrise|Atria|Five Star|Holiday|Emeritus/i);
+      if (managementHints) {
+        retryAttempts.push(`"${communityName}" "${managementHints[0]}" ${city} ${state}`);
+      }
+      
+      console.log(`🔍 Attempting ${retryAttempts.length} targeted searches for ${communityName}`);
+      
+      let retrySuccess = false;
+      let retryResponse = null;
+      let retryVerification = null;
+      
+      for (let i = 0; i < retryAttempts.length && !retrySuccess; i++) {
+        try {
+          console.log(`🎯 Retry attempt ${i + 1}: ${retryAttempts[i]}`);
+          retryResponse = await perplexityService.searchRealTime(retryAttempts[i]);
+          
+          // Verify this retry attempt
+          const verificationService = new MultiAIVerificationService();
+          retryVerification = await verificationService.verifyWithChatGPT(
+            communityName, 
+            retryResponse, 
+            {
+              city,
+              state,
+              address: address || 'Not specified',
+              zipCode: zipCode || 'Not specified',
+              careTypes: ['Senior Living']
+            }
+          );
+          
+          console.log(`🔍 Retry ${i + 1} verification:`, {
+            identityVerified: retryVerification?.identityVerified,
+            nameMatch: retryVerification?.nameMatch
+          });
+          
+          // Check if this retry succeeded
+          if (retryVerification?.identityVerified === true && 
+              (retryVerification?.nameMatch === 'exact' || retryVerification?.nameMatch === 'partial')) {
+            retrySuccess = true;
+            console.log(`✅ Retry attempt ${i + 1} succeeded - found verified information`);
+            break;
+          }
+        } catch (error) {
+          console.error(`❌ Retry attempt ${i + 1} failed:`, error);
+          continue;
+        }
+      }
+      
+      if (retrySuccess && retryResponse && retryVerification) {
+        // Use the successful retry results
+        console.log(`🎉 Successfully found verified information for ${communityName} after retry`);
+        const structuredResponse = {
+          content: retryResponse.summary || '',
+          citations: retryResponse.sources || [],
+          images: retryResponse.images || [],
+          verified: true,
+          identityVerified: retryVerification.identityVerified,
+          nameMatch: retryVerification.nameMatch,
+          retryAttempt: true,
+          timestamp: new Date().toISOString()
+        };
+        
+        return res.json(structuredResponse);
+      }
+      
+      // If all retry attempts failed, show the verification alert
+      console.warn(`⚠️ All retry attempts failed for ${communityName} - returning verification alert`);
       
       return res.json({
         content: `**Data Verification Alert**
 
-We found search results for "${communityName}" in ${city}, ${state}, but we cannot verify that the information is specifically about this community. 
+We searched extensively for "${communityName}" in ${city}, ${state}, but cannot verify that the available information is specifically about this community. 
+
+**What We Tried:**
+- Initial web search with ${retryAttempts.length} follow-up targeted searches
+- Cross-verification with multiple AI systems
+- Address and location matching
 
 **Identity Check Results:**
 - Community Identity Verified: ${chatgptVerification?.identityVerified ? '✅ Yes' : '❌ No'}
@@ -102,6 +180,7 @@ For accurate information about ${communityName}, please contact them directly.`,
         nameMatch: chatgptVerification?.nameMatch,
         verificationConcerns: chatgptVerification?.concerns || [],
         verificationError: verificationError instanceof Error ? verificationError.message : null,
+        retryAttempts: retryAttempts.length,
         timestamp: new Date().toISOString()
       });
     }
