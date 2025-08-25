@@ -55,6 +55,7 @@ interface SavedCommunity {
   address: string;
   city: string;
   state: string;
+  zipCode?: string;
   priceRange: string;
   careType: string;
   rating: number;
@@ -205,25 +206,25 @@ export default function Dashboard() {
                 <h1 className="text-3xl font-bold mb-2">Welcome back, {user?.email || 'Explorer'}!</h1>
                 <p className="text-blue-100">Your senior living journey at a glance</p>
               </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold mb-1">{savedCommunities.length}</div>
+              <div className="text-center transition-all hover:scale-105">
+                <div className="text-4xl font-bold mb-1 animate-fade-in">{savedCommunities.length}</div>
                 <div className="text-blue-100 text-sm">Saved Communities</div>
-                <Badge className="mt-2 bg-white/20 text-white border-white/30">
-                  <TrendingUp className="w-3 h-3 mr-1" />
+                <Badge className="mt-2 bg-white/20 text-white border-white/30 backdrop-blur-sm">
+                  <TrendingUp className="w-3 h-3 mr-1 animate-pulse" />
                   Active
                 </Badge>
               </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold mb-1">{tourRequests.length}</div>
+              <div className="text-center transition-all hover:scale-105">
+                <div className="text-4xl font-bold mb-1 animate-fade-in">{tourRequests.length}</div>
                 <div className="text-blue-100 text-sm">Tour Requests</div>
-                <div className="mt-2 text-xs">
+                <div className="mt-2 text-xs bg-white/10 px-2 py-1 rounded-full backdrop-blur-sm">
                   {tourRequests.filter(t => t.status === 'confirmed').length} confirmed
                 </div>
               </div>
-              <div className="text-center">
-                <div className="text-4xl font-bold mb-1">{recentSearches.length}</div>
+              <div className="text-center transition-all hover:scale-105">
+                <div className="text-4xl font-bold mb-1 animate-fade-in">{recentSearches.length}</div>
                 <div className="text-blue-100 text-sm">Recent Searches</div>
-                <div className="mt-2 text-xs">
+                <div className="mt-2 text-xs bg-white/10 px-2 py-1 rounded-full backdrop-blur-sm">
                   Last: {recentSearches[0] ? new Date(recentSearches[0].date).toLocaleDateString() : 'Never'}
                 </div>
               </div>
@@ -703,7 +704,7 @@ export default function Dashboard() {
             {/* TourMate™ & Family Tools Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* TourMate™ Card */}
-              <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-700 shadow-xl hover:shadow-2xl transition-all">
+              <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-700 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] group">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-2 text-xl">
                     <Calendar className="h-6 w-6 text-purple-600" />
@@ -720,8 +721,8 @@ export default function Dashboard() {
                     </Badge>
                   </div>
                   <Link href="/tours">
-                    <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white">
-                      <Calendar className="h-4 w-4 mr-2" />
+                    <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                      <Calendar className="h-4 w-4 mr-2 animate-bounce" />
                       Manage Tours
                     </Button>
                   </Link>
@@ -729,7 +730,7 @@ export default function Dashboard() {
               </Card>
 
               {/* Tour Tracker Card */}
-              <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-700 shadow-xl hover:shadow-2xl transition-all">
+              <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-700 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] group">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-2 text-xl">
                     <MapPin className="h-6 w-6 text-green-600" />
@@ -746,8 +747,8 @@ export default function Dashboard() {
                     </Badge>
                   </div>
                   <Link href="/tour-tracker">
-                    <Button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white">
-                      <Camera className="h-4 w-4 mr-2" />
+                    <Button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                      <Camera className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
                       Start Tracking
                     </Button>
                   </Link>
@@ -755,7 +756,7 @@ export default function Dashboard() {
               </Card>
 
               {/* Family Sharing Card */}
-              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-700 shadow-xl hover:shadow-2xl transition-all">
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-700 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] group">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-2 text-xl">
                     <Share2 className="h-6 w-6 text-blue-600" />
@@ -781,8 +782,8 @@ export default function Dashboard() {
                     </Badge>
                   </div>
                   <Link href="/family-collaboration">
-                    <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white">
-                      <Users className="h-4 w-4 mr-2" />
+                    <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                      <Users className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
                       Explore Sharing Tools
                     </Button>
                   </Link>
@@ -790,7 +791,7 @@ export default function Dashboard() {
               </Card>
 
               {/* Family Connect Card */}
-              <Card className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border-orange-200 dark:border-orange-700 shadow-xl hover:shadow-2xl transition-all">
+              <Card className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border-orange-200 dark:border-orange-700 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] group">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-2 text-xl">
                     <MessageSquare className="h-6 w-6 text-orange-600" />
@@ -807,8 +808,8 @@ export default function Dashboard() {
                     </Badge>
                   </div>
                   <Link href="/family-connect">
-                    <Button className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white">
-                      <MessageSquare className="h-4 w-4 mr-2" />
+                    <Button className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+                      <MessageSquare className="h-4 w-4 mr-2 group-hover:animate-pulse" />
                       Start Discussion
                     </Button>
                   </Link>
