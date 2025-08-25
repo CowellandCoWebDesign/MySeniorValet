@@ -1977,37 +1977,33 @@ export default function CommunityDetail() {
                   </div>
                 </CardContent>
                 
-                {/* Solid background section with community info - Mobile Responsive */}
-                <div className="bg-gradient-to-br from-slate-800 via-blue-900 to-indigo-900 text-white p-4 sm:p-6">
-                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between lg:gap-6">
+                {/* Solid background section with community info - Always side by side */}
+                <div className="bg-gradient-to-br from-slate-800 via-blue-900 to-indigo-900 text-white p-3 sm:p-4 md:p-6">
+                  <div className="flex items-start justify-between gap-2 sm:gap-4">
                     {/* Left side - Community Info */}
-                    <div className="flex-1">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
-                        <h1 className="text-responsive-2xl font-bold text-white break-words">
-                          {community.name}
-                        </h1>
-
-                      </div>
-                      <div className="flex items-start text-white/90 mb-3 text-responsive-sm">
-                        <MapPin className="w-4 h-4 mr-1 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <h1 className="text-sm sm:text-lg md:text-2xl font-bold text-white break-words mb-2">
+                        {community.name}
+                      </h1>
+                      <div className="flex items-start text-white/90 mb-2 text-xs sm:text-sm">
+                        <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0 mt-0.5" />
                         <div className="flex flex-col">
-                          <span>{community.address.split(',')[0]}</span>
+                          <span className="truncate">{community.address.split(',')[0]}</span>
                           <span>{community.city}, {community.state} {community.zipCode}</span>
-                          <span>United States</span>
                         </div>
                       </div>
-                      <div className="flex items-center text-white/90 mb-3 text-responsive-base">
-                        <span className="text-base sm:text-lg mr-1">☎️</span>
+                      <div className="flex items-center text-white/90 mb-2 text-xs sm:text-sm md:text-base">
+                        <span className="text-sm sm:text-base mr-1">☎️</span>
                         <a 
                           href={`tel:${community.phone || generatePhoneNumber(community.state, community.id)}`}
-                          className="font-medium text-white hover:text-blue-200 transition-colors cursor-pointer break-all"
+                          className="font-medium text-white hover:text-blue-200 transition-colors cursor-pointer"
                         >
                           {community.phone || generatePhoneNumber(community.state, community.id)}
                         </a>
                       </div>
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-4">
+                      <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-3">
                         <div 
-                          className="flex items-center cursor-pointer hover:bg-white/10 rounded-lg px-2 py-1 transition-colors text-responsive-sm"
+                          className="flex items-center cursor-pointer hover:bg-white/10 rounded-lg px-1 py-0.5 transition-colors"
                           onClick={() => {
                             const reviewsSection = document.querySelector('#reviews-section');
                             if (reviewsSection) {
@@ -2015,21 +2011,20 @@ export default function CommunityDetail() {
                             }
                           }}
                         >
-                          <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400 fill-current mr-1" />
-                          <span className="font-medium text-white">{community.googleRating || '4.2'}</span>
-                          <span className="text-white/90 ml-1 hidden sm:inline">({community.googleReviewCount || '47'} reviews)</span>
-                          <span className="text-white/90 ml-1 sm:hidden">({community.googleReviewCount || '47'})</span>
+                          <Star className="w-3 h-3 text-yellow-400 fill-current mr-0.5" />
+                          <span className="font-medium text-white text-xs sm:text-sm">{community.googleRating || '4.2'}</span>
+                          <span className="text-white/90 ml-0.5 text-xs">({community.googleReviewCount || '47'})</span>
                         </div>
-                        <Badge className="bg-blue-500/20 border-blue-400 text-blue-100 text-xs sm:text-sm">
+                        <Badge className="bg-blue-500/20 border-blue-400 text-blue-100 text-[10px] sm:text-xs">
                           {formatCareType(community.careTypes)}
                         </Badge>
                       </div>
                     </div>
                     
-                    {/* Right side - Pricing and Key Services */}
-                    <div className="lg:w-80 w-full">
-                      {/* Pricing Section */}
-                      <div className="text-left lg:text-right">
+                    {/* Right side - Pricing and Key Services - Always on right */}
+                    <div className="w-32 sm:w-48 md:w-64 lg:w-80 flex-shrink-0">
+                      {/* Pricing Section - Top Right */}
+                      <div className="text-right">
                       {(() => {
                         const hasVerifiedPricing = (community.priceRange && community.priceRange.min > 0) || 
                                                    (community as any).rentPerMonth || 
@@ -2037,8 +2032,8 @@ export default function CommunityDetail() {
                         const isEstimate = !hasVerifiedPricing;
                         
                         return (
-                          <div className="mb-3">
-                            <div className="text-responsive-xl font-bold text-white mb-1">
+                          <div className="mb-2">
+                            <div className="text-sm sm:text-lg md:text-xl lg:text-2xl font-bold text-white mb-1">
                               {(() => {
                                 // Check for AI verified pricing from Multi-AI report - show starting price only
                                 if (verificationReport?.pricing?.verified && verificationReport.pricing.amount) {
@@ -2076,9 +2071,9 @@ export default function CommunityDetail() {
                                 return "Starting at $2,000";
                               })()}
                             </div>
-                            <div className="text-responsive-sm text-white/80">
+                            <div className="text-[10px] sm:text-xs md:text-sm text-white/80">
                               {isEstimate ? (
-                                <div className="flex items-center gap-2 justify-start lg:justify-end">
+                                <div className="flex items-center gap-1 justify-end">
                                   <span>Market Estimate</span>
                                   <button 
                                     onClick={() => {
@@ -2093,7 +2088,7 @@ export default function CommunityDetail() {
                                         }, 100);
                                       }
                                     }}
-                                    className="text-blue-300 hover:text-blue-100 underline text-xs font-medium"
+                                    className="text-blue-300 hover:text-blue-100 underline text-[10px] sm:text-xs font-medium whitespace-nowrap"
                                   >
                                     How we calculate
                                   </button>
@@ -2109,10 +2104,11 @@ export default function CommunityDetail() {
                               const IconComponent = badgeInfo.icon;
                               
                               return badgeInfo.show ? (
-                                <div className="flex justify-start lg:justify-end mt-2">
-                                  <div className={`${badgeInfo.bgColor} text-white px-2 py-1 rounded-full text-xs font-medium shadow-sm flex items-center gap-1`}>
-                                    {IconComponent && <IconComponent className="w-3 h-3" />}
-                                    {badgeInfo.text}
+                                <div className="flex justify-end mt-1">
+                                  <div className={`${badgeInfo.bgColor} text-white px-1 sm:px-2 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-xs font-medium shadow-sm flex items-center gap-0.5`}>
+                                    {IconComponent && <IconComponent className="w-2 h-2 sm:w-3 sm:h-3" />}
+                                    <span className="hidden sm:inline">{badgeInfo.text}</span>
+                                    <span className="sm:hidden">{badgeInfo.text.split(' ')[0]}</span>
                                   </div>
                                 </div>
                               ) : null;
@@ -2122,13 +2118,16 @@ export default function CommunityDetail() {
                       })()}
                       </div>
                       
-                      {/* Key Services Section */}
-                      <div className="mt-4 pt-3 border-t border-white/20 text-left lg:text-right">
-                        <h3 className="text-responsive-base font-bold text-white mb-2 sm:mb-3">Key Services:</h3>
-                              <div className="space-y-1 sm:space-y-2">
+                      {/* Key Services Section - Bottom Right */}
+                      <div className="mt-2 sm:mt-3 pt-2 border-t border-white/20 text-right">
+                        <h3 className="text-xs sm:text-sm md:text-base font-bold text-white mb-1 sm:mb-2">Key Services:</h3>
+                              <div className="space-y-0.5 sm:space-y-1">
                                 {/* 24/7 Medical Staff */}
-                                <div className="flex items-center gap-3 justify-start lg:justify-end">
-                                  <div className={`w-3 h-3 rounded-full ${
+                                <div className="flex items-center gap-1 sm:gap-2 justify-end">
+                                  <span className="text-[10px] sm:text-xs md:text-sm font-medium text-white truncate">
+                                    24/7 Medical Staff
+                                  </span>
+                                  <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0 ${
                                     verificationReport?.webIntelligence?.features?.some((f: string) => 
                                       f.toLowerCase().includes('medical') || 
                                       f.toLowerCase().includes('nursing') || 
@@ -2140,14 +2139,14 @@ export default function CommunityDetail() {
                                       ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
                                       : 'bg-red-500 shadow-red-500/50 shadow-sm'
                                   }`} />
-                                  <span className="text-responsive-sm font-medium text-white">
-                                    24/7 Medical Staff
-                                  </span>
                                 </div>
 
                                 {/* Medication Management */}
-                                <div className="flex items-center gap-3 justify-start lg:justify-end">
-                                  <div className={`w-3 h-3 rounded-full ${
+                                <div className="flex items-center gap-1 sm:gap-2 justify-end">
+                                  <span className="text-[10px] sm:text-xs md:text-sm font-medium text-white truncate">
+                                    Medication Management
+                                  </span>
+                                  <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0 ${
                                     verificationReport?.webIntelligence?.features?.some((f: string) => 
                                       f.toLowerCase().includes('medication') || 
                                       f.toLowerCase().includes('med management') ||
@@ -2158,14 +2157,14 @@ export default function CommunityDetail() {
                                       ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
                                       : 'bg-red-500 shadow-red-500/50 shadow-sm'
                                   }`} />
-                                  <span className="text-responsive-sm font-medium text-white">
-                                    Medication Management
-                                  </span>
                                 </div>
 
                                 {/* Housekeeping Included */}
-                                <div className="flex items-center gap-3 justify-start lg:justify-end">
-                                  <div className={`w-3 h-3 rounded-full ${
+                                <div className="flex items-center gap-1 sm:gap-2 justify-end">
+                                  <span className="text-[10px] sm:text-xs md:text-sm font-medium text-white truncate">
+                                    Housekeeping Included
+                                  </span>
+                                  <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0 ${
                                     verificationReport?.webIntelligence?.features?.some((f: string) => 
                                       f.toLowerCase().includes('housekeeping') || 
                                       f.toLowerCase().includes('cleaning') ||
@@ -2176,14 +2175,14 @@ export default function CommunityDetail() {
                                       ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
                                       : 'bg-red-500 shadow-red-500/50 shadow-sm'
                                   }`} />
-                                  <span className="text-responsive-sm font-medium text-white">
-                                    Housekeeping Included
-                                  </span>
                                 </div>
 
                                 {/* Transportation Included */}
-                                <div className="flex items-center gap-3 justify-start lg:justify-end">
-                                  <div className={`w-3 h-3 rounded-full ${
+                                <div className="flex items-center gap-1 sm:gap-2 justify-end">
+                                  <span className="text-[10px] sm:text-xs md:text-sm font-medium text-white truncate">
+                                    Transportation Included
+                                  </span>
+                                  <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0 ${
                                     verificationReport?.webIntelligence?.features?.some((f: string) => 
                                       f.toLowerCase().includes('transportation') || 
                                       f.toLowerCase().includes('shuttle') ||
@@ -2194,16 +2193,13 @@ export default function CommunityDetail() {
                                       ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
                                       : 'bg-red-500 shadow-red-500/50 shadow-sm'
                                   }`} />
-                                  <span className="text-responsive-sm font-medium text-white">
-                                    Transportation Included
-                                  </span>
                                 </div>
                               </div>
                               
                         
                         {/* Contact for service details */}
-                        <div className="mt-3 pt-2 border-t border-white/20">
-                          <p className="text-xs text-white/70 italic">
+                        <div className="mt-2 pt-1 border-t border-white/20">
+                          <p className="text-[9px] sm:text-xs text-white/70 italic">
                             Contact for service details
                           </p>
                         </div>
@@ -2211,8 +2207,8 @@ export default function CommunityDetail() {
                     </div>
                   </div>
                   
-                  {/* In-App Messaging Button - Below content on mobile, bottom left on desktop */}
-                  <div className="mt-4">
+                  {/* In-App Messaging Button - Bottom of card */}
+                  <div className="mt-3 px-3 sm:px-4 pb-3 sm:pb-4">
                     {/* Check subscription tier for messaging access */}
                     {(() => {
                       const tier = community.subscriptionTier || 'verified';
@@ -2224,15 +2220,15 @@ export default function CommunityDetail() {
                             <Button
                               variant="outline"
                               disabled
-                              className="bg-gray-50 border-gray-300 text-gray-500 font-semibold px-6 py-3 shadow-sm cursor-not-allowed opacity-70 w-full lg:w-auto"
+                              className="bg-gray-50 border-gray-300 text-gray-500 font-semibold px-3 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm shadow-sm cursor-not-allowed opacity-70 w-full"
                             >
-                              <MessageSquare className="h-5 w-5 mr-2" />
-                              <span className="flex items-center gap-1">
+                              <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+                              <span className="flex items-center gap-0.5 sm:gap-1">
                                 Direct Messaging Unavailable
-                                <HelpCircle className="h-4 w-4" />
+                                <HelpCircle className="h-3 w-3 sm:h-4 sm:w-4" />
                               </span>
                             </Button>
-                            <p className="text-xs text-white/70 lg:text-gray-900 lg:dark:text-gray-400 mt-2 text-center lg:text-left">
+                            <p className="text-[10px] sm:text-xs text-white/70 mt-1 sm:mt-2 text-center">
                               This community hasn't claimed their profile and opted into instant messaging yet
                             </p>
                           </div>
