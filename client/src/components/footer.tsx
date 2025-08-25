@@ -124,7 +124,7 @@ export function Footer() {
               <span className="hidden md:inline text-gray-600">•</span>
               <p className="text-gray-500">Data from verified state agencies</p>
               <span className="hidden md:inline text-gray-600">•</span>
-              <p className="text-gray-500">v3.1</p>
+              <p className="text-gray-500">v3.2</p>
             </div>
             
             {/* Quick links and dashboard access - right side */}
