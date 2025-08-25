@@ -1030,28 +1030,163 @@ export default function MySeniorValetHome() {
                     Professional services for your senior living needs - moving, legal, floral, transportation, and more
                   </p>
                   
-                  <div className="flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <TrendingUp className="h-5 w-5 text-green-500" />
-                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">1,500+</span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Vendor Services</span>
-                  </div>
-
-                  <div className="space-y-2 mb-6">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Moving & Relocation</span>
+                  {/* Flex container for side-by-side layout */}
+                  <div className="flex gap-3 mb-6">
+                    {/* Left side - Vendor count and Checkmarks */}
+                    <div className="space-y-2 flex-shrink-0 min-w-fit">
+                      <div className="flex items-center gap-2 mb-3">
+                        <TrendingUp className="h-5 w-5 text-green-500" />
+                        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">1,500+</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Vendors</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Moving & Relocation</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Legal & Financial</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Transportation</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Personal Services</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Legal & Financial Services</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Transportation Solutions</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Personal Services</span>
+                    
+                    {/* Right side - Maximum Height Scrollable Preview */}
+                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-lg">
+                      <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                        <span>🛒</span> Preview
+                      </p>
+                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-amber-300 dark:scrollbar-thumb-amber-600 scrollbar-track-transparent">
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🚚</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Senior Moving Companies</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">📦</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Downsizing Specialists</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">⚖️</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Elder Law Attorneys</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">💼</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Estate Planning</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏛️</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Financial Advisors</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🚗</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Medical Transportation</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🌸</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Florists & Gift Shops</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏠</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Home Modification</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🔒</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Insurance Brokers</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏦</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Veterans Benefits Assistance</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏡</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Real Estate Agents</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🧹</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Cleaning Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">✂️</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Beauty & Barber Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">👕</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Laundry Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">📸</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Portrait Photography</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🎉</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Event Planning</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🐕</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Pet Care Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">⛪</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Spiritual Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">📚</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Library Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🎭</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Entertainment Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🍴</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Catering Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">📱</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Tech Support Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏋️</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Fitness Trainers</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🎨</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Art & Craft Supplies</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏪</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Grocery Delivery</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">💐</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Memorial Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">📝</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Notary Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🔧</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Handyman Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🚐</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Shuttle Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🎁</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Gift Concierge</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-center text-amber-600 dark:text-amber-400 mt-2 font-medium">
+                        +more vendors
+                      </p>
                     </div>
                   </div>
 
