@@ -579,53 +579,6 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* Browse by State */}
-      <section className="px-4 py-12 bg-gradient-to-br from-blue-900 to-indigo-900 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-7xl mx-auto">
-          <Card className="bg-white/10 backdrop-blur-md border-2 border-white/20 dark:border-gray-700/50">
-            <CardHeader className="text-center">
-              <CardTitle className="flex items-center justify-center gap-2 text-2xl text-white">
-                <Globe className="h-7 w-7 text-blue-300" />
-                Browse by State
-              </CardTitle>
-              <CardDescription className="text-gray-200">
-                Select a state to explore communities in that region
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-2">
-                {(topStates as any[]).slice(0, 15).map((state: any) => {
-                  const displayName = stateNames[state.state] || state.state;
-                  return (
-                    <Link key={state.state} href={`/map-search?state=${state.state}`}>
-                      <Card className="hover:shadow-lg transition-all cursor-pointer bg-white/90 dark:bg-gray-800/90 border hover:border-blue-400 group hover:scale-105">
-                        <CardContent className="p-3 text-center">
-                          <div className="font-bold text-sm md:text-base text-gray-900 dark:text-gray-100 group-hover:text-blue-600">
-                            {displayName}
-                          </div>
-                          <div className="text-xs text-gray-600 dark:text-gray-400">
-                            {parseInt(state.count).toLocaleString()}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  );
-                })}
-                <Link href="/map-search">
-                  <Card className="hover:shadow-lg transition-all cursor-pointer border hover:border-blue-400 group bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/50 dark:to-indigo-900/50 hover:scale-105">
-                    <CardContent className="p-3 text-center flex flex-col justify-center h-full">
-                      <div className="font-bold text-sm text-blue-600">
-                        View All
-                      </div>
-                      <ChevronRight className="h-4 w-4 mx-auto mt-1 text-blue-600" />
-                    </CardContent>
-                  </Card>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
 
       {/* MOVED COMMUNITY SLIDER SECTIONS - NOW POSITIONED RIGHT AFTER DATABASE FEATURES */}
       
