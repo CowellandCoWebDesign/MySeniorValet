@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, Home, DollarSign, TrendingUp, CheckCircle, AlertCircle, Info, Download, Printer, ChevronDown, ChevronUp } from "lucide-react";
+import { Calculator, Home, DollarSign, TrendingUp, CheckCircle, AlertCircle, Info, Download, Printer, ChevronDown, ChevronUp, Minimize2, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ExpenseCategory {
@@ -35,7 +35,8 @@ export function CostComparisonWorksheet() {
     other: 200
   });
 
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isFullyExpanded, setIsFullyExpanded] = useState(false);
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
   const calculateTotal = () => {
     return Object.values(expenses).reduce((sum, value) => sum + value, 0);
@@ -67,18 +68,72 @@ export function CostComparisonWorksheet() {
   // Show only high priority items initially, rest when expanded
   const priorityCategories = expenseCategories.filter(cat => cat.priority === 'high');
   const remainingCategories = expenseCategories.filter(cat => cat.priority === 'medium');
-  const displayCategories = isExpanded ? expenseCategories : priorityCategories;
+  const displayCategories = showAllCategories ? expenseCategories : priorityCategories;
 
   const totalHomeExpenses = calculateTotal();
   const averageSeniorLivingCost = 4500; // Average cost
   const potentialSavings = totalHomeExpenses - averageSeniorLivingCost;
 
+  // Collapsed view - similar to MoveInCostCalculator
+  if (!isFullyExpanded) {
+    return (
+      <Card className="border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                <Calculator className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Cost Comparison Worksheet</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Compare home vs senior living expenses</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                  ${totalHomeExpenses.toLocaleString()}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Current monthly expenses</div>
+              </div>
+              <Button 
+                onClick={() => setIsFullyExpanded(true)}
+                variant="outline"
+                size="sm"
+                className="text-blue-600 border-blue-200 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-950"
+              >
+                <Maximize2 className="w-4 h-4 mr-2" />
+                Compare
+              </Button>
+            </div>
+          </div>
+          {potentialSavings > 0 && (
+            <div className="mt-4 p-2 bg-green-100 dark:bg-green-900 rounded text-center">
+              <p className="text-sm font-semibold text-green-800 dark:text-green-200">
+                Potential savings: ${potentialSavings.toLocaleString()}/month
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Expanded view
   return (
     <div className="space-y-4">
       <div className="text-center mb-4">
         <div className="flex items-center justify-center gap-2 mb-2">
           <Calculator className="w-5 h-5 text-purple-600" />
           <h2 className="text-xl font-bold">Cost Comparison Worksheet</h2>
+          <Button 
+            onClick={() => setIsFullyExpanded(false)}
+            variant="ghost"
+            size="sm"
+            className="ml-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            <Minimize2 className="w-4 h-4" />
+          </Button>
         </div>
         <p className="text-sm text-muted-foreground">
           Compare your current home expenses to the all-inclusive value of senior living
@@ -159,10 +214,10 @@ export function CostComparisonWorksheet() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setIsExpanded(!isExpanded)}
+              onClick={() => setShowAllCategories(!showAllCategories)}
               className="flex items-center gap-2 text-purple-600 hover:text-purple-700"
             >
-              {isExpanded ? (
+              {showAllCategories ? (
                 <>
                   <ChevronUp className="w-4 h-4" />
                   Show fewer expenses ({remainingCategories.length} hidden)
