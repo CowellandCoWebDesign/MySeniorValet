@@ -449,33 +449,12 @@ export default function CommunityDirectory() {
       {/* Search Section - Powered by AI */}
       <section className="px-4 py-8 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900">
         <div className="max-w-4xl mx-auto">
-          {/* Natural Language Search */}
-          <div className="mb-8">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                AI-Powered Natural Language Search
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                Just type what you're looking for naturally
-              </p>
-            </div>
-            
-            <NaturalLanguageSearchBar className="max-w-3xl mx-auto" />
-          </div>
-          
-          {/* Divider */}
-          <div className="flex items-center gap-4 my-8">
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
-            <span className="text-sm text-gray-500 dark:text-gray-400 px-3">or</span>
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
-          </div>
-          
           {/* Traditional Search */}
-          <div className="mb-4">
+          <div className="mb-8">
             <div className="text-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-                Traditional Search
-              </h3>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                Search Communities
+              </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 35,000+ Communities • Live Pricing • Real Reviews
               </p>
@@ -510,6 +489,27 @@ export default function CommunityDirectory() {
                 </Button>
               </div>
             </div>
+          </div>
+          
+          {/* Divider */}
+          <div className="flex items-center gap-4 my-8">
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
+            <span className="text-sm text-gray-500 dark:text-gray-400 px-3">or</span>
+            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
+          </div>
+          
+          {/* Natural Language Search */}
+          <div className="mb-4">
+            <div className="text-center mb-6">
+              <h3 className="text-lg font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                AI-Powered Natural Language Search
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Just type what you're looking for naturally
+              </p>
+            </div>
+            
+            <NaturalLanguageSearchBar className="max-w-3xl mx-auto" />
           </div>
           
           {/* Database Features & Trust Indicators */}

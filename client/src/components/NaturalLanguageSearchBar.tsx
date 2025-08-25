@@ -14,7 +14,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
 import { useLocation } from 'wouter';
 
 interface NaturalLanguageSearchBarProps {
@@ -51,9 +50,17 @@ export function NaturalLanguageSearchBar({
     setIsSearching(true);
 
     try {
-      const response = await apiRequest('POST', '/api/natural-language/search', {
-        query: query.trim()
+      const response = await fetch('/api/natural-language/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: query.trim() })
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
 
