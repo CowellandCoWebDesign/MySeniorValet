@@ -268,7 +268,6 @@ export function setupCustomAuth(app: Express) {
           firstName: users.firstName,
           lastName: users.lastName,
           role: users.role,
-          role: users.role,
           createdAt: users.createdAt,
           emailVerified: users.emailVerified,
           lastLoginAt: users.lastLoginAt,
