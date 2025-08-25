@@ -24,77 +24,81 @@ const careLevels: CareLevel[] = [
     level: 1,
     name: 'HUD-Sponsored Housing',
     badge: '🏷️ Income-Qualified',
-    description: 'Federally subsidized apartments for seniors; income-restricted; no care',
-    fullDescription: 'Government-subsidized housing for low-income seniors, offering rent based on 30% of income with verified pricing. These communities provide safe, affordable housing with accessibility features and are regulated by federal oversight.',
-    costRange: '$300-900/month',
+    description: 'Section 202 PRAC housing for very low-income seniors (50% AMI or below)',
+    fullDescription: 'HUD Section 202 Supportive Housing for the Elderly provides government-subsidized apartments for seniors 62+ who qualify as "Very Low Income" (50% of Area Median Income or below). Through the PRAC (Project Rental Assistance Contract) program, residents pay only 30% of their adjusted income while HUD covers the remaining housing costs. No new funding since 2012, but existing properties continue operating.',
+    costRange: '30% of income',
     icon: <Building2 className="w-5 h-5" />,
     color: 'bg-green-500',
     searchValue: 'hud_senior_housing',
     keyFeatures: [
-      'Income-based rent (30% of income)',
-      'Government subsidized',
-      'Accessible units available',
-      'Federal oversight and protection',
-      'Utility allowances included'
+      'Income limit: 50% of Area Median Income (AMI)',
+      'Residents pay only 30% of adjusted income',
+      'Service coordinator funded if 25%+ residents are frail',
+      'Supportive services: nutrition, transportation, health programs',
+      'Long waiting lists due to high demand',
+      'Must contact properties directly to apply'
     ],
-    idealFor: 'Low-income seniors who are independent but need affordable housing with basic accessibility features'
+    idealFor: 'Very low-income seniors 62+ who need affordable housing with supportive services'
   },
   {
     level: 2,
     name: '55+ Mobile Home Parks',
     badge: '🏕️ 55+ Mobile',
-    description: 'Age-restricted, lease/own land or unit; no services',
-    fullDescription: 'Senior RV and mobile parks offering flexible living for adventurous retirees who enjoy travel and community amenities. These communities provide an affordable housing option where residents can own their home while leasing the land.',
-    costRange: '$400-1,200/month',
+    description: 'Own home, lease land - lot rent $300-1,200/month by region',
+    fullDescription: '55+ mobile home parks and RV communities where residents own their manufactured home or RV while paying monthly lot rent. National average lot rent $300-400/month, but ranges from $200 in rural areas to $1,200+ in California coastal regions. Resident-Owned Communities (ROC) offer more stable pricing at $298-301/month. Premium RV resorts can reach $2,000+/month with luxury amenities.',
+    costRange: '$300-1,200/month lot rent',
     icon: <Home className="w-5 h-5" />,
     color: 'bg-orange-500',
     searchValue: 'senior_mobile_park',
     keyFeatures: [
-      'Own your home, lease the land',
-      'Community lifestyle with amenities',
-      'Lower maintenance costs',
-      'Pet-friendly options available',
-      'Flexible, affordable living'
+      'Lot rent: $300-400 national average (varies by state)',
+      'California: $440-1,200+, Florida: $300-1,000+',
+      'Basic utilities typically included in lot rent',
+      'Amenities: clubhouse, pool, activities vary by price',
+      'Annual lot rent increases 3-7% typical',
+      'Resident-Owned Communities offer price stability'
     ],
-    idealFor: 'Active seniors seeking affordable homeownership with community amenities and minimal maintenance'
+    idealFor: 'Seniors seeking affordable homeownership with flexible living arrangements'
   },
   {
     level: 3,
     name: 'Active Adult 55+',
     badge: '🟢 Active Adult',
-    description: 'Senior apartments, condos, or lifestyle neighborhoods',
-    fullDescription: 'Age-restricted active adult communities for those 55 and older, focusing on lifestyle and social activities. These communities offer resort-style living with extensive amenities and social programs designed for active, independent seniors.',
-    costRange: '$1,500-3,000/month',
+    description: 'Resort-style ownership communities - homes $200k-1M+, HOA $99-800/month',
+    fullDescription: 'Active adult 55+ communities offer resort-style living with home ownership. Home prices range from $200k to over $1M depending on location (Florida $200-600k, Arizona $300k-1M+, Nevada $400-800k). Monthly HOA fees $99-800 cover amenities like championship golf courses, 25,000+ sq ft clubhouses, full-service spas, restaurants, fitness centers, and 175+ resident clubs. These operate like vacation resorts with hospitality-trained staff.',
+    costRange: 'HOA $99-800/month',
     icon: <Users className="w-5 h-5" />,
     color: 'bg-pink-600',
     searchValue: 'active_adult_55plus',
     keyFeatures: [
-      'Active lifestyle focus with fitness centers',
-      'Resort-style amenities (pools, golf)',
-      'Social clubs and activities',
-      'Age-restricted community (55+)',
-      'No care services included'
+      'Home purchase: $200k-1M+ (varies by region)',
+      'HOA fees: $99-250 basic, $250-400 standard, $400-800 luxury',
+      'Championship golf courses, up to 16 pickleball courts',
+      'Full-service restaurants, bars, spas on-site',
+      'Maintenance-free living with concierge services',
+      'Popular: Del Webb, Sun City, Trilogy, Latitude Margaritaville'
     ],
-    idealFor: 'Active, independent seniors who want a vibrant social lifestyle with resort-style amenities'
+    idealFor: 'Active seniors seeking resort-style retirement with homeownership and premium amenities'
   },
   {
     level: 4,
     name: 'Independent Living',
     badge: '🟣 Independent',
-    description: 'Private-pay retirement communities with meals/activities',
-    fullDescription: 'Senior apartments and cottages for fully independent seniors who want maintenance-free living with optional services. These communities provide a perfect balance of independence and convenience with dining, housekeeping, and social programs included.',
-    costRange: '$2,000-4,500/month',
+    description: 'Senior rental apartments with services - $3,065-3,145/month national median',
+    fullDescription: 'Independent living communities provide private apartments (studio to 2-bedroom) with services for seniors who don\'t need daily care. National median cost $3,065-3,145/month including 1-3 meals daily, housekeeping, utilities, 24-hour security, scheduled transportation, fitness centers, and social programs. Ranges from $1,282/month (Mississippi) to $6,162/month (Maine). No medical care provided - residents must manage their own medications and health needs.',
+    costRange: '$3,065-3,145/month',
     icon: <Home className="w-5 h-5" />,
     color: 'bg-blue-600',
     searchValue: 'independent_living',
     keyFeatures: [
-      'Private apartment or cottage living',
-      'Maintenance-free lifestyle',
-      'Daily meals included',
-      'Housekeeping and laundry services',
-      'Social and recreational programs'
+      'National median: $3,065-3,145/month all-inclusive',
+      'Chef-prepared meals (1-3 daily) in restaurant-style dining',
+      'Weekly housekeeping, linen service, maintenance',
+      'Transportation to medical appointments and shopping',
+      'Fitness centers, pools, classes, 24-hour security',
+      '30-50% less expensive than assisted living'
     ],
-    idealFor: 'Independent seniors who want to enjoy retirement without home maintenance responsibilities'
+    idealFor: 'Independent seniors 55+ (average age 74-75) wanting maintenance-free lifestyle with social engagement'
   },
   {
     level: 5,
@@ -120,77 +124,81 @@ const careLevels: CareLevel[] = [
     level: 6,
     name: 'Assisted Living',
     badge: '🔶 Assisted',
-    description: 'Includes ADLs, meds, light nursing, meals',
-    fullDescription: 'Assisted living communities offering 24/7 support with daily activities while maintaining independence. These communities provide personalized care plans, medication management, and assistance with activities of daily living in a residential setting.',
-    costRange: '$3,500-7,000/month',
+    description: 'ADL assistance with 24-hour staff - $5,190-6,129/month national median',
+    fullDescription: 'Assisted living facilities provide housing and personal care for seniors needing help with Activities of Daily Living (ADLs) like bathing, dressing, medication management. National median $5,190-6,129/month ($62,280-73,548 annually). Staff-to-resident ratios average 1:8 during day shifts, though only 12 states mandate minimum staffing. Care often tiered: Level 1 (1-2 ADLs), Level 2 (3 ADLs), Level 3+ (4+ ADLs) with corresponding price increases.',
+    costRange: '$5,190-6,129/month',
     icon: <HeartHandshake className="w-5 h-5" />,
     color: 'bg-red-600',
     searchValue: 'assisted_living',
     keyFeatures: [
-      '24/7 care staff available',
-      'Help with activities of daily living (ADLs)',
-      'Medication management',
-      'All meals and snacks included',
-      'Personal care and grooming assistance'
+      'National median: $5,190-6,129/month (varies by state)',
+      'Personal care: bathing, dressing, grooming, toileting',
+      'Medication management by licensed nurses',
+      'Staff ratios: typically 1:8 days, 1:15 nights',
+      'Tiered pricing based on care levels (1-3+ ADLs)',
+      'Move-in fees: $1,000-5,000 typical'
     ],
-    idealFor: 'Seniors who need help with daily activities but do not require full-time medical care'
+    idealFor: 'Seniors needing regular help with 1-4 daily activities but not 24-hour skilled nursing'
   },
   {
     level: 7,
     name: 'Memory Care',
     badge: '🔴 Memory Care',
-    description: 'Secured, structured dementia care',
-    fullDescription: "Specialized memory care units for those with Alzheimer's and dementia, featuring secure environments and trained staff. These communities provide structured daily programs, specialized therapies, and a safe environment designed specifically for memory care needs.",
-    costRange: '$4,500-9,000/month',
+    description: 'Secure dementia/Alzheimer\'s care - $6,450-7,292/month national median',
+    fullDescription: 'Memory care facilities provide specialized secure environments for dementia and Alzheimer\'s residents. National median $6,450-7,292/month ($77,400-87,500 annually). Costs 30% higher than assisted living due to specialized staff training, enhanced security (locked doors, tracking systems), lower staff-to-resident ratios, and therapeutic programming. Average stay 2-3 years with total costs $190,000-285,000. Includes 24/7 supervision, cognitive stimulation therapies, and wandering prevention.',
+    costRange: '$6,450-7,292/month',
     icon: <Brain className="w-5 h-5" />,
     color: 'bg-indigo-600',
     searchValue: 'memory_care',
     keyFeatures: [
-      'Secure environment with controlled access',
-      'Dementia-trained specialized staff',
-      'Structured daily programs and routines',
-      'Memory-enhancing activities and therapies',
-      'Family support and education programs'
+      'National median: $6,450-7,292/month',
+      'Secure environment with wandering prevention systems',
+      'Staff specialized in dementia/Alzheimer\'s care',
+      'Structured routines, cognitive stimulation therapies',
+      'Music and art therapy programs',
+      'Average stay: 2-3 years (total $190k-285k)'
     ],
-    idealFor: "Seniors with Alzheimer's, dementia, or other memory impairments requiring specialized care and security"
+    idealFor: 'Individuals with Alzheimer\'s, dementia, or cognitive impairments needing 24/7 specialized secure care'
   },
   {
     level: 8,
     name: 'Skilled Nursing',
     badge: '🏥 Skilled Nursing',
-    description: 'Medical, 24/7 nursing, rehab, often insurance-paid',
-    fullDescription: 'Skilled nursing facilities providing 24-hour medical care and rehabilitation services for complex health needs. These facilities offer the highest level of medical care outside of a hospital, with registered nurses, therapists, and medical equipment on-site.',
-    costRange: '$7,000-12,000/month',
+    description: '24/7 medical care - Medicare covers 20 days, then $209.50/day copay',
+    fullDescription: 'Skilled nursing facilities (SNFs) provide 24-hour medical care and rehabilitation. Medicare Part A covers first 20 days fully after qualifying 3-day hospital stay. Days 21-100: $209.50/day copayment. After day 100: patient pays all costs. Private pay rates: $314/day semiprivate ($9,555/month) or $361/day private room ($10,965/month). Includes nursing care, therapy (PT/OT/Speech), medications, medical equipment. Medicaid covers long-term stays at ~70% of private rates.',
+    costRange: '$9,555-10,965/month',
     icon: <Stethoscope className="w-5 h-5" />,
     color: 'bg-cyan-600',
     searchValue: 'skilled_nursing',
     keyFeatures: [
-      '24-hour nursing care and monitoring',
-      'Rehabilitation services (physical, occupational, speech)',
-      'Complex medical care and wound management',
-      'Medicare/Medicaid coverage available',
-      'Post-hospital recovery and long-term care'
+      'Medicare: Days 1-20 free, 21-100 $209.50/day copay',
+      'Private pay: $314/day semiprivate, $361/day private',
+      'Requires 3-day hospital stay for Medicare coverage',
+      '24-hour licensed nursing supervision',
+      'Physical, occupational, speech therapy included',
+      'Post-acute rehabilitation and complex medical care'
     ],
-    idealFor: 'Seniors with complex medical needs requiring 24-hour nursing care, rehabilitation, or post-hospital recovery'
+    idealFor: 'Post-hospital patients needing rehabilitation or individuals requiring 24/7 skilled medical care'
   },
   {
     level: 9,
     name: 'CCRC',
     badge: '🏢 Life Plan Community',
-    description: 'All care levels on one campus with lifetime care',
-    fullDescription: 'Continuing Care Retirement Communities offering all levels of care on one campus with lifetime care contracts. These communities provide the security of knowing that as your care needs change, you can transition through different levels of care without leaving the community.',
-    costRange: 'Entry: $100K-500K + $3-7K/mo',
+    description: 'Life Plan Communities - entrance fees $100k-2M + monthly $2,500-6,000',
+    fullDescription: 'Continuing Care Retirement Communities (CCRCs/Life Plan Communities) offer all care levels on one campus. Entrance fees average $300-400k (range $100k-2M+) plus monthly fees $2,500-6,000. Three contract types: Type A Life Care (highest entrance, no added costs for care), Type B Modified (mid-range, limited care days included), Type C Fee-for-Service (lowest entrance, pay market rates). Refund options: 0%, 50%, 75%, or 90% to estate. 91.6% occupancy rate shows strong demand.',
+    costRange: 'Entrance $300k + $3,747/mo',
     icon: <Building className="w-5 h-5" />,
     color: 'bg-teal-600',
     searchValue: 'ccrc',
     keyFeatures: [
-      'All levels of care on one campus',
-      'Lifetime care guarantee',
-      'Priority access to higher care levels',
-      'Predictable monthly costs',
-      'Single campus convenience for couples'
+      'Entrance fees: $100k-2M (avg $300-400k)',
+      'Monthly fees: $2,500-6,000 (avg $3,747)',
+      'Type A: Highest entrance, predictable lifetime costs',
+      'Type B: Moderate fees, some care days included',
+      'Type C: Lowest entrance, pay as you go for care',
+      'Refund options: 0-90% to resident/estate'
     ],
-    idealFor: 'Seniors seeking long-term security with guaranteed access to all care levels as needs change'
+    idealFor: 'Affluent seniors wanting predictable lifetime care costs with ability to age in place on one campus'
   }
 ];
 
