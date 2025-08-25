@@ -1810,28 +1810,6 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Red Tag Deals Section - Positioned after partner services */}
-      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
-        <div className="max-w-7xl mx-auto">
-          <RedTagDeals />
-        </div>
-      </section>
-
-      {/* Find Your Perfect Care Level Section */}
-      <section className="px-4 py-12 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Find Your Perfect Care Level
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              Explore our Complete Care Spectrum with 10 levels of senior living options
-            </p>
-          </div>
-          <CareSpectrumSlider />
-        </div>
-      </section>
-
       {/* Senior Living Command Center Section - Moved after Resources */}
       <section className="relative overflow-hidden">
         {/* Command Center Header with Beautiful Gradient - matching marketplace page */}
