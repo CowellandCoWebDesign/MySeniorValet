@@ -24,7 +24,6 @@ import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
 import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import { HeroMascotPanel } from "@/components/mascot/HeroMascotPanel";
 import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
-import { CareSpectrumSlider } from "@/components/CareSpectrumSlider";
 
 // State abbreviation to full name mapping
 const stateNames: Record<string, string> = {
@@ -831,28 +830,6 @@ export default function CommunityDirectory() {
               ))
             )}
           </div>
-        </div>
-      </section>
-
-      {/* Red Tag Deals Section - Positioned after Hawaii Section */}
-      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
-        <div className="max-w-7xl mx-auto">
-          <RedTagDeals />
-        </div>
-      </section>
-
-      {/* Find Your Perfect Care Level Section */}
-      <section className="px-4 py-12 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Find Your Perfect Care Level
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              Explore our Complete Care Spectrum with 10 levels of senior living options
-            </p>
-          </div>
-          <CareSpectrumSlider />
         </div>
       </section>
 
