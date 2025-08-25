@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Globe, ExternalLink, RefreshCw, CheckCircle, Info, Clock, 
   MapPin, DollarSign, Users, Building, Shield, TrendingUp,
-  Star, AlertCircle, Sparkles, Calendar, Link, Database,
+  Star, AlertCircle, Sparkles, Calendar, Link as LinkIcon, Database,
   Activity, Award, Home, Heart, Brain
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -340,7 +340,7 @@ export function LiveWebIntelligence({
                 {webData.citations && webData.citations.length > 0 && (
                   <div>
                     <h4 className="font-semibold mb-3 flex items-center">
-                      <Link className="w-4 h-4 mr-2 text-blue-600" />
+                      <LinkIcon className="w-4 h-4 mr-2 text-blue-600" />
                       Information Sources
                     </h4>
                     <div className="space-y-2">
