@@ -849,10 +849,426 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
+      {/* Fort Worth, Texas Communities - TEXAS SIZED LIVING */}
+      <section ref={texasSectionRef} className="px-4 py-12 bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+              ⭐ Fort Worth, Texas Communities
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
+              Discover premier senior living options in the heart of Texas
+            </p>
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <Badge className="bg-orange-600 text-white px-3 py-1">
+                Authentic Texas Hospitality
+              </Badge>
+              <Badge className="bg-red-600 text-white px-3 py-1">
+                Starting from $2,800/month
+              </Badge>
+            </div>
+          </div>
+          
+          {/* Fort Worth Communities Slider */}
+          <div className="relative">
+            {texasLoading ? (
+              <div className="flex items-center justify-center h-40">
+                <div className="animate-spin w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full"></div>
+              </div>
+            ) : !(texasCommunities as any)?.communities?.length ? (
+              <div className="text-center text-gray-600 dark:text-gray-400">
+                <p>No Fort Worth communities available at this time.</p>
+                <Button 
+                  variant="outline" 
+                  className="mt-4"
+                  onClick={() => setLocation('/search?city=Fort Worth&state=Texas')}
+                >
+                  Search Fort Worth Communities
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-orange-500 dark:scrollbar-thumb-orange-400 hover:scrollbar-thumb-orange-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+                {((texasCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
+                  <Link key={`texas-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-orange-300 dark:border-orange-600 rounded-xl h-[520px]">
+                      <div className="relative">
+                        {/* Image Section with Texas Theme */}
+                        <div className="h-48 bg-gradient-to-br from-amber-100 to-red-100 dark:from-amber-900 dark:to-red-900 flex items-center justify-center relative">
+                          {community.photos && community.photos.length > 0 ? (
+                            <img 
+                              src={community.photos[0]} 
+                              alt={community.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="text-center">
+                              <div className="text-4xl mb-2">⭐</div>
+                              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                        </div>
+                        
+                        {/* Badges Overlay */}
+                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
+                          <Badge className="bg-amber-600 text-white text-xs px-2 py-1 font-semibold">
+                            ⭐ Texas
+                          </Badge>
+                          
+                          <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
+                            <div className="text-lg font-bold text-gray-900 dark:text-white">
+                              {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
+                               community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
+                            </div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                              per month
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Standardized Card Body with Essential Rental Information */}
+                      <CardContent className="p-4 space-y-3">
+                        {/* Community Name & Location */}
+                        <div>
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
+                            {community.name}
+                          </h3>
+                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                            <span>{community.city}, TX</span>
+                          </div>
+                        </div>
+                        
+                        {/* Care Types Offered */}
+                        <div className="flex flex-wrap gap-1">
+                          {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
+                            <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
+                              {careType}
+                            </Badge>
+                          ))}
+                        </div>
+                        
+                        {/* Essential Rental Information Grid */}
+                        <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
+                          {/* Row 1: Contact & Pets */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="flex items-start gap-1">
+                              <Phone className="h-3.5 w-3.5 text-blue-600 flex-shrink-0 mt-0.5" />
+                              <div className="flex-1">
+                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Contact</div>
+                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
+                                  {community.phone || 'Call for Info'}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-1">
+                              <span className="text-xs mt-0.5">🐾</span>
+                              <div className="flex-1">
+                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Pets</div>
+                                <div className="text-xs text-gray-900 dark:text-white font-medium">
+                                  {community.petPolicy || community.petsAllowed ? 'Allowed' : community.petPolicy === false ? 'No Pets' : 'Ask'}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Row 2: Availability & Age */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="flex items-start gap-1">
+                              <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />
+                              <div className="flex-1">
+                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Available</div>
+                                <div className="text-xs text-gray-900 dark:text-white font-medium">
+                                  {community.availableUnits ? `${community.availableUnits} Units` : 'Contact'}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-1">
+                              <UserCheck className="h-3.5 w-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
+                              <div className="flex-1">
+                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Age</div>
+                                <div className="text-xs text-gray-900 dark:text-white font-medium">
+                                  {community.ageRestriction || community.minAge || '55+'}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Row 3: Room Types & Amenities */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="flex items-start gap-1">
+                              <Hotel className="h-3.5 w-3.5 text-indigo-600 flex-shrink-0 mt-0.5" />
+                              <div className="flex-1">
+                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Room Types</div>
+                                <div className="text-xs text-gray-900 dark:text-white font-medium">
+                                  {community.roomTypes || 'Studio/1BR/2BR'}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-1">
+                              <Sparkles className="h-3.5 w-3.5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                              <div className="flex-1">
+                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Features</div>
+                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
+                                  {community.amenities?.[0] || 'Full Amenities'}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Bottom Metrics Bar */}
+                        <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 dark:border-gray-800">
+                          <div className="text-center">
+                            <div className="flex items-center justify-center">
+                              <Star className="h-3.5 w-3.5 text-yellow-500 mr-0.5" />
+                              <div className="text-xs font-semibold text-gray-900 dark:text-white">
+                                {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
+                              </div>
+                            </div>
+                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Rating</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
+                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
+                            </div>
+                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Total Units</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
+                              {community.occupancy || '94%'}
+                            </div>
+                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* Market Intelligence Section */}
       <section className="px-4 py-12 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
           <MarketIntelligence />
+        </div>
+      </section>
+
+      {/* Florida Communities Section - SUNSHINE STATE ADVENTURE */}
+      <section ref={floridaSectionRef} className="px-4 py-12 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+              🌴 Florida Senior Living Paradise
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
+              Year-round sunshine and world-class senior communities
+            </p>
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <Badge className="bg-cyan-600 text-white px-3 py-1">
+                No State Income Tax
+              </Badge>
+              <Badge className="bg-blue-600 text-white px-3 py-1">
+                Beach & Golf Communities
+              </Badge>
+            </div>
+          </div>
+          
+          {/* Florida Communities Slider - Using Real API Data */}
+          {floridaLoading ? (
+            <div className="flex items-center justify-center h-40">
+              <div className="animate-spin w-8 h-8 border-4 border-cyan-600 border-t-transparent rounded-full"></div>
+            </div>
+          ) : !(floridaCommunities as any)?.communities?.length ? (
+            <div className="text-center text-gray-600 dark:text-gray-400">
+              <p>No Florida communities available at this time.</p>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => setLocation('/search?state=Florida')}
+              >
+                Search All Florida Communities
+              </Button>
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
+                {((floridaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
+                  <Link key={`florida-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-cyan-300 dark:border-cyan-600 rounded-xl h-[520px]">
+                      <div className="relative">
+                        {/* Image Section with Florida Theme */}
+                        <div className="h-48 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900 dark:to-blue-900 flex items-center justify-center relative">
+                          {community.photos && community.photos.length > 0 ? (
+                            <img 
+                              src={community.photos[0]} 
+                              alt={community.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="text-center">
+                              <div className="text-4xl mb-2">🌴</div>
+                              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+                        </div>
+                        
+                        {/* Badges Overlay */}
+                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
+                          <Badge className="bg-cyan-600 text-white text-xs px-2 py-1 font-semibold">
+                            🌴 Florida
+                          </Badge>
+                          
+                          <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
+                            <div className="text-lg font-bold text-gray-900 dark:text-white">
+                              {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
+                               community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
+                            </div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                              per month
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Standardized Card Body with Essential Rental Information */}
+                      <CardContent className="p-4 space-y-3">
+                        {/* Community Name & Location */}
+                        <div>
+                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
+                            {community.name}
+                          </h3>
+                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                            <span>{community.city}, FL</span>
+                          </div>
+                        </div>
+                        
+                        {/* Care Types Offered */}
+                        <div className="flex flex-wrap gap-1">
+                          {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
+                            <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
+                              {careType}
+                            </Badge>
+                          ))}
+                        </div>
+                        
+                        {/* Essential Rental Information Grid */}
+                        <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
+                          {/* Row 1: Contact & Pets */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="flex items-start gap-1">
+                              <Phone className="h-3.5 w-3.5 text-blue-600 flex-shrink-0 mt-0.5" />
+                              <div className="flex-1">
+                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Contact</div>
+                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
+                                  {community.phone || 'Call for Info'}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-1">
+                              <span className="text-xs mt-0.5">🐾</span>
+                              <div className="flex-1">
+                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Pets</div>
+                                <div className="text-xs text-gray-900 dark:text-white font-medium">
+                                  {community.petPolicy || community.petsAllowed ? 'Allowed' : community.petPolicy === false ? 'No Pets' : 'Ask'}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Row 2: Availability & Age */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="flex items-start gap-1">
+                              <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />
+                              <div className="flex-1">
+                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Available</div>
+                                <div className="text-xs text-gray-900 dark:text-white font-medium">
+                                  {community.availableUnits ? `${community.availableUnits} Units` : 'Contact'}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-1">
+                              <UserCheck className="h-3.5 w-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
+                              <div className="flex-1">
+                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Age</div>
+                                <div className="text-xs text-gray-900 dark:text-white font-medium">
+                                  {community.ageRestriction || community.minAge || '55+'}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Row 3: Room Types & Amenities */}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="flex items-start gap-1">
+                              <Hotel className="h-3.5 w-3.5 text-indigo-600 flex-shrink-0 mt-0.5" />
+                              <div className="flex-1">
+                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Room Types</div>
+                                <div className="text-xs text-gray-900 dark:text-white font-medium">
+                                  {community.roomTypes || 'Studio/1BR/2BR'}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-1">
+                              <Sparkles className="h-3.5 w-3.5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                              <div className="flex-1">
+                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Features</div>
+                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
+                                  {community.amenities?.[0] || 'Full Amenities'}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Bottom Metrics Bar */}
+                        <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 dark:border-gray-800">
+                          <div className="text-center">
+                            <div className="flex items-center justify-center">
+                              <Star className="h-3.5 w-3.5 text-yellow-500 mr-0.5" />
+                              <div className="text-xs font-semibold text-gray-900 dark:text-white">
+                                {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
+                              </div>
+                            </div>
+                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Rating</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
+                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
+                            </div>
+                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Total Units</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
+                              {community.occupancy || '95%'}
+                            </div>
+                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+              
+              <div className="text-center mt-6">
+                <Button 
+                  variant="outline" 
+                  className="border-cyan-300 text-cyan-700 hover:bg-cyan-50 dark:border-cyan-600 dark:text-cyan-300 dark:hover:bg-cyan-900/20"
+                  onClick={() => setLocation('/search?state=Florida')}
+                >
+                  View All Florida Communities
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -1150,422 +1566,8 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* Florida Communities Section - SUNSHINE STATE ADVENTURE */}
-      <section ref={floridaSectionRef} className="px-4 py-12 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              🌴 Florida Senior Living Paradise
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
-              Year-round sunshine and world-class senior communities
-            </p>
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <Badge className="bg-cyan-600 text-white px-3 py-1">
-                No State Income Tax
-              </Badge>
-              <Badge className="bg-blue-600 text-white px-3 py-1">
-                Beach & Golf Communities
-              </Badge>
-            </div>
-          </div>
-          
-          {/* Florida Communities Slider - Using Real API Data */}
-          {floridaLoading ? (
-            <div className="flex items-center justify-center h-40">
-              <div className="animate-spin w-8 h-8 border-4 border-cyan-600 border-t-transparent rounded-full"></div>
-            </div>
-          ) : !(floridaCommunities as any)?.communities?.length ? (
-            <div className="text-center text-gray-600 dark:text-gray-400">
-              <p>No Florida communities available at this time.</p>
-              <Button 
-                variant="outline" 
-                className="mt-4"
-                onClick={() => setLocation('/search?state=Florida')}
-              >
-                Search All Florida Communities
-              </Button>
-            </div>
-          ) : (
-            <div className="relative">
-              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 hover:scrollbar-thumb-cyan-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
-                {((floridaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
-                  <Link key={`florida-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-cyan-300 dark:border-cyan-600 rounded-xl h-[520px]">
-                      <div className="relative">
-                        {/* Image Section with Florida Theme */}
-                        <div className="h-48 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900 dark:to-blue-900 flex items-center justify-center relative">
-                          {community.photos && community.photos.length > 0 ? (
-                            <img 
-                              src={community.photos[0]} 
-                              alt={community.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="text-center">
-                              <span className="text-4xl mb-2">🌴</span>
-                              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                        </div>
-                        
-                        {/* Badges Overlay */}
-                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                          <Badge className="bg-cyan-600 text-white text-xs px-2 py-1 font-semibold">
-                            🌴 Florida
-                          </Badge>
-                          
-                          <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
-                            <div className="text-lg font-bold text-gray-900 dark:text-white">
-                              {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
-                               community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                              per month
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Standardized Card Body with Essential Rental Information */}
-                      <CardContent className="p-4 space-y-3">
-                        {/* Community Name & Location */}
-                        <div>
-                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
-                            {community.name}
-                          </h3>
-                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                            <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                            <span>{community.city}, FL</span>
-                          </div>
-                        </div>
-                        
-                        {/* Care Types Offered */}
-                        <div className="flex flex-wrap gap-1">
-                          {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
-                            <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
-                              {careType}
-                            </Badge>
-                          ))}
-                        </div>
-                        
-                        {/* Essential Rental Information Grid */}
-                        <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
-                          {/* Row 1: Contact & Pets */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Phone className="h-3.5 w-3.5 text-blue-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Contact</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                  {community.phone || 'Call for Info'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <span className="text-xs mt-0.5">🐾</span>
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Pets</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.petPolicy || community.petsAllowed ? 'Allowed' : community.petPolicy === false ? 'No Pets' : 'Ask'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 2: Availability & Age */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Available</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.availableUnits ? `${community.availableUnits} Units` : 'Contact'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <UserCheck className="h-3.5 w-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Age</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.ageRestriction || community.minAge || '55+'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 3: Room Types & Amenities */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Hotel className="h-3.5 w-3.5 text-indigo-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Room Types</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.roomTypes || 'Studio/1BR/2BR'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <Sparkles className="h-3.5 w-3.5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Features</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                  {community.amenities?.[0] || 'Full Amenities'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Bottom Metrics Bar */}
-                        <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 dark:border-gray-800">
-                          <div className="text-center">
-                            <div className="flex items-center justify-center">
-                              <Star className="h-3.5 w-3.5 text-yellow-500 mr-0.5" />
-                              <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                                {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
-                              </div>
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Rating</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Total Units</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.occupancy || '95%'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-              
-              <div className="text-center mt-6">
-                <Button 
-                  variant="outline" 
-                  className="border-cyan-300 text-cyan-700 hover:bg-cyan-50 dark:border-cyan-600 dark:text-cyan-300 dark:hover:bg-cyan-900/20"
-                  onClick={() => setLocation('/search?state=Florida')}
-                >
-                  View All Florida Communities
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
 
       {/* Fort Worth, Texas Communities - TEXAS SIZED LIVING */}
-      <section ref={texasSectionRef} className="px-4 py-12 bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              ⭐ Fort Worth, Texas Communities
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
-              Discover premier senior living options in the heart of Texas
-            </p>
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <Badge className="bg-orange-600 text-white px-3 py-1">
-                Authentic Texas Hospitality
-              </Badge>
-              <Badge className="bg-red-600 text-white px-3 py-1">
-                Starting from $2,800/month
-              </Badge>
-            </div>
-          </div>
-          
-          {/* Fort Worth Communities Slider */}
-          <div className="relative">
-            {texasLoading ? (
-              <div className="flex items-center justify-center h-40">
-                <div className="animate-spin w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full"></div>
-              </div>
-            ) : !(texasCommunities as any)?.communities?.length ? (
-              <div className="text-center text-gray-600 dark:text-gray-400">
-                <p>No Fort Worth communities available at this time.</p>
-                <Button 
-                  variant="outline" 
-                  className="mt-4"
-                  onClick={() => setLocation('/search?city=Fort Worth&state=Texas')}
-                >
-                  Search Fort Worth Communities
-                </Button>
-              </div>
-            ) : (
-              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-orange-500 dark:scrollbar-thumb-orange-400 hover:scrollbar-thumb-orange-600 snap-x snap-mandatory" style={{scrollBehavior: 'smooth'}}>
-                {((texasCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
-                  <Link key={`texas-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-orange-300 dark:border-orange-600 rounded-xl h-[520px]">
-                      <div className="relative">
-                        {/* Image Section with Texas Theme */}
-                        <div className="h-48 bg-gradient-to-br from-amber-100 to-red-100 dark:from-amber-900 dark:to-red-900 flex items-center justify-center relative">
-                          {community.photos && community.photos.length > 0 ? (
-                            <img 
-                              src={community.photos[0]} 
-                              alt={community.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="text-center">
-                              <div className="text-4xl mb-2">⭐</div>
-                              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                        </div>
-                        
-                        {/* Badges Overlay */}
-                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                          <Badge className="bg-amber-600 text-white text-xs px-2 py-1 font-semibold">
-                            ⭐ Texas
-                          </Badge>
-                          
-                          <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
-                            <div className="text-lg font-bold text-gray-900 dark:text-white">
-                              {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
-                               community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                              per month
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Standardized Card Body with Essential Rental Information */}
-                      <CardContent className="p-4 space-y-3">
-                        {/* Community Name & Location */}
-                        <div>
-                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
-                            {community.name}
-                          </h3>
-                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                            <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                            <span>{community.city}, TX</span>
-                          </div>
-                        </div>
-                        
-                        {/* Care Types Offered */}
-                        <div className="flex flex-wrap gap-1">
-                          {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
-                            <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
-                              {careType}
-                            </Badge>
-                          ))}
-                        </div>
-                        
-                        {/* Essential Rental Information Grid */}
-                        <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
-                          {/* Row 1: Contact & Pets */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Phone className="h-3.5 w-3.5 text-blue-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Contact</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                  {community.phone || 'Call for Info'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <span className="text-xs mt-0.5">🐾</span>
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Pets</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.petPolicy || community.petsAllowed ? 'Allowed' : community.petPolicy === false ? 'No Pets' : 'Ask'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 2: Availability & Age */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Available</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.availableUnits ? `${community.availableUnits} Units` : 'Contact'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <UserCheck className="h-3.5 w-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Age</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.ageRestriction || community.minAge || '55+'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 3: Room Types & Amenities */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Hotel className="h-3.5 w-3.5 text-indigo-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Room Types</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.roomTypes || 'Studio/1BR/2BR'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <Sparkles className="h-3.5 w-3.5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Features</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                  {community.amenities?.[0] || 'Full Amenities'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Bottom Metrics Bar */}
-                        <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 dark:border-gray-800">
-                          <div className="text-center">
-                            <div className="flex items-center justify-center">
-                              <Star className="h-3.5 w-3.5 text-yellow-500 mr-0.5" />
-                              <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                                {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
-                              </div>
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Rating</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Total Units</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.occupancy || '94%'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
       {/* New York Communities - EMPIRE STATE EXCELLENCE */}
       <section ref={newYorkSectionRef} className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
         {/* Background New York Skyline Image */}
