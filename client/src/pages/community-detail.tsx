@@ -2719,6 +2719,240 @@ export default function CommunityDetail() {
               </CardContent>
             </Card>
 
+                {/* Community Information & Amenities */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold flex items-center">
+                      <Building className="w-5 h-5 mr-2 text-blue-600" />
+                      About {community.name}
+                    </CardTitle>
+                    <CardDescription>
+                      Community details, amenities, and services available
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {/* Community Description */}
+                    {community.description && (
+                      <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Community Overview</h4>
+                        <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{community.description}</p>
+                      </div>
+                    )}
+
+                    {/* Amenities Section */}
+                    {community.amenities && community.amenities.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
+                          <Sparkles className="w-4 h-4 mr-2 text-blue-600" />
+                          Community Amenities
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                          {community.amenities.map((amenity, index) => (
+                            <div key={index} className="flex items-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                              <span className="text-sm text-gray-900 dark:text-gray-100">{amenity}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Care Services */}
+                    {community.careServices && community.careServices.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
+                          <Heart className="w-4 h-4 mr-2 text-red-600" />
+                          Care Services
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {community.careServices.map((service, index) => (
+                            <div key={index} className="flex items-center p-2 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700">
+                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Healthcare Services */}
+                    {community.healthcareServices && community.healthcareServices.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
+                          <Stethoscope className="w-4 h-4 mr-2 text-purple-600" />
+                          Healthcare Services
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {community.healthcareServices.map((service, index) => (
+                            <div key={index} className="flex items-center p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Dining Services */}
+                    {community.diningServices && community.diningServices.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
+                          <UtensilsCrossed className="w-4 h-4 mr-2 text-orange-600" />
+                          Dining Services
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {community.diningServices.map((service, index) => (
+                            <div key={index} className="flex items-center p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-700">
+                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Transportation Services */}
+                    {community.transportationServices && community.transportationServices.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
+                          <Car className="w-4 h-4 mr-2 text-green-600" />
+                          Transportation Services
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {community.transportationServices.map((service, index) => (
+                            <div key={index} className="flex items-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Fitness Services */}
+                    {community.fitnessServices && community.fitnessServices.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
+                          <Activity className="w-4 h-4 mr-2 text-indigo-600" />
+                          Fitness & Wellness
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {community.fitnessServices.map((service, index) => (
+                            <div key={index} className="flex items-center p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-700">
+                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Social Services */}
+                    {community.socialServices && community.socialServices.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
+                          <Users className="w-4 h-4 mr-2 text-blue-600" />
+                          Social & Community Services
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {community.socialServices.map((service, index) => (
+                            <div key={index} className="flex items-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* No amenities message */}
+                    {(!community.amenities || community.amenities.length === 0) &&
+                     (!community.careServices || community.careServices.length === 0) &&
+                     (!community.healthcareServices || community.healthcareServices.length === 0) &&
+                     (!community.diningServices || community.diningServices.length === 0) &&
+                     (!community.transportationServices || community.transportationServices.length === 0) &&
+                     (!community.fitnessServices || community.fitnessServices.length === 0) &&
+                     (!community.socialServices || community.socialServices.length === 0) && (
+                      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-6">
+                        <div className="flex items-center gap-3">
+                          <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                          <div>
+                            <h4 className="text-lg font-semibold text-amber-800 dark:text-amber-200 mb-1">
+                              Amenities Information Needed
+                            </h4>
+                            <p className="text-amber-700 dark:text-amber-300 mb-3">
+                              This community's amenities and services information has not been updated yet.
+                            </p>
+                            <p className="text-sm text-amber-600 dark:text-amber-400">
+                              Is this your community? Claim this profile to add detailed amenities information and attract more qualified residents.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Community Claim/Management Interface */}
+                <Card className="border-2 border-green-200 dark:border-green-800 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold flex items-center text-green-800 dark:text-green-200">
+                      <Crown className="w-5 h-5 mr-2" />
+                      Community Management Center
+                    </CardTitle>
+                    <CardDescription className="text-green-700 dark:text-green-300">
+                      Claim and manage your community profile to attract qualified residents
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-green-200 dark:border-green-700">
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Are you the manager or owner of {community.name}?</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Claim this profile to update amenities, pricing, availability, and photos. Verified profiles get 3x more qualified inquiries.
+                      </p>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                        <div className="flex items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                          <Camera className="w-4 h-4 text-blue-600 mr-2" />
+                          <span className="text-sm text-blue-800 dark:text-blue-200 font-medium">Upload Photos</span>
+                        </div>
+                        <div className="flex items-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                          <DollarSign className="w-4 h-4 text-purple-600 mr-2" />
+                          <span className="text-sm text-purple-800 dark:text-purple-200 font-medium">Update Pricing</span>
+                        </div>
+                        <div className="flex items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                          <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                          <span className="text-sm text-green-800 dark:text-green-200 font-medium">Live Availability</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <Button 
+                          className="bg-green-600 hover:bg-green-700 text-white flex-1"
+                          onClick={() => window.open(`/claim-community/${community.id}`, '_blank')}
+                        >
+                          <Crown className="w-4 h-4 mr-2" />
+                          Claim This Profile
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
+                          onClick={() => window.open(`mailto:hello@myseniorvalet.com?subject=Community Profile Inquiry - ${community.name}&body=Hello! I'm interested in claiming/updating the profile for ${community.name} at ${community.address}, ${community.city}, ${community.state}.`, '_blank')}
+                        >
+                          <Mail className="w-4 h-4 mr-2" />
+                          Contact Support
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="text-center pt-2">
+                      <p className="text-xs text-green-600 dark:text-green-400">
+                        Verified communities get priority placement and increased visibility to families searching for care.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 {/* Pricing History & Transparency - Moved to bottom of community tab */}
                 <PricingHistory 
                   communityId={community.id} 
@@ -2728,6 +2962,84 @@ export default function CommunityDetail() {
 
               {/* Availability Tab */}
               <TabsContent value="availability" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+                
+                {/* Community Management Live Updates */}
+                <Card className="border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold flex items-center text-blue-800 dark:text-blue-200">
+                      <Lock className="w-5 h-5 mr-2" />
+                      Live Pricing & Availability Updates
+                    </CardTitle>
+                    <CardDescription className="text-blue-700 dark:text-blue-300">
+                      For community management to update real-time pricing and availability
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-blue-200 dark:border-blue-700">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100">Community Access Portal</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Update your community's pricing, availability, and unit information in real-time
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                          Staff Only
+                        </Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+                          <div className="flex items-center mb-2">
+                            <DollarSign className="w-4 h-4 text-green-600 mr-2" />
+                            <span className="text-sm font-medium text-green-800 dark:text-green-200">Live Pricing Updates</span>
+                          </div>
+                          <p className="text-xs text-green-700 dark:text-green-300">
+                            Update current rental rates, move-in specials, and incentives
+                          </p>
+                        </div>
+                        
+                        <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+                          <div className="flex items-center mb-2">
+                            <Home className="w-4 h-4 text-purple-600 mr-2" />
+                            <span className="text-sm font-medium text-purple-800 dark:text-purple-200">Unit Availability</span>
+                          </div>
+                          <p className="text-xs text-purple-700 dark:text-purple-300">
+                            Update available units, waitlist status, and move-in dates
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <Button 
+                          className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
+                          onClick={() => window.open(`/community-portal/${community.id}`, '_blank')}
+                        >
+                          <Lock className="w-4 h-4 mr-2" />
+                          Access Management Portal
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                          onClick={() => window.open(`mailto:hello@myseniorvalet.com?subject=Portal Access Request - ${community.name}&body=Hello! I need access to the management portal for ${community.name} to update pricing and availability.`, '_blank')}
+                        >
+                          <Mail className="w-4 h-4 mr-2" />
+                          Request Access
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        <span className="text-sm font-medium text-amber-800 dark:text-amber-200">Important Note</span>
+                      </div>
+                      <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                        Pricing and availability shown below are estimates based on market analysis. Contact the community directly for current rates and availability.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
                 {/* Available Units Section - Mobile Responsive */}
                 <Card>
               <CardHeader className="p-4 sm:p-6">
