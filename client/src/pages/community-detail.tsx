@@ -2001,7 +2001,7 @@ export default function CommunityDetail() {
                           {community.phone || generatePhoneNumber(community.state, community.id)}
                         </a>
                       </div>
-                      <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-2">
+                      <div className="flex items-center gap-1 sm:gap-2 mb-2">
                         <div 
                           className="flex items-center cursor-pointer hover:bg-white/10 rounded-lg px-1 py-0.5 transition-colors"
                           onClick={() => {
@@ -2015,6 +2015,10 @@ export default function CommunityDetail() {
                           <span className="font-medium text-white text-xs sm:text-sm">{community.googleRating || '4.2'}</span>
                           <span className="text-white/90 ml-0.5 text-xs">({community.googleReviewCount || '47'})</span>
                         </div>
+                      </div>
+                      
+                      {/* Care Type Badge */}
+                      <div className="flex items-center mb-2">
                         <Badge className="bg-blue-500/20 border-blue-400 text-blue-100 text-[10px] sm:text-xs">
                           {formatCareType(community.careTypes)}
                         </Badge>
