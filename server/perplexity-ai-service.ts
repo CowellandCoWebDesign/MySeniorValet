@@ -125,9 +125,61 @@ Prioritize information from the community's own website over third-party sources
   }
 
   private extractPricing(text: string): string | undefined {
-    const pricingRegex = /\$[\d,]+(\s*-\s*\$[\d,]+)?/g;
-    const matches = text.match(pricingRegex);
-    return matches ? matches[0] : undefined;
+    // Enhanced extraction for various pricing formats
+    const pricingPatterns = [
+      // Markdown table cells with pricing
+      /\|\s*\$[\d,]+(?:\.\d{2})?\s*(?:[–—-]\s*\$[\d,]+(?:\.\d{2})?)?(?:\s*\/?\s*(?:per\s+)?(?:month|mo|monthly))?\s*\|/gi,
+      // Price ranges with various dash types
+      /\$[\d,]+(?:\.\d{2})?\s*[–—-]\s*\$[\d,]+(?:\.\d{2})?(?:\s*\/?\s*(?:per\s+)?(?:month|mo|monthly))?/gi,
+      // Starting/from prices
+      /(?:starting\s+(?:at|from)|from|starts\s+at)\s*\$[\d,]+(?:\.\d{2})?(?:\s*\/?\s*(?:per\s+)?(?:month|mo|monthly))?/gi,
+      // Standalone prices with context
+      /\$[\d,]+(?:\.\d{2})?(?:\s*\/?\s*(?:per\s+)?(?:month|mo|monthly|day|daily|week|weekly|year|yearly|annually))/gi,
+      // Price in sentences
+      /(?:cost(?:s)?|price(?:d)?|rate(?:s)?|fee(?:s)?)[^$]*\$[\d,]+(?:\.\d{2})?[^.]*(?:month|mo|week|day|year)/gi,
+      // Simple dollar amounts
+      /\$[\d,]+(?:\.\d{2})?/g
+    ];
+
+    const allMatches = new Set<string>();
+    
+    for (const pattern of pricingPatterns) {
+      const matches = text.match(pattern);
+      if (matches) {
+        matches.forEach(match => {
+          // Clean up markdown table formatting if present
+          const cleaned = match.replace(/\|/g, '').trim();
+          if (cleaned) allMatches.add(cleaned);
+        });
+      }
+    }
+
+    // Look for pricing information in table rows specifically
+    const tableRowPattern = /\|[^|]*\|[^|]*\|\s*([^|]*(?:Living|Care|Memory|Nursing|Skilled)[^|]*)\s*\|\s*([^|]*\$[^|]*)\s*\|/gi;
+    let tableMatch;
+    while ((tableMatch = tableRowPattern.exec(text)) !== null) {
+      const priceCell = tableMatch[2];
+      if (priceCell && priceCell.includes('$')) {
+        allMatches.add(priceCell.trim());
+      }
+    }
+
+    if (allMatches.size > 0) {
+      const prices = Array.from(allMatches).join(' | ');
+      console.log(`💰 Extracted pricing: ${prices}`);
+      return prices;
+    }
+
+    // If no pricing found with patterns, look for pricing-related sentences
+    const pricingContext = text.match(/(?:pricing|cost|rate|fee)[^.]*[.]/gi);
+    if (pricingContext && pricingContext.length > 0) {
+      const contextStr = pricingContext.join(' ');
+      console.log(`💰 Found pricing context: ${contextStr.substring(0, 100)}...`);
+      return contextStr;
+    }
+
+    console.log(`⚠️ No pricing found in text of length ${text.length}`);
+    return undefined;
   }
 
   private extractReviews(text: string): string | undefined {

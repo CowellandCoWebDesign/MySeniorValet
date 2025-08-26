@@ -178,6 +178,9 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       });
     }
     
+    // Extract pricing from the response content
+    const extractedPricing = extractPricingFromContent(response.summary || '');
+    
     // Data is verified - return the intelligence
     const structuredResponse = {
       content: response.summary || '',
@@ -186,6 +189,7 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       verified: true,
       identityVerified: chatgptVerification?.identityVerified || false,
       nameMatch: chatgptVerification?.nameMatch,
+      pricing: extractedPricing,
       timestamp: new Date().toISOString()
     };
     
@@ -279,6 +283,87 @@ router.post('/api/communities/verify-information', async (req, res) => {
     });
   }
 });
+
+// Helper function to extract pricing from content
+function extractPricingFromContent(content: string): any {
+  const pricing: any = {};
+  
+  // First, extract pricing from markdown tables (Perplexity often returns data in table format)
+  const tableRowPattern = /\|[^|]*\|[^|]*\|\s*([^|]*(?:Living|Care|Memory|Nursing|Skilled|Studio|bedroom|Apartment)?[^|]*)\s*\|\s*([^|]*\$[^|]*)\s*\|/gi;
+  const tablePrices: string[] = [];
+  let tableMatch;
+  
+  while ((tableMatch = tableRowPattern.exec(content)) !== null) {
+    const priceCell = tableMatch[2];
+    if (priceCell && priceCell.includes('$')) {
+      const cleanPrice = priceCell.replace(/\|/g, '').trim();
+      tablePrices.push(cleanPrice);
+      console.log(`💰 Found table pricing: ${cleanPrice}`);
+    }
+  }
+  
+  // Additional pricing patterns for non-table content
+  const pricingPatterns = [
+    // Price ranges with various dash types
+    /\$[\d,]+(?:\.\d{2})?\s*[–—-]\s*\$[\d,]+(?:\.\d{2})?(?:\s*\/?\s*(?:per\s+)?(?:month|mo|monthly))?/gi,
+    // Starting/from prices
+    /(?:starting\s+(?:at|from)|from|starts\s+at|as\s+low\s+as)\s*\$[\d,]+(?:\.\d{2})?(?:\s*\/?\s*(?:per\s+)?(?:month|mo|monthly))?/gi,
+    // Prices with context words
+    /(?:cost(?:s)?|price(?:d)?|rate(?:s)?|fee(?:s)?|rent)[\s:]*\$[\d,]+(?:\.\d{2})?(?:\s*[–—-]\s*\$[\d,]+(?:\.\d{2})?)?/gi,
+    // Simple dollar amounts with monthly context
+    /\$[\d,]+(?:\.\d{2})?(?:\s*\/?\s*(?:per\s+)?(?:month|mo|monthly))/gi,
+    // Call for price variations
+    /(?:call\s+for\s+(?:pricing|price|rates?))|(?:contact\s+(?:for|us\s+for)\s+pricing)/gi
+  ];
+  
+  const foundPrices: string[] = [...tablePrices];
+  pricingPatterns.forEach(pattern => {
+    const matches = content.match(pattern);
+    if (matches) {
+      matches.forEach(match => {
+        const cleanMatch = match.replace(/\|/g, '').trim();
+        if (!foundPrices.includes(cleanMatch)) {
+          foundPrices.push(cleanMatch);
+        }
+      });
+    }
+  });
+  
+  if (foundPrices.length > 0) {
+    pricing.raw = foundPrices;
+    
+    // Extract numeric values for min/max
+    const numbers: number[] = [];
+    foundPrices.forEach(price => {
+      const priceNumbers = price.match(/\$?([\d,]+(?:\.\d{2})?)/g);
+      if (priceNumbers) {
+        priceNumbers.forEach(n => {
+          const num = parseFloat(n.replace(/[$,]/g, ''));
+          if (num > 100 && num < 50000) { // Reasonable range for monthly costs
+            numbers.push(num);
+          }
+        });
+      }
+    });
+    
+    if (numbers.length > 0) {
+      pricing.min = Math.min(...numbers);
+      pricing.max = Math.max(...numbers);
+      pricing.formatted = pricing.min === pricing.max ? 
+        `$${pricing.min.toLocaleString()}/month` :
+        `$${pricing.min.toLocaleString()} - $${pricing.max.toLocaleString()}/month`;
+      console.log(`💰 Extracted pricing range: ${pricing.formatted}`);
+    }
+    
+    // Check for "call for price" patterns
+    const callForPricePattern = /(?:call\s+for\s+(?:pricing|price|rates?))|(?:contact\s+(?:for|us\s+for)\s+pricing)/gi;
+    if (callForPricePattern.test(content) && !pricing.min) {
+      pricing.note = 'Contact community for pricing';
+    }
+  }
+  
+  return pricing;
+}
 
 // Helper function to extract additional information
 function extractAdditionalInfo(content: string) {

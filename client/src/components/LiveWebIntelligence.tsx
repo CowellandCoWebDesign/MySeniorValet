@@ -131,8 +131,12 @@ export function LiveWebIntelligence({
       
       // Notify parent component of new data (optional callback)
       if (onDataUpdate) {
+        // Merge pricing from backend response with extracted pricing
+        const mergedPricing = webData.pricing || extracted.pricing;
+        
         onDataUpdate({
           ...extracted,
+          pricing: mergedPricing, // Include pricing from backend response
           citations: webData.citations,
           images: webData.images || [],
           verified: webData.verified && !addressMismatch,
@@ -446,36 +450,52 @@ export function LiveWebIntelligence({
               </TabsContent>
 
               <TabsContent value="pricing" className="space-y-4 mt-4">
-                {extractedData.pricing ? (
+                {(intelligenceData?.pricing || extractedData.pricing) ? (
                   <div className="space-y-4">
-                    {/* Main pricing display */}
-                    {extractedData.pricing.min && extractedData.pricing.max && (
+                    {/* Main pricing display from backend or extracted data */}
+                    {(intelligenceData?.pricing?.formatted || (extractedData.pricing?.min && extractedData.pricing?.max)) && (
                       <Alert className="border-purple-200 bg-purple-50 dark:bg-purple-900/20">
                         <DollarSign className="w-5 h-5 text-purple-600" />
                         <AlertDescription>
-                          <strong className="text-lg">💰 Live Pricing Range</strong>
-                          <p className="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-2">
-                            ${extractedData.pricing.min.toLocaleString()} - ${extractedData.pricing.max.toLocaleString()}
-                            <span className="text-sm font-normal ml-1 text-gray-600">per month</span>
-                          </p>
+                          <strong className="text-lg">Live Pricing Range</strong>
+                          {intelligenceData?.pricing?.formatted ? (
+                            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-2">
+                              {intelligenceData.pricing.formatted}
+                            </p>
+                          ) : (
+                            <p className="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-2">
+                              ${extractedData.pricing.min.toLocaleString()} - ${extractedData.pricing.max.toLocaleString()}
+                              <span className="text-sm font-normal ml-1 text-gray-600">per month</span>
+                            </p>
+                          )}
                         </AlertDescription>
                       </Alert>
                     )}
                     
-                    {/* Raw pricing mentions */}
-                    {extractedData.pricing.raw && extractedData.pricing.raw.length > 0 && (
+                    {/* Raw pricing mentions from backend or extracted data */}
+                    {(intelligenceData?.pricing?.raw || extractedData.pricing?.raw) && (
                       <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20">
                         <Info className="w-4 h-4 text-blue-600" />
                         <AlertDescription>
                           <strong>Found pricing mentions from sources:</strong>
                           <ul className="mt-2 space-y-1">
-                            {extractedData.pricing.raw.slice(0, 5).map((price: string, idx: number) => (
+                            {(intelligenceData?.pricing?.raw || extractedData.pricing?.raw || []).slice(0, 5).map((price: string, idx: number) => (
                               <li key={idx} className="text-sm ml-4">• {price}</li>
                             ))}
                           </ul>
                           <p className="mt-3 text-xs text-gray-600 dark:text-gray-400">
                             Prices may vary based on care level, room type, and current availability. Contact community for exact rates.
                           </p>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    
+                    {/* Note if pricing is "call for price" */}
+                    {intelligenceData?.pricing?.note && (
+                      <Alert className="border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20">
+                        <Info className="w-4 h-4 text-yellow-600" />
+                        <AlertDescription>
+                          <p className="text-sm">{intelligenceData.pricing.note}</p>
                         </AlertDescription>
                       </Alert>
                     )}
@@ -695,33 +715,65 @@ function extractStructuredData(content: string) {
 
   // Extract pricing information with comprehensive patterns
   const pricingData: any = {};
+  
+  // First, extract pricing from markdown tables
+  const tableRowPattern = /\|[^|]*\|[^|]*\|\s*([^|]*(?:Living|Care|Memory|Nursing|Skilled|Studio|bedroom|Apartment)?[^|]*)\s*\|\s*([^|]*\$[^|]*)\s*\|/gi;
+  const tablePrices: string[] = [];
+  let tableMatch;
+  while ((tableMatch = tableRowPattern.exec(content)) !== null) {
+    const priceCell = tableMatch[2];
+    if (priceCell && priceCell.includes('$')) {
+      tablePrices.push(priceCell.replace(/\|/g, '').trim());
+    }
+  }
+  
+  // Additional pricing patterns for non-table content
   const pricingPatterns = [
-    /\$[\d,]+(?:\s*-\s*\$?[\d,]+)?(?:\s*(?:per|\/)\s*month)?/gi,
-    /(?:starting\s+at|from|as\s+low\s+as|priced\s+at|costs?\s+)?(?:about\s+)?\$[\d,]+(?:\s*(?:to|-)\s*\$?[\d,]+)?(?:\s*(?:per|\/)\s*(?:month|mo))?/gi,
-    /(?:monthly\s+)?(?:rent|fee|cost|price|rate)s?\s*(?:range|from|start|is)?\s*:?\s*\$[\d,]+(?:\s*(?:to|-)\s*\$?[\d,]+)?/gi,
-    /\$[\d,]+(?:\.\d{2})?\s*(?:to|-)\s*\$?[\d,]+(?:\.\d{2})?/gi
+    // Markdown table cells with pricing (handle various dash types)
+    /\|\s*\$[\d,]+(?:\.\d{2})?\s*(?:[–—-]\s*\$[\d,]+(?:\.\d{2})?)?(?:\s*\/?\s*(?:per\s+)?(?:month|mo|monthly))?\s*\|/gi,
+    // Price ranges with em dash, en dash, or hyphen
+    /\$[\d,]+(?:\.\d{2})?\s*[–—-]\s*\$[\d,]+(?:\.\d{2})?(?:\s*\/?\s*(?:per\s+)?(?:month|mo|monthly))?/gi,
+    // Starting/from prices
+    /(?:starting\s+(?:at|from)|from|starts\s+at|as\s+low\s+as)\s*\$[\d,]+(?:\.\d{2})?(?:\s*\/?\s*(?:per\s+)?(?:month|mo|monthly))?/gi,
+    // Prices with context words
+    /(?:cost(?:s)?|price(?:d)?|rate(?:s)?|fee(?:s)?|rent)[\s:]*\$[\d,]+(?:\.\d{2})?(?:\s*[–—-]\s*\$[\d,]+(?:\.\d{2})?)?/gi,
+    // Simple dollar amounts with context
+    /\$[\d,]+(?:\.\d{2})?(?:\s*\/?\s*(?:per\s+)?(?:month|mo|monthly|day|daily|week|weekly))/gi,
+    // Standalone dollar amounts
+    /\$[\d,]+(?:\.\d{2})?/g
   ];
   
-  const foundPrices: string[] = [];
+  const foundPrices: string[] = [...tablePrices];
   pricingPatterns.forEach(pattern => {
     const matches = content.match(pattern);
     if (matches) {
       matches.forEach(match => {
-        const cleanPrice = match.replace(/[^\d$,.-]/g, '').trim();
-        if (cleanPrice && !foundPrices.includes(cleanPrice)) {
-          foundPrices.push(match); // Keep full context
+        const cleanMatch = match.replace(/\|/g, '').trim();
+        if (cleanMatch && !foundPrices.some(p => p.includes(cleanMatch.replace(/[^\d$,.-]/g, '')))) {
+          foundPrices.push(cleanMatch);
         }
       });
     }
   });
   
   if (foundPrices.length > 0) {
-    // Try to extract min/max pricing
-    const numbers = foundPrices.join(' ').match(/\$?([\d,]+)/g)?.map(n => 
-      parseInt(n.replace(/[$,]/g, ''))
-    ).filter(n => n > 100 && n < 50000); // Reasonable range for monthly costs
+    console.log(`💰 Found pricing mentions:`, foundPrices);
     
-    if (numbers && numbers.length > 0) {
+    // Try to extract min/max pricing
+    const numbers: number[] = [];
+    foundPrices.forEach(price => {
+      const priceNumbers = price.match(/\$?([\d,]+(?:\.\d{2})?)/g);
+      if (priceNumbers) {
+        priceNumbers.forEach(n => {
+          const num = parseFloat(n.replace(/[$,]/g, ''));
+          if (num > 100 && num < 50000) { // Reasonable range for monthly costs
+            numbers.push(num);
+          }
+        });
+      }
+    });
+    
+    if (numbers.length > 0) {
       pricingData.min = Math.min(...numbers);
       pricingData.max = Math.max(...numbers);
       pricingData.raw = foundPrices;
