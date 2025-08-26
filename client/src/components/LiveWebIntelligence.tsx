@@ -6,11 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Globe, ExternalLink, RefreshCw, CheckCircle, Info, Clock, 
   MapPin, DollarSign, Users, Building, Shield, TrendingUp,
   Star, AlertCircle, Sparkles, Calendar, Link as LinkIcon, Database,
-  Activity, Award, Home, Heart, Brain
+  Activity, Award, Home, Heart, Brain, Phone, CheckCircle2, XCircle
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from "@/lib/utils";
@@ -18,7 +19,12 @@ import { cn } from "@/lib/utils";
 interface PerplexityResponse {
   content: string;
   citations?: string[];
-  images?: string[];  // URLs of actual community photos found online
+  images?: Array<{
+    image_url: string;
+    origin_url: string;
+    height?: number;
+    width?: number;
+  }>;
   search_results?: Array<{
     title: string;
     url: string;
@@ -31,12 +37,15 @@ interface PerplexityResponse {
       total_cost: number;
     };
   };
+  verified?: boolean;
+  identityVerified?: boolean;
 }
 
 interface LiveWebIntelligenceProps {
   communityName: string;
   city: string;
   state: string;
+  databasePhone?: string; // Phone from database
   onDataUpdate?: (data: any) => void;
   onPhotosUpdate?: (photos: string[]) => void;
 }
@@ -45,11 +54,13 @@ export function LiveWebIntelligence({
   communityName, 
   city, 
   state,
+  databasePhone,
   onDataUpdate,
   onPhotosUpdate 
 }: LiveWebIntelligenceProps) {
   const [isExpanded, setIsExpanded] = useState(true); // Auto-expand intelligence report
   const [extractedData, setExtractedData] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState("overview");
 
   // Fetch live data from Perplexity
   const { data: webData, isLoading, error, refetch, dataUpdatedAt } = useQuery({
@@ -85,6 +96,8 @@ export function LiveWebIntelligence({
           ...extracted,
           citations: webData.citations,
           images: webData.images || [],
+          verified: webData.verified,
+          identityVerified: webData.identityVerified,
           lastUpdated: new Date().toISOString()
         });
       }
@@ -216,98 +229,209 @@ export function LiveWebIntelligence({
             </div>
           </div>
 
-          {/* Extracted Key Information */}
-          {extractedData && (
-            <div className="space-y-4">
-              <h4 className="font-semibold flex items-center">
-                <Brain className="w-4 h-4 mr-2 text-purple-600" />
-                AI-Extracted Insights
-              </h4>
-
-              {/* Addresses Found */}
-              {extractedData.addresses?.length > 0 && (
-                <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
-                  <MapPin className="w-4 h-4 text-green-600" />
-                  <AlertDescription>
-                    <strong>Verified Addresses:</strong>
-                    <ul className="mt-2 space-y-1">
-                      {extractedData.addresses.map((addr: string, idx: number) => (
-                        <li key={idx} className="text-sm">{addr}</li>
+          {/* Official Website and Contact Info Quick Access */}
+          {(extractedData?.officialWebsite || extractedData?.phoneNumbers?.length > 0 || databasePhone) && (
+            <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg">
+              <div className="flex flex-wrap items-center gap-4">
+                {extractedData?.officialWebsite && (
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    className="bg-green-600 hover:bg-green-700"
+                    onClick={() => window.open(extractedData.officialWebsite, '_blank')}
+                  >
+                    <Globe className="w-4 h-4 mr-2" />
+                    Visit Official Website
+                    <ExternalLink className="w-3 h-3 ml-2" />
+                  </Button>
+                )}
+                {(databasePhone || extractedData?.phoneNumbers?.length > 0) && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-blue-600" />
+                    <div className="flex flex-col">
+                      {databasePhone && (
+                        <a 
+                          href={`tel:${databasePhone}`}
+                          className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                        >
+                          {databasePhone}
+                          <Badge variant="outline" className="ml-2 text-xs">Primary</Badge>
+                        </a>
+                      )}
+                      {extractedData?.phoneNumbers?.map((phone: string, idx: number) => (
+                        phone !== databasePhone && (
+                          <a 
+                            key={idx}
+                            href={`tel:${phone}`}
+                            className="text-blue-600 dark:text-blue-400 hover:underline text-sm"
+                          >
+                            {phone}
+                            <Badge variant="outline" className="ml-2 text-xs">Web</Badge>
+                          </a>
+                        )
                       ))}
-                    </ul>
-                  </AlertDescription>
-                </Alert>
-              )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
-              {/* Care Types */}
-              {extractedData.careTypes?.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium mb-2">Care Types Offered:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {extractedData.careTypes.map((type: string, idx: number) => (
-                      <Badge key={idx} variant="secondary">
-                        <Heart className="w-3 h-3 mr-1" />
-                        {type}
-                      </Badge>
+          {/* Extracted Key Information with Tabs */}
+          {extractedData && (
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="services">Services</TabsTrigger>
+                <TabsTrigger value="amenities">Amenities</TabsTrigger>
+                <TabsTrigger value="pricing">Pricing</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="overview" className="space-y-4 mt-4">
+                {/* Addresses Found */}
+                {extractedData.addresses?.length > 0 && (
+                  <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
+                    <MapPin className="w-4 h-4 text-green-600" />
+                    <AlertDescription>
+                      <strong>Verified Addresses:</strong>
+                      <ul className="mt-2 space-y-1">
+                        {extractedData.addresses.map((addr: string, idx: number) => (
+                          <li key={idx} className="text-sm">{addr}</li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {/* Care Types */}
+                {extractedData.careTypes?.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium mb-2">Care Types Offered:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {extractedData.careTypes.map((type: string, idx: number) => (
+                        <Badge key={idx} variant="secondary">
+                          <Heart className="w-3 h-3 mr-1" />
+                          {type}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Chain Information */}
+                {extractedData.chainName && (
+                  <Alert className="border-purple-200 bg-purple-50 dark:bg-purple-900/20">
+                    <Building className="w-4 h-4 text-purple-600" />
+                    <AlertDescription>
+                      <strong>Part of {extractedData.chainName}</strong>
+                      {extractedData.relatedCommunities?.length > 0 && (
+                        <p className="mt-1 text-sm">
+                          {extractedData.relatedCommunities.length} other locations in chain
+                        </p>
+                      )}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </TabsContent>
+
+              <TabsContent value="services" className="space-y-4 mt-4">
+                {extractedData.services?.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-2">
+                    {extractedData.services.map((service: string, idx: number) => (
+                      <div key={idx} className="flex items-center text-sm">
+                        <CheckCircle className="w-3 h-3 mr-2 text-green-600" />
+                        {service}
+                      </div>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    No specific services information found. Contact community for details.
+                  </p>
+                )}
+              </TabsContent>
 
-              {/* Features */}
-              {extractedData.features?.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium mb-2">Highlighted Features:</p>
+              <TabsContent value="amenities" className="space-y-4 mt-4">
+                {extractedData.amenities?.length > 0 ? (
                   <div className="grid grid-cols-2 gap-2">
-                    {extractedData.features.slice(0, 6).map((feature: string, idx: number) => (
+                    {extractedData.amenities.map((amenity: string, idx: number) => (
+                      <div key={idx} className="flex items-center text-sm">
+                        <Star className="w-3 h-3 mr-2 text-yellow-600" />
+                        {amenity}
+                      </div>
+                    ))}
+                  </div>
+                ) : extractedData.features?.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-2">
+                    {extractedData.features.map((feature: string, idx: number) => (
                       <div key={idx} className="flex items-center text-sm">
                         <CheckCircle className="w-3 h-3 mr-2 text-green-600" />
                         {feature}
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    No specific amenities information found. Contact community for details.
+                  </p>
+                )}
+              </TabsContent>
 
-              {/* Pricing Mentions */}
-              {extractedData.pricing && (
-                <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20">
-                  <DollarSign className="w-4 h-4 text-blue-600" />
-                  <AlertDescription>
-                    <strong>Pricing Information:</strong>
-                    <p className="mt-1 text-sm">{extractedData.pricing}</p>
-                  </AlertDescription>
-                </Alert>
-              )}
+              <TabsContent value="pricing" className="space-y-4 mt-4">
+                {extractedData.pricing ? (
+                  <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+                    <DollarSign className="w-4 h-4 text-blue-600" />
+                    <AlertDescription>
+                      <strong>Pricing Information:</strong>
+                      <p className="mt-1 text-sm">{extractedData.pricing}</p>
+                      <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                        Prices may vary based on care level and room type. Contact community for current rates.
+                      </p>
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  <Alert className="border-gray-200">
+                    <Info className="w-4 h-4 text-gray-600" />
+                    <AlertDescription>
+                      <p className="text-sm">
+                        Pricing information not available online. Please contact the community directly for current rates.
+                      </p>
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </TabsContent>
+            </Tabs>
+          )}
 
-              {/* Community Photos Found */}
-              {webData?.images && webData.images.length > 0 && (
-                <div>
-                  <h4 className="font-semibold mb-3 flex items-center">
-                    <Building className="w-4 h-4 mr-2 text-orange-600" />
-                    Community Photos Found Online
-                  </h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {webData.images.slice(0, 6).map((imageUrl: string, idx: number) => (
-                      <div key={idx} className="relative group">
-                        <img
-                          src={imageUrl}
-                          alt={`${communityName} photo ${idx + 1}`}
-                          className="w-full h-24 object-cover rounded-lg border shadow-sm group-hover:shadow-md transition-shadow"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-colors" />
-                      </div>
-                    ))}
-                  </div>
-                  {webData.images.length > 6 && (
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                      +{webData.images.length - 6} more photos found
-                    </p>
-                  )}
-                </div>
+          {/* Community Photos Found */}
+          {webData?.images && webData.images.length > 0 && (
+            <div className="mt-6">
+              <h4 className="font-semibold mb-3 flex items-center">
+                <Building className="w-4 h-4 mr-2 text-orange-600" />
+                Community Photos Found Online
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {webData.images.slice(0, 6).map((image: any, idx: number) => {
+                  const imageUrl = typeof image === 'string' ? image : image.image_url;
+                  return (
+                    <div key={idx} className="relative group">
+                      <img
+                        src={imageUrl}
+                        alt={`${communityName} photo ${idx + 1}`}
+                        className="w-full h-24 object-cover rounded-lg border shadow-sm group-hover:shadow-md transition-shadow"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-colors" />
+                    </div>
+                  );
+                })}
+              </div>
+              {webData.images.length > 6 && (
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                  +{webData.images.length - 6} more photos found
+                </p>
               )}
             </div>
           )}
@@ -416,6 +540,61 @@ export function LiveWebIntelligence({
 function extractStructuredData(content: string) {
   const data: any = {};
 
+  // Extract official website URLs
+  const websitePatterns = [
+    /(?:https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.(?:com|org|net|care|health|senior|living))(?:\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*)?/gi,
+    /visit\s+(?:us\s+at\s+)?([a-zA-Z0-9-]+\.(?:com|org|net))(?:\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*)?/gi,
+    /(?:official\s+)?website:\s*([a-zA-Z0-9-]+\.(?:com|org|net))(?:\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*)?/gi
+  ];
+  
+  for (const pattern of websitePatterns) {
+    const matches = content.match(pattern);
+    if (matches) {
+      // Find the most likely official website (prioritize .com and .org)
+      const websites = matches.filter(url => {
+        const cleanUrl = url.toLowerCase();
+        // Filter out social media and review sites
+        return !cleanUrl.includes('facebook') && 
+               !cleanUrl.includes('twitter') && 
+               !cleanUrl.includes('aplaceformom') &&
+               !cleanUrl.includes('caring.com') &&
+               !cleanUrl.includes('yelp.com');
+      });
+      if (websites.length > 0) {
+        let website = websites[0];
+        if (!website.startsWith('http')) {
+          website = 'https://' + website.replace(/^(www\.)?/, 'www.');
+        }
+        data.officialWebsite = website;
+        break;
+      }
+    }
+  }
+
+  // Extract phone numbers with improved patterns
+  const phonePatterns = [
+    /(?:phone|tel|call|contact)[\s:]*(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/gi,
+    /\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g
+  ];
+  
+  const foundPhones: string[] = [];
+  phonePatterns.forEach(pattern => {
+    const matches = content.match(pattern);
+    if (matches) {
+      matches.forEach(match => {
+        // Clean the phone number
+        const cleanPhone = match.replace(/(?:phone|tel|call|contact)[\s:]*/i, '').trim();
+        if (cleanPhone && !foundPhones.includes(cleanPhone)) {
+          foundPhones.push(cleanPhone);
+        }
+      });
+    }
+  });
+  
+  if (foundPhones.length > 0) {
+    data.phoneNumbers = foundPhones.slice(0, 3);
+  }
+
   // Extract addresses (looking for patterns like "1234 Street Name, City, ST 12345")
   const addressPattern = /\d+\s+[A-Za-z\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Place|Pl|Trail|Parkway|Pkwy|Highway|Hwy)[^,]*,\s*[A-Za-z\s]+,\s*[A-Z]{2}\s+\d{5}/gi;
   const addresses = content.match(addressPattern);
@@ -448,12 +627,39 @@ function extractStructuredData(content: string) {
     data.careTypes = [...new Set(careTypes)];
   }
 
-  // Extract features
-  const features: string[] = [];
-  const featurePatterns = [
+  // Extract services
+  const services: string[] = [];
+  const servicePatterns = [
     /24\/7 (?:staff|support|care)/gi,
-    /secure environment/gi,
+    /24-hour (?:staff|support|care)/gi,
     /medication management/gi,
+    /personal care/gi,
+    /bathing assistance/gi,
+    /dressing assistance/gi,
+    /meal preparation/gi,
+    /wound care/gi,
+    /diabetes management/gi
+  ];
+  
+  servicePatterns.forEach(pattern => {
+    const matches = content.match(pattern);
+    if (matches) {
+      matches.forEach(match => {
+        services.push(match);
+      });
+    }
+  });
+  
+  if (services.length > 0) {
+    data.services = [...new Set(services.map((s: string) => 
+      s.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+    ))];
+  }
+
+  // Extract amenities
+  const amenities: string[] = [];
+  const amenityPatterns = [
+    /secure environment/gi,
     /transportation/gi,
     /housekeeping/gi,
     /dining services/gi,
@@ -465,29 +671,46 @@ function extractStructuredData(content: string) {
     /library/gi,
     /chapel/gi,
     /outdoor spaces/gi,
-    /pet.*friendly/gi
+    /pet.*friendly/gi,
+    /garden|courtyard/gi,
+    /swimming pool/gi,
+    /game room/gi,
+    /theater|cinema/gi,
+    /computer room/gi
   ];
 
-  featurePatterns.forEach(pattern => {
+  amenityPatterns.forEach(pattern => {
     const matches = content.match(pattern);
     if (matches) {
       matches.forEach(match => {
-        features.push(match);
+        amenities.push(match);
       });
     }
   });
 
-  if (features.length > 0) {
-    data.features = [...new Set(features.map((f: string) => 
-      f.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+  if (amenities.length > 0) {
+    data.amenities = [...new Set(amenities.map((a: string) => 
+      a.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
     ))];
   }
 
-  // Extract pricing information
-  const pricePattern = /\$[\d,]+(?:\s*-\s*\$[\d,]+)?(?:\s*(?:per|\/)\s*month)?/gi;
-  const prices = content.match(pricePattern);
-  if (prices) {
-    data.pricing = prices.join(', ');
+  // Combine services and amenities into features for backward compatibility
+  data.features = [...(data.services || []), ...(data.amenities || [])];
+
+  // Extract pricing information with improved patterns
+  const pricePatterns = [
+    /starting\s+(?:at|from)\s+\$[\d,]+(?:\s*(?:per|\/)\s*month)?/gi,
+    /\$[\d,]+\s*-\s*\$[\d,]+(?:\s*(?:per|\/)\s*month)?/gi,
+    /\$[\d,]+(?:\s*(?:per|\/)\s*month)/gi,
+    /monthly\s+(?:rate|cost|price)[\s:]*\$[\d,]+/gi
+  ];
+  
+  for (const pattern of pricePatterns) {
+    const matches = content.match(pattern);
+    if (matches) {
+      data.pricing = matches.join(', ');
+      break;
+    }
   }
 
   // Check if it's part of a chain
