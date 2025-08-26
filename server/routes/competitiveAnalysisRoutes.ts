@@ -312,8 +312,13 @@ router.post('/api/competitive-analysis', async (req, res) => {
     
     // Scrape up to 3 community websites for rich data (to keep response time reasonable)
     const communitiesToScrape = extractedCommunities
-      .filter(c => c.website && c.website.includes('http'))
-      .slice(0, 3);
+      .filter(c => c.website && c.website.length > 5) // Just check if website exists
+      .slice(0, 3)
+      .map(c => ({
+        ...c,
+        // Ensure website has http:// or https:// prefix
+        website: c.website.includes('://') ? c.website : `https://${c.website}`
+      }));
     
     console.log(`🕸️ Scraping ${communitiesToScrape.length} community websites for rich data...`);
     

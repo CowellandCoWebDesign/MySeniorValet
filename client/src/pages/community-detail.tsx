@@ -50,7 +50,7 @@ const defaultPhotos = [
 ];
 
 // Community Competitive Analysis Component
-const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate }: { community: any, onAnalysisUpdate?: (data: any) => void }) => {
+const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificationReport }: { community: any, onAnalysisUpdate?: (data: any) => void, onVerificationReport?: (data: any) => void }) => {
   const [analysis, setAnalysis] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true); // Always expanded by default
@@ -88,15 +88,34 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate }: { communi
       setAnalysis(data);
       setIsExpanded(true);
       
-      // Extract website for the current community if found
+      // Extract website and photos for the current community if found
       if (data.extractedCommunities && data.extractedCommunities.length > 0) {
         const currentCommunityData = data.extractedCommunities.find((c: any) => 
           c.name.toLowerCase().includes(community.name.toLowerCase()) ||
           community.name.toLowerCase().includes(c.name.toLowerCase())
         );
         
-        if (currentCommunityData && currentCommunityData.website) {
-          console.log(`Found website for ${community.name}: ${currentCommunityData.website}`);
+        if (currentCommunityData) {
+          if (currentCommunityData.website) {
+            console.log(`Found website for ${community.name}: ${currentCommunityData.website}`);
+          }
+          
+          // Extract photos from scraped data and update verification report
+          if (currentCommunityData.photos && currentCommunityData.photos.length > 0) {
+            console.log(`Found ${currentCommunityData.photos.length} photos from web scraping for ${community.name}`);
+            
+            // Update the verification report with scraped photos
+            if (onVerificationReport) {
+              onVerificationReport(prev => ({
+                ...prev,
+                webIntelligence: {
+                  ...(prev?.webIntelligence || {}),
+                  images: currentCommunityData.photos,
+                  scrapedFrom: currentCommunityData.website
+                }
+              }));
+            }
+          }
         }
       }
       
@@ -3627,6 +3646,7 @@ export default function CommunityDetail() {
                 <CommunityCompetitiveAnalysis 
                   community={community} 
                   onAnalysisUpdate={setMarketAnalysisData}
+                  onVerificationReport={setVerificationReport}
                 />
               </TabsContent>
               
