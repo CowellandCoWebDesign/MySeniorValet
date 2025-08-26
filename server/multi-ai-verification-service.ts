@@ -119,32 +119,14 @@ export class MultiAIVerificationService {
     };
 
     try {
-      // Run parallel verification with graceful fallbacks
-      // Priority: ChatGPT first (more reliable), then Claude as backup
-      const [chatgptResult, claudeResult] = await Promise.allSettled([
-        this.verifyWithChatGPT(communityName, perplexityData, communityContext),
-        this.verifyWithClaude(communityName, perplexityData, communityContext).catch(error => {
-          console.warn('Claude API unavailable (likely credit limit), continuing with Perplexity + ChatGPT only');
-          return null;
-        })
+      // Restored original orchestration order: Claude primary, ChatGPT fallback
+      // Priority: Claude (Anthropic) for verification and enrichment, ChatGPT as backup
+      const [claudeResult, chatgptResult] = await Promise.allSettled([
+        this.verifyWithClaude(communityName, perplexityData, communityContext),
+        this.verifyWithChatGPT(communityName, perplexityData, communityContext)
       ]);
 
-      // Process ChatGPT verification first (more reliable)
-      if (chatgptResult.status === 'fulfilled' && chatgptResult.value) {
-        report.verificationResults.chatgptVerification = chatgptResult.value;
-        report.aiOrchestra.chatgpt = {
-          status: 'active',
-          lastResponse: new Date().toISOString()
-        };
-      } else {
-        console.warn('ChatGPT verification failed:', chatgptResult);
-        report.aiOrchestra.chatgpt = {
-          status: 'inactive',
-          lastResponse: 'error'
-        };
-      }
-
-      // Process Claude verification (backup only due to credit limits)
+      // Process Claude verification first (primary verifier with enrichment capabilities)
       if (claudeResult.status === 'fulfilled' && claudeResult.value) {
         report.verificationResults.claudeVerification = claudeResult.value;
         report.aiOrchestra.claude = {
@@ -152,10 +134,25 @@ export class MultiAIVerificationService {
           lastResponse: new Date().toISOString()
         };
       } else {
-        console.log('Claude verification skipped (API credit limit) - using Perplexity + ChatGPT');
+        console.warn('Claude verification unavailable, falling back to ChatGPT');
         report.aiOrchestra.claude = {
           status: 'inactive',
-          lastResponse: 'credit_limit_reached'
+          lastResponse: 'fallback_to_chatgpt'
+        };
+      }
+
+      // Process ChatGPT verification (fallback when Claude is unavailable)
+      if (chatgptResult.status === 'fulfilled' && chatgptResult.value) {
+        report.verificationResults.chatgptVerification = chatgptResult.value;
+        report.aiOrchestra.chatgpt = {
+          status: 'active',
+          lastResponse: new Date().toISOString()
+        };
+      } else {
+        console.warn('ChatGPT verification also failed:', chatgptResult);
+        report.aiOrchestra.chatgpt = {
+          status: 'inactive',
+          lastResponse: 'error'
         };
       }
 

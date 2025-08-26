@@ -15,8 +15,8 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       });
     }
 
-    // Build the search query
-    const searchQuery = query || `"${communityName}" ${city} ${state} senior living community details features amenities pricing`;
+    // Enhanced search query prioritizing official website
+    const searchQuery = query || `"${communityName}" ${city} ${state} official website senior living community contact pricing amenities features`;
     
     console.log(`🔍 Fetching web intelligence for: ${communityName} in ${city}, ${state}`);
     
@@ -64,33 +64,55 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
           careTypes: ['Senior Living']
         };
         
-        console.log(`🔍 Running identity verification for ${communityName} (pre-score: ${verificationScore})...`);
+        console.log(`🔍 Running multi-AI verification for ${communityName} (pre-score: ${verificationScore})...`);
         
-        // Set a timeout for verification to prevent hanging
-        const verificationPromise = verificationService.verifyWithChatGPT(
+        // Use full multi-AI orchestration: Perplexity → Claude → ChatGPT
+        const verificationPromise = verificationService.verifyRealTimeData(
+          0, // communityId placeholder
           communityName, 
           response, 
           communityContext
         );
         
-        chatgptVerification = await Promise.race([
+        const fullVerification = await Promise.race([
           verificationPromise,
-          new Promise((resolve) => setTimeout(() => resolve(null), 3000)) // 3 second timeout
+          new Promise((resolve) => setTimeout(() => resolve(null), 5000)) // 5 second timeout for full orchestration
         ]);
         
-        if (chatgptVerification) {
-          console.log(`🔍 Identity verification result:`, {
-            identityVerified: chatgptVerification?.identityVerified,
-            nameMatch: chatgptVerification?.nameMatch,
-            verified: chatgptVerification?.verified
+        if (fullVerification) {
+          // Extract verification results from the full orchestration
+          const claudeVerif = fullVerification.verificationResults?.claudeVerification;
+          const chatgptVerif = fullVerification.verificationResults?.chatgptVerification;
+          const consensus = fullVerification.consensus;
+          
+          // Log AI orchestration status
+          console.log(`🎭 AI Orchestration Status:`, {
+            perplexity: fullVerification.aiOrchestra?.perplexity?.status,
+            claude: fullVerification.aiOrchestra?.claude?.status,
+            chatgpt: fullVerification.aiOrchestra?.chatgpt?.status,
+            consensus: consensus?.agreementLevel
           });
           
-          // Use ChatGPT result if available
-          isIdentityVerified = chatgptVerification?.identityVerified === true;
-          isNameMatch = chatgptVerification?.nameMatch === 'exact' || chatgptVerification?.nameMatch === 'partial';
-          isVerified = isIdentityVerified && isNameMatch;
+          // Use Claude verification if available (primary), otherwise ChatGPT (fallback)
+          chatgptVerification = claudeVerif || chatgptVerif;
+          
+          if (chatgptVerification) {
+            isIdentityVerified = chatgptVerification?.identityVerified === true;
+            isNameMatch = chatgptVerification?.nameMatch === 'exact' || chatgptVerification?.nameMatch === 'partial';
+            isVerified = isIdentityVerified && isNameMatch;
+          } else if (consensus?.confidenceScore >= 50) {
+            // Use consensus if individual verifications failed
+            isVerified = true;
+            isIdentityVerified = true;
+            isNameMatch = true;
+          } else {
+            // Fall back to heuristic
+            isVerified = verificationScore >= 50;
+            isIdentityVerified = verificationScore >= 50;
+            isNameMatch = verificationScore >= 40;
+          }
         } else {
-          console.log(`⚠️ ChatGPT verification timed out, using heuristic score: ${verificationScore}`);
+          console.log(`⚠️ Multi-AI verification timed out, using heuristic score: ${verificationScore}`);
           // Fall back to heuristic scoring
           isVerified = verificationScore >= 50;
           isIdentityVerified = verificationScore >= 50;

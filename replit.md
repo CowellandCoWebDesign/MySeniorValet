@@ -5,12 +5,13 @@ MySeniorValet is a technology platform that connects families with publicly avai
 
 ## Recent Enhancement - August 26, 2025
 
-**AI Orchestration Crisis Resolution**:
-- **Fixed Critical Issue**: Community details pages were showing degraded "cannot verify" messages
-- **Claude API Restored**: User updated and paid for Claude API, fully operational
-- **Improved Verification Logic**: Reduced strictness, now shows actual data with disclaimers when confidence is lower
-- **Heuristic Scoring**: Falls back to smart pattern matching when AI verification times out
-- **Result**: Community pages now display real information instead of generic alerts
+**AI Orchestration Restored to Original Order**:
+- **Orchestration Order Fixed**: Restored to Perplexity (sonar-pro) → Claude → ChatGPT
+- **Official Website Discovery**: Enhanced Perplexity to prioritize finding communities' official websites
+- **Claude API Primary**: User's paid Claude API now serves as primary verifier with enrichment
+- **ChatGPT Fallback**: Functions as reliable backup when Claude is unavailable
+- **Smart Verification**: Shows actual data with confidence indicators instead of blocking content
+- **Result**: Communities now display rich information from official websites with proper verification
 
 **Japan Phase 5 Expansion Milestone**:
 - **Total Global Facilities: 38,019** across 9 countries

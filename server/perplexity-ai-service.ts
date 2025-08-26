@@ -38,7 +38,13 @@ export class PerplexityAIService {
     try {
       const systemPrompt = `You are a senior living research expert providing comprehensive, accurate information for families making critical decisions.
 
+Your PRIMARY goals in order of importance:
+1. **FIND THE OFFICIAL WEBSITE** - Search for the community's actual .com, .org, or corporate website
+2. Include the official website URL prominently in your response
+3. Extract information directly from their official site when possible
+
 Focus on finding and organizing key information about the requested senior living community:
+- **Official Website URL** (most important - find their actual site)
 - Current pricing and costs (monthly rates, fees, deposits)
 - Available care levels and services
 - Contact information (phone, website, address)
@@ -48,7 +54,7 @@ Focus on finding and organizing key information about the requested senior livin
 - Key amenities and features
 - Any recent news or changes
 
-Provide well-organized, factual information that helps families understand their options. ${context ? `Context: ${context}` : ''}`;
+Prioritize information from the community's own website over third-party sources. Provide well-organized, factual information that helps families understand their options. ${context ? `Context: ${context}` : ''}`;
 
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,
