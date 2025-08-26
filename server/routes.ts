@@ -90,6 +90,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const webIntelligenceRoutes = await import('./routes/webIntelligenceRoutes');
   app.use(webIntelligenceRoutes.default);
   
+  // Register enhanced pricing intelligence routes
+  const { registerPricingIntelligenceRoutes } = await import('./routes/pricingIntelligenceRoutes');
+  registerPricingIntelligenceRoutes(app);
+  
+  // Register photo management routes
+  const photoManagementRoutes = await import('./routes/photoManagementRoutes');
+  app.use(photoManagementRoutes.default);
+  
   // Register remaining special routes
   app.use('/api', autocompleteRoutes);
   app.use('/api/subscriptions', subscriptionRoutes);

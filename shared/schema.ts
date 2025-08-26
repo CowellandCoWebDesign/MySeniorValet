@@ -1311,6 +1311,38 @@ export const reviewHelpfulness = pgTable("review_helpfulness", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Pricing Alerts Table - User-defined pricing alerts
+export const pricingAlerts = pgTable("pricing_alerts", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  alertType: text("alert_type", { 
+    enum: ["price_drop", "price_increase", "threshold", "availability"] 
+  }).notNull(),
+  threshold: integer("threshold"), // Price threshold for alerts
+  isActive: boolean("is_active").default(true).notNull(),
+  lastTriggered: timestamp("last_triggered"),
+  triggerCount: integer("trigger_count").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("pricing_alerts_user_idx").on(table.userId),
+  index("pricing_alerts_community_idx").on(table.communityId)
+]);
+
+// Photo Validation Log Table - Track photo validation results
+export const photoValidationLog = pgTable("photo_validation_log", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  photoUrl: text("photo_url").notNull(),
+  isValid: boolean("is_valid").notNull(),
+  validationError: text("validation_error"),
+  source: text("source"),
+  validatedAt: timestamp("validated_at").defaultNow().notNull(),
+}, (table) => [
+  index("photo_validation_community_idx").on(table.communityId),
+  index("photo_validation_validated_idx").on(table.validatedAt)
+]);
+
 // User Favorites Table
 export const favorites = pgTable("favorites", {
   id: serial("id").primaryKey(),
@@ -1336,9 +1368,7 @@ export const searchHistory = pgTable("search_history", {
 
 // Note: messages and messageTemplates tables are defined earlier in the schema
 
-// TourMate™ Type Exports
-export type Tour = typeof tours.$inferSelect;
-export type InsertTour = typeof tours.$inferInsert;
+// TourMate™ Type Exports (removed duplicates - defined later in file)
 export type TourAvailability = typeof tourAvailability.$inferSelect;
 export type InsertTourAvailability = typeof tourAvailability.$inferInsert;
 

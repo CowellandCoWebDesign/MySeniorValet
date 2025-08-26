@@ -191,7 +191,13 @@ router.post('/api/competitive-analysis', async (req, res) => {
     ));
 
     // Search our database for mentioned communities
-    const matchedCommunities = [];
+    const matchedCommunities: Array<{
+      id: number;
+      name: string;
+      city: string;
+      state: string;
+      type: string | null;
+    }> = [];
     if (communityMentions.length > 0) {
       for (const communityName of communityMentions) {
         // STABILITY FIX: Validate community name before database query
@@ -209,8 +215,8 @@ router.post('/api/competitive-analysis', async (req, res) => {
               id: communities.id,
               name: communities.name,
               city: communities.city,
-              state_province: communities.state,
-              type: communities.type
+              state: communities.state,
+              type: communities.communitySubtype
             })
             .from(communities)
             .where(sql`lower(${communities.name}) LIKE lower(${searchPattern})`)

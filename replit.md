@@ -1,72 +1,7 @@
 # MySeniorValet - Senior Living Community Transparency Platform
 
 ## Overview
-MySeniorValet is a technology platform that connects families with publicly available, verified information about senior living communities across North America (United States, Canada, and Mexico). Its primary purpose is to bring transparency to the senior living market by providing authentic, verified data, including HUD pricing, to empower informed decision-making. The platform offers a complete care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the fully operational TourMate™ tour scheduling system, a One-Touch Emergency Contact Shortcut, and trilingual support (English, French, Spanish). MySeniorValet aims to be "The Dawn of Transparency in Senior Living."
-
-## Recent Enhancement - August 26, 2025
-
-**AI Orchestration Restored to Original Order**:
-- **Orchestration Order Fixed**: Restored to Perplexity (sonar-pro) → Claude → ChatGPT
-- **Official Website Discovery**: Enhanced Perplexity to prioritize finding communities' official websites
-- **Claude API Primary**: User's paid Claude API now serves as primary verifier with enrichment
-- **ChatGPT Fallback**: Functions as reliable backup when Claude is unavailable
-- **Smart Verification**: Shows actual data with confidence indicators instead of blocking content
-- **Result**: Communities now display rich information from official websites with proper verification
-
-**Japan Phase 5 Expansion Milestone**:
-- **Total Global Facilities: 38,019** across 9 countries
-- **Japan Massive Expansion Achievement**: Grew from 67 to **191 facilities across 91 cities**
-  - Phase 5 added 20 new facilities in 17 strategic cities
-  - New prefectural capitals: Yamaguchi, Matsuyama, Tokushima, Kochi, Wakayama, Otsu, Fukui, Kofu, Morioka, Aomori, Akita
-  - Famous hot spring destinations: Beppu, Kusatsu, expanded Hakone coverage
-  - Historic castle towns: Hikone, Hirosaki
-  - Mt. Fuji area: Kofu, Fujikawaguchiko (Lake Kawaguchi)
-  - Religious sites: Izumo (Izumo Taisha shrine)
-  - World Heritage: Enhanced Nikko coverage
-  - Includes Tokyo (33), Osaka (8), Kyoto (6), Yokohama (6), Nagoya (6), Kobe (5), Sapporo (5), Fukuoka (5)
-  - Features major operators: SOMPO Care, Benesse Style Care, Nichiigakkan, Tsukui, plus regional operators
-- **Verified Coverage (100% Authentic Data)**:
-  - **United States**: 28,380 facilities (74.6% of database)
-  - **Canada**: 6,780 facilities (17.8% of database)  
-  - **Australia**: 2,231 facilities (5.9% of database)
-  - **Mexico**: 405 facilities (1.1% of database)
-  - **Japan**: 191 facilities (0.5% of database) - 91 cities nationwide
-  - **Cuba**: 12 facilities
-  - **Peru**: 10 facilities
-  - **Costa Rica**: 5 facilities
-  - **Panama**: 5 facilities
-- **Data Integrity Fix**: Removed false displays of New Zealand, South Korea, Puerto Rico, Greenland
-- **Zero Synthetic Data Policy**: Platform strictly displays only verified facility data from authentic sources
-
-**US Coverage Gap Analysis** (facilities per million population):
-- **Critical Gaps**: Kentucky (7.8/M), New York (27.1/M), Nebraska (30.0/M), Washington (32.6/M)
-- **Well Covered**: Texas (147/M), Ohio (145/M), Illinois (92/M), California (82/M)
-
-**Data Integrity Improvements**:
-- Fixed country code inconsistencies (Australia→AU, USA→US, Canada→CA)
-- Discovered Australia has excellent coverage with 2,231 facilities across 356 cities
-- Enhanced Chicago area coverage with authentic facilities from verified sources
-- Expanded New York City coverage across Manhattan, Brooklyn, and Queens
-
-**Recent Additions** (100% authentic data from web searches):
-- **Chicago**: Added Selfhelp Home, Hartwell Place, Montgomery Place
-- **Manhattan**: Coterie Hudson Yards, The Apsley, The Bristal at York Avenue
-- **Brooklyn**: Brooklyn Adult Care Center, Norwegian Christian Home
-- **Queens**: Flushing House, Boulevard ALP, Atria Kew Gardens
-- **Mexico**: 16 facilities in CDMX, Guadalajara, San Miguel de Allende, Puerto Vallarta
-
-**Previous Enhancement - August 23, 2025**:
-- Community Directory UI Improvements with colored quick filters and improved visual hierarchy
-- Natural Language Search Implementation (Wave 1) with Weaviate vector database integration
-
-**Previous Enhancements - August 22, 2025**:
-- Layout Optimization for Full Width Usage on community detail pages
-- Reviews Tab Positioning & Styling with orange-to-amber gradient
-- Tour Tracker Reports Integration for family tour experiences
-- Hero Panel Competitive Differentiation with 12 research-backed facts
-- Layout & Display Improvements fixing critical community card issues
-- Photo Loading User Experience with clear loading indicators
-- Photo Attribution for Legal Protection on web-sourced images
+MySeniorValet is a technology platform connecting families with publicly available, verified information about senior living communities across North America. Its purpose is to bring transparency to the senior living market by providing authentic, verified data, including HUD pricing, to empower informed decision-making. The platform offers complete care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the TourMate™ tour scheduling system, a One-Touch Emergency Contact Shortcut, and trilingual support (English, French, Spanish). MySeniorValet aims to be "The Dawn of Transparency in Senior Living." The platform includes an enhanced pricing intelligence system for historical tracking, confidence scoring, and trend analysis across different care levels, and prioritizes finding official community websites for richer information with robust AI-driven verification.
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
@@ -114,9 +49,16 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - **UI Libraries**: `@radix-ui/*`, `tailwindcss`, `lucide-react`
 - **Mapping**: `react-leaflet`
 - **AI Integrations**:
-  - **Perplexity (Primary)**: For real-time web search, verification, and market data. Using `sonar-pro` model (flagship) - provides comprehensive results with citations, search_results metadata, and detailed community information. Fixed Aug 21, 2025 (was using deprecated llama-3.1-sonar models).
+  - **Perplexity (Primary)**: For real-time web search, verification, and market data. Using `sonar-pro` model.
   - **Claude (Secondary)**: For advanced reasoning, complex analysis, and care planning.
   - **ChatGPT (Backup)**: For general purpose fallback and validation.
 - **Email Service**: SendGrid
 - **Payment Processing**: Stripe
 - **Document Signing**: Documenso
+
+## Recent Development Progress (August 26, 2025)
+- **Photo Management System**: Complete implementation with validation, CDN optimization, quality scoring, source attribution, and database logging
+- **Pricing Intelligence System**: Enhanced pricing display with confidence scores, historical trends, and market analysis
+- **Database Schema**: Updated with photoValidationLog table for tracking photo quality and sources
+- **API Routes**: All photo management and pricing intelligence routes registered and functional
+- **Code Quality**: All LSP errors resolved across the codebase
