@@ -102,41 +102,19 @@ export class WebsiteScraperService {
       for (let imgUrl of imageUrls) {
         const imgLower = imgUrl.toLowerCase();
         
-        // Skip marketing materials, logos, banners, and ads
-        if (imgLower.includes('logo') || imgLower.includes('icon') || 
-            imgLower.includes('favicon') || imgLower.includes('sprite') ||
-            imgLower.includes('.svg') || imgLower.includes('banner') ||
-            imgLower.includes('slider') || imgLower.includes('campaign') ||
-            imgLower.includes('ad_') || imgLower.includes('_ad') ||
-            imgLower.includes('promo') || imgLower.includes('podcast') ||
-            imgLower.includes('newsletter') || imgLower.includes('header') ||
-            imgLower.includes('footer') || imgLower.includes('background') ||
-            imgLower.includes('hero') || imgLower.includes('cta') ||
-            imgLower.includes('button') || imgLower.includes('badge') ||
-            imgLower.includes('social') || imgLower.includes('twitter') ||
-            imgLower.includes('facebook') || imgLower.includes('instagram') ||
-            imgLower.includes('youtube') || imgLower.includes('linkedin') ||
-            imgLower.includes('pinterest') || imgLower.includes('gradient') ||
-            imgLower.includes('overlay') || imgLower.includes('placeholder') ||
-            imgLower.includes('default') || imgLower.includes('fallback')) {
+        // Skip marketing materials, logos, and obvious promotional content
+        if (imgLower.includes('logo') || imgLower.includes('favicon') || 
+            imgLower.includes('.svg') || imgLower.includes('sprite') ||
+            imgLower.includes('twitter-x-20') || imgLower.includes('facebook-20') ||
+            imgLower.includes('instagram-20') || imgLower.includes('youtube-20') ||
+            imgLower.includes('linkedin-20') || imgLower.includes('pinterest-20') ||
+            imgLower.includes('podcast') || imgLower.includes('newsletter')) {
           continue;
         }
         
-        // Skip images with marketing dimensions or suspicious sizes
-        if (imgLower.includes('1200_x_1000') || imgLower.includes('1200x1000') ||
-            imgLower.includes('width=250') || imgLower.includes('width=540') ||
-            imgLower.includes('height=73') || imgLower.includes('height=450') ||
-            imgLower.includes('20-20') || imgLower.includes('20x20') ||
-            imgLower.includes('50x50') || imgLower.includes('100x100') ||
-            imgLower.includes('150x150') || imgLower.includes('x_1000') ||
-            imgLower.includes('x1000') || imgLower.includes('1000x')) {
-          continue;
-        }
-        
-        // Skip if URL contains common marketing/theme paths
-        if (imgLower.includes('/themes/') || imgLower.includes('/assets/') ||
-            imgLower.includes('/static/') || imgLower.includes('/resources/') ||
-            imgLower.includes('/branding/') || imgLower.includes('/marketing/')) {
+        // Skip only very small icon sizes
+        if (imgLower.includes('20-20') || imgLower.includes('20x20') ||
+            imgLower.includes('50x50')) {
           continue;
         }
         
@@ -180,7 +158,14 @@ export class WebsiteScraperService {
           
           // Must be an image file with some score
           if (score > 0 && imgUrl.match(/\.(jpg|jpeg|png|webp)(\?|$)/i)) {
-            if (!data.photos.some(p => p === imgUrl)) {
+            // Check for duplicates properly
+            const isDuplicate = data.photos.some((p: any) => {
+              if (typeof p === 'string') return p === imgUrl;
+              if (typeof p === 'object' && p.url) return p.url === imgUrl;
+              return false;
+            });
+            
+            if (!isDuplicate) {
               // Store with score for sorting later
               (data.photos as any).push({ url: imgUrl, score });
             }
@@ -189,15 +174,22 @@ export class WebsiteScraperService {
       }
       
       // Sort photos by score and extract URLs
-      if (data.photos.length > 0 && typeof data.photos[0] === 'object') {
-        data.photos = (data.photos as any)
-          .sort((a: any, b: any) => b.score - a.score)
-          .map((item: any) => item.url)
-          .slice(0, 20);
-      } else {
-        // Limit photos to reasonable amount
-        data.photos = data.photos.slice(0, 20);
+      const photoObjects: any[] = [];
+      
+      // Convert all photos to objects with scores
+      for (const photo of data.photos as any[]) {
+        if (typeof photo === 'string') {
+          photoObjects.push({ url: photo, score: 1 });
+        } else if (photo && typeof photo === 'object' && 'url' in photo) {
+          photoObjects.push(photo);
+        }
       }
+      
+      // Sort by score and extract URLs
+      data.photos = photoObjects
+        .sort((a, b) => b.score - a.score)
+        .map(item => item.url)
+        .slice(0, 20);
       data.floorPlans = data.floorPlans.slice(0, 10);
       
       // Look for virtual tour links
