@@ -337,6 +337,7 @@ router.post('/api/competitive-analysis', async (req, res) => {
     
     // Also look for additional communities mentioned (without numbering)
     const additionalPattern = /\*\*([^*\d][^*]+)\*\*/g;
+    let match;
     while ((match = additionalPattern.exec(content)) !== null) {
       const name = match[1].trim();
       
