@@ -10,10 +10,10 @@ const perplexityService = new PerplexityAIService();
 
 // Competitive Analysis endpoint
 router.post('/api/competitive-analysis', async (req, res) => {
-  console.log('🔍 Competitive Analysis Request:', { location: req.body.location, type: req.body.type });
+  console.log('🔍 Competitive Analysis Request:', { location: req.body.location, type: req.body.type, communityName: req.body.communityName });
   
   try {
-    const { location, type } = req.body;
+    const { location, type, communityName } = req.body;
     
     if (!location || !type) {
       return res.status(400).json({ error: 'Location and type are required' });
@@ -25,21 +25,21 @@ router.post('/api/competitive-analysis', async (req, res) => {
     
     switch(type) {
       case 'city':
-        // INCLUSIVE QUERY: Get all senior living options without restrictions
-        searchQuery = `senior living communities ${location} 2025 pricing`;
-        contextQuery = `What is the current 2025 average monthly pricing for all senior living in ${location}? List 5-10 major communities with their names, websites if available, and current monthly rates.`;
+        // OPTION A: Include specific community if provided, comprehensive results
+        searchQuery = `senior living communities ${location} 2025 pricing current`;
+        contextQuery = `Find CURRENT 2025 pricing and information for senior living in ${location}. ${communityName ? `MUST include ${communityName} if it exists in this location.` : ''} List ALL communities found with their official websites, exact addresses, and current monthly rates. Focus on the most recent data available (2024-2025 only). Include all types of senior living from affordable HUD to luxury options.`;
         break;
       case 'state':
-        searchQuery = `senior living average costs ${location} state 2025`;
-        contextQuery = `What are the average 2025 monthly costs for all senior living in ${location}? Include state averages with a few example communities and their pricing.`;
+        searchQuery = `senior living costs ${location} state 2025 current`;
+        contextQuery = `Find CURRENT 2025 pricing for senior living across ${location} state. ${communityName ? `MUST include ${communityName} if it exists.` : ''} List communities with their official websites, addresses, and current monthly rates. Focus on recent 2024-2025 data only.`;
         break;
       case 'region':
-        searchQuery = `senior care pricing ${location} region 2025`;
-        contextQuery = `What are the current 2025 average monthly rates for all senior living in the ${location} region? Include regional pricing averages.`;
+        searchQuery = `senior care pricing ${location} region 2025 current`;
+        contextQuery = `Find CURRENT 2025 pricing for senior living in the ${location} region. ${communityName ? `MUST include ${communityName} if it exists.` : ''} List communities with their official websites and current monthly rates. Focus on recent 2024-2025 data.`;
         break;
       case 'country':
-        searchQuery = `senior living national average costs ${location} 2025`;
-        contextQuery = `What are the national average 2025 monthly costs for all senior living in ${location}? Include pricing averages across all care types.`;
+        searchQuery = `senior living costs ${location} 2025 current national`;
+        contextQuery = `Find CURRENT 2025 national pricing for senior living in ${location}. ${communityName ? `MUST include ${communityName} if relevant.` : ''} List pricing averages and example communities with current rates. Focus on 2024-2025 data only.`;
         break;
     }
 
