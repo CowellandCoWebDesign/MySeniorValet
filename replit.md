@@ -4,25 +4,31 @@
 MySeniorValet is a technology platform that connects families with publicly available, verified information about senior living communities across North America (United States, Canada, and Mexico). Its primary purpose is to bring transparency to the senior living market by providing authentic, verified data, including HUD pricing, to empower informed decision-making. The platform offers a complete care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the fully operational TourMate™ tour scheduling system, a One-Touch Emergency Contact Shortcut, and trilingual support (English, French, Spanish). MySeniorValet aims to be "The Dawn of Transparency in Senior Living."
 
 ## Recent Enhancement - August 26, 2025
-**Mexican Expansion & Data Standardization**: 
-- **Total Global Facilities: 37,785** across 13 countries (standardized country codes)
-- **United States**: 28,337 facilities (75.03% of database)
+**US Metropolitan & Mexican Expansion**: 
+- **Total Global Facilities: 37,796** across 13 countries (data integrity verified)
+- **United States**: 28,348 facilities (75.02% of database)
+  - Chicago, IL: 264 facilities (added 3 new)
+  - New York Metro: 71 facilities (added 8 new)
 - **Canada**: 6,780 facilities (17.95% of database)
 - **Australia**: 2,231 facilities (5.91% of database) - MAJOR DISCOVERY: Was undercounted by 96% due to country code inconsistencies
 - **Mexico**: 405 facilities (1.07% of database) - Expanded from 389 with major city coverage
-- **Latin America**: 437 facilities total (Mexico: 405, Cuba: 12, Peru: 10, Costa Rica: 5, Panama: 5)
+
+**US Coverage Gap Analysis** (facilities per million population):
+- **Critical Gaps**: Kentucky (7.8/M), New York (27.1/M), Nebraska (30.0/M), Washington (32.6/M)
+- **Well Covered**: Texas (147/M), Ohio (145/M), Illinois (92/M), California (82/M)
 
 **Data Integrity Improvements**:
 - Fixed country code inconsistencies (Australia→AU, USA→US, Canada→CA)
 - Discovered Australia has excellent coverage with 2,231 facilities across 356 cities
-- Shifted expansion focus from Australia to Mexico (better opportunity)
-- Added 16 new Mexican facilities in major retirement destinations
+- Enhanced Chicago area coverage with authentic facilities from verified sources
+- Expanded New York City coverage across Manhattan, Brooklyn, and Queens
 
-**Mexican Coverage Expansion** (100% authentic data):
-- **Mexico City (CDMX)**: 7 new facilities added
-- **Guadalajara/Zapopan**: 4 new facilities added
-- **San Miguel de Allende**: 2 new facilities (popular expat destination)
-- **Puerto Vallarta**: 3 new facilities (beach retirement hub)
+**Recent Additions** (100% authentic data from web searches):
+- **Chicago**: Added Selfhelp Home, Hartwell Place, Montgomery Place
+- **Manhattan**: Coterie Hudson Yards, The Apsley, The Bristal at York Avenue
+- **Brooklyn**: Brooklyn Adult Care Center, Norwegian Christian Home
+- **Queens**: Flushing House, Boulevard ALP, Atria Kew Gardens
+- **Mexico**: 16 facilities in CDMX, Guadalajara, San Miguel de Allende, Puerto Vallarta
 
 **Previous Enhancement - August 23, 2025**:
 - Community Directory UI Improvements with colored quick filters and improved visual hierarchy
