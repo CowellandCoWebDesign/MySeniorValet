@@ -5,18 +5,19 @@ MySeniorValet is a technology platform that connects families with publicly avai
 
 ## Recent Enhancement - August 26, 2025
 **Japan Expansion & Data Integrity**:
-- **Total Global Facilities: 37,947** across 9 countries
-- **Japan Major Expansion Completed**: Grew from 67 to 119 facilities across 44 cities
+- **Total Global Facilities: 37,973** across 9 countries
+- **Japan Major Expansion Completed**: Grew from 67 to 145 facilities across 69 cities
   - Added comprehensive coverage of all major metropolitan areas
-  - Includes Tokyo, Osaka, Nagoya, Yokohama, Kyoto, Kobe, Sapporo, Fukuoka
-  - Extended to mid-size cities and all prefectural capitals
+  - Includes Tokyo (33), Osaka (8), Kyoto (6), Yokohama (6), Nagoya (6), Kobe (5), Sapporo (5), Fukuoka (5)
+  - Extended coverage to tourist destinations: Hakone, Nikko, Kamakura, Takayama
+  - Added Okinawa (Naha) and cultural centers: Nara, Ise, Matsumoto, Himeji
   - Features major operators: SOMPO Care, Benesse Style Care, Nichiigakkan, Tsukui
 - **Verified Coverage (100% Authentic Data)**:
-  - **United States**: 28,380 facilities (74.8% of database)
+  - **United States**: 28,380 facilities (74.7% of database)
   - **Canada**: 6,780 facilities (17.9% of database)  
   - **Australia**: 2,231 facilities (5.9% of database)
   - **Mexico**: 405 facilities (1.1% of database)
-  - **Japan**: 119 facilities (0.3% of database) - 44 cities nationwide
+  - **Japan**: 145 facilities (0.4% of database) - 69 cities nationwide
   - **Cuba**: 12 facilities
   - **Peru**: 10 facilities
   - **Costa Rica**: 5 facilities
