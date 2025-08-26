@@ -108,7 +108,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
             // Update the verification report with scraped photos
             if (onVerificationReport) {
               console.log('🔄 Updating verification report with scraped photos...');
-              onVerificationReport(prev => {
+              onVerificationReport((prev: any) => {
                 const updated = {
                   ...prev,
                   webIntelligence: {

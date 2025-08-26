@@ -4,6 +4,7 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
+import { websiteScraperService } from './website-scraper-service';
 
 // Initialize AI clients
 const anthropic = new Anthropic({
@@ -41,6 +42,12 @@ interface MultiAIVerificationReport {
     perplexityData: any;
     claudeVerification: VerificationResult | null;
     chatgptVerification: VerificationResult | null;
+    webIntelligence?: {
+      images: Array<{ url: string; source: string }>;
+      floorPlans: Array<{ url: string; source: string }>;
+      virtualTours: Array<{ url: string; source: string }>;
+      lastUpdated: string;
+    };
   };
   consensus: {
     agreementLevel: 'strong' | 'moderate' | 'weak' | 'conflicting';
@@ -119,6 +126,47 @@ export class MultiAIVerificationService {
     };
 
     try {
+      // Extract website from Perplexity data
+      let websiteUrl = null;
+      if (perplexityData?.sources && perplexityData.sources.length > 0) {
+        // Find official website from sources
+        const directorySites = ['aplaceformom', 'caring.com', 'seniorly', 'assistedliving.org', 'senioradvisor'];
+        for (const source of perplexityData.sources) {
+          if (!directorySites.some(site => source.includes(site))) {
+            websiteUrl = source;
+            break;
+          }
+        }
+      }
+      
+      // Scrape website for photos if we have a URL
+      let scrapedPhotos: Array<{ url: string; source: string }> = [];
+      if (websiteUrl) {
+        console.log(`🌐 Scraping website for photos: ${websiteUrl}`);
+        try {
+          const scrapedData = await websiteScraperService.scrapeWebsite(websiteUrl);
+          if (scrapedData?.photos && scrapedData.photos.length > 0) {
+            scrapedPhotos = scrapedData.photos.map((photo: any) => ({
+              url: photo,
+              source: 'web'
+            }));
+            console.log(`📸 Found ${scrapedPhotos.length} photos from website`);
+          }
+        } catch (error) {
+          console.error('Error scraping website:', error);
+        }
+      }
+      
+      // Store scraped photos in the report
+      if (scrapedPhotos.length > 0) {
+        report.verificationResults.webIntelligence = {
+          images: scrapedPhotos,
+          floorPlans: [],
+          virtualTours: [],
+          lastUpdated: new Date().toISOString()
+        };
+      }
+      
       // Restored original orchestration order: Claude primary, ChatGPT fallback
       // Priority: Claude (Anthropic) for verification and enrichment, ChatGPT as backup
       const [claudeResult, chatgptResult] = await Promise.allSettled([
