@@ -42,6 +42,7 @@ import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
 import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
 import { PricingHistory } from "@/components/pricing-history";
 import { LiveWebIntelligence } from "@/components/LiveWebIntelligence";
+import valetMascot from '@/assets/valet-mascot.png';
 
 // Default photos for communities without images
 const defaultPhotos = [
@@ -1610,50 +1611,90 @@ const HeroPhotoCarousel = ({
           </div>
         ) : (
           <div className="w-full h-full overflow-hidden relative">
-            <div 
-              className="flex h-full"
-              style={{
-                transform: `translateX(calc(-${currentIndex * 100}% + ${translateX}px))`,
-                transition: isTransitioning || !isDragging ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
-              }}
-            >
-              {safePhotos.map((photo, index) => {
-                // Ensure proper URL handling for scraped photos
-                const photoUrl = photo.url.startsWith('http') ? photo.url : 
-                               photo.url.startsWith('//') ? `https:${photo.url}` :
-                               photo.url.startsWith('/') ? `https://example.com${photo.url}` : 
-                               photo.url;
-                
-                return (
-                  <div key={`photo-${index}-${photoUpdateKey}`} className="relative w-full h-full flex-shrink-0">
-                    <img
-                      src={photoUrl}
-                      alt={`${communityName} - ${photo.source === 'web' ? 'Web Scraped' : 'Community'} Photo ${index + 1}`}
-                      className="w-full h-full object-cover select-none"
-                      draggable={false}
-                      loading={index === 0 ? "eager" : "lazy"}
-                      onLoad={() => {
-                        console.log(`✅ Successfully loaded photo ${index + 1}:`, photoUrl);
-                      }}
-                      onError={(e) => {
-                        console.log(`❌ Failed to load photo ${index + 1}:`, photoUrl);
-                        // Replace with working fallback image
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/hero-senior-community.svg';
-                      }}
-                  />
-                  {/* Attribution for web-sourced photos */}
-                  {photo.source === 'web' && (
-                    <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs backdrop-blur-sm">
-                      <div className="flex items-center gap-1">
-                        <Globe className="w-3 h-3" />
-                        <span>Sourced from public web</span>
-                      </div>
+            {/* Special mascot view when only showing default photos */}
+            {hasDefaultPhotos && (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/10 dark:via-indigo-900/10 dark:to-purple-900/10">
+                <div className="flex items-center gap-8 p-8">
+                  {/* Mascot on the left */}
+                  <div className="flex-shrink-0">
+                    <img 
+                      src={valetMascot} 
+                      alt="MySeniorValet Mascot" 
+                      className="w-48 h-48 object-contain animate-pulse"
+                    />
+                  </div>
+                  {/* Message on the right */}
+                  <div className="max-w-md">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+                      Hello! I'm searching for real photos...
+                    </h3>
+                    <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
+                      I'm your personal valet, working diligently to find authentic photos of {communityName} from across the web.
+                    </p>
+                    <div className="bg-white/80 dark:bg-gray-800/80 rounded-lg p-3 backdrop-blur-sm">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        💫 This usually takes 10-15 seconds while I search official websites, directories, and verified sources.
+                      </p>
                     </div>
-                  )}
+                    <div className="mt-4 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+                      <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                      <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+                      <span className="text-sm text-gray-500 ml-2">Searching now...</span>
+                    </div>
+                  </div>
                 </div>
-                );
-              })}
+              </div>
+            )}
+            
+            {/* Regular photo carousel when we have real photos */}
+            {!hasDefaultPhotos && (
+              <div 
+                className="flex h-full"
+                style={{
+                  transform: `translateX(calc(-${currentIndex * 100}% + ${translateX}px))`,
+                  transition: isTransitioning || !isDragging ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+                }}
+              >
+                {safePhotos.map((photo, index) => {
+                  // Ensure proper URL handling for scraped photos
+                  const photoUrl = photo.url.startsWith('http') ? photo.url : 
+                                 photo.url.startsWith('//') ? `https:${photo.url}` :
+                                 photo.url.startsWith('/') ? `https://example.com${photo.url}` : 
+                                 photo.url;
+                  
+                  return (
+                    <div key={`photo-${index}-${photoUpdateKey}`} className="relative w-full h-full flex-shrink-0">
+                      <img
+                        src={photoUrl}
+                        alt={`${communityName} - ${photo.source === 'web' ? 'Web Scraped' : 'Community'} Photo ${index + 1}`}
+                        className="w-full h-full object-cover select-none"
+                        draggable={false}
+                        loading={index === 0 ? "eager" : "lazy"}
+                        onLoad={() => {
+                          console.log(`✅ Successfully loaded photo ${index + 1}:`, photoUrl);
+                        }}
+                        onError={(e) => {
+                          console.log(`❌ Failed to load photo ${index + 1}:`, photoUrl);
+                          // Replace with working fallback image
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/hero-senior-community.svg';
+                        }}
+                    />
+                    {/* Attribution for web-sourced photos */}
+                    {photo.source === 'web' && (
+                      <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs backdrop-blur-sm">
+                        <div className="flex items-center gap-1">
+                          <Globe className="w-3 h-3" />
+                          <span>Sourced from public web</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  );
+                })}
+              </div>
+            )}
             </div>
             
             {/* Show loading indicator overlay when showing placeholder photos */}
