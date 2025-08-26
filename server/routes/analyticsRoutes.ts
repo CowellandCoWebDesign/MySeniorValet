@@ -158,8 +158,8 @@ analyticsRouter.get("/comprehensive", async (req, res) => {
     // Calculate revenue based on subscription tiers
     const verifiedRevenue = (verifiedListings?.count || 0) * 0; // Free tier
     const standardRevenue = (standardListings?.count || 0) * 149;
-    const featuredRevenue = (featuredListings?.count || 0) * 249;
-    const platinumRevenue = (platinumListings?.count || 0) * 349;
+    const featuredRevenue = (featuredListings?.count || 0) * 349;
+    const platinumRevenue = (platinumListings?.count || 0) * 449;
     
     // Count active vendors and calculate vendor revenue
     const [activeVendors] = await db

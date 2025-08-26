@@ -2690,11 +2690,11 @@ export default function SuperAdminAnalytics() {
                           <Badge variant="outline" className="text-green-600">Configured</Badge>
                         </div>
                         <div className="flex justify-between items-center p-2 border rounded">
-                          <span>Featured ($249/mo)</span>
+                          <span>Featured ($349/mo)</span>
                           <Badge variant="outline" className="text-green-600">Configured</Badge>
                         </div>
                         <div className="flex justify-between items-center p-2 border rounded">
-                          <span>Platinum ($349/mo)</span>
+                          <span>Platinum ($449/mo)</span>
                           <Badge variant="outline" className="text-green-600">Configured</Badge>
                         </div>
                       </div>
@@ -2712,7 +2712,7 @@ export default function SuperAdminAnalytics() {
                           <Badge variant="outline" className="text-green-600">Configured</Badge>
                         </div>
                         <div className="flex justify-between items-center p-2 border rounded">
-                          <span>Featured Vendor ($249/mo)</span>
+                          <span>Featured Vendor ($349/mo)</span>
                           <Badge variant="outline" className="text-green-600">Configured</Badge>
                         </div>
                         <div className="flex justify-between items-center p-2 border rounded">

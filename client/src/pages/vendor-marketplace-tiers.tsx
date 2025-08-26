@@ -579,7 +579,7 @@ export default function VendorMarketplaceTiers() {
               </ul>
             </div>
             <div className="text-left">
-              <Badge variant="outline" className="mb-2 border-purple-500 text-purple-700 dark:text-purple-300">Featured ($249/mo)</Badge>
+              <Badge variant="outline" className="mb-2 border-purple-500 text-purple-700 dark:text-purple-300">Featured ($349/mo)</Badge>
               <ul className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
                 <li>• <span className="font-medium text-purple-600 dark:text-purple-400">Featured in vendor carousels</span></li>
                 <li>• <span className="font-medium text-purple-600 dark:text-purple-400">Priority in search results</span></li>
@@ -587,7 +587,7 @@ export default function VendorMarketplaceTiers() {
               </ul>
             </div>
             <div className="text-left">
-              <Badge variant="outline" className="mb-2 border-yellow-500 text-yellow-700 dark:text-yellow-300">Platinum ($349/mo)</Badge>
+              <Badge variant="outline" className="mb-2 border-yellow-500 text-yellow-700 dark:text-yellow-300">Platinum ($449/mo)</Badge>
               <ul className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
                 <li>• <span className="font-medium text-yellow-600 dark:text-yellow-400">Premium banner placement</span></li>
                 <li>• <span className="font-medium text-yellow-600 dark:text-yellow-400">Top of all vendor listings</span></li>

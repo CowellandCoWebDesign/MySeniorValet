@@ -19,8 +19,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 const COMMUNITY_TIERS = {
   verified: { name: 'Verified Listing', price: 0, interval: 'month' as const },
   standard: { name: 'Standard', price: 14900, interval: 'month' as const }, // $149 in cents
-  featured: { name: 'Featured', price: 24900, interval: 'month' as const }, // $249 in cents
-  platinum: { name: 'Platinum', price: 34900, interval: 'month' as const }, // $349 in cents
+  featured: { name: 'Featured', price: 34900, interval: 'month' as const }, // $349 in cents
+  platinum: { name: 'Platinum', price: 44900, interval: 'month' as const }, // $449 in cents
 };
 
 // Vendor Subscription Tiers with Promotional Pricing
@@ -34,9 +34,9 @@ const VENDOR_TIERS = {
   },
   featured: { 
     name: 'Featured Vendor', 
-    price: 24900, // $249 in cents
-    promoPrice: 12450, // $124.50 (50% off first month)
-    annualPrice: 239040, // $2390.40 (20% off annual - save $597.60/year)
+    price: 34900, // $349 in cents
+    promoPrice: 17450, // $174.50 (50% off first month)
+    annualPrice: 334080, // $3340.80 (20% off annual - save $835.20/year)
     interval: 'month' as const 
   },
   national: { 

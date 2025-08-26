@@ -64,8 +64,8 @@ The platform addresses critical challenges in senior living research:
 
 MySeniorValet's tiered subscription model serves both families and communities:
 • Families: Free access to search, compare, and connect with communities
-• Communities: Verified Listing (Free), Standard ($149/mo), Featured ($249/mo), Platinum ($349/mo)
-• Vendors: Basic ($99/mo), Featured ($249/mo), National Partner ($499/mo)
+• Communities: Verified Listing (Free), Standard ($149/mo), Featured ($349/mo), Platinum ($449/mo)
+• Vendors: Basic ($99/mo), Featured ($349/mo), National Partner ($499/mo)
 
 "Our mission is simple: Help families make informed decisions with verified data and transparent pricing," added [CEO Name]. "We're not just another directory – we're a complete decision support platform that brings clarity to the senior living journey."
 

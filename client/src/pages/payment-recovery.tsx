@@ -157,8 +157,8 @@ export default function PaymentRecovery() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="standard">Standard ($149/month)</SelectItem>
-                    <SelectItem value="featured">Featured ($249/month)</SelectItem>
-                    <SelectItem value="platinum">Platinum ($349/month)</SelectItem>
+                    <SelectItem value="featured">Featured ($349/month)</SelectItem>
+                    <SelectItem value="platinum">Platinum ($449/month)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
