@@ -1,5 +1,11 @@
 # MySeniorValet - Senior Living Community Transparency Platform
 
+## Recent Changes
+- **August 26, 2025**: Fixed critical API routing issue - both competitive analysis and web intelligence endpoints now return proper JSON instead of HTML
+- **August 26, 2025**: Added missing `/api/web-intelligence/search` endpoint that matches client component calls
+- **August 26, 2025**: Verified both APIs working with real data: Competitive Analysis retrieves market pricing ($6,658-$6,962/mo for McLean, VA), Web Intelligence finds exact communities with address matching
+- **August 26, 2025**: Completed sequential data flow architecture where Market Analysis runs first, sharing data with Web Intelligence component
+
 ## Overview
 MySeniorValet is a technology platform connecting families with publicly available, verified information about senior living communities across North America. Its purpose is to bring transparency to the senior living market by providing authentic, verified data, including HUD pricing, to empower informed decision-making. The platform offers complete care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the TourMate™ tour scheduling system, a One-Touch Emergency Contact Shortcut, and trilingual support (English, French, Spanish). MySeniorValet aims to be "The Dawn of Transparency in Senior Living." The platform includes an enhanced pricing intelligence system for historical tracking, confidence scoring, and trend analysis across different care levels, and prioritizes transparency by gathering comprehensive information from all available sources with robust AI-driven verification.
 

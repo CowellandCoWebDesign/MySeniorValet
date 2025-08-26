@@ -4,6 +4,44 @@ import { MultiAIVerificationService } from '../multi-ai-verification-service';
 
 const router = Router();
 
+// Web intelligence search endpoint (what the client is calling)
+router.post('/api/web-intelligence/search', async (req, res) => {
+  try {
+    const { communityName, city, state, address } = req.body;
+    
+    if (!communityName || !city || !state) {
+      return res.status(400).json({ 
+        error: 'Community name, city, and state are required' 
+      });
+    }
+
+    console.log(`🔍 Web intelligence search for: ${communityName} at ${address || 'unspecified'} in ${city}, ${state}`);
+    
+    // Search for community information with address matching
+    const searchQuery = `"${communityName}" "${address}" ${city} ${state} senior living pricing availability`;
+    const response = await perplexityService.searchRealTime(
+      searchQuery,
+      `Find pricing, availability and official website for this specific senior living community at ${address}. Focus on exact address match.`
+    );
+    
+    res.json({
+      communityName,
+      location: `${city}, ${state}`,
+      address,
+      officialWebsite: response.sources?.[0] || null,
+      summary: response.summary || 'No information found',
+      sources: response.sources || [],
+      lastUpdated: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Web intelligence search error:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch web intelligence',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Fetch web intelligence for a community with identity verification
 router.post('/api/communities/web-intelligence', async (req, res) => {
   try {
