@@ -25,21 +25,21 @@ router.post('/api/competitive-analysis', async (req, res) => {
     
     switch(type) {
       case 'city':
-        // FOCUSED QUERY: Just get key market data quickly
+        // INCLUSIVE QUERY: Get all senior living options without restrictions
         searchQuery = `senior living communities ${location} 2025 pricing`;
-        contextQuery = `What is the current 2025 average monthly pricing for senior living in ${location}? List 5-10 major communities with their names, websites if available, and current monthly rates. Focus on assisted living and memory care pricing.`;
+        contextQuery = `What is the current 2025 average monthly pricing for all senior living in ${location}? List 5-10 major communities with their names, websites if available, and current monthly rates.`;
         break;
       case 'state':
         searchQuery = `senior living average costs ${location} state 2025`;
-        contextQuery = `What are the average 2025 monthly costs for senior living in ${location}? Include state averages for assisted living and memory care, with a few example communities and their pricing.`;
+        contextQuery = `What are the average 2025 monthly costs for all senior living in ${location}? Include state averages with a few example communities and their pricing.`;
         break;
       case 'region':
         searchQuery = `senior care pricing ${location} region 2025`;
-        contextQuery = `What are the current 2025 average monthly rates for senior living in the ${location} region? Include regional pricing for assisted living and memory care.`;
+        contextQuery = `What are the current 2025 average monthly rates for all senior living in the ${location} region? Include regional pricing averages.`;
         break;
       case 'country':
         searchQuery = `senior living national average costs ${location} 2025`;
-        contextQuery = `What are the national average 2025 monthly costs for senior living in ${location}? Include averages for assisted living and memory care.`;
+        contextQuery = `What are the national average 2025 monthly costs for all senior living in ${location}? Include pricing averages across all care types.`;
         break;
     }
 
