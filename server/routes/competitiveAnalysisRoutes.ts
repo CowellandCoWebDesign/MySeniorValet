@@ -10,10 +10,8 @@ const perplexityService = new PerplexityAIService();
 
 // Competitive Analysis endpoint
 router.post('/api/competitive-analysis', async (req, res) => {
-  console.log('🔍 Competitive Analysis Request:', { location: req.body.location, type: req.body.type, communityName: req.body.communityName });
-  
   try {
-    const { location, type, communityName } = req.body;
+    const { location, type } = req.body;
     
     if (!location || !type) {
       return res.status(400).json({ error: 'Location and type are required' });
@@ -25,47 +23,32 @@ router.post('/api/competitive-analysis', async (req, res) => {
     
     switch(type) {
       case 'city':
-        // OPTION A: Include specific community if provided, comprehensive results
-        searchQuery = `senior living communities ${location} 2025 pricing current`;
-        contextQuery = `Find CURRENT 2025 pricing and information for senior living in ${location}. ${communityName ? `MUST include ${communityName} if it exists in this location.` : ''} List ALL communities found with their official websites, exact addresses, and current monthly rates. Focus on the most recent data available (2024-2025 only). Include all types of senior living from affordable HUD to luxury options.`;
+        // Search for ALL senior living types, not just assisted living
+        searchQuery = `all senior living communities ${location} including independent living assisted living memory care skilled nursing CCRC`;
+        contextQuery = `List ALL types of senior living communities in ${location} including: independent living, assisted living, memory care, skilled nursing, and CCRCs. Include their website URL, address, phone, and monthly pricing. Return comprehensive results for all care levels, not just assisted living.`;
         break;
       case 'state':
-        searchQuery = `senior living costs ${location} state 2025 current`;
-        contextQuery = `Find CURRENT 2025 pricing for senior living across ${location} state. ${communityName ? `MUST include ${communityName} if it exists.` : ''} List communities with their official websites, addresses, and current monthly rates. Focus on recent 2024-2025 data only.`;
+        searchQuery = `all senior living facilities ${location} state independent assisted memory care nursing`;
+        contextQuery = `List ALL types of senior living facilities in ${location} including independent living, assisted living, memory care, and skilled nursing. Include websites and pricing for all care levels.`;
         break;
       case 'region':
-        searchQuery = `senior care pricing ${location} region 2025 current`;
-        contextQuery = `Find CURRENT 2025 pricing for senior living in the ${location} region. ${communityName ? `MUST include ${communityName} if it exists.` : ''} List communities with their official websites and current monthly rates. Focus on recent 2024-2025 data.`;
+        searchQuery = `all senior care facilities ${location} region independent assisted memory skilled`;
+        contextQuery = `List ALL types of senior care facilities in the ${location} region including independent living, assisted living, memory care, skilled nursing. Include websites and pricing for all care levels.`;
         break;
       case 'country':
-        searchQuery = `senior living costs ${location} 2025 current national`;
-        contextQuery = `Find CURRENT 2025 national pricing for senior living in ${location}. ${communityName ? `MUST include ${communityName} if relevant.` : ''} List pricing averages and example communities with current rates. Focus on 2024-2025 data only.`;
+        searchQuery = `all senior living costs ${location} independent assisted memory care skilled nursing`;
+        contextQuery = `National senior living data for ${location}. List ALL types of communities including independent living, assisted living, memory care, skilled nursing, and CCRCs with websites and pricing.`;
         break;
     }
 
-    // Use Perplexity to get real-time market data with timeout
-    console.log('📡 Calling Perplexity with query:', contextQuery);
-    
-    // Set a 45-second timeout for Perplexity call (user accepts longer response times for comprehensive data)
-    const perplexityPromise = perplexityService.searchRealTime(contextQuery);
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Perplexity timeout after 45 seconds')), 45000)
-    );
-    
-    let perplexityResponse;
-    try {
-      perplexityResponse = await Promise.race([perplexityPromise, timeoutPromise]) as any;
-      console.log('✅ Perplexity response received');
-    } catch (timeoutError) {
-      console.error('⏱️ Perplexity timed out:', timeoutError);
-      throw timeoutError;
-    }
+    // Use Perplexity to get real-time market data
+    const perplexityResponse = await perplexityService.searchRealTime(contextQuery);
 
     // Parse the response to extract pricing information
     const content = perplexityResponse.summary || '';
     const sources = perplexityResponse.sources || [];
     
-    console.log('📝 Perplexity response content length:', content.length); // Debug logging
+    console.log('Perplexity response content:', content); // Debug logging
     
     // Extract pricing information from the response with multiple patterns
     const pricePatterns = [
@@ -176,16 +159,6 @@ router.post('/api/competitive-analysis', async (req, res) => {
       address?: string;
       phone?: string;
       pricing?: string;
-      photos?: string[];
-      floorPlans?: string[];
-      virtualTours?: string[];
-      videos?: string[];
-      amenities?: string[];
-      careLevels?: string[];
-      description?: string;
-      enrichedPricing?: any;
-      contactInfo?: any;
-      scrapedAt?: string;
     }> = [];
     
     // Parse Perplexity's structured format: **1. Community Name** followed by details
@@ -346,7 +319,6 @@ router.post('/api/competitive-analysis', async (req, res) => {
     
     for (const community of communitiesToScrape) {
       try {
-        if (!community.website) continue;
         console.log(`  Scraping ${community.name}: ${community.website}`);
         const scrapedData = await websiteScraperService.scrapeWebsite(community.website);
         
@@ -412,13 +384,9 @@ router.post('/api/competitive-analysis', async (req, res) => {
 
     res.json(analysisResult);
   } catch (error) {
-    console.error('❌ Competitive analysis error:', error);
+    console.error('Competitive analysis error:', error);
     
-    // Provide more detailed error information
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    console.error('Error details:', errorMessage);
-    
-    // Fallback response with all required fields
+    // Fallback response with estimated data
     const fallbackResponse = {
       location: req.body.location,
       locationType: req.body.type,
@@ -435,14 +403,9 @@ router.post('/api/competitive-analysis', async (req, res) => {
         'Costs vary significantly by region and level of care needed',
         'Urban areas generally have higher costs than rural locations'
       ],
-      detailedSummary: '', // Include empty detailedSummary for frontend compatibility
       communityMentions: [], // No communities available in fallback
-      matchedCommunities: [], // Include empty matchedCommunities
-      extractedCommunities: [], // Include empty extractedCommunities
-      websiteMatches: [], // Include empty websiteMatches
       lastUpdated: new Date().toISOString(),
-      sources: ['Industry Estimates', 'Historical Data'],
-      error: errorMessage // Include error message for debugging
+      sources: ['Industry Estimates', 'Historical Data']
     };
     
     res.json(fallbackResponse);

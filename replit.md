@@ -1,9 +1,6 @@
 # MySeniorValet - Senior Living Community Transparency Platform
 
 ## Recent Changes
-- **August 26, 2025**: CRITICAL FIX - Competitive analysis route registration resolved, endpoint now properly registered in server/routes/index.ts
-- **August 26, 2025**: Extended timeout configuration to 45 seconds for comprehensive Perplexity searches, added 40-second axios timeout in perplexity-ai-service.ts
-- **August 26, 2025**: Successfully tested competitive analysis returning real McLean, VA data: $6,658 average pricing, found Sunrise Senior Living, Lewinsville, Vinson Hall communities
 - **August 26, 2025**: Fixed critical API routing issue - both competitive analysis and web intelligence endpoints now return proper JSON instead of HTML
 - **August 26, 2025**: Added missing `/api/web-intelligence/search` endpoint that matches client component calls
 - **August 26, 2025**: Verified both APIs working with real data: Competitive Analysis retrieves market pricing ($6,658-$6,962/mo for McLean, VA), Web Intelligence finds exact communities with address matching
@@ -11,7 +8,6 @@
 - **August 26, 2025**: Restored Perplexity service to premium settings (sonar-pro model, 2000 max tokens) for comprehensive results - quality over speed per user preference
 - **August 26, 2025**: Enhanced data extraction to parse Perplexity's structured community format, successfully extracting websites, phones, addresses, and pricing from markdown-style responses
 - **August 26, 2025**: CRITICAL BUG FIX - Market analysis now searches for ALL senior living types (independent living, assisted living, memory care, skilled nursing, CCRCs) instead of incorrectly limiting to just assisted living
-- **August 26, 2025**: Enhanced data freshness - Added recency filter ('month') to Perplexity searches, updated all queries to explicitly request 2025 current data, and modified system prompts to prioritize recent information (2024-2025) over outdated data
 
 ## Overview
 MySeniorValet is a technology platform connecting families with publicly available, verified information about senior living communities across North America. Its purpose is to bring transparency to the senior living market by providing authentic, verified data, including HUD pricing, to empower informed decision-making. The platform offers complete care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the TourMate™ tour scheduling system, a One-Touch Emergency Contact Shortcut, and trilingual support (English, French, Spanish). MySeniorValet aims to be "The Dawn of Transparency in Senior Living." The platform includes an enhanced pricing intelligence system for historical tracking, confidence scoring, and trend analysis across different care levels, and prioritizes transparency by gathering comprehensive information from all available sources with robust AI-driven verification.

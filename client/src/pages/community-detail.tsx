@@ -73,8 +73,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate }: { communi
         },
         body: JSON.stringify({
           location: `${community.city}, ${community.state}`,
-          type: 'city',
-          communityName: community.name // Include the specific community name
+          type: 'city'
         }),
         signal: controller.signal
       });
