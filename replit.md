@@ -4,20 +4,24 @@
 MySeniorValet is a technology platform that connects families with publicly available, verified information about senior living communities across North America (United States, Canada, and Mexico). Its primary purpose is to bring transparency to the senior living market by providing authentic, verified data, including HUD pricing, to empower informed decision-making. The platform offers a complete care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the fully operational TourMate™ tour scheduling system, a One-Touch Emergency Contact Shortcut, and trilingual support (English, French, Spanish). MySeniorValet aims to be "The Dawn of Transparency in Senior Living."
 
 ## Recent Enhancement - August 26, 2025
-**Japan Expansion & Data Integrity**:
-- **Total Global Facilities: 37,973** across 9 countries
-- **Japan Major Expansion Completed**: Grew from 67 to 145 facilities across 69 cities
-  - Added comprehensive coverage of all major metropolitan areas
+**Japan Phase 5 Expansion Milestone**:
+- **Total Global Facilities: 38,019** across 9 countries
+- **Japan Massive Expansion Achievement**: Grew from 67 to **191 facilities across 91 cities**
+  - Phase 5 added 20 new facilities in 17 strategic cities
+  - New prefectural capitals: Yamaguchi, Matsuyama, Tokushima, Kochi, Wakayama, Otsu, Fukui, Kofu, Morioka, Aomori, Akita
+  - Famous hot spring destinations: Beppu, Kusatsu, expanded Hakone coverage
+  - Historic castle towns: Hikone, Hirosaki
+  - Mt. Fuji area: Kofu, Fujikawaguchiko (Lake Kawaguchi)
+  - Religious sites: Izumo (Izumo Taisha shrine)
+  - World Heritage: Enhanced Nikko coverage
   - Includes Tokyo (33), Osaka (8), Kyoto (6), Yokohama (6), Nagoya (6), Kobe (5), Sapporo (5), Fukuoka (5)
-  - Extended coverage to tourist destinations: Hakone, Nikko, Kamakura, Takayama
-  - Added Okinawa (Naha) and cultural centers: Nara, Ise, Matsumoto, Himeji
-  - Features major operators: SOMPO Care, Benesse Style Care, Nichiigakkan, Tsukui
+  - Features major operators: SOMPO Care, Benesse Style Care, Nichiigakkan, Tsukui, plus regional operators
 - **Verified Coverage (100% Authentic Data)**:
-  - **United States**: 28,380 facilities (74.7% of database)
-  - **Canada**: 6,780 facilities (17.9% of database)  
+  - **United States**: 28,380 facilities (74.6% of database)
+  - **Canada**: 6,780 facilities (17.8% of database)  
   - **Australia**: 2,231 facilities (5.9% of database)
   - **Mexico**: 405 facilities (1.1% of database)
-  - **Japan**: 145 facilities (0.4% of database) - 69 cities nationwide
+  - **Japan**: 191 facilities (0.5% of database) - 91 cities nationwide
   - **Cuba**: 12 facilities
   - **Peru**: 10 facilities
   - **Costa Rica**: 5 facilities
