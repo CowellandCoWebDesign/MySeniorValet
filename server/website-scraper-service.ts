@@ -102,19 +102,24 @@ export class WebsiteScraperService {
       for (let imgUrl of imageUrls) {
         const imgLower = imgUrl.toLowerCase();
         
-        // Skip marketing materials, logos, and obvious promotional content
+        // Skip obvious logos and icons
         if (imgLower.includes('logo') || imgLower.includes('favicon') || 
-            imgLower.includes('.svg') || imgLower.includes('sprite') ||
-            imgLower.includes('twitter-x-20') || imgLower.includes('facebook-20') ||
-            imgLower.includes('instagram-20') || imgLower.includes('youtube-20') ||
-            imgLower.includes('linkedin-20') || imgLower.includes('pinterest-20') ||
-            imgLower.includes('podcast') || imgLower.includes('newsletter')) {
+            imgLower.includes('.svg') || imgLower.includes('sprite')) {
+          continue;
+        }
+        
+        // Skip social media icons specifically (very targeted)
+        if ((imgLower.includes('twitter') || imgLower.includes('facebook') || 
+             imgLower.includes('instagram') || imgLower.includes('youtube') ||
+             imgLower.includes('linkedin') || imgLower.includes('pinterest')) &&
+            (imgLower.includes('20-20') || imgLower.includes('20x20') || 
+             imgLower.includes('icon') || imgLower.includes('-x-'))) {
           continue;
         }
         
         // Skip only very small icon sizes
         if (imgLower.includes('20-20') || imgLower.includes('20x20') ||
-            imgLower.includes('50x50')) {
+            imgLower.includes('50x50') || imgLower.includes('1x1')) {
           continue;
         }
         

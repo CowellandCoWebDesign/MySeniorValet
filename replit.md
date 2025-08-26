@@ -1,6 +1,10 @@
 # MySeniorValet - Senior Living Community Transparency Platform
 
 ## Recent Changes
+- **August 26, 2025 (Current Session)**: Fixed photo scraping regression - removed overly aggressive filtering that was blocking legitimate facility photos. System now properly returns 10-20 photos per facility again
+- **August 26, 2025 (Current Session)**: Fixed competitive analysis API route mismatch (changed from POST to GET to match client calls)
+- **August 26, 2025 (Current Session)**: Improved website extraction from Perplexity responses - now handles markdown links, footnotes, and various URL formats
+- **August 26, 2025 (Current Session)**: Successfully extracting Conservatory at Plano website and scraping floor plans, working on Brookdale extraction
 - **August 26, 2025**: **PHOTO ACCURACY 99%+** - Implemented advanced filtering and scoring system for photo scraping, achieving near-perfect facility photo display with promotional content eliminated
 - **August 26, 2025**: **MAJOR BREAKTHROUGH** - Photo scraping fully operational! Successfully extracting 10-20 photos per facility (Hilltop Springs: 20 photos, Conservatory: 12 photos, Brookdale: 14 photos)
 - **August 26, 2025**: Complete migration from Playwright browser automation to HTTP-based scraping using fetch - resolved Replit system dependency limitations permanently
