@@ -7,7 +7,7 @@ const router = Router();
 // Fetch web intelligence for a community with identity verification
 router.post('/api/communities/web-intelligence', async (req, res) => {
   try {
-    const { communityName, city, state, query, address, zipCode } = req.body;
+    const { communityName, city, state, query, address, zipCode, website } = req.body;
     
     if (!communityName || !city || !state) {
       return res.status(400).json({ 
@@ -15,118 +15,136 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       });
     }
 
-    // PHASE 1: Find the official website FIRST - use simple query like Google
-    const simpleSearchQuery = `"${communityName}" ${city} ${state}`;
-    console.log(`🔍 Phase 1 - Finding official website for: ${communityName} in ${city}, ${state}`);
-    console.log(`🔍 Simple search query: ${simpleSearchQuery}`);
+    console.log(`🔍 Fetching web intelligence for: ${communityName} at ${address || 'unspecified address'} in ${city}, ${state}`);
     
-    // First, try to find the official website with a simple search
-    const websiteSearchResponse = await perplexityService.searchRealTime(
-      simpleSearchQuery,
-      'Find the official website URL for this senior living community'
-    );
+    let officialWebsite = website; // Use provided website if available
+    let websiteSearchResponse = null;
     
-    // Extract official website from the response
-    let officialWebsite = null;
+    // If we don't already have the website, do ONE comprehensive search
+    if (!officialWebsite) {
+      // Single comprehensive search that includes address for accuracy
+      const comprehensiveQuery = `"${communityName}" "${address}" ${city} ${state} senior living official website`;
+      console.log(`🔍 Comprehensive search with address matching: ${comprehensiveQuery}`);
+      
+      websiteSearchResponse = await perplexityService.searchRealTime(
+        comprehensiveQuery,
+        `Find the official website and comprehensive information for this specific senior living community at ${address}`
+      );
+    } else {
+      console.log(`✅ Using existing official website: ${officialWebsite}`);
+      // Search directly from the official website
+      const siteSpecificQuery = `site:${officialWebsite.replace(/https?:\/\//, '')} pricing photos virtual tour availability amenities`;
+      websiteSearchResponse = await perplexityService.searchRealTime(
+        siteSpecificQuery,
+        'Extract comprehensive information from this official community website'
+      );
+    }
+    
+    // Extract official website from search response if we didn't already have it
     const foundWebsites = [];
     
-    // Directory sites to exclude (these are NOT the official community websites)
-    const directorySites = [
-      'aplaceformom', 'caring.com', 'seniorly', 'assistedliving.org', 'senioradvisor',
-      'seniorhousing.net', 'medicare.gov', 'google.com', 'facebook.com', 'yelp.com',
-      'tripadvisor', 'zillow.com', 'apartments.com', 'yellowpages.com', 'indeed.com',
-      'mapquest.com', 'zoominfo.com', 'seniors.fyi'
-    ];
-    
-    // Check if URL likely belongs to the community
-    const communityNameWords = communityName.toLowerCase()
-      .split(' ')
-      .filter(w => w.length > 3 && !['senior', 'living', 'care', 'assisted', 'memory'].includes(w.toLowerCase()));
-    
-    // First priority: Check sources array for official websites
-    if (websiteSearchResponse.sources && websiteSearchResponse.sources.length > 0) {
-      for (const source of websiteSearchResponse.sources) {
-        const sourceDomain = source.match(/(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9\-]+(?:\.[a-zA-Z]{2,})+)/)?.[1];
-        if (sourceDomain && !directorySites.some(site => sourceDomain.includes(site))) {
-          const domainLower = sourceDomain.toLowerCase();
-          // Check if this domain contains meaningful parts of the community name
-          const isLikelyOfficialSite = communityNameWords.some(word => domainLower.includes(word.toLowerCase()));
-          
-          if (isLikelyOfficialSite) {
-            officialWebsite = source.startsWith('http') ? source : `https://${sourceDomain}`;
-            console.log(`✅ Found official website in sources: ${officialWebsite} (domain: ${sourceDomain})`);
-            break;
-          }
-          foundWebsites.push(sourceDomain);
-        }
-      }
-    }
-    
-    // Second priority: Look for URLs mentioned in the summary text
-    if (!officialWebsite) {
-      const urlRegex = /(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9\-]+(?:\.[a-zA-Z]{2,})+)(?:\/[^\s]*)?/gi;
-      const allUrls = websiteSearchResponse.summary.matchAll(urlRegex);
+    if (!officialWebsite && websiteSearchResponse) {
+      // Directory sites to exclude (these are NOT the official community websites)
+      const directorySites = [
+        'aplaceformom', 'caring.com', 'seniorly', 'assistedliving.org', 'senioradvisor',
+        'seniorhousing.net', 'medicare.gov', 'google.com', 'facebook.com', 'yelp.com',
+        'tripadvisor', 'zillow.com', 'apartments.com', 'yellowpages.com', 'indeed.com',
+        'mapquest.com', 'zoominfo.com', 'seniors.fyi', 'walkersands.com'
+      ];
       
-      for (const match of allUrls) {
-        const domain = match[1];
-        const fullUrl = match[0];
-        
-        // Skip directory sites
-        if (directorySites.some(site => domain.includes(site))) continue;
-        
-        // Check if domain contains parts of the community name
-        const domainLower = domain.toLowerCase();
-        const isLikelyOfficialSite = communityNameWords.some(word => domainLower.includes(word.toLowerCase()));
-        
-        if (isLikelyOfficialSite) {
-          officialWebsite = fullUrl.startsWith('http') ? fullUrl : `https://${domain}`;
-          console.log(`✅ Found official website in text: ${officialWebsite} (domain: ${domain})`);
-          break;
-        }
-        
-        if (!foundWebsites.includes(domain)) {
-          foundWebsites.push(domain);
-        }
-      }
-    }
-    
-    // If no name-matching site found, look for any non-directory site mentioned first
-    if (!officialWebsite && foundWebsites.length > 0) {
-      officialWebsite = `https://${foundWebsites[0]}`;
-      console.log(`⚠️ Using first non-directory website found: ${officialWebsite}`);
-    }
-    
-    // Also check the sources array from Perplexity
-    if (!officialWebsite && websiteSearchResponse.sources) {
-      for (const source of websiteSearchResponse.sources) {
-        const sourceDomain = source.match(/(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9\-]+(?:\.[a-zA-Z]{2,})+)/)?.[1];
-        if (sourceDomain && !directorySites.some(site => sourceDomain.includes(site))) {
-          const isLikelyOfficialSite = communityNameWords.some(word => sourceDomain.toLowerCase().includes(word));
-          if (isLikelyOfficialSite) {
-            officialWebsite = source.startsWith('http') ? source : `https://${sourceDomain}`;
-            console.log(`✅ Found official website in sources: ${officialWebsite}`);
-            break;
+      // Check if URL likely belongs to the community
+      const communityNameWords = communityName.toLowerCase()
+        .split(' ')
+        .filter(w => w.length > 3 && !['senior', 'living', 'care', 'assisted', 'memory'].includes(w.toLowerCase()));
+      
+      // Check sources array for official websites
+      if (websiteSearchResponse.sources && websiteSearchResponse.sources.length > 0) {
+        for (const source of websiteSearchResponse.sources) {
+          const sourceDomain = source.match(/(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9\-]+(?:\.[a-zA-Z]{2,})+)/)?.[1];
+          if (sourceDomain && !directorySites.some(site => sourceDomain.includes(site))) {
+            const domainLower = sourceDomain.toLowerCase();
+            // Check if this domain contains meaningful parts of the community name
+            const isLikelyOfficialSite = communityNameWords.some(word => domainLower.includes(word.toLowerCase()));
+            
+            if (isLikelyOfficialSite) {
+              officialWebsite = source.startsWith('http') ? source : `https://${sourceDomain}`;
+              console.log(`✅ Found official website: ${officialWebsite}`);
+              break;
+            }
+            foundWebsites.push(sourceDomain);
           }
         }
       }
-    }
-    
-    console.log(`🔍 Website search complete. Found ${foundWebsites.length} websites. Official: ${officialWebsite || 'Not found'}`)
-    
-    // PHASE 2: Get comprehensive information - now include more keywords for detailed data
-    const detailedSearchQuery = query || `"${communityName}" ${city} ${state} ${officialWebsite ? `site:${officialWebsite.replace(/https?:\/\//, '')}` : ''} pricing rates availability photos virtual tour amenities services`;
-    console.log(`🔍 Phase 2 - Getting detailed information with query: ${detailedSearchQuery}`);
-    
-    // Get comprehensive results
-    const response = await perplexityService.searchRealTime(detailedSearchQuery);
-    
-    // Combine findings from both searches
-    if (officialWebsite) {
-      response.summary = `**Official Website:** ${officialWebsite}\n\n${response.summary}`;
-      if (!response.sources.includes(officialWebsite)) {
-        response.sources.unshift(officialWebsite);
+      
+      // If still no official website, use the first non-directory site found
+      if (!officialWebsite && foundWebsites.length > 0) {
+        officialWebsite = `https://${foundWebsites[0]}`;
+        console.log(`⚠️ Using first non-directory website found: ${officialWebsite}`);
       }
     }
+    
+    // NOW: If we have an official website, fetch directly from it for the most accurate data
+    let officialWebsiteData = null;
+    let thirdPartySources = [];
+    
+    if (officialWebsite) {
+      console.log(`🌐 Fetching comprehensive data from official website: ${officialWebsite}`);
+      const officialSiteQuery = `site:${officialWebsite.replace(/https?:\/\//, '')} pricing rates availability photos virtual tour amenities services contact`;
+      try {
+        officialWebsiteData = await perplexityService.searchRealTime(
+          officialSiteQuery,
+          `Extract ALL information from this official community website including pricing, photos, amenities, and availability`
+        );
+      } catch (error) {
+        console.error('Error fetching from official website:', error);
+      }
+    }
+    
+    // Also get third-party information for comprehensive coverage
+    const thirdPartyQuery = `"${communityName}" "${address}" ${city} ${state} reviews ratings pricing`;
+    console.log(`📚 Gathering third-party references and reviews`);
+    
+    const thirdPartyResponse = await perplexityService.searchRealTime(
+      thirdPartyQuery,
+      `Find reviews, ratings, and third-party information about this specific community at ${address}`
+    );
+    
+    // Separate official sources from third-party references
+    if (thirdPartyResponse.sources) {
+      thirdPartySources = thirdPartyResponse.sources.filter(source => {
+        if (officialWebsite) {
+          const officialDomain = officialWebsite.match(/(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9\-]+(?:\.[a-zA-Z]{2,})+)/)?.[1];
+          const sourceDomain = source.match(/(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9\-]+(?:\.[a-zA-Z]{2,})+)/)?.[1];
+          return sourceDomain !== officialDomain;
+        }
+        return true;
+      });
+    }
+    
+    // Combine data with clear source attribution
+    let finalContent = '';
+    
+    if (officialWebsite && officialWebsiteData) {
+      finalContent = `**OFFICIAL COMMUNITY INFORMATION**\n`;
+      finalContent += `Source: ${officialWebsite}\n\n`;
+      finalContent += officialWebsiteData.summary || '';
+      finalContent += `\n\n**THIRD-PARTY REFERENCES & REVIEWS**\n\n`;
+      finalContent += thirdPartyResponse.summary || '';
+    } else {
+      finalContent = websiteSearchResponse?.summary || thirdPartyResponse.summary || '';
+    }
+    
+    const response = {
+      summary: finalContent,
+      sources: [
+        ...(officialWebsite ? [officialWebsite] : []),
+        ...thirdPartySources
+      ],
+      images: [
+        ...(officialWebsiteData?.images || []),
+        ...(thirdPartyResponse.images || [])
+      ]
+    };
     
     // IMPROVED: Smart verification with reasonable thresholds
     let verificationScore = 0;
