@@ -4,14 +4,19 @@
 MySeniorValet is a technology platform that connects families with publicly available, verified information about senior living communities across North America (United States, Canada, and Mexico). Its primary purpose is to bring transparency to the senior living market by providing authentic, verified data, including HUD pricing, to empower informed decision-making. The platform offers a complete care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the fully operational TourMate™ tour scheduling system, a One-Touch Emergency Contact Shortcut, and trilingual support (English, French, Spanish). MySeniorValet aims to be "The Dawn of Transparency in Senior Living."
 
 ## Recent Enhancement - August 26, 2025
-**US Metropolitan & Mexican Expansion**: 
-- **Total Global Facilities: 37,796** across 13 countries (data integrity verified)
-- **United States**: 28,348 facilities (75.02% of database)
-  - Chicago, IL: 264 facilities (added 3 new)
-  - New York Metro: 71 facilities (added 8 new)
-- **Canada**: 6,780 facilities (17.95% of database)
-- **Australia**: 2,231 facilities (5.91% of database) - MAJOR DISCOVERY: Was undercounted by 96% due to country code inconsistencies
-- **Mexico**: 405 facilities (1.07% of database) - Expanded from 389 with major city coverage
+**Global Coverage Showcase & Japan Expansion**:
+- **Total Global Facilities: 37,895** across 13 countries with comprehensive geographic coverage
+- **NEW: Global Coverage Section** added to Community Directory page prominently displaying worldwide reach
+  - Beautiful gradient background showcasing all 13 countries with flag emojis
+  - Interactive country cards showing facility counts and coverage areas
+  - Mission statement: "The Dawn of Transparency in Senior Living - Worldwide"
+- **Japan Market Transformation**: 67 facilities with complete Tokyo Metropolitan coverage
+  - All 23 Tokyo wards now covered with major operators (Care 21, Sompo Care, Benesse Style Care)
+  - Expanded to Osaka, Kyoto, Kobe, Yokohama, and other major cities
+- **United States**: 28,348 facilities (74.8% of database)
+- **Canada**: 6,780 facilities (17.9% of database)  
+- **Australia**: 2,231 facilities (5.9% of database)
+- **Mexico**: 405 facilities (1.1% of database)
 
 **US Coverage Gap Analysis** (facilities per million population):
 - **Critical Gaps**: Kentucky (7.8/M), New York (27.1/M), Nebraska (30.0/M), Washington (32.6/M)
