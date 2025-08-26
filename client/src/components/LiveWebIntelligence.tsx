@@ -11,7 +11,8 @@ import {
   Globe, ExternalLink, RefreshCw, CheckCircle, Info, Clock, 
   MapPin, DollarSign, Users, Building, Shield, TrendingUp,
   Star, AlertCircle, Sparkles, Calendar, Link as LinkIcon, Database,
-  Activity, Award, Home, Heart, Brain, Phone, CheckCircle2, XCircle
+  Activity, Award, Home, Heart, Brain, Phone, CheckCircle2, XCircle,
+  Search, Camera
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from "@/lib/utils";
@@ -233,17 +234,63 @@ export function LiveWebIntelligence({
 
   if (isLoading) {
     return (
-      <Card className="animate-pulse">
+      <Card className="border-2 border-blue-200 dark:border-blue-800 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
         <CardHeader>
           <CardTitle className="flex items-center">
-            <Globe className="w-5 h-5 mr-2 animate-spin" />
-            Gathering Live Intelligence...
+            <Globe className="w-5 h-5 mr-2 animate-spin text-blue-600" />
+            Live Web Intelligence Search Active
           </CardTitle>
+          <CardDescription>
+            Searching the internet for real information about {communityName}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+          <div className="space-y-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 border-3 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Stage 2: Web Intelligence</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Finding {communityName} details</p>
+                  </div>
+                </div>
+                <Badge className="bg-blue-500 text-white">In Progress</Badge>
+              </div>
+              
+              <div className="space-y-2 pl-10">
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <Search className="w-4 h-4 text-blue-500" />
+                  <span>Searching official website and directories...</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <Camera className="w-4 h-4 text-purple-500" />
+                  <span>Looking for authentic community photos...</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <Phone className="w-4 h-4 text-green-500" />
+                  <span>Extracting contact information...</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <DollarSign className="w-4 h-4 text-amber-500" />
+                  <span>Finding current pricing details...</span>
+                </div>
+              </div>
+            </div>
+            
+            <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              <AlertDescription className="text-green-800 dark:text-green-200">
+                <strong>Quality Results Coming:</strong> We search multiple verified sources to provide accurate, up-to-date information. 
+                This typically takes 10-20 seconds.
+              </AlertDescription>
+            </Alert>
+            
+            <div className="flex items-center justify-center gap-1 py-2">
+              <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+              <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+              <div className="w-2 h-2 bg-pink-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -1,6 +1,10 @@
 # MySeniorValet - Senior Living Community Transparency Platform
 
 ## Recent Changes
+- **August 26, 2025**: **CRITICAL UX IMPROVEMENT** - Added comprehensive loading indicators with stage-based progress tracking to address users thinking searches failed when seeing "nothing found"
+- **August 26, 2025**: Enhanced photo carousel with loading overlay showing real-time search stages (Analyzing location → Searching websites → Extracting photos)
+- **August 26, 2025**: Upgraded LiveWebIntelligence loading state with detailed progress indicators showing specific search actions and reassuring messages about quality results
+- **August 26, 2025**: Improved competitive analysis loading display with stage indicators and clear messaging about real market data gathering (20-30 second comprehensive search)
 - **August 26, 2025**: **STRUCTURED RESPONSE IMPLEMENTATION** - Perplexity now returns predictable, structured responses with sections for OFFICIAL WEBSITE, DIRECTORY LISTINGS, PRICING, CONTACT INFO etc. This ensures reliable data extraction every time
 - **August 26, 2025**: Enhanced context passing - Web Intelligence and Market Analysis now provide specific community details (name, city, state, address) to Perplexity for targeted, accurate searches
 - **August 26, 2025**: Updated extraction logic in Multi-AI Verification Service to parse structured format sections, with fallback to existing parsing methods for backward compatibility

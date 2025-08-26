@@ -177,16 +177,57 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
       
       {isLoading && (
         <CardContent className="py-8">
-          <div className="space-y-4">
-            <div className="flex items-center justify-center">
-              <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+          <div className="space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-indigo-200 dark:border-indigo-700">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className="w-12 h-12 border-4 border-indigo-200 dark:border-indigo-800 rounded-full">
+                      <div className="w-full h-full border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                    <BarChart3 className="absolute inset-0 w-6 h-6 m-auto text-indigo-600" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-900 dark:text-gray-100">Stage 1: Market Analysis</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Searching {community?.city}, {community?.state}</p>
+                  </div>
+                </div>
+                <Badge className="bg-indigo-500 text-white">Searching</Badge>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="w-4 h-4 rounded-full bg-green-500 animate-pulse"></div>
+                  <span className="text-gray-700 dark:text-gray-300">Finding all senior living communities in {community?.city}</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                  <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                  <span className="text-gray-700 dark:text-gray-300">Analyzing current market pricing data</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600"></div>
+                  <span className="text-gray-500 dark:text-gray-500">Comparing care levels and amenities</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600"></div>
+                  <span className="text-gray-500 dark:text-gray-500">Generating market insights</span>
+                </div>
+              </div>
             </div>
-            <p className="text-center text-gray-600 dark:text-gray-400">
-              Analyzing market data for {community?.city}, {community?.state}...
-            </p>
-            <p className="text-center text-sm text-gray-500 dark:text-gray-500">
-              This may take 20-30 seconds as we search real-time data
-            </p>
+            
+            <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+              <Clock className="h-4 w-4 text-blue-600" />
+              <AlertDescription className="text-blue-800 dark:text-blue-200">
+                <strong>Real Market Data Coming:</strong> We're searching live sources to find accurate pricing and availability.
+                This comprehensive analysis takes 20-30 seconds but provides verified, current information.
+              </AlertDescription>
+            </Alert>
+            
+            <div className="text-center">
+              <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                Finding real communities, not synthetic data...
+              </p>
+            </div>
           </div>
         </CardContent>
       )}
@@ -1504,10 +1545,23 @@ const HeroPhotoCarousel = ({
   // Check if we're still loading photos from web intelligence
   const isLoadingWebPhotos = !verificationReport?.webIntelligence?.images && verificationReport?.timestamp;
   const hasDefaultPhotos = safePhotos.every(photo => defaultPhotos.includes(photo.url));
+  const hasOnlyPlaceholders = safePhotos.every(photo => photo.source === 'placeholder');
+  
+  // Determine loading stage based on verification report content
+  const getLoadingStage = () => {
+    if (!verificationReport) return 'initializing';
+    if (verificationReport?.marketAnalysis && !verificationReport?.webIntelligence) return 'searching';
+    if (verificationReport?.webIntelligence && !verificationReport?.webIntelligence?.images) return 'extracting';
+    return 'complete';
+  };
+  
+  const loadingStage = getLoadingStage();
   
   console.log('Photo loading state:', {
     isLoadingWebPhotos,
     hasDefaultPhotos,
+    hasOnlyPlaceholders,
+    loadingStage,
     safePhotos,
     verificationReport: !!verificationReport
   });
