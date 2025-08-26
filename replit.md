@@ -1,6 +1,9 @@
 # MySeniorValet - Senior Living Community Transparency Platform
 
 ## Recent Changes
+- **August 26, 2025**: CRITICAL FIX - Competitive analysis route registration resolved, endpoint now properly registered in server/routes/index.ts
+- **August 26, 2025**: Extended timeout configuration to 45 seconds for comprehensive Perplexity searches, added 40-second axios timeout in perplexity-ai-service.ts
+- **August 26, 2025**: Successfully tested competitive analysis returning real McLean, VA data: $6,658 average pricing, found Sunrise Senior Living, Lewinsville, Vinson Hall communities
 - **August 26, 2025**: Fixed critical API routing issue - both competitive analysis and web intelligence endpoints now return proper JSON instead of HTML
 - **August 26, 2025**: Added missing `/api/web-intelligence/search` endpoint that matches client component calls
 - **August 26, 2025**: Verified both APIs working with real data: Competitive Analysis retrieves market pricing ($6,658-$6,962/mo for McLean, VA), Web Intelligence finds exact communities with address matching

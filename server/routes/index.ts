@@ -13,6 +13,8 @@ import { registerPerplexityTestRoutes } from "./perplexityTestRoutes";
 import { registerAIInsightsRoutes } from "./aiInsightsRoutes";
 import { registerSemanticSearchRoutes } from "./semanticSearchRoutes";
 import autocompleteRoutes from "./autocompleteRoutes";
+import competitiveAnalysisRoutes from "./competitiveAnalysisRoutes";
+import webIntelligenceRoutes from "./webIntelligenceRoutes";
 
 import { registerAdminRoutes } from "./adminRoutes";
 import { registerVendorRoutes } from "./vendorRoutes";
@@ -118,6 +120,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerAIInsightsRoutes(app);
   registerSemanticSearchRoutes(app); // Register semantic search for natural language understanding
   app.use('/api', autocompleteRoutes); // Register autocomplete routes
+  app.use(competitiveAnalysisRoutes); // Register competitive analysis routes
+  app.use(webIntelligenceRoutes); // Register web intelligence routes
 
   registerAdminRoutes(app);
   registerVendorRoutes(app);

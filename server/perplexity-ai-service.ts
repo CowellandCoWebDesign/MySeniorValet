@@ -89,7 +89,8 @@ When presenting pricing, ALWAYS specify the year (e.g., "As of 2025, pricing ran
           headers: {
             'Authorization': `Bearer ${this.apiKey}`,
             'Content-Type': 'application/json'
-          }
+          },
+          timeout: 40000  // 40 second timeout for Perplexity API call
         }
       );
 

@@ -10,6 +10,8 @@ const perplexityService = new PerplexityAIService();
 
 // Competitive Analysis endpoint
 router.post('/api/competitive-analysis', async (req, res) => {
+  console.log('🔍 Competitive Analysis Request:', { location: req.body.location, type: req.body.type });
+  
   try {
     const { location, type } = req.body;
     
@@ -41,14 +43,29 @@ router.post('/api/competitive-analysis', async (req, res) => {
         break;
     }
 
-    // Use Perplexity to get real-time market data
-    const perplexityResponse = await perplexityService.searchRealTime(contextQuery);
+    // Use Perplexity to get real-time market data with timeout
+    console.log('📡 Calling Perplexity with query:', contextQuery);
+    
+    // Set a 45-second timeout for Perplexity call (user accepts longer response times for comprehensive data)
+    const perplexityPromise = perplexityService.searchRealTime(contextQuery);
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Perplexity timeout after 45 seconds')), 45000)
+    );
+    
+    let perplexityResponse;
+    try {
+      perplexityResponse = await Promise.race([perplexityPromise, timeoutPromise]) as any;
+      console.log('✅ Perplexity response received');
+    } catch (timeoutError) {
+      console.error('⏱️ Perplexity timed out:', timeoutError);
+      throw timeoutError;
+    }
 
     // Parse the response to extract pricing information
     const content = perplexityResponse.summary || '';
     const sources = perplexityResponse.sources || [];
     
-    console.log('Perplexity response content:', content); // Debug logging
+    console.log('📝 Perplexity response content length:', content.length); // Debug logging
     
     // Extract pricing information from the response with multiple patterns
     const pricePatterns = [
@@ -159,6 +176,16 @@ router.post('/api/competitive-analysis', async (req, res) => {
       address?: string;
       phone?: string;
       pricing?: string;
+      photos?: string[];
+      floorPlans?: string[];
+      virtualTours?: string[];
+      videos?: string[];
+      amenities?: string[];
+      careLevels?: string[];
+      description?: string;
+      enrichedPricing?: any;
+      contactInfo?: any;
+      scrapedAt?: string;
     }> = [];
     
     // Parse Perplexity's structured format: **1. Community Name** followed by details
@@ -319,6 +346,7 @@ router.post('/api/competitive-analysis', async (req, res) => {
     
     for (const community of communitiesToScrape) {
       try {
+        if (!community.website) continue;
         console.log(`  Scraping ${community.name}: ${community.website}`);
         const scrapedData = await websiteScraperService.scrapeWebsite(community.website);
         
@@ -384,9 +412,13 @@ router.post('/api/competitive-analysis', async (req, res) => {
 
     res.json(analysisResult);
   } catch (error) {
-    console.error('Competitive analysis error:', error);
+    console.error('❌ Competitive analysis error:', error);
     
-    // Fallback response with estimated data
+    // Provide more detailed error information
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    console.error('Error details:', errorMessage);
+    
+    // Fallback response with all required fields
     const fallbackResponse = {
       location: req.body.location,
       locationType: req.body.type,
@@ -403,9 +435,14 @@ router.post('/api/competitive-analysis', async (req, res) => {
         'Costs vary significantly by region and level of care needed',
         'Urban areas generally have higher costs than rural locations'
       ],
+      detailedSummary: '', // Include empty detailedSummary for frontend compatibility
       communityMentions: [], // No communities available in fallback
+      matchedCommunities: [], // Include empty matchedCommunities
+      extractedCommunities: [], // Include empty extractedCommunities
+      websiteMatches: [], // Include empty websiteMatches
       lastUpdated: new Date().toISOString(),
-      sources: ['Industry Estimates', 'Historical Data']
+      sources: ['Industry Estimates', 'Historical Data'],
+      error: errorMessage // Include error message for debugging
     };
     
     res.json(fallbackResponse);
