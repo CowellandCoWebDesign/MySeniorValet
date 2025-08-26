@@ -138,9 +138,9 @@ const subscriptionTiers = [
     id: 'platinum',
     name: 'Platinum',
     price: '$349/month',
-    description: 'All features + priority support',
-    features: ['Everything in Featured', 'Top priority placement', 'DocuSign integration', 'Dedicated support'],
-    badge: 'ULTIMATE',
+    description: 'Enterprise-grade revenue & CRM integration',
+    features: ['Everything in Featured', 'Revenue Management System (RMS)', 'CRM Integration (ALINE, Yardi)', 'Enterprise Market Analysis', 'Real-time pricing analytics', 'Dedicated support'],
+    badge: 'ENTERPRISE',
     badgeColor: 'bg-yellow-100 text-yellow-800'
   }
 ];

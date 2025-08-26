@@ -254,7 +254,7 @@ export function CommunityCreatorTutorial({
                   <span className="text-lg font-bold text-yellow-600">$349/month</span>
                 </div>
                 <h4 className="font-semibold text-sm">Platinum</h4>
-                <p className="text-xs text-gray-600 dark:text-gray-300">All features, analytics, priority support</p>
+                <p className="text-xs text-gray-600 dark:text-gray-300">Enterprise RMS + CRM, revenue analytics, market intelligence</p>
               </CardContent>
             </Card>
           </div>
