@@ -65,7 +65,7 @@ Gather information from ALL available sources - the community's website, parent 
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,
         {
-          model: 'sonar-pro',  // Perplexity's flagship model (legacy models deprecated Feb 2025)
+          model: 'sonar',  // Use faster model for quicker responses
           messages: [
             {
               role: 'system',
@@ -76,10 +76,10 @@ Gather information from ALL available sources - the community's website, parent 
               content: query
             }
           ],
-          max_tokens: 2000,  // Increased for comprehensive responses
+          max_tokens: 500,  // Reduced for faster responses - just get essential data
           temperature: 0.2,
           top_p: 0.9,
-          return_images: true,  // Request actual images from search results
+          return_images: false,  // Skip images for speed
           search_recency_filter: undefined,  // No time restriction - get all available data for transparency
           stream: false
         },
@@ -87,7 +87,8 @@ Gather information from ALL available sources - the community's website, parent 
           headers: {
             'Authorization': `Bearer ${this.apiKey}`,
             'Content-Type': 'application/json'
-          }
+          },
+          timeout: 8000  // 8 second timeout for faster failures
         }
       );
 

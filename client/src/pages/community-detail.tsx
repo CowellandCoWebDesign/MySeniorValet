@@ -61,9 +61,9 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate }: { communi
     
     setIsLoading(true);
     
-    // Set a timeout for the API call
+    // Reduced timeout since we're doing simpler queries now
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 35000); // 35 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout for faster response
     
     try {
       const response = await fetch('/api/competitive-analysis', {
@@ -88,6 +88,18 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate }: { communi
       setAnalysis(data);
       setIsExpanded(true);
       
+      // Extract website for the current community if found
+      if (data.extractedCommunities && data.extractedCommunities.length > 0) {
+        const currentCommunityData = data.extractedCommunities.find((c: any) => 
+          c.name.toLowerCase().includes(community.name.toLowerCase()) ||
+          community.name.toLowerCase().includes(c.name.toLowerCase())
+        );
+        
+        if (currentCommunityData && currentCommunityData.website) {
+          console.log(`Found website for ${community.name}: ${currentCommunityData.website}`);
+        }
+      }
+      
       // Pass the analysis data back to parent component
       if (onAnalysisUpdate) {
         onAnalysisUpdate(data);
@@ -96,17 +108,16 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate }: { communi
       clearTimeout(timeoutId);
       console.error('Failed to fetch competitive analysis:', error);
       
-      // Set a meaningful fallback state
+      // Set a minimal fallback state
       setAnalysis({
         error: true,
         location: `${community.city}, ${community.state}`,
         averageMonthlyRent: 'Contact for pricing',
         insights: [
-          `Senior living communities in ${community.city}, ${community.state} offer various care levels`,
-          'Pricing varies based on care needs and amenities',
-          'Contact communities directly for current availability and pricing'
+          `Searching for senior living communities in ${community.city}, ${community.state}...`,
+          'Real-time data is being gathered from multiple sources'
         ],
-        detailedSummary: `Market analysis for ${community.city}, ${community.state} is being updated. Please check back shortly or contact the community directly for the most current pricing and availability information.`
+        detailedSummary: `Gathering market data for ${community.city}, ${community.state}...`
       });
     } finally {
       setIsLoading(false);

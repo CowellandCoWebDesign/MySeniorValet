@@ -16,26 +16,27 @@ router.post('/api/competitive-analysis', async (req, res) => {
       return res.status(400).json({ error: 'Location and type are required' });
     }
 
-    // Construct the search query based on location type
+    // SIMPLIFIED FAST QUERY - Just get raw search results quickly
     let searchQuery = '';
     let contextQuery = '';
     
     switch(type) {
       case 'city':
-        searchQuery = `average senior living costs assisted living memory care nursing home prices in ${location} current 2025 monthly rates`;
-        contextQuery = `RESPOND IN ENGLISH ONLY. List ALL senior living communities in ${location} with their specific pricing. Include every facility name you find, individual community pricing, assisted living costs, memory care costs, nursing home costs. Provide complete data on each community mentioned. Compare to national averages. Include all facilities viewed or referenced. Translate any non-English content to English. Convert all prices to USD if in other currencies.`;
+        // Simple, fast query - just list communities with websites and pricing
+        searchQuery = `senior living communities ${location}`;
+        contextQuery = `List senior living communities in ${location} with their website URL, address, phone, and monthly pricing if available. Return raw search results immediately without analysis.`;
         break;
       case 'state':
-        searchQuery = `senior living facility costs ${location} state average prices assisted living memory care 2025`;
-        contextQuery = `RESPOND IN ENGLISH ONLY. List ALL senior living facilities and communities across ${location} with specific pricing data. Include every community name, individual facility costs, different care types, regional variations. Provide all data points found about each community. Translate any non-English content to English. Convert all prices to USD if in other currencies.`;
+        searchQuery = `senior living facilities ${location} state`;
+        contextQuery = `List senior living facilities in ${location} with websites and basic pricing. Raw results only.`;
         break;
       case 'region':
-        searchQuery = `senior care costs ${location} region United States Canada Mexico pricing trends 2025`;
-        contextQuery = `RESPOND IN ENGLISH ONLY. List ALL senior care facilities in the ${location} region with complete pricing information. Include every community name found, specific costs, pricing trends, variations within the region. Provide comprehensive data on each facility. Translate any non-English content to English. Convert all prices to USD if in other currencies.`;
+        searchQuery = `senior care facilities ${location} region`;
+        contextQuery = `List senior care facilities in the ${location} region with websites and pricing. Raw results.`;
         break;
       case 'country':
-        searchQuery = `national average senior living costs ${location} assisted living memory care pricing 2025`;
-        contextQuery = `RESPOND IN ENGLISH ONLY. Provide comprehensive national data for senior living in ${location}. List specific communities with pricing, include all facility names found, different care types, regional variations. Include every data point discovered. Translate any non-English content to English. Convert all prices to USD if in other currencies.`;
+        searchQuery = `senior living costs ${location}`;
+        contextQuery = `National senior living data for ${location}. List communities with websites and pricing.`;
         break;
     }
 
@@ -146,49 +147,37 @@ router.post('/api/competitive-analysis', async (req, res) => {
       }
     }
 
-    // Extract mentioned community names - improved pattern to avoid generic terms
-    const rawMatches = content.match(/\b(?:The\s+)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home|Place|House|Terrace|Gardens?|Lodge|Park|Estates?|Court|Heights|Oaks|Pines|Springs|Hills|Valley|Creek|Ridge|Point|Plaza|Square|Tower|Arms|Haven|Crossing|Landing|Station|Walk|Way|Trail|Grove|Meadows?|Fields?|Woods?|Forest|Lake|River|Bay|Beach|Shore|Coast|Harbor|Port|Vista|View|Pointe)\b/g) || [];
+    // Extract websites from the content - they're already in the response!
+    const websitePattern = /(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9\-]+(?:\.[a-zA-Z]{2,})+(?:\/[^\s\]]*)?)/g;
+    const websiteMatches = content.match(websitePattern) || [];
     
-    // Filter out generic care type terms and descriptive phrases
-    const genericTerms = [
-      'Assisted Living', 'Memory Care', 'Independent Living', 'Nursing Home',
-      'Senior Living', 'Skilled Care', 'Enhanced Care', 'Residential Care',
-      'Long Term Care', 'Short Term Care', 'Respite Care', 'Home Care',
-      'Adult Day Care', 'Continuing Care', 'Retirement Community',
-      'Nearby Senior Living', 'Average Assisted Living', 'Local Senior Living',
-      'Area Senior Living', 'Regional Senior Care', 'National Senior Living',
-      'Typical Assisted Living', 'Standard Memory Care', 'Basic Nursing Home',
-      'General Senior Care', 'Common Senior Living', 'Overall Senior Care'
-    ];
+    // Extract community data with websites
+    const communityDataPattern = /([A-Z][a-zA-Z\s]+(?:Living|Care|Community|Manor|Village|Residence|Center|Home))[^]*?(?:Website:|Official Website:|https?:\/\/)?([a-zA-Z0-9\-]+\.[a-zA-Z]{2,}[^\s\]]*)?[^]*?(?:Address:|Located at:)?([0-9]+[^,\n]*,[^,\n]*,[^,\n]*\d{5})?[^]*?(?:Phone:|Tel:|Call:)?([0-9\-\(\)\s]+)?[^]*?(?:\$([0-9,]+)(?:\/month|\s*monthly)?)?/gi;
     
-    // Additional filters for generic descriptors
-    const genericDescriptors = [
-      'Nearby', 'Average', 'Local', 'Area', 'Regional', 'National', 
-      'Typical', 'Standard', 'Basic', 'General', 'Common', 'Overall',
-      'Many', 'Most', 'All', 'Some', 'Several', 'Various', 'Multiple'
-    ];
+    const extractedCommunities: Array<{
+      name: string;
+      website?: string;
+      address?: string;
+      phone?: string;
+      pricing?: string;
+    }> = [];
     
-    const communityMentions = Array.from(new Set(
-      rawMatches.filter(name => {
-        // Check if it's in the generic terms list
-        if (genericTerms.includes(name)) return false;
-        
-        // Check if it starts with a generic descriptor
-        const firstWord = name.split(' ')[0];
-        if (genericDescriptors.includes(firstWord)) return false;
-        
-        // Check if it's too short to be a real community name
-        if (name.split(' ').length < 2) return false;
-        
-        // Additional check: must have at least one non-generic word
-        const words = name.split(' ');
-        const hasSpecificName = words.some(word => 
-          !['Senior', 'Assisted', 'Memory', 'Living', 'Care', 'Home', 'Center', 'Community'].includes(word)
-        );
-        
-        return hasSpecificName;
-      })
-    ));
+    let match;
+    while ((match = communityDataPattern.exec(content)) !== null) {
+      if (match[1]) {
+        extractedCommunities.push({
+          name: match[1].trim(),
+          website: match[2]?.trim(),
+          address: match[3]?.trim(),
+          phone: match[4]?.trim(),
+          pricing: match[5] ? `$${match[5]}/month` : undefined
+        });
+      }
+    }
+    
+    // Also extract community names mentioned
+    const communityNamePattern = /\b(?:The\s+)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home|Place|House|Terrace|Gardens?|Lodge|Park|Estates?|Court|Heights|Oaks|Pines|Springs|Hills|Valley|Creek|Ridge|Point|Plaza|Square|Tower|Arms|Haven|Crossing|Landing|Station|Walk|Way|Trail|Grove|Meadows?|Fields?|Woods?|Forest|Lake|River|Bay|Beach|Shore|Coast|Harbor|Port|Vista|View|Pointe)\b/g;
+    const communityMentions = Array.from(new Set(content.match(communityNamePattern) || []));
 
     // Search our database for mentioned communities
     const matchedCommunities: Array<{
@@ -250,6 +239,17 @@ router.post('/api/competitive-analysis', async (req, res) => {
       detailedSummary: content, // Full unfiltered Perplexity response for complete transparency
       communityMentions, // All mentioned community names
       matchedCommunities, // Communities found in our database
+      // NEW: Include extracted community data with websites!
+      extractedCommunities,
+      websiteMatches: websiteMatches.filter(url => {
+        // Filter out directory sites, keep only official community websites
+        const directorySites = [
+          'aplaceformom', 'caring.com', 'seniorly', 'assistedliving.org', 
+          'senioradvisor', 'seniorhousing.net', 'medicare.gov', 'google.com', 
+          'facebook.com', 'yelp.com', 'apartments.com', 'after55.com'
+        ];
+        return !directorySites.some(site => url.toLowerCase().includes(site));
+      }),
       lastUpdated: new Date().toISOString(),
       sources: sources.length > 0 ? sources.map(s => {
         try {
