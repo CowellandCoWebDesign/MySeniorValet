@@ -818,6 +818,23 @@ export const communities = pgTable("communities", {
   photoAttributions: text("photo_attributions").array().default([]), // Google Photos API attributions
   virtualTourUrl: text("virtual_tour_url"),
   
+  // 3D Tour & Matterport Integration (Featured tier and above)
+  matterportTourId: text("matterport_tour_id"), // Matterport unique tour ID
+  matterportTourUrl: text("matterport_tour_url"), // Direct embed URL for Matterport tour
+  tourProvider: text("tour_provider", { enum: ["matterport", "kuula", "panotour", "other"] }), // 3D tour provider
+  tourStatus: text("tour_status", { enum: ["active", "processing", "failed", "pending"] }).default("pending"),
+  tourPreviewImage: text("tour_preview_image"), // Preview thumbnail for the 3D tour
+  tourMetadata: json("tour_metadata").$type<{
+    duration?: number; // Estimated tour time in minutes
+    roomCount?: number; // Number of rooms/spaces in tour
+    totalViews?: number; // Total tour views
+    uploadedAt?: string; // When tour was uploaded
+    uploadedBy?: string; // User who uploaded tour
+    tourDescription?: string; // Description of tour content
+    roomLabels?: string[]; // Labels for different rooms/areas
+    features?: string[]; // Highlighted features in tour
+  }>().default({}),
+  
   // Detailed Services & Amenities
   spaServices: text("spa_services").array().default([]), // ['Massage Therapy', 'Aromatherapy', 'Facials', 'Manicure/Pedicure']
   healthcareServices: text("healthcare_services").array().default([]), // ['Physical Therapy', 'Occupational Therapy', 'Speech Therapy', 'Hospice Care Available']

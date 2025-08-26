@@ -54,6 +54,7 @@ import EngagementScorecard from "@/components/EngagementScorecard";
 import { EnterpriseMarketAnalysis } from "@/components/EnterpriseMarketAnalysis";
 import { CRMIntegrationPanel } from "@/components/CRMIntegrationPanel";
 import { RMSIntegrationPanel } from "@/components/RMSIntegrationPanel";
+import { TourManagement } from "@/components/TourManagement";
 
 export default function CommunityDashboard() {
   const { id } = useParams();
@@ -508,13 +509,20 @@ export default function CommunityDashboard() {
 
         {/* Main Dashboard */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className={`grid w-full ${community?.subscriptionTier === 'platinum' ? 'grid-cols-10' : 'grid-cols-7'}`}>
+          <TabsList className={`grid w-full ${
+            community?.subscriptionTier === 'platinum' ? 'grid-cols-11' : 
+            (community?.subscriptionTier === 'featured' || community?.subscriptionTier === 'standard') ? 'grid-cols-8' : 
+            'grid-cols-7'
+          }`}>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="engagement">Engagement</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="pricing">Pricing</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            {(['featured', 'platinum'].includes(community?.subscriptionTier)) && (
+              <TabsTrigger value="tours">3D Tours</TabsTrigger>
+            )}
             {community?.subscriptionTier === 'platinum' && (
               <>
                 <TabsTrigger value="crm">CRM Integration</TabsTrigger>
@@ -1119,6 +1127,16 @@ export default function CommunityDashboard() {
               <AdvancedAnalytics timeRange="30d" showExport={true} autoRefresh={false} />
             </div>
           </TabsContent>
+
+          {/* 3D Tours Tab - Featured and Platinum */}
+          {(['featured', 'platinum'].includes(community?.subscriptionTier)) && (
+            <TabsContent value="tours" className="space-y-6">
+              <TourManagement 
+                communityId={parseInt(id || '0')} 
+                subscriptionTier={community.subscriptionTier || 'verified'} 
+              />
+            </TabsContent>
+          )}
 
           {/* CRM Integration Tab - Platinum Only */}
           {community?.subscriptionTier === 'platinum' && (

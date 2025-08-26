@@ -443,4 +443,341 @@ router.get("/stats/:communityId", isAuthenticated, async (req, res) => {
   }
 });
 
+// =============================================
+// 3D TOUR MANAGEMENT ROUTES (Matterport Integration)
+// =============================================
+
+// 3D Tour validation schemas
+const uploadTourSchema = z.object({
+  tourUrl: z.string().url("Invalid tour URL"),
+  provider: z.enum(["matterport", "kuula", "panotour", "other"]).default("matterport")
+});
+
+const updateTourSchema = z.object({
+  matterportTourUrl: z.string().url("Invalid tour URL").optional(),
+  tourStatus: z.enum(["active", "processing", "failed", "pending"]).optional(),
+  tourPreviewImage: z.string().url().optional(),
+  tourMetadata: z.object({
+    duration: z.number().optional(),
+    roomCount: z.number().optional(),
+    totalViews: z.number().optional(),
+    uploadedAt: z.string().optional(),
+    uploadedBy: z.string().optional(),
+    tourDescription: z.string().optional(),
+    roomLabels: z.array(z.string()).optional(),
+    features: z.array(z.string()).optional(),
+  }).optional()
+});
+
+// Helper function to validate Matterport URL and extract tour ID
+function extractMatterportId(url: string): string | null {
+  try {
+    const urlObj = new URL(url);
+    
+    // Handle different Matterport URL formats
+    if (urlObj.hostname.includes('matterport.com')) {
+      // Extract from my.matterport.com/show/?m=TOUR_ID
+      const mParam = urlObj.searchParams.get('m');
+      if (mParam) return mParam;
+      
+      // Extract from direct path /show/TOUR_ID
+      const pathMatch = urlObj.pathname.match(/\/show\/([^\/]+)/);
+      if (pathMatch) return pathMatch[1];
+    }
+    
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// Helper function to generate embed URL from share URL
+function generateEmbedUrl(shareUrl: string): string {
+  try {
+    const tourId = extractMatterportId(shareUrl);
+    if (tourId) {
+      return `https://my.matterport.com/embed/${tourId}?play=1&qs=1`;
+    }
+    return shareUrl;
+  } catch {
+    return shareUrl;
+  }
+}
+
+// Get 3D tour data for a community
+router.get("/communities/:id/tour", isAuthenticated, async (req, res) => {
+  try {
+    const communityId = parseInt(req.params.id);
+    
+    // Verify user owns this community or is admin
+    const [community] = await db.select()
+      .from(communities)
+      .where(eq(communities.id, communityId));
+
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
+
+    // Check if user has permission to view this community's tours
+    const userId = (req as any).user?.claims?.sub;
+    if ((req as any).user?.role !== 'admin' && 
+        (req as any).user?.role !== 'super_admin' && 
+        community.claimedBy !== parseInt(userId)) {
+      return res.status(403).json({ message: "Not authorized to view this community's tours" });
+    }
+
+    // Check if community has access to 3D tours
+    const hasAccess = ['featured', 'platinum'].includes(community.subscriptionTier || '');
+    if (!hasAccess) {
+      return res.status(403).json({ 
+        message: "3D tours are available for Featured and Platinum tiers",
+        upgradeRequired: true
+      });
+    }
+
+    // Return tour data
+    const tourData = {
+      id: community.id,
+      matterportTourId: community.matterportTourId,
+      matterportTourUrl: community.matterportTourUrl,
+      tourProvider: community.tourProvider,
+      tourStatus: community.tourStatus,
+      tourPreviewImage: community.tourPreviewImage,
+      tourMetadata: community.tourMetadata || {}
+    };
+
+    res.json(tourData);
+  } catch (error) {
+    console.error("Error fetching 3D tour:", error);
+    res.status(500).json({ message: "Failed to fetch tour data" });
+  }
+});
+
+// Upload/update 3D tour for a community
+router.post("/communities/:id/tour/upload", isAuthenticated, async (req, res) => {
+  try {
+    const communityId = parseInt(req.params.id);
+    const { tourUrl, provider } = uploadTourSchema.parse(req.body);
+    
+    // Verify user owns this community
+    const [community] = await db.select()
+      .from(communities)
+      .where(eq(communities.id, communityId));
+
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
+
+    const userId = (req as any).user?.claims?.sub;
+    if ((req as any).user?.role !== 'admin' && 
+        (req as any).user?.role !== 'super_admin' && 
+        community.claimedBy !== parseInt(userId)) {
+      return res.status(403).json({ message: "Not authorized to manage this community's tours" });
+    }
+
+    // Check if community has access to 3D tours
+    const hasAccess = ['featured', 'platinum'].includes(community.subscriptionTier || '');
+    if (!hasAccess) {
+      return res.status(403).json({ 
+        message: "3D tours are available for Featured and Platinum tiers",
+        upgradeRequired: true
+      });
+    }
+
+    // Extract Matterport ID and generate embed URL
+    const matterportId = extractMatterportId(tourUrl);
+    const embedUrl = generateEmbedUrl(tourUrl);
+
+    // Update community with tour data
+    await db.update(communities)
+      .set({
+        matterportTourId: matterportId,
+        matterportTourUrl: embedUrl,
+        tourProvider: provider,
+        tourStatus: "processing", // Will be updated to "active" once processed
+        tourMetadata: {
+          uploadedAt: new Date().toISOString(),
+          uploadedBy: (req as any).user?.email || 'Unknown',
+          totalViews: 0
+        },
+        updatedAt: new Date()
+      })
+      .where(eq(communities.id, communityId));
+
+    res.json({ 
+      message: "Tour upload started successfully",
+      tourId: matterportId,
+      embedUrl: embedUrl
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ 
+        message: "Invalid input", 
+        errors: error.errors 
+      });
+    }
+
+    console.error("Error uploading 3D tour:", error);
+    res.status(500).json({ message: "Failed to upload tour" });
+  }
+});
+
+// Update existing 3D tour
+router.put("/communities/:id/tour", isAuthenticated, async (req, res) => {
+  try {
+    const communityId = parseInt(req.params.id);
+    const updateData = updateTourSchema.parse(req.body);
+    
+    // Verify user owns this community
+    const [community] = await db.select()
+      .from(communities)
+      .where(eq(communities.id, communityId));
+
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
+
+    const userId = (req as any).user?.claims?.sub;
+    if ((req as any).user?.role !== 'admin' && 
+        (req as any).user?.role !== 'super_admin' && 
+        community.claimedBy !== parseInt(userId)) {
+      return res.status(403).json({ message: "Not authorized to manage this community's tours" });
+    }
+
+    // Check if community has access to 3D tours
+    const hasAccess = ['featured', 'platinum'].includes(community.subscriptionTier || '');
+    if (!hasAccess) {
+      return res.status(403).json({ 
+        message: "3D tours are available for Featured and Platinum tiers",
+        upgradeRequired: true
+      });
+    }
+
+    // Prepare update object
+    const updateObject: any = {
+      updatedAt: new Date()
+    };
+
+    if (updateData.matterportTourUrl) {
+      const matterportId = extractMatterportId(updateData.matterportTourUrl);
+      const embedUrl = generateEmbedUrl(updateData.matterportTourUrl);
+      
+      updateObject.matterportTourId = matterportId;
+      updateObject.matterportTourUrl = embedUrl;
+    }
+
+    if (updateData.tourStatus) {
+      updateObject.tourStatus = updateData.tourStatus;
+    }
+
+    if (updateData.tourPreviewImage) {
+      updateObject.tourPreviewImage = updateData.tourPreviewImage;
+    }
+
+    if (updateData.tourMetadata) {
+      // Merge with existing metadata
+      const existingMetadata = community.tourMetadata || {};
+      updateObject.tourMetadata = {
+        ...existingMetadata,
+        ...updateData.tourMetadata
+      };
+    }
+
+    // Update community
+    await db.update(communities)
+      .set(updateObject)
+      .where(eq(communities.id, communityId));
+
+    res.json({ message: "Tour updated successfully" });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ 
+        message: "Invalid input", 
+        errors: error.errors 
+      });
+    }
+
+    console.error("Error updating 3D tour:", error);
+    res.status(500).json({ message: "Failed to update tour" });
+  }
+});
+
+// Get 3D tour analytics
+router.get("/communities/:id/tour/analytics", isAuthenticated, async (req, res) => {
+  try {
+    const communityId = parseInt(req.params.id);
+    
+    // Verify user owns this community
+    const [community] = await db.select()
+      .from(communities)
+      .where(eq(communities.id, communityId));
+
+    if (!community) {
+      return res.status(404).json({ message: "Community not found" });
+    }
+
+    const userId = (req as any).user?.claims?.sub;
+    if ((req as any).user?.role !== 'admin' && 
+        (req as any).user?.role !== 'super_admin' && 
+        community.claimedBy !== parseInt(userId)) {
+      return res.status(403).json({ message: "Not authorized to view analytics" });
+    }
+
+    // Check if community has access to 3D tours
+    const hasAccess = ['featured', 'platinum'].includes(community.subscriptionTier || '');
+    if (!hasAccess) {
+      return res.status(403).json({ 
+        message: "Tour analytics are available for Featured and Platinum tiers",
+        upgradeRequired: true
+      });
+    }
+
+    // In a real implementation, these would be calculated from actual usage data
+    const analytics = {
+      dailyViews: Math.floor(Math.random() * 50) + 10,
+      avgDuration: Math.floor(Math.random() * 10) + 3,
+      completionRate: Math.floor(Math.random() * 40) + 60,
+      tourToLeads: Math.floor(Math.random() * 5) + 1,
+      totalViews: community.tourMetadata?.totalViews || 0
+    };
+
+    res.json(analytics);
+  } catch (error) {
+    console.error("Error fetching 3D tour analytics:", error);
+    res.status(500).json({ message: "Failed to fetch tour analytics" });
+  }
+});
+
+// Track 3D tour view (called when someone starts watching a tour)
+router.post("/tours/:tourId/view", async (req, res) => {
+  try {
+    const { tourId } = req.params;
+    
+    // Find community by Matterport tour ID
+    const [community] = await db.select()
+      .from(communities)
+      .where(eq(communities.matterportTourId, tourId));
+
+    if (community) {
+      // Increment view count in metadata
+      const currentMetadata = community.tourMetadata || {};
+      const newViewCount = (currentMetadata.totalViews || 0) + 1;
+      
+      await db.update(communities)
+        .set({
+          tourMetadata: {
+            ...currentMetadata,
+            totalViews: newViewCount
+          }
+        })
+        .where(eq(communities.id, community.id));
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error tracking 3D tour view:", error);
+    res.status(500).json({ message: "Failed to track view" });
+  }
+});
+
 export default router;

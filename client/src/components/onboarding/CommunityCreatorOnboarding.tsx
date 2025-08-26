@@ -129,8 +129,8 @@ const subscriptionTiers = [
     id: 'featured',
     name: 'Featured',
     price: '$249/month',
-    description: 'Stand out with premium features',
-    features: ['Everything in Standard', 'Featured placement', 'Family messaging', 'Advanced analytics'],
+    description: 'Stand out with premium features + 3D tours',
+    features: ['Everything in Standard', 'Featured placement', 'Family messaging', '3D Tour Integration (Matterport)', 'Virtual tour embedding', 'Advanced analytics'],
     badge: 'PREMIUM',
     badgeColor: 'bg-purple-100 text-purple-800'
   },
@@ -138,8 +138,8 @@ const subscriptionTiers = [
     id: 'platinum',
     name: 'Platinum',
     price: '$349/month',
-    description: 'Enterprise-grade revenue & CRM integration',
-    features: ['Everything in Featured', 'Revenue Management System (RMS)', 'CRM Integration (ALINE, Yardi)', 'Enterprise Market Analysis', 'Real-time pricing analytics', 'Dedicated support'],
+    description: 'Enterprise-grade revenue, CRM & 3D tours',
+    features: ['Everything in Featured', 'Revenue Management System (RMS)', 'CRM Integration (ALINE, Yardi)', 'Enterprise Market Analysis', 'Priority 3D tour processing', 'Real-time pricing analytics', 'Dedicated support'],
     badge: 'ENTERPRISE',
     badgeColor: 'bg-yellow-100 text-yellow-800'
   }
