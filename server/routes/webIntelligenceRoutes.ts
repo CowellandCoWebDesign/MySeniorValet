@@ -132,10 +132,19 @@ router.post('/api/web-intelligence/search', async (req, res) => {
     
     // If we don't have scraped data, search for the community and try to find its website
     if (!scrapedData) {
-      const searchQuery = `"${communityName}" "${address}" ${city} ${state} senior living official website`;
+      const searchQuery = `"${communityName}" ${city} ${state} senior living official website contact information pricing`;
+      
+      // Build detailed context for Perplexity to ensure structured response
+      const communityContext = `Community Name: ${communityName}
+Location: ${city}, ${state}
+${address ? `Address: ${address}` : ''}
+${website ? `Known Website: ${website}` : ''}
+
+Search for this EXACT community at this SPECIFIC location.`;
+      
       const response = await perplexityService.searchRealTime(
         searchQuery,
-        `Find the official website for this specific senior living community at ${address}.`
+        communityContext
       );
       
       // Try to extract website from response

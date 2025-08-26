@@ -1,6 +1,9 @@
 # MySeniorValet - Senior Living Community Transparency Platform
 
 ## Recent Changes
+- **August 26, 2025**: **STRUCTURED RESPONSE IMPLEMENTATION** - Perplexity now returns predictable, structured responses with sections for OFFICIAL WEBSITE, DIRECTORY LISTINGS, PRICING, CONTACT INFO etc. This ensures reliable data extraction every time
+- **August 26, 2025**: Enhanced context passing - Web Intelligence and Market Analysis now provide specific community details (name, city, state, address) to Perplexity for targeted, accurate searches
+- **August 26, 2025**: Updated extraction logic in Multi-AI Verification Service to parse structured format sections, with fallback to existing parsing methods for backward compatibility
 - **August 26, 2025**: **MAJOR BREAKTHROUGH** - Photo scraping fully operational! Successfully extracting 10-20 photos per facility (Hilltop Springs: 20 photos, Conservatory: 12 photos, Brookdale: 14 photos)
 - **August 26, 2025**: Complete migration from Playwright browser automation to HTTP-based scraping using fetch - resolved Replit system dependency limitations permanently
 - **August 26, 2025**: Fixed critical API routing issue - both competitive analysis and web intelligence endpoints now return proper JSON instead of HTML

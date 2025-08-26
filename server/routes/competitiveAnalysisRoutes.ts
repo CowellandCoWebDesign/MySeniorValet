@@ -161,11 +161,58 @@ router.post('/api/competitive-analysis', async (req, res) => {
       pricing?: string;
     }> = [];
     
-    // Parse Perplexity's structured format: **1. Community Name** followed by details
-    const communityPattern = /\*\*\d+\.\s+([^*]+)\*\*/g;
-    let match;
+    // First, try to extract from the new structured format sections
+    let structuredExtracted = false;
+    if (content.includes('**OFFICIAL WEBSITE:**') || content.includes('**DIRECTORY LISTINGS:**')) {
+      // Extract website URLs from structured sections
+      const officialWebsiteMatch = content.match(/\*\*OFFICIAL WEBSITE:\*\*\s*([^\n\*]+)/i);
+      const directoryMatch = content.match(/\*\*DIRECTORY LISTINGS:\*\*\s*([^\n\*]+)/i);
+      const contactMatch = content.match(/\*\*CONTACT INFORMATION:\*\*\s*([^\n\*]+)/i);
+      const pricingMatch = content.match(/\*\*CURRENT PRICING:\*\*\s*([^\n\*]+)/i);
+      
+      const websites = [];
+      if (officialWebsiteMatch && !officialWebsiteMatch[1].toLowerCase().includes('not found')) {
+        const urls = officialWebsiteMatch[1].match(/https?:\/\/[^\s,]+/gi) || [];
+        websites.push(...urls);
+      }
+      if (directoryMatch) {
+        const urls = directoryMatch[1].match(/https?:\/\/[^\s,]+/gi) || [];
+        websites.push(...urls);
+      }
+      
+      // Extract community name from contact or pricing sections
+      let communityName = '';
+      if (contactMatch) {
+        // Try to extract name from address
+        const addressParts = contactMatch[1].split(',');
+        if (addressParts.length > 0) {
+          // Often the first part before comma is the facility name
+          communityName = addressParts[0].trim();
+        }
+      }
+      
+      if (websites.length > 0 || communityName) {
+        structuredExtracted = true;
+        // For each unique website found, create a community entry
+        const uniqueWebsites = [...new Set(websites)];
+        for (const website of uniqueWebsites) {
+          extractedCommunities.push({
+            name: communityName || 'Community',
+            website: website,
+            address: contactMatch ? contactMatch[1].trim() : undefined,
+            pricing: pricingMatch ? pricingMatch[1].trim() : undefined
+          });
+        }
+      }
+    }
     
-    while ((match = communityPattern.exec(content)) !== null) {
+    // If no structured format found, fall back to numbered list parsing
+    if (!structuredExtracted) {
+      // Parse Perplexity's numbered format: **1. Community Name** followed by details
+      const communityPattern = /\*\*\d+\.\s+([^*]+)\*\*/g;
+      let match;
+      
+      while ((match = communityPattern.exec(content)) !== null) {
       const name = match[1].trim();
       
       // Skip invalid entries
@@ -241,12 +288,12 @@ router.post('/api/competitive-analysis', async (req, res) => {
         }
       }
       
-      extractedCommunities.push(community);
-    }
-    
-    // Also extract communities from markdown tables
-    const tableRowPattern = /\|\s*\*\*([^*]+)\*\*\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/g;
-    while ((match = tableRowPattern.exec(content)) !== null) {
+        extractedCommunities.push(community);
+      }
+      
+      // Also extract communities from markdown tables within the unstructured format
+      const tableRowPattern = /\|\s*\*\*([^*]+)\*\*\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/g;
+      while ((match = tableRowPattern.exec(content)) !== null) {
       const name = match[1].trim();
       const websiteField = match[2].trim();
       const addressField = match[3].trim();
@@ -286,6 +333,7 @@ router.post('/api/competitive-analysis', async (req, res) => {
         }
       }
     }
+    } // Close the if (!structuredExtracted) block
     
     // Also look for additional communities mentioned (without numbering)
     const additionalPattern = /\*\*([^*\d][^*]+)\*\*/g;

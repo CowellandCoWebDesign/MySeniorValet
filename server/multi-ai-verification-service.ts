@@ -126,14 +126,55 @@ export class MultiAIVerificationService {
     };
 
     try {
-      // Extract website from Perplexity data
+      // Extract website from Perplexity's structured response format
       let websiteUrl = null;
-      if (perplexityData?.sources && perplexityData.sources.length > 0) {
-        // Find official website from sources
+      
+      // Method 1: Look for the structured format in the summary
+      if (perplexityData?.searchContent || perplexityData?.summary) {
+        const content = perplexityData.searchContent || perplexityData.summary || '';
+        
+        // Look for **OFFICIAL WEBSITE:** section
+        const officialWebsiteMatch = content.match(/\*\*OFFICIAL WEBSITE:\*\*\s*([^\n]+)/i);
+        if (officialWebsiteMatch) {
+          const websiteSection = officialWebsiteMatch[1].trim();
+          // Extract URL from the section - could be plain URL or markdown link
+          const urlMatch = websiteSection.match(/https?:\/\/[^\s\]]+/i) || 
+                          websiteSection.match(/([a-zA-Z0-9][a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}/i);
+          if (urlMatch && !websiteSection.toLowerCase().includes('not found')) {
+            websiteUrl = urlMatch[0];
+            if (!websiteUrl.startsWith('http')) {
+              websiteUrl = 'https://' + websiteUrl;
+            }
+            console.log(`📎 Found official website from structured format: ${websiteUrl}`);
+          }
+        }
+        
+        // If not found in official website section, check directory listings section
+        if (!websiteUrl) {
+          const directoryMatch = content.match(/\*\*DIRECTORY LISTINGS:\*\*\s*([^\n\*]+)/i);
+          if (directoryMatch) {
+            const directorySection = directoryMatch[1];
+            // Find non-directory URLs
+            const urls = directorySection.match(/https?:\/\/[^\s\]]+/gi) || [];
+            const directorySites = ['aplaceformom', 'caring.com', 'seniorly', 'assistedliving.org', 'senioradvisor'];
+            for (const url of urls) {
+              if (!directorySites.some(site => url.includes(site))) {
+                websiteUrl = url;
+                console.log(`📎 Found website from directory listings: ${websiteUrl}`);
+                break;
+              }
+            }
+          }
+        }
+      }
+      
+      // Method 2: Fallback to sources array (existing logic)
+      if (!websiteUrl && perplexityData?.sources && perplexityData.sources.length > 0) {
         const directorySites = ['aplaceformom', 'caring.com', 'seniorly', 'assistedliving.org', 'senioradvisor'];
         for (const source of perplexityData.sources) {
           if (!directorySites.some(site => source.includes(site))) {
             websiteUrl = source;
+            console.log(`📎 Found website from sources array: ${websiteUrl}`);
             break;
           }
         }
