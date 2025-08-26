@@ -102,19 +102,27 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
           
           // Extract photos from scraped data and update verification report
           if (currentCommunityData.photos && currentCommunityData.photos.length > 0) {
-            console.log(`Found ${currentCommunityData.photos.length} photos from web scraping for ${community.name}`);
+            console.log(`🎯 Found ${currentCommunityData.photos.length} photos from web scraping for ${community.name}`);
+            console.log('📸 Photos found:', currentCommunityData.photos);
             
             // Update the verification report with scraped photos
             if (onVerificationReport) {
-              onVerificationReport(prev => ({
-                ...prev,
-                webIntelligence: {
-                  ...(prev?.webIntelligence || {}),
-                  images: currentCommunityData.photos,
-                  scrapedFrom: currentCommunityData.website
-                }
-              }));
+              console.log('🔄 Updating verification report with scraped photos...');
+              onVerificationReport(prev => {
+                const updated = {
+                  ...prev,
+                  webIntelligence: {
+                    ...(prev?.webIntelligence || {}),
+                    images: currentCommunityData.photos,
+                    scrapedFrom: currentCommunityData.website
+                  }
+                };
+                console.log('✅ Verification report updated with photos:', updated.webIntelligence);
+                return updated;
+              });
             }
+          } else {
+            console.log('❌ No photos found in scraped data for', community.name);
           }
         }
       }
@@ -1304,10 +1312,15 @@ const HeroPhotoCarousel = ({
 }) => {
   // Dynamically get all available photos with source tracking
   const getAllPhotos = () => {
+    console.log('🔍 [HeroPhotoCarousel] Getting all photos...');
+    console.log('📊 Community photos:', community?.photos);
+    console.log('📊 Verification report:', verificationReport);
+    
     const allPhotos: { url: string; source: 'database' | 'web' | 'placeholder' }[] = [];
     
     // Add database photos first
     if (community?.photos && community.photos.length > 0) {
+      console.log(`📸 Found ${community.photos.length} database photos`);
       const dbPhotos = community.photos.map((photo: any) => ({
         url: typeof photo === 'string' ? photo : photo.image_url || photo.url,
         source: 'database' as const
@@ -1322,13 +1335,17 @@ const HeroPhotoCarousel = ({
     if (verificationReport?.webIntelligence?.images) {
       // Direct from LiveWebIntelligence component
       webImages = verificationReport.webIntelligence.images;
+      console.log('✅ Found web intelligence images at verificationReport.webIntelligence.images:', webImages);
     } else if (verificationReport?.verificationResults?.webIntelligence?.images) {
       // From multi-AI verification
       webImages = verificationReport.verificationResults.webIntelligence.images;
+      console.log('✅ Found web intelligence images at verificationReport.verificationResults.webIntelligence.images:', webImages);
+    } else {
+      console.log('❌ No web intelligence images found in verification report');
     }
     
     if (webImages && webImages.length > 0) {
-      console.log('Adding web intelligence photos to carousel:', webImages);
+      console.log(`🎯 Adding ${webImages.length} web intelligence photos to carousel`);
       const webPhotos = webImages.map((img: any) => ({
         url: typeof img === 'string' ? img : (img.image_url || img.url || img),
         source: 'web' as const
@@ -1341,13 +1358,28 @@ const HeroPhotoCarousel = ({
       index === self.findIndex((p) => p.url === photo.url)
     );
     
+    console.log(`📷 Total unique photos: ${uniquePhotos.length}`);
+    
     // Return unique photos or default placeholders if none
     if (uniquePhotos.length === 0) {
-      console.log('No photos found, using defaultPhotos:', defaultPhotos);
+      console.log('⚠️ No photos found, using default placeholders');
       return defaultPhotos.map(url => ({ url, source: 'placeholder' as const }));
     }
     return uniquePhotos;
   };
+  
+  // Force update when verification report changes
+  const [photoUpdateKey, setPhotoUpdateKey] = useState(0);
+  
+  // Watch for verification report changes and force re-render
+  useEffect(() => {
+    const webImages = verificationReport?.webIntelligence?.images || 
+                     verificationReport?.verificationResults?.webIntelligence?.images;
+    if (webImages && webImages.length > 0) {
+      console.log('🎉 Forcing carousel update with new web photos:', webImages.length);
+      setPhotoUpdateKey(prev => prev + 1);
+    }
+  }, [verificationReport]);
   
   const safePhotos = getAllPhotos();
   
@@ -1355,22 +1387,15 @@ const HeroPhotoCarousel = ({
   const [translateX, setTranslateX] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   
-  // Reset to first photo when photos change (like when web intelligence arrives)
+  // Reset to first photo when photos change
   useEffect(() => {
-    if (safePhotos.length > 0 && currentIndex >= safePhotos.length) {
-      setCurrentIndex(0);
+    if (safePhotos.length > 0) {
+      console.log(`📷 Carousel now has ${safePhotos.length} photos to display`);
+      if (currentIndex >= safePhotos.length) {
+        setCurrentIndex(0);
+      }
     }
-  }, [safePhotos.length, currentIndex]);
-  
-  // Force re-render when verification report changes with new photos - check both paths
-  useEffect(() => {
-    const webImages = verificationReport?.webIntelligence?.images || 
-                     verificationReport?.verificationResults?.webIntelligence?.images;
-    if (webImages && webImages.length > 0) {
-      console.log('New photos detected from web intelligence, updating carousel...', webImages.length, 'photos');
-      setCurrentIndex(0);
-    }
-  }, [verificationReport?.webIntelligence?.images, verificationReport?.verificationResults?.webIntelligence?.images]);
+  }, [safePhotos.length, photoUpdateKey]);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -1537,17 +1562,28 @@ const HeroPhotoCarousel = ({
                 transition: isTransitioning || !isDragging ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
               }}
             >
-              {safePhotos.map((photo, index) => (
-                <div key={index} className="relative w-full h-full flex-shrink-0">
-                  <img
-                    src={photo.url}
-                    alt={`${communityName} - View ${index + 1}`}
-                    className="w-full h-full object-cover select-none"
-                    draggable={false}
-                    onError={(e) => {
-                      console.log('Image failed to load:', photo.url);
-                      // Replace with working fallback image
-                      const target = e.target as HTMLImageElement;
+              {safePhotos.map((photo, index) => {
+                // Ensure proper URL handling for scraped photos
+                const photoUrl = photo.url.startsWith('http') ? photo.url : 
+                               photo.url.startsWith('//') ? `https:${photo.url}` :
+                               photo.url.startsWith('/') ? `https://example.com${photo.url}` : 
+                               photo.url;
+                
+                return (
+                  <div key={`photo-${index}-${photoUpdateKey}`} className="relative w-full h-full flex-shrink-0">
+                    <img
+                      src={photoUrl}
+                      alt={`${communityName} - ${photo.source === 'web' ? 'Web Scraped' : 'Community'} Photo ${index + 1}`}
+                      className="w-full h-full object-cover select-none"
+                      draggable={false}
+                      loading={index === 0 ? "eager" : "lazy"}
+                      onLoad={() => {
+                        console.log(`✅ Successfully loaded photo ${index + 1}:`, photoUrl);
+                      }}
+                      onError={(e) => {
+                        console.log(`❌ Failed to load photo ${index + 1}:`, photoUrl);
+                        // Replace with working fallback image
+                        const target = e.target as HTMLImageElement;
                       target.src = '/hero-senior-community.svg';
                     }}
                   />
