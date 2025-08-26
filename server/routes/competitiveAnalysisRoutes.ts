@@ -188,16 +188,25 @@ router.post('/api/competitive-analysis', async (req, res) => {
       const details = content.substring(startIndex, endIndex);
       const community: any = { name };
       
-      // Extract website from markdown link format [text](url) or plain URL
+      // Extract website from markdown link format, table cell, or plain URL
       const websiteLinkMatch = details.match(/\*\*Website:\*\*\s*\[[^\]]+\]\(([^)]+)\)/i) ||
                              details.match(/Website:\s*\[[^\]]+\]\(([^)]+)\)/i);
       const websitePlainMatch = details.match(/\*\*Website:\*\*\s*(https?:\/\/[^\s\n\[]+)/i) ||
                               details.match(/Website:\s*(https?:\/\/[^\s\n\[]+)/i);
       
+      // Also look for domains in table cells (e.g., "| community name | domain.com |")
+      const tableDomainMatch = details.match(/\|\s*[^|]+\|\s*([a-zA-Z0-9][\w-]*(?:\.[a-zA-Z]{2,})+(?:\/[^\s|]*)?)\s*\|/);
+      // Or website URLs anywhere in the text
+      const anyDomainMatch = details.match(/([a-zA-Z0-9][\w-]*(?:\.[a-zA-Z]{2,})+\.(?:com|org|net|gov|edu|care|health|living)(?:\/[^\s|]*)?)/i);
+      
       if (websiteLinkMatch) {
         community.website = websiteLinkMatch[1].trim();
       } else if (websitePlainMatch) {
         community.website = websitePlainMatch[1].trim();
+      } else if (tableDomainMatch) {
+        community.website = tableDomainMatch[1].trim();
+      } else if (anyDomainMatch) {
+        community.website = anyDomainMatch[1].trim();
       }
       
       // Extract address  
@@ -233,6 +242,49 @@ router.post('/api/competitive-analysis', async (req, res) => {
       }
       
       extractedCommunities.push(community);
+    }
+    
+    // Also extract communities from markdown tables
+    const tableRowPattern = /\|\s*\*\*([^*]+)\*\*\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/g;
+    while ((match = tableRowPattern.exec(content)) !== null) {
+      const name = match[1].trim();
+      const websiteField = match[2].trim();
+      const addressField = match[3].trim();
+      const phoneField = match[4].trim();
+      
+      // Check if it's a valid community name (not a header)
+      if (name && name.length > 3 && name.length < 100 &&
+          !name.toLowerCase().includes('community name') &&
+          !name.toLowerCase().includes('facility')) {
+        
+        // Check if we already have this community
+        const exists = extractedCommunities.some(c => 
+          c.name.toLowerCase() === name.toLowerCase()
+        );
+        
+        if (!exists) {
+          const community: any = { name };
+          
+          // Extract website from the field (might contain domain.com or multiple domains)
+          const domainMatch = websiteField.match(/([a-zA-Z0-9][\w-]*(?:\.[a-zA-Z]{2,})+(?:\.com|\.org|\.net|\.gov|\.edu|\.care|\.health|\.living)?)/i);
+          if (domainMatch) {
+            community.website = domainMatch[1].trim();
+          }
+          
+          // Extract address
+          if (addressField && addressField.length > 5 && !addressField.includes('Address')) {
+            community.address = addressField;
+          }
+          
+          // Extract phone
+          const phoneMatch = phoneField.match(/([\d\s\-()]+)/);
+          if (phoneMatch && phoneMatch[1].match(/\d{3}/)) {
+            community.phone = phoneMatch[1].trim();
+          }
+          
+          extractedCommunities.push(community);
+        }
+      }
     }
     
     // Also look for additional communities mentioned (without numbering)
