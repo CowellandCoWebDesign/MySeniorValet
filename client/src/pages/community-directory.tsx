@@ -687,8 +687,8 @@ export default function CommunityDirectory() {
               <CardContent className="p-4 text-center">
                 <div className="text-2xl mb-2">🇯🇵</div>
                 <div className="font-bold text-white">Japan</div>
-                <div className="text-sm text-blue-100">145 communities</div>
-                <div className="text-xs text-blue-200 mt-1">69 cities nationwide</div>
+                <div className="text-sm text-blue-100">171 communities</div>
+                <div className="text-xs text-blue-200 mt-1">87 cities nationwide</div>
               </CardContent>
             </Card>
             
