@@ -300,7 +300,15 @@ class IntelligentPricingService {
         
         if (analysis) {
           try {
-            const parsed = JSON.parse(analysis);
+            // Clean markdown formatting if present
+            let cleanedAnalysis = analysis;
+            if (analysis.includes('```json')) {
+              cleanedAnalysis = analysis.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            } else if (analysis.includes('```')) {
+              cleanedAnalysis = analysis.replace(/```\n?/g, '').trim();
+            }
+            
+            const parsed = JSON.parse(cleanedAnalysis);
             prediction = {
               min: parsed.minPrice || 0,
               max: parsed.maxPrice || 0,
