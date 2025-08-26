@@ -23,21 +23,21 @@ router.post('/api/competitive-analysis', async (req, res) => {
     
     switch(type) {
       case 'city':
-        // Simple, fast query - just list communities with websites and pricing
-        searchQuery = `senior living communities ${location}`;
-        contextQuery = `List senior living communities in ${location} with their website URL, address, phone, and monthly pricing if available. Return raw search results immediately without analysis.`;
+        // Search for ALL senior living types, not just assisted living
+        searchQuery = `all senior living communities ${location} including independent living assisted living memory care skilled nursing CCRC`;
+        contextQuery = `List ALL types of senior living communities in ${location} including: independent living, assisted living, memory care, skilled nursing, and CCRCs. Include their website URL, address, phone, and monthly pricing. Return comprehensive results for all care levels, not just assisted living.`;
         break;
       case 'state':
-        searchQuery = `senior living facilities ${location} state`;
-        contextQuery = `List senior living facilities in ${location} with websites and basic pricing. Raw results only.`;
+        searchQuery = `all senior living facilities ${location} state independent assisted memory care nursing`;
+        contextQuery = `List ALL types of senior living facilities in ${location} including independent living, assisted living, memory care, and skilled nursing. Include websites and pricing for all care levels.`;
         break;
       case 'region':
-        searchQuery = `senior care facilities ${location} region`;
-        contextQuery = `List senior care facilities in the ${location} region with websites and pricing. Raw results.`;
+        searchQuery = `all senior care facilities ${location} region independent assisted memory skilled`;
+        contextQuery = `List ALL types of senior care facilities in the ${location} region including independent living, assisted living, memory care, skilled nursing. Include websites and pricing for all care levels.`;
         break;
       case 'country':
-        searchQuery = `senior living costs ${location}`;
-        contextQuery = `National senior living data for ${location}. List communities with websites and pricing.`;
+        searchQuery = `all senior living costs ${location} independent assisted memory care skilled nursing`;
+        contextQuery = `National senior living data for ${location}. List ALL types of communities including independent living, assisted living, memory care, skilled nursing, and CCRCs with websites and pricing.`;
         break;
     }
 
@@ -108,7 +108,7 @@ router.post('/api/competitive-analysis', async (req, res) => {
     };
 
     // Determine comparison to national average (simplified calculation)
-    const nationalAverage = 4500; // Approximate US national average for assisted living
+    const nationalAverage = 4500; // Approximate US national average for all senior living types combined
     const comparedToNational = Math.round(((averagePrice - nationalAverage) / nationalAverage) * 100);
     
     // Determine trend based on content analysis
