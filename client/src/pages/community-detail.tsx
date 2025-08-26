@@ -705,15 +705,39 @@ const RealTimeInsights = ({ community, onVerificationReport, onPhotosUpdate }: {
         )}
         
         <div className="space-y-6 mt-6">
-          {/* Current Availability & Pricing */}
-          {(realTimeData?.currentAvailability || realTimeData?.currentPricing || realTimeData?.waitlistStatus) && (
+          {/* Current Availability & Pricing - Enhanced with Web Intelligence Data */}
+          {(realTimeData?.currentAvailability || realTimeData?.currentPricing || realTimeData?.waitlistStatus || webIntelligenceData?.pricing) && (
             <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-4 rounded-lg">
               <h4 className="font-semibold text-lg mb-3 flex items-center">
                 <Activity className="w-5 h-5 mr-2 text-green-600" />
                 Current Availability & Pricing
               </h4>
               <div className="space-y-2">
-                {realTimeData?.currentPricing && (
+                {/* Show Web Intelligence Pricing First (Most Recent) */}
+                {webIntelligenceData?.pricing && (
+                  <div className="flex items-start">
+                    <DollarSign className="w-4 h-4 mt-1 mr-2 text-purple-600" />
+                    <div>
+                      <p className="font-medium text-purple-800 dark:text-purple-200">💰 Live Pricing Range:</p>
+                      {webIntelligenceData.pricing.min && webIntelligenceData.pricing.max && (
+                        <p className="text-xl font-bold text-purple-900 dark:text-purple-100">
+                          ${webIntelligenceData.pricing.min.toLocaleString()} - ${webIntelligenceData.pricing.max.toLocaleString()}
+                          <span className="text-sm font-normal ml-1">per month</span>
+                        </p>
+                      )}
+                      {webIntelligenceData.pricing.raw && webIntelligenceData.pricing.raw.length > 0 && (
+                        <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                          <p className="font-medium">Found mentions:</p>
+                          {webIntelligenceData.pricing.raw.slice(0, 2).map((price: string, idx: number) => (
+                            <p key={idx} className="ml-2">• {price}</p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {/* Show other pricing if no web intelligence pricing */}
+                {!webIntelligenceData?.pricing && realTimeData?.currentPricing && (
                   <div className="flex items-start">
                     <DollarSign className="w-4 h-4 mt-1 mr-2 text-green-600" />
                     <div>

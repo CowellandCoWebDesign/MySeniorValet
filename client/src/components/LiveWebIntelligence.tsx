@@ -447,16 +447,39 @@ export function LiveWebIntelligence({
 
               <TabsContent value="pricing" className="space-y-4 mt-4">
                 {extractedData.pricing ? (
-                  <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20">
-                    <DollarSign className="w-4 h-4 text-blue-600" />
-                    <AlertDescription>
-                      <strong>Pricing Information:</strong>
-                      <p className="mt-1 text-sm">{extractedData.pricing}</p>
-                      <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
-                        Prices may vary based on care level and room type. Contact community for current rates.
-                      </p>
-                    </AlertDescription>
-                  </Alert>
+                  <div className="space-y-4">
+                    {/* Main pricing display */}
+                    {extractedData.pricing.min && extractedData.pricing.max && (
+                      <Alert className="border-purple-200 bg-purple-50 dark:bg-purple-900/20">
+                        <DollarSign className="w-5 h-5 text-purple-600" />
+                        <AlertDescription>
+                          <strong className="text-lg">💰 Live Pricing Range</strong>
+                          <p className="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-2">
+                            ${extractedData.pricing.min.toLocaleString()} - ${extractedData.pricing.max.toLocaleString()}
+                            <span className="text-sm font-normal ml-1 text-gray-600">per month</span>
+                          </p>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    
+                    {/* Raw pricing mentions */}
+                    {extractedData.pricing.raw && extractedData.pricing.raw.length > 0 && (
+                      <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+                        <Info className="w-4 h-4 text-blue-600" />
+                        <AlertDescription>
+                          <strong>Found pricing mentions from sources:</strong>
+                          <ul className="mt-2 space-y-1">
+                            {extractedData.pricing.raw.slice(0, 5).map((price: string, idx: number) => (
+                              <li key={idx} className="text-sm ml-4">• {price}</li>
+                            ))}
+                          </ul>
+                          <p className="mt-3 text-xs text-gray-600 dark:text-gray-400">
+                            Prices may vary based on care level, room type, and current availability. Contact community for exact rates.
+                          </p>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
                 ) : (
                   <Alert className="border-gray-200">
                     <Info className="w-4 h-4 text-gray-600" />
@@ -668,6 +691,45 @@ function extractStructuredData(content: string) {
   const addresses = content.match(addressPattern);
   if (addresses) {
     data.addresses = [...new Set(addresses)];
+  }
+
+  // Extract pricing information with comprehensive patterns
+  const pricingData: any = {};
+  const pricingPatterns = [
+    /\$[\d,]+(?:\s*-\s*\$?[\d,]+)?(?:\s*(?:per|\/)\s*month)?/gi,
+    /(?:starting\s+at|from|as\s+low\s+as|priced\s+at|costs?\s+)?(?:about\s+)?\$[\d,]+(?:\s*(?:to|-)\s*\$?[\d,]+)?(?:\s*(?:per|\/)\s*(?:month|mo))?/gi,
+    /(?:monthly\s+)?(?:rent|fee|cost|price|rate)s?\s*(?:range|from|start|is)?\s*:?\s*\$[\d,]+(?:\s*(?:to|-)\s*\$?[\d,]+)?/gi,
+    /\$[\d,]+(?:\.\d{2})?\s*(?:to|-)\s*\$?[\d,]+(?:\.\d{2})?/gi
+  ];
+  
+  const foundPrices: string[] = [];
+  pricingPatterns.forEach(pattern => {
+    const matches = content.match(pattern);
+    if (matches) {
+      matches.forEach(match => {
+        const cleanPrice = match.replace(/[^\d$,.-]/g, '').trim();
+        if (cleanPrice && !foundPrices.includes(cleanPrice)) {
+          foundPrices.push(match); // Keep full context
+        }
+      });
+    }
+  });
+  
+  if (foundPrices.length > 0) {
+    // Try to extract min/max pricing
+    const numbers = foundPrices.join(' ').match(/\$?([\d,]+)/g)?.map(n => 
+      parseInt(n.replace(/[$,]/g, ''))
+    ).filter(n => n > 100 && n < 50000); // Reasonable range for monthly costs
+    
+    if (numbers && numbers.length > 0) {
+      pricingData.min = Math.min(...numbers);
+      pricingData.max = Math.max(...numbers);
+      pricingData.raw = foundPrices;
+    }
+  }
+  
+  if (Object.keys(pricingData).length > 0) {
+    data.pricing = pricingData;
   }
 
   // Extract care types
