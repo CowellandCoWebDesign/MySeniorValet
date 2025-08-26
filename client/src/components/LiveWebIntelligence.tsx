@@ -45,6 +45,7 @@ interface LiveWebIntelligenceProps {
   communityName: string;
   city: string;
   state: string;
+  address?: string; // Exact address from database for verification
   databasePhone?: string; // Phone from database
   onDataUpdate?: (data: any) => void;
   onPhotosUpdate?: (photos: string[]) => void;
@@ -54,6 +55,7 @@ export function LiveWebIntelligence({
   communityName, 
   city, 
   state,
+  address,
   databasePhone,
   onDataUpdate,
   onPhotosUpdate 
@@ -61,11 +63,17 @@ export function LiveWebIntelligence({
   const [isExpanded, setIsExpanded] = useState(true); // Auto-expand intelligence report
   const [extractedData, setExtractedData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const [addressMismatch, setAddressMismatch] = useState(false);
 
-  // Fetch live data from Perplexity
+  // Fetch live data from Perplexity with exact address for verification
   const { data: webData, isLoading, error, refetch, dataUpdatedAt } = useQuery({
-    queryKey: ['/api/communities/web-intelligence', communityName, city, state],
+    queryKey: ['/api/communities/web-intelligence', communityName, city, state, address],
     queryFn: async () => {
+      // Include exact address in the query for more precise results
+      const searchQuery = address 
+        ? `"${communityName}" "${address}" ${city} ${state} senior living`
+        : `"${communityName}" ${city} ${state} senior living`;
+        
       const response = await fetch('/api/communities/web-intelligence', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -73,7 +81,8 @@ export function LiveWebIntelligence({
           communityName,
           city,
           state,
-          query: `"${communityName}" ${city} ${state} senior living`
+          address, // Pass address for verification
+          query: searchQuery
         })
       });
       
@@ -84,11 +93,41 @@ export function LiveWebIntelligence({
     retry: 1
   });
 
-  // Extract structured data from the response
+  // Extract structured data from the response and verify address matches
   useEffect(() => {
     if (webData?.content) {
       const extracted = extractStructuredData(webData.content);
       setExtractedData(extracted);
+      
+      // Verify if extracted addresses match our database address
+      if (address && extracted.addresses && extracted.addresses.length > 0) {
+        const normalizeAddress = (addr: string) => {
+          return addr.toLowerCase().replace(/[.,]/g, '').trim();
+        };
+        
+        const ourAddress = normalizeAddress(address);
+        const foundMatchingAddress = extracted.addresses.some((foundAddr: string) => {
+          const normalized = normalizeAddress(foundAddr);
+          // Check if the street number and street name match
+          const ourStreetNum = ourAddress.match(/^\d+/)?.[0];
+          const foundStreetNum = normalized.match(/^\d+/)?.[0];
+          
+          if (ourStreetNum && foundStreetNum && ourStreetNum !== foundStreetNum) {
+            return false; // Different street numbers mean different communities
+          }
+          
+          // Check if key parts of the address match
+          return normalized.includes(ourStreetNum || '') && 
+                 ourAddress.split(' ').some(part => part.length > 3 && normalized.includes(part));
+        });
+        
+        setAddressMismatch(!foundMatchingAddress);
+        
+        // If address doesn't match, mark as low confidence
+        if (!foundMatchingAddress) {
+          console.warn(`Address mismatch detected! Database: "${address}" | Found: "${extracted.addresses.join(', ')}"`);
+        }
+      }
       
       // Notify parent component of new data (optional callback)
       if (onDataUpdate) {
@@ -96,13 +135,14 @@ export function LiveWebIntelligence({
           ...extracted,
           citations: webData.citations,
           images: webData.images || [],
-          verified: webData.verified,
-          identityVerified: webData.identityVerified,
+          verified: webData.verified && !addressMismatch,
+          identityVerified: webData.identityVerified && !addressMismatch,
+          addressMismatch,
           lastUpdated: new Date().toISOString()
         });
       }
     }
-  }, [webData, onDataUpdate]);
+  }, [webData, onDataUpdate, address, addressMismatch]);
 
   // Photos now stay in LiveWebIntelligence section only - no hero carousel integration
 
@@ -128,16 +168,23 @@ export function LiveWebIntelligence({
 
   const freshness = getFreshnessInfo();
 
-  // Calculate trust score based on citations
+  // Calculate trust score based on citations and address match
   const getTrustScore = () => {
     if (!webData?.citations) return 0;
     const citationCount = webData.citations.length;
     
-    if (citationCount >= 5) return 95;
-    if (citationCount >= 3) return 85;
-    if (citationCount >= 2) return 75;
-    if (citationCount >= 1) return 65;
-    return 50;
+    let baseScore = 50;
+    if (citationCount >= 5) baseScore = 95;
+    else if (citationCount >= 3) baseScore = 85;
+    else if (citationCount >= 2) baseScore = 75;
+    else if (citationCount >= 1) baseScore = 65;
+    
+    // Reduce trust score significantly if address doesn't match
+    if (addressMismatch) {
+      return Math.max(20, baseScore - 50); // Cap at 45% max when mismatch detected
+    }
+    
+    return baseScore;
   };
 
   const trustScore = getTrustScore();
@@ -200,6 +247,27 @@ export function LiveWebIntelligence({
         </CardHeader>
 
         <CardContent className="pt-6 space-y-6">
+          {/* Address Mismatch Warning */}
+          {addressMismatch && extractedData?.addresses && (
+            <Alert className="border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20">
+              <AlertCircle className="w-4 h-4 text-yellow-600" />
+              <AlertDescription>
+                <strong className="text-yellow-800 dark:text-yellow-200">⚠️ Address Verification Warning</strong>
+                <p className="mt-2 text-sm">
+                  The information below may be for a different community. 
+                </p>
+                <p className="text-xs mt-1">
+                  <strong>Our Database:</strong> {address}
+                  <br />
+                  <strong>Information Found For:</strong> {extractedData.addresses[0]}
+                </p>
+                <p className="text-xs mt-2 text-yellow-700 dark:text-yellow-300">
+                  Please verify details directly with the community or use the contact information from our database.
+                </p>
+              </AlertDescription>
+            </Alert>
+          )}
+          
           {/* Trust & Freshness Indicators */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">

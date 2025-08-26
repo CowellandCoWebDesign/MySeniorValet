@@ -683,6 +683,7 @@ const RealTimeInsights = ({ community, onVerificationReport, onPhotosUpdate }: {
             communityName={community.name}
             city={community.city}
             state={community.state}
+            address={community.address}
             databasePhone={community.phone}
             onDataUpdate={(data) => {
               // Store web intelligence data for carousel access
