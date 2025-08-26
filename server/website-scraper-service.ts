@@ -102,24 +102,22 @@ export class WebsiteScraperService {
       for (let imgUrl of imageUrls) {
         const imgLower = imgUrl.toLowerCase();
         
-        // Skip obvious logos and icons
-        if (imgLower.includes('logo') || imgLower.includes('favicon') || 
-            imgLower.includes('.svg') || imgLower.includes('sprite')) {
+        // Skip marketing materials, logos, banners, and ads
+        if (imgLower.includes('logo') || imgLower.includes('icon') || 
+            imgLower.includes('favicon') || imgLower.includes('sprite') ||
+            imgLower.includes('.svg') || imgLower.includes('banner') ||
+            imgLower.includes('slider') || imgLower.includes('campaign') ||
+            imgLower.includes('ad_') || imgLower.includes('_ad') ||
+            imgLower.includes('promo') || imgLower.includes('podcast') ||
+            imgLower.includes('newsletter') || imgLower.includes('header') ||
+            imgLower.includes('footer') || imgLower.includes('background')) {
           continue;
         }
         
-        // Skip social media icons specifically (very targeted)
-        if ((imgLower.includes('twitter') || imgLower.includes('facebook') || 
-             imgLower.includes('instagram') || imgLower.includes('youtube') ||
-             imgLower.includes('linkedin') || imgLower.includes('pinterest')) &&
-            (imgLower.includes('20-20') || imgLower.includes('20x20') || 
-             imgLower.includes('icon') || imgLower.includes('-x-'))) {
-          continue;
-        }
-        
-        // Skip only very small icon sizes
-        if (imgLower.includes('20-20') || imgLower.includes('20x20') ||
-            imgLower.includes('50x50') || imgLower.includes('1x1')) {
+        // Skip images with marketing dimensions (likely ads)
+        if (imgLower.includes('1200_x_1000') || imgLower.includes('1200x1000') ||
+            imgLower.includes('width=250') || imgLower.includes('width=540') ||
+            imgLower.includes('height=73') || imgLower.includes('height=450')) {
           continue;
         }
         
@@ -134,67 +132,31 @@ export class WebsiteScraperService {
           if (!data.floorPlans.includes(imgUrl)) {
             data.floorPlans.push(imgUrl);
           }
-        } else {
-          // Score images based on quality indicators
-          let score = 0;
-          
-          // High priority: Images in gallery/photo sections
-          if (imgLower.includes('/photos/') || imgLower.includes('/gallery/') || 
-              imgLower.includes('/uploads/')) {
-            score += 10;
-          }
-          
-          // Medium priority: Facility-specific keywords
-          const facilityKeywords = ['dining', 'bedroom', 'apartment', 'lounge', 
-                                   'kitchen', 'bathroom', 'activity', 'amenity',
-                                   'resident', 'living', 'room', 'suite', 
-                                   'exterior', 'interior', 'courtyard', 'patio'];
-          facilityKeywords.forEach(keyword => {
-            if (imgLower.includes(keyword)) score += 5;
-          });
-          
-          // Low priority: Generic community keywords
-          if (imgLower.includes('community') && !imgLower.includes('_wht')) {
-            score += 2;
-          }
-          if (imgLower.includes('facility')) {
-            score += 2;
-          }
-          
-          // Must be an image file with some score
-          if (score > 0 && imgUrl.match(/\.(jpg|jpeg|png|webp)(\?|$)/i)) {
-            // Check for duplicates properly
-            const isDuplicate = data.photos.some((p: any) => {
-              if (typeof p === 'string') return p === imgUrl;
-              if (typeof p === 'object' && p.url) return p.url === imgUrl;
-              return false;
-            });
-            
-            if (!isDuplicate) {
-              // Store with score for sorting later
-              (data.photos as any).push({ url: imgUrl, score });
+        } else if (
+          // Look for images in gallery/photo sections
+          (imgLower.includes('/photos/') || imgLower.includes('/gallery/') || 
+           imgLower.includes('/images/')) ||
+          // Or images with facility-related keywords
+          (imgLower.includes('community') && !imgLower.includes('_wht')) ||
+          imgLower.includes('resident') || imgLower.includes('dining') ||
+          imgLower.includes('living') || imgLower.includes('bedroom') ||
+          imgLower.includes('apartment') || imgLower.includes('facility') ||
+          imgLower.includes('amenity') || imgLower.includes('activity') ||
+          imgLower.includes('lounge') || imgLower.includes('kitchen') ||
+          imgLower.includes('bathroom') || imgLower.includes('exterior') ||
+          imgLower.includes('interior') || imgLower.includes('room')
+        ) {
+          // Additional check: must be an image file
+          if (imgUrl.match(/\.(jpg|jpeg|png|webp)(\?|$)/i)) {
+            if (!data.photos.includes(imgUrl)) {
+              data.photos.push(imgUrl);
             }
           }
         }
       }
       
-      // Sort photos by score and extract URLs
-      const photoObjects: any[] = [];
-      
-      // Convert all photos to objects with scores
-      for (const photo of data.photos as any[]) {
-        if (typeof photo === 'string') {
-          photoObjects.push({ url: photo, score: 1 });
-        } else if (photo && typeof photo === 'object' && 'url' in photo) {
-          photoObjects.push(photo);
-        }
-      }
-      
-      // Sort by score and extract URLs
-      data.photos = photoObjects
-        .sort((a, b) => b.score - a.score)
-        .map(item => item.url)
-        .slice(0, 20);
+      // Limit photos to reasonable amount
+      data.photos = data.photos.slice(0, 20);
       data.floorPlans = data.floorPlans.slice(0, 10);
       
       // Look for virtual tour links

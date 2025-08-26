@@ -9,17 +9,13 @@ const router = express.Router();
 const perplexityService = new PerplexityAIService();
 
 // Competitive Analysis endpoint
-router.get('/api/competitive-analysis', async (req, res) => {
+router.post('/api/competitive-analysis', async (req, res) => {
   try {
-    const { address } = req.query;
+    const { location, type } = req.body;
     
-    if (!address) {
-      return res.status(400).json({ error: 'Address is required' });
+    if (!location || !type) {
+      return res.status(400).json({ error: 'Location and type are required' });
     }
-    
-    // Parse location and type from address
-    const location = String(address);
-    const type = 'city'; // Default to city-level search
 
     // SIMPLIFIED FAST QUERY - Just get raw search results quickly
     let searchQuery = '';
@@ -165,52 +161,15 @@ router.get('/api/competitive-analysis', async (req, res) => {
       pricing?: string;
     }> = [];
     
-    // Special extraction for single community responses (like Conservatory At Plano)
-    // When searching for a specific community, Perplexity returns detailed info about just that community
-    const conservatoryMatch = content.match(/\*\*(Conservatory[^*]+)\*\*/i);
-    if (conservatoryMatch) {
-      const community: any = { 
-        name: conservatoryMatch[1].trim() 
-      };
-      
-      // Extract website from markdown link format
-      const websiteMatch = content.match(/(?:Official Community Website|Official site|Website|URL):[^\n]*\[([^\]]+)\]\((https?:\/\/[^)]+)\)/i) ||
-                         content.match(/\[?(https?:\/\/conservatory[^\s\[\]()]+)/i);
-      if (websiteMatch) {
-        community.website = websiteMatch[2] || websiteMatch[1];
-      }
-      
-      // Extract address
-      const addressMatch = content.match(/Address:\s*([^\n]+)/i);
-      if (addressMatch) {
-        community.address = addressMatch[1].trim();
-      }
-      
-      // Extract phone
-      const phoneMatch = content.match(/Phone:\s*([\d\-()]+)/i);
-      if (phoneMatch) {
-        community.phone = phoneMatch[1].trim();
-      }
-      
-      // Extract pricing
-      const pricingMatch = content.match(/Starting at:\s*(\$[\d,]+\/month)/i);
-      if (pricingMatch) {
-        community.pricing = pricingMatch[1].trim();
-      }
-      
-      extractedCommunities.push(community);
-    }
-    
-    // Parse numbered format: **1. Community Name** followed by details
+    // Parse Perplexity's structured format: **1. Community Name** followed by details
     const communityPattern = /\*\*\d+\.\s+([^*]+)\*\*/g;
     let match;
     
     while ((match = communityPattern.exec(content)) !== null) {
       const name = match[1].trim();
       
-      // Skip invalid entries or if we already have this community
-      if (!name || name.length < 3 || name.length > 100 || 
-          extractedCommunities.some(c => c.name === name)) {
+      // Skip invalid entries
+      if (!name || name.length < 3 || name.length > 100) {
         continue;
       }
       
@@ -229,32 +188,25 @@ router.get('/api/competitive-analysis', async (req, res) => {
       const details = content.substring(startIndex, endIndex);
       const community: any = { name };
       
-      // Extract website from various formats (markdown links, tables, plain URLs)
-      // Look for markdown links [text](url) format
-      const websiteLinkMatch = details.match(/\[([^\]]*)\]\((https?:\/\/[^)]+)\)/i);
+      // Extract website from markdown link format, table cell, or plain URL
+      const websiteLinkMatch = details.match(/\*\*Website:\*\*\s*\[[^\]]+\]\(([^)]+)\)/i) ||
+                             details.match(/Website:\s*\[[^\]]+\]\(([^)]+)\)/i);
+      const websitePlainMatch = details.match(/\*\*Website:\*\*\s*(https?:\/\/[^\s\n\[]+)/i) ||
+                              details.match(/Website:\s*(https?:\/\/[^\s\n\[]+)/i);
       
-      // Look for plain URLs
-      const websitePlainMatch = details.match(/(https?:\/\/[^\s\n\[\]()]+)/i);
-      
-      // Look for domain names without protocol
-      const domainMatch = details.match(/([a-zA-Z0-9][\w-]*\.(?:com|org|net|gov|edu|care|health|living)(?:\/[^\s\[\]()]*)?)/i);
-      
-      // Look specifically for "Official Website:" patterns
-      const officialSiteMatch = details.match(/Official\s+(?:Community\s+)?Website:\s*\[?([^\]\n]+)\]?\s*(?:\(([^)]+)\))?/i);
+      // Also look for domains in table cells (e.g., "| community name | domain.com |")
+      const tableDomainMatch = details.match(/\|\s*[^|]+\|\s*([a-zA-Z0-9][\w-]*(?:\.[a-zA-Z]{2,})+(?:\/[^\s|]*)?)\s*\|/);
+      // Or website URLs anywhere in the text
+      const anyDomainMatch = details.match(/([a-zA-Z0-9][\w-]*(?:\.[a-zA-Z]{2,})+\.(?:com|org|net|gov|edu|care|health|living)(?:\/[^\s|]*)?)/i);
       
       if (websiteLinkMatch) {
-        community.website = websiteLinkMatch[2].trim(); // Get URL from markdown link
-      } else if (officialSiteMatch) {
-        // Check if it has a URL in parentheses (markdown format)
-        if (officialSiteMatch[2]) {
-          community.website = officialSiteMatch[2].trim();
-        } else if (officialSiteMatch[1] && officialSiteMatch[1].includes('http')) {
-          community.website = officialSiteMatch[1].trim();
-        }
+        community.website = websiteLinkMatch[1].trim();
       } else if (websitePlainMatch) {
         community.website = websitePlainMatch[1].trim();
-      } else if (domainMatch) {
-        community.website = domainMatch[1].trim();
+      } else if (tableDomainMatch) {
+        community.website = tableDomainMatch[1].trim();
+      } else if (anyDomainMatch) {
+        community.website = anyDomainMatch[1].trim();
       }
       
       // Extract address  
@@ -359,242 +311,6 @@ router.get('/api/competitive-analysis', async (req, res) => {
       }
     }
     
-    // Extract websites from footnote-style references at the end of content
-    // Format: [1]: https://example.com OR [1]: www.example.com
-    const footnotePattern = /\[(\d+)\]:\s*((?:https?:\/\/)?(?:www\.)?[^\s\n]+)/gm;
-    const footnoteMap = new Map<string, string>();
-    while ((match = footnotePattern.exec(content)) !== null) {
-      const footnoteNum = match[1];
-      let url = match[2];
-      // Add protocol if missing
-      if (!url.startsWith('http')) {
-        url = 'https://' + url;
-      }
-      footnoteMap.set(footnoteNum, url);
-      console.log(`📝 Found footnote [${footnoteNum}]: ${url}`);
-    }
-    console.log(`📊 Total footnotes found: ${footnoteMap.size}`);
-    
-    // Also look for website text references like [website.com/...][5]
-    const websiteTextPattern = /\[([^\]]*(?:\.com|\.org|\.net)[^\]]*)\]\[(\d+)\]/gi;
-    const websiteTextMatches = Array.from(content.matchAll(websiteTextPattern));
-    console.log(`🌐 Website text references found: ${websiteTextMatches.length}`);
-    for (const wsMatch of websiteTextMatches) {
-      const websiteText = wsMatch[1];
-      const footnoteRef = wsMatch[2];
-      console.log(`  - [${websiteText}][${footnoteRef}]`);
-      
-      // Construct the full URL for any senior living website
-      const fullUrl = websiteText.startsWith('http') ? websiteText : `https://${websiteText}`;
-      
-      // Extract community name from the surrounding text or URL
-      let communityName = '';
-      
-      // Try to extract from URL patterns
-      if (fullUrl.includes('brookdale.com')) {
-        const urlMatch = fullUrl.match(/\/communities\/([^/.]+)/);
-        if (urlMatch) {
-          communityName = `Brookdale ${urlMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}`;
-        }
-      } else if (fullUrl.includes('seniorhomes.com') || fullUrl.includes('aplaceformom.com')) {
-        // Directory listings - extract name from text before the reference
-        const nameMatch = content.substring(Math.max(0, content.indexOf(wsMatch[0]) - 100), content.indexOf(wsMatch[0]))
-                                .match(/([A-Z][a-zA-Z\s]+(?:Senior Living|Care|Village|Manor|Residence|Community))/);
-        if (nameMatch) {
-          communityName = nameMatch[1].trim();
-        }
-      } else {
-        // Generic extraction - look for community name near the URL reference
-        const contextStart = Math.max(0, content.indexOf(wsMatch[0]) - 200);
-        const contextEnd = Math.min(content.length, content.indexOf(wsMatch[0]) + 50);
-        const context = content.substring(contextStart, contextEnd);
-        const nameMatch = context.match(/(?:Community Name:|^\*\*|^###?\s+)([^*\n]+)/);
-        if (nameMatch) {
-          communityName = nameMatch[1].trim();
-        }
-      }
-      
-      // Only add if we have a valid website and it's not already in the list
-      if (fullUrl && !extractedCommunities.some(c => c.website === fullUrl)) {
-        // Use Chateau de Boise as default name if extraction fails
-        const finalName = communityName || 'Chateau de Boise';
-        extractedCommunities.push({
-          name: finalName,
-          website: fullUrl
-        });
-        console.log(`  ✅ Extracted community: ${finalName} -> ${fullUrl}`);
-      }
-    }
-    
-    // Look for Official Website sections with various formats
-    // Format 1: [text](url)[footnote]
-    const markdownWithFootnotePattern = /\*\*Official.*Website.*?\*\*.*?\[([^\]]+)\]\((https?:\/\/[^)]+)\)\[(\d+)\]/gi;
-    const markdownWithFootnoteMatches = Array.from(content.matchAll(markdownWithFootnotePattern));
-    
-    for (const wsMatch of markdownWithFootnoteMatches) {
-      const website = wsMatch[2]; // Direct URL from markdown
-      if (website && website.includes('brookdale.com')) {
-        // Extract community name from URL
-        const urlMatch = website.match(/\/communities\/([^/.]+)/);
-        if (urlMatch) {
-          const name = urlMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-          extractedCommunities.push({
-            name: `Brookdale ${name}`,
-            website: website
-          });
-        }
-      }
-    }
-    
-    // Format 2: [text][footnote] with footnote URL at bottom
-    const officialWebsitePattern = /\*\*Official.*Website.*?\*\*.*?\[([^\]]+)\]\[(\d+)\]/gi;
-    const officialWebsiteMatches = Array.from(content.matchAll(officialWebsitePattern));
-    
-    // Try to extract communities from context around websites
-    for (const wsMatch of officialWebsiteMatches) {
-      const footnoteNum = wsMatch[2];
-      const website = footnoteMap.get(footnoteNum);
-      
-      if (website && website.includes('brookdale.com')) {
-        // Extract community name from URL
-        const urlMatch = website.match(/\/communities\/([^/.]+)/);
-        if (urlMatch) {
-          const name = urlMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-          if (!extractedCommunities.some(c => c.website === website)) {
-            extractedCommunities.push({
-              name: `Brookdale ${name}`,
-              website: website
-            });
-          }
-        }
-      }
-    }
-    
-    // Look for ANY markdown links with senior living websites
-    const anyMarkdownLinkPattern = /\[([^\]]+)\]\((https?:\/\/[^)]+)\)/gi;
-    const anyMarkdownLinks = Array.from(content.matchAll(anyMarkdownLinkPattern));
-    
-    for (const linkMatch of anyMarkdownLinks) {
-      const linkText = linkMatch[1];
-      const website = linkMatch[2];
-      
-      // Skip non-senior living websites
-      const seniorLivingSites = [
-        'brookdale.com', 'atriaseniorliving.com', 'holidayretirement.com',
-        'seniorhomes.com', 'aplaceformom.com', 'seniorlivingguide.com',
-        'assistedlivingmagazine.com', 'seniorly.com', 'whereyoulivematters.org',
-        'apartments.com', 'after55.com'
-      ];
-      
-      const isSeniorLivingSite = seniorLivingSites.some(site => website.includes(site));
-      if (!isSeniorLivingSite) continue;
-      
-      // Extract community name from URL or link text
-      let communityName = '';
-      if (website.includes('brookdale.com')) {
-        const urlMatch = website.match(/\/communities\/([^/.]+)/);
-        if (urlMatch) {
-          communityName = `Brookdale ${urlMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}`;
-        }
-      } else {
-        // Use the link text as the community name
-        communityName = linkText.replace(/\s*-\s*.*$/, '').trim(); // Remove everything after dash
-      }
-      
-      if (website && communityName && !extractedCommunities.some(c => c.website === website)) {
-        extractedCommunities.push({
-          name: communityName,
-          website: website
-        });
-        console.log(`  ✅ Extracted from markdown: ${communityName} -> ${website}`);
-      }
-    }
-    
-    // ALSO look for plain text URLs (not in markdown format) 
-    const plainUrlPattern = /https?:\/\/(?:www\.)?([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+)(?:\/[^\s\[\]()]*)?/gi;
-    const plainUrls = Array.from(content.matchAll(plainUrlPattern));
-    console.log(`🔗 Plain text URLs found: ${plainUrls.length}`);
-    
-    for (const urlMatch of plainUrls) {
-      const website = urlMatch[0];
-      
-      // Check if it's a senior living website
-      const seniorLivingSites = [
-        'brookdale.com', 'atriaseniorliving.com', 'holidayretirement.com',
-        'seniorhomes.com', 'aplaceformom.com', 'seniorlivingguide.com', 
-        'assistedlivingmagazine.com', 'seniorly.com', 'whereyoulivematters.org',
-        'apartments.com', 'after55.com', 'mylivingchoice.com'
-      ];
-      
-      const isSeniorLivingSite = seniorLivingSites.some(site => website.includes(site));
-      if (!isSeniorLivingSite) continue;
-      
-      // Extract community name from context around URL
-      const urlIndex = content.indexOf(website);
-      const contextStart = Math.max(0, urlIndex - 200);
-      const contextEnd = Math.min(content.length, urlIndex);
-      const context = content.substring(contextStart, contextEnd);
-      
-      let communityName = '';
-      
-      // Look for community name in various patterns
-      const namePatterns = [
-        /\*\*([^*]+)\*\*[^*]*$/,  // **Community Name** followed by URL
-        /^([^\n:]+):\s*$/m,        // "Community Name: URL"
-        /([A-Z][a-zA-Z\s]+(?:Senior Living|Care|Village|Manor|Community|Residence))/
-      ];
-      
-      for (const pattern of namePatterns) {
-        const match = context.match(pattern);
-        if (match) {
-          communityName = match[1].trim();
-          break;
-        }
-      }
-      
-      // Default name extraction from URL
-      if (!communityName && website.includes('/community/')) {
-        const communityMatch = website.match(/\/community\/([^/]+)/);
-        if (communityMatch) {
-          communityName = communityMatch[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-        }
-      }
-      
-      if (website && !extractedCommunities.some(c => c.website === website)) {
-        extractedCommunities.push({
-          name: communityName || 'Chateau de Boise',
-          website: website
-        });
-        console.log(`  ✅ Extracted plain URL: ${communityName || 'Unknown'} -> ${website}`);
-      }
-    }
-    
-    // If still no communities, look for any Brookdale mentions with websites
-    if (extractedCommunities.length === 0) {
-      // Look for Brookdale in the content
-      const brookdalePattern = /Brookdale\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/g;
-      const brookdaleNames = new Set<string>();
-      while ((match = brookdalePattern.exec(content)) !== null) {
-        const fullName = `Brookdale ${match[1]}`;
-        brookdaleNames.add(fullName);
-      }
-      
-      // Find brookdale.com websites in footnotes
-      for (const [_, url] of footnoteMap) {
-        if (url.includes('brookdale.com')) {
-          // Try to match to a name or use the first found name
-          const name = Array.from(brookdaleNames)[0] || 'Brookdale Collin Oaks';
-          if (!extractedCommunities.some(c => c.website === url)) {
-            extractedCommunities.push({
-              name: name,
-              website: url
-            });
-            brookdaleNames.delete(name); // Remove used name
-          }
-        }
-      }
-    }
-    
     // Also extract community names mentioned
     const communityNamePattern = /\b(?:The\s+)?[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home|Place|House|Terrace|Gardens?|Lodge|Park|Estates?|Court|Heights|Oaks|Pines|Springs|Hills|Valley|Creek|Ridge|Point|Plaza|Square|Tower|Arms|Haven|Crossing|Landing|Station|Walk|Way|Trail|Grove|Meadows?|Fields?|Woods?|Forest|Lake|River|Bay|Beach|Shore|Coast|Harbor|Port|Vista|View|Pointe)\b/g;
     const communityMentions = Array.from(new Set(content.match(communityNamePattern) || []));
@@ -685,8 +401,6 @@ router.get('/api/competitive-analysis', async (req, res) => {
       }
     }
     
-    console.log(`📊 Building response with ${enrichedCommunities.length} enriched communities`);
-    
     const analysisResult = {
       location,
       locationType: type,
@@ -704,9 +418,7 @@ router.get('/api/competitive-analysis', async (req, res) => {
       communityMentions, // All mentioned community names
       matchedCommunities, // Communities found in our database
       // Include enriched community data with scraped website content!
-      communities: enrichedCommunities, // Frontend expects 'communities' field
-      webScrapingData: enrichedCommunities, // Also provide as webScrapingData for compatibility
-      extractedCommunities: enrichedCommunities, // Keep for backwards compatibility
+      extractedCommunities: enrichedCommunities,
       websiteMatches: websiteMatches.filter(url => {
         // Filter out directory sites, keep only official community websites
         const directorySites = [
@@ -724,12 +436,9 @@ router.get('/api/competitive-analysis', async (req, res) => {
         } catch {
           return 'Industry Report';
         }
-      }) : ['Genworth Cost of Care', 'SeniorLiving.org', 'AARP Research'],
-      _version: "v4_streamlined_hero_" + Date.now(),
-      _timestamp: Date.now()
+      }) : ['Genworth Cost of Care', 'SeniorLiving.org', 'AARP Research']
     };
 
-    console.log('📨 Sending response with fields:', Object.keys(analysisResult));
     res.json(analysisResult);
   } catch (error) {
     console.error('Competitive analysis error:', error);
