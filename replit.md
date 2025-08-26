@@ -4,6 +4,14 @@
 MySeniorValet is a technology platform that connects families with publicly available, verified information about senior living communities across North America (United States, Canada, and Mexico). Its primary purpose is to bring transparency to the senior living market by providing authentic, verified data, including HUD pricing, to empower informed decision-making. The platform offers a complete care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the fully operational TourMate™ tour scheduling system, a One-Touch Emergency Contact Shortcut, and trilingual support (English, French, Spanish). MySeniorValet aims to be "The Dawn of Transparency in Senior Living."
 
 ## Recent Enhancement - August 26, 2025
+
+**AI Orchestration Crisis Resolution**:
+- **Fixed Critical Issue**: Community details pages were showing degraded "cannot verify" messages
+- **Claude API Restored**: User updated and paid for Claude API, fully operational
+- **Improved Verification Logic**: Reduced strictness, now shows actual data with disclaimers when confidence is lower
+- **Heuristic Scoring**: Falls back to smart pattern matching when AI verification times out
+- **Result**: Community pages now display real information instead of generic alerts
+
 **Japan Phase 5 Expansion Milestone**:
 - **Total Global Facilities: 38,019** across 9 countries
 - **Japan Massive Expansion Achievement**: Grew from 67 to **191 facilities across 91 cities**
