@@ -54,6 +54,7 @@ import naturalLanguageSearchRoutes from "./naturalLanguageSearch";
 import { registerPlatformRoutes } from "./platformRoutes";
 import { registerCommunityOnboardingRoutes } from "./communityOnboardingRoutes";
 import { registerCRMIntegrationRoutes } from "./crmIntegrationRoutes";
+import { registerRMSIntegrationRoutes } from "./rmsIntegrationRoutes";
 import { enterpriseMarketRoutes } from "./enterpriseMarketRoutes";
 import atriaRoutes from "./atria-routes";
 // DISABLED: Old Stripe routes - replaced by unifiedPaymentRoutes
@@ -98,6 +99,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register CRM integration routes
   registerCRMIntegrationRoutes(app);
+  
+  // Register RMS integration routes
+  registerRMSIntegrationRoutes(app);
+  
   // CRITICAL: Register mapping routes BEFORE community routes to prevent /:id interception
   registerMappingRoutes(app);
   registerMappingFixRoutes(app);

@@ -53,6 +53,7 @@ import { AdvancedAnalytics } from "@/components/analytics/AdvancedAnalytics";
 import EngagementScorecard from "@/components/EngagementScorecard";
 import { EnterpriseMarketAnalysis } from "@/components/EnterpriseMarketAnalysis";
 import { CRMIntegrationPanel } from "@/components/CRMIntegrationPanel";
+import { RMSIntegrationPanel } from "@/components/RMSIntegrationPanel";
 
 export default function CommunityDashboard() {
   const { id } = useParams();
@@ -507,7 +508,7 @@ export default function CommunityDashboard() {
 
         {/* Main Dashboard */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className={`grid w-full ${community?.subscriptionTier === 'platinum' ? 'grid-cols-9' : 'grid-cols-7'}`}>
+          <TabsList className={`grid w-full ${community?.subscriptionTier === 'platinum' ? 'grid-cols-10' : 'grid-cols-7'}`}>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="engagement">Engagement</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
@@ -517,6 +518,7 @@ export default function CommunityDashboard() {
             {community?.subscriptionTier === 'platinum' && (
               <>
                 <TabsTrigger value="crm">CRM Integration</TabsTrigger>
+                <TabsTrigger value="rms">Revenue Management</TabsTrigger>
                 <TabsTrigger value="market-analysis">Market Analysis</TabsTrigger>
               </>
             )}
@@ -1120,9 +1122,15 @@ export default function CommunityDashboard() {
 
           {/* CRM Integration Tab - Platinum Only */}
           {community?.subscriptionTier === 'platinum' && (
-            <TabsContent value="crm" className="space-y-6">
-              <CRMIntegrationPanel />
-            </TabsContent>
+            <>
+              <TabsContent value="crm" className="space-y-6">
+                <CRMIntegrationPanel />
+              </TabsContent>
+              
+              <TabsContent value="rms" className="space-y-6">
+                <RMSIntegrationPanel communityId={parseInt(id || '0')} />
+              </TabsContent>
+            </>
           )}
 
           {/* Enterprise Market Analysis Tab - Platinum Only */}

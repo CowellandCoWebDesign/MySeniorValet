@@ -4922,3 +4922,122 @@ export const insertCrmIntegrationSchema = createInsertSchema(crmIntegrations).om
 });
 export type InsertCrmIntegration = z.infer<typeof insertCrmIntegrationSchema>;
 export type CrmIntegration = typeof crmIntegrations.$inferSelect;
+
+// ==========================================
+// RMS (Revenue Management System) INTEGRATIONS
+// ==========================================
+
+// RMS Integrations Table - Separate from CRM for specialized revenue data
+export const rmsIntegrations = pgTable("rms_integrations", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").notNull().references(() => communities.id),
+  provider: text("provider", { enum: ["aline", "yardi", "lcs", "reps", "onesite", "entrata"] }).notNull(),
+  configuration: jsonb("configuration").$type<{
+    apiKey: string;
+    apiSecret?: string;
+    baseUrl: string;
+    revenueEndpoint?: string;
+    pricingEndpoint?: string;
+    occupancyEndpoint?: string;
+    syncFrequency?: 'real_time' | 'hourly' | 'daily';
+    enabledFeatures?: Array<'pricing' | 'occupancy' | 'revenue' | 'forecasting' | 'competitive'>;
+  }>().notNull(),
+  status: text("status", { enum: ["active", "inactive", "error", "testing"] }).notNull().default("testing"),
+  lastSync: timestamp("last_sync"),
+  syncCount: integer("sync_count").default(0),
+  lastError: text("last_error"),
+  
+  // RMS-specific tracking
+  dataQualityScore: integer("data_quality_score").default(0), // 0-100 score
+  pricingAccuracy: integer("pricing_accuracy").default(0), // 0-100 score
+  lastPriceUpdate: timestamp("last_price_update"),
+  lastOccupancyUpdate: timestamp("last_occupancy_update"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  unique("unique_community_rms_provider").on(table.communityId, table.provider),
+  index("rms_integrations_community_idx").on(table.communityId),
+  index("rms_integrations_provider_idx").on(table.provider)
+]);
+
+// RMS Revenue Data Table - Store fetched revenue/pricing data
+export const rmsRevenueData = pgTable("rms_revenue_data", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").notNull().references(() => communities.id),
+  provider: text("provider", { enum: ["aline", "yardi", "lcs", "reps", "onesite", "entrata"] }).notNull(),
+  
+  // Pricing Data
+  unitType: text("unit_type").notNull(), // "studio", "1br", "2br", "memory_care", etc.
+  baseRate: decimal("base_rate", { precision: 10, scale: 2 }), // Monthly base rent
+  careRate: decimal("care_rate", { precision: 10, scale: 2 }), // Additional care costs
+  totalRate: decimal("total_rate", { precision: 10, scale: 2 }), // All-inclusive rate
+  
+  // Occupancy Data
+  totalUnits: integer("total_units"),
+  occupiedUnits: integer("occupied_units"),
+  availableUnits: integer("available_units"),
+  occupancyRate: decimal("occupancy_rate", { precision: 5, scale: 2 }), // Percentage
+  
+  // Revenue Metrics
+  revpar: decimal("revpar", { precision: 10, scale: 2 }), // Revenue Per Available Room
+  adr: decimal("adr", { precision: 10, scale: 2 }), // Average Daily Rate
+  monthlyRevenue: decimal("monthly_revenue", { precision: 12, scale: 2 }),
+  
+  // Market Intelligence
+  marketRate: decimal("market_rate", { precision: 10, scale: 2 }), // Competitive market rate
+  pricePosition: text("price_position", { enum: ["below", "at", "above"] }), // vs market
+  demandScore: integer("demand_score"), // 1-100 demand indicator
+  
+  // Forecasting Data
+  projectedOccupancy: decimal("projected_occupancy", { precision: 5, scale: 2 }),
+  seasonalAdjustment: decimal("seasonal_adjustment", { precision: 5, scale: 2 }),
+  
+  // Metadata
+  dataDate: date("data_date").notNull(), // Date this data represents
+  fetchedAt: timestamp("fetched_at").defaultNow(),
+  isLatest: boolean("is_latest").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("rms_revenue_community_idx").on(table.communityId),
+  index("rms_revenue_provider_idx").on(table.provider),
+  index("rms_revenue_date_idx").on(table.dataDate),
+  index("rms_revenue_latest_idx").on(table.isLatest, table.communityId)
+]);
+
+// RMS Integration Relations
+export const rmsIntegrationsRelations = relations(rmsIntegrations, ({ one, many }) => ({
+  community: one(communities, {
+    fields: [rmsIntegrations.communityId],
+    references: [communities.id],
+  }),
+  revenueData: many(rmsRevenueData),
+}));
+
+export const rmsRevenueDataRelations = relations(rmsRevenueData, ({ one }) => ({
+  community: one(communities, {
+    fields: [rmsRevenueData.communityId],
+    references: [communities.id],
+  }),
+  integration: one(rmsIntegrations, {
+    fields: [rmsRevenueData.communityId, rmsRevenueData.provider],
+    references: [rmsIntegrations.communityId, rmsIntegrations.provider],
+  }),
+}));
+
+// RMS Integration Schema Types
+export const insertRmsIntegrationSchema = createInsertSchema(rmsIntegrations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertRmsIntegration = z.infer<typeof insertRmsIntegrationSchema>;
+export type RmsIntegration = typeof rmsIntegrations.$inferSelect;
+
+export const insertRmsRevenueDataSchema = createInsertSchema(rmsRevenueData).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertRmsRevenueData = z.infer<typeof insertRmsRevenueDataSchema>;
+export type RmsRevenueData = typeof rmsRevenueData.$inferSelect;
