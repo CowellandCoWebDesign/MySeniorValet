@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { perplexityService } from '../perplexity-ai-service';
 import { MultiAIVerificationService } from '../multi-ai-verification-service';
+import { websiteScraperService } from '../website-scraper-service';
 
 const router = Router();
 
@@ -106,7 +107,7 @@ function extractMediaAssets(content: string) {
 // Web intelligence search endpoint (what the client is calling)
 router.post('/api/web-intelligence/search', async (req, res) => {
   try {
-    const { communityName, city, state, address } = req.body;
+    const { communityName, city, state, address, website } = req.body;
     
     if (!communityName || !city || !state) {
       return res.status(400).json({ 
@@ -116,42 +117,79 @@ router.post('/api/web-intelligence/search', async (req, res) => {
 
     console.log(`🔍 Web intelligence search for: ${communityName} at ${address || 'unspecified'} in ${city}, ${state}`);
     
-    // Enhanced search to include media assets
-    const searchQuery = `"${communityName}" "${address}" ${city} ${state} senior living pricing availability photos floor plans virtual tour 3D tour`;
-    const response = await perplexityService.searchRealTime(
-      searchQuery,
-      `Find comprehensive information for this specific senior living community at ${address}. Focus on:
-      1. Official website URL
-      2. Current pricing and availability
-      3. Photo galleries or image URLs
-      4. Floor plans (if available)
-      5. Virtual tours or 3D tours (if available)
-      6. Video tours or walkthrough content
-      Extract all media assets and their direct URLs.`
-    );
+    let scrapedData = null;
+    let officialWebsite = website;
     
-    // Parse response for media content
-    const mediaAssets = extractMediaAssets(response.summary || '');
+    // If we have a website URL, scrape it directly for rich data
+    if (website && website.includes('http')) {
+      try {
+        console.log(`🕸️ Directly scraping provided website: ${website}`);
+        scrapedData = await websiteScraperService.scrapeWebsite(website);
+      } catch (scrapeError) {
+        console.error(`Failed to scrape website ${website}:`, scrapeError);
+      }
+    }
     
-    res.json({
+    // If we don't have scraped data, search for the community and try to find its website
+    if (!scrapedData) {
+      const searchQuery = `"${communityName}" "${address}" ${city} ${state} senior living official website`;
+      const response = await perplexityService.searchRealTime(
+        searchQuery,
+        `Find the official website for this specific senior living community at ${address}.`
+      );
+      
+      // Try to extract website from response
+      const websiteMatches = (response.summary || '').match(/https?:\/\/[^\s<>"']+/gi) || [];
+      const directorySites = [
+        'aplaceformom', 'caring.com', 'seniorly', 'assistedliving.org',
+        'senioradvisor', 'seniorhousing.net', 'medicare.gov', 'google.com',
+        'facebook.com', 'yelp.com', 'apartments.com'
+      ];
+      
+      const potentialWebsite = websiteMatches.find(url => 
+        !directorySites.some(site => url.toLowerCase().includes(site))
+      );
+      
+      if (potentialWebsite) {
+        officialWebsite = potentialWebsite;
+        try {
+          console.log(`🕸️ Found and scraping official website: ${potentialWebsite}`);
+          scrapedData = await websiteScraperService.scrapeWebsite(potentialWebsite);
+        } catch (scrapeError) {
+          console.error(`Failed to scrape found website ${potentialWebsite}:`, scrapeError);
+        }
+      }
+    }
+    
+    // Build response with scraped data if available
+    const responseData = {
       communityName,
       location: `${city}, ${state}`,
       address,
-      officialWebsite: response.sources?.[0] || null,
-      summary: response.summary || 'No information found',
-      sources: response.sources || [],
+      officialWebsite: officialWebsite || null,
+      summary: scrapedData?.description || 'No information found',
+      sources: officialWebsite ? [officialWebsite] : [],
       mediaAssets: {
-        hasPhotos: mediaAssets.photos.length > 0,
-        photoCount: mediaAssets.photos.length,
-        photos: mediaAssets.photos,
-        hasFloorPlans: mediaAssets.floorPlans.length > 0,
-        floorPlans: mediaAssets.floorPlans,
-        has3DTour: !!mediaAssets.virtualTour,
-        virtualTour: mediaAssets.virtualTour,
-        videoTour: mediaAssets.videoTour
+        hasPhotos: (scrapedData?.photos?.length || 0) > 0,
+        photoCount: scrapedData?.photos?.length || 0,
+        photos: scrapedData?.photos || [],
+        hasFloorPlans: (scrapedData?.floorPlans?.length || 0) > 0,
+        floorPlans: scrapedData?.floorPlans || [],
+        has3DTour: (scrapedData?.virtualTours?.length || 0) > 0,
+        virtualTour: scrapedData?.virtualTours?.[0] || null,
+        videoTour: scrapedData?.videos?.[0] || null
       },
+      amenities: scrapedData?.amenities || [],
+      careLevels: scrapedData?.careLevels || [],
+      pricing: scrapedData?.pricing || {},
+      contactInfo: scrapedData?.contactInfo || {},
+      scrapedAt: scrapedData ? new Date().toISOString() : null,
       lastUpdated: new Date().toISOString()
-    });
+    };
+    
+    console.log(`✅ Web intelligence complete. Found ${responseData.mediaAssets.photoCount} photos, ${responseData.mediaAssets.floorPlans.length} floor plans`);
+    
+    res.json(responseData);
   } catch (error) {
     console.error('Web intelligence search error:', error);
     res.status(500).json({ 

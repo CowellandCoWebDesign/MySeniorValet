@@ -552,8 +552,123 @@ export function LiveWebIntelligence({
             </Tabs>
           )}
 
-          {/* Community Photos Found */}
-          {webData?.images && webData.images.length > 0 && (
+          {/* Rich Media Assets from Scraped Data */}
+          {webData?.mediaAssets && (
+            <div className="space-y-6">
+              {/* Community Photos */}
+              {webData.mediaAssets.photos && webData.mediaAssets.photos.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center">
+                    <Building className="w-4 h-4 mr-2 text-orange-600" />
+                    Community Photos ({webData.mediaAssets.photoCount || webData.mediaAssets.photos.length} found)
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {webData.mediaAssets.photos.slice(0, 6).map((photo: string, idx: number) => (
+                      <div key={idx} className="relative group">
+                        <img
+                          src={photo}
+                          alt={`${communityName} photo ${idx + 1}`}
+                          className="w-full h-32 object-cover rounded-lg border shadow-sm group-hover:shadow-md transition-shadow"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-colors" />
+                      </div>
+                    ))}
+                  </div>
+                  {webData.mediaAssets.photos.length > 6 && (
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                      +{webData.mediaAssets.photos.length - 6} more photos available
+                    </p>
+                  )}
+                </div>
+              )}
+              
+              {/* Floor Plans */}
+              {webData.mediaAssets?.floorPlans && webData.mediaAssets.floorPlans.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center">
+                    <Home className="w-4 h-4 mr-2 text-blue-600" />
+                    Floor Plans Available
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {webData.mediaAssets.floorPlans.slice(0, 3).map((plan: string, idx: number) => (
+                      <a
+                        key={idx}
+                        href={plan}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="relative group border rounded-lg p-2 hover:border-blue-500 transition-colors"
+                      >
+                        <img
+                          src={plan}
+                          alt={`Floor plan ${idx + 1}`}
+                          className="w-full h-32 object-contain rounded"
+                          onError={(e) => {
+                            const parent = (e.target as HTMLImageElement).parentElement;
+                            if (parent) {
+                              parent.innerHTML = `<div class="flex items-center justify-center h-32 bg-gray-100 dark:bg-gray-800 rounded">
+                                <span class="text-sm text-gray-600">Floor Plan ${idx + 1}</span>
+                              </div>`;
+                            }
+                          }}
+                        />
+                        <ExternalLink className="absolute top-2 right-2 w-4 h-4 text-gray-600 group-hover:text-blue-600" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Virtual/3D Tour */}
+              {webData.mediaAssets?.virtualTour && (
+                <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
+                  <Sparkles className="w-4 h-4 text-green-600" />
+                  <AlertDescription>
+                    <strong className="text-green-800 dark:text-green-200">Virtual Tour Available!</strong>
+                    <p className="mt-2 text-sm">
+                      This community offers a virtual/3D tour experience.
+                    </p>
+                    <a
+                      href={webData.mediaAssets.virtualTour}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center mt-3 px-3 py-1.5 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm"
+                    >
+                      Take Virtual Tour
+                      <ExternalLink className="w-3 h-3 ml-2" />
+                    </a>
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              {/* Video Tour */}
+              {webData.mediaAssets?.videoTour && (
+                <Alert className="border-purple-200 bg-purple-50 dark:bg-purple-900/20">
+                  <Activity className="w-4 h-4 text-purple-600" />
+                  <AlertDescription>
+                    <strong className="text-purple-800 dark:text-purple-200">Video Tour Available</strong>
+                    <p className="mt-2 text-sm">
+                      Watch a video walkthrough of this community.
+                    </p>
+                    <a
+                      href={webData.mediaAssets.videoTour}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center mt-3 px-3 py-1.5 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-sm"
+                    >
+                      Watch Video Tour
+                      <ExternalLink className="w-3 h-3 ml-2" />
+                    </a>
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          )}
+          
+          {/* Fallback to legacy image display if no scraped media */}
+          {(!webData?.mediaAssets || !webData.mediaAssets.hasPhotos) && webData?.images && webData.images.length > 0 && (
             <div className="mt-6">
               <h4 className="font-semibold mb-3 flex items-center">
                 <Building className="w-4 h-4 mr-2 text-orange-600" />

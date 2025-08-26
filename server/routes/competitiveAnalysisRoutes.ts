@@ -1,5 +1,6 @@
 import express from 'express';
 import { PerplexityAIService } from '../perplexity-ai-service';
+import { websiteScraperService } from '../website-scraper-service';
 import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { sql } from 'drizzle-orm';
@@ -306,6 +307,43 @@ router.post('/api/competitive-analysis', async (req, res) => {
       }
     }
 
+    // NEW: Scrape websites for rich data (photos, floorplans, 3D tours)
+    const enrichedCommunities = [...extractedCommunities];
+    
+    // Scrape up to 3 community websites for rich data (to keep response time reasonable)
+    const communitiesToScrape = extractedCommunities
+      .filter(c => c.website && c.website.includes('http'))
+      .slice(0, 3);
+    
+    console.log(`🕸️ Scraping ${communitiesToScrape.length} community websites for rich data...`);
+    
+    for (const community of communitiesToScrape) {
+      try {
+        console.log(`  Scraping ${community.name}: ${community.website}`);
+        const scrapedData = await websiteScraperService.scrapeWebsite(community.website);
+        
+        // Find and enrich the community in our list
+        const index = enrichedCommunities.findIndex(c => c.name === community.name);
+        if (index !== -1) {
+          enrichedCommunities[index] = {
+            ...enrichedCommunities[index],
+            photos: scrapedData.photos,
+            floorPlans: scrapedData.floorPlans,
+            virtualTours: scrapedData.virtualTours,
+            videos: scrapedData.videos,
+            amenities: scrapedData.amenities,
+            careLevels: scrapedData.careLevels,
+            description: scrapedData.description,
+            enrichedPricing: scrapedData.pricing,
+            contactInfo: scrapedData.contactInfo,
+            scrapedAt: new Date().toISOString()
+          };
+        }
+      } catch (error) {
+        console.error(`  Failed to scrape ${community.name}:`, error);
+      }
+    }
+    
     const analysisResult = {
       location,
       locationType: type,
@@ -322,8 +360,8 @@ router.post('/api/competitive-analysis', async (req, res) => {
       detailedSummary: content, // Full unfiltered Perplexity response for complete transparency
       communityMentions, // All mentioned community names
       matchedCommunities, // Communities found in our database
-      // NEW: Include extracted community data with websites!
-      extractedCommunities,
+      // Include enriched community data with scraped website content!
+      extractedCommunities: enrichedCommunities,
       websiteMatches: websiteMatches.filter(url => {
         // Filter out directory sites, keep only official community websites
         const directorySites = [
