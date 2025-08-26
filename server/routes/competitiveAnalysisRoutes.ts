@@ -151,9 +151,7 @@ router.post('/api/competitive-analysis', async (req, res) => {
     const websitePattern = /(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9\-]+(?:\.[a-zA-Z]{2,})+(?:\/[^\s\]]*)?)/g;
     const websiteMatches = content.match(websitePattern) || [];
     
-    // Extract community data with websites
-    const communityDataPattern = /([A-Z][a-zA-Z\s]+(?:Living|Care|Community|Manor|Village|Residence|Center|Home))[^]*?(?:Website:|Official Website:|https?:\/\/)?([a-zA-Z0-9\-]+\.[a-zA-Z]{2,}[^\s\]]*)?[^]*?(?:Address:|Located at:)?([0-9]+[^,\n]*,[^,\n]*,[^,\n]*\d{5})?[^]*?(?:Phone:|Tel:|Call:)?([0-9\-\(\)\s]+)?[^]*?(?:\$([0-9,]+)(?:\/month|\s*monthly)?)?/gi;
-    
+    // Extract community data from Perplexity's structured format
     const extractedCommunities: Array<{
       name: string;
       website?: string;
@@ -162,16 +160,101 @@ router.post('/api/competitive-analysis', async (req, res) => {
       pricing?: string;
     }> = [];
     
+    // Parse Perplexity's structured format: **1. Community Name** followed by details
+    const communityPattern = /\*\*\d+\.\s+([^*]+)\*\*/g;
     let match;
-    while ((match = communityDataPattern.exec(content)) !== null) {
-      if (match[1]) {
-        extractedCommunities.push({
-          name: match[1].trim(),
-          website: match[2]?.trim(),
-          address: match[3]?.trim(),
-          phone: match[4]?.trim(),
-          pricing: match[5] ? `$${match[5]}/month` : undefined
-        });
+    
+    while ((match = communityPattern.exec(content)) !== null) {
+      const name = match[1].trim();
+      
+      // Skip invalid entries
+      if (!name || name.length < 3 || name.length > 100) {
+        continue;
+      }
+      
+      // Get the content after this community name until the next community or separator
+      const startIndex = match.index + match[0].length;
+      let endIndex = content.length;
+      
+      // Find the next community header or separator
+      const tempPattern = /\*\*\d+\.\s+[^*]+\*\*|^---$/gm;
+      tempPattern.lastIndex = startIndex;
+      const nextMatch = tempPattern.exec(content);
+      if (nextMatch) {
+        endIndex = nextMatch.index;
+      }
+      
+      const details = content.substring(startIndex, endIndex);
+      const community: any = { name };
+      
+      // Extract website from markdown link format [text](url) or plain URL
+      const websiteLinkMatch = details.match(/\*\*Website:\*\*\s*\[[^\]]+\]\(([^)]+)\)/i) ||
+                             details.match(/Website:\s*\[[^\]]+\]\(([^)]+)\)/i);
+      const websitePlainMatch = details.match(/\*\*Website:\*\*\s*(https?:\/\/[^\s\n\[]+)/i) ||
+                              details.match(/Website:\s*(https?:\/\/[^\s\n\[]+)/i);
+      
+      if (websiteLinkMatch) {
+        community.website = websiteLinkMatch[1].trim();
+      } else if (websitePlainMatch) {
+        community.website = websitePlainMatch[1].trim();
+      }
+      
+      // Extract address  
+      const addressMatch = details.match(/\*\*Address:\*\*\s*([^\n\[]+)/i) ||
+                         details.match(/Address:\s*([^\n\[]+)/i);
+      if (addressMatch && !addressMatch[1].includes('Not') && !addressMatch[1].includes('not')) {
+        const addr = addressMatch[1].trim();
+        if (addr && addr.length > 5) {
+          community.address = addr;
+        }
+      }
+      
+      // Extract phone (handle multiple phone numbers)
+      const phoneMatch = details.match(/\*\*Phone:\*\*([^\n]+)/i) ||
+                       details.match(/Phone:([^\n]+)/i) ||
+                       details.match(/Pricing and Availability:\s*([\d\s\-()]+)/i);
+      if (phoneMatch && !phoneMatch[1].includes('Not') && !phoneMatch[1].includes('not')) {
+        const phone = phoneMatch[1].trim();
+        if (phone && phone.match(/\d{3}/)) { // Must have at least 3 digits
+          community.phone = phone;
+        }
+      }
+      
+      // Extract pricing
+      const pricingMatch = details.match(/\*\*Monthly Pricing:\*\*\s*([^\n\[]+)/i) ||
+                         details.match(/Monthly Pricing:\s*([^\n\[]+)/i) ||
+                         details.match(/Starting at\s*\*?\*?(\$[\d,]+\+?\s*(?:per|\/)\s*month)/i);
+      if (pricingMatch && !pricingMatch[1].includes('Not') && !pricingMatch[1].includes('not')) {
+        const pricing = pricingMatch[1].trim();
+        if (pricing && pricing.includes('$')) {
+          community.pricing = pricing;
+        }
+      }
+      
+      extractedCommunities.push(community);
+    }
+    
+    // Also look for additional communities mentioned (without numbering)
+    const additionalPattern = /\*\*([^*\d][^*]+)\*\*/g;
+    while ((match = additionalPattern.exec(content)) !== null) {
+      const name = match[1].trim();
+      
+      // Check if it's a valid community name
+      if (name && name.length > 3 && name.length < 100 &&
+          (name.includes('House') || name.includes('Home') || name.includes('Hall') || 
+           name.includes('Living') || name.includes('Care') || name.includes('Village') || 
+           name.includes('Manor') || name.includes('Residence') || name.includes('Center')) &&
+          !name.includes('Website') && !name.includes('Address') && !name.includes('Phone') &&
+          !name.includes('Pricing') && !name.includes('Note') && !name.includes('Additional')) {
+        
+        // Check if we already have this community
+        const exists = extractedCommunities.some(c => 
+          c.name.toLowerCase() === name.toLowerCase()
+        );
+        
+        if (!exists) {
+          extractedCommunities.push({ name });
+        }
       }
     }
     

@@ -61,9 +61,9 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate }: { communi
     
     setIsLoading(true);
     
-    // Reduced timeout since we're doing simpler queries now
+    // Allow proper time for comprehensive Perplexity analysis
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout for faster response
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for complete results
     
     try {
       const response = await fetch('/api/competitive-analysis', {
