@@ -50,35 +50,74 @@ export class WebsiteScraperService {
         contactInfo: {}
       };
 
-      // Use regex to find all image URLs in the HTML
-      const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
-      const lazyImgRegex = /data-(?:src|lazy|original)=["']([^"']+)["']/gi;
-      const backgroundRegex = /background-image:\s*url\(['"]?([^'")]+)['"]?\)/gi;
-      
+      // First try to find images in gallery/photos sections
       const imageUrls: string[] = [];
       let match;
       
-      // Extract from img src
-      while ((match = imgRegex.exec(html)) !== null) {
-        imageUrls.push(match[1]);
+      // Look for gallery sections and extract images from them
+      const galleryPatterns = [
+        /<(?:div|section|article)[^>]*(?:class|id)=["'][^"']*(?:gallery|photos|images|carousel)[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|section|article)>/gi,
+        /<(?:div|section)[^>]*data-(?:gallery|photos)["'][^>]*>([\s\S]*?)<\/(?:div|section)>/gi
+      ];
+      
+      for (const pattern of galleryPatterns) {
+        while ((match = pattern.exec(html)) !== null) {
+          const galleryContent = match[1];
+          const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+          const lazyRegex = /data-(?:src|lazy|original)=["']([^"']+)["']/gi;
+          
+          let imgMatch;
+          while ((imgMatch = imgRegex.exec(galleryContent)) !== null) {
+            if (!imageUrls.includes(imgMatch[1])) {
+              imageUrls.push(imgMatch[1]);
+            }
+          }
+          while ((imgMatch = lazyRegex.exec(galleryContent)) !== null) {
+            if (!imageUrls.includes(imgMatch[1])) {
+              imageUrls.push(imgMatch[1]);
+            }
+          }
+        }
       }
       
-      // Extract from lazy loading attributes
-      while ((match = lazyImgRegex.exec(html)) !== null) {
-        imageUrls.push(match[1]);
-      }
-      
-      // Extract from CSS background images
-      while ((match = backgroundRegex.exec(html)) !== null) {
-        imageUrls.push(match[1]);
+      // If we didn't find enough in galleries, look for all images (but be selective)
+      if (imageUrls.length < 10) {
+        const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+        const lazyImgRegex = /data-(?:src|lazy|original)=["']([^"']+)["']/gi;
+        
+        while ((match = imgRegex.exec(html)) !== null) {
+          if (!imageUrls.includes(match[1])) {
+            imageUrls.push(match[1]);
+          }
+        }
+        
+        while ((match = lazyImgRegex.exec(html)) !== null) {
+          if (!imageUrls.includes(match[1])) {
+            imageUrls.push(match[1]);
+          }
+        }
       }
       
       // Process and categorize images
       for (let imgUrl of imageUrls) {
-        // Skip logos, icons, and tiny images
-        if (imgUrl.includes('logo') || imgUrl.includes('icon') || 
-            imgUrl.includes('favicon') || imgUrl.includes('sprite') ||
-            imgUrl.includes('.svg')) {
+        const imgLower = imgUrl.toLowerCase();
+        
+        // Skip marketing materials, logos, banners, and ads
+        if (imgLower.includes('logo') || imgLower.includes('icon') || 
+            imgLower.includes('favicon') || imgLower.includes('sprite') ||
+            imgLower.includes('.svg') || imgLower.includes('banner') ||
+            imgLower.includes('slider') || imgLower.includes('campaign') ||
+            imgLower.includes('ad_') || imgLower.includes('_ad') ||
+            imgLower.includes('promo') || imgLower.includes('podcast') ||
+            imgLower.includes('newsletter') || imgLower.includes('header') ||
+            imgLower.includes('footer') || imgLower.includes('background')) {
+          continue;
+        }
+        
+        // Skip images with marketing dimensions (likely ads)
+        if (imgLower.includes('1200_x_1000') || imgLower.includes('1200x1000') ||
+            imgLower.includes('width=250') || imgLower.includes('width=540') ||
+            imgLower.includes('height=73') || imgLower.includes('height=450')) {
           continue;
         }
         
@@ -88,25 +127,30 @@ export class WebsiteScraperService {
           imgUrl = new URL(imgUrl, baseUrl).href;
         }
         
-        // Categorize images
-        const imgLower = imgUrl.toLowerCase();
+        // Categorize images - be more selective
         if (imgLower.includes('floor') || imgLower.includes('plan') || imgLower.includes('layout')) {
           if (!data.floorPlans.includes(imgUrl)) {
             data.floorPlans.push(imgUrl);
           }
-        } else if (imgLower.includes('/photos/') || imgLower.includes('/gallery/') || 
-                   imgLower.includes('/images/') || imgLower.includes('community') ||
-                   imgLower.includes('resident') || imgLower.includes('dining') ||
-                   imgLower.includes('living') || imgLower.includes('bedroom') ||
-                   imgLower.includes('apartment') || imgLower.includes('facility')) {
-          if (!data.photos.includes(imgUrl)) {
-            data.photos.push(imgUrl);
-          }
-        } else if (imgUrl.includes('.jpg') || imgUrl.includes('.jpeg') || 
-                   imgUrl.includes('.png') || imgUrl.includes('.webp')) {
-          // Generic image that might be a photo
-          if (!data.photos.includes(imgUrl)) {
-            data.photos.push(imgUrl);
+        } else if (
+          // Look for images in gallery/photo sections
+          (imgLower.includes('/photos/') || imgLower.includes('/gallery/') || 
+           imgLower.includes('/images/')) ||
+          // Or images with facility-related keywords
+          (imgLower.includes('community') && !imgLower.includes('_wht')) ||
+          imgLower.includes('resident') || imgLower.includes('dining') ||
+          imgLower.includes('living') || imgLower.includes('bedroom') ||
+          imgLower.includes('apartment') || imgLower.includes('facility') ||
+          imgLower.includes('amenity') || imgLower.includes('activity') ||
+          imgLower.includes('lounge') || imgLower.includes('kitchen') ||
+          imgLower.includes('bathroom') || imgLower.includes('exterior') ||
+          imgLower.includes('interior') || imgLower.includes('room')
+        ) {
+          // Additional check: must be an image file
+          if (imgUrl.match(/\.(jpg|jpeg|png|webp)(\?|$)/i)) {
+            if (!data.photos.includes(imgUrl)) {
+              data.photos.push(imgUrl);
+            }
           }
         }
       }
