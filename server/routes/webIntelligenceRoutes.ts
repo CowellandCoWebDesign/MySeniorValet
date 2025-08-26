@@ -15,8 +15,8 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       });
     }
 
-    // Enhanced search query prioritizing official website
-    const searchQuery = query || `"${communityName}" ${city} ${state} official website senior living community contact pricing amenities features`;
+    // Enhanced search query for comprehensive information from any relevant source
+    const searchQuery = query || `"${communityName}" senior living community ${city} ${state} ${address ? `"${address}"` : ''} website contact pricing amenities reviews current rates availability`;
     
     console.log(`🔍 Fetching web intelligence for: ${communityName} in ${city}, ${state}`);
     

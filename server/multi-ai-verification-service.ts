@@ -208,28 +208,38 @@ export class MultiAIVerificationService {
 🔍 WEB SEARCH RESULTS (What we found):
 ${JSON.stringify(perplexityData, null, 2)}
 
-STEP 1 - IDENTITY VERIFICATION:
-1. Do the web results mention "${communityName}" by this exact name or a clear shortened version?
-2. Is the location ${location} consistent with the web data?
-3. Are we accidentally looking at a DIFFERENT community with a similar name?
+⚠️ IMPORTANT: Communities may have MULTIPLE LOCATIONS. Focus ONLY on the SPECIFIC location requested:
+- If "${communityName}" has multiple addresses, extract ONLY information for ${location}
+- If the address is ${communityContext?.address}, verify data for THIS EXACT ADDRESS
+- DO NOT mix information from different locations of the same brand/chain
 
-STEP 2 - DATA VALIDATION (only if same community verified):
-If confirmed as the same community, analyze the quality and accuracy of the information.
+STEP 1 - IDENTITY VERIFICATION:
+1. Do the web results mention "${communityName}" or a reasonable variation?
+2. Is the location ${location} mentioned in the results?
+3. If multiple locations exist, can you identify the SPECIFIC ${location} location?
+
+STEP 2 - DATA EXTRACTION (for the correct location):
+- Extract ALL relevant websites found (official, parent company, directories)
+- Gather pricing, contact info, services FOR THE ${location} LOCATION ONLY
+- Note if information is location-specific or chain-wide
 
 Respond with JSON only:
 {
   "identityVerified": boolean,
-  "nameMatch": "exact/partial/different",
+  "nameMatch": "exact/partial/different",  
   "locationMatch": boolean,
+  "multipleLocations": boolean,
+  "specificLocationFound": boolean,
   "verified": boolean,
   "confidence": 0-100,
   "findings": [
-    "Facts verified ONLY about ${communityName}",
-    "Pricing, services, contact info confirmed for THIS community"
+    "Website URLs found",
+    "Facts about ${communityName} at ${location}",
+    "Pricing/services for THIS specific location"
   ],
   "concerns": [
-    "Name confusion or wrong community data detected",
-    "Data inconsistencies flagged"
+    "Multiple locations detected - focused on ${location}",
+    "Any data ambiguities"
   ]
 }`;
 
@@ -293,7 +303,7 @@ Respond with JSON only:
         messages: [
           {
             role: 'system',
-            content: 'You are helping families research senior living communities. Be helpful and permissive - accept relevant information that would be useful to families, even if not a perfect name match. Focus on providing valuable insights. Respond with JSON only.'
+            content: 'You are helping families research senior living communities. Be helpful and permissive - accept relevant information that would be useful to families, even if not a perfect name match. When communities have multiple locations, focus ONLY on the specific location requested. Respond with JSON only.'
           },
           {
             role: 'user',
@@ -308,18 +318,25 @@ Respond with JSON only:
 🔍 WEB SEARCH RESULTS (What we found):
 ${JSON.stringify(perplexityData, null, 2)}
 
-STEP 1 - IDENTITY VERIFICATION:
-Determine if the web results contain useful information about "${communityName}":
-1. Do the web results mention "${communityName}" or very similar name variations?
-2. Is the general location ${location} consistent?
-3. **REASONABLE MATCHING**: Accept information if it appears relevant to the community:
-   - Exact name match is ideal but not required
-   - Similar names in same city/area are likely the same community
-   - Focus on whether the information would be helpful to families researching this community
-4. **ONLY reject if clearly about a completely different facility in a different location**
+⚠️ CRITICAL: HANDLE MULTIPLE LOCATIONS PROPERLY
+- Large chains like Atria, Brookdale, Sunrise often have MULTIPLE locations in same city
+- Focus ONLY on the SPECIFIC address: ${communityContext?.address || 'Not specified'}
+- If multiple addresses found, extract ONLY data for ${location} location
+- DO NOT mix information from different addresses even if same brand name
 
-STEP 2 - DATA ANALYSIS (only if identity verified):
-If confirmed as the same community, provide market analysis.
+STEP 1 - IDENTITY VERIFICATION:
+Determine if the web results contain useful information about "${communityName}" at ${location}:
+1. Do the web results mention "${communityName}" or reasonable variations?
+2. Is the specific location ${location} clearly identified?
+3. **MULTIPLE LOCATION CHECK**: If chain with multiple locations:
+   - Verify this is the ${communityContext?.address || location} location specifically
+   - Don't mix data from other locations of the same chain
+4. **REASONABLE MATCHING**: Accept relevant community info:
+   - Official websites, parent company sites, directories all acceptable
+   - Focus on whether information helps families research THIS specific location
+
+STEP 2 - DATA EXTRACTION (location-specific only):
+Extract ALL data specific to the ${location} location of "${communityName}".
 
 Respond in JSON format:
 {
