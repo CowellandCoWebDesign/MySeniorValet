@@ -98,6 +98,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const photoManagementRoutes = await import('./routes/photoManagementRoutes');
   app.use(photoManagementRoutes.default);
   
+  // Register performance optimization routes
+  const performanceRoutes = await import('./routes/performanceRoutes');
+  app.use(performanceRoutes.default);
+  
   // Register remaining special routes
   app.use('/api', autocompleteRoutes);
   app.use('/api/subscriptions', subscriptionRoutes);
@@ -371,7 +375,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (role !== 'all') {
-        conditions.push(eq(users.role, role as string));
+        conditions.push(eq(users.role, role as "user" | "admin" | "community_owner" | "vendor" | "financial_admin" | "support_agent" | "analytics_viewer" | "super_admin"));
       }
 
       // Execute query with proper chaining
