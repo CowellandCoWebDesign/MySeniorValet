@@ -47,6 +47,11 @@ interface MultiAIVerificationReport {
       floorPlans: Array<{ url: string; source: string }>;
       virtualTours: Array<{ url: string; source: string }>;
       lastUpdated: string;
+      pricing?: {
+        min?: string;
+        max?: string;
+        details?: string;
+      };
     };
   };
   consensus: {
@@ -180,10 +185,11 @@ export class MultiAIVerificationService {
         }
       }
       
-      // Scrape website for photos if we have a URL
+      // Scrape website for photos and pricing if we have a URL
       let scrapedPhotos: Array<{ url: string; source: string }> = [];
+      let scrapedPricing: any = null;
       if (websiteUrl) {
-        console.log(`🌐 Scraping website for photos: ${websiteUrl}`);
+        console.log(`🌐 Scraping website for photos and pricing: ${websiteUrl}`);
         try {
           const scrapedData = await websiteScraperService.scrapeWebsite(websiteUrl);
           if (scrapedData?.photos && scrapedData.photos.length > 0) {
@@ -193,18 +199,25 @@ export class MultiAIVerificationService {
             }));
             console.log(`📸 Found ${scrapedPhotos.length} photos from website`);
           }
+          
+          // Store official website pricing if found
+          if (scrapedData?.pricing && (scrapedData.pricing.min || scrapedData.pricing.max || scrapedData.pricing.details)) {
+            scrapedPricing = scrapedData.pricing;
+            console.log(`💰 Found official website pricing:`, scrapedPricing);
+          }
         } catch (error) {
           console.error('Error scraping website:', error);
         }
       }
       
-      // Store scraped photos in the report
-      if (scrapedPhotos.length > 0) {
+      // Store scraped photos and pricing in the report
+      if (scrapedPhotos.length > 0 || scrapedPricing) {
         report.verificationResults.webIntelligence = {
           images: scrapedPhotos,
           floorPlans: [],
           virtualTours: [],
-          lastUpdated: new Date().toISOString()
+          lastUpdated: new Date().toISOString(),
+          pricing: scrapedPricing // Add official pricing to web intelligence
         };
       }
       
@@ -252,11 +265,12 @@ export class MultiAIVerificationService {
         report.verificationResults.chatgptVerification
       );
 
-      // Extract pricing information from AI data
+      // Extract pricing information from AI data and website scraping
       report.pricing = this.extractPricingData(
         perplexityData,
         report.verificationResults.claudeVerification,
-        report.verificationResults.chatgptVerification
+        report.verificationResults.chatgptVerification,
+        scrapedPricing // Pass scraped pricing from official website
       );
 
       // Generate recommendations based on verification
@@ -597,14 +611,50 @@ REMEMBER: Verify as true if the web data appears relevant and helpful for famili
     }
   }
 
-  // Extract pricing data from AI responses
+  // Extract pricing data from AI responses and official website
   private extractPricingData(
     perplexityData: any,
     claudeResult: VerificationResult | null,
-    chatgptResult: VerificationResult | null
+    chatgptResult: VerificationResult | null,
+    scrapedPricing?: any // Official website pricing from scraper
   ): MultiAIVerificationReport['pricing'] {
     try {
-      // First try to extract pricing from Perplexity data
+      // PRIORITY 1: Check for official website pricing (highest authority)
+      if (scrapedPricing && (scrapedPricing.min || scrapedPricing.max || scrapedPricing.details)) {
+        console.log('🏆 Using official website pricing as highest priority source');
+        
+        // Parse official pricing to extract numeric values
+        let officialMin: number | null = null;
+        let officialMax: number | null = null;
+        
+        if (scrapedPricing.min) {
+          const minMatch = scrapedPricing.min.match(/[\d,]+/);
+          if (minMatch) {
+            officialMin = parseInt(minMatch[0].replace(',', ''));
+          }
+        }
+        
+        if (scrapedPricing.max) {
+          const maxMatch = scrapedPricing.max.match(/[\d,]+/);
+          if (maxMatch) {
+            officialMax = parseInt(maxMatch[0].replace(',', ''));
+          }
+        }
+        
+        return {
+          verified: true,
+          amount: officialMin || officialMax || null,
+          minMax: (officialMin && officialMax) ? {
+            min: officialMin,
+            max: officialMax
+          } : undefined,
+          source: '🏆 Official Website (Highest Authority)',
+          confidence: 95, // Highest confidence for official pricing
+          isOfficial: true // Mark as official source
+        } as any;
+      }
+      
+      // PRIORITY 2: Extract pricing from AI data if no official pricing
       const searchContent = perplexityData?.searchContent || '';
       const findings = perplexityData?.findings || [];
       const allText = `${searchContent} ${findings.join(' ')}`;

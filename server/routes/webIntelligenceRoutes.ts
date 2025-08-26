@@ -190,7 +190,11 @@ Search for this EXACT community at this SPECIFIC location.`;
       },
       amenities: scrapedData?.amenities || [],
       careLevels: scrapedData?.careLevels || [],
-      pricing: scrapedData?.pricing || {},
+      pricing: scrapedData?.pricing ? {
+        ...scrapedData.pricing,
+        isOfficial: true, // Mark pricing from official website scraper
+        source: '🏆 Official Website (Highest Authority)'
+      } : {},
       contactInfo: scrapedData?.contactInfo || {},
       scrapedAt: scrapedData ? new Date().toISOString() : null,
       lastUpdated: new Date().toISOString()

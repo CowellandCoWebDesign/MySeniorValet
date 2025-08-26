@@ -19,6 +19,7 @@ interface PricingSource {
   verified: boolean;
   lastUpdated: string;
   notes?: string;
+  isOfficial?: boolean; // Mark if this is from the official website
 }
 
 interface AuthenticPricingData {
@@ -165,18 +166,35 @@ export function AuthenticPricingDisplay({ communityId }: { communityId: number }
                 </Alert>
               </div>
             ) : (
-              data.sources.map((source, index) => (
-                <div key={index} className="border rounded-lg p-4 space-y-2">
+              // Sort sources with official website at top, then by verification status
+              data.sources.sort((a, b) => {
+                if (a.isOfficial && !b.isOfficial) return -1;
+                if (!a.isOfficial && b.isOfficial) return 1;
+                if (a.verified && !b.verified) return -1;
+                if (!a.verified && b.verified) return 1;
+                return 0;
+              }).map((source, index) => (
+                <div key={index} className={`border rounded-lg p-4 space-y-2 ${
+                  source.isOfficial ? 'border-gold-500 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 ring-2 ring-amber-400' : ''
+                }`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      {getSourceIcon(source.source)}
-                      <span className="font-medium">{source.source}</span>
+                      {source.isOfficial ? (
+                        <Home className="h-5 w-5 text-amber-600" />
+                      ) : (
+                        getSourceIcon(source.source)
+                      )}
+                      <span className="font-medium">
+                        {source.isOfficial ? '🏆 Official Website Pricing' : source.source}
+                      </span>
                       {source.verified && (
                         <CheckCircle className="h-4 w-4 text-green-600" />
                       )}
                     </div>
-                    <Badge variant="secondary" className={getSourceColor(source.source)}>
-                      {source.verified ? 'Verified' : 'Unverified'}
+                    <Badge variant="secondary" className={
+                      source.isOfficial ? 'bg-amber-600 text-white' : getSourceColor(source.source)
+                    }>
+                      {source.isOfficial ? 'Direct from Source' : source.verified ? 'Verified' : 'Unverified'}
                     </Badge>
                   </div>
                   

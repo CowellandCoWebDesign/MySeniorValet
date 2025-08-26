@@ -180,21 +180,115 @@ export class WebsiteScraperService {
         }
       }
       
-      // Extract pricing information
-      const priceRegex = /\$[\d,]+(?:\s*-\s*\$[\d,]+)?(?:\s*\/\s*mo(?:nth)?)?/gi;
-      const priceMatches = html.match(priceRegex) || [];
-      
-      if (priceMatches.length > 0) {
-        // Try to find min/max pricing
-        const prices = priceMatches
-          .map(p => parseInt(p.replace(/[^\d]/g, '')))
-          .filter(p => p > 500 && p < 50000); // Reasonable monthly price range
+      // Extract pricing information with enhanced patterns
+      const extractPricing = () => {
+        const pricingInfo: any = {};
         
-        if (prices.length > 0) {
-          data.pricing.min = `$${Math.min(...prices).toLocaleString()}`;
-          data.pricing.max = `$${Math.max(...prices).toLocaleString()}`;
+        // Multiple pricing pattern variations found on senior living sites
+        const pricingPatterns = [
+          // Comprehensive patterns for senior living pricing
+          /(?:starting\s+at|from|as\s+low\s+as|begins?\s+at)\s*\$?([\d,]+)(?:\s*(?:\/|per)\s*month)?/gi,
+          /\$?([\d,]+)\s*(?:-|–|to)\s*\$?([\d,]+)\s*(?:\/|per)?\s*month/gi,
+          /monthly\s+(?:rent|cost|fee|price|rate)s?\s*(?:of|:)?\s*\$?([\d,]+)/gi,
+          /\$?([\d,]+)\s*(?:monthly|\/mo|per\s+month)/gi,
+          /(?:base\s+)?(?:rent|price|cost|rate)\s*(?:is|:)?\s*\$?([\d,]+)/gi,
+          /(?:independent|assisted|memory\s+care).{0,50}\$?([\d,]+)/gi,
+          // Look for pricing in structured data
+          /<(?:span|div|p)[^>]*(?:class|id)=["'][^"']*price[^"']*["'][^>]*>\s*\$?([\d,]+)/gi,
+          // Pricing tables
+          /<td[^>]*>\s*\$?([\d,]+)\s*(?:<\/td>|\/mo)/gi
+        ];
+        
+        const foundPrices: number[] = [];
+        const priceDetails: string[] = [];
+        
+        pricingPatterns.forEach(pattern => {
+          let match;
+          while ((match = pattern.exec(html)) !== null) {
+            // Extract the numeric price
+            const priceText = match[match.length - 1] || match[1]; // Last capture group
+            const price = parseInt(priceText.replace(/[^\d]/g, ''));
+            
+            // Validate price is in reasonable range for senior living (monthly)
+            if (price >= 1500 && price <= 25000) {
+              foundPrices.push(price);
+              
+              // Capture the full context around the price
+              const contextStart = Math.max(0, match.index - 50);
+              const contextEnd = Math.min(html.length, match.index + match[0].length + 50);
+              const context = html.substring(contextStart, contextEnd).replace(/<[^>]*>/g, ' ').trim();
+              
+              // Check what type of pricing this is
+              if (context.toLowerCase().includes('independent')) {
+                if (!pricingInfo.independentLiving) {
+                  pricingInfo.independentLiving = `$${price.toLocaleString()}`;
+                }
+              } else if (context.toLowerCase().includes('assisted')) {
+                if (!pricingInfo.assistedLiving) {
+                  pricingInfo.assistedLiving = `$${price.toLocaleString()}`;
+                }
+              } else if (context.toLowerCase().includes('memory')) {
+                if (!pricingInfo.memoryCare) {
+                  pricingInfo.memoryCare = `$${price.toLocaleString()}`;
+                }
+              }
+              
+              priceDetails.push(context);
+            }
+          }
+        });
+        
+        // Also look for pricing in JSON-LD structured data (often used by senior living sites)
+        const jsonLdMatch = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i);
+        if (jsonLdMatch) {
+          try {
+            const jsonData = JSON.parse(jsonLdMatch[1]);
+            if (jsonData.priceRange || jsonData.offers?.price || jsonData.offers?.priceRange) {
+              const priceRange = jsonData.priceRange || jsonData.offers?.priceRange || jsonData.offers?.price;
+              pricingInfo.structuredData = priceRange;
+              
+              // Try to extract numeric values
+              const structuredPrices = priceRange.match(/\d+/g);
+              if (structuredPrices) {
+                structuredPrices.forEach((p: string) => {
+                  const price = parseInt(p);
+                  if (price >= 1500 && price <= 25000) {
+                    foundPrices.push(price);
+                  }
+                });
+              }
+            }
+          } catch (e) {
+            // Invalid JSON, skip
+          }
         }
-      }
+        
+        // Set min/max if we found prices
+        if (foundPrices.length > 0) {
+          const uniquePrices = [...new Set(foundPrices)].sort((a, b) => a - b);
+          data.pricing.min = `$${uniquePrices[0].toLocaleString()}/month`;
+          if (uniquePrices.length > 1) {
+            data.pricing.max = `$${uniquePrices[uniquePrices.length - 1].toLocaleString()}/month`;
+          }
+          
+          // Add detailed pricing information
+          if (priceDetails.length > 0) {
+            data.pricing.details = `Official Website Pricing - ${priceDetails[0].substring(0, 200)}`;
+          }
+          
+          // Add care-level specific pricing if found
+          if (pricingInfo.independentLiving || pricingInfo.assistedLiving || pricingInfo.memoryCare) {
+            data.pricing.details = (data.pricing.details || '') + ' | Care Levels: ';
+            if (pricingInfo.independentLiving) data.pricing.details += `IL: ${pricingInfo.independentLiving} `;
+            if (pricingInfo.assistedLiving) data.pricing.details += `AL: ${pricingInfo.assistedLiving} `;
+            if (pricingInfo.memoryCare) data.pricing.details += `MC: ${pricingInfo.memoryCare}`;
+          }
+        }
+        
+        console.log(`💰 Extracted pricing:`, data.pricing);
+      };
+      
+      extractPricing();
 
       // Extract text content for analysis
       const textContent = html.replace(/<[^>]*>/g, ' ').toLowerCase();

@@ -537,8 +537,43 @@ export function LiveWebIntelligence({
               <TabsContent value="pricing" className="space-y-4 mt-4">
                 {(intelligenceData?.pricing || extractedData.pricing) ? (
                   <div className="space-y-4">
-                    {/* Main pricing display from backend or extracted data */}
-                    {(intelligenceData?.pricing?.formatted || (extractedData.pricing?.min && extractedData.pricing?.max)) && (
+                    {/* Official Website Pricing (Highest Priority) */}
+                    {intelligenceData?.pricing?.isOfficial && (
+                      <Alert className="border-amber-400 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 ring-2 ring-amber-400">
+                        <Home className="w-5 h-5 text-amber-600" />
+                        <AlertDescription>
+                          <div className="flex items-center justify-between mb-2">
+                            <strong className="text-lg">🏆 Official Website Pricing</strong>
+                            <Badge className="bg-amber-600 text-white">Direct from Source</Badge>
+                          </div>
+                          {intelligenceData.pricing.formatted ? (
+                            <p className="text-2xl font-bold text-amber-700 dark:text-amber-400 mt-2">
+                              {intelligenceData.pricing.formatted}
+                            </p>
+                          ) : (intelligenceData.pricing.min || intelligenceData.pricing.max) ? (
+                            <p className="text-2xl font-bold text-amber-700 dark:text-amber-400 mt-2">
+                              {intelligenceData.pricing.min && `$${intelligenceData.pricing.min}`}
+                              {intelligenceData.pricing.min && intelligenceData.pricing.max && ' - '}
+                              {intelligenceData.pricing.max && `$${intelligenceData.pricing.max}`}
+                              <span className="text-sm font-normal ml-1 text-gray-600">per month</span>
+                            </p>
+                          ) : intelligenceData.pricing.details ? (
+                            <p className="text-lg text-amber-700 dark:text-amber-400 mt-2">
+                              {intelligenceData.pricing.details}
+                            </p>
+                          ) : null}
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                            ✅ Verified from official community website
+                          </p>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    
+                    {/* AI-Extracted Pricing (if no official pricing) */}
+                    {!intelligenceData?.pricing?.isOfficial && (
+                      intelligenceData?.pricing?.formatted || 
+                      (extractedData.pricing?.min && extractedData.pricing?.max)
+                    ) && (
                       <Alert className="border-purple-200 bg-purple-50 dark:bg-purple-900/20">
                         <DollarSign className="w-5 h-5 text-purple-600" />
                         <AlertDescription>
