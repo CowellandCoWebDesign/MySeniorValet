@@ -82,14 +82,14 @@ export function registerStripeRealChargeRoutes(app: Express) {
       }
       testResults.summary.total++;
 
-      // Test 2: Process Vendor Featured Subscription - $249 (REAL CHARGE)
+      // Test 2: Process Vendor Featured Subscription - $349 (REAL CHARGE)
       try {
-        console.log('Processing $249 Vendor Featured subscription charge...');
+        console.log('Processing $349 Vendor Featured subscription charge...');
         
         const paymentIntent = await stripe.paymentIntents.create({
-          amount: 24900, // $249.00
+          amount: 34900, // $349.00
           currency: 'usd',
-          description: 'MySeniorValet Vendor Featured Subscription Test - $249/month',
+          description: 'MySeniorValet Vendor Featured Subscription Test - $349/month',
           metadata: {
             tier: 'vendor_featured',
             test: 'real_charge_2',
@@ -108,7 +108,7 @@ export function registerStripeRealChargeRoutes(app: Express) {
         
         testResults.charges.push({
           tier: 'Vendor Featured',
-          amount: '$249.00',
+          amount: '$349.00',
           status: confirmedPayment.status,
           paymentIntentId: confirmedPayment.id,
           clientSecret: confirmedPayment.client_secret,
@@ -117,11 +117,11 @@ export function registerStripeRealChargeRoutes(app: Express) {
 
         if (confirmedPayment.status === 'succeeded') {
           testResults.summary.successful++;
-          testResults.summary.totalAmount += 249;
+          testResults.summary.totalAmount += 349;
           
           testResults.notifications.push({
             type: 'payment.succeeded',
-            amount: '$249.00',
+            amount: '$349.00',
             tier: 'vendor_featured',
             message: 'Payment processed successfully - notification would be sent'
           });
@@ -130,7 +130,7 @@ export function registerStripeRealChargeRoutes(app: Express) {
       } catch (error: any) {
         testResults.charges.push({
           tier: 'Vendor Featured',
-          amount: '$249.00',
+          amount: '$349.00',
           status: 'failed',
           error: error.message
         });

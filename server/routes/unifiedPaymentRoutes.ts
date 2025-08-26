@@ -662,7 +662,7 @@ router.post('/confirm-vendor-payment', async (req: Request, res: Response) => {
       paymentIntent = {
         id: paymentIntentId,
         status: 'succeeded',
-        amount: vendorData.planType === 'national' ? 49900 : vendorData.planType === 'featured' ? 24900 : 9900,
+        amount: vendorData.planType === 'national' ? 49900 : vendorData.planType === 'featured' ? 34900 : 9900,
         metadata: { tier: vendorData.planType }
       };
     } else {

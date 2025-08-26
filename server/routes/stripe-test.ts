@@ -52,12 +52,12 @@ export function registerStripeTestRoutes(app: Express) {
       }
       testResults.summary.total++;
 
-      // Test 2: Vendor Featured Subscription - $249
+      // Test 2: Vendor Featured Subscription - $349
       try {
         const featuredCharge = await stripe.paymentIntents.create({
-          amount: 24900, // $249.00
+          amount: 34900, // $349.00
           currency: 'usd',
-          description: 'MySeniorValet Vendor Featured Subscription - $249/month',
+          description: 'MySeniorValet Vendor Featured Subscription - $349/month',
           metadata: {
             tier: 'vendor_featured',
             test: 'sandbox_charge_2'
@@ -66,16 +66,16 @@ export function registerStripeTestRoutes(app: Express) {
         });
         
         testResults.tests.push({
-          name: 'Vendor Featured ($249)',
+          name: 'Vendor Featured ($349)',
           status: 'PASSED',
-          amount: '$249.00',
+          amount: '$349.00',
           paymentIntentId: featuredCharge.id,
           details: 'Payment intent created successfully'
         });
         testResults.summary.passed++;
       } catch (error: any) {
         testResults.tests.push({
-          name: 'Vendor Featured ($249)',
+          name: 'Vendor Featured ($349)',
           status: 'FAILED',
           error: error.message
         });
@@ -145,12 +145,12 @@ export function registerStripeTestRoutes(app: Express) {
       }
       testResults.summary.total++;
 
-      // Test 5: Community Platinum - $349
+      // Test 5: Community Platinum - $449
       try {
         const platinumCharge = await stripe.paymentIntents.create({
-          amount: 34900, // $349.00
+          amount: 44900, // $449.00
           currency: 'usd',
-          description: 'MySeniorValet Community Platinum Subscription - $349/month',
+          description: 'MySeniorValet Community Platinum Subscription - $449/month',
           metadata: {
             tier: 'community_platinum',
             test: 'sandbox_charge_5'
@@ -159,16 +159,16 @@ export function registerStripeTestRoutes(app: Express) {
         });
         
         testResults.tests.push({
-          name: 'Community Platinum ($349)',
+          name: 'Community Platinum ($449)',
           status: 'PASSED',
-          amount: '$349.00',
+          amount: '$449.00',
           paymentIntentId: platinumCharge.id,
           details: 'Payment intent created successfully'
         });
         testResults.summary.passed++;
       } catch (error: any) {
         testResults.tests.push({
-          name: 'Community Platinum ($349)',
+          name: 'Community Platinum ($449)',
           status: 'FAILED',
           error: error.message
         });
