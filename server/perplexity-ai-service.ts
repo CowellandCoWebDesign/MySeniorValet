@@ -79,7 +79,7 @@ Gather information from ALL available sources - the community's website, parent 
           temperature: 0.2,
           top_p: 0.9,
           return_images: true,  // Request actual images from search results
-          search_recency_filter: 'month',  // Get fresh data from last 30 days
+          search_recency_filter: undefined,  // No time restriction - get all available data for transparency
           stream: false
         },
         {
@@ -221,6 +221,182 @@ Gather information from ALL available sources - the community's website, parent 
         data: 'Community search temporarily unavailable'
       };
     }
+  }
+
+  // Enhanced Image Analysis Integration
+  async searchWithImageAnalysis(communityName: string, location: string): Promise<{
+    summary: string;
+    sources: string[];
+    images?: string[];
+    imageAnalysis?: {
+      photoCount: number;
+      photoTypes: string[];
+      qualityIndicators: string[];
+      amenitiesDetected: string[];
+      virtualTourAvailable: boolean;
+    }
+  }> {
+    const result = await this.searchRealTime(
+      `${communityName} ${location} photos gallery virtual tour floor plans amenities`,
+      'Find all available images, photos, virtual tours and visual content'
+    );
+
+    // Analyze images if found
+    const imageAnalysis = result.images && result.images.length > 0 ? {
+      photoCount: result.images.length,
+      photoTypes: this.categorizeImages(result.images, result.summary),
+      qualityIndicators: this.assessImageQuality(result.summary),
+      amenitiesDetected: this.extractAmenitiesFromDescription(result.summary),
+      virtualTourAvailable: this.checkVirtualTourAvailability(result.summary)
+    } : undefined;
+
+    return {
+      ...result,
+      imageAnalysis
+    };
+  }
+
+  private categorizeImages(imageUrls: string[], description: string): string[] {
+    const categories = new Set<string>();
+    
+    // Check URLs for image type hints
+    imageUrls.forEach(url => {
+      const urlLower = url.toLowerCase();
+      if (urlLower.includes('exterior') || urlLower.includes('building')) categories.add('Exterior');
+      if (urlLower.includes('interior') || urlLower.includes('room')) categories.add('Interior');
+      if (urlLower.includes('dining')) categories.add('Dining');
+      if (urlLower.includes('activity') || urlLower.includes('recreation')) categories.add('Activities');
+      if (urlLower.includes('floor') || urlLower.includes('plan')) categories.add('Floor Plans');
+      if (urlLower.includes('garden') || urlLower.includes('outdoor')) categories.add('Outdoor Spaces');
+    });
+
+    // Check description for mentioned photo types
+    const descLower = description.toLowerCase();
+    if (descLower.includes('apartment') || descLower.includes('suite')) categories.add('Living Spaces');
+    if (descLower.includes('fitness') || descLower.includes('gym')) categories.add('Fitness Center');
+    if (descLower.includes('library') || descLower.includes('lounge')) categories.add('Common Areas');
+    if (descLower.includes('memory care')) categories.add('Specialized Care Areas');
+
+    return Array.from(categories);
+  }
+
+  private assessImageQuality(description: string): string[] {
+    const indicators: string[] = [];
+    const descLower = description.toLowerCase();
+
+    if (descLower.includes('professional photo')) indicators.push('Professional Photography');
+    if (descLower.includes('virtual tour')) indicators.push('Virtual Tour Available');
+    if (descLower.includes('360') || descLower.includes('panoramic')) indicators.push('360° Views');
+    if (descLower.includes('recent') || descLower.includes('updated')) indicators.push('Recently Updated');
+    if (descLower.includes('high resolution')) indicators.push('High Resolution');
+    if (descLower.includes('drone') || descLower.includes('aerial')) indicators.push('Aerial Views');
+
+    return indicators;
+  }
+
+  private extractAmenitiesFromDescription(description: string): string[] {
+    const amenities: string[] = [];
+    const amenityKeywords = [
+      { keyword: 'pool', amenity: 'Swimming Pool' },
+      { keyword: 'fitness', amenity: 'Fitness Center' },
+      { keyword: 'salon', amenity: 'Beauty/Barber Salon' },
+      { keyword: 'library', amenity: 'Library' },
+      { keyword: 'theater', amenity: 'Theater/Media Room' },
+      { keyword: 'chapel', amenity: 'Chapel/Spiritual Center' },
+      { keyword: 'dining', amenity: 'Restaurant-Style Dining' },
+      { keyword: 'transportation', amenity: 'Transportation Services' },
+      { keyword: 'garden', amenity: 'Gardens/Outdoor Spaces' },
+      { keyword: 'pet', amenity: 'Pet-Friendly' },
+      { keyword: 'wifi', amenity: 'WiFi/Internet' },
+      { keyword: 'laundry', amenity: 'Laundry Services' },
+      { keyword: 'parking', amenity: 'Parking' },
+      { keyword: 'security', amenity: '24/7 Security' }
+    ];
+
+    const descLower = description.toLowerCase();
+    amenityKeywords.forEach(({ keyword, amenity }) => {
+      if (descLower.includes(keyword)) {
+        amenities.push(amenity);
+      }
+    });
+
+    return amenities;
+  }
+
+  private checkVirtualTourAvailability(description: string): boolean {
+    const virtualTourKeywords = ['virtual tour', '360 tour', 'online tour', 'video tour', 'interactive tour'];
+    const descLower = description.toLowerCase();
+    return virtualTourKeywords.some(keyword => descLower.includes(keyword));
+  }
+
+  // Method to get comprehensive visual information about a community
+  async getVisualIntelligence(communityName: string, location: string): Promise<{
+    hasPhotos: boolean;
+    photoQuality: 'high' | 'medium' | 'low' | 'none';
+    virtualTourUrl?: string;
+    photoGalleryUrl?: string;
+    floorPlansAvailable: boolean;
+    visualTransparencyScore: number; // 0-100
+  }> {
+    const searchResult = await this.searchWithImageAnalysis(communityName, location);
+    
+    const hasPhotos = (searchResult.images && searchResult.images.length > 0) || false;
+    const analysis = searchResult.imageAnalysis;
+    
+    // Calculate photo quality based on indicators
+    let photoQuality: 'high' | 'medium' | 'low' | 'none' = 'none';
+    if (analysis) {
+      if (analysis.qualityIndicators.length >= 3) photoQuality = 'high';
+      else if (analysis.qualityIndicators.length >= 1) photoQuality = 'medium';
+      else if (hasPhotos) photoQuality = 'low';
+    }
+
+    // Extract URLs from search results
+    const virtualTourUrl = this.extractUrl(searchResult.summary, ['virtual tour', '360 tour']);
+    const photoGalleryUrl = this.extractUrl(searchResult.summary, ['photo gallery', 'photos', 'gallery']);
+    
+    // Check for floor plans
+    const floorPlansAvailable = searchResult.summary.toLowerCase().includes('floor plan') ||
+                                (analysis?.photoTypes.includes('Floor Plans') || false);
+
+    // Calculate transparency score based on visual content availability
+    let transparencyScore = 0;
+    if (hasPhotos) transparencyScore += 30;
+    if (photoQuality === 'high') transparencyScore += 20;
+    if (analysis?.virtualTourAvailable) transparencyScore += 25;
+    if (floorPlansAvailable) transparencyScore += 15;
+    if (analysis && analysis.photoTypes.length > 3) transparencyScore += 10;
+
+    return {
+      hasPhotos,
+      photoQuality,
+      virtualTourUrl,
+      photoGalleryUrl,
+      floorPlansAvailable,
+      visualTransparencyScore: Math.min(100, transparencyScore)
+    };
+  }
+
+  private extractUrl(text: string, keywords: string[]): string | undefined {
+    // Simple URL extraction near keywords
+    const urlRegex = /https?:\/\/[^\s]+/g;
+    const urls = text.match(urlRegex);
+    
+    if (!urls) return undefined;
+    
+    // Find URLs near relevant keywords
+    for (const url of urls) {
+      const surroundingText = text.substring(
+        Math.max(0, text.indexOf(url) - 50),
+        Math.min(text.length, text.indexOf(url) + url.length + 50)
+      ).toLowerCase();
+      
+      if (keywords.some(keyword => surroundingText.includes(keyword))) {
+        return url;
+      }
+    }
+    
+    return undefined;
   }
 }
 

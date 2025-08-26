@@ -337,6 +337,7 @@ Determine if the web results contain useful information about "${communityName}"
 
 STEP 2 - DATA EXTRACTION (location-specific only):
 Extract ALL data specific to the ${location} location of "${communityName}".
+Include information from the last 6 months (not just recent weeks).
 
 Respond in JSON format:
 {
