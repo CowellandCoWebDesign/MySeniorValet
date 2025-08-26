@@ -381,7 +381,7 @@ export default function CommunityDirectory() {
             </h1>
             
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Access our complete database of {((communityCount as any)?.count || '35,264').toLocaleString()}+ senior living communities across the United States, Canada, Mexico, Peru, Cuba, Costa Rica, Panama & Puerto Rico
+              Access our complete database of {((communityCount as any)?.count || '35,264').toLocaleString()}+ senior living communities across the United States, Canada, Australia, Mexico, Japan, Peru, Cuba, Costa Rica & Panama
             </p>
             
             {/* Key Stats */}
@@ -400,7 +400,7 @@ export default function CommunityDirectory() {
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-3xl font-bold text-white">8</div>
+                  <div className="text-3xl font-bold text-white">9</div>
                   <div className="text-xs text-blue-100">Countries Covered</div>
                 </CardContent>
               </Card>
@@ -575,7 +575,7 @@ export default function CommunityDirectory() {
               </h2>
               
               <p className="text-xl text-blue-100 mb-8 max-w-4xl mx-auto">
-                Access senior living communities across 13 countries with authentic, verified data from trusted sources
+                Access senior living communities across 9 countries with authentic, verified data from trusted sources
               </p>
             </motion.div>
           </div>
@@ -592,7 +592,7 @@ export default function CommunityDirectory() {
             
             <Card className="bg-white/10 backdrop-blur-sm border-white/20">
               <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-yellow-300 mb-2">13</div>
+                <div className="text-3xl font-bold text-yellow-300 mb-2">9</div>
                 <div className="text-sm text-blue-100">Countries</div>
                 <div className="text-xs text-blue-200 mt-1">3 Continents</div>
               </CardContent>
@@ -600,7 +600,7 @@ export default function CommunityDirectory() {
             
             <Card className="bg-white/10 backdrop-blur-sm border-white/20">
               <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-green-300 mb-2">7,038</div>
+                <div className="text-3xl font-bold text-green-300 mb-2">5,000+</div>
                 <div className="text-sm text-blue-100">Cities</div>
                 <div className="text-xs text-blue-200 mt-1">Major Metros</div>
               </CardContent>
@@ -622,7 +622,7 @@ export default function CommunityDirectory() {
               <CardContent className="p-4 text-center">
                 <div className="text-2xl mb-2">🇺🇸</div>
                 <div className="font-bold text-white">United States</div>
-                <div className="text-sm text-blue-100">28,348 communities</div>
+                <div className="text-sm text-blue-100">28,380 communities</div>
                 <div className="text-xs text-blue-200 mt-1">50 states + territories</div>
               </CardContent>
             </Card>
@@ -650,7 +650,7 @@ export default function CommunityDirectory() {
               <CardContent className="p-4 text-center">
                 <div className="text-2xl mb-2">🇵🇪</div>
                 <div className="font-bold text-white">Peru</div>
-                <div className="text-sm text-blue-100">127 communities</div>
+                <div className="text-sm text-blue-100">10 communities</div>
                 <div className="text-xs text-blue-200 mt-1">Lima & regions</div>
               </CardContent>
             </Card>
@@ -659,7 +659,7 @@ export default function CommunityDirectory() {
               <CardContent className="p-4 text-center">
                 <div className="text-2xl mb-2">🇨🇺</div>
                 <div className="font-bold text-white">Cuba</div>
-                <div className="text-sm text-blue-100">89 communities</div>
+                <div className="text-sm text-blue-100">12 communities</div>
                 <div className="text-xs text-blue-200 mt-1">Havana & provinces</div>
               </CardContent>
             </Card>
@@ -668,7 +668,7 @@ export default function CommunityDirectory() {
               <CardContent className="p-4 text-center">
                 <div className="text-2xl mb-2">🇨🇷</div>
                 <div className="font-bold text-white">Costa Rica</div>
-                <div className="text-sm text-blue-100">78 communities</div>
+                <div className="text-sm text-blue-100">5 communities</div>
                 <div className="text-xs text-blue-200 mt-1">San José & coast</div>
               </CardContent>
             </Card>
@@ -677,17 +677,8 @@ export default function CommunityDirectory() {
               <CardContent className="p-4 text-center">
                 <div className="text-2xl mb-2">🇵🇦</div>
                 <div className="font-bold text-white">Panama</div>
-                <div className="text-sm text-blue-100">45 communities</div>
+                <div className="text-sm text-blue-100">5 communities</div>
                 <div className="text-xs text-blue-200 mt-1">Panama City</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">🇵🇷</div>
-                <div className="font-bold text-white">Puerto Rico</div>
-                <div className="text-sm text-blue-100">34 communities</div>
-                <div className="text-xs text-blue-200 mt-1">San Juan & islands</div>
               </CardContent>
             </Card>
             
@@ -707,33 +698,6 @@ export default function CommunityDirectory() {
                 <div className="font-bold text-white">Australia</div>
                 <div className="text-sm text-blue-100">2,231 communities</div>
                 <div className="text-xs text-blue-200 mt-1">All major cities</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">🇳🇿</div>
-                <div className="font-bold text-white">New Zealand</div>
-                <div className="text-sm text-blue-100">156 communities</div>
-                <div className="text-xs text-blue-200 mt-1">Both islands</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">🇰🇷</div>
-                <div className="font-bold text-white">South Korea</div>
-                <div className="text-sm text-blue-100">134 communities</div>
-                <div className="text-xs text-blue-200 mt-1">Seoul & regions</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">🌏</div>
-                <div className="font-bold text-white">More Coming</div>
-                <div className="text-sm text-blue-100">Expanding globally</div>
-                <div className="text-xs text-blue-200 mt-1">100% authentic data</div>
               </CardContent>
             </Card>
           </div>
