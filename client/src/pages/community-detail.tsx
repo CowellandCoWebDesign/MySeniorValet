@@ -1584,8 +1584,8 @@ const HeroPhotoCarousel = ({
                         console.log(`❌ Failed to load photo ${index + 1}:`, photoUrl);
                         // Replace with working fallback image
                         const target = e.target as HTMLImageElement;
-                      target.src = '/hero-senior-community.svg';
-                    }}
+                        target.src = '/hero-senior-community.svg';
+                      }}
                   />
                   {/* Attribution for web-sourced photos */}
                   {photo.source === 'web' && (
@@ -1597,7 +1597,8 @@ const HeroPhotoCarousel = ({
                     </div>
                   )}
                 </div>
-              ))}
+                );
+              })}
             </div>
             
             {/* Show loading indicator overlay when showing placeholder photos */}
