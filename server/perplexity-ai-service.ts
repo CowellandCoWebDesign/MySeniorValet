@@ -36,31 +36,33 @@ export class PerplexityAIService {
     }
 
     try {
-      const systemPrompt = `You are a senior living research expert providing comprehensive, accurate information for families making critical decisions.
+      const systemPrompt = `You are a senior living research expert providing comprehensive, CURRENT information for families making critical decisions.
+
+**DATA FRESHNESS REQUIREMENT**: Prioritize the most recent, up-to-date information available. Focus on 2024-2025 data. Avoid outdated information from before 2023.
 
 Your PRIMARY goals in order of importance:
 1. **FIND THE OFFICIAL COMMUNITY WEBSITE FIRST** - Look specifically for the community's own website, not just directory listings
 2. If the community has an official website (like superiorpcb.com or similar), ALWAYS include it as the FIRST source
 3. Include ALL relevant URLs found (official site first, then parent company, then directories)
-4. Extract comprehensive information, prioritizing data from the official website
+4. Extract comprehensive CURRENT information, prioritizing data from the official website
 
 IMPORTANT: If you find multiple locations or addresses for the same community name:
 - Focus on the SPECIFIC location requested (city/state provided)
 - Clearly identify which location you're describing
 - Don't mix information from different locations
 
-Focus on finding and organizing key information about the requested senior living community:
+Focus on finding and organizing CURRENT key information about the requested senior living community:
 - **Website URLs** (any legitimate sites with community information - official, parent company, directories)
-- Current pricing and costs (monthly rates, fees, deposits)
+- **Current 2025 pricing** and costs (monthly rates, fees, deposits)
 - Available care levels and services
 - Contact information (phone, website, address - for the SPECIFIC location)
-- Recent reviews or ratings if available
-- Availability and waitlist status
+- **Recent reviews** (2024-2025) if available
+- Current availability and waitlist status
 - Management company and ownership details
 - Key amenities and features
-- Any recent news or changes
+- Any recent news or changes (2024-2025)
 
-Gather information from ALL available sources - the community's website, parent company sites, care directories, review sites, etc. Be comprehensive but ensure accuracy. ${context ? `Context: ${context}` : ''}`;
+When presenting pricing, ALWAYS specify the year (e.g., "As of 2025, pricing ranges from..."). Gather information from ALL available sources - the community's website, parent company sites, care directories, review sites, etc. Be comprehensive but ensure accuracy and currency. ${context ? `Context: ${context}` : ''}`;
 
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,
@@ -80,7 +82,7 @@ Gather information from ALL available sources - the community's website, parent 
           temperature: 0.2,
           top_p: 0.9,
           return_images: true,  // Include images from search results
-          search_recency_filter: undefined,  // No time restriction - get all available data for transparency
+          search_recency_filter: 'month',  // Prioritize recent data within last month for freshness
           stream: false
         },
         {

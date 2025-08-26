@@ -23,21 +23,21 @@ router.post('/api/competitive-analysis', async (req, res) => {
     
     switch(type) {
       case 'city':
-        // Search for ALL senior living types, not just assisted living
-        searchQuery = `all senior living communities ${location} including independent living assisted living memory care skilled nursing CCRC`;
-        contextQuery = `List ALL types of senior living communities in ${location} including: independent living, assisted living, memory care, skilled nursing, and CCRCs. Include their website URL, address, phone, and monthly pricing. Return comprehensive results for all care levels, not just assisted living.`;
+        // Search for ALL senior living types with current 2025 data
+        searchQuery = `all senior living communities ${location} 2025 current pricing including independent living assisted living memory care skilled nursing CCRC`;
+        contextQuery = `List ALL types of senior living communities currently operating in ${location} as of 2025, including: independent living, assisted living, memory care, skilled nursing, and CCRCs. Include their website URL, address, phone, and CURRENT 2025 monthly pricing. Focus on recent, up-to-date information. Return comprehensive results for all care levels.`;
         break;
       case 'state':
-        searchQuery = `all senior living facilities ${location} state independent assisted memory care nursing`;
-        contextQuery = `List ALL types of senior living facilities in ${location} including independent living, assisted living, memory care, and skilled nursing. Include websites and pricing for all care levels.`;
+        searchQuery = `all senior living facilities ${location} state 2025 current independent assisted memory care nursing`;
+        contextQuery = `List ALL types of senior living facilities currently in ${location} as of 2025, including independent living, assisted living, memory care, and skilled nursing. Include websites and CURRENT 2025 pricing for all care levels. Focus on recent data.`;
         break;
       case 'region':
-        searchQuery = `all senior care facilities ${location} region independent assisted memory skilled`;
-        contextQuery = `List ALL types of senior care facilities in the ${location} region including independent living, assisted living, memory care, skilled nursing. Include websites and pricing for all care levels.`;
+        searchQuery = `all senior care facilities ${location} region 2025 current independent assisted memory skilled`;
+        contextQuery = `List ALL types of senior care facilities currently in the ${location} region as of 2025, including independent living, assisted living, memory care, skilled nursing. Include websites and CURRENT pricing for all care levels.`;
         break;
       case 'country':
-        searchQuery = `all senior living costs ${location} independent assisted memory care skilled nursing`;
-        contextQuery = `National senior living data for ${location}. List ALL types of communities including independent living, assisted living, memory care, skilled nursing, and CCRCs with websites and pricing.`;
+        searchQuery = `all senior living costs ${location} 2025 current independent assisted memory care skilled nursing`;
+        contextQuery = `Current national senior living data for ${location} as of 2025. List ALL types of communities including independent living, assisted living, memory care, skilled nursing, and CCRCs with websites and CURRENT pricing.`;
         break;
     }
 
