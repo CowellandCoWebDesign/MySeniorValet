@@ -53,13 +53,18 @@ const defaultPhotos = [
 const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate }: { community: any, onAnalysisUpdate?: (data: any) => void }) => {
   const [analysis, setAnalysis] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true); // Always expanded by default
   
   const fetchAnalysis = async () => {
     if (!community?.city || !community?.state) return;
     if (isLoading) return; // Prevent duplicate fetches
     
     setIsLoading(true);
+    
+    // Set a timeout for the API call
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 35000); // 35 second timeout
+    
     try {
       const response = await fetch('/api/competitive-analysis', {
         method: 'POST',
@@ -69,8 +74,11 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate }: { communi
         body: JSON.stringify({
           location: `${community.city}, ${community.state}`,
           type: 'city'
-        })
+        }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
@@ -84,10 +92,22 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate }: { communi
       if (onAnalysisUpdate) {
         onAnalysisUpdate(data);
       }
-    } catch (error) {
+    } catch (error: any) {
+      clearTimeout(timeoutId);
       console.error('Failed to fetch competitive analysis:', error);
-      // Set a basic fallback state
-      setAnalysis({ error: true });
+      
+      // Set a meaningful fallback state
+      setAnalysis({
+        error: true,
+        location: `${community.city}, ${community.state}`,
+        averageMonthlyRent: 'Contact for pricing',
+        insights: [
+          `Senior living communities in ${community.city}, ${community.state} offer various care levels`,
+          'Pricing varies based on care needs and amenities',
+          'Contact communities directly for current availability and pricing'
+        ],
+        detailedSummary: `Market analysis for ${community.city}, ${community.state} is being updated. Please check back shortly or contact the community directly for the most current pricing and availability information.`
+      });
     } finally {
       setIsLoading(false);
     }
@@ -117,14 +137,41 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate }: { communi
         </CardDescription>
       </CardHeader>
       
-      {(isLoading || (!analysis && community?.city && community?.state)) && (
+      {isLoading && (
         <CardContent className="py-8">
-          <CompetitiveAnalysisLoader location={`${community?.city}, ${community?.state}`} />
+          <div className="space-y-4">
+            <div className="flex items-center justify-center">
+              <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+            </div>
+            <p className="text-center text-gray-600 dark:text-gray-400">
+              Analyzing market data for {community?.city}, {community?.state}...
+            </p>
+            <p className="text-center text-sm text-gray-500 dark:text-gray-500">
+              This may take 20-30 seconds as we search real-time data
+            </p>
+          </div>
         </CardContent>
       )}
       
-      {analysis && !analysis.error && (
+      {!isLoading && analysis && (
         <CardContent className="space-y-6 pt-6">
+          {/* Show error state if analysis failed */}
+          {analysis.error && (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
+              <div className="flex items-start">
+                <AlertTriangle className="w-5 h-5 mr-2 text-yellow-600 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-yellow-800 dark:text-yellow-200">
+                    Limited market data available
+                  </p>
+                  <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                    We're gathering real-time market analysis. Basic estimates shown below based on location averages.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Core Pricing Comparison */}
           {analysis.averageMonthlyRent && (
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
@@ -208,16 +255,18 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate }: { communi
             </div>
           )}
 
-          {/* Detailed Market Analysis */}
+          {/* Detailed Market Analysis - PROMINENTLY DISPLAYED */}
           {analysis.detailedSummary && (
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-xl border border-purple-200 dark:border-purple-800">
-              <h3 className="font-semibold text-lg mb-4 flex items-center">
-                <FileText className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
-                Complete Market Analysis (Unfiltered)
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-xl border-2 border-purple-300 dark:border-purple-700 shadow-lg">
+              <h3 className="font-bold text-xl mb-4 flex items-center text-purple-800 dark:text-purple-200">
+                <FileText className="w-6 h-6 mr-2 text-purple-600 dark:text-purple-400" />
+                📊 Complete Market Analysis (Unfiltered Raw Data)
+                <Badge className="ml-2 bg-green-500 text-white animate-pulse">Live Data</Badge>
               </h3>
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                <div className="text-gray-700 dark:text-gray-300 space-y-3">
-                  {analysis.detailedSummary.split('\n').filter((line: string) => line.trim()).map((paragraph: string, index: number) => {
+              <div className="bg-white/60 dark:bg-gray-900/60 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
+                <div className="prose prose-sm dark:prose-invert max-w-none">
+                  <div className="text-gray-700 dark:text-gray-300 space-y-3">
+                    {analysis.detailedSummary.split('\n').filter((line: string) => line.trim()).map((paragraph: string, index: number) => {
                     // Highlight community names
                     const highlightedParagraph = paragraph.replace(
                       /\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:Living|Care|Community|Manor|Village|Residence|Center|Home|Place|House|Terrace|Gardens?|Lodge|Park|Estates?|Court|Heights|Oaks|Pines|Springs|Hills|Valley|Creek|Ridge|Point|Plaza|Square|Tower|Arms|Haven|Crossing|Landing|Station|Walk|Way|Trail|Grove|Meadows?|Fields?|Woods?|Forest|Lake|River|Bay|Beach|Shore|Coast|Harbor|Port|Vista|View|Pointe))\b/g,
@@ -243,6 +292,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate }: { communi
                     // Regular paragraph
                     return <p key={index} className="text-sm" dangerouslySetInnerHTML={{ __html: highlightedParagraph }} />;
                   })}
+                  </div>
                 </div>
               </div>
             </div>

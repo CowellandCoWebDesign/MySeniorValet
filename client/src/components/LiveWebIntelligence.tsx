@@ -84,7 +84,7 @@ export function LiveWebIntelligence({
         'seniorhousing.net', 'medicare.gov', 'google.com', 'facebook.com', 'yelp.com'
       ];
       
-      const officialUrls = urls.filter(url => {
+      const officialUrls = urls.filter((url: string) => {
         const domain = url.toLowerCase();
         return !directorySites.some(site => domain.includes(site));
       });
