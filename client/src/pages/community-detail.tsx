@@ -50,7 +50,7 @@ const defaultPhotos = [
 ];
 
 // Community Competitive Analysis Component
-const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
+const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate }: { community: any, onAnalysisUpdate?: (data: any) => void }) => {
   const [analysis, setAnalysis] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -79,6 +79,11 @@ const CommunityCompetitiveAnalysis = ({ community }: { community: any }) => {
       const data = await response.json();
       setAnalysis(data);
       setIsExpanded(true);
+      
+      // Pass the analysis data back to parent component
+      if (onAnalysisUpdate) {
+        onAnalysisUpdate(data);
+      }
     } catch (error) {
       console.error('Failed to fetch competitive analysis:', error);
       // Set a basic fallback state
@@ -593,7 +598,7 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
 };
 
 // Real-time AI Insights Component - Enhanced with Multi-AI Verification
-const RealTimeInsights = ({ community, onVerificationReport, onPhotosUpdate }: { community: any, onVerificationReport?: (report: any) => void, onPhotosUpdate?: (photos: string[]) => void }) => {
+const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport, onPhotosUpdate }: { community: any, marketAnalysisData?: any, onVerificationReport?: (report: any) => void, onPhotosUpdate?: (photos: string[]) => void }) => {
   const realTimeData = community?.realTimeData;
   const [localVerificationReport, setLocalVerificationReport] = useState<any>(null);
   const [webIntelligenceData, setWebIntelligenceData] = useState<any>(null);
@@ -685,6 +690,7 @@ const RealTimeInsights = ({ community, onVerificationReport, onPhotosUpdate }: {
             state={community.state}
             address={community.address}
             databasePhone={community.phone}
+            marketAnalysisData={marketAnalysisData}
             onDataUpdate={(data) => {
               // Store web intelligence data for carousel access
               if (data.images && data.images.length > 0) {
@@ -1586,6 +1592,8 @@ export default function CommunityDetail() {
   const [expandedUnits, setExpandedUnits] = useState<Set<string>>(new Set());
   // Track verification report to show live pricing data from Market Data tab
   const [verificationReport, setVerificationReport] = useState<any>(null);
+  // Store market analysis data to share with web intelligence
+  const [marketAnalysisData, setMarketAnalysisData] = useState<any>(null);
   // Photos now stay in LiveWebIntelligence section only
   
   // Debug helper to track when verification report updates
@@ -3545,7 +3553,8 @@ export default function CommunityDetail() {
 
                 {/* Real-Time AI Insights */}
                 <RealTimeInsights 
-                  community={community} 
+                  community={community}
+                  marketAnalysisData={marketAnalysisData} 
                   onVerificationReport={setVerificationReport}
                   onPhotosUpdate={undefined}
                 />
@@ -3554,7 +3563,10 @@ export default function CommunityDetail() {
                 <IntelligentPricingPrediction community={community} />
 
                 {/* Community Competitive Analysis */}
-                <CommunityCompetitiveAnalysis community={community} />
+                <CommunityCompetitiveAnalysis 
+                  community={community} 
+                  onAnalysisUpdate={setMarketAnalysisData}
+                />
               </TabsContent>
               
               {/* Reviews Tab Content - Direct child of main tabs */}

@@ -47,6 +47,7 @@ interface LiveWebIntelligenceProps {
   state: string;
   address?: string; // Exact address from database for verification
   databasePhone?: string; // Phone from database
+  marketAnalysisData?: any; // Data from market analysis including found websites
   onDataUpdate?: (data: any) => void;
   onPhotosUpdate?: (photos: string[]) => void;
 }
@@ -57,6 +58,7 @@ export function LiveWebIntelligence({
   state,
   address,
   databasePhone,
+  marketAnalysisData,
   onDataUpdate,
   onPhotosUpdate 
 }: LiveWebIntelligenceProps) {
@@ -66,9 +68,40 @@ export function LiveWebIntelligence({
   const [activeTab, setActiveTab] = useState("overview");
   const [addressMismatch, setAddressMismatch] = useState(false);
 
+  // Extract website from market analysis data if available
+  const extractWebsiteFromMarketData = (marketData: any): string | null => {
+    if (!marketData) return null;
+    
+    // Look for website URLs in the market analysis response
+    const content = marketData.insights?.join(' ') || marketData.content || '';
+    const urlPattern = /(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9\-]+(?:\.[a-zA-Z]{2,})+)/g;
+    const urls = content.match(urlPattern);
+    
+    if (urls && urls.length > 0) {
+      // Filter out directory sites
+      const directorySites = [
+        'aplaceformom', 'caring.com', 'seniorly', 'assistedliving.org', 'senioradvisor',
+        'seniorhousing.net', 'medicare.gov', 'google.com', 'facebook.com', 'yelp.com'
+      ];
+      
+      const officialUrls = urls.filter(url => {
+        const domain = url.toLowerCase();
+        return !directorySites.some(site => domain.includes(site));
+      });
+      
+      if (officialUrls.length > 0) {
+        return officialUrls[0];
+      }
+    }
+    
+    return null;
+  };
+
+  const websiteFromMarketData = extractWebsiteFromMarketData(marketAnalysisData);
+
   // Fetch live data from Perplexity with exact address for verification
   const { data: webData, isLoading, error, refetch, dataUpdatedAt } = useQuery({
-    queryKey: ['/api/communities/web-intelligence', communityName, city, state, address],
+    queryKey: ['/api/communities/web-intelligence', communityName, city, state, address, websiteFromMarketData],
     queryFn: async () => {
       // Include exact address in the query for more precise results
       const searchQuery = address 
@@ -83,7 +116,9 @@ export function LiveWebIntelligence({
           city,
           state,
           address, // Pass address for verification
-          query: searchQuery
+          query: searchQuery,
+          website: websiteFromMarketData, // Pass website found from market analysis
+          marketAnalysisData // Pass the full market analysis data
         })
       });
       
@@ -91,7 +126,8 @@ export function LiveWebIntelligence({
       return response.json();
     },
     staleTime: 1000 * 60 * 60, // Cache for 1 hour
-    retry: 1
+    retry: 1,
+    enabled: !!marketAnalysisData // Only run when market analysis data is available
   });
 
   // Extract structured data from the response and verify address matches

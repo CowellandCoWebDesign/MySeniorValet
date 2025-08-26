@@ -7,7 +7,7 @@ const router = Router();
 // Fetch web intelligence for a community with identity verification
 router.post('/api/communities/web-intelligence', async (req, res) => {
   try {
-    const { communityName, city, state, query, address, zipCode, website } = req.body;
+    const { communityName, city, state, query, address, zipCode, website, marketAnalysisData } = req.body;
     
     if (!communityName || !city || !state) {
       return res.status(400).json({ 
@@ -16,6 +16,7 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
     }
 
     console.log(`🔍 Fetching web intelligence for: ${communityName} at ${address || 'unspecified address'} in ${city}, ${state}`);
+    console.log(`📊 Market analysis data provided: ${marketAnalysisData ? 'Yes' : 'No'}`);
     
     let officialWebsite = website; // Use provided website if available
     let websiteSearchResponse = null;
@@ -41,7 +42,7 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
     }
     
     // Extract official website from search response if we didn't already have it
-    const foundWebsites = [];
+    const foundWebsites: string[] = [];
     
     if (!officialWebsite && websiteSearchResponse) {
       // Directory sites to exclude (these are NOT the official community websites)
@@ -55,7 +56,7 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       // Check if URL likely belongs to the community
       const communityNameWords = communityName.toLowerCase()
         .split(' ')
-        .filter(w => w.length > 3 && !['senior', 'living', 'care', 'assisted', 'memory'].includes(w.toLowerCase()));
+        .filter((w: string) => w.length > 3 && !['senior', 'living', 'care', 'assisted', 'memory'].includes(w.toLowerCase()));
       
       // Check sources array for official websites
       if (websiteSearchResponse.sources && websiteSearchResponse.sources.length > 0) {
@@ -64,7 +65,7 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
           if (sourceDomain && !directorySites.some(site => sourceDomain.includes(site))) {
             const domainLower = sourceDomain.toLowerCase();
             // Check if this domain contains meaningful parts of the community name
-            const isLikelyOfficialSite = communityNameWords.some(word => domainLower.includes(word.toLowerCase()));
+            const isLikelyOfficialSite = communityNameWords.some((word: string) => domainLower.includes(word.toLowerCase()));
             
             if (isLikelyOfficialSite) {
               officialWebsite = source.startsWith('http') ? source : `https://${sourceDomain}`;
@@ -110,8 +111,9 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
     );
     
     // Separate official sources from third-party references
+    let thirdPartySourcesList: string[] = [];
     if (thirdPartyResponse.sources) {
-      thirdPartySources = thirdPartyResponse.sources.filter(source => {
+      thirdPartySourcesList = thirdPartyResponse.sources.filter((source: string) => {
         if (officialWebsite) {
           const officialDomain = officialWebsite.match(/(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9\-]+(?:\.[a-zA-Z]{2,})+)/)?.[1];
           const sourceDomain = source.match(/(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9\-]+(?:\.[a-zA-Z]{2,})+)/)?.[1];
@@ -120,6 +122,7 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
         return true;
       });
     }
+    thirdPartySources = thirdPartySourcesList;
     
     // Combine data with clear source attribution
     let finalContent = '';
