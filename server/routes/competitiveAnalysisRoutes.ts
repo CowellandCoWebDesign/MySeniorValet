@@ -25,21 +25,21 @@ router.post('/api/competitive-analysis', async (req, res) => {
     
     switch(type) {
       case 'city':
-        // Search for ALL senior living types with current 2025 data
-        searchQuery = `all senior living communities ${location} 2025 current pricing including independent living assisted living memory care skilled nursing CCRC`;
-        contextQuery = `List ALL types of senior living communities currently operating in ${location} as of 2025, including: independent living, assisted living, memory care, skilled nursing, and CCRCs. Include their website URL, address, phone, and CURRENT 2025 monthly pricing. Focus on recent, up-to-date information. Return comprehensive results for all care levels.`;
+        // FOCUSED QUERY: Just get key market data quickly
+        searchQuery = `senior living communities ${location} 2025 pricing`;
+        contextQuery = `What is the current 2025 average monthly pricing for senior living in ${location}? List 5-10 major communities with their names, websites if available, and current monthly rates. Focus on assisted living and memory care pricing.`;
         break;
       case 'state':
-        searchQuery = `all senior living facilities ${location} state 2025 current independent assisted memory care nursing`;
-        contextQuery = `List ALL types of senior living facilities currently in ${location} as of 2025, including independent living, assisted living, memory care, and skilled nursing. Include websites and CURRENT 2025 pricing for all care levels. Focus on recent data.`;
+        searchQuery = `senior living average costs ${location} state 2025`;
+        contextQuery = `What are the average 2025 monthly costs for senior living in ${location}? Include state averages for assisted living and memory care, with a few example communities and their pricing.`;
         break;
       case 'region':
-        searchQuery = `all senior care facilities ${location} region 2025 current independent assisted memory skilled`;
-        contextQuery = `List ALL types of senior care facilities currently in the ${location} region as of 2025, including independent living, assisted living, memory care, skilled nursing. Include websites and CURRENT pricing for all care levels.`;
+        searchQuery = `senior care pricing ${location} region 2025`;
+        contextQuery = `What are the current 2025 average monthly rates for senior living in the ${location} region? Include regional pricing for assisted living and memory care.`;
         break;
       case 'country':
-        searchQuery = `all senior living costs ${location} 2025 current independent assisted memory care skilled nursing`;
-        contextQuery = `Current national senior living data for ${location} as of 2025. List ALL types of communities including independent living, assisted living, memory care, skilled nursing, and CCRCs with websites and CURRENT pricing.`;
+        searchQuery = `senior living national average costs ${location} 2025`;
+        contextQuery = `What are the national average 2025 monthly costs for senior living in ${location}? Include averages for assisted living and memory care.`;
         break;
     }
 
