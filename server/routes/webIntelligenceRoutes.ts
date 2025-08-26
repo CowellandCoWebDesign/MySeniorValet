@@ -4,6 +4,105 @@ import { MultiAIVerificationService } from '../multi-ai-verification-service';
 
 const router = Router();
 
+// Helper function to extract media assets from web intelligence response
+function extractMediaAssets(content: string) {
+  const assets = {
+    photos: [] as string[],
+    floorPlans: [] as string[],
+    virtualTour: null as string | null,
+    videoTour: null as string | null
+  };
+
+  // Look for photo gallery mentions
+  const photoPatterns = [
+    /photo gallery/gi,
+    /\d+ photos?/gi,
+    /view photos/gi,
+    /image gallery/gi
+  ];
+  
+  // Look for floor plan mentions
+  const floorPlanPatterns = [
+    /floor plans?/gi,
+    /apartment layouts?/gi,
+    /room layouts?/gi,
+    /unit plans?/gi
+  ];
+  
+  // Look for virtual/3D tour mentions
+  const virtualTourPatterns = [
+    /virtual tour/gi,
+    /3d tour/gi,
+    /360[°]? tour/gi,
+    /interactive tour/gi,
+    /matterport/gi
+  ];
+  
+  // Look for video tour mentions
+  const videoTourPatterns = [
+    /video tour/gi,
+    /video walkthrough/gi,
+    /youtube\.com\/watch/gi,
+    /vimeo\.com/gi
+  ];
+
+  // Check for photo galleries
+  for (const pattern of photoPatterns) {
+    if (pattern.test(content)) {
+      const matches = content.match(/(\d+) photos?/gi);
+      if (matches) {
+        assets.photos.push(`${matches[0]} available on website`);
+      } else {
+        assets.photos.push('Photo gallery available');
+      }
+      break;
+    }
+  }
+
+  // Check for floor plans
+  for (const pattern of floorPlanPatterns) {
+    if (pattern.test(content)) {
+      assets.floorPlans.push('Floor plans available on website');
+      break;
+    }
+  }
+
+  // Check for virtual tours
+  for (const pattern of virtualTourPatterns) {
+    if (pattern.test(content)) {
+      assets.virtualTour = 'Virtual/3D tour available on website';
+      break;
+    }
+  }
+
+  // Check for video tours
+  for (const pattern of videoTourPatterns) {
+    if (pattern.test(content)) {
+      assets.videoTour = 'Video tour available';
+      break;
+    }
+  }
+
+  // Extract specific URLs if mentioned
+  const urlPattern = /https?:\/\/[^\s<>"]+(?:photos?|gallery|tour|floorplans?|video)[^\s<>"]*/gi;
+  const urls = content.match(urlPattern);
+  if (urls) {
+    urls.forEach(url => {
+      if (url.includes('photo') || url.includes('gallery')) {
+        assets.photos.push(url);
+      } else if (url.includes('floor') || url.includes('plan')) {
+        assets.floorPlans.push(url);
+      } else if (url.includes('tour') || url.includes('360') || url.includes('3d')) {
+        assets.virtualTour = url;
+      } else if (url.includes('video') || url.includes('youtube') || url.includes('vimeo')) {
+        assets.videoTour = url;
+      }
+    });
+  }
+
+  return assets;
+}
+
 // Web intelligence search endpoint (what the client is calling)
 router.post('/api/web-intelligence/search', async (req, res) => {
   try {
@@ -17,12 +116,22 @@ router.post('/api/web-intelligence/search', async (req, res) => {
 
     console.log(`🔍 Web intelligence search for: ${communityName} at ${address || 'unspecified'} in ${city}, ${state}`);
     
-    // Search for community information with address matching
-    const searchQuery = `"${communityName}" "${address}" ${city} ${state} senior living pricing availability`;
+    // Enhanced search to include media assets
+    const searchQuery = `"${communityName}" "${address}" ${city} ${state} senior living pricing availability photos floor plans virtual tour 3D tour`;
     const response = await perplexityService.searchRealTime(
       searchQuery,
-      `Find pricing, availability and official website for this specific senior living community at ${address}. Focus on exact address match.`
+      `Find comprehensive information for this specific senior living community at ${address}. Focus on:
+      1. Official website URL
+      2. Current pricing and availability
+      3. Photo galleries or image URLs
+      4. Floor plans (if available)
+      5. Virtual tours or 3D tours (if available)
+      6. Video tours or walkthrough content
+      Extract all media assets and their direct URLs.`
     );
+    
+    // Parse response for media content
+    const mediaAssets = extractMediaAssets(response.summary || '');
     
     res.json({
       communityName,
@@ -31,6 +140,16 @@ router.post('/api/web-intelligence/search', async (req, res) => {
       officialWebsite: response.sources?.[0] || null,
       summary: response.summary || 'No information found',
       sources: response.sources || [],
+      mediaAssets: {
+        hasPhotos: mediaAssets.photos.length > 0,
+        photoCount: mediaAssets.photos.length,
+        photos: mediaAssets.photos,
+        hasFloorPlans: mediaAssets.floorPlans.length > 0,
+        floorPlans: mediaAssets.floorPlans,
+        has3DTour: !!mediaAssets.virtualTour,
+        virtualTour: mediaAssets.virtualTour,
+        videoTour: mediaAssets.videoTour
+      },
       lastUpdated: new Date().toISOString()
     });
   } catch (error) {
@@ -71,11 +190,16 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       );
     } else {
       console.log(`✅ Using existing official website: ${officialWebsite}`);
-      // Search directly from the official website
-      const siteSpecificQuery = `site:${officialWebsite.replace(/https?:\/\//, '')} pricing photos virtual tour availability amenities`;
+      // Enhanced search for media assets from the official website
+      const siteSpecificQuery = `site:${officialWebsite.replace(/https?:\/\//, '')} pricing photos floor plans virtual tour 3D tour video tour gallery availability amenities`;
       websiteSearchResponse = await perplexityService.searchRealTime(
         siteSpecificQuery,
-        'Extract comprehensive information from this official community website'
+        `Extract comprehensive information from this official community website including:
+        1. Photo galleries and image counts
+        2. Floor plans and apartment layouts
+        3. Virtual tours, 3D tours, or Matterport tours
+        4. Video tours or walkthrough videos
+        5. Current pricing and availability`
       );
     }
     
@@ -331,6 +455,9 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       }
     }
     
+    // Extract media assets from the response
+    const mediaAssets = extractMediaAssets(response.summary || '');
+    
     // ALWAYS return actual data, just with appropriate confidence indicators
     if (!isVerified && verificationScore < 50) {
       // Low confidence - show data with a disclaimer
@@ -344,6 +471,16 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
         content: disclaimerContent,
         citations: response.sources || [],
         images: response.images || [],
+        mediaAssets: {
+          hasPhotos: mediaAssets.photos.length > 0,
+          photoCount: mediaAssets.photos.length,
+          photos: mediaAssets.photos,
+          hasFloorPlans: mediaAssets.floorPlans.length > 0,
+          floorPlans: mediaAssets.floorPlans,
+          has3DTour: !!mediaAssets.virtualTour,
+          virtualTour: mediaAssets.virtualTour,
+          videoTour: mediaAssets.videoTour
+        },
         verified: false,
         verificationScore: verificationScore,
         confidenceLevel: 'low',
@@ -360,6 +497,16 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       content: response.summary || '',
       citations: response.sources || [],
       images: response.images || [],
+      mediaAssets: {
+        hasPhotos: mediaAssets.photos.length > 0,
+        photoCount: mediaAssets.photos.length,
+        photos: mediaAssets.photos,
+        hasFloorPlans: mediaAssets.floorPlans.length > 0,
+        floorPlans: mediaAssets.floorPlans,
+        has3DTour: !!mediaAssets.virtualTour,
+        virtualTour: mediaAssets.virtualTour,
+        videoTour: mediaAssets.videoTour
+      },
       verified: true,
       identityVerified: chatgptVerification?.identityVerified || false,
       nameMatch: chatgptVerification?.nameMatch,
