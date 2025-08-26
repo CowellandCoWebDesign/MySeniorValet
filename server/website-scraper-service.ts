@@ -110,14 +110,33 @@ export class WebsiteScraperService {
             imgLower.includes('ad_') || imgLower.includes('_ad') ||
             imgLower.includes('promo') || imgLower.includes('podcast') ||
             imgLower.includes('newsletter') || imgLower.includes('header') ||
-            imgLower.includes('footer') || imgLower.includes('background')) {
+            imgLower.includes('footer') || imgLower.includes('background') ||
+            imgLower.includes('hero') || imgLower.includes('cta') ||
+            imgLower.includes('button') || imgLower.includes('badge') ||
+            imgLower.includes('social') || imgLower.includes('twitter') ||
+            imgLower.includes('facebook') || imgLower.includes('instagram') ||
+            imgLower.includes('youtube') || imgLower.includes('linkedin') ||
+            imgLower.includes('pinterest') || imgLower.includes('gradient') ||
+            imgLower.includes('overlay') || imgLower.includes('placeholder') ||
+            imgLower.includes('default') || imgLower.includes('fallback')) {
           continue;
         }
         
-        // Skip images with marketing dimensions (likely ads)
+        // Skip images with marketing dimensions or suspicious sizes
         if (imgLower.includes('1200_x_1000') || imgLower.includes('1200x1000') ||
             imgLower.includes('width=250') || imgLower.includes('width=540') ||
-            imgLower.includes('height=73') || imgLower.includes('height=450')) {
+            imgLower.includes('height=73') || imgLower.includes('height=450') ||
+            imgLower.includes('20-20') || imgLower.includes('20x20') ||
+            imgLower.includes('50x50') || imgLower.includes('100x100') ||
+            imgLower.includes('150x150') || imgLower.includes('x_1000') ||
+            imgLower.includes('x1000') || imgLower.includes('1000x')) {
+          continue;
+        }
+        
+        // Skip if URL contains common marketing/theme paths
+        if (imgLower.includes('/themes/') || imgLower.includes('/assets/') ||
+            imgLower.includes('/static/') || imgLower.includes('/resources/') ||
+            imgLower.includes('/branding/') || imgLower.includes('/marketing/')) {
           continue;
         }
         
@@ -132,31 +151,53 @@ export class WebsiteScraperService {
           if (!data.floorPlans.includes(imgUrl)) {
             data.floorPlans.push(imgUrl);
           }
-        } else if (
-          // Look for images in gallery/photo sections
-          (imgLower.includes('/photos/') || imgLower.includes('/gallery/') || 
-           imgLower.includes('/images/')) ||
-          // Or images with facility-related keywords
-          (imgLower.includes('community') && !imgLower.includes('_wht')) ||
-          imgLower.includes('resident') || imgLower.includes('dining') ||
-          imgLower.includes('living') || imgLower.includes('bedroom') ||
-          imgLower.includes('apartment') || imgLower.includes('facility') ||
-          imgLower.includes('amenity') || imgLower.includes('activity') ||
-          imgLower.includes('lounge') || imgLower.includes('kitchen') ||
-          imgLower.includes('bathroom') || imgLower.includes('exterior') ||
-          imgLower.includes('interior') || imgLower.includes('room')
-        ) {
-          // Additional check: must be an image file
-          if (imgUrl.match(/\.(jpg|jpeg|png|webp)(\?|$)/i)) {
-            if (!data.photos.includes(imgUrl)) {
-              data.photos.push(imgUrl);
+        } else {
+          // Score images based on quality indicators
+          let score = 0;
+          
+          // High priority: Images in gallery/photo sections
+          if (imgLower.includes('/photos/') || imgLower.includes('/gallery/') || 
+              imgLower.includes('/uploads/')) {
+            score += 10;
+          }
+          
+          // Medium priority: Facility-specific keywords
+          const facilityKeywords = ['dining', 'bedroom', 'apartment', 'lounge', 
+                                   'kitchen', 'bathroom', 'activity', 'amenity',
+                                   'resident', 'living', 'room', 'suite', 
+                                   'exterior', 'interior', 'courtyard', 'patio'];
+          facilityKeywords.forEach(keyword => {
+            if (imgLower.includes(keyword)) score += 5;
+          });
+          
+          // Low priority: Generic community keywords
+          if (imgLower.includes('community') && !imgLower.includes('_wht')) {
+            score += 2;
+          }
+          if (imgLower.includes('facility')) {
+            score += 2;
+          }
+          
+          // Must be an image file with some score
+          if (score > 0 && imgUrl.match(/\.(jpg|jpeg|png|webp)(\?|$)/i)) {
+            if (!data.photos.some(p => p === imgUrl)) {
+              // Store with score for sorting later
+              (data.photos as any).push({ url: imgUrl, score });
             }
           }
         }
       }
       
-      // Limit photos to reasonable amount
-      data.photos = data.photos.slice(0, 20);
+      // Sort photos by score and extract URLs
+      if (data.photos.length > 0 && typeof data.photos[0] === 'object') {
+        data.photos = (data.photos as any)
+          .sort((a: any, b: any) => b.score - a.score)
+          .map((item: any) => item.url)
+          .slice(0, 20);
+      } else {
+        // Limit photos to reasonable amount
+        data.photos = data.photos.slice(0, 20);
+      }
       data.floorPlans = data.floorPlans.slice(0, 10);
       
       // Look for virtual tour links
