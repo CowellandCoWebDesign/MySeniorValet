@@ -30,37 +30,63 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
     let officialWebsite = null;
     const foundWebsites = [];
     
-    // Look for URLs in the response
-    const urlRegex = /(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9\-]+(?:\.[a-zA-Z]{2,})+)(?:\/[^\s]*)?/gi;
-    const allUrls = websiteSearchResponse.summary.matchAll(urlRegex);
-    
     // Directory sites to exclude (these are NOT the official community websites)
     const directorySites = [
       'aplaceformom', 'caring.com', 'seniorly', 'assistedliving.org', 'senioradvisor',
       'seniorhousing.net', 'medicare.gov', 'google.com', 'facebook.com', 'yelp.com',
-      'tripadvisor', 'zillow.com', 'apartments.com', 'yellowpages.com'
+      'tripadvisor', 'zillow.com', 'apartments.com', 'yellowpages.com', 'indeed.com',
+      'mapquest.com', 'zoominfo.com', 'seniors.fyi'
     ];
     
     // Check if URL likely belongs to the community
-    const communityNameWords = communityName.toLowerCase().split(' ').filter(w => w.length > 3);
+    const communityNameWords = communityName.toLowerCase()
+      .split(' ')
+      .filter(w => w.length > 3 && !['senior', 'living', 'care', 'assisted', 'memory'].includes(w.toLowerCase()));
     
-    for (const match of allUrls) {
-      const domain = match[1];
-      const fullUrl = match[0];
+    // First priority: Check sources array for official websites
+    if (websiteSearchResponse.sources && websiteSearchResponse.sources.length > 0) {
+      for (const source of websiteSearchResponse.sources) {
+        const sourceDomain = source.match(/(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9\-]+(?:\.[a-zA-Z]{2,})+)/)?.[1];
+        if (sourceDomain && !directorySites.some(site => sourceDomain.includes(site))) {
+          const domainLower = sourceDomain.toLowerCase();
+          // Check if this domain contains meaningful parts of the community name
+          const isLikelyOfficialSite = communityNameWords.some(word => domainLower.includes(word.toLowerCase()));
+          
+          if (isLikelyOfficialSite) {
+            officialWebsite = source.startsWith('http') ? source : `https://${sourceDomain}`;
+            console.log(`✅ Found official website in sources: ${officialWebsite} (domain: ${sourceDomain})`);
+            break;
+          }
+          foundWebsites.push(sourceDomain);
+        }
+      }
+    }
+    
+    // Second priority: Look for URLs mentioned in the summary text
+    if (!officialWebsite) {
+      const urlRegex = /(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9\-]+(?:\.[a-zA-Z]{2,})+)(?:\/[^\s]*)?/gi;
+      const allUrls = websiteSearchResponse.summary.matchAll(urlRegex);
       
-      // Skip directory sites
-      if (directorySites.some(site => domain.includes(site))) continue;
-      
-      foundWebsites.push(domain);
-      
-      // Check if domain contains parts of the community name (e.g., "superior" in "superiorpcb.com")
-      const domainLower = domain.toLowerCase();
-      const isLikelyOfficialSite = communityNameWords.some(word => domainLower.includes(word));
-      
-      if (isLikelyOfficialSite) {
-        officialWebsite = fullUrl.startsWith('http') ? fullUrl : `https://${domain}`;
-        console.log(`✅ Found likely official website: ${officialWebsite} (matches community name)`);
-        break;
+      for (const match of allUrls) {
+        const domain = match[1];
+        const fullUrl = match[0];
+        
+        // Skip directory sites
+        if (directorySites.some(site => domain.includes(site))) continue;
+        
+        // Check if domain contains parts of the community name
+        const domainLower = domain.toLowerCase();
+        const isLikelyOfficialSite = communityNameWords.some(word => domainLower.includes(word.toLowerCase()));
+        
+        if (isLikelyOfficialSite) {
+          officialWebsite = fullUrl.startsWith('http') ? fullUrl : `https://${domain}`;
+          console.log(`✅ Found official website in text: ${officialWebsite} (domain: ${domain})`);
+          break;
+        }
+        
+        if (!foundWebsites.includes(domain)) {
+          foundWebsites.push(domain);
+        }
       }
     }
     
