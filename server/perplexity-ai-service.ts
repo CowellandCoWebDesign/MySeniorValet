@@ -39,9 +39,10 @@ export class PerplexityAIService {
       const systemPrompt = `You are a senior living research expert providing comprehensive, accurate information for families making critical decisions.
 
 Your PRIMARY goals in order of importance:
-1. **FIND ANY RELEVANT WEBSITE** - Look for the community's website (.com, .org), corporate parent sites, or any legitimate sources with detailed information
-2. Include ALL relevant website URLs found (official site, parent company, listings, etc.)
-3. Extract comprehensive information from all available sources
+1. **FIND THE OFFICIAL COMMUNITY WEBSITE FIRST** - Look specifically for the community's own website, not just directory listings
+2. If the community has an official website (like superiorpcb.com or similar), ALWAYS include it as the FIRST source
+3. Include ALL relevant URLs found (official site first, then parent company, then directories)
+4. Extract comprehensive information, prioritizing data from the official website
 
 IMPORTANT: If you find multiple locations or addresses for the same community name:
 - Focus on the SPECIFIC location requested (city/state provided)

@@ -15,13 +15,92 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       });
     }
 
-    // Enhanced search query for comprehensive information from any relevant source
-    const searchQuery = query || `"${communityName}" senior living community ${city} ${state} ${address ? `"${address}"` : ''} website contact pricing amenities reviews current rates availability`;
+    // PHASE 1: Find the official website FIRST - use simple query like Google
+    const simpleSearchQuery = `"${communityName}" ${city} ${state}`;
+    console.log(`🔍 Phase 1 - Finding official website for: ${communityName} in ${city}, ${state}`);
+    console.log(`🔍 Simple search query: ${simpleSearchQuery}`);
     
-    console.log(`🔍 Fetching web intelligence for: ${communityName} in ${city}, ${state}`);
+    // First, try to find the official website with a simple search
+    const websiteSearchResponse = await perplexityService.searchRealTime(
+      simpleSearchQuery,
+      'Find the official website URL for this senior living community'
+    );
     
-    // Use Perplexity's sonar-pro model to get comprehensive results
-    const response = await perplexityService.searchRealTime(searchQuery);
+    // Extract official website from the response
+    let officialWebsite = null;
+    const foundWebsites = [];
+    
+    // Look for URLs in the response
+    const urlRegex = /(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9\-]+(?:\.[a-zA-Z]{2,})+)(?:\/[^\s]*)?/gi;
+    const allUrls = websiteSearchResponse.summary.matchAll(urlRegex);
+    
+    // Directory sites to exclude (these are NOT the official community websites)
+    const directorySites = [
+      'aplaceformom', 'caring.com', 'seniorly', 'assistedliving.org', 'senioradvisor',
+      'seniorhousing.net', 'medicare.gov', 'google.com', 'facebook.com', 'yelp.com',
+      'tripadvisor', 'zillow.com', 'apartments.com', 'yellowpages.com'
+    ];
+    
+    // Check if URL likely belongs to the community
+    const communityNameWords = communityName.toLowerCase().split(' ').filter(w => w.length > 3);
+    
+    for (const match of allUrls) {
+      const domain = match[1];
+      const fullUrl = match[0];
+      
+      // Skip directory sites
+      if (directorySites.some(site => domain.includes(site))) continue;
+      
+      foundWebsites.push(domain);
+      
+      // Check if domain contains parts of the community name (e.g., "superior" in "superiorpcb.com")
+      const domainLower = domain.toLowerCase();
+      const isLikelyOfficialSite = communityNameWords.some(word => domainLower.includes(word));
+      
+      if (isLikelyOfficialSite) {
+        officialWebsite = fullUrl.startsWith('http') ? fullUrl : `https://${domain}`;
+        console.log(`✅ Found likely official website: ${officialWebsite} (matches community name)`);
+        break;
+      }
+    }
+    
+    // If no name-matching site found, look for any non-directory site mentioned first
+    if (!officialWebsite && foundWebsites.length > 0) {
+      officialWebsite = `https://${foundWebsites[0]}`;
+      console.log(`⚠️ Using first non-directory website found: ${officialWebsite}`);
+    }
+    
+    // Also check the sources array from Perplexity
+    if (!officialWebsite && websiteSearchResponse.sources) {
+      for (const source of websiteSearchResponse.sources) {
+        const sourceDomain = source.match(/(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9\-]+(?:\.[a-zA-Z]{2,})+)/)?.[1];
+        if (sourceDomain && !directorySites.some(site => sourceDomain.includes(site))) {
+          const isLikelyOfficialSite = communityNameWords.some(word => sourceDomain.toLowerCase().includes(word));
+          if (isLikelyOfficialSite) {
+            officialWebsite = source.startsWith('http') ? source : `https://${sourceDomain}`;
+            console.log(`✅ Found official website in sources: ${officialWebsite}`);
+            break;
+          }
+        }
+      }
+    }
+    
+    console.log(`🔍 Website search complete. Found ${foundWebsites.length} websites. Official: ${officialWebsite || 'Not found'}`)
+    
+    // PHASE 2: Get comprehensive information - now include more keywords for detailed data
+    const detailedSearchQuery = query || `"${communityName}" ${city} ${state} ${officialWebsite ? `site:${officialWebsite.replace(/https?:\/\//, '')}` : ''} pricing rates availability photos virtual tour amenities services`;
+    console.log(`🔍 Phase 2 - Getting detailed information with query: ${detailedSearchQuery}`);
+    
+    // Get comprehensive results
+    const response = await perplexityService.searchRealTime(detailedSearchQuery);
+    
+    // Combine findings from both searches
+    if (officialWebsite) {
+      response.summary = `**Official Website:** ${officialWebsite}\n\n${response.summary}`;
+      if (!response.sources.includes(officialWebsite)) {
+        response.sources.unshift(officialWebsite);
+      }
+    }
     
     // IMPROVED: Smart verification with reasonable thresholds
     let verificationScore = 0;
@@ -61,7 +140,16 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
           state,
           address: address || 'Not specified',
           zipCode: zipCode || 'Not specified',
-          careTypes: ['Senior Living']
+          careTypes: ['Senior Living'],
+          communityType: 'Senior Living',
+          communitySubtype: 'Unknown',
+          rating: 0,
+          bedCount: 0,
+          yearEstablished: 0,
+          description: '',
+          ownershipType: 'Unknown',
+          certifications: [] as string[],
+          hudPropertyId: ''
         };
         
         console.log(`🔍 Running multi-AI verification for ${communityName} (pre-score: ${verificationScore})...`);
@@ -79,17 +167,18 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
           new Promise((resolve) => setTimeout(() => resolve(null), 5000)) // 5 second timeout for full orchestration
         ]);
         
-        if (fullVerification) {
+        if (fullVerification && typeof fullVerification === 'object') {
           // Extract verification results from the full orchestration
-          const claudeVerif = fullVerification.verificationResults?.claudeVerification;
-          const chatgptVerif = fullVerification.verificationResults?.chatgptVerification;
-          const consensus = fullVerification.consensus;
+          const verificationObj = fullVerification as any;
+          const claudeVerif = verificationObj.verificationResults?.claudeVerification;
+          const chatgptVerif = verificationObj.verificationResults?.chatgptVerification;
+          const consensus = verificationObj.consensus;
           
           // Log AI orchestration status
           console.log(`🎭 AI Orchestration Status:`, {
-            perplexity: fullVerification.aiOrchestra?.perplexity?.status,
-            claude: fullVerification.aiOrchestra?.claude?.status,
-            chatgpt: fullVerification.aiOrchestra?.chatgpt?.status,
+            perplexity: verificationObj.aiOrchestra?.perplexity?.status,
+            claude: verificationObj.aiOrchestra?.claude?.status,
+            chatgpt: verificationObj.aiOrchestra?.chatgpt?.status,
             consensus: consensus?.agreementLevel
           });
           
