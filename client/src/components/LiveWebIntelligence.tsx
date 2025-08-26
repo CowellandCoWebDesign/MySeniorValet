@@ -62,6 +62,7 @@ export function LiveWebIntelligence({
 }: LiveWebIntelligenceProps) {
   const [isExpanded, setIsExpanded] = useState(true); // Auto-expand intelligence report
   const [extractedData, setExtractedData] = useState<any>(null);
+  const [intelligenceData, setIntelligenceData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [addressMismatch, setAddressMismatch] = useState(false);
 
@@ -98,6 +99,7 @@ export function LiveWebIntelligence({
     if (webData?.content) {
       const extracted = extractStructuredData(webData.content);
       setExtractedData(extracted);
+      setIntelligenceData(webData); // Set the intelligence data from backend
       
       // Verify if extracted addresses match our database address
       if (address && extracted.addresses && extracted.addresses.length > 0) {
