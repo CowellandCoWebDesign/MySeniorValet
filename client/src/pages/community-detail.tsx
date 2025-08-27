@@ -1613,30 +1613,31 @@ const HeroPhotoCarousel = ({
           <div className="w-full h-full overflow-hidden relative">
             {/* Special mascot view when only showing default photos */}
             {hasDefaultPhotos && (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/10 dark:via-indigo-900/10 dark:to-purple-900/10">
-                <div className="flex items-center gap-8 p-8">
-                  {/* Mascot on the left */}
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/10 dark:via-indigo-900/10 dark:to-purple-900/10 p-4">
+                <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 max-w-4xl w-full">
+                  {/* Mascot */}
                   <div className="flex-shrink-0">
                     <img 
                       src={valetMascot} 
                       alt="MySeniorValet Mascot" 
-                      className="w-48 h-48 object-contain animate-pulse"
+                      className="w-32 h-32 md:w-48 md:h-48 object-contain animate-pulse"
                     />
                   </div>
-                  {/* Message on the right */}
-                  <div className="max-w-md">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+                  {/* Message content - responsive and better laid out */}
+                  <div className="flex-1 text-center md:text-left">
+                    <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 md:mb-3">
                       Hello! I'm searching for real photos...
                     </h3>
-                    <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
-                      I'm your personal valet, working diligently to find authentic photos of {communityName} from across the web.
+                    <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 mb-3 md:mb-4 leading-relaxed">
+                      I'm your personal valet, working diligently to find authentic photos of<br className="hidden md:block" />
+                      <span className="font-semibold">{communityName}</span> from across the web.
                     </p>
-                    <div className="bg-white/80 dark:bg-gray-800/80 rounded-lg p-3 backdrop-blur-sm">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <div className="bg-white/80 dark:bg-gray-800/80 rounded-lg p-3 backdrop-blur-sm mb-3">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                         💫 This usually takes 10-15 seconds while I search official websites, directories, and verified sources.
                       </p>
                     </div>
-                    <div className="mt-4 flex items-center gap-2">
+                    <div className="flex items-center justify-center md:justify-start gap-2">
                       <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
                       <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
                       <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
@@ -1696,27 +1697,7 @@ const HeroPhotoCarousel = ({
               </div>
             )}
             
-            {/* Show loading indicator overlay when showing placeholder photos */}
-            {hasDefaultPhotos && !verificationReport && (
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end justify-center pb-20 pointer-events-none">
-                <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-lg p-4 shadow-xl animate-pulse">
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <Globe className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-spin" />
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-ping" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                        🔄 Loading real photos from live web searches...
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        Finding authentic community images
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+
           </div>
         )}
       </div>
