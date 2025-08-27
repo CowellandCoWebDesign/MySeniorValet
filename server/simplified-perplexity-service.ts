@@ -444,7 +444,33 @@ Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.`
     const lowerContent = content.toLowerCase();
     const lowerCommunityName = communityName.toLowerCase();
     
-    // Check if community was found - be more precise with negative indicators
+    // First, try to extract actual data from the response
+    const extractedWebsite = this.extractUrl(content);
+    const extractedPhone = this.extractPhone(content);
+    const extractedPhotos = this.extractPhotos(content);
+    
+    // Check for structured data (JSON) in the response
+    const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || 
+                     content.match(/(\{[\s\S]*\})/);
+    
+    let structuredData: any = null;
+    if (jsonMatch) {
+      try {
+        structuredData = JSON.parse(jsonMatch[1]);
+      } catch (e) {
+        // Ignore parsing errors
+      }
+    }
+    
+    // Check if we have actual data (photos, website, phone, or structured data)
+    const hasActualData = !!(
+      extractedWebsite ||
+      extractedPhone ||
+      (extractedPhotos && extractedPhotos.length > 0) ||
+      (structuredData && (structuredData.website || structuredData.phone || structuredData.photos))
+    );
+    
+    // Check if community was found - prioritize actual data over text indicators
     const notFoundIndicators = [
       'could not find',
       'no information available',
@@ -475,13 +501,16 @@ Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.`
       lowerContent.includes('memory care')
     );
     
-    // Only consider it found if there are no negative indicators AND positive indicators exist
-    const found = !hasNegativeContext && hasPositiveIndicators;
+    // Consider it found if:
+    // 1. We have actual data (photos, website, phone) regardless of text
+    // 2. OR there are positive indicators and no negative ones
+    const found = hasActualData || (!hasNegativeContext && hasPositiveIndicators);
 
     if (!found) {
       console.log(`  ⚠️ Community not found by Perplexity`);
       console.log(`  Debug: Content check - contains "${lowerCommunityName}": ${lowerContent.includes(lowerCommunityName)}`);
       console.log(`  Debug: Citations count: ${citations.length}`);
+      console.log(`  Debug: Has actual data: ${hasActualData}`);
       console.log(`  Debug: First 200 chars of content: ${lowerContent.substring(0, 200)}`);
       return {
         found: false,
@@ -512,20 +541,7 @@ Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.`
       sources: citations
     };
 
-    // Check if content contains JSON data
-    const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || 
-                     content.match(/(\{[\s\S]*\})/);
-    
-    let structuredData: any = null;
-    if (jsonMatch) {
-      try {
-        structuredData = JSON.parse(jsonMatch[1]);
-      } catch (e) {
-        console.log('  ⚠️ Could not parse JSON from response');
-      }
-    }
-
-    // Extract from structured data if available
+    // Extract from structured data if already parsed above
     if (structuredData) {
       // Extract website
       result.officialWebsite = structuredData.website || 
@@ -682,6 +698,17 @@ Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.`
   private extractAddress(content: string): string | undefined {
     const match = content.match(/(?:address|located at):\s*([^,\n]+(?:,[^,\n]+)?)/i);
     return match ? match[1].trim() : undefined;
+  }
+
+  private extractPhotos(content: string): string[] {
+    const photos: string[] = [];
+    // Extract image URLs from the content
+    const imgPattern = /https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|gif|webp)/gi;
+    const matches = content.match(imgPattern);
+    if (matches) {
+      photos.push(...matches);
+    }
+    return photos;
   }
 
   /**
