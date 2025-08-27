@@ -3,6 +3,11 @@
 ## Overview
 MySeniorValet is a technology platform connecting families with publicly available, verified information about senior living communities across North America. Its purpose is to bring transparency to the senior living market by providing authentic, verified data, including HUD pricing, to empower informed decision-making. The platform offers complete care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the TourMate™ tour scheduling system, a One-Touch Emergency Contact Shortcut, and trilingual support (English, French, Spanish). MySeniorValet aims to be "The Dawn of Transparency in Senior Living." The platform includes an enhanced pricing intelligence system for historical tracking, confidence scoring, and trend analysis across different care levels, and prioritizes transparency by gathering comprehensive information from all available sources with robust AI-driven verification.
 
+### AI Priority System (August 27, 2025)
+1. **Perplexity (Primary)** - `sonar-pro` model for real-time web search
+2. **Anthropic Claude (Secondary)** - `claude-sonnet-4-20250514` for intelligent analysis  
+3. **OpenAI ChatGPT (Tertiary)** - `gpt-5` as backup when others unavailable
+
 ### Simplified Perplexity-First Intelligence System (August 27, 2025)
 - **Major Architecture Simplification**: Completely rebuilt intelligence system after identifying over-engineering issues
 - **Perplexity-First Approach**: Use Perplexity as primary source for exact community information
