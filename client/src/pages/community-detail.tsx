@@ -904,6 +904,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
             communityName={community.name}
             city={community.city}
             state={community.state}
+            verificationReport={verificationReport}
           />
         )}
         

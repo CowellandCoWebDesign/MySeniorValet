@@ -82,21 +82,33 @@ export class SimplifiedPerplexityService {
     }
     
     // Check citations for wrong community references
+    // Be very careful - URLs naturally use hyphens instead of spaces
+    // Don't flag "hilltop-estates" as wrong when searching for "Hilltop Estates"
+    const requestedNameHyphenated = requestedName.toLowerCase().replace(/\s+/g, '-');
+    
     for (const citation of citations) {
       const lowerCitation = citation.toLowerCase();
       
-      // Look for specific community name patterns in URLs
-      if (lowerCitation.includes('hilltop-springs') && requestedName.toLowerCase().includes('hilltop estates')) {
+      // Only check for ACTUALLY wrong communities, not the same community with hyphens
+      // For example: if searching for "Hilltop Estates", don't flag "hilltop-estates" as wrong
+      if (lowerCitation.includes('hilltop-springs') && requestedName.toLowerCase() === 'hilltop estates') {
         return 'Hilltop Springs';
       }
-      if (lowerCitation.includes('hilltop-estates') && requestedName.toLowerCase().includes('hilltop springs')) {
+      if (lowerCitation.includes('hilltop-estates') && requestedName.toLowerCase() === 'hilltop springs') {
         return 'Hilltop Estates';
       }
       
       // Generic check for mismatched suffixes in URLs
-      for (const suffix of commonSuffixes) {
-        if (suffix !== requestedLastWord && lowerCitation.includes(`${requestedFirstWord}-${suffix}`)) {
-          return `${requestedFirstWord.charAt(0).toUpperCase() + requestedFirstWord.slice(1)} ${suffix.charAt(0).toUpperCase() + suffix.slice(1)}`;
+      // But skip if the URL actually contains the correct hyphenated name
+      if (!lowerCitation.includes(requestedNameHyphenated)) {
+        for (const suffix of commonSuffixes) {
+          if (suffix !== requestedLastWord && lowerCitation.includes(`${requestedFirstWord}-${suffix}`)) {
+            // Double-check it's not just the correct name with hyphens
+            const potentialWrongName = `${requestedFirstWord} ${suffix}`;
+            if (potentialWrongName.toLowerCase() !== requestedName.toLowerCase()) {
+              return potentialWrongName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            }
+          }
         }
       }
     }

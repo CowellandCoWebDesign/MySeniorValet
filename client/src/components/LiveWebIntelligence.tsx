@@ -39,11 +39,12 @@ interface CommunityIntelligence {
 }
 
 interface LiveWebIntelligenceProps {
-  communityId?: string;
+  communityId?: string | number;
   communityName: string;
   city: string;
   state: string;
   autoLoad?: boolean;  // Add autoLoad prop
+  verificationReport?: any;
 }
 
 export function LiveWebIntelligence({ 
@@ -51,7 +52,8 @@ export function LiveWebIntelligence({
   communityName, 
   city, 
   state,
-  autoLoad = true  // Default to auto-loading
+  autoLoad = true,  // Default to auto-loading
+  verificationReport
 }: LiveWebIntelligenceProps) {
   const [intelligence, setIntelligence] = useState<CommunityIntelligence | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -144,8 +146,105 @@ export function LiveWebIntelligence({
     );
   }
 
-  // No results found
-  if (!intelligence?.found) {
+  // Check if we have verification data even if competitive analysis didn't find it
+  const hasVerificationData = verificationReport?.webIntelligence?.images?.length > 0 || 
+                              verificationReport?.webIntelligence?.website ||
+                              verificationReport?.webIntelligence?.phone ||
+                              verificationReport?.verificationResults?.webIntelligence?.images?.length > 0 ||
+                              verificationReport?.verificationResults?.webIntelligence?.website ||
+                              verificationReport?.verificationResults?.webIntelligence?.phone;
+  
+  // If competitive analysis didn't find it but we have verification data, show that instead
+  if (!intelligence?.found && hasVerificationData) {
+    const verificationData = verificationReport?.verificationResults?.webIntelligence || verificationReport?.webIntelligence;
+    
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle className="h-5 w-5 text-green-600" />
+            Community Intelligence Available
+          </CardTitle>
+          <CardDescription>
+            Verified information gathered from the community's official sources
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Website */}
+          {verificationData?.website && (
+            <div className="flex items-center gap-2">
+              <Globe className="h-4 w-4 text-primary" />
+              <a 
+                href={verificationData.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline flex items-center gap-1"
+              >
+                Official Website
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+          )}
+          
+          {/* Phone */}
+          {verificationData?.phone && (
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-primary" />
+              <a 
+                href={`tel:${verificationData.phone}`}
+                className="text-primary hover:underline"
+              >
+                {verificationData.phone}
+              </a>
+            </div>
+          )}
+          
+          {/* Photos */}
+          {verificationData?.images && verificationData.images.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Camera className="h-4 w-4 text-primary" />
+                <span className="font-medium">{verificationData.images.length} Photos Available</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+                {verificationData.images.slice(0, 6).map((photo: string, idx: number) => (
+                  <img
+                    key={idx}
+                    src={photo}
+                    alt={`${communityName} photo ${idx + 1}`}
+                    className="rounded-lg object-cover h-24 w-full"
+                    loading="lazy"
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Additional info from verification */}
+          {verificationData?.description && (
+            <div className="p-3 rounded-lg bg-muted/50">
+              <p className="text-sm">{verificationData.description}</p>
+            </div>
+          )}
+          
+          <div className="pt-2">
+            <Button 
+              onClick={() => fetchIntelligence.mutate()} 
+              variant="outline"
+              size="sm"
+              className="w-full"
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Try Live Search Again
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  // No results found in competitive analysis AND no verification data
+  if (!intelligence?.found && !hasVerificationData) {
     return (
       <Card>
         <CardHeader>
