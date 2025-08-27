@@ -81,7 +81,7 @@ export class SimplifiedPerplexityService {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar',
           messages: [
             {
               role: 'system',
@@ -94,15 +94,21 @@ export class SimplifiedPerplexityService {
           ],
           temperature: 0.2,
           max_tokens: 1500,
+          stream: false,
           return_citations: true,
           return_images: false,
-          search_domain_filter: [],
-          search_recency_filter: "month"
+          return_related_questions: false,
+          search_recency_filter: "month",
+          top_k: 0,
+          presence_penalty: 0,
+          frequency_penalty: 1
         })
       });
 
       if (!response.ok) {
-        throw new Error(`Perplexity API error: ${response.statusText}`);
+        const errorBody = await response.text();
+        console.error(`Perplexity API error (${response.status}):`, errorBody);
+        throw new Error(`Perplexity API error: ${response.statusText} - ${errorBody}`);
       }
 
       const data: PerplexityResponse = await response.json();
@@ -209,7 +215,7 @@ export class SimplifiedPerplexityService {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar',
           messages: [
             {
               role: 'user',
@@ -217,7 +223,12 @@ export class SimplifiedPerplexityService {
             }
           ],
           temperature: 0.2,
-          max_tokens: 1000
+          max_tokens: 1000,
+          stream: false,
+          return_citations: true,
+          return_images: false,
+          return_related_questions: false,
+          search_recency_filter: "month"
         })
       });
 
