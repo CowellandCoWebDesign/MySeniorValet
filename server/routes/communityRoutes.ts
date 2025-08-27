@@ -762,8 +762,54 @@ export function registerCommunityRoutes(app: Express) {
       try {
         const updateData: any = {};
         
+        // Extract contact information from web intelligence
+        if (verificationReport.verificationResults?.webIntelligence) {
+          const webIntel = verificationReport.verificationResults.webIntelligence;
+          
+          // Save phone number if found and not already present
+          if (webIntel.phone && (!community.phone || community.phone.length < 10)) {
+            updateData.phone = webIntel.phone;
+            console.log(`📞 Found phone number: ${webIntel.phone}`);
+          }
+          
+          // Save website if found and not already present
+          if (webIntel.website && (!community.website || !community.website.startsWith('http'))) {
+            updateData.website = webIntel.website;
+            console.log(`🌐 Found website: ${webIntel.website}`);
+          }
+          
+          // Save email if found and not already present
+          if (webIntel.email && (!community.email || !community.email.includes('@'))) {
+            updateData.email = webIntel.email;
+            console.log(`📧 Found email: ${webIntel.email}`);
+          }
+        }
+        
+        // Extract additional contact info from scraped data
+        if (verificationReport.verificationResults?.scrapedData) {
+          const scraped = verificationReport.verificationResults.scrapedData;
+          
+          // Check for phone in scraped data
+          if (scraped.phone && !updateData.phone && (!community.phone || community.phone.length < 10)) {
+            updateData.phone = scraped.phone;
+            console.log(`📞 Found phone from scraper: ${scraped.phone}`);
+          }
+          
+          // Check for email in scraped data
+          if (scraped.email && !updateData.email && (!community.email || !community.email.includes('@'))) {
+            updateData.email = scraped.email;
+            console.log(`📧 Found email from scraper: ${scraped.email}`);
+          }
+          
+          // Check for business hours
+          if (scraped.businessHours && !community.businessHours) {
+            updateData.businessHours = scraped.businessHours;
+            console.log(`🕐 Found business hours: ${scraped.businessHours}`);
+          }
+        }
+        
         // Extract enriched description from AI insights
-        if (verificationReport.aiInsights) {
+        if (verificationReport.aiInsights && (!community.description || community.description.length < 100)) {
           const aiDescription = [];
           
           // Build comprehensive description from AI insights
@@ -785,40 +831,52 @@ export function registerCommunityRoutes(app: Express) {
           
           if (combinedDescription && combinedDescription.length > 100) {
             updateData.description = combinedDescription;
+            console.log(`📝 Generated description (${combinedDescription.length} chars)`);
           }
         }
         
         // Extract pricing information if available
         if (verificationReport.pricing && verificationReport.pricing.verified) {
-          if (verificationReport.pricing.monthlyFrom) {
+          if (verificationReport.pricing.monthlyFrom && (!community.price_range_min || community.price_range_min === 0)) {
             updateData.price_range_min = verificationReport.pricing.monthlyFrom;
           }
-          if (verificationReport.pricing.monthlyTo) {
+          if (verificationReport.pricing.monthlyTo && (!community.price_range_max || community.price_range_max === 0)) {
             updateData.price_range_max = verificationReport.pricing.monthlyTo;
+          }
+          if (updateData.price_range_min || updateData.price_range_max) {
+            console.log(`💰 Found pricing: $${updateData.price_range_min || community.price_range_min} - $${updateData.price_range_max || community.price_range_max}`);
           }
         }
         
-        // Extract care types if available
-        if (verificationReport.careTypes && verificationReport.careTypes.length > 0) {
+        // Extract care types if available and not already present
+        if (verificationReport.careTypes && verificationReport.careTypes.length > 0 && 
+            (!community.careTypes || community.careTypes.length === 0)) {
           updateData.careTypes = verificationReport.careTypes;
+          console.log(`🏥 Found care types: ${verificationReport.careTypes.join(', ')}`);
         }
         
-        // Extract amenities if available
-        if (verificationReport.amenities && verificationReport.amenities.length > 0) {
+        // Extract amenities if available and not already present
+        if (verificationReport.amenities && verificationReport.amenities.length > 0 && 
+            (!community.amenities || community.amenities.length === 0)) {
           updateData.amenities = verificationReport.amenities;
+          console.log(`✨ Found amenities: ${verificationReport.amenities.length} items`);
         }
         
         // Only update if we have data to save
         if (Object.keys(updateData).length > 0) {
           updateData.ai_enrichment_date = new Date();
-          updateData.ai_enrichment_version = 'v2.0';
+          updateData.ai_enrichment_version = 'v2.1';
           
           await db
             .update(communities)
             .set(updateData)
             .where(eq(communities.id, communityId));
           
-          console.log(`✅ Saved AI-enriched data for ${community.name} (${Object.keys(updateData).length} fields updated)`);
+          const fieldsUpdated = Object.keys(updateData).filter(k => k !== 'ai_enrichment_date' && k !== 'ai_enrichment_version');
+          console.log(`✅ Saved AI-enriched data for ${community.name}`);
+          console.log(`   📊 Fields updated: ${fieldsUpdated.join(', ')}`);
+        } else {
+          console.log(`ℹ️ No new data to save for ${community.name} (all fields already populated)`);
         }
       } catch (saveError) {
         console.error('Error saving AI-enriched data:', saveError);
