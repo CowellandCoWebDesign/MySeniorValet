@@ -1,12 +1,14 @@
 import express from 'express';
 import { simplifiedPerplexityService } from '../simplified-perplexity-service';
+import EnhancedAIEnrichmentService from '../services/enhanced-ai-enrichment';
 import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
 
 const router = express.Router();
+const enhancedEnrichmentService = new EnhancedAIEnrichmentService();
 
-// Simplified Competitive Analysis using Perplexity-first approach
+// Simplified Competitive Analysis using Perplexity-first approach with Enhanced Fuzzy Matching
 router.post('/api/competitive-analysis', async (req, res) => {
   try {
     const { location, type, communityName, communityId } = req.body;
@@ -20,11 +22,28 @@ router.post('/api/competitive-analysis', async (req, res) => {
         .limit(1);
       
       if (community) {
-        // Use the simplified service for exact community lookup
-        const intelligence = await simplifiedPerplexityService.getCommunityIntelligence(
+        // First try enhanced service with fuzzy matching and multiple strategies
+        console.log(`🚀 Using Enhanced AI Enrichment with fuzzy matching for ${community.name}`);
+        const enhancedResult = await enhancedEnrichmentService.findCommunityWithStrategies(
+          community.id,
           community.name,
-          `${community.city}, ${community.state}`
+          community.city,
+          community.state,
+          community.address || undefined
         );
+        
+        // Log enrichment summary
+        console.log(enhancedEnrichmentService.getEnrichmentSummary(enhancedResult));
+        
+        // Fall back to basic service if enhanced fails
+        let intelligence = enhancedResult;
+        if (!enhancedResult.found) {
+          console.log(`💫 Falling back to basic Perplexity search...`);
+          intelligence = await simplifiedPerplexityService.getCommunityIntelligence(
+            community.name,
+            `${community.city}, ${community.state}`
+          );
+        }
         
         console.log(`🔍 Competitive Analysis Result for ${community.name}:`, {
           found: intelligence.found,
