@@ -398,7 +398,9 @@ async function main() {
 }
 
 // Run if executed directly
-if (require.main === module) {
+// Use import.meta.url for ES module check
+const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+if (isMainModule) {
   main()
     .then(() => {
       console.log('\n✨ Script completed successfully');
