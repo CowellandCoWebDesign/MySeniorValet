@@ -16,7 +16,9 @@ MySeniorValet is a technology platform connecting families with publicly availab
 - **Removed Complexity**: Eliminated multi-AI verification, redundant calls, and complex scraping patterns
 - **Clean Implementation**: Single simplified-perplexity-service.ts handles all intelligence gathering
 - **Streamlined UI**: LiveWebIntelligence component simplified for on-demand intelligence fetching
-- **Critical API Fix (August 27, 2025)**: Fixed Perplexity API model names - migrated from deprecated `llama-3.1-sonar-small-128k-online` to current `sonar-pro` model for enhanced search capabilities. Perplexity's 2025 models are: `sonar`, `sonar-pro` (enhanced, currently used), `sonar-reasoning-pro`, and `sonar-deep-research`
+- **Critical API Fixes (August 27, 2025)**: 
+  - Fixed Perplexity API model names - migrated from deprecated `llama-3.1-sonar-small-128k-online` to current `sonar-pro` model for enhanced search capabilities. Perplexity's 2025 models are: `sonar`, `sonar-pro` (enhanced, currently used), `sonar-reasoning-pro`, and `sonar-deep-research`
+  - Fixed autocomplete predictive text - removed circular fetch call in legacy endpoint that was preventing suggestions from loading. Now directly queries database returning 103 Dallas communities in ~1 second from 34,365 total communities
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.

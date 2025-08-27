@@ -520,13 +520,38 @@ router.get('/autocomplete', async (req, res) => {
       return res.json({ suggestions: [] });
     }
 
-    // Call the enhanced endpoint and convert to legacy format
-    const response = await fetch(`http://localhost:5000/api/autocomplete/suggestions?query=${encodeURIComponent(query)}&limit=${limit}`);
-    const data = await response.json();
+    const searchTerm = query.toLowerCase().trim();
+    
+    // Directly query the database for the legacy endpoint
+    const communityResults = await db
+      .select({
+        id: communities.id,
+        name: communities.name,
+        city: communities.city,
+        state: communities.state
+      })
+      .from(communities)
+      .where(
+        or(
+          ilike(communities.name, `${searchTerm}%`),
+          ilike(communities.name, `%${searchTerm}%`),
+          ilike(communities.city, `${searchTerm}%`)
+        )
+      )
+      .limit(limit);
+    
+    // Convert to simple format for legacy compatibility
+    const suggestions = communityResults.map(c => ({
+      label: c.name,
+      value: c.name,
+      type: 'community',
+      id: c.id,
+      description: `${c.city}, ${c.state}`
+    }));
     
     res.json({ 
-      suggestions: data.suggestions || [],
-      _version: 'v5_legacy_wrapper_comprehensive'
+      suggestions,
+      _version: 'v5_legacy_direct'
     });
   } catch (error) {
     console.error('Legacy autocomplete error:', error);
