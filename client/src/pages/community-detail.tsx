@@ -1849,38 +1849,45 @@ export default function CommunityDetail() {
   
   const { toast } = useToast();
 
-  // Reset all state when community ID changes
-  React.useEffect(() => {
-    if (!id || id === '-1' || isNaN(Number(id))) {
-      console.warn('Invalid community ID:', id);
-      setLocation('/map-search');
-      return;
-    }
-    
-    // Reset all component state when navigating to a new community
-    console.log('Community ID changed to:', id, '- Resetting all state');
-    setIsFavorite(false);
-    setIsScheduleTourOpen(false);
-    setIsWaitlistOpen(false);
-    setWaitlistName('');
-    setWaitlistEmail('');
-    setWaitlistPhone('');
-    setWaitlistPreferences('');
-    setSelectedUnitType(null);
-    setExpandedUnits(new Set());
-    setVerificationReport(null);
-    setMarketAnalysisData(null);
-    setShowAdvancedReservation(false);
-    setSelectedReservationUnit(null);
-    setShowUpgradeModal(false);
-    setUpgradeFeature('');
-  }, [id, setLocation]);
-
+  // Always call useQuery hook regardless of ID validity to maintain consistent hook order
   const { data: community, isLoading, error } = useQuery<Community>({
     queryKey: [`/api/communities/${id}`],
     enabled: !!id && id !== '-1' && !isNaN(Number(id)),
   });
 
+  // Reset all state when community ID changes (but don't return early)
+  React.useEffect(() => {
+    // Only reset state if we have a valid ID
+    if (id && id !== '-1' && !isNaN(Number(id))) {
+      // Reset all component state when navigating to a new community
+      console.log('Community ID changed to:', id, '- Resetting all state');
+      setIsFavorite(false);
+      setIsScheduleTourOpen(false);
+      setIsWaitlistOpen(false);
+      setWaitlistName('');
+      setWaitlistEmail('');
+      setWaitlistPhone('');
+      setWaitlistPreferences('');
+      setSelectedUnitType(null);
+      setExpandedUnits(new Set());
+      setVerificationReport(null);
+      setMarketAnalysisData(null);
+      setShowAdvancedReservation(false);
+      setSelectedReservationUnit(null);
+      setShowUpgradeModal(false);
+      setUpgradeFeature('');
+    }
+  }, [id]);
+
+  // Navigate away if invalid ID (after all hooks have been called)
+  React.useEffect(() => {
+    if (!id || id === '-1' || isNaN(Number(id))) {
+      console.warn('Invalid community ID:', id);
+      setLocation('/map-search');
+    }
+  }, [id, setLocation]);
+
+  // Now we can safely do conditional returns (after ALL hooks have been called)
   if (!id || id === '-1' || isNaN(Number(id))) {
     return <div className="flex justify-center items-center h-64">Invalid community ID</div>;
   }

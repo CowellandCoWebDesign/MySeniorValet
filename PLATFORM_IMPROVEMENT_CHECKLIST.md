@@ -10,6 +10,12 @@
   - Details: Every AI-discovered community now auto-saves with full contact info
   - Verification: Database grew from 34,366 to 34,367 communities
 
+- [x] **Critical Bug Fix: React Hooks Error**
+  - Status: COMPLETE
+  - Impact: Fixed page crashes on community detail pages
+  - Details: Resolved "Rendered more hooks than during the previous render" error
+  - Solution: Ensured all hooks are called before any conditional returns
+
 ### 🔴 Priority 1 - Automated Enrichment (Next Sprint)
 - [ ] **Background Enrichment Pipeline**
   - Status: NOT STARTED
