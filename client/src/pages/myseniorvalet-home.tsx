@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
 import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send } from "lucide-react";
-import { AutocompleteSearch } from "@/components/AutocompleteSearch";
+import { UnifiedSearch } from "@/components/UnifiedSearch";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -775,42 +775,7 @@ export default function MySeniorValetHome() {
             <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 md:px-8">
               {/* Search Bar - Mobile responsive */}
             <div className="w-full max-w-xl sm:max-w-2xl mx-auto px-2 sm:px-4 md:px-6 mb-2 sm:mb-3 animate-fade-in-up animation-delay-200" style={{ position: 'relative', zIndex: 99999 }}>
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                if (searchQuery) {
-                  window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
-                }
-              }}>
-                <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl" style={{ overflow: 'visible' }}>
-                  <div className="flex items-center">
-                    <div className="flex-1 relative">
-                      <AutocompleteSearch
-                        value={searchQuery}
-                        onChange={setSearchQuery}
-                        onSubmit={(value) => {
-                          if (value) {
-                            window.location.href = `/map-search?q=${encodeURIComponent(value)}`;
-                          }
-                        }}
-                        placeholder={isMobile ? 'Search communities...' : t('hero.searchPlaceholder')}
-                        hideSearchButton={true}
-                        inputClassName="w-full pl-8 sm:pl-10 pr-2 sm:pr-3 py-2 sm:py-3 text-sm sm:text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                      />
-                    </div>
-                    <div className="hidden sm:flex items-center mr-2">
-                      <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs px-3 py-1 font-semibold">
-                        AI-Powered
-                      </Badge>
-                    </div>
-                    <button
-                      type="submit"
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-1.5 sm:p-2 m-1.5 sm:m-2 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
-                    >
-                      <Search className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </button>
-                  </div>
-                </div>
-              </form>
+              <UnifiedSearch />
             </div>
 
             {/* Trust Indicators - Mobile responsive */}
