@@ -74,6 +74,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          communityName: community.name, // Send the full community name
           location: `${community.city}, ${community.state}`,
           type: 'city'
         }),
@@ -153,10 +154,14 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     }
   };
   
-  // Automatically load analysis when component mounts
+  // Automatically load analysis when component mounts or community changes
   useEffect(() => {
+    // Reset state when community changes
+    setAnalysis(null);
+    setIsExpanded(true);
+    
     fetchAnalysis();
-  }, [community?.city, community?.state]);
+  }, [community?.id, community?.name, community?.city, community?.state]);
   
   return (
     <Card className="mb-8 border-2 border-indigo-200 dark:border-indigo-800">

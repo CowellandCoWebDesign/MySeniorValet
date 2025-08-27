@@ -11,7 +11,7 @@ const perplexityService = new PerplexityAIService();
 // Competitive Analysis endpoint
 router.post('/api/competitive-analysis', async (req, res) => {
   try {
-    const { location, type } = req.body;
+    const { location, type, communityName } = req.body;
     
     if (!location || !type) {
       return res.status(400).json({ error: 'Location and type are required' });
@@ -23,9 +23,10 @@ router.post('/api/competitive-analysis', async (req, res) => {
     
     switch(type) {
       case 'city':
-        // Search for ALL senior living types, not just assisted living
-        searchQuery = `all senior living communities ${location} including independent living assisted living memory care skilled nursing CCRC`;
-        contextQuery = `List ALL types of senior living communities in ${location} including: independent living, assisted living, memory care, skilled nursing, and CCRCs. Include their website URL, address, phone, and monthly pricing. Return comprehensive results for all care levels, not just assisted living.`;
+        // Search for ALL senior living types, including the specific community if provided
+        const communityNamePart = communityName ? `"${communityName}" and other ` : '';
+        searchQuery = `${communityNamePart}all senior living communities ${location} including independent living assisted living memory care skilled nursing CCRC`;
+        contextQuery = `${communityName ? `Find information about "${communityName}" specifically, and also list other ` : 'List ALL '}types of senior living communities in ${location} including: independent living, assisted living, memory care, skilled nursing, and CCRCs. Include their website URL, address, phone, and monthly pricing. Return comprehensive results for all care levels, not just assisted living.`;
         break;
       case 'state':
         searchQuery = `all senior living facilities ${location} state independent assisted memory care nursing`;
@@ -233,7 +234,15 @@ router.post('/api/competitive-analysis', async (req, res) => {
       }
       
       const details = content.substring(startIndex, endIndex);
-      const community: any = { name };
+      const community: any = { 
+        name,
+        photos: [] as string[],
+        floorPlans: [] as string[],
+        virtualTours: [] as string[],
+        videos: [] as string[],
+        amenities: [] as string[],
+        careLevels: [] as string[]
+      };
       
       // Extract website from markdown link format, table cell, or plain URL
       const websiteLinkMatch = details.match(/\*\*Website:\*\*\s*\[[^\]]+\]\(([^)]+)\)/i) ||
@@ -418,13 +427,14 @@ router.post('/api/competitive-analysis', async (req, res) => {
       .map(c => ({
         ...c,
         // Ensure website has http:// or https:// prefix
-        website: c.website.includes('://') ? c.website : `https://${c.website}`
+        website: c.website && c.website.includes('://') ? c.website : `https://${c.website}`
       }));
     
     console.log(`🕸️ Scraping ${communitiesToScrape.length} community websites for rich data...`);
     
     for (const community of communitiesToScrape) {
       try {
+        if (!community.website) continue; // Skip if no website
         console.log(`  Scraping ${community.name}: ${community.website}`);
         const scrapedData = await websiteScraperService.scrapeWebsite(community.website);
         
