@@ -124,6 +124,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const enhancedSearchRoutes = await import('./routes/enhanced-search-routes');
   app.use('/api/search', enhancedSearchRoutes.default);
   
+  // 🐙 KRAKEN RELEASE: Register Unified Search Engine routes
+  const unifiedSearchRoutes = await import('./routes/unifiedSearchRoutes');
+  app.use(unifiedSearchRoutes.default);
+  
   // Register Feedback routes for beta testing
   const feedbackRoutes = await import('./routes/feedbackRoutes');
   app.use('/api/feedback', feedbackRoutes.default);
