@@ -1613,9 +1613,9 @@ const HeroPhotoCarousel = ({
           <div className="w-full h-full overflow-hidden relative">
             {/* Special mascot view when only showing default photos */}
             {hasDefaultPhotos && (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/10 dark:via-indigo-900/10 dark:to-purple-900/10 p-4">
-                <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 max-w-4xl w-full">
-                  {/* Mascot */}
+              <div className="w-full h-full flex items-center justify-start bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/10 dark:via-indigo-900/10 dark:to-purple-900/10 p-6 md:p-8">
+                <div className="flex flex-row items-center gap-6 md:gap-8 max-w-5xl">
+                  {/* Mascot on the left */}
                   <div className="flex-shrink-0">
                     <img 
                       src={valetMascot} 
@@ -1623,8 +1623,8 @@ const HeroPhotoCarousel = ({
                       className="w-32 h-32 md:w-48 md:h-48 object-contain animate-pulse"
                     />
                   </div>
-                  {/* Message content - responsive and better laid out */}
-                  <div className="flex-1 text-center md:text-left">
+                  {/* Message content */}
+                  <div className="flex-1">
                     <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 md:mb-3">
                       Hello! I'm searching for real photos...
                     </h3>
@@ -1637,7 +1637,7 @@ const HeroPhotoCarousel = ({
                         💫 This usually takes 10-15 seconds while I search official websites, directories, and verified sources.
                       </p>
                     </div>
-                    <div className="flex items-center justify-center md:justify-start gap-2">
+                    <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
                       <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
                       <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
@@ -1806,13 +1806,31 @@ export default function CommunityDetail() {
   
   const { toast } = useToast();
 
-  // Validate ID and redirect if invalid
+  // Reset all state when community ID changes
   React.useEffect(() => {
     if (!id || id === '-1' || isNaN(Number(id))) {
       console.warn('Invalid community ID:', id);
       setLocation('/map-search');
       return;
     }
+    
+    // Reset all component state when navigating to a new community
+    console.log('Community ID changed to:', id, '- Resetting all state');
+    setIsFavorite(false);
+    setIsScheduleTourOpen(false);
+    setIsWaitlistOpen(false);
+    setWaitlistName('');
+    setWaitlistEmail('');
+    setWaitlistPhone('');
+    setWaitlistPreferences('');
+    setSelectedUnitType(null);
+    setExpandedUnits(new Set());
+    setVerificationReport(null);
+    setMarketAnalysisData(null);
+    setShowAdvancedReservation(false);
+    setSelectedReservationUnit(null);
+    setShowUpgradeModal(false);
+    setUpgradeFeature('');
   }, [id, setLocation]);
 
   const { data: community, isLoading, error } = useQuery<Community>({
@@ -3746,6 +3764,7 @@ export default function CommunityDetail() {
 
                 {/* Real-Time AI Insights */}
                 <RealTimeInsights 
+                  key={`real-time-insights-${community.id}`}
                   community={community}
                   marketAnalysisData={marketAnalysisData} 
                   onVerificationReport={setVerificationReport}
@@ -3753,10 +3772,14 @@ export default function CommunityDetail() {
                 />
 
                 {/* Intelligent Pricing Prediction */}
-                <IntelligentPricingPrediction community={community} />
+                <IntelligentPricingPrediction 
+                  key={`pricing-prediction-${community.id}`}
+                  community={community} 
+                />
 
                 {/* Community Competitive Analysis */}
                 <CommunityCompetitiveAnalysis 
+                  key={`competitive-analysis-${community.id}`}
                   community={community} 
                   onAnalysisUpdate={setMarketAnalysisData}
                   onVerificationReport={setVerificationReport}
