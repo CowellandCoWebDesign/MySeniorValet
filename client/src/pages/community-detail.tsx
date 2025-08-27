@@ -1192,15 +1192,60 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     </p>
                     {localVerificationReport.consensus.verifiedFacts.map((fact: any, idx: number) => {
                       let factText = fact;
+                      let isAddressCorrection = false;
+                      let addressDetails = null;
+                      
                       try {
                         if (typeof fact === 'string' && fact.includes('{') && fact.includes('}')) {
                           const parsed = JSON.parse(fact);
-                          factText = parsed.fact || parsed.text || parsed.message || JSON.stringify(parsed);
+                          
+                          // Handle address mismatch specifically
+                          if (parsed.concerns && parsed.concerns.includes('ADDRESS MISMATCH')) {
+                            isAddressCorrection = true;
+                            // Extract addresses from the concerns text
+                            const addressMatch = parsed.concerns.match(/Database shows ([^,]+), but web results show ([^,]+),/);
+                            if (addressMatch) {
+                              addressDetails = {
+                                old: addressMatch[1].trim(),
+                                new: addressMatch[2].trim()
+                              };
+                            }
+                            factText = `Address Updated: We've corrected the address from ${addressMatch?.[1] || 'old address'} to ${addressMatch?.[2] || 'verified address'} based on official sources`;
+                          } else {
+                            factText = parsed.fact || parsed.text || parsed.message || parsed.findings || '';
+                            // Clean up any remaining JSON strings
+                            if (typeof factText === 'object') {
+                              factText = '';
+                            }
+                          }
                         } else if (typeof fact === 'object') {
-                          factText = fact.fact || fact.text || fact.message || JSON.stringify(fact);
+                          // Handle complex objects
+                          if (fact.concerns && fact.concerns.includes('ADDRESS MISMATCH')) {
+                            isAddressCorrection = true;
+                            const addressMatch = fact.concerns.match(/Database shows ([^,]+), but web results show ([^,]+),/);
+                            if (addressMatch) {
+                              addressDetails = {
+                                old: addressMatch[1].trim(),
+                                new: addressMatch[2].trim()
+                              };
+                            }
+                            factText = `Address Updated: We've corrected the address from ${addressMatch?.[1] || 'old address'} to ${addressMatch?.[2] || 'verified address'} based on official sources`;
+                          } else if (fact.findings) {
+                            factText = fact.findings;
+                          } else if (fact.fact || fact.text || fact.message) {
+                            factText = fact.fact || fact.text || fact.message;
+                          } else {
+                            // If we can't extract meaningful text, skip this fact
+                            return null;
+                          }
                         }
                       } catch (e) {
                         // If it's not valid JSON, use as-is
+                      }
+                      
+                      // Skip empty facts or pure JSON strings
+                      if (!factText || factText.includes('"') && factText.includes('{')) {
+                        return null;
                       }
                       
                       // Only filter out completely generic information not about this community
@@ -1210,7 +1255,37 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                         return null;
                       }
                       
-                      // Categorize the fact
+                      // Special formatting for address corrections
+                      if (isAddressCorrection) {
+                        return (
+                          <div key={idx} className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                            <div className="flex items-start">
+                              <MapPin className="w-4 h-4 mr-2 mt-0.5 text-yellow-600 flex-shrink-0" />
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-1">
+                                  Address Correction Applied
+                                </p>
+                                <p className="text-sm text-gray-700 dark:text-gray-300">
+                                  Our AI verification found and corrected an address discrepancy. The database has been automatically updated with the verified address from official sources.
+                                </p>
+                                {addressDetails && (
+                                  <div className="mt-2 space-y-1 text-xs">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-red-600 dark:text-red-400 line-through">{addressDetails.old}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <CheckCircle className="w-3 h-3 text-green-600" />
+                                      <span className="text-green-600 dark:text-green-400 font-medium">{addressDetails.new}</span>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                      
+                      // Categorize other facts
                       let icon = <Info className="w-4 h-4 mr-2 mt-0.5 text-indigo-600 flex-shrink-0" />;
                       if (factText.toLowerCase().includes('website') || factText.toLowerCase().includes('.com') || factText.toLowerCase().includes('online')) {
                         icon = <Globe className="w-4 h-4 mr-2 mt-0.5 text-blue-600 flex-shrink-0" />;
