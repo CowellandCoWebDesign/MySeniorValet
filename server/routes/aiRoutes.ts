@@ -10,6 +10,7 @@ import { aiSearchService } from "../ai-search-service";
 import { perplexityService } from "../perplexity-ai-service";
 import { isAuthenticated as requireAuth } from "../auth-middleware";
 import { aiPriorityOrchestrator } from "../ai-priority-orchestrator";
+import { discoveredCommunityService } from "../services/discovered-community-service";
 import OpenAI from "openai";
 
 const multiAIOrchestrator = new MultiAIOrchestrator();
