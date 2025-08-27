@@ -822,30 +822,65 @@ export function registerCommunityRoutes(app: Express) {
           }
         }
         
-        // Extract enriched description from AI insights
+        // Extract enriched description from AI insights and website scraping
         if (verificationReport.aiInsights && (!community.description || community.description.length < 100)) {
-          const aiDescription = [];
+          // Check if we have scraped website data with extracted information
+          let extractedInfo = null;
           
-          // Build comprehensive description from AI insights
-          if (verificationReport.aiInsights.claude?.overview) {
-            aiDescription.push(verificationReport.aiInsights.claude.overview);
-          }
-          if (verificationReport.aiInsights.chatgpt?.overview) {
-            aiDescription.push(verificationReport.aiInsights.chatgpt.overview);
-          }
-          if (verificationReport.aiInsights.perplexity?.overview) {
-            aiDescription.push(verificationReport.aiInsights.perplexity.overview);
+          // Look for scraped data from multi-ai-verification-service
+          if (verificationReport.verificationResults?.webIntelligence) {
+            const webIntel = verificationReport.verificationResults.webIntelligence;
+            extractedInfo = {
+              about: verificationReport.aiInsights?.perplexity?.overview || '',
+              services: verificationReport.careTypes || [],
+              amenities: verificationReport.amenities || [],
+              activities: [], // These would be extracted from the scraped content
+              dining: '', // Would be extracted from scraped content
+              photos: webIntel.images || [],
+              pricing: verificationReport.pricing || {}
+            };
+            console.log(`🔍 Found extracted website information for enriched description`);
           }
           
-          // Combine and deduplicate descriptions
-          const combinedDescription = aiDescription
-            .filter(desc => desc && desc.length > 0)
-            .join('\n\n')
-            .substring(0, 2000); // Limit to 2000 chars
-          
-          if (combinedDescription && combinedDescription.length > 100) {
-            updateData.description = combinedDescription;
-            console.log(`📝 Generated description (${combinedDescription.length} chars)`);
+          try {
+            // Use OpenAI to generate a comprehensive description with extracted info
+            const { openAIIntegration } = require('../openai-integration');
+            const enrichedDescription = await openAIIntegration.generateCommunityDescription(
+              community,
+              extractedInfo
+            );
+            
+            if (enrichedDescription && enrichedDescription.length > 100) {
+              updateData.description = enrichedDescription;
+              console.log(`✨ Generated rich AI description using extracted website info (${enrichedDescription.length} chars)`);
+            }
+          } catch (error) {
+            console.log(`⚠️ OpenAI description generation failed, falling back to combined AI insights`);
+            
+            // Fallback to original logic if OpenAI fails
+            const aiDescription = [];
+            
+            // Build comprehensive description from AI insights
+            if (verificationReport.aiInsights.claude?.overview) {
+              aiDescription.push(verificationReport.aiInsights.claude.overview);
+            }
+            if (verificationReport.aiInsights.chatgpt?.overview) {
+              aiDescription.push(verificationReport.aiInsights.chatgpt.overview);
+            }
+            if (verificationReport.aiInsights.perplexity?.overview) {
+              aiDescription.push(verificationReport.aiInsights.perplexity.overview);
+            }
+            
+            // Combine and deduplicate descriptions
+            const combinedDescription = aiDescription
+              .filter(desc => desc && desc.length > 0)
+              .join('\n\n')
+              .substring(0, 2000); // Limit to 2000 chars
+            
+            if (combinedDescription && combinedDescription.length > 100) {
+              updateData.description = combinedDescription;
+              console.log(`📝 Generated description from AI insights (${combinedDescription.length} chars)`);
+            }
           }
         }
         

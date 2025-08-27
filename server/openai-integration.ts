@@ -88,33 +88,63 @@ Example response format:
     return [];
   }
 
-  async generateCommunityDescription(community: Community): Promise<string> {
+  async generateCommunityDescription(community: Community, extractedInfo?: any): Promise<string> {
     try {
+      // Build comprehensive prompt with all extracted information
+      let detailedInfo = '';
+      
+      if (extractedInfo) {
+        if (extractedInfo.about) {
+          detailedInfo += `\n\nAbout the Community:\n${extractedInfo.about}`;
+        }
+        
+        if (extractedInfo.services?.length > 0) {
+          detailedInfo += `\n\nServices Offered:\n${extractedInfo.services.join(', ')}`;
+        }
+        
+        if (extractedInfo.amenities?.length > 0) {
+          detailedInfo += `\n\nAmenities:\n${extractedInfo.amenities.join(', ')}`;
+        }
+        
+        if (extractedInfo.activities?.length > 0) {
+          detailedInfo += `\n\nActivities & Programs:\n${extractedInfo.activities.join(', ')}`;
+        }
+        
+        if (extractedInfo.dining) {
+          detailedInfo += `\n\nDining:\n${extractedInfo.dining}`;
+        }
+      }
+      
       const prompt = `You are MySeniorValet's content creator - organizing publicly available information about senior living communities.
 
 We facilitate access to existing resources, helping families find information that's already available on the internet.
 
-Generate an engaging, accurate description for this senior living community:
+Generate a comprehensive, engaging description for this senior living community:
 
 Name: ${community.name}
 Location: ${community.city}, ${community.state}
 Care Types: ${community.careTypes?.join(', ') || 'General care'}
 Price Range: ${community.priceRange || 'Contact for pricing'}
 Phone: ${community.phone || 'Contact available'}
-Current Description: ${community.description || 'No description available'}
+${detailedInfo}
 
-Create a warm, informative 2-3 paragraph description that:
-1. Highlights the community's unique features and location benefits
-2. Describes the care and lifestyle offered
-3. Mentions pricing transparency and contact information
-4. Uses a welcoming tone appropriate for families making this important decision
+Create a detailed 3-4 paragraph description that:
+1. Opens with an engaging overview of the community and its location
+2. Details the care services, support, and medical assistance available
+3. Describes lifestyle amenities, activities, and dining experiences
+4. Highlights what makes this community special or unique
+5. Uses a warm, professional tone that helps families understand the value
 
-Keep it factual based on the provided information, don't add amenities or features not mentioned.`;
+Important:
+- Synthesize and summarize the information naturally - don't copy verbatim
+- Keep it factual based only on provided information
+- Don't add amenities or features not mentioned
+- Focus on helping families make informed decisions`;
 
       const completion = await openai.chat.completions.create({
         model: "gpt-4",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 600,
+        max_tokens: 800,
         temperature: 0.7,
       });
 

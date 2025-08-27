@@ -17,6 +17,15 @@ interface ScrapedCommunityData {
     email?: string;
     address?: string;
   };
+  extractedInfo?: {
+    about: string;
+    services: string[];
+    amenities: string[];
+    activities: string[];
+    dining: string;
+    carePhilosophy: string;
+    specialFeatures: string[];
+  };
 }
 
 export class WebsiteScraperService {
@@ -228,6 +237,107 @@ export class WebsiteScraperService {
           data.videos.push(match[1]);
         }
       }
+      
+      // Extract detailed community information
+      const extractCommunityInfo = () => {
+        const info = {
+          about: '',
+          services: [] as string[],
+          amenities: [] as string[],
+          activities: [] as string[],
+          dining: '',
+          carePhilosophy: '',
+          specialFeatures: [] as string[]
+        };
+        
+        // Extract about/overview sections
+        const aboutPatterns = [
+          /<(?:div|section|article)[^>]*(?:class|id)=["'][^"']*(?:about|overview|description|welcome)[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|section|article)>/gi,
+          /<h[1-3][^>]*>(?:About|Welcome|Our Community)[^<]*<\/h[1-3]>\s*<p[^>]*>([\s\S]*?)<\/p>/gi,
+          /(?:About|Welcome to|Discover)\s+[^.]+\.([^<]{100,500})/gi
+        ];
+        
+        for (const pattern of aboutPatterns) {
+          let match;
+          while ((match = pattern.exec(allHtml)) !== null) {
+            const text = match[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+            if (text.length > 50 && text.length < 2000) {
+              info.about += text + ' ';
+            }
+          }
+        }
+        
+        // Extract services
+        const servicePatterns = [
+          /(?:services|care levels|levels of care)[^<]*<[^>]*>([\s\S]*?)<\/(?:ul|div|section)>/gi,
+          /(?:we offer|our services include|services provided)[^.]*:([\s\S]{50,500})/gi
+        ];
+        
+        const serviceKeywords = [
+          'independent living', 'assisted living', 'memory care', 'alzheimer', 'dementia',
+          'respite care', 'hospice', 'skilled nursing', 'rehabilitation', 'therapy',
+          'medication management', 'personal care', 'bathing', 'dressing', 'grooming'
+        ];
+        
+        for (const keyword of serviceKeywords) {
+          const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+          if (regex.test(allHtml)) {
+            info.services.push(keyword);
+          }
+        }
+        
+        // Extract amenities
+        const amenityKeywords = [
+          'pool', 'fitness', 'gym', 'library', 'salon', 'spa', 'theater', 'cinema',
+          'dining room', 'restaurant', 'bistro', 'cafe', 'bar', 'lounge', 'garden',
+          'courtyard', 'walking paths', 'pet-friendly', 'wifi', 'internet', 'chapel',
+          'game room', 'billiards', 'craft room', 'art studio', 'music room'
+        ];
+        
+        for (const keyword of amenityKeywords) {
+          const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+          if (regex.test(allHtml)) {
+            info.amenities.push(keyword);
+          }
+        }
+        
+        // Extract activities
+        const activityKeywords = [
+          'bingo', 'cards', 'exercise', 'yoga', 'tai chi', 'dancing', 'music', 'art',
+          'crafts', 'gardening', 'cooking', 'book club', 'movie night', 'happy hour',
+          'outings', 'shopping trips', 'excursions', 'social events', 'holiday celebrations'
+        ];
+        
+        for (const keyword of activityKeywords) {
+          const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+          if (regex.test(allHtml)) {
+            info.activities.push(keyword);
+          }
+        }
+        
+        // Extract dining information
+        const diningPatterns = [
+          /(?:dining|meals|menu|chef|cuisine)[^<]*<[^>]*>([\s\S]*?)<\/(?:p|div|section)>/gi,
+          /(?:restaurant-style|all-day dining|three meals|chef-prepared)([\s\S]{20,200})/gi
+        ];
+        
+        for (const pattern of diningPatterns) {
+          let match;
+          if ((match = pattern.exec(allHtml)) !== null) {
+            const text = match[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+            if (text.length > 20 && text.length < 500) {
+              info.dining += text + ' ';
+            }
+          }
+        }
+        
+        return info;
+      };
+      
+      const communityInfo = extractCommunityInfo();
+      
+      // Add extracted info to data structure
+      data.extractedInfo = communityInfo;
       
       // Extract pricing information with enhanced patterns and community name verification
       const extractPricing = () => {
