@@ -782,8 +782,68 @@ export function LiveWebIntelligence({
             </div>
           )}
 
+          {/* Data Sources - Always Visible */}
+          {webData?.citations && webData.citations.length > 0 && (
+            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <h4 className="font-semibold mb-3 flex items-center">
+                <LinkIcon className="w-4 h-4 mr-2 text-blue-600" />
+                Information Sources
+                <Badge variant="secondary" className="ml-2">
+                  {webData.citations.length} sources
+                </Badge>
+              </h4>
+              <div className="grid gap-2 max-h-48 overflow-y-auto">
+                {webData.citations.slice(0, 6).map((citation: string, idx: number) => {
+                  const searchResult = webData.search_results?.[idx];
+                  const domain = new URL(citation).hostname.replace('www.', '');
+                  const isSeniorLivingNearMe = domain.includes('seniorlivingnearme.com');
+                  
+                  return (
+                    <a
+                      key={idx}
+                      href={citation}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (window.confirm(`You are about to visit an external website:\n\n${citation}\n\nContinue?`)) {
+                          window.open(citation, '_blank');
+                        }
+                      }}
+                    >
+                      <div className="flex items-center flex-1 min-w-0">
+                        <Database className="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {isSeniorLivingNearMe ? (
+                              <span className="text-green-600 dark:text-green-400">
+                                ✓ Official Community Listing
+                              </span>
+                            ) : (
+                              searchResult?.title || domain
+                            )}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">
+                            {domain}
+                          </p>
+                        </div>
+                      </div>
+                      <ExternalLink className="w-3 h-3 text-gray-400 group-hover:text-blue-600 flex-shrink-0 ml-2" />
+                    </a>
+                  );
+                })}
+              </div>
+              {webData.citations.length > 6 && (
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-2 text-center">
+                  +{webData.citations.length - 6} more sources
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Expandable Full Content */}
-          <div>
+          <div className="mt-4">
             <Button
               variant="outline"
               size="sm"
@@ -806,16 +866,17 @@ export function LiveWebIntelligence({
 
                 <Separator />
 
-                {/* Sources */}
-                {webData.citations && webData.citations.length > 0 && (
+                {/* Additional Sources if any */}
+                {webData.citations && webData.citations.length > 6 && (
                   <div>
                     <h4 className="font-semibold mb-3 flex items-center">
                       <LinkIcon className="w-4 h-4 mr-2 text-blue-600" />
-                      Information Sources
+                      All Information Sources
                     </h4>
                     <div className="space-y-2">
                       {webData.citations.map((citation: string, idx: number) => {
                         const searchResult = webData.search_results?.[idx];
+                        const domain = new URL(citation).hostname.replace('www.', '');
                         return (
                           <a
                             key={idx}
@@ -823,6 +884,12 @@ export function LiveWebIntelligence({
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if (window.confirm(`You are about to visit an external website:\n\n${citation}\n\nContinue?`)) {
+                                window.open(citation, '_blank');
+                              }
+                            }}
                           >
                             <div className="flex items-center flex-1">
                               <Database className="w-4 h-4 mr-3 text-gray-500" />
@@ -830,11 +897,9 @@ export function LiveWebIntelligence({
                                 <p className="text-sm font-medium">
                                   {searchResult?.title || `Source ${idx + 1}`}
                                 </p>
-                                {searchResult?.last_updated && (
-                                  <p className="text-xs text-gray-500">
-                                    Updated: {new Date(searchResult.last_updated).toLocaleDateString()}
-                                  </p>
-                                )}
+                                <p className="text-xs text-gray-500">
+                                  {domain}
+                                </p>
                               </div>
                             </div>
                             <ExternalLink className="w-4 h-4 text-gray-400" />

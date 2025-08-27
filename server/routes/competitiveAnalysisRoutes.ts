@@ -436,7 +436,8 @@ router.post('/api/competitive-analysis', async (req, res) => {
       try {
         if (!community.website) continue; // Skip if no website
         console.log(`  Scraping ${community.name}: ${community.website}`);
-        const scrapedData = await websiteScraperService.scrapeWebsite(community.website);
+        // Pass community name to scraper for improved pricing accuracy
+        const scrapedData = await websiteScraperService.scrapeWebsite(community.website, community.name);
         
         // Find and enrich the community in our list
         const index = enrichedCommunities.findIndex(c => c.name === community.name);

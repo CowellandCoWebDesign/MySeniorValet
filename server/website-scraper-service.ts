@@ -20,8 +20,14 @@ interface ScrapedCommunityData {
 }
 
 export class WebsiteScraperService {
-  async scrapeWebsite(url: string): Promise<ScrapedCommunityData> {
+  async scrapeWebsite(url: string, communityName?: string): Promise<ScrapedCommunityData> {
     console.log(`🕸️ Scraping website: ${url}`);
+    
+    // Check if this is a seniorlivingnearme listing (official community listing service)
+    const isSeniorLivingNearMe = url.includes('seniorlivingnearme.com');
+    if (isSeniorLivingNearMe) {
+      console.log('✅ Detected official seniorlivingnearme.com community listing');
+    }
     
     try {
       // Fetch the HTML content
@@ -180,7 +186,7 @@ export class WebsiteScraperService {
         }
       }
       
-      // Extract pricing information with enhanced patterns
+      // Extract pricing information with enhanced patterns and community name verification
       const extractPricing = () => {
         const pricingInfo: any = {};
         
@@ -200,6 +206,7 @@ export class WebsiteScraperService {
         ];
         
         const foundPrices: number[] = [];
+        const verifiedPrices: number[] = []; // Prices verified to be for THIS community
         const priceDetails: string[] = [];
         
         pricingPatterns.forEach(pattern => {
@@ -211,12 +218,33 @@ export class WebsiteScraperService {
             
             // Validate price is in reasonable range for senior living (monthly)
             if (price >= 1500 && price <= 25000) {
-              foundPrices.push(price);
-              
-              // Capture the full context around the price
-              const contextStart = Math.max(0, match.index - 50);
-              const contextEnd = Math.min(html.length, match.index + match[0].length + 50);
+              // Capture wider context to verify this is for the right community
+              const contextStart = Math.max(0, match.index - 200);
+              const contextEnd = Math.min(html.length, match.index + match[0].length + 200);
               const context = html.substring(contextStart, contextEnd).replace(/<[^>]*>/g, ' ').trim();
+              
+              // Check if community name is mentioned nearby (if provided)
+              let isVerifiedPrice = false;
+              if (communityName) {
+                // Check if this price is associated with our community name
+                const nameWords = communityName.toLowerCase().split(/\s+/);
+                const contextLower = context.toLowerCase();
+                
+                // Check if all significant words from community name are present
+                const significantWords = nameWords.filter(word => word.length > 3);
+                if (significantWords.length > 0) {
+                  const matchedWords = significantWords.filter(word => contextLower.includes(word));
+                  if (matchedWords.length === significantWords.length) {
+                    isVerifiedPrice = true;
+                    verifiedPrices.push(price);
+                  }
+                }
+              }
+              
+              // Always add to found prices, but track if verified
+              if (!isVerifiedPrice) {
+                foundPrices.push(price);
+              }
               
               // Check what type of pricing this is
               if (context.toLowerCase().includes('independent')) {
@@ -233,7 +261,10 @@ export class WebsiteScraperService {
                 }
               }
               
-              priceDetails.push(context);
+              // Only save price details if verified or no community name provided
+              if (isVerifiedPrice || !communityName) {
+                priceDetails.push(context.substring(0, 300));
+              }
             }
           }
         });
@@ -243,7 +274,17 @@ export class WebsiteScraperService {
         if (jsonLdMatch) {
           try {
             const jsonData = JSON.parse(jsonLdMatch[1]);
-            if (jsonData.priceRange || jsonData.offers?.price || jsonData.offers?.priceRange) {
+            
+            // Check if this JSON-LD is for our community
+            let isOurCommunity = true;
+            if (communityName && jsonData.name) {
+              const nameWords = communityName.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+              const jsonName = jsonData.name.toLowerCase();
+              const matchedWords = nameWords.filter(word => jsonName.includes(word));
+              isOurCommunity = matchedWords.length === nameWords.length;
+            }
+            
+            if (isOurCommunity && (jsonData.priceRange || jsonData.offers?.price || jsonData.offers?.priceRange)) {
               const priceRange = jsonData.priceRange || jsonData.offers?.priceRange || jsonData.offers?.price;
               pricingInfo.structuredData = priceRange;
               
@@ -253,7 +294,7 @@ export class WebsiteScraperService {
                 structuredPrices.forEach((p: string) => {
                   const price = parseInt(p);
                   if (price >= 1500 && price <= 25000) {
-                    foundPrices.push(price);
+                    verifiedPrices.push(price);
                   }
                 });
               }
@@ -263,9 +304,12 @@ export class WebsiteScraperService {
           }
         }
         
+        // Prioritize verified prices over general prices
+        const pricesToUse = verifiedPrices.length > 0 ? verifiedPrices : foundPrices;
+        
         // Set min/max if we found prices
-        if (foundPrices.length > 0) {
-          const uniquePrices = [...new Set(foundPrices)].sort((a, b) => a - b);
+        if (pricesToUse.length > 0) {
+          const uniquePrices = [...new Set(pricesToUse)].sort((a, b) => a - b);
           data.pricing.min = `$${uniquePrices[0].toLocaleString()}/month`;
           if (uniquePrices.length > 1) {
             data.pricing.max = `$${uniquePrices[uniquePrices.length - 1].toLocaleString()}/month`;
@@ -273,7 +317,8 @@ export class WebsiteScraperService {
           
           // Add detailed pricing information
           if (priceDetails.length > 0) {
-            data.pricing.details = `Official Website Pricing - ${priceDetails[0].substring(0, 200)}`;
+            const source = isSeniorLivingNearMe ? 'Official SeniorLivingNearMe Listing' : 'Official Website';
+            data.pricing.details = `${source} Pricing - ${priceDetails[0].substring(0, 200)}`;
           }
           
           // Add care-level specific pricing if found
@@ -285,7 +330,7 @@ export class WebsiteScraperService {
           }
         }
         
-        console.log(`💰 Extracted pricing:`, data.pricing);
+        console.log(`💰 Extracted pricing (${verifiedPrices.length} verified, ${foundPrices.length} general):`, data.pricing);
       };
       
       extractPricing();
@@ -293,43 +338,180 @@ export class WebsiteScraperService {
       // Extract text content for analysis
       const textContent = html.replace(/<[^>]*>/g, ' ').toLowerCase();
 
-      // Look for amenities
-      const amenityKeywords = [
-        'pool', 'gym', 'fitness', 'dining', 'restaurant', 'spa', 'salon',
-        'library', 'theater', 'garden', 'patio', 'balcony', 'parking',
-        'transportation', 'wifi', 'internet', 'laundry', 'housekeeping'
-      ];
-      
-      amenityKeywords.forEach(keyword => {
-        if (textContent.includes(keyword)) {
-          data.amenities.push(keyword.charAt(0).toUpperCase() + keyword.slice(1));
+      // Extract community description from meta tags or page content
+      const extractDescription = () => {
+        // Try meta description first
+        const metaDescMatch = html.match(/<meta\s+(?:name=["']description["']|property=["']og:description["'])\s+content=["']([^"']+)["']/i);
+        if (metaDescMatch) {
+          data.description = metaDescMatch[1];
         }
-      });
+        
+        // Look for about/description sections
+        const aboutPatterns = [
+          /<(?:div|section|article)[^>]*(?:class|id)=["'][^"']*(?:about|description|overview|intro)[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|section|article)>/gi,
+          /<(?:h[1-3])[^>]*>(?:About|Overview|Welcome)[^<]*<\/h[1-3]>\s*<(?:p|div)[^>]*>([\s\S]*?)<\/(?:p|div)>/gi,
+        ];
+        
+        if (!data.description) {
+          for (const pattern of aboutPatterns) {
+            const match = pattern.exec(html);
+            if (match) {
+              const cleaned = match[1].replace(/<[^>]*>/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .substring(0, 500);
+              if (cleaned.length > 50) {
+                data.description = cleaned;
+                break;
+              }
+            }
+          }
+        }
+      };
+      
+      extractDescription();
 
-      // Look for care levels
+      // Enhanced amenity extraction with more comprehensive keywords
+      const extractAmenities = () => {
+        const amenityPatterns = [
+          // Look for amenity lists
+          /<(?:ul|ol)[^>]*(?:class|id)=["'][^"']*(?:amenities|features|services)[^"']*["'][^>]*>([\s\S]*?)<\/(?:ul|ol)>/gi,
+          // Look for amenity sections
+          /<(?:div|section)[^>]*(?:class|id)=["'][^"']*amenities[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|section)>/gi,
+        ];
+        
+        const foundAmenities = new Set<string>();
+        
+        // Extract from structured sections first
+        amenityPatterns.forEach(pattern => {
+          let match;
+          while ((match = pattern.exec(html)) !== null) {
+            const listContent = match[1];
+            // Extract list items
+            const itemRegex = /<li[^>]*>([\s\S]*?)<\/li>/gi;
+            let itemMatch;
+            while ((itemMatch = itemRegex.exec(listContent)) !== null) {
+              const amenity = itemMatch[1].replace(/<[^>]*>/g, ' ').trim();
+              if (amenity.length > 2 && amenity.length < 100) {
+                foundAmenities.add(amenity);
+              }
+            }
+          }
+        });
+        
+        // Comprehensive amenity keywords
+        const amenityKeywords = [
+          // Living amenities
+          'pool', 'swimming pool', 'gym', 'fitness center', 'exercise room',
+          'library', 'theater', 'movie theater', 'garden', 'patio', 'balcony',
+          'courtyard', 'walking paths', 'outdoor space',
+          
+          // Dining
+          'dining room', 'restaurant', 'bistro', 'cafe', 'private dining',
+          'chef-prepared meals', 'all-day dining', 'snack bar',
+          
+          // Services
+          'transportation', 'shuttle service', 'wifi', 'internet', 'laundry',
+          'housekeeping', 'maintenance', 'concierge', 'valet',
+          
+          // Health & Wellness
+          'spa', 'salon', 'beauty shop', 'barber', 'wellness center',
+          'physical therapy', 'occupational therapy', 'speech therapy',
+          
+          // Social & Activities
+          'activity room', 'game room', 'craft room', 'art studio',
+          'music room', 'chapel', 'meditation room', 'billiards',
+          'card room', 'computer room', 'business center',
+          
+          // Safety & Security
+          '24-hour staff', 'emergency response', 'secure entry',
+          'security system', 'call system', 'smoke detectors',
+          
+          // Pet-friendly
+          'pet friendly', 'pets allowed', 'pet park', 'dog park'
+        ];
+        
+        amenityKeywords.forEach(keyword => {
+          if (textContent.includes(keyword.toLowerCase())) {
+            foundAmenities.add(keyword.split(' ').map(w => 
+              w.charAt(0).toUpperCase() + w.slice(1)
+            ).join(' '));
+          }
+        });
+        
+        data.amenities = Array.from(foundAmenities).slice(0, 30); // Limit to 30 amenities
+      };
+      
+      extractAmenities();
+
+      // Enhanced care level extraction
       const careKeywords = [
         'independent living', 'assisted living', 'memory care', 
-        'alzheimer', 'dementia', 'skilled nursing', 'rehabilitation',
-        'hospice', 'respite'
+        'alzheimer\'s care', 'dementia care', 'skilled nursing', 
+        'rehabilitation', 'rehab services', 'respite care', 
+        'hospice care', 'continuing care', 'board and care',
+        'residential care', 'personal care'
       ];
       
+      const foundCareLevels = new Set<string>();
       careKeywords.forEach(keyword => {
         if (textContent.includes(keyword)) {
-          data.careLevels.push(keyword.split(' ').map(w => 
+          foundCareLevels.add(keyword.split(' ').map(w => 
             w.charAt(0).toUpperCase() + w.slice(1)
           ).join(' '));
         }
       });
+      data.careLevels = Array.from(foundCareLevels);
 
-      // Extract contact information
-      const phoneMatch = html.match(/\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/);
-      if (phoneMatch) {
-        data.contactInfo.phone = phoneMatch[0];
+      // Enhanced features extraction
+      const extractFeatures = () => {
+        const featureKeywords = [
+          'wheelchair accessible', 'ada compliant', 'elevator access',
+          'medication management', 'diabetes care', 'incontinence care',
+          'behavioral management', 'wound care', 'iv therapy',
+          'oxygen therapy', 'pain management', 'fall prevention',
+          'nutrition services', 'social services', 'activities program',
+          'religious services', 'visiting physicians', 'podiatry services',
+          'dental services', 'vision services', 'hearing services'
+        ];
+        
+        const foundFeatures = new Set<string>();
+        featureKeywords.forEach(keyword => {
+          if (textContent.includes(keyword)) {
+            foundFeatures.add(keyword.split(' ').map(w => 
+              w.charAt(0).toUpperCase() + w.slice(1)
+            ).join(' '));
+          }
+        });
+        data.features = Array.from(foundFeatures);
+      };
+      
+      extractFeatures();
+
+      // Enhanced contact information extraction
+      const phonePatterns = [
+        /\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/g,
+        /\d{3}[\s.-]\d{3}[\s.-]\d{4}/g,
+        /\+1[\s.-]?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/g
+      ];
+      
+      for (const pattern of phonePatterns) {
+        const phoneMatch = html.match(pattern);
+        if (phoneMatch) {
+          data.contactInfo.phone = phoneMatch[0];
+          break;
+        }
       }
 
       const emailMatch = html.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
       if (emailMatch) {
         data.contactInfo.email = emailMatch[0];
+      }
+      
+      // Extract address if present
+      const addressMatch = html.match(/\d+\s+[A-Za-z\s]+(?:Street|St|Avenue|Ave|Road|Rd|Drive|Dr|Lane|Ln|Boulevard|Blvd|Way|Court|Ct|Place|Pl)[^<]*/);
+      if (addressMatch) {
+        data.contactInfo.address = addressMatch[0].trim();
       }
 
       console.log(`  Found ${data.photos.length} photos, ${data.floorPlans.length} floor plans`);
