@@ -354,9 +354,9 @@ Provide the most current information available from official sources, reviews, a
   }
 
   /**
-   * Parse Perplexity's natural language response
+   * Parse and format Perplexity's response comprehensively
    */
-  private parsePerplexityResponse(
+  private parseEnhancedResponse(
     content: string, 
     citations: string[],
     communityName: string
@@ -366,9 +366,10 @@ Provide the most current information available from official sources, reviews, a
     // Check if community was found
     const found = !lowerContent.includes('could not find') && 
                   !lowerContent.includes('no information') &&
-                  lowerContent.includes(communityName.toLowerCase());
+                  !lowerContent.includes('unable to find');
 
     if (!found) {
+      console.log(`  ⚠️ Community not found by Perplexity`);
       return {
         found: false,
         name: communityName,
@@ -376,58 +377,183 @@ Provide the most current information available from official sources, reviews, a
       };
     }
 
-    // Extract official website
-    const websiteMatch = content.match(/(?:website|site|url):\s*(https?:\/\/[^\s]+)/i) ||
-                        content.match(/(https?:\/\/[^\s]+)/);
-    const officialWebsite = websiteMatch ? websiteMatch[1] : undefined;
-
-    // Extract phone
-    const phoneMatch = content.match(/(?:phone|tel|call):\s*([\d-().\s]+)/i) ||
-                      content.match(/\b(\d{3}[-.)]\s*\d{3}[-.\s]?\d{4})\b/);
-    const phone = phoneMatch ? phoneMatch[1].trim() : undefined;
-
-    // Extract pricing
-    const pricing: any = {};
-    const assistedMatch = content.match(/assisted living:?\s*\$?([\d,]+)/i);
-    if (assistedMatch) pricing.assistedLiving = `$${assistedMatch[1]}`;
-    
-    const memoryMatch = content.match(/memory care:?\s*\$?([\d,]+)/i);
-    if (memoryMatch) pricing.memoryCare = `$${memoryMatch[1]}`;
-    
-    const independentMatch = content.match(/independent living:?\s*\$?([\d,]+)/i);
-    if (independentMatch) pricing.independentLiving = `$${independentMatch[1]}`;
-
-    // Extract care levels
-    const careLevels = [];
-    if (lowerContent.includes('assisted living')) careLevels.push('Assisted Living');
-    if (lowerContent.includes('memory care')) careLevels.push('Memory Care');
-    if (lowerContent.includes('independent living')) careLevels.push('Independent Living');
-    if (lowerContent.includes('skilled nursing')) careLevels.push('Skilled Nursing');
-
-    // Extract amenities (simple keyword matching)
-    const amenities = [];
-    const amenityKeywords = [
-      'dining', 'fitness', 'pool', 'salon', 'library', 'garden',
-      'transportation', 'activities', 'pet', 'wifi', 'laundry'
-    ];
-    
-    amenityKeywords.forEach(keyword => {
-      if (lowerContent.includes(keyword)) {
-        amenities.push(keyword.charAt(0).toUpperCase() + keyword.slice(1));
-      }
-    });
-
-    return {
+    // Initialize result object
+    const result: CommunityIntelligence = {
       found: true,
       name: communityName,
-      officialWebsite,
-      phone,
-      pricing: Object.keys(pricing).length > 0 ? pricing : undefined,
-      careLevels: careLevels.length > 0 ? careLevels : undefined,
-      amenities: amenities.length > 0 ? amenities : undefined,
-      description: content.slice(0, 500),
       sources: citations
     };
+
+    // Check if content contains JSON data
+    const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || 
+                     content.match(/(\{[\s\S]*\})/);
+    
+    let structuredData: any = null;
+    if (jsonMatch) {
+      try {
+        structuredData = JSON.parse(jsonMatch[1]);
+      } catch (e) {
+        console.log('  ⚠️ Could not parse JSON from response');
+      }
+    }
+
+    // Extract from structured data if available
+    if (structuredData) {
+      // Extract website
+      result.officialWebsite = structuredData.website || 
+                              structuredData.officialWebsite || 
+                              structuredData.url ||
+                              this.extractUrl(content);
+
+      // Extract phone
+      result.phone = structuredData.phone || 
+                     structuredData.phoneNumber || 
+                     structuredData.contact ||
+                     this.extractPhone(content);
+
+      // Extract address
+      result.address = structuredData.address || 
+                      structuredData.location ||
+                      structuredData.specificLocationFound;
+
+      // Extract pricing
+      const pricing: any = {};
+      if (structuredData.pricing) {
+        if (typeof structuredData.pricing === 'object') {
+          Object.assign(pricing, structuredData.pricing);
+        } else if (typeof structuredData.pricing === 'string') {
+          pricing.general = structuredData.pricing;
+        }
+      }
+      // Check for care-specific pricing
+      if (structuredData.assistedLivingPricing) {
+        pricing.assistedLiving = structuredData.assistedLivingPricing;
+      }
+      if (structuredData.memoryCareePricing) {
+        pricing.memoryCare = structuredData.memoryCarePricing;
+      }
+
+      // Extract care levels
+      const careLevels = structuredData.careLevels || 
+                        structuredData.careTypes || 
+                        [];
+      
+      // Add from content analysis
+      if (lowerContent.includes('assisted living') && !careLevels.includes('Assisted Living')) {
+        careLevels.push('Assisted Living');
+      }
+      if (lowerContent.includes('memory care') && !careLevels.includes('Memory Care')) {
+        careLevels.push('Memory Care');
+      }
+
+      // Extract amenities
+      const amenities = structuredData.amenities || 
+                       structuredData.features || 
+                       [];
+
+      // Build description from structured data
+      const descriptionParts = [];
+      
+      if (structuredData.description) {
+        descriptionParts.push(structuredData.description);
+      } else if (structuredData.findings || structuredData.notes) {
+        // Extract key findings as description
+        const findings = structuredData.findings || structuredData.notes;
+        if (Array.isArray(findings)) {
+          descriptionParts.push(findings.join(' '));
+        } else if (typeof findings === 'string') {
+          descriptionParts.push(findings);
+        }
+      }
+
+      // Add verified status if available
+      if (structuredData.verified || structuredData.identityVerified) {
+        descriptionParts.push('✓ Identity verified');
+      }
+
+      result.pricing = Object.keys(pricing).length > 0 ? pricing : undefined;
+      result.careLevels = careLevels.length > 0 ? careLevels : undefined;
+      result.amenities = amenities.length > 0 ? amenities : undefined;
+      result.description = descriptionParts.join('. ');
+
+    } else {
+      // Fallback to pattern extraction for natural language responses
+      result.officialWebsite = this.extractUrl(content);
+      result.phone = this.extractPhone(content);
+      result.address = this.extractAddress(content);
+      
+      // Extract pricing with patterns
+      const pricing: any = {};
+      const assistedMatch = content.match(/assisted living:?\s*\$?([\d,]+)/i);
+      if (assistedMatch) pricing.assistedLiving = `$${assistedMatch[1]}`;
+      
+      const memoryMatch = content.match(/memory care:?\s*\$?([\d,]+)/i);
+      if (memoryMatch) pricing.memoryCare = `$${memoryMatch[1]}`;
+      
+      const independentMatch = content.match(/independent living:?\s*\$?([\d,]+)/i);
+      if (independentMatch) pricing.independentLiving = `$${independentMatch[1]}`;
+
+      result.pricing = Object.keys(pricing).length > 0 ? pricing : undefined;
+
+      // Extract care levels
+      const careLevels = [];
+      if (lowerContent.includes('assisted living')) careLevels.push('Assisted Living');
+      if (lowerContent.includes('memory care')) careLevels.push('Memory Care');
+      if (lowerContent.includes('independent living')) careLevels.push('Independent Living');
+      if (lowerContent.includes('skilled nursing')) careLevels.push('Skilled Nursing');
+      
+      result.careLevels = careLevels.length > 0 ? careLevels : undefined;
+
+      // Extract amenities
+      const amenities = [];
+      const amenityKeywords = [
+        'dining', 'fitness', 'pool', 'salon', 'library', 'garden',
+        'transportation', 'activities', 'pet', 'wifi', 'laundry'
+      ];
+      
+      amenityKeywords.forEach(keyword => {
+        if (lowerContent.includes(keyword)) {
+          amenities.push(keyword.charAt(0).toUpperCase() + keyword.slice(1));
+        }
+      });
+      
+      result.amenities = amenities.length > 0 ? amenities : undefined;
+
+      // Create a clean description by removing JSON and URLs
+      let cleanDescription = content
+        .replace(/```json[\s\S]*?```/g, '')
+        .replace(/\{[\s\S]*?\}/g, '')
+        .replace(/https?:\/\/[^\s]+/g, '')
+        .replace(/\n+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      // Take first meaningful sentence or 200 chars
+      const firstSentence = cleanDescription.match(/^[^.!?]+[.!?]/);
+      result.description = firstSentence ? 
+        firstSentence[0].trim() : 
+        cleanDescription.slice(0, 200) + (cleanDescription.length > 200 ? '...' : '');
+    }
+
+    return result;
+  }
+
+  // Helper extraction functions
+  private extractUrl(content: string): string | undefined {
+    const match = content.match(/(?:website|site|url):\s*(https?:\/\/[^\s]+)/i) ||
+                  content.match(/(https?:\/\/[^\s]+)/);
+    return match ? match[1] : undefined;
+  }
+
+  private extractPhone(content: string): string | undefined {
+    const match = content.match(/(?:phone|tel|call):\s*([\d-().\s]+)/i) ||
+                  content.match(/\b(\d{3}[-.)]\s*\d{3}[-.\s]?\d{4})\b/);
+    return match ? match[1].trim() : undefined;
+  }
+
+  private extractAddress(content: string): string | undefined {
+    const match = content.match(/(?:address|located at):\s*([^,\n]+(?:,[^,\n]+)?)/i);
+    return match ? match[1].trim() : undefined;
   }
 
   /**
