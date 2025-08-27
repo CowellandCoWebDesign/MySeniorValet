@@ -35,6 +35,7 @@ interface CommunityIntelligence {
   }>;
   photos?: string[];
   sources: string[];
+  notes?: string; // Additional notes about the search result
 }
 
 interface LiveWebIntelligenceProps {
@@ -150,45 +151,80 @@ export function LiveWebIntelligence({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Info className="h-5 w-5 text-muted-foreground" />
-            Community Not Found
+            Live Intelligence Not Available
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          {intelligence?.nearbyOptions && intelligence.nearbyOptions.length > 0 ? (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                We couldn't find exact information for {communityName}, but here are nearby communities:
-              </p>
+        <CardContent className="space-y-4">
+          {/* Show notes about potential confusion if available */}
+          {intelligence?.notes && (
+            <Alert className="border-yellow-200 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-900/10">
+              <Info className="h-4 w-4 text-yellow-600" />
+              <AlertTitle className="text-yellow-800 dark:text-yellow-200">Search Notice</AlertTitle>
+              <AlertDescription className="text-yellow-700 dark:text-yellow-300">
+                {intelligence.notes}
+              </AlertDescription>
+            </Alert>
+          )}
+          
+          {/* Display community information from database */}
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              We couldn't verify live information for <span className="font-semibold">{communityName}</span>.
+              This community's information is displayed from our database records.
+            </p>
+            
+            {/* Show database information hint */}
+            <div className="p-3 rounded-lg bg-muted/50 space-y-2">
+              <p className="text-sm font-medium">Database Information Available:</p>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Building className="h-4 w-4" />
+                <span>Community details from verified sources</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Phone className="h-4 w-4" />
+                <span>Contact information (if available)</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4" />
+                <span>Location: {city}, {state}</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Show nearby options if useful */}
+          {intelligence?.nearbyOptions && 
+           intelligence.nearbyOptions.length > 0 && 
+           intelligence.nearbyOptions.some(opt => opt.name && !opt.name.includes('Several') && !opt.name.includes('Other search')) && (
+            <div className="space-y-2 pt-2 border-t">
+              <p className="text-sm font-medium">Nearby Communities:</p>
               <div className="space-y-2">
-                {intelligence.nearbyOptions.map((option, idx) => (
-                  <div key={idx} className="flex items-start gap-2 p-3 rounded-lg bg-muted/50">
-                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                {intelligence.nearbyOptions
+                  .filter(opt => opt.name && !opt.name.includes('Several') && !opt.name.includes('Other search') && opt.name !== '- Distance' && opt.name !== '- Description')
+                  .map((option, idx) => (
+                  <div key={idx} className="flex items-start gap-2 p-2 rounded-lg bg-muted/30">
+                    <MapPin className="h-3 w-3 text-muted-foreground mt-0.5" />
                     <div className="flex-1">
-                      <p className="font-medium">{option.name}</p>
-                      <p className="text-sm text-muted-foreground">{option.distance}</p>
+                      <p className="text-sm">{option.name}</p>
+                      {option.distance && <p className="text-xs text-muted-foreground">{option.distance}</p>}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-          ) : (
-            <Alert>
-              <AlertDescription>
-                No information found for this community. Try searching with a different name or location.
-              </AlertDescription>
-            </Alert>
           )}
-          <div className="mt-4">
+          
+          <div className="pt-2">
             <Button 
               onClick={() => {
                 setIntelligence(null);
                 fetchIntelligence.mutate();
               }} 
               variant="outline"
+              size="sm"
               className="w-full"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
-              Search Again
+              Try Searching Again
             </Button>
           </div>
         </CardContent>

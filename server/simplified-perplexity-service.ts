@@ -41,6 +41,7 @@ interface CommunityIntelligence {
   }>;
   photos?: string[];
   sources: string[];
+  notes?: string; // Additional notes about the search result
 }
 
 export class SimplifiedPerplexityService {
@@ -54,6 +55,56 @@ export class SimplifiedPerplexityService {
   }
 
   /**
+   * Detect if the response is about a different community than requested
+   */
+  private detectWrongCommunity(requestedName: string, content: string, citations: string[]): string | null {
+    const requestedParts = requestedName.toLowerCase().split(' ');
+    const requestedFirstWord = requestedParts[0];
+    const requestedLastWord = requestedParts[requestedParts.length - 1];
+    
+    // Common variations that might be confused
+    const commonSuffixes = ['estates', 'springs', 'gardens', 'manor', 'place', 'village', 'residence', 'center', 'home', 'living', 'ridge', 'view', 'park'];
+    
+    // Check content for wrong community names
+    for (const suffix of commonSuffixes) {
+      if (suffix !== requestedLastWord) {
+        const wrongName = `${requestedFirstWord} ${suffix}`;
+        if (content.toLowerCase().includes(wrongName)) {
+          // Verify it's actually a different community by checking if it appears more than the requested name
+          const wrongNameCount = (content.toLowerCase().match(new RegExp(wrongName, 'g')) || []).length;
+          const requestedNameCount = (content.toLowerCase().match(new RegExp(requestedName.toLowerCase(), 'g')) || []).length;
+          
+          if (wrongNameCount > requestedNameCount) {
+            return wrongName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+          }
+        }
+      }
+    }
+    
+    // Check citations for wrong community references
+    for (const citation of citations) {
+      const lowerCitation = citation.toLowerCase();
+      
+      // Look for specific community name patterns in URLs
+      if (lowerCitation.includes('hilltop-springs') && requestedName.toLowerCase().includes('hilltop estates')) {
+        return 'Hilltop Springs';
+      }
+      if (lowerCitation.includes('hilltop-estates') && requestedName.toLowerCase().includes('hilltop springs')) {
+        return 'Hilltop Estates';
+      }
+      
+      // Generic check for mismatched suffixes in URLs
+      for (const suffix of commonSuffixes) {
+        if (suffix !== requestedLastWord && lowerCitation.includes(`${requestedFirstWord}-${suffix}`)) {
+          return `${requestedFirstWord.charAt(0).toUpperCase() + requestedFirstWord.slice(1)} ${suffix.charAt(0).toUpperCase() + suffix.slice(1)}`;
+        }
+      }
+    }
+    
+    return null;
+  }
+
+  /**
    * Step 1: Enhanced query to Perplexity for comprehensive community information
    */
   async findExactCommunity(
@@ -62,10 +113,20 @@ export class SimplifiedPerplexityService {
   ): Promise<CommunityIntelligence> {
     console.log(`🔍 Enhanced Perplexity search for: ${communityName} in ${location}`);
 
-    // Enhanced query with specific instructions for better data extraction
-    const query = `Find comprehensive information about "${communityName}" senior living community in ${location}. 
+    // Enhanced query with STRICT name matching to prevent confusion
+    const query = `Find information about senior living community named EXACTLY "${communityName}" in ${location}.
 
-REQUIRED INFORMATION (provide all available):
+CRITICAL ACCURACY REQUIREMENT:
+⚠️ ONLY provide information if the community name is EXACTLY "${communityName}"
+⚠️ DO NOT provide information about communities with similar but different names
+⚠️ If searching for "Hilltop Estates", DO NOT give information about "Hilltop Springs" or other variations
+⚠️ If the exact community "${communityName}" cannot be found, clearly state it was not found
+
+VERIFICATION CHECK:
+- Community name must be: "${communityName}" (exact match)
+- Location must be: ${location}
+
+IF FOUND, provide:
 1. CONTACT:
    - Official website URL (full URL including https://)
    - Main phone number (formatted as XXX-XXX-XXXX)
@@ -97,7 +158,7 @@ REQUIRED INFORMATION (provide all available):
    - Accreditations or certifications
    - Parent company or management group
 
-Provide the most current information available from official sources, reviews, and directories.`;
+Remember: Only provide details if the facility is EXACTLY named "${communityName}"`;
 
     try {
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -111,7 +172,14 @@ Provide the most current information available from official sources, reviews, a
           messages: [
             {
               role: 'system',
-              content: 'You are an expert senior living research specialist. Extract and provide all available information in a structured format. Always include phone numbers, websites, and pricing when found. Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.'
+              content: `You are an expert senior living research specialist with STRICT accuracy requirements.
+CRITICAL RULES:
+1. ONLY provide information about communities with the EXACT name requested
+2. If the community name in your sources doesn't match exactly, state that the specific community was not found
+3. Never mix or confuse information from different communities with similar names
+4. Example: If asked about "Hilltop Estates", DO NOT provide information about "Hilltop Springs" or any other variation
+5. Always verify the community name matches exactly before providing any details
+Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.`
             },
             {
               role: 'user',
@@ -362,11 +430,13 @@ Provide the most current information available from official sources, reviews, a
     communityName: string
   ): CommunityIntelligence {
     const lowerContent = content.toLowerCase();
+    const lowerCommunityName = communityName.toLowerCase();
     
     // Check if community was found
     const found = !lowerContent.includes('could not find') && 
                   !lowerContent.includes('no information') &&
-                  !lowerContent.includes('unable to find');
+                  !lowerContent.includes('unable to find') &&
+                  !lowerContent.includes('not found');
 
     if (!found) {
       console.log(`  ⚠️ Community not found by Perplexity`);
@@ -374,6 +444,19 @@ Provide the most current information available from official sources, reviews, a
         found: false,
         name: communityName,
         sources: citations
+      };
+    }
+    
+    // Verify the response is about the correct community
+    // Check for wrong community names in the content
+    const wrongCommunityIndicators = this.detectWrongCommunity(communityName, content, citations);
+    if (wrongCommunityIndicators) {
+      console.log(`  ⚠️ Response appears to be about wrong community: ${wrongCommunityIndicators}`);
+      return {
+        found: false,
+        name: communityName,
+        sources: [],
+        notes: `Search results contained information about "${wrongCommunityIndicators}" instead of "${communityName}"`
       };
     }
 
