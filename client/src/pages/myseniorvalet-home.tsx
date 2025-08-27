@@ -887,42 +887,50 @@ export default function MySeniorValetHome() {
                       PRIMARY DATABASE
                     </Badge>
                   </div>
-                  <CardTitle className="text-2xl mb-2">Community Directory</CardTitle>
+                  <CardTitle className="text-2xl mb-2">AI-Powered Community Directory</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Complete Database Access
+                    Self-Healing Database with On-Demand Intelligence
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Access all 34,181+ senior living communities across the United States with verified pricing and real-time availability
+                    Revolutionary AI enrichment system that automatically improves data quality in real-time. Our self-healing architecture detects and corrects errors, enriches content on-demand, and guarantees true transparency without hidden fees or paywalls.
                   </p>
 
                   {/* Community count matching other cards */}
                   <div className="inline-flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
                     <TrendingUp className="h-5 w-5 text-green-500" />
-                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">34,181+</span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Communities</span>
+                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">33,137+</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">AI-Enhanced Communities</span>
                   </div>
 
                   {/* Flex container for side-by-side layout */}
                   <div className="flex gap-3 mb-6">
-                    {/* Left side - Checkboxes */}
+                    {/* Left side - AI Features */}
                     <div className="space-y-2 flex-shrink-0 min-w-fit">
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">All U.S. Communities</span>
+                        <Sparkles className="h-4 w-4 text-purple-500 flex-shrink-0 animate-pulse" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">AI On-Demand Enrichment</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">5,936+ HUD Properties</span>
+                        <RefreshCw className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Self-Healing Database</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Real-Time Availability</span>
+                        <Shield className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">100% Transparency</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Verified Pricing Data</span>
+                        <Globe className="h-4 w-4 text-indigo-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Real-Time Web Scraping</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Duplicate Auto-Removal</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Eye className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">No Hidden Fees Ever</span>
                       </div>
                     </div>
                     
@@ -1034,6 +1042,21 @@ export default function MySeniorValetHome() {
                     </Button>
                   </div>
 
+                  {/* AI Intelligence Box */}
+                  <div className="mb-4 p-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+                    <div className="flex items-start gap-3">
+                      <Brain className="h-6 w-6 text-purple-600 flex-shrink-0 animate-pulse" />
+                      <div className="flex-1">
+                        <h4 className="font-bold text-sm text-purple-900 dark:text-purple-100 mb-1">AI-Powered Intelligence</h4>
+                        <p className="text-xs text-purple-700 dark:text-purple-300 leading-relaxed">
+                          Our revolutionary system enriches data only when you search, saving costs while ensuring information is always fresh. 
+                          Features automatic duplicate removal, address correction, real-time photo collection, and comprehensive amenity extraction. 
+                          Every community gets smarter with each search!
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* 3D Care Spectrum Mini Carousel */}
                   <div className="mb-6 overflow-hidden rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-4">
                     <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 text-center">EXPLORE 10 CARE LEVELS</p>
@@ -1062,8 +1085,10 @@ export default function MySeniorValetHome() {
                       e.stopPropagation();
                       window.location.href = '/community-directory';
                     }}
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
-                    <span className="font-semibold">Explore Directory</span>
+                    className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white hover:opacity-90 group-hover:shadow-lg transition-all relative overflow-hidden">
+                    <span className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
+                    <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
+                    <span className="font-semibold">Launch AI-Enhanced Directory</span>
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </CardContent>
