@@ -1100,6 +1100,40 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
             </div>
           )}
 
+          {/* AI-Enriched Description - NEW PROMINENT DISPLAY */}
+          {community?.description && community?.description.length > 100 && (
+            <div className="mb-6 p-5 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-xl border-2 border-purple-300 dark:border-purple-700 shadow-lg">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-bold text-xl flex items-center text-purple-900 dark:text-purple-100">
+                  <Sparkles className="w-6 h-6 mr-2 text-purple-600 animate-pulse" />
+                  AI-Generated Community Overview
+                </h4>
+                <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-3 py-1">
+                  ✨ AI Enhanced
+                </Badge>
+              </div>
+              <div className="prose prose-sm dark:prose-invert max-w-none">
+                <p className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line">
+                  {community.description.split('\n\n').slice(0, 2).join('\n\n')}
+                </p>
+                {community.description.split('\n\n').length > 2 && (
+                  <details className="mt-3">
+                    <summary className="cursor-pointer text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-semibold">
+                      Read full description ({community.description.split('\n\n').length} paragraphs)
+                    </summary>
+                    <p className="mt-3 text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line">
+                      {community.description.split('\n\n').slice(2).join('\n\n')}
+                    </p>
+                  </details>
+                )}
+              </div>
+              <div className="mt-3 text-xs text-purple-600 dark:text-purple-400 flex items-center">
+                <CheckCircle className="w-3 h-3 mr-1" />
+                AI-enriched content generated from verified data sources
+              </div>
+            </div>
+          )}
+
           {/* Community-Specific Web Intelligence - What We Found About */}
           {(realTimeData || localVerificationReport?.consensus?.verifiedFacts?.length > 0 || isVerifying) && (
             <div className="mt-6 mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
