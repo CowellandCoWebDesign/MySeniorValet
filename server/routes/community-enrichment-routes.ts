@@ -1,276 +1,247 @@
-import { Router } from 'express';
-import { db } from '../db';
-import { communities, enrichments } from '@shared/schema';
-import { eq, and, isNull, sql } from 'drizzle-orm';
-import { communityEnrichmentService } from '../community-enrichment-service';
-import { isAuthenticated, checkRole } from '../auth-middleware';
+import { type Express } from "express";
+import { db } from "../db";
+import { communities } from "@shared/schema";
+import { eq, desc, sql, isNull, or, lt, and, gte } from "drizzle-orm";
+import { isAdmin } from "../auth-middleware";
+import { onDemandEnrichmentService } from "../services/on-demand-enrichment-service";
 
-const router = Router();
-
-// Get enrichments for a community
-router.get('/community/:communityId', async (req, res) => {
-  try {
-    const communityId = parseInt(req.params.communityId);
-    
-    const communityEnrichments = await db
-      .select()
-      .from(enrichments)
-      .where(eq(enrichments.communityId, communityId))
-      .orderBy(enrichments.createdAt);
-
-    res.json(communityEnrichments);
-  } catch (error) {
-    console.error('Error fetching enrichments:', error);
-    res.status(500).json({ error: 'Failed to fetch enrichments' });
-  }
-});
-
-// Admin: Fix subtype tagging
-router.post('/fix-subtypes', isAuthenticated, checkRole('admin'), async (req, res) => {
-  try {
-    // Run in background as this can take time
-    communityEnrichmentService.fixSubtypeTagging()
-      .then(() => console.log('Subtype tagging completed'))
-      .catch(err => console.error('Subtype tagging error:', err));
-
-    res.json({ 
-      success: true, 
-      message: 'Subtype tagging started in background' 
-    });
-  } catch (error) {
-    console.error('Error starting subtype fix:', error);
-    res.status(500).json({ error: 'Failed to start subtype tagging' });
-  }
-});
-
-// Admin: Enrich a specific community
-router.post('/enrich/:communityId', isAuthenticated, checkRole('admin'), async (req, res) => {
-  try {
-    const communityId = parseInt(req.params.communityId);
-    const result = await communityEnrichmentService.enrichCommunity(communityId);
-
-    if (!result) {
-      return res.status(400).json({ error: 'Failed to enrich community' });
-    }
-
-    res.json(result);
-  } catch (error) {
-    console.error('Error enriching community:', error);
-    res.status(500).json({ error: 'Failed to enrich community' });
-  }
-});
-
-// Admin: Batch enrich communities
-router.post('/batch-enrich', isAuthenticated, checkRole('admin'), async (req, res) => {
-  try {
-    const { limit = 50 } = req.body;
-
-    // Run in background
-    communityEnrichmentService.batchEnrichCommunities(limit)
-      .then(result => console.log('Batch enrichment completed:', result))
-      .catch(err => console.error('Batch enrichment error:', err));
-
-    res.json({ 
-      success: true, 
-      message: `Batch enrichment started for up to ${limit} communities` 
-    });
-  } catch (error) {
-    console.error('Error starting batch enrichment:', error);
-    res.status(500).json({ error: 'Failed to start batch enrichment' });
-  }
-});
-
-// Get enrichment statistics
-router.get('/stats', isAuthenticated, checkRole('admin'), async (req, res) => {
-  try {
-    const stats = await db.execute(sql`
-      SELECT 
-        COUNT(DISTINCT c.id) as total_communities,
-        COUNT(DISTINCT e.community_id) as enriched_communities,
-        COUNT(e.id) as total_enrichments,
-        COUNT(CASE WHEN e.is_approved THEN 1 END) as approved_enrichments,
-        COUNT(CASE WHEN c.community_subtype IS NOT NULL AND c.community_subtype != 'traditional_assisted_living' THEN 1 END) as tagged_subtypes
-      FROM communities c
-      LEFT JOIN enrichments e ON c.id = e.community_id
-    `);
-
-    res.json(stats.rows[0]);
-  } catch (error) {
-    console.error('Error fetching enrichment stats:', error);
-    res.status(500).json({ error: 'Failed to fetch enrichment statistics' });
-  }
-});
-
-// Approve an enrichment
-router.post('/approve/:enrichmentId', isAuthenticated, checkRole('admin'), async (req, res) => {
-  try {
-    const enrichmentId = parseInt(req.params.enrichmentId);
-
-    await db
-      .update(enrichments)
-      .set({
-        isApproved: true,
-        approvedBy: parseInt((req as any).user?.id || (req as any).user?.claims?.sub),
-        approvedAt: new Date(),
-        updatedAt: new Date()
-      })
-      .where(eq(enrichments.id, enrichmentId));
-
-    res.json({ success: true, message: 'Enrichment approved' });
-  } catch (error) {
-    console.error('Error approving enrichment:', error);
-    res.status(500).json({ error: 'Failed to approve enrichment' });
-  }
-});
-
-// Test endpoint: Verify website scraping and AI description integration
-router.post('/test-enrichment-integration', async (req, res) => {
-  try {
-    const { communityName, city, state, website } = req.body;
-    
-    if (!communityName || !city || !state) {
-      return res.status(400).json({ 
-        error: 'Community name, city, and state are required for testing' 
-      });
-    }
-
-    console.log(`🧪 Testing enrichment integration for: ${communityName} in ${city}, ${state}`);
-    
-    // Import services at the top of the handler
-    const { websiteScraperService } = await import('../website-scraper-service');
-    const { openAIIntegration } = await import('../openai-integration');
-    
-    // Step 1: Test website scraping
-    let scrapedData = null;
-    if (website) {
-      console.log(`📊 Step 1: Testing website scraper with: ${website}`);
-      try {
-        scrapedData = await websiteScraperService.scrapeWebsite(website);
-        console.log(`✅ Scraped data successfully:`, {
-          photos: scrapedData?.photos?.length || 0,
-          description: scrapedData?.description?.substring(0, 100) || 'None',
-          amenities: scrapedData?.amenities?.length || 0,
-          services: scrapedData?.services?.length || 0,
-          activities: scrapedData?.activities?.length || 0,
-          contactInfo: scrapedData?.contactInfo || {}
-        });
-      } catch (error) {
-        console.error(`❌ Website scraping failed:`, error);
-      }
-    }
-    
-    // Step 2: Prepare extracted information for OpenAI
-    const extractedInfo = scrapedData ? {
-      about: scrapedData.description || '',
-      services: scrapedData.services || [],
-      amenities: scrapedData.amenities || [], 
-      activities: scrapedData.activities || [],
-      dining: scrapedData.dining || '',
-      photos: scrapedData.photos || [],
-      pricing: scrapedData.pricing || {},
-      carePhilosophy: scrapedData.carePhilosophy || ''
-    } : null;
-    
-    console.log(`📝 Step 2: Prepared extracted info for OpenAI:`, {
-      hasAbout: !!extractedInfo?.about,
-      servicesCount: extractedInfo?.services?.length || 0,
-      amenitiesCount: extractedInfo?.amenities?.length || 0,
-      activitiesCount: extractedInfo?.activities?.length || 0,
-      hasDining: !!extractedInfo?.dining,
-      photosCount: extractedInfo?.photos?.length || 0,
-      hasPricing: !!extractedInfo?.pricing
-    });
-    
-    // Step 3: Generate AI description with extracted info
-    console.log(`🤖 Step 3: Generating AI description with extracted website data`);
-    let enrichedDescription = '';
+export function registerCommunityEnrichmentRoutes(app: Express) {
+  // Admin endpoint to manually trigger enrichment for a specific community
+  app.post("/api/admin/communities/:id/enrich", isAdmin, async (req, res) => {
     try {
-      const testCommunity = {
-        name: communityName,
-        city,
-        state,
-        careTypes: scrapedData?.careLevels || ['Assisted Living'],
-        priceRange: scrapedData?.pricing?.details || 'Contact for pricing',
-        phone: scrapedData?.contactInfo?.phone || 'Contact available',
-        description: ''
-      };
+      const communityId = parseInt(req.params.id);
       
-      enrichedDescription = await openAIIntegration.generateCommunityDescription(
-        testCommunity,
-        extractedInfo
-      );
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: "Invalid community ID" });
+      }
       
-      console.log(`✅ Generated enriched description (${enrichedDescription.length} chars)`);
+      // Force enrichment regardless of cache
+      const result = await onDemandEnrichmentService.enrichCommunity(communityId);
+      
+      res.json({
+        success: result.success,
+        fieldsUpdated: result.fieldsUpdated,
+        protectedFieldsSkipped: result.protectedFieldsSkipped,
+        error: result.error
+      });
     } catch (error) {
-      console.error(`❌ AI description generation failed:`, error);
+      console.error("Error triggering enrichment:", error);
+      res.status(500).json({ error: "Failed to trigger enrichment" });
     }
-    
-    // Return comprehensive test results
-    const testResults = {
-      success: true,
-      test: 'Website Scraping + AI Description Integration',
-      community: `${communityName}, ${city}, ${state}`,
-      steps: {
-        websiteScraping: {
-          success: !!scrapedData,
-          photosFound: scrapedData?.photos?.length || 0,
-          amenitiesFound: scrapedData?.amenities?.length || 0,
-          servicesFound: scrapedData?.services?.length || 0,
-          activitiesFound: scrapedData?.activities?.length || 0,
-          contactInfo: scrapedData?.contactInfo || {}
-        },
-        extractedInfo: {
-          prepared: !!extractedInfo,
-          dataPoints: extractedInfo ? Object.keys(extractedInfo).length : 0
-        },
-        aiDescription: {
-          success: !!enrichedDescription,
-          length: enrichedDescription.length,
-          preview: enrichedDescription.substring(0, 200) + '...'
-        }
-      },
-      finalDescription: enrichedDescription,
-      integrationStatus: scrapedData && enrichedDescription ? 
-        '✅ INTEGRATION WORKING: Website data successfully flows to AI description generator' : 
-        '⚠️ PARTIAL INTEGRATION: Some components may need attention'
-    };
-    
-    console.log(`🎯 Integration test complete:`, testResults.integrationStatus);
-    res.json(testResults);
-    
-  } catch (error) {
-    console.error('Integration test error:', error);
-    res.status(500).json({ 
-      error: 'Integration test failed',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
-
-// Get communities needing enrichment
-router.get('/needed', isAuthenticated, checkRole('admin'), async (req, res) => {
-  try {
-    const { limit = 20 } = req.query;
-
-    const unenrichedCommunities = await db
-      .select({
-        id: communities.id,
-        name: communities.name,
-        city: communities.city,
-        state: communities.state,
-        careTypes: communities.careTypes,
-        communitySubtype: communities.communitySubtype
-      })
-      .from(communities)
-      .leftJoin(enrichments, eq(communities.id, enrichments.communityId))
-      .where(isNull(enrichments.id))
-      .limit(Number(limit));
-
-    res.json(unenrichedCommunities);
-  } catch (error) {
-    console.error('Error fetching unenriched communities:', error);
-    res.status(500).json({ error: 'Failed to fetch communities needing enrichment' });
-  }
-});
-
-export default router;
+  });
+  
+  // Admin endpoint to refresh dynamic content only (photos, availability, promotions)
+  app.post("/api/admin/communities/:id/refresh-dynamic", isAdmin, async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: "Invalid community ID" });
+      }
+      
+      const result = await onDemandEnrichmentService.refreshDynamicContent(communityId);
+      
+      res.json({
+        success: result.success,
+        fieldsUpdated: result.fieldsUpdated,
+        error: result.error
+      });
+    } catch (error) {
+      console.error("Error refreshing dynamic content:", error);
+      res.status(500).json({ error: "Failed to refresh dynamic content" });
+    }
+  });
+  
+  // Admin endpoint to batch enrich high-priority communities
+  app.post("/api/admin/enrich-batch", isAdmin, async (req, res) => {
+    try {
+      const limit = parseInt(req.body.limit as string) || 10;
+      
+      // Start batch enrichment asynchronously
+      onDemandEnrichmentService.enrichHighPriorityCommunities(limit).catch(error => {
+        console.error("Batch enrichment failed:", error);
+      });
+      
+      res.json({ 
+        message: `Batch enrichment started for up to ${limit} communities`,
+        status: "processing"
+      });
+    } catch (error) {
+      console.error("Error starting batch enrichment:", error);
+      res.status(500).json({ error: "Failed to start batch enrichment" });
+    }
+  });
+  
+  // Get enrichment stats for admin dashboard
+  app.get("/api/admin/enrichment-stats", isAdmin, async (req, res) => {
+    try {
+      const stats = await db
+        .select({
+          total: sql`COUNT(*)`,
+          pending: sql`SUM(CASE WHEN enrichment_status = 'pending' THEN 1 ELSE 0 END)`,
+          completed: sql`SUM(CASE WHEN enrichment_status = 'completed' THEN 1 ELSE 0 END)`,
+          failed: sql`SUM(CASE WHEN enrichment_status = 'failed' THEN 1 ELSE 0 END)`,
+          partial: sql`SUM(CASE WHEN enrichment_status = 'partial' THEN 1 ELSE 0 END)`,
+          inProgress: sql`SUM(CASE WHEN enrichment_status = 'in_progress' THEN 1 ELSE 0 END)`,
+          protectedPhones: sql`SUM(CASE WHEN phone_protected = true THEN 1 ELSE 0 END)`,
+          protectedEmails: sql`SUM(CASE WHEN email_protected = true THEN 1 ELSE 0 END)`,
+          protectedAddresses: sql`SUM(CASE WHEN address_protected = true THEN 1 ELSE 0 END)`,
+          needingEnrichment: sql`SUM(CASE WHEN 
+            (enrichment_status = 'pending' OR enrichment_status = 'failed' OR 
+             last_successful_enrichment < NOW() - INTERVAL '7 days' OR 
+             last_successful_enrichment IS NULL) 
+            THEN 1 ELSE 0 END)`
+        })
+        .from(communities);
+      
+      // Get top viewed communities needing enrichment
+      const topNeeding = await db
+        .select({
+          id: communities.id,
+          name: communities.name,
+          viewCount: communities.viewCount,
+          enrichmentStatus: communities.enrichmentStatus,
+          lastEnrichment: communities.lastSuccessfulEnrichment
+        })
+        .from(communities)
+        .where(
+          or(
+            eq(communities.enrichmentStatus, 'pending'),
+            eq(communities.enrichmentStatus, 'failed'),
+            isNull(communities.lastSuccessfulEnrichment),
+            lt(communities.lastSuccessfulEnrichment, sql`NOW() - INTERVAL '7 days'`)
+          )
+        )
+        .orderBy(desc(communities.viewCount))
+        .limit(10);
+      
+      res.json({
+        stats: stats[0],
+        topCommunitiesNeedingEnrichment: topNeeding
+      });
+    } catch (error) {
+      console.error("Error fetching enrichment stats:", error);
+      res.status(500).json({ error: "Failed to fetch enrichment stats" });
+    }
+  });
+  
+  // Get protected fields report
+  app.get("/api/admin/protected-fields-report", isAdmin, async (req, res) => {
+    try {
+      const protectedCommunities = await db
+        .select({
+          id: communities.id,
+          name: communities.name,
+          phoneProtected: communities.phoneProtected,
+          emailProtected: communities.emailProtected,
+          addressProtected: communities.addressProtected,
+          websiteProtected: communities.websiteProtected,
+          licenseProtected: communities.licenseProtected,
+          contactProtected: communities.contactProtected,
+          phoneVerificationCount: communities.phoneVerificationCount,
+          emailVerificationCount: communities.emailVerificationCount,
+          addressVerificationCount: communities.addressVerificationCount
+        })
+        .from(communities)
+        .where(
+          or(
+            eq(communities.phoneProtected, true),
+            eq(communities.emailProtected, true),
+            eq(communities.addressProtected, true),
+            eq(communities.websiteProtected, true),
+            eq(communities.licenseProtected, true),
+            eq(communities.contactProtected, true)
+          )
+        )
+        .limit(100);
+      
+      res.json({
+        totalProtected: protectedCommunities.length,
+        communities: protectedCommunities
+      });
+    } catch (error) {
+      console.error("Error fetching protected fields report:", error);
+      res.status(500).json({ error: "Failed to fetch protected fields report" });
+    }
+  });
+  
+  // Reset protection for a specific field
+  app.post("/api/admin/communities/:id/unprotect/:field", isAdmin, async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const field = req.params.field;
+      
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: "Invalid community ID" });
+      }
+      
+      const validFields = ['phone', 'email', 'address', 'website', 'license', 'contact'];
+      if (!validFields.includes(field)) {
+        return res.status(400).json({ error: "Invalid field name" });
+      }
+      
+      const protectionField = `${field}Protected` as keyof typeof communities;
+      const verificationField = `${field}VerificationCount` as keyof typeof communities;
+      
+      await db
+        .update(communities)
+        .set({
+          [protectionField]: false,
+          [verificationField]: 0
+        })
+        .where(eq(communities.id, communityId));
+      
+      res.json({ 
+        success: true,
+        message: `Protection removed for ${field} on community ${communityId}`
+      });
+    } catch (error) {
+      console.error("Error unprotecting field:", error);
+      res.status(500).json({ error: "Failed to unprotect field" });
+    }
+  });
+  
+  // Get enrichment history for a community
+  app.get("/api/admin/communities/:id/enrichment-history", isAdmin, async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: "Invalid community ID" });
+      }
+      
+      const [community] = await db
+        .select({
+          enrichmentStatus: communities.enrichmentStatus,
+          lastEnrichmentAttempt: communities.lastEnrichmentAttempt,
+          lastSuccessfulEnrichment: communities.lastSuccessfulEnrichment,
+          enrichmentAttempts: communities.enrichmentAttempts,
+          enrichmentSources: communities.enrichmentSources,
+          viewCount: communities.viewCount,
+          lastViewedAt: communities.lastViewedAt,
+          popularityScore: communities.popularityScore,
+          phoneVerificationCount: communities.phoneVerificationCount,
+          emailVerificationCount: communities.emailVerificationCount,
+          addressVerificationCount: communities.addressVerificationCount,
+          phoneProtected: communities.phoneProtected,
+          emailProtected: communities.emailProtected,
+          addressProtected: communities.addressProtected,
+          lastPhotoUpdate: communities.lastPhotoUpdate,
+          lastAvailabilityCheck: communities.lastAvailabilityCheck,
+          lastPromotionsUpdate: communities.lastPromotionsUpdate,
+          lastReviewsUpdate: communities.lastReviewsUpdate
+        })
+        .from(communities)
+        .where(eq(communities.id, communityId));
+      
+      if (!community) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+      
+      res.json(community);
+    } catch (error) {
+      console.error("Error fetching enrichment history:", error);
+      res.status(500).json({ error: "Failed to fetch enrichment history" });
+    }
+  });
+}

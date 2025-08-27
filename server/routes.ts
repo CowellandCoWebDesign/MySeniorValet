@@ -354,8 +354,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(vendorSignupRoutes.default);
   
   // Register community enrichment routes
-  const communityEnrichmentRoutes = await import('./routes/community-enrichment-routes');
-  app.use('/api/community-enrichment', communityEnrichmentRoutes.default);
+  const { registerCommunityEnrichmentRoutes } = await import('./routes/community-enrichment-routes');
+  registerCommunityEnrichmentRoutes(app);
 
   // Admin: Get all users
   app.get('/api/admin/users', async (req, res) => {

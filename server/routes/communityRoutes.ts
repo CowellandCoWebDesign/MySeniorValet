@@ -19,6 +19,7 @@ import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
 import { PerplexityAIService, perplexityService } from "../perplexity-ai-service";
 import { multiAIVerificationService } from "../multi-ai-verification-service";
+import { onDemandEnrichmentService } from "../services/on-demand-enrichment-service";
 
 export function registerCommunityRoutes(app: Express) {
   // IMPORTANT: Specific routes must come BEFORE the /:id route
@@ -1362,6 +1363,11 @@ export function registerCommunityRoutes(app: Express) {
       if (!community) {
         return res.status(404).json({ error: "Community not found" });
       }
+
+      // Trigger on-demand enrichment asynchronously (don't wait for completion)
+      onDemandEnrichmentService.onCommunityView(communityId).catch(error => {
+        console.error(`Failed to trigger enrichment for community ${communityId}:`, error);
+      });
 
       // Get reviews for the community
       const communityReviews = await db

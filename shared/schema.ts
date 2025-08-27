@@ -1092,6 +1092,24 @@ export const communities = pgTable("communities", {
   
   // Enrichment completion tracking
   enrichmentCompleted: boolean("enrichment_completed").default(false), // Tracks if community has been fully enriched
+  enrichmentStatus: text("enrichment_status", { enum: ["pending", "in_progress", "completed", "failed"] }).default("pending"),
+  enrichmentAttempts: integer("enrichment_attempts").default(0),
+  lastEnrichmentAttempt: timestamp("last_enrichment_attempt"),
+  enrichmentHistory: json("enrichment_history").$type<Array<{
+    timestamp: string;
+    source: string;
+    fieldsUpdated: string[];
+    protectedFieldsSkipped?: string[];
+    error?: string;
+  }>>().default([]),
+  lastPhotoEnrichment: timestamp("last_photo_enrichment"),
+  protectedFields: text("protected_fields").array().default([]), // Fields protected from overwrites after verification
+  enrichmentSources: json("enrichment_sources").$type<Array<{
+    source: string;
+    timestamp: string;
+    fieldsEnriched: string[];
+    confidence?: number;
+  }>>().default([]),
   
   // Performance optimization fields
   trendingScore: decimal("trending_score", { precision: 10, scale: 2 }).default("0"), // Pre-calculated trending score for fast sorting
@@ -1247,6 +1265,50 @@ export const communities = pgTable("communities", {
   monthlyLeads: integer("monthly_leads").default(0),
   monthlyMessages: integer("monthly_messages").default(0),
   lastReportingPeriod: timestamp("last_reporting_period"),
+  
+  // On-Demand Enrichment & Verification Tracking
+  enrichmentStatus: text("enrichment_status", { 
+    enum: ["pending", "in_progress", "completed", "failed", "partial"] 
+  }).default("pending"),
+  lastEnrichmentAttempt: timestamp("last_enrichment_attempt"),
+  enrichmentAttempts: integer("enrichment_attempts").default(0),
+  lastSuccessfulEnrichment: timestamp("last_successful_enrichment"),
+  
+  // Field Verification Counts - Protect after multiple confirmations
+  phoneVerificationCount: integer("phone_verification_count").default(0),
+  emailVerificationCount: integer("email_verification_count").default(0),
+  addressVerificationCount: integer("address_verification_count").default(0),
+  websiteVerificationCount: integer("website_verification_count").default(0),
+  licenseVerificationCount: integer("license_verification_count").default(0),
+  contactVerificationCount: integer("contact_verification_count").default(0),
+  
+  // Protected Field Indicators - True means field is locked from overwrite
+  phoneProtected: boolean("phone_protected").default(false),
+  emailProtected: boolean("email_protected").default(false),
+  addressProtected: boolean("address_protected").default(false),
+  websiteProtected: boolean("website_protected").default(false),
+  licenseProtected: boolean("license_protected").default(false),
+  contactProtected: boolean("contact_protected").default(false),
+  
+  // Dynamic Content Tracking - Always update these fields
+  lastPhotoUpdate: timestamp("last_photo_update"),
+  lastAvailabilityCheck: timestamp("last_availability_check"),
+  lastPromotionsUpdate: timestamp("last_promotions_update"),
+  lastReviewsUpdate: timestamp("last_reviews_update"),
+  
+  // Enrichment Source Tracking
+  enrichmentSources: json("enrichment_sources").$type<Array<{
+    source: string; // 'website_scraper', 'google_places', 'openai', 'manual'
+    date: string;
+    fieldsUpdated: string[];
+    confidence: number;
+  }>>().default([]),
+  
+  // View-triggered Enrichment Tracking
+  viewCount: integer("view_count").default(0),
+  lastViewedAt: timestamp("last_viewed_at"),
+  popularityScore: decimal("popularity_score", { precision: 10, scale: 2 }).default("0"),
+  enrichmentPriority: integer("enrichment_priority").default(0), // Higher = more urgent to enrich
 }, (table) => [
   // Performance indexes for fast search
   index("communities_city_idx").on(table.city),

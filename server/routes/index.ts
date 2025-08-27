@@ -5,6 +5,7 @@ import { communityStatsCache } from "../community-stats-cache";
 
 // Import route modules
 import { registerCommunityRoutes } from "./communityRoutes";
+import { registerCommunityEnrichmentRoutes } from "./community-enrichment-routes";
 import { registerDirectoryRoutes } from "./directoryRoutes";
 import { registerUserRoutes } from "./userRoutes";
 import { registerAIRoutes } from "./aiRoutes";
@@ -56,7 +57,6 @@ import { registerCommunityOnboardingRoutes } from "./communityOnboardingRoutes";
 import { registerCRMIntegrationRoutes } from "./crmIntegrationRoutes";
 import { registerRMSIntegrationRoutes } from "./rmsIntegrationRoutes";
 import { enterpriseMarketRoutes } from "./enterpriseMarketRoutes";
-import atriaRoutes from "./atria-routes";
 // DISABLED: Old Stripe routes - replaced by unifiedPaymentRoutes
 // import { registerStripeTestRoutes } from "./stripe-test";
 // import { registerStripeRealChargeRoutes } from "./stripe-real-charge-test";
@@ -110,6 +110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerMultiAITestRoutes(app);
   registerDirectoryRoutes(app); // Register directory filtering routes
   registerCommunityRoutes(app);
+  registerCommunityEnrichmentRoutes(app); // Register enrichment admin endpoints
   registerUserRoutes(app);
   registerSearchRoutes(app);
   registerAIRoutes(app);
