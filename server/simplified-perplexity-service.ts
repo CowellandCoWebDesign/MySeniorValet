@@ -573,8 +573,11 @@ Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.`
       if (structuredData.assistedLivingPricing) {
         pricing.assistedLiving = structuredData.assistedLivingPricing;
       }
-      if (structuredData.memoryCareePricing) {
+      if (structuredData.memoryCarePricing) {
         pricing.memoryCare = structuredData.memoryCarePricing;
+      }
+      if (structuredData.independentLivingPricing) {
+        pricing.independentLiving = structuredData.independentLivingPricing;
       }
 
       // Extract care levels
@@ -628,14 +631,25 @@ Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.`
       
       // Extract pricing with patterns
       const pricing: any = {};
-      const assistedMatch = content.match(/assisted living:?\s*\$?([\d,]+)/i);
-      if (assistedMatch) pricing.assistedLiving = `$${assistedMatch[1]}`;
       
-      const memoryMatch = content.match(/memory care:?\s*\$?([\d,]+)/i);
-      if (memoryMatch) pricing.memoryCare = `$${memoryMatch[1]}`;
+      // More robust regex patterns for pricing extraction
+      const assistedMatch = content.match(/assisted living:?\s*\$?([\d,]+(?:\.\d{2})?)/i) ||
+                           content.match(/assisted living[^$]*\$\s*([\d,]+(?:\.\d{2})?)/i);
+      if (assistedMatch && assistedMatch[1] && /\d/.test(assistedMatch[1])) {
+        pricing.assistedLiving = `$${assistedMatch[1].replace(/,/g, '')}`;
+      }
       
-      const independentMatch = content.match(/independent living:?\s*\$?([\d,]+)/i);
-      if (independentMatch) pricing.independentLiving = `$${independentMatch[1]}`;
+      const memoryMatch = content.match(/memory care:?\s*\$?([\d,]+(?:\.\d{2})?)/i) ||
+                         content.match(/memory care[^$]*\$\s*([\d,]+(?:\.\d{2})?)/i);
+      if (memoryMatch && memoryMatch[1] && /\d/.test(memoryMatch[1])) {
+        pricing.memoryCare = `$${memoryMatch[1].replace(/,/g, '')}`;
+      }
+      
+      const independentMatch = content.match(/independent living:?\s*\$?([\d,]+(?:\.\d{2})?)/i) ||
+                              content.match(/independent living[^$]*\$\s*([\d,]+(?:\.\d{2})?)/i);
+      if (independentMatch && independentMatch[1] && /\d/.test(independentMatch[1])) {
+        pricing.independentLiving = `$${independentMatch[1].replace(/,/g, '')}`;
+      }
 
       result.pricing = Object.keys(pricing).length > 0 ? pricing : undefined;
 
