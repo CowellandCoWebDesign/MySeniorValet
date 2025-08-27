@@ -743,18 +743,17 @@ export function registerCommunityRoutes(app: Express) {
         {
           city: community.city,
           state: community.state,
-          zipCode: community.zip,
+          zipCode: community.zipCode, // Fixed: use zipCode not zip
           address: community.address,
           careTypes: community.careTypes || [],
-          communityType: community.communityType,
           communitySubtype: community.communitySubtype,
           rating: community.rating,
-          bedCount: community.bedCount,
-          yearEstablished: community.yearEstablished,
           description: community.description,
-          ownershipType: community.ownershipType,
-          certifications: community.certifications || [],
-          hudPropertyId: community.hudPropertyId
+          hudPropertyId: community.hudPropertyId || null,
+          // Removed non-existent fields: communityType, bedCount, yearEstablished, ownershipType, certifications
+          website: community.website || null,
+          phone: community.phone || null,
+          email: community.email || null
         }
       );
 
@@ -762,49 +761,26 @@ export function registerCommunityRoutes(app: Express) {
       try {
         const updateData: any = {};
         
-        // Extract contact information from web intelligence
-        if (verificationReport.verificationResults?.webIntelligence) {
-          const webIntel = verificationReport.verificationResults.webIntelligence;
-          
-          // Save phone number if found and not already present
-          if (webIntel.phone && (!community.phone || community.phone.length < 10)) {
-            updateData.phone = webIntel.phone;
-            console.log(`📞 Found phone number: ${webIntel.phone}`);
-          }
-          
-          // Save website if found and not already present
-          if (webIntel.website && (!community.website || !community.website.startsWith('http'))) {
-            updateData.website = webIntel.website;
-            console.log(`🌐 Found website: ${webIntel.website}`);
-          }
-          
-          // Save email if found and not already present
-          if (webIntel.email && (!community.email || !community.email.includes('@'))) {
-            updateData.email = webIntel.email;
-            console.log(`📧 Found email: ${webIntel.email}`);
-          }
-        }
-        
-        // Extract additional contact info from scraped data
+        // Extract contact information from scraped data (NOT webIntelligence)
         if (verificationReport.verificationResults?.scrapedData) {
           const scraped = verificationReport.verificationResults.scrapedData;
           
-          // Check for phone in scraped data
-          if (scraped.phone && !updateData.phone && (!community.phone || community.phone.length < 10)) {
+          // Save phone number if found and not already present
+          if (scraped.phone && (!community.phone || community.phone.length < 10)) {
             updateData.phone = scraped.phone;
-            console.log(`📞 Found phone from scraper: ${scraped.phone}`);
+            console.log(`📞 Found phone number: ${scraped.phone}`);
           }
           
-          // Check for email in scraped data
-          if (scraped.email && !updateData.email && (!community.email || !community.email.includes('@'))) {
+          // Save email if found and not already present  
+          if (scraped.email && (!community.email || !community.email.includes('@'))) {
             updateData.email = scraped.email;
-            console.log(`📧 Found email from scraper: ${scraped.email}`);
+            console.log(`📧 Found email: ${scraped.email}`);
           }
           
-          // Check for business hours
-          if (scraped.businessHours && !community.businessHours) {
-            updateData.businessHours = scraped.businessHours;
-            console.log(`🕐 Found business hours: ${scraped.businessHours}`);
+          // Save website if found and not already present
+          if (scraped.website && (!community.website || !community.website.startsWith('http'))) {
+            updateData.website = scraped.website;
+            console.log(`🌐 Found website: ${scraped.website}`);
           }
         }
         
@@ -813,14 +789,14 @@ export function registerCommunityRoutes(app: Express) {
           const aiDescription = [];
           
           // Build comprehensive description from AI insights
-          if (verificationReport.aiInsights.claude) {
-            aiDescription.push(verificationReport.aiInsights.claude.overview || '');
+          if (verificationReport.aiInsights.claude?.overview) {
+            aiDescription.push(verificationReport.aiInsights.claude.overview);
           }
-          if (verificationReport.aiInsights.chatgpt) {
-            aiDescription.push(verificationReport.aiInsights.chatgpt.overview || '');
+          if (verificationReport.aiInsights.chatgpt?.overview) {
+            aiDescription.push(verificationReport.aiInsights.chatgpt.overview);
           }
-          if (verificationReport.aiInsights.perplexity) {
-            aiDescription.push(verificationReport.aiInsights.perplexity.overview || '');
+          if (verificationReport.aiInsights.perplexity?.overview) {
+            aiDescription.push(verificationReport.aiInsights.perplexity.overview);
           }
           
           // Combine and deduplicate descriptions
@@ -837,14 +813,22 @@ export function registerCommunityRoutes(app: Express) {
         
         // Extract pricing information if available
         if (verificationReport.pricing && verificationReport.pricing.verified) {
-          if (verificationReport.pricing.monthlyFrom && (!community.price_range_min || community.price_range_min === 0)) {
-            updateData.price_range_min = verificationReport.pricing.monthlyFrom;
+          const currentPriceRange = community.priceRange as any || {};
+          let updatedPriceRange = { ...currentPriceRange };
+          let priceUpdated = false;
+          
+          if (verificationReport.pricing.monthlyFrom && (!currentPriceRange.min || currentPriceRange.min === 0)) {
+            updatedPriceRange.min = verificationReport.pricing.monthlyFrom;
+            priceUpdated = true;
           }
-          if (verificationReport.pricing.monthlyTo && (!community.price_range_max || community.price_range_max === 0)) {
-            updateData.price_range_max = verificationReport.pricing.monthlyTo;
+          if (verificationReport.pricing.monthlyTo && (!currentPriceRange.max || currentPriceRange.max === 0)) {
+            updatedPriceRange.max = verificationReport.pricing.monthlyTo;
+            priceUpdated = true;
           }
-          if (updateData.price_range_min || updateData.price_range_max) {
-            console.log(`💰 Found pricing: $${updateData.price_range_min || community.price_range_min} - $${updateData.price_range_max || community.price_range_max}`);
+          
+          if (priceUpdated) {
+            updateData.priceRange = updatedPriceRange;
+            console.log(`💰 Found pricing: $${updatedPriceRange.min} - $${updatedPriceRange.max}`);
           }
         }
         
@@ -859,31 +843,66 @@ export function registerCommunityRoutes(app: Express) {
         if (verificationReport.amenities && verificationReport.amenities.length > 0 && 
             (!community.amenities || community.amenities.length === 0)) {
           updateData.amenities = verificationReport.amenities;
-          console.log(`✨ Found amenities: ${verificationReport.amenities.length} items`);
+          console.log(`✨ Found ${verificationReport.amenities.length} amenities`);
+        }
+        
+        // Extract photos if available and not already present
+        if (verificationReport.verificationResults?.webIntelligence?.images && 
+            verificationReport.verificationResults.webIntelligence.images.length > 0 &&
+            (!community.photos || community.photos.length === 0)) {
+          const photoUrls = verificationReport.verificationResults.webIntelligence.images
+            .slice(0, 10) // Limit to 10 photos
+            .map((img: any) => img.url);
+          if (photoUrls.length > 0) {
+            updateData.photos = photoUrls;
+            console.log(`📸 Found ${photoUrls.length} photos`);
+          }
         }
         
         // Only update if we have data to save
         if (Object.keys(updateData).length > 0) {
-          updateData.ai_enrichment_date = new Date();
-          updateData.ai_enrichment_version = 'v2.1';
+          // Update the lastPriceUpdate timestamp if we updated pricing
+          if (updateData.priceRange) {
+            updateData.lastPriceUpdate = new Date();
+          }
           
           await db
             .update(communities)
             .set(updateData)
             .where(eq(communities.id, communityId));
           
-          const fieldsUpdated = Object.keys(updateData).filter(k => k !== 'ai_enrichment_date' && k !== 'ai_enrichment_version');
+          const fieldsUpdated = Object.keys(updateData).filter(k => k !== 'lastPriceUpdate');
           console.log(`✅ Saved AI-enriched data for ${community.name}`);
           console.log(`   📊 Fields updated: ${fieldsUpdated.join(', ')}`);
+          console.log(`   💾 Database updated successfully for community ID ${communityId}`);
+          
+          // Update the community object with the new data so it's reflected in the response
+          Object.assign(community, updateData);
         } else {
           console.log(`ℹ️ No new data to save for ${community.name} (all fields already populated)`);
         }
       } catch (saveError) {
-        console.error('Error saving AI-enriched data:', saveError);
+        console.error('❌ Error saving AI-enriched data:', saveError);
+        console.error('   Update data was:', updateData);
         // Continue even if save fails - don't break the user experience
       }
 
-      res.json(verificationReport);
+      // Include enriched community data in the response
+      const enrichedResponse = {
+        ...verificationReport,
+        enrichedCommunity: {
+          phone: community.phone,
+          email: community.email,
+          website: community.website,
+          description: community.description,
+          amenities: community.amenities,
+          careTypes: community.careTypes,
+          priceRange: community.priceRange,
+          photos: community.photos
+        }
+      };
+      
+      res.json(enrichedResponse);
     } catch (error) {
       console.error("Multi-AI verification error:", error);
       res.status(500).json({ 
