@@ -142,7 +142,7 @@ Important:
 - Focus on helping families make informed decisions`;
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4-turbo", // Upgraded for better performance and larger context window
         messages: [{ role: "user", content: prompt }],
         max_tokens: 800,
         temperature: 0.7,
@@ -187,7 +187,7 @@ Provide optimal scheduling recommendations including:
 Return structured JSON with recommendations.`;
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o", // Upgraded for faster response times
         messages: [{ role: "user", content: prompt }],
         max_tokens: 1000,
         temperature: 0.5,
@@ -235,7 +235,7 @@ Include practical checklists, emotional support guidance, and family coordinatio
 Return structured JSON format.`;
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o", // Upgraded for faster response times
         messages: [{ role: "user", content: prompt }],
         max_tokens: 1200,
         temperature: 0.6,
@@ -263,7 +263,7 @@ Generate a friendly explanation of the search results, what was found, and next 
 
     try {
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-3.5-turbo", // Cost-effective for simple explanations
         messages: [{ role: "user", content: prompt }],
         max_tokens: 300,
         temperature: 0.7,
@@ -299,7 +299,7 @@ Provide negotiation strategy including:
 Keep advice ethical and realistic for senior living industry.`;
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-4o", // Upgraded for faster response times
         messages: [{ role: "user", content: prompt }],
         max_tokens: 800,
         temperature: 0.6,

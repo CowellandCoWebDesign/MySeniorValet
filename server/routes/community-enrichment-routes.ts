@@ -26,7 +26,7 @@ router.get('/community/:communityId', async (req, res) => {
 });
 
 // Admin: Fix subtype tagging
-router.post('/fix-subtypes', isAuthenticated, checkRole(['admin', 'super_admin']), async (req, res) => {
+router.post('/fix-subtypes', isAuthenticated, checkRole('admin'), async (req, res) => {
   try {
     // Run in background as this can take time
     communityEnrichmentService.fixSubtypeTagging()
@@ -44,7 +44,7 @@ router.post('/fix-subtypes', isAuthenticated, checkRole(['admin', 'super_admin']
 });
 
 // Admin: Enrich a specific community
-router.post('/enrich/:communityId', isAuthenticated, checkRole(['admin', 'super_admin']), async (req, res) => {
+router.post('/enrich/:communityId', isAuthenticated, checkRole('admin'), async (req, res) => {
   try {
     const communityId = parseInt(req.params.communityId);
     const result = await communityEnrichmentService.enrichCommunity(communityId);
@@ -61,7 +61,7 @@ router.post('/enrich/:communityId', isAuthenticated, checkRole(['admin', 'super_
 });
 
 // Admin: Batch enrich communities
-router.post('/batch-enrich', isAuthenticated, checkRole(['admin', 'super_admin']), async (req, res) => {
+router.post('/batch-enrich', isAuthenticated, checkRole('admin'), async (req, res) => {
   try {
     const { limit = 50 } = req.body;
 
@@ -81,7 +81,7 @@ router.post('/batch-enrich', isAuthenticated, checkRole(['admin', 'super_admin']
 });
 
 // Get enrichment statistics
-router.get('/stats', isAuthenticated, checkRole(['admin', 'super_admin']), async (req, res) => {
+router.get('/stats', isAuthenticated, checkRole('admin'), async (req, res) => {
   try {
     const stats = await db.execute(sql`
       SELECT 
@@ -102,7 +102,7 @@ router.get('/stats', isAuthenticated, checkRole(['admin', 'super_admin']), async
 });
 
 // Approve an enrichment
-router.post('/approve/:enrichmentId', isAuthenticated, checkRole(['admin', 'super_admin']), async (req, res) => {
+router.post('/approve/:enrichmentId', isAuthenticated, checkRole('admin'), async (req, res) => {
   try {
     const enrichmentId = parseInt(req.params.enrichmentId);
 
@@ -123,8 +123,132 @@ router.post('/approve/:enrichmentId', isAuthenticated, checkRole(['admin', 'supe
   }
 });
 
+// Test endpoint: Verify website scraping and AI description integration
+router.post('/test-enrichment-integration', async (req, res) => {
+  try {
+    const { communityName, city, state, website } = req.body;
+    
+    if (!communityName || !city || !state) {
+      return res.status(400).json({ 
+        error: 'Community name, city, and state are required for testing' 
+      });
+    }
+
+    console.log(`🧪 Testing enrichment integration for: ${communityName} in ${city}, ${state}`);
+    
+    // Import services at the top of the handler
+    const { websiteScraperService } = await import('../website-scraper-service');
+    const { openAIIntegration } = await import('../openai-integration');
+    
+    // Step 1: Test website scraping
+    let scrapedData = null;
+    if (website) {
+      console.log(`📊 Step 1: Testing website scraper with: ${website}`);
+      try {
+        scrapedData = await websiteScraperService.scrapeWebsite(website);
+        console.log(`✅ Scraped data successfully:`, {
+          photos: scrapedData?.photos?.length || 0,
+          description: scrapedData?.description?.substring(0, 100) || 'None',
+          amenities: scrapedData?.amenities?.length || 0,
+          services: scrapedData?.services?.length || 0,
+          activities: scrapedData?.activities?.length || 0,
+          contactInfo: scrapedData?.contactInfo || {}
+        });
+      } catch (error) {
+        console.error(`❌ Website scraping failed:`, error);
+      }
+    }
+    
+    // Step 2: Prepare extracted information for OpenAI
+    const extractedInfo = scrapedData ? {
+      about: scrapedData.description || '',
+      services: scrapedData.services || [],
+      amenities: scrapedData.amenities || [], 
+      activities: scrapedData.activities || [],
+      dining: scrapedData.dining || '',
+      photos: scrapedData.photos || [],
+      pricing: scrapedData.pricing || {},
+      carePhilosophy: scrapedData.carePhilosophy || ''
+    } : null;
+    
+    console.log(`📝 Step 2: Prepared extracted info for OpenAI:`, {
+      hasAbout: !!extractedInfo?.about,
+      servicesCount: extractedInfo?.services?.length || 0,
+      amenitiesCount: extractedInfo?.amenities?.length || 0,
+      activitiesCount: extractedInfo?.activities?.length || 0,
+      hasDining: !!extractedInfo?.dining,
+      photosCount: extractedInfo?.photos?.length || 0,
+      hasPricing: !!extractedInfo?.pricing
+    });
+    
+    // Step 3: Generate AI description with extracted info
+    console.log(`🤖 Step 3: Generating AI description with extracted website data`);
+    let enrichedDescription = '';
+    try {
+      const testCommunity = {
+        name: communityName,
+        city,
+        state,
+        careTypes: scrapedData?.careLevels || ['Assisted Living'],
+        priceRange: scrapedData?.pricing?.details || 'Contact for pricing',
+        phone: scrapedData?.contactInfo?.phone || 'Contact available',
+        description: ''
+      };
+      
+      enrichedDescription = await openAIIntegration.generateCommunityDescription(
+        testCommunity,
+        extractedInfo
+      );
+      
+      console.log(`✅ Generated enriched description (${enrichedDescription.length} chars)`);
+    } catch (error) {
+      console.error(`❌ AI description generation failed:`, error);
+    }
+    
+    // Return comprehensive test results
+    const testResults = {
+      success: true,
+      test: 'Website Scraping + AI Description Integration',
+      community: `${communityName}, ${city}, ${state}`,
+      steps: {
+        websiteScraping: {
+          success: !!scrapedData,
+          photosFound: scrapedData?.photos?.length || 0,
+          amenitiesFound: scrapedData?.amenities?.length || 0,
+          servicesFound: scrapedData?.services?.length || 0,
+          activitiesFound: scrapedData?.activities?.length || 0,
+          contactInfo: scrapedData?.contactInfo || {}
+        },
+        extractedInfo: {
+          prepared: !!extractedInfo,
+          dataPoints: extractedInfo ? Object.keys(extractedInfo).length : 0
+        },
+        aiDescription: {
+          success: !!enrichedDescription,
+          length: enrichedDescription.length,
+          preview: enrichedDescription.substring(0, 200) + '...'
+        }
+      },
+      finalDescription: enrichedDescription,
+      integrationStatus: scrapedData && enrichedDescription ? 
+        '✅ INTEGRATION WORKING: Website data successfully flows to AI description generator' : 
+        '⚠️ PARTIAL INTEGRATION: Some components may need attention'
+    };
+    
+    console.log(`🎯 Integration test complete:`, testResults.integrationStatus);
+    res.json(testResults);
+    
+  } catch (error) {
+    console.error('Integration test error:', error);
+    res.status(500).json({ 
+      error: 'Integration test failed',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Get communities needing enrichment
-router.get('/needed', isAuthenticated, checkRole(['admin', 'super_admin']), async (req, res) => {
+router.get('/needed', isAuthenticated, checkRole('admin'), async (req, res) => {
   try {
     const { limit = 20 } = req.query;
 
