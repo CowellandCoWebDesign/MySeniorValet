@@ -1,6 +1,7 @@
 import { db } from "../db";
 import { communities } from "@shared/schema";
 import { sql, and, or, desc, asc, ilike, eq, ne, gt, lt, gte, lte, inArray, isNotNull } from "drizzle-orm";
+import { EnhancedAIEnrichmentService } from "./enhanced-ai-enrichment";
 
 export interface EnterpriseSearchOptions {
   query?: string;
@@ -47,6 +48,11 @@ class EnterpriseSearchService {
   private readonly MAX_RESULTS = 5000;
   private readonly DEFAULT_LIMIT = 500;
   private readonly FUZZY_THRESHOLD = 0.7;
+  private enhancedAIService: EnhancedAIEnrichmentService;
+
+  constructor() {
+    this.enhancedAIService = new EnhancedAIEnrichmentService();
+  }
 
   async search(options: EnterpriseSearchOptions): Promise<SearchResult> {
     const startTime = Date.now();
@@ -138,8 +144,12 @@ class EnterpriseSearchService {
         )
       );
 
+      // Strategy 4: Enhanced fuzzy matching (check if we need it)
+      // This will be applied after the initial query if results are insufficient
+      fuzzyMatchesUsed = true; // We'll use this flag to indicate fuzzy matching is available
+      
       conditions.push(or(...textConditions));
-      searchStrategy = 'balanced_text_search';
+      searchStrategy = 'balanced_text_search_with_fuzzy';
     }
 
     // Location filters
@@ -257,9 +267,39 @@ class EnterpriseSearchService {
 
     // Execute main query with enterprise limits
     const effectiveLimit = Math.min(limit, this.MAX_RESULTS);
-    const results = await baseQuery
+    let results = await baseQuery
       .limit(effectiveLimit)
       .offset(offset);
+
+    // Apply enhanced fuzzy matching if we have a query and insufficient results
+    if (query && results.length < 5) {
+      console.log(`🔍 Initial search returned only ${results.length} results, applying enhanced fuzzy matching for: ${query}`);
+      
+      try {
+        // Get all communities for fuzzy matching (with reasonable limit)
+        const allCommunities = await db
+          .select()
+          .from(communities)
+          .limit(5000);
+        
+        // Use our enhanced fuzzy matching
+        const fuzzyMatches = this.enhancedAIService.findFuzzyMatches(query, allCommunities);
+        
+        if (fuzzyMatches.length > 0) {
+          console.log(`✨ Enhanced fuzzy matching found ${fuzzyMatches.length} additional matches`);
+          
+          // Combine results, removing duplicates
+          const existingIds = new Set(results.map((r: any) => r.id));
+          const newMatches = fuzzyMatches.filter((m: any) => !existingIds.has(m.id));
+          
+          results = [...results, ...newMatches].slice(0, effectiveLimit);
+          searchStrategy = 'enhanced_fuzzy_matching';
+          fuzzyMatchesUsed = true;
+        }
+      } catch (error) {
+        console.error('Enhanced fuzzy matching error:', error);
+      }
+    }
 
     // Generate facets for filtering (enterprise feature)
     const facets = await this.generateFacets(conditions);

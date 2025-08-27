@@ -1,12 +1,13 @@
 /**
- * Enhanced Search Service with ZIP Code Intelligence
- * Provides intelligent geographic search expansion and fallback mechanisms
+ * Enhanced Search Service with ZIP Code Intelligence and Fuzzy Matching
+ * Provides intelligent geographic search expansion, fuzzy matching, and fallback mechanisms
  */
 
 import { zipCodeService } from "./zip-code-mapping";
 import { storage } from "./storage";
 import type { Community, SearchCommunity } from "@shared/schema";
 import { PerplexityAIService } from "./perplexity-ai-service";
+import { EnhancedAIEnrichmentService } from "./services/enhanced-ai-enrichment";
 
 export interface SearchResult {
   communities: Community[];
@@ -30,9 +31,11 @@ export interface SearchResult {
 
 export class EnhancedSearchService {
   private perplexityService: PerplexityAIService;
+  private enrichmentService: EnhancedAIEnrichmentService;
 
   constructor() {
     this.perplexityService = new PerplexityAIService();
+    this.enrichmentService = new EnhancedAIEnrichmentService();
   }
 
   /**
@@ -110,8 +113,26 @@ export class EnhancedSearchService {
       };
     }
     
-    // PRIORITY 1: Try searching by community name first
-    const communityNameResults = await storage.searchCommunitiesByName(location);
+    // PRIORITY 1: Try searching by community name with fuzzy matching
+    // First try exact match
+    let communityNameResults = await storage.searchCommunitiesByName(location);
+    
+    // If no exact match, try fuzzy matching
+    if ((!communityNameResults || communityNameResults.length === 0) && location.length > 3) {
+      console.log(`No exact match for "${location}", trying fuzzy matching...`);
+      
+      // Get all communities for fuzzy matching
+      const allCommunities = await storage.getAllCommunities();
+      
+      // Use our enhanced AI enrichment service for intelligent fuzzy matching
+      const fuzzyMatches = this.enrichmentService.findFuzzyMatches(location, allCommunities);
+      
+      if (fuzzyMatches.length > 0) {
+        console.log(`Found ${fuzzyMatches.length} fuzzy matches for "${location}"`);
+        communityNameResults = fuzzyMatches;
+      }
+    }
+    
     if (communityNameResults && communityNameResults.length > 0) {
       console.log(`Found ${communityNameResults.length} communities by name: ${location}`);
       
@@ -139,7 +160,7 @@ export class EnhancedSearchService {
         communities: filteredResults,
         searchMetadata: {
           originalQuery: location,
-          searchType: 'exact',
+          searchType: communityNameResults.length > 0 ? 'exact' : 'fuzzy',
           totalResults: filteredResults.length
         }
       };

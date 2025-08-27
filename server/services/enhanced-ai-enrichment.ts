@@ -27,6 +27,8 @@ interface SearchStrategy {
   confidence: number;
 }
 
+import type { Community } from "@shared/schema";
+
 export class EnhancedAIEnrichmentService {
   private perplexityService: SimplifiedPerplexityService;
   
@@ -244,6 +246,104 @@ export class EnhancedAIEnrichmentService {
     });
     
     return strategies;
+  }
+
+  /**
+   * Find communities using fuzzy matching
+   */
+  findFuzzyMatches(searchQuery: string, allCommunities: Community[]): Community[] {
+    const query = searchQuery.toLowerCase().trim();
+    const matches: Array<{ community: Community; similarity: number }> = [];
+    
+    // Check for chain aliases
+    const chainVariations = this.getChainVariations(query);
+    
+    for (const community of allCommunities) {
+      const communityNameLower = community.name.toLowerCase();
+      
+      // Exact match
+      if (communityNameLower === query) {
+        matches.push({ community, similarity: 100 });
+        continue;
+      }
+      
+      // Contains query
+      if (communityNameLower.includes(query) || query.includes(communityNameLower)) {
+        matches.push({ community, similarity: 85 });
+        continue;
+      }
+      
+      // Check chain variations
+      for (const variation of chainVariations) {
+        if (communityNameLower.includes(variation.toLowerCase())) {
+          matches.push({ community, similarity: 80 });
+          break;
+        }
+      }
+      
+      // Word-level fuzzy matching for brand names
+      const queryWords = query.split(/\s+/);
+      const communityWords = communityNameLower.split(/\s+/);
+      
+      for (const qWord of queryWords) {
+        for (const cWord of communityWords) {
+          const wordSimilarity = this.calculateSimilarity(qWord, cWord);
+          
+          // Lower threshold for short words (likely brand abbreviations or typos)
+          const threshold = qWord.length <= 6 ? 0.65 : 0.75;
+          
+          if (wordSimilarity >= threshold) {
+            matches.push({ community, similarity: wordSimilarity * 100 });
+            break;
+          }
+        }
+      }
+      
+      // Full name fuzzy matching with lower threshold
+      const fullSimilarity = this.calculateSimilarity(query, communityNameLower);
+      if (fullSimilarity >= 0.40) { // 40% threshold for full name matching
+        matches.push({ community, similarity: fullSimilarity * 100 });
+      }
+    }
+    
+    // Deduplicate by community ID and keep highest similarity
+    const dedupedMatches = new Map<number, { community: Community; similarity: number }>();
+    for (const match of matches) {
+      const existing = dedupedMatches.get(match.community.id);
+      if (!existing || existing.similarity < match.similarity) {
+        dedupedMatches.set(match.community.id, match);
+      }
+    }
+    
+    // Sort by similarity and return top matches
+    return Array.from(dedupedMatches.values())
+      .sort((a, b) => b.similarity - a.similarity)
+      .slice(0, 20) // Return top 20 matches
+      .map(m => m.community);
+  }
+
+  /**
+   * Get chain variations for a search query
+   */
+  private getChainVariations(query: string): string[] {
+    const variations: string[] = [];
+    
+    // Check each chain alias using the static CHAIN_ALIASES
+    for (const [_, alias] of Object.entries(EnhancedAIEnrichmentService.CHAIN_ALIASES)) {
+      for (const marketingName of alias.marketing) {
+        if (query.includes(marketingName.toLowerCase())) {
+          // Add all variations of this chain
+          variations.push(...alias.marketing);
+          variations.push(...alias.database); // Use database array instead of undefined variations
+          if (alias.parentCompany) {
+            variations.push(alias.parentCompany);
+          }
+          break;
+        }
+      }
+    }
+    
+    return variations;
   }
 
   /**
