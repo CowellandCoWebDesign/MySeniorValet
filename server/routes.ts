@@ -70,6 +70,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', communityClaimsRoutes.default);
   app.use('/api', verifiedProfilesRoutes.default);
   
+  // Register duplicate detection routes
+  const { duplicateRoutes } = await import('./routes/duplicateRoutes');
+  app.use('/api/duplicates', duplicateRoutes);
+  
   // Register sitemap generation for SEO
   const sitemapGenerator = await import('./sitemap-generator');
   app.get('/sitemap.xml', sitemapGenerator.generateSitemap);
