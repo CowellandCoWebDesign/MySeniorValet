@@ -1,40 +1,7 @@
 # MySeniorValet - Senior Living Community Transparency Platform
 
 ## Overview
-MySeniorValet is a technology platform connecting families with publicly available, verified information about senior living communities across North America. Its purpose is to bring transparency to the senior living market by providing authentic, verified data, including HUD pricing, to empower informed decision-making. The platform offers complete care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the TourMate™ tour scheduling system, a One-Touch Emergency Contact Shortcut, and trilingual support (English, French, Spanish). MySeniorValet aims to be "The Dawn of Transparency in Senior Living." The platform includes an enhanced pricing intelligence system for historical tracking, confidence scoring, and trend analysis across different care levels, and prioritizes transparency by gathering comprehensive information from all available sources with robust AI-driven verification.
-
-### Authentication System Fixed (August 27, 2025 - 6:00 AM)
-- **Major Success**: Authentication system completely repaired after critical failures
-- **Fixed Components**: User registration, login, session management, protected routes
-- **Database Fix**: Created missing `user_sessions` table for proper session tracking
-- **Current Users**: 21 registered users with secure password hashing
-- **Email Integration**: SendGrid working for registration notifications
-
-### AI Priority System (August 27, 2025)
-1. **Perplexity (Primary)** - `sonar-pro` model for real-time web search
-2. **Anthropic Claude (Secondary)** - `claude-sonnet-4-20250514` for intelligent analysis  
-3. **OpenAI ChatGPT (Tertiary)** - `gpt-5` as backup when others unavailable
-
-### Simplified Perplexity-First Intelligence System (August 27, 2025)
-- **Major Architecture Simplification**: Completely rebuilt intelligence system after identifying over-engineering issues
-- **Perplexity-First Approach**: Use Perplexity as primary source for exact community information
-- **Direct Website Scraping**: If exact match found, scrape official website for photos and pricing
-- **Fallback Strategy**: Only search surrounding areas if exact community match isn't found
-- **Removed Complexity**: Eliminated multi-AI verification, redundant calls, and complex scraping patterns
-- **Clean Implementation**: Single simplified-perplexity-service.ts handles all intelligence gathering
-- **Streamlined UI**: LiveWebIntelligence component simplified for on-demand intelligence fetching
-- **Critical API Fixes (August 27, 2025)**: 
-  - Fixed Perplexity API model names - migrated from deprecated `llama-3.1-sonar-small-128k-online` to current `sonar-pro` model for enhanced search capabilities. Perplexity's 2025 models are: `sonar`, `sonar-pro` (enhanced, currently used), `sonar-reasoning-pro`, and `sonar-deep-research`
-  - Fixed autocomplete predictive text - removed circular fetch call in legacy endpoint that was preventing suggestions from loading. Now directly queries database returning 103 Dallas communities in ~1 second from 34,365 total communities
-
-### Comprehensive Automated Frontend Testing (August 27, 2025)
-- **Test Framework**: Jest + React Testing Library with 85% coverage target
-- **Unit Tests**: Complete coverage of Home page, AutocompleteSearch, Community Detail, and Map Search components
-- **Integration Tests**: End-to-end search flow testing with comprehensive user journey validation
-- **Test Features**: Performance testing (debouncing, caching), accessibility compliance (ARIA, keyboard nav), responsive design validation, error handling verification
-- **Test Runner**: Automated `run-frontend-tests.sh` script with color-coded output and coverage reporting
-- **Key Metrics**: 150+ tests across 5 test suites, <30 second execution time, 100% critical path coverage
-- **Mock Strategy**: Realistic data mocks matching production API responses with both success and failure scenarios
+MySeniorValet is a technology platform designed to bring transparency to the senior living market. It connects families with publicly available, verified information, including HUD pricing, for senior living communities across North America. The platform provides complete care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key features include the TourMate™ tour scheduling system, a One-Touch Emergency Contact Shortcut, and trilingual support (English, French, Spanish). MySeniorValet aims to be "The Dawn of Transparency in Senior Living," offering an enhanced pricing intelligence system for historical tracking, confidence scoring, and trend analysis, prioritizing AI-driven verification of comprehensive data.
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
@@ -59,22 +26,23 @@ MySeniorValet is a technology platform connecting families with publicly availab
 
 ## System Architecture
 The platform is built with a modern web stack, emphasizing transparency and user engagement.
-- **Frontend**: React with TypeScript, Tailwind CSS, and shadcn/ui components. Features include community cards with subtype badges, an interactive Care Spectrum Slider, and dynamic occupancy displays. Map pins are circular with bold colored borders. Dark mode is fully supported. Responsive design utilizes container queries, CSS clamp(), new viewport units, aspect-ratio, logical properties, and fluid grid layouts.
+- **Frontend**: React with TypeScript, Tailwind CSS, and shadcn/ui components. Features include community cards, interactive Care Spectrum Slider, dynamic occupancy displays, circular map pins with bold borders, and full dark mode support. Responsive design uses modern CSS techniques.
 - **Backend**: Express.js with TypeScript.
-- **Database**: PostgreSQL, managed with Drizzle ORM, supporting multiple senior living types, pricing history, community claims, and verification logs.
+- **Database**: PostgreSQL, managed with Drizzle ORM, storing comprehensive senior living data including pricing history and verification logs.
 - **Build System**: Vite for frontend, esbuild for backend.
 - **Authentication**: Custom system with email/password, social login (Google, Facebook), and Replit Auth.
-- **Key Features**: Interactive Map System with AI analysis, AI-Powered Semantic Search, Transparent Pricing (HUD-verified and AI-verified market rates), Comprehensive Community Profiles, Unified Admin Dashboard, Family Collaboration tools, Senior Vendor Marketplace, notification and in-app messaging, an onboarding wizard with AI character guidance, and robust photo handling. Full bilingual functionality (French/English). TourMate™ Tour Scheduling System. One-Touch Emergency Contact System.
-- **UI/UX Decisions**: Clean, modern aesthetic with cosmic imagery and default dark mode. Consistent design elements, horizontal sliders, and AI-generated product imagery. Search results display in a vertical scrolling "rolodex" style with regional theme styling. Content is organized with distinct visual theming for communities, hospitals, vendors, and resources. Senior Living Command Center displays ecosystem options with emojis. Compact design with reduced font sizes and spacing. Navbar has a transparent background with gradient text. Trust indicators are prominent. An engaging loading screen features a custom Valet Gentleman character with educational "Did you know..." facts and progress indicators. The hero section includes a HeroMascotPanel mimicking community details loading page style and features rotating platform messages.
-- **System Design**: Supports dual subscription tiers for communities and vendors. Dashboard separation includes user analytics, contextual business features, and a unified super admin analytics center with RBAC. Dual pricing display. Dynamic scaling cost controls for API calls with regional caching and batch processing. Pricing extraction is robust, supporting patterns like "Starting at $", "From $", and monthly rent ranges specific to senior living sites.
+- **Key Features**: Interactive Map System with AI analysis, AI-Powered Semantic Search, Transparent Pricing (HUD-verified and AI-verified), Comprehensive Community Profiles, Unified Admin Dashboard, Family Collaboration tools, Senior Vendor Marketplace, notification and in-app messaging, an onboarding wizard with AI character guidance, and robust photo handling. Full bilingual functionality (French/English). TourMate™ Tour Scheduling System. One-Touch Emergency Contact System.
+- **UI/UX Decisions**: Clean, modern aesthetic with cosmic imagery and default dark mode. Consistent design, horizontal sliders, AI-generated product imagery. Search results display in a vertical "rolodex" style with regional theming. Content organization uses distinct visual theming. Compact design with reduced font sizes. Transparent navbar with gradient text. Prominent trust indicators. Engaging loading screen with custom Valet Gentleman character and "Did you know..." facts. Hero section features a HeroMascotPanel with rotating platform messages.
+- **System Design**: Supports dual subscription tiers. Dashboard separation for user analytics, business features, and unified super admin analytics with RBAC. Dual pricing display. Dynamic scaling cost controls for API calls with regional caching and batch processing. Robust pricing extraction supports various formats.
 - **Payment System**: Integrated dual payment system supporting Stripe Checkout Sessions and Payment Element.
-- **Search & Navigation**: Simplified AI-powered search with semantic understanding and natural language queries. Live Market Intelligence section integrates a 10-level care spectrum, transformed into an interactive 3D carousel. Healthcare search includes enhanced map filtering and color-coded hospital cards. AI Search Interface maintains a 3-row layout for amenities/care services, distance/price sliders, and Complete Care Spectrum types. Unified autocomplete across all search pages with predictive text.
-- **AI Deep Analysis**: Provides detailed comparative analysis including price comparisons, value leaders, HUD affordable options, neighborhood insights, care type matching, and personalized recommendations. Generates comprehensive market trends and actionable advice. AI personalization ensures empathetic and context-aware interactions. The "What We Found About [Community Name]" section focuses exclusively on the specific community, identifying public website, major management corporations, and community-specific facts from web searches, filtering out generic information. Multi-AI verification service prioritizes official website pricing at 95% confidence, marking with `isOfficial: true` flag. Structured responses are implemented for reliable data extraction.
-- **Onboarding System**: Users can sign up with preferences pre-filled. Community creators have a comprehensive tutorial system with AI character guidance, a 7-step walkthrough, full onboarding form validation, and seamless payment integration.
-- **Legal Document Version Control System**: Enterprise-level system with complete version history, SHA-256 integrity checks, audit trails, GDPR/CCPA compliance, document status management, and a professional frontend interface.
-- **Availability Heatmap System**: Public version at `/availability-heatmap` and an enhanced admin version at `/admin/availability-heatmap`.
-- **Performance Optimization System**: Comprehensive performance enhancement with advanced caching service, database query analysis, automated index creation, real-time metrics monitoring, and admin dashboard for performance management.
+- **Search & Navigation**: Simplified AI-powered semantic search with natural language queries. Live Market Intelligence section includes a 10-level care spectrum as an interactive 3D carousel. Healthcare search has enhanced map filtering and color-coded hospital cards. AI Search Interface maintains a 3-row layout for amenities/care services, distance/price sliders, and Complete Care Spectrum types. Unified autocomplete across all search pages.
+- **AI Deep Analysis**: Provides detailed comparative analysis (price comparisons, value leaders, HUD affordable options, neighborhood insights, care type matching, personalized recommendations). Generates market trends and actionable advice. AI personalization ensures empathetic interactions. "What We Found About [Community Name]" section focuses exclusively on specific community details from web searches, filtering generic information. Multi-AI verification service prioritizes official website pricing at 95% confidence. Structured responses for reliable data extraction. The intelligence system follows a Perplexity-first approach, directly scraping official websites for photos and pricing if an exact match is found, with a fallback to search surrounding areas only if needed. Every discovered community is automatically saved to the database with comprehensive contact information.
+- **Onboarding System**: Users can sign up with pre-filled preferences. Community creators have a comprehensive tutorial system with AI character guidance, a 7-step walkthrough, form validation, and seamless payment integration.
+- **Legal Document Version Control System**: Enterprise-level system with complete version history, integrity checks, audit trails, GDPR/CCPA compliance, document status management, and a professional frontend interface.
+- **Availability Heatmap System**: Public and enhanced admin versions available.
+- **Performance Optimization System**: Comprehensive performance enhancement with advanced caching, database query analysis, automated index creation, real-time metrics monitoring, and admin dashboard.
 - **Photo Management System**: Complete implementation with validation, CDN optimization, quality scoring, source attribution, and database logging.
+- **Automated Frontend Testing**: Jest + React Testing Library with 85% coverage target, including unit and integration tests for critical components and user journeys.
 
 ## External Dependencies
 - **Database Connectivity**: `@neondatabase/serverless`
@@ -84,7 +52,7 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - **UI Libraries**: `@radix-ui/*`, `tailwindcss`, `lucide-react`
 - **Mapping**: `react-leaflet`
 - **AI Integrations**:
-  - **Perplexity (Primary)**: For real-time web search, verification, and market data. Using `sonar-pro` model.
+  - **Perplexity (Primary)**: For real-time web search, verification, and market data (using `sonar-pro` model).
   - **Claude (Secondary)**: For advanced reasoning, complex analysis, and care planning.
   - **ChatGPT (Backup)**: For general purpose fallback and validation.
 - **Email Service**: SendGrid

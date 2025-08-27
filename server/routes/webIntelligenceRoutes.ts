@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { perplexityService } from '../perplexity-ai-service';
 import { MultiAIVerificationService } from '../multi-ai-verification-service';
 import { websiteScraperService } from '../website-scraper-service';
+import { discoveredCommunityService } from '../services/discovered-community-service';
 
 const router = Router();
 
@@ -201,6 +202,31 @@ Search for this EXACT community at this SPECIFIC location.`;
     };
     
     console.log(`✅ Web intelligence complete. Found ${responseData.mediaAssets.photoCount} photos, ${responseData.mediaAssets.floorPlans.length} floor plans`);
+    
+    // AUTO-SAVE: Save every discovered community with full contact info
+    try {
+      await discoveredCommunityService.saveDiscoveredCommunity({
+        name: communityName,
+        address: address || `${city}, ${state}`,
+        city: city,
+        state: state,
+        country: 'United States',
+        website: officialWebsite || '',
+        phone: scrapedData?.contactInfo?.phone || '',
+        email: scrapedData?.contactInfo?.email || '',
+        fax: scrapedData?.contactInfo?.fax || '',
+        description: scrapedData?.description || '',
+        careTypes: scrapedData?.careLevels || [],
+        socialMedia: scrapedData?.contactInfo?.socialMedia,
+        hoursOfOperation: scrapedData?.contactInfo?.hours,
+        contactPerson: scrapedData?.contactInfo?.contactPerson,
+        discoverySource: 'quick_web_search',
+        rawData: responseData
+      });
+      console.log(`💾 Auto-saved discovered community: ${communityName}`);
+    } catch (saveError) {
+      console.error(`Failed to auto-save community ${communityName}:`, saveError);
+    }
     
     res.json(responseData);
   } catch (error) {
@@ -566,6 +592,36 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
     };
     
     console.log(`✅ Web intelligence retrieved and verified for ${communityName} with ${structuredResponse.citations.length} sources`);
+    
+    // AUTO-SAVE: Save every discovered community to ensure we never lose data
+    try {
+      await discoveredCommunityService.saveDiscoveredCommunity({
+        name: communityName,
+        address: address || '',
+        city: city,
+        state: state,
+        zip: zipCode || '',
+        country: 'United States',
+        website: officialWebsite || response.sources?.[0] || '',
+        phone: extractedPricing?.contactInfo?.phone || '',
+        email: extractedPricing?.contactInfo?.email || '',
+        description: response.summary || '',
+        careTypes: extractedPricing?.careLevels || [],
+        socialMedia: extractedPricing?.socialMedia,
+        hoursOfOperation: extractedPricing?.hoursOfOperation,
+        discoverySource: 'web_intelligence',
+        rawData: {
+          pricing: extractedPricing,
+          mediaAssets: structuredResponse.mediaAssets,
+          sources: structuredResponse.citations,
+          verificationScore: verificationScore
+        }
+      });
+      console.log(`💾 Auto-saved discovered community: ${communityName}`);
+    } catch (saveError) {
+      console.error(`Failed to auto-save community ${communityName}:`, saveError);
+      // Don't fail the request if save fails
+    }
     
     res.json(structuredResponse);
   } catch (error) {
