@@ -222,7 +222,7 @@ export class OnDemandEnrichmentService {
       // }
 
       // Update enrichment status
-      updates.enrichmentStatus = result.fieldsUpdated.length > 0 ? 'completed' : 'partial';
+      updates.enrichmentStatus = 'completed'; // Always mark as completed after successful enrichment attempt
       updates.lastSuccessfulEnrichment = new Date();
       updates.enrichmentCompleted = true;
 
