@@ -28,8 +28,8 @@ export function registerAuthRoutes(app: Express) {
         return res.status(400).json({ message: "User already exists" });
       }
 
-      const newUser = await authService.signup(validatedData);
-      const sessionId = await authService.createSession(newUser.id);
+      const result = await authService.signup(validatedData);
+      const { user: newUser, sessionId } = result;
       
       res.cookie('sessionId', sessionId, {
         httpOnly: true,
@@ -75,12 +75,12 @@ export function registerAuthRoutes(app: Express) {
     try {
       const validatedData = loginSchema.parse(req.body);
       
-      const user = await authService.login(validatedData.email, validatedData.password);
-      if (!user) {
+      const result = await authService.login(validatedData);
+      if (!result) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      const sessionId = await authService.createSession(user.id);
+      const { user, sessionId } = result;
       
       res.cookie('sessionId', sessionId, {
         httpOnly: true,
@@ -110,14 +110,13 @@ export function registerAuthRoutes(app: Express) {
   // Get current user
   app.get("/api/auth/user", requireAuth, async (req: any, res) => {
     try {
-      // Get Replit user ID from claims
-      const replitUserId = req.user?.claims?.sub;
-      if (!replitUserId) {
-        return res.status(401).json({ message: "Unauthorized" });
+      // Get user ID from session (custom auth)
+      const userId = req.session?.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated", _version: "v4_auth_fixed" });
       }
 
-      // Get user from database using Replit user ID as string
-      // Only select columns that exist in the database
+      // Get user from database
       const [user] = await db
         .select({
           id: users.id,
@@ -134,7 +133,7 @@ export function registerAuthRoutes(app: Express) {
           createdAt: users.createdAt
         })
         .from(users)
-        .where(eq(users.id, String(replitUserId)))
+        .where(eq(users.id, userId))
         .limit(1);
 
       if (!user) {
@@ -165,9 +164,9 @@ export function registerAuthRoutes(app: Express) {
   // Update user profile
   app.patch("/api/auth/user", requireAuth, async (req: any, res) => {
     try {
-      const replitUserId = req.user?.claims?.sub;
-      if (!replitUserId) {
-        return res.status(401).json({ message: "Unauthorized" });
+      const userId = req.session?.userId;
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
       }
 
       const updates = req.body;
@@ -186,7 +185,7 @@ export function registerAuthRoutes(app: Express) {
           ...updates,
           updatedAt: new Date()
         })
-        .where(eq(users.id, String(replitUserId)))
+        .where(eq(users.id, userId))
         .returning();
 
       if (!updatedUser) {
