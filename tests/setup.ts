@@ -1,55 +1,68 @@
-// Global test setup and type declarations for Jest testing framework
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
 
-// Extend Jest matchers for React Testing Library
-declare global {
-  namespace jest {
-    interface Matchers<R> {
-      toBeInTheDocument(): R;
-      toHaveClass(...classNames: string[]): R;
-      toHaveAttribute(attr: string, value?: string): R;
-      toHaveTextContent(text: string | RegExp): R;
-      toHaveValue(value: string | number): R;
-      toBeVisible(): R;
-      toBeDisabled(): R;
-      toBeEnabled(): R;
-      toHaveStyle(css: Record<string, any>): R;
-      toHaveDisplayValue(value: string | RegExp | Array<string | RegExp>): R;
-    }
+// Polyfill for TextEncoder/TextDecoder
+Object.assign(global, { TextEncoder, TextDecoder });
+
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
+// Mock IntersectionObserver
+(global as any).IntersectionObserver = class IntersectionObserver {
+  root: any = null;
+  rootMargin: string = '';
+  thresholds: ReadonlyArray<number> = [];
+  
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+  takeRecords() {
+    return [];
   }
+};
+
+// Mock ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+};
+
+// Mock scrollTo
+window.scrollTo = jest.fn();
+
+// Mock localStorage
+const localStorageMock = {
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+};
+global.localStorage = localStorageMock as any;
+
+// Mock fetch
+global.fetch = jest.fn();
+
+// Silence console during tests unless needed
+if (process.env.NODE_ENV === 'test') {
+  global.console = {
+    ...console,
+    error: jest.fn(),
+    warn: jest.fn(),
+    log: jest.fn(),
+  };
 }
-
-// Mock console methods to reduce noise in tests
-const originalConsoleError = console.error;
-const originalConsoleWarn = console.warn;
-
-beforeAll(() => {
-  console.error = (...args: any[]) => {
-    if (
-      typeof args[0] === 'string' && 
-      (args[0].includes('Warning: ReactDOM.render') ||
-       args[0].includes('Warning: React.createFactory'))
-    ) {
-      return;
-    }
-    originalConsoleError.call(console, ...args);
-  };
-
-  console.warn = (...args: any[]) => {
-    if (
-      typeof args[0] === 'string' && 
-      (args[0].includes('componentWillReceiveProps') ||
-       args[0].includes('componentWillMount'))
-    ) {
-      return;
-    }
-    originalConsoleWarn.call(console, ...args);
-  };
-});
-
-afterAll(() => {
-  console.error = originalConsoleError;
-  console.warn = originalConsoleWarn;
-});
-
-export {};
