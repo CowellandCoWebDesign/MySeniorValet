@@ -74,6 +74,13 @@ interface MultiAIVerificationReport {
     website?: string;
     fax?: string;
   };
+  addressInfo?: {
+    address?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    confidence?: number;
+  };
   recommendations: string[];
 }
 
@@ -276,6 +283,14 @@ export class MultiAIVerificationService {
         perplexityData,
         report.verificationResults.claudeVerification,
         report.verificationResults.chatgptVerification
+      );
+      
+      // Extract address information from AI responses
+      report.addressInfo = this.extractAddressInfo(
+        perplexityData,
+        report.verificationResults.claudeVerification,
+        report.verificationResults.chatgptVerification,
+        communityContext
       );
       
       // Extract pricing information from AI data and website scraping
@@ -851,6 +866,72 @@ REMEMBER: Verify as true if the web data appears relevant and helpful for famili
     }
     
     return contactInfo;
+  }
+
+  // Extract address information from AI responses
+  extractAddressInfo(perplexityData: any, claudeResult: any, chatgptResult: any, communityContext: any): {
+    address?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    confidence?: number;
+  } {
+    const addressInfo: any = {};
+    
+    // Combine all text sources to search for address info
+    const searchTexts = [
+      perplexityData?.searchContent || '',
+      perplexityData?.summary || '',
+      JSON.stringify(claudeResult || {}),
+      JSON.stringify(chatgptResult || {}),
+      JSON.stringify(perplexityData || {})
+    ].join(' ');
+    
+    // Extract full addresses (looking for street address patterns)
+    const addressPatterns = [
+      /(\d+\s+[A-Za-z\s]+(?:St|Street|Ave|Avenue|Rd|Road|Dr|Drive|Blvd|Boulevard|Way|Ln|Lane|Ct|Court|Pl|Place|Pkwy|Parkway|Cir|Circle))[,.]?\s+([A-Za-z\s]+)[,.]?\s+([A-Z]{2})\s+(\d{5}(?:-\d{4})?)/gi,
+      /located at[:\s]+([^,\n]+),?\s+([A-Za-z\s]+),?\s+([A-Z]{2})\s+(\d{5})/gi,
+      /address[:\s]+([^,\n]+),?\s+([A-Za-z\s]+),?\s+([A-Z]{2})\s+(\d{5})/gi,
+      /(\d+\s+[^,\n]+),\s*([A-Za-z\s]+),\s*([A-Z]{2})\s+(\d{5})/gi
+    ];
+    
+    let foundAddress = false;
+    for (const pattern of addressPatterns) {
+      const matches = [...searchTexts.matchAll(pattern)];
+      if (matches.length > 0) {
+        // Prioritize addresses that mention the community name or "current" or "new"
+        const prioritizedMatch = matches.find(m => 
+          m[0].toLowerCase().includes('current') || 
+          m[0].toLowerCase().includes('new') ||
+          m[0].toLowerCase().includes('updated')
+        ) || matches[0];
+        
+        if (prioritizedMatch) {
+          addressInfo.address = prioritizedMatch[1]?.trim();
+          addressInfo.city = prioritizedMatch[2]?.trim();
+          addressInfo.state = prioritizedMatch[3]?.trim();
+          addressInfo.zipCode = prioritizedMatch[4]?.trim();
+          foundAddress = true;
+          break;
+        }
+      }
+    }
+    
+    // If we found an address that differs from the database, flag it with confidence
+    if (foundAddress && communityContext) {
+      const dbAddress = communityContext.address?.toLowerCase() || '';
+      const foundAddressLower = addressInfo.address?.toLowerCase() || '';
+      
+      // Check if addresses are substantially different
+      if (dbAddress && foundAddressLower && !dbAddress.includes(foundAddressLower) && !foundAddressLower.includes(dbAddress)) {
+        addressInfo.confidence = 90; // High confidence this is the correct address
+        console.log(`🏠 Found different address: ${addressInfo.address} (was: ${communityContext.address})`);
+      } else {
+        addressInfo.confidence = 50; // Lower confidence, might be the same
+      }
+    }
+    
+    return addressInfo;
   }
 
   // Generate recommendations based on consensus

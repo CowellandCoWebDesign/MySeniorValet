@@ -14,6 +14,8 @@
 - ✅ **FIXED: Schema mismatches preventing enriched data from saving**
 - ✅ **ENHANCED: Contact extraction for facilities with recent management changes**
 - ✅ **VERIFIED: Hilltop Estates now correctly extracts (530) 241-4444 despite Provincial takeover**
+- ✅ **IMPLEMENTED: Address mismatch detection & auto-correction system**
+- ✅ **FEATURE: Automatic address extraction from AI responses with confidence scoring (>70% auto-updates DB)**
 
 ### 📊 Current Platform Stats
 ```

@@ -884,6 +884,35 @@ export function registerCommunityRoutes(app: Express) {
           console.log(`✨ Found ${verificationReport.amenities.length} amenities`);
         }
         
+        // Check for address corrections with high confidence
+        if (verificationReport.addressInfo && verificationReport.addressInfo.confidence >= 70) {
+          const hasAddressChange = verificationReport.addressInfo.address && 
+            verificationReport.addressInfo.address !== community.address;
+          
+          if (hasAddressChange) {
+            console.log(`🏠 Address mismatch detected!`);
+            console.log(`   Current: ${community.address}, ${community.city}, ${community.state} ${community.zipCode}`);
+            console.log(`   Found: ${verificationReport.addressInfo.address}, ${verificationReport.addressInfo.city}, ${verificationReport.addressInfo.state} ${verificationReport.addressInfo.zipCode}`);
+            console.log(`   Confidence: ${verificationReport.addressInfo.confidence}%`);
+            
+            // Update address fields with high confidence corrections
+            if (verificationReport.addressInfo.address) {
+              updateData.address = verificationReport.addressInfo.address;
+            }
+            if (verificationReport.addressInfo.city) {
+              updateData.city = verificationReport.addressInfo.city;
+            }
+            if (verificationReport.addressInfo.state) {
+              updateData.state = verificationReport.addressInfo.state;
+            }
+            if (verificationReport.addressInfo.zipCode) {
+              updateData.zipCode = verificationReport.addressInfo.zipCode;
+            }
+            
+            console.log(`🔄 Updating address to correct version`);
+          }
+        }
+        
         // Extract photos if available and not already present
         if (verificationReport.verificationResults?.webIntelligence?.images && 
             verificationReport.verificationResults.webIntelligence.images.length > 0 &&
