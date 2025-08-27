@@ -354,9 +354,9 @@ Provide the most current information available from official sources, reviews, a
   }
 
   /**
-   * Enhanced parser with better extraction patterns
+   * Parse Perplexity's natural language response
    */
-  private parseEnhancedResponse(
+  private parsePerplexityResponse(
     content: string, 
     citations: string[],
     communityName: string
@@ -366,10 +366,9 @@ Provide the most current information available from official sources, reviews, a
     // Check if community was found
     const found = !lowerContent.includes('could not find') && 
                   !lowerContent.includes('no information') &&
-                  !lowerContent.includes('unable to find');
+                  lowerContent.includes(communityName.toLowerCase());
 
     if (!found) {
-      console.log(`  ⚠️ Community not found by Perplexity`);
       return {
         found: false,
         name: communityName,
@@ -377,14 +376,7 @@ Provide the most current information available from official sources, reviews, a
       };
     }
 
-    // Enhanced extraction patterns for all data points
-    const result: CommunityIntelligence = {
-      found: true,
-      name: communityName,
-      sources: citations
-    };
-
-    // Extract official website with multiple patterns
+    // Extract official website
     const websiteMatch = content.match(/(?:website|site|url):\s*(https?:\/\/[^\s]+)/i) ||
                         content.match(/(https?:\/\/[^\s]+)/);
     const officialWebsite = websiteMatch ? websiteMatch[1] : undefined;
