@@ -1722,11 +1722,62 @@ const HeroPhotoCarousel = ({
       onMouseLeave={handleMouseUp}
     >
       {/* Always render a container that maintains height */}
-      <div className="w-full h-full bg-gray-100 dark:bg-gray-800">
-        {/* Show loading state for photos */}
-        {hasDefaultPhotos && isLoadingWebPhotos ? (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20">
-            <div className="text-center p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg">
+      <div className="w-full h-full bg-gray-100 dark:bg-gray-800 relative">
+        {/* Photo Carousel - Always show photos if available */}
+        {safePhotos.length > 0 && (
+          <div className="w-full h-full overflow-hidden">
+            <div 
+              className="flex h-full"
+              style={{
+                transform: `translateX(calc(-${currentIndex * 100}% + ${translateX}px))`,
+                transition: isTransitioning || !isDragging ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+              }}
+            >
+              {safePhotos.map((photo, index) => {
+                // Ensure proper URL handling for scraped photos
+                const photoUrl = photo.url.startsWith('http') ? photo.url : 
+                               photo.url.startsWith('//') ? `https:${photo.url}` :
+                               photo.url.startsWith('/') ? `https://example.com${photo.url}` : 
+                               photo.url;
+                
+                return (
+                  <div key={`photo-${index}-${photoUpdateKey}`} className="relative w-full h-full flex-shrink-0">
+                    <img
+                      src={photoUrl}
+                      alt={`${communityName} - ${photo.source === 'web' ? 'Web Scraped' : 'Community'} Photo ${index + 1}`}
+                      className="w-full h-full object-cover select-none"
+                      draggable={false}
+                      loading={index === 0 ? "eager" : "lazy"}
+                      onLoad={() => {
+                        console.log(`✅ Successfully loaded photo ${index + 1}:`, photoUrl);
+                      }}
+                      onError={(e) => {
+                        console.log(`❌ Failed to load photo ${index + 1}:`, photoUrl);
+                        // Replace with working fallback image
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/hero-senior-community.svg';
+                      }}
+                    />
+                    {/* Attribution for web-sourced photos */}
+                    {photo.source === 'web' && (
+                      <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs backdrop-blur-sm">
+                        <div className="flex items-center gap-1">
+                          <Globe className="w-3 h-3" />
+                          <span>Sourced from public web</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        
+        {/* Loading overlay - Only show when actively searching for photos */}
+        {hasDefaultPhotos && isLoadingWebPhotos && (
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/95 via-purple-50/95 to-pink-50/95 dark:from-blue-900/95 dark:via-purple-900/95 dark:to-pink-900/95 flex items-center justify-center z-20 backdrop-blur-sm">
+            <div className="text-center p-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-lg">
               <div className="relative">
                 <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center animate-pulse">
                   <Globe className="w-10 h-10 text-white animate-bounce" />
@@ -1747,99 +1798,11 @@ const HeroPhotoCarousel = ({
                 <div className="w-2 h-2 bg-pink-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-500 mt-3 font-medium">
-                This may take a few seconds - it's worth the wait!
+                This may take 10-15 seconds - it's worth the wait!
+                <br />
+                <span className="text-[10px] opacity-75">Swipe to browse photos</span>
               </p>
             </div>
-          </div>
-        ) : (
-          <div className="w-full h-full overflow-hidden relative">
-            {/* Special mascot view when only showing default photos */}
-            {hasDefaultPhotos && (
-              <div className="w-full h-full flex items-center justify-start bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/10 dark:via-indigo-900/10 dark:to-purple-900/10 p-6 md:p-8">
-                <div className="flex flex-row items-center gap-6 md:gap-8 max-w-5xl">
-                  {/* Mascot on the left */}
-                  <div className="flex-shrink-0">
-                    <img 
-                      src={valetMascot} 
-                      alt="MySeniorValet Mascot" 
-                      className="w-32 h-32 md:w-48 md:h-48 object-contain animate-pulse"
-                    />
-                  </div>
-                  {/* Message content */}
-                  <div className="flex-1">
-                    <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 md:mb-3">
-                      Hello! I'm searching for real photos...
-                    </h3>
-                    <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 mb-3 md:mb-4 leading-relaxed">
-                      I'm your personal valet, working diligently to find authentic photos of<br className="hidden md:block" />
-                      <span className="font-semibold">{communityName}</span> from across the web.
-                    </p>
-                    <div className="bg-white/80 dark:bg-gray-800/80 rounded-lg p-3 backdrop-blur-sm mb-3">
-                      <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                        💫 This usually takes 10-15 seconds while I search official websites, directories, and verified sources.
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-                      <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                      <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
-                      <span className="text-sm text-gray-500 ml-2">Searching now...</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {/* Regular photo carousel when we have real photos */}
-            {!hasDefaultPhotos && (
-              <div 
-                className="flex h-full"
-                style={{
-                  transform: `translateX(calc(-${currentIndex * 100}% + ${translateX}px))`,
-                  transition: isTransitioning || !isDragging ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
-                }}
-              >
-                {safePhotos.map((photo, index) => {
-                  // Ensure proper URL handling for scraped photos
-                  const photoUrl = photo.url.startsWith('http') ? photo.url : 
-                                 photo.url.startsWith('//') ? `https:${photo.url}` :
-                                 photo.url.startsWith('/') ? `https://example.com${photo.url}` : 
-                                 photo.url;
-                  
-                  return (
-                    <div key={`photo-${index}-${photoUpdateKey}`} className="relative w-full h-full flex-shrink-0">
-                      <img
-                        src={photoUrl}
-                        alt={`${communityName} - ${photo.source === 'web' ? 'Web Scraped' : 'Community'} Photo ${index + 1}`}
-                        className="w-full h-full object-cover select-none"
-                        draggable={false}
-                        loading={index === 0 ? "eager" : "lazy"}
-                        onLoad={() => {
-                          console.log(`✅ Successfully loaded photo ${index + 1}:`, photoUrl);
-                        }}
-                        onError={(e) => {
-                          console.log(`❌ Failed to load photo ${index + 1}:`, photoUrl);
-                          // Replace with working fallback image
-                          const target = e.target as HTMLImageElement;
-                          target.src = '/hero-senior-community.svg';
-                        }}
-                    />
-                    {/* Attribution for web-sourced photos */}
-                    {photo.source === 'web' && (
-                      <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs backdrop-blur-sm">
-                        <div className="flex items-center gap-1">
-                          <Globe className="w-3 h-3" />
-                          <span>Sourced from public web</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  );
-                })}
-              </div>
-            )}
-            
-
           </div>
         )}
       </div>
@@ -2421,19 +2384,61 @@ export default function CommunityDetail() {
                       <div className="flex items-start text-white/90 mb-2 text-xs sm:text-sm">
                         <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0 mt-0.5" />
                         <div className="flex flex-col">
-                          <span className="truncate">{community.address.split(',')[0]}</span>
-                          <span>{community.city}, {community.state} {community.zipCode}</span>
+                          {/* Use enriched address if available, otherwise use original */}
+                          {(() => {
+                            const enrichedContact = verificationReport?.contactInformation?.extracted || 
+                                                  verificationReport?.verificationResults?.contactInformation?.extracted;
+                            const displayAddress = enrichedContact?.address || community.address;
+                            return (
+                              <>
+                                <span className="truncate">{displayAddress.split(',')[0]}</span>
+                                <span>{community.city}, {community.state} {community.zipCode}</span>
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                       <div className="flex items-center text-white/90 mb-2 text-xs sm:text-sm md:text-base">
                         <span className="text-sm sm:text-base mr-1">☎️</span>
-                        <a 
-                          href={`tel:${community.phone || generatePhoneNumber(community.state, community.id)}`}
-                          className="font-medium text-white hover:text-blue-200 transition-colors cursor-pointer"
-                        >
-                          {community.phone || generatePhoneNumber(community.state, community.id)}
-                        </a>
+                        {/* Use enriched phone if available, otherwise use original or generated */}
+                        {(() => {
+                          const enrichedContact = verificationReport?.contactInformation?.extracted || 
+                                                verificationReport?.verificationResults?.contactInformation?.extracted;
+                          const displayPhone = enrichedContact?.phone || community.phone || generatePhoneNumber(community.state, community.id);
+                          return (
+                            <a 
+                              href={`tel:${displayPhone}`}
+                              className="font-medium text-white hover:text-blue-200 transition-colors cursor-pointer"
+                            >
+                              {displayPhone}
+                            </a>
+                          );
+                        })()}
                       </div>
+                      {/* Add website display if available */}
+                      {(() => {
+                        const enrichedContact = verificationReport?.contactInformation?.extracted || 
+                                              verificationReport?.verificationResults?.contactInformation?.extracted;
+                        const displayWebsite = enrichedContact?.website || community.website;
+                        
+                        if (displayWebsite) {
+                          const websiteUrl = displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`;
+                          const websiteDomain = displayWebsite.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+                          
+                          return (
+                            <div className="flex items-center text-white/90 mb-2 text-xs sm:text-sm">
+                              <Globe className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                              <ExternalLinkWarning
+                                href={websiteUrl}
+                                className="font-medium text-white hover:text-blue-200 transition-colors cursor-pointer truncate"
+                              >
+                                {websiteDomain}
+                              </ExternalLinkWarning>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
                       <div className="flex items-center gap-1 sm:gap-2 mb-2">
                         <div 
                           className="flex items-center cursor-pointer hover:bg-white/10 rounded-lg px-1 py-0.5 transition-colors"
@@ -2457,17 +2462,34 @@ export default function CommunityDetail() {
                         </Badge>
                       </div>
                       
-                      {/* Pet Friendly Status */}
+                      {/* Pet Friendly Status - Use enriched data */}
                       <div className="flex items-center gap-1 sm:gap-2 mb-2">
                         {(() => {
-                          // Check if community allows pets (use amenities data or calculated value)
-                          const isPetFriendly = (community.amenities && community.amenities.includes('Pet Friendly')) ||
-                                               (community.id % 3 === 0); // Fallback logic based on ID pattern
+                          // Use enriched pets data if available
+                          const enrichedPets = verificationReport?.pets || 
+                                             verificationReport?.verificationResults?.pets;
+                          const enrichedAmenities = verificationReport?.amenities?.extracted || 
+                                                   verificationReport?.verificationResults?.amenities?.extracted;
+                          
+                          // Check if pets are allowed from multiple sources
+                          const isPetFriendly = enrichedPets?.allowed || 
+                                               (enrichedAmenities && enrichedAmenities.some(a => 
+                                                 a.toLowerCase().includes('pet') || 
+                                                 a.toLowerCase().includes('dog') || 
+                                                 a.toLowerCase().includes('cat')
+                                               )) ||
+                                               (community.amenities && community.amenities.includes('Pet Friendly')) ||
+                                               (community.id % 3 === 0); // Fallback logic if no data
+                          
+                          // Get pet details if available
+                          const petDetails = enrichedPets?.details;
                           
                           return isPetFriendly ? (
                             <div className="flex items-center gap-1 bg-green-500/20 border border-green-400 text-green-100 px-2 py-0.5 rounded-full">
                               <span className="text-xs sm:text-sm">🐾</span>
-                              <span className="text-[10px] sm:text-xs font-medium">Pet Friendly</span>
+                              <span className="text-[10px] sm:text-xs font-medium">
+                                {petDetails || "Pet Friendly"}
+                              </span>
                             </div>
                           ) : (
                             <div className="flex items-center gap-1 bg-red-500/20 border border-red-400 text-red-100 px-2 py-0.5 rounded-full">
@@ -3145,31 +3167,54 @@ export default function CommunityDetail() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {/* Community Description */}
-                    {community.description && (
-                      <div className="mb-6">
-                        <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Community Overview</h4>
-                        <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{community.description}</p>
-                      </div>
-                    )}
+                    {/* Community Description - Use enriched data when available */}
+                    {(() => {
+                      const enrichedDescription = verificationReport?.description || 
+                                                  verificationReport?.verificationResults?.description;
+                      const displayDescription = enrichedDescription || community.description;
+                      
+                      if (displayDescription) {
+                        return (
+                          <div className="mb-6">
+                            <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Community Overview</h4>
+                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{displayDescription}</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
 
-                    {/* Amenities Section */}
-                    {community.amenities && community.amenities.length > 0 && (
-                      <div className="mb-6">
-                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
-                          <Sparkles className="w-4 h-4 mr-2 text-blue-600" />
-                          Community Amenities
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                          {community.amenities.map((amenity, index) => (
-                            <div key={index} className="flex items-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
-                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                              <span className="text-sm text-gray-900 dark:text-gray-100">{amenity}</span>
+                    {/* Amenities Section - Use enriched data when available */}
+                    {(() => {
+                      const enrichedAmenities = verificationReport?.amenities?.extracted || 
+                                               verificationReport?.verificationResults?.amenities?.extracted;
+                      const displayAmenities = enrichedAmenities || community.amenities;
+                      
+                      if (displayAmenities && displayAmenities.length > 0) {
+                        return (
+                          <div className="mb-6">
+                            <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
+                              <Sparkles className="w-4 h-4 mr-2 text-blue-600" />
+                              Community Amenities
+                              {enrichedAmenities && (
+                                <span className="ml-2 text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-0.5 rounded-full">
+                                  Verified
+                                </span>
+                              )}
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                              {displayAmenities.map((amenity, index) => (
+                                <div key={index} className="flex items-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                                  <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                                  <span className="text-sm text-gray-900 dark:text-gray-100">{amenity}</span>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
 
                     {/* Care Services */}
                     {community.careServices && community.careServices.length > 0 && (
