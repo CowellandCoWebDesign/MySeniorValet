@@ -20,6 +20,55 @@ interface ScrapedCommunityData {
 }
 
 export class WebsiteScraperService {
+  private async fetchPage(url: string): Promise<string | null> {
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+      });
+      
+      if (!response.ok) {
+        console.log(`⚠️ Failed to fetch ${url}: ${response.status}`);
+        return null;
+      }
+      
+      return await response.text();
+    } catch (error) {
+      console.log(`⚠️ Error fetching ${url}: ${error}`);
+      return null;
+    }
+  }
+  
+  private extractGalleryLinks(html: string, baseUrl: string): string[] {
+    const links: string[] = [];
+    const linkPatterns = [
+      /<a[^>]+href=["']([^"']*(?:gallery|photos|tour|amenities|floor-plans|virtual-tour)[^"']*)["']/gi,
+      /<a[^>]+href=["']([^"']*)["'][^>]*>(?:[^<]*(?:photos|gallery|tour|amenities|floor|virtual)[^<]*)<\/a>/gi
+    ];
+    
+    for (const pattern of linkPatterns) {
+      let match;
+      while ((match = pattern.exec(html)) !== null) {
+        let link = match[1];
+        // Convert relative URLs to absolute
+        if (link.startsWith('/')) {
+          const urlObj = new URL(baseUrl);
+          link = `${urlObj.protocol}//${urlObj.host}${link}`;
+        } else if (!link.startsWith('http')) {
+          const urlObj = new URL(baseUrl);
+          link = `${urlObj.protocol}//${urlObj.host}/${link}`;
+        }
+        
+        if (!links.includes(link) && link.includes(new URL(baseUrl).host)) {
+          links.push(link);
+        }
+      }
+    }
+    
+    return links;
+  }
+
   async scrapeWebsite(url: string, communityName?: string): Promise<ScrapedCommunityData> {
     console.log(`🕸️ Scraping website: ${url}`);
     
@@ -30,18 +79,30 @@ export class WebsiteScraperService {
     }
     
     try {
-      // Fetch the HTML content
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch ${url}: ${response.status}`);
+      // Fetch the main page
+      const html = await this.fetchPage(url);
+      if (!html) {
+        throw new Error(`Failed to fetch ${url}`);
       }
       
-      const html = await response.text();
+      // Find and explore gallery/photo pages
+      const galleryLinks = this.extractGalleryLinks(html, url);
+      console.log(`📁 Found ${galleryLinks.length} potential gallery/photo pages`);
+      
+      // Fetch all gallery pages in parallel
+      const pagePromises = galleryLinks.slice(0, 5).map(link => this.fetchPage(link)); // Limit to 5 pages
+      const additionalPages = await Promise.all(pagePromises);
+      
+      // Combine all HTML for photo extraction
+      let allHtml = html;
+      let pageCount = 1;
+      for (let i = 0; i < additionalPages.length; i++) {
+        if (additionalPages[i]) {
+          allHtml += '\n' + additionalPages[i];
+          pageCount++;
+          console.log(`📄 Processing page ${pageCount}: ${galleryLinks[i]}`);
+        }
+      }
 
       // Initialize data structure
       const data: ScrapedCommunityData = {
@@ -56,56 +117,54 @@ export class WebsiteScraperService {
         contactInfo: {}
       };
 
-      // First try to find images in gallery/photos sections
+      // Extract all images from all pages
       const imageUrls: string[] = [];
       let match;
       
-      // Look for gallery sections and extract images from them
-      const galleryPatterns = [
-        /<(?:div|section|article)[^>]*(?:class|id)=["'][^"']*(?:gallery|photos|images|carousel)[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|section|article)>/gi,
-        /<(?:div|section)[^>]*data-(?:gallery|photos)["'][^>]*>([\s\S]*?)<\/(?:div|section)>/gi
+      // Enhanced patterns to find images in various contexts
+      const imgPatterns = [
+        /<img[^>]+src=["']([^"']+)["'][^>]*>/gi,
+        /data-(?:src|lazy|original|lazy-src)=["']([^"']+)["']/gi,
+        /<source[^>]+srcset=["']([^"']+)["'][^>]*>/gi,
+        /background-image:\s*url\(['"]?([^'")]+)['"]?\)/gi,
+        /data-background=["']([^"']+)["']/gi
       ];
       
-      for (const pattern of galleryPatterns) {
-        while ((match = pattern.exec(html)) !== null) {
-          const galleryContent = match[1];
-          const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
-          const lazyRegex = /data-(?:src|lazy|original)=["']([^"']+)["']/gi;
+      console.log(`🔍 Searching for images across ${pageCount} pages...`);
+      
+      for (const pattern of imgPatterns) {
+        while ((match = pattern.exec(allHtml)) !== null) {
+          let imgUrl = match[1];
           
-          let imgMatch;
-          while ((imgMatch = imgRegex.exec(galleryContent)) !== null) {
-            if (!imageUrls.includes(imgMatch[1])) {
-              imageUrls.push(imgMatch[1]);
-            }
+          // Handle srcset (take first image)
+          if (imgUrl.includes(',')) {
+            imgUrl = imgUrl.split(',')[0].trim().split(' ')[0];
           }
-          while ((imgMatch = lazyRegex.exec(galleryContent)) !== null) {
-            if (!imageUrls.includes(imgMatch[1])) {
-              imageUrls.push(imgMatch[1]);
-            }
+          
+          if (!imageUrls.includes(imgUrl)) {
+            imageUrls.push(imgUrl);
           }
         }
       }
       
-      // If we didn't find enough in galleries, look for all images (but be selective)
-      if (imageUrls.length < 10) {
-        const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
-        const lazyImgRegex = /data-(?:src|lazy|original)=["']([^"']+)["']/gi;
-        
-        while ((match = imgRegex.exec(html)) !== null) {
-          if (!imageUrls.includes(match[1])) {
-            imageUrls.push(match[1]);
-          }
-        }
-        
-        while ((match = lazyImgRegex.exec(html)) !== null) {
-          if (!imageUrls.includes(match[1])) {
-            imageUrls.push(match[1]);
-          }
-        }
-      }
+      console.log(`📷 Found ${imageUrls.length} total image URLs`);
       
-      // Process and categorize images
+      // Process and categorize images  
+      const baseUrlObj = new URL(url);
+      const processedPhotos: string[] = [];
+      const processedFloorPlans: string[] = [];
+      const processedVirtual: string[] = [];
+      
       for (let imgUrl of imageUrls) {
+        // Convert relative URLs to absolute
+        if (imgUrl.startsWith('//')) {
+          imgUrl = `https:${imgUrl}`;
+        } else if (imgUrl.startsWith('/')) {
+          imgUrl = `${baseUrlObj.protocol}//${baseUrlObj.host}${imgUrl}`;
+        } else if (!imgUrl.startsWith('http')) {
+          imgUrl = `${baseUrlObj.protocol}//${baseUrlObj.host}/${imgUrl}`;
+        }
+        
         const imgLower = imgUrl.toLowerCase();
         
         // Skip marketing materials, logos, banners, and ads
@@ -116,7 +175,8 @@ export class WebsiteScraperService {
             imgLower.includes('ad_') || imgLower.includes('_ad') ||
             imgLower.includes('promo') || imgLower.includes('podcast') ||
             imgLower.includes('newsletter') || imgLower.includes('header') ||
-            imgLower.includes('footer') || imgLower.includes('background')) {
+            imgLower.includes('footer') || imgLower.includes('background') ||
+            imgLower.includes('button') || imgLower.includes('arrow')) {
           continue;
         }
         
@@ -127,47 +187,30 @@ export class WebsiteScraperService {
           continue;
         }
         
-        // Make absolute URL if relative
-        if (!imgUrl.startsWith('http')) {
-          const baseUrl = new URL(url);
-          imgUrl = new URL(imgUrl, baseUrl).href;
-        }
-        
-        // Categorize images - be more selective
+        // Categorize images
         if (imgLower.includes('floor') || imgLower.includes('plan') || imgLower.includes('layout')) {
-          if (!data.floorPlans.includes(imgUrl)) {
-            data.floorPlans.push(imgUrl);
+          if (!processedFloorPlans.includes(imgUrl)) {
+            processedFloorPlans.push(imgUrl);
           }
-        } else if (
-          // Look for images in gallery/photo sections
-          (imgLower.includes('/photos/') || imgLower.includes('/gallery/') || 
-           imgLower.includes('/images/')) ||
-          // Or images with facility-related keywords
-          (imgLower.includes('community') && !imgLower.includes('_wht')) ||
-          imgLower.includes('resident') || imgLower.includes('dining') ||
-          imgLower.includes('living') || imgLower.includes('bedroom') ||
-          imgLower.includes('apartment') || imgLower.includes('facility') ||
-          imgLower.includes('amenity') || imgLower.includes('activity') ||
-          imgLower.includes('lounge') || imgLower.includes('kitchen') ||
-          imgLower.includes('bathroom') || imgLower.includes('exterior') ||
-          imgLower.includes('interior') || imgLower.includes('room')
-        ) {
-          // Additional check: must be an image file
-          if (imgUrl.match(/\.(jpg|jpeg|png|webp)(\?|$)/i)) {
-            if (!data.photos.includes(imgUrl)) {
-              data.photos.push(imgUrl);
-            }
+        } else if (imgUrl.match(/\.(jpg|jpeg|png|webp|gif)(\?|$)/i)) {
+          // Since we're on the official community website, be inclusive with photos
+          // Only exclude obvious non-community images (which we already filtered above)
+          if (!processedPhotos.includes(imgUrl)) {
+            processedPhotos.push(imgUrl);
           }
         }
       }
       
-      // Limit photos to reasonable amount
-      data.photos = data.photos.slice(0, 20);
-      data.floorPlans = data.floorPlans.slice(0, 10);
+      // Transfer processed photos to data structure
+      data.photos = processedPhotos.slice(0, 30); // Allow up to 30 photos from official site
+      data.floorPlans = processedFloorPlans.slice(0, 10);
+      
+      console.log(`✅ Extracted ${data.photos.length} community photos from ${pageCount} pages`);
+      console.log(`📐 Found ${data.floorPlans.length} floor plans`);
       
       // Look for virtual tour links
       const virtualTourRegex = /(matterport\.com[^"'\s]+|3d-?tour[^"'\s]*|virtual-?tour[^"'\s]*)/gi;
-      while ((match = virtualTourRegex.exec(html)) !== null) {
+      while ((match = virtualTourRegex.exec(allHtml)) !== null) {
         if (match[1].startsWith('http')) {
           data.virtualTours.push(match[1]);
         }
@@ -175,9 +218,9 @@ export class WebsiteScraperService {
       
       // Look for video content
       const videoRegex = /(youtube\.com\/embed\/[^"'\s]+|vimeo\.com\/video\/[^"'\s]+|\.mp4["'\s])/gi;
-      while ((match = videoRegex.exec(html)) !== null) {
+      while ((match = videoRegex.exec(allHtml)) !== null) {
         if (match[1].endsWith('.mp4')) {
-          const mp4Match = html.substring(Math.max(0, html.indexOf(match[1]) - 100), html.indexOf(match[1])).match(/["']([^"']*\.mp4)/);
+          const mp4Match = allHtml.substring(Math.max(0, allHtml.indexOf(match[1]) - 100), allHtml.indexOf(match[1])).match(/["']([^"']*\.mp4)/);
           if (mp4Match) {
             data.videos.push(mp4Match[1]);
           }
