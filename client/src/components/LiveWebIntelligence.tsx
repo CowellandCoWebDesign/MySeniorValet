@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -42,18 +42,21 @@ interface LiveWebIntelligenceProps {
   communityName: string;
   city: string;
   state: string;
+  autoLoad?: boolean;  // Add autoLoad prop
 }
 
 export function LiveWebIntelligence({ 
   communityId,
   communityName, 
   city, 
-  state 
+  state,
+  autoLoad = true  // Default to auto-loading
 }: LiveWebIntelligenceProps) {
   const [intelligence, setIntelligence] = useState<CommunityIntelligence | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [hasTriedLoading, setHasTriedLoading] = useState(false);
 
-  // Use mutation for on-demand fetching
+  // Use mutation for fetching
   const fetchIntelligence = useMutation({
     mutationFn: async () => {
       const response = await fetch('/api/competitive-analysis', {
@@ -83,6 +86,14 @@ export function LiveWebIntelligence({
       console.error('Error fetching intelligence:', error);
     }
   });
+
+  // Auto-load intelligence when component mounts (if autoLoad is true)
+  useEffect(() => {
+    if (autoLoad && !hasTriedLoading && !intelligence && !fetchIntelligence.isPending) {
+      setHasTriedLoading(true);
+      fetchIntelligence.mutate();
+    }
+  }, [autoLoad, hasTriedLoading, intelligence, fetchIntelligence]);
 
   // If we haven't fetched yet, show the button
   if (!intelligence && !fetchIntelligence.isPending) {
@@ -354,12 +365,33 @@ export function LiveWebIntelligence({
           )}
 
           {/* Sources */}
-          <div className="pt-4 border-t">
-            <p className="text-xs text-muted-foreground">
-              Data from {intelligence.sources.length} verified sources • 
-              Powered by AI-driven research
-            </p>
-          </div>
+          {intelligence.sources && intelligence.sources.length > 0 && (
+            <div className="pt-4 border-t space-y-2">
+              <h4 className="font-medium text-sm flex items-center gap-2">
+                <Info className="h-4 w-4" />
+                Sources
+              </h4>
+              <div className="space-y-1">
+                {intelligence.sources.map((source, idx) => (
+                  <div key={idx} className="text-xs">
+                    <a 
+                      href={source}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline flex items-center gap-1 truncate"
+                    >
+                      {new URL(source).hostname.replace('www.', '')}
+                      <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                    </a>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Data from {intelligence.sources.length} verified sources • 
+                Powered by AI-driven research
+              </p>
+            </div>
+          )}
         </CardContent>
       )}
     </Card>

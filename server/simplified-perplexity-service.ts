@@ -93,7 +93,11 @@ export class SimplifiedPerplexityService {
             }
           ],
           temperature: 0.2,
-          max_tokens: 1500
+          max_tokens: 1500,
+          return_citations: true,
+          return_images: false,
+          search_domain_filter: [],
+          search_recency_filter: "month"
         })
       });
 
@@ -129,26 +133,51 @@ export class SimplifiedPerplexityService {
       const response = await fetch(websiteUrl);
       const html = await response.text();
 
-      // Simple photo extraction - just get image URLs
-      const imageRegex = /<img[^>]+src=["']([^"']+)["']/gi;
+      // More selective photo extraction - prioritize community photos
+      const imageRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
       const photos: string[] = [];
       let match;
 
       while ((match = imageRegex.exec(html)) !== null) {
+        const fullMatch = match[0];
         const imageUrl = match[1];
         
         // Convert relative to absolute URLs
         const absoluteUrl = new URL(imageUrl, websiteUrl).href;
         
-        // Filter out tiny images, icons, etc
-        if (!absoluteUrl.includes('logo') && 
-            !absoluteUrl.includes('icon') &&
-            !absoluteUrl.includes('pixel') &&
-            !absoluteUrl.endsWith('.svg')) {
-          photos.push(absoluteUrl);
+        // Skip logos, icons, social media images, tracking pixels
+        const skipPatterns = [
+          'logo', 'icon', 'pixel', 'twitter', 'facebook', 
+          'social', 'x-20-20', 'linkedin', 'youtube', 
+          'tracking', 'analytics', '.svg', 'badge'
+        ];
+        
+        const shouldSkip = skipPatterns.some(pattern => 
+          absoluteUrl.toLowerCase().includes(pattern) ||
+          fullMatch.toLowerCase().includes(pattern)
+        );
+        
+        if (!shouldSkip) {
+          // Prioritize images with relevant alt text or filenames
+          const relevantPatterns = [
+            'community', 'living', 'resident', 'room', 
+            'dining', 'activity', 'exterior', 'interior',
+            'apartment', 'facility', 'building', 'lounge'
+          ];
+          
+          const isRelevant = relevantPatterns.some(pattern =>
+            fullMatch.toLowerCase().includes(pattern) ||
+            absoluteUrl.toLowerCase().includes(pattern)
+          );
+          
+          // Add relevant photos first, then others if we don't have enough
+          if (isRelevant || photos.length < 3) {
+            photos.push(absoluteUrl);
+          }
         }
       }
 
+      console.log(`  Found ${photos.length} relevant photos from website`);
       // Return first 10 relevant photos
       return photos.slice(0, 10);
     } catch (error) {
