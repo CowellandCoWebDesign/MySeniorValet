@@ -1695,7 +1695,6 @@ const HeroPhotoCarousel = ({
                 })}
               </div>
             )}
-            </div>
             
             {/* Show loading indicator overlay when showing placeholder photos */}
             {hasDefaultPhotos && !verificationReport && (
