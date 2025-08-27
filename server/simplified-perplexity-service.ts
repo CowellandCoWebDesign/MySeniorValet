@@ -54,24 +54,50 @@ export class SimplifiedPerplexityService {
   }
 
   /**
-   * Step 1: Direct query to Perplexity for exact community match
+   * Step 1: Enhanced query to Perplexity for comprehensive community information
    */
   async findExactCommunity(
     communityName: string, 
     location: string
   ): Promise<CommunityIntelligence> {
-    console.log(`🔍 Asking Perplexity about: ${communityName} in ${location}`);
+    console.log(`🔍 Enhanced Perplexity search for: ${communityName} in ${location}`);
 
-    const query = `Find information about "${communityName}" senior living community in ${location}. 
-    Include:
-    - Their official website URL
-    - Current pricing for different care levels
-    - Phone number and exact address
-    - Care levels offered (assisted living, memory care, independent living)
-    - Key amenities and features
-    - Brief description
-    
-    Please provide specific, current information from official sources.`;
+    // Enhanced query with specific instructions for better data extraction
+    const query = `Find comprehensive information about "${communityName}" senior living community in ${location}. 
+
+REQUIRED INFORMATION (provide all available):
+1. CONTACT:
+   - Official website URL (full URL including https://)
+   - Main phone number (formatted as XXX-XXX-XXXX)
+   - Complete street address with zip code
+   - Email address if available
+
+2. PRICING (provide specific numbers when available):
+   - Assisted Living monthly cost range (e.g., $3,500-$5,000)
+   - Memory Care monthly cost range
+   - Independent Living monthly cost range
+   - Any entrance fees or deposits
+   - Note if pricing includes meals, utilities, etc.
+
+3. CARE SERVICES:
+   - All care levels offered (Assisted Living, Memory Care, Independent Living, Skilled Nursing)
+   - Specialized programs (dementia care, respite care, hospice)
+   - Medical services available on-site
+
+4. AMENITIES & FEATURES:
+   - Dining options (restaurant-style, private dining, etc.)
+   - Activities and recreation programs
+   - Transportation services
+   - Pet policy
+   - Room types (studio, 1-bedroom, 2-bedroom)
+
+5. FACILITY DETAILS:
+   - Year established
+   - Number of units/beds
+   - Accreditations or certifications
+   - Parent company or management group
+
+Provide the most current information available from official sources, reviews, and directories.`;
 
     try {
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -85,23 +111,24 @@ export class SimplifiedPerplexityService {
           messages: [
             {
               role: 'system',
-              content: 'You are a senior living research assistant. Provide accurate, current information from official sources. If you cannot find the exact community, clearly state that.'
+              content: 'You are an expert senior living research specialist. Extract and provide all available information in a structured format. Always include phone numbers, websites, and pricing when found. Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.'
             },
             {
               role: 'user',
               content: query
             }
           ],
-          temperature: 0.2,
-          max_tokens: 1500,
+          temperature: 0.1, // Lower for more consistent extraction
+          max_tokens: 2000, // Increased for more comprehensive responses
           stream: false,
           return_citations: true,
           return_images: false,
           return_related_questions: false,
           search_recency_filter: "month",
-          top_k: 0,
+          search_domain_filter: [], // Remove restrictions to get more sources
+          top_k: 10, // Get more results
           presence_penalty: 0,
-          frequency_penalty: 1
+          frequency_penalty: 0.5
         })
       });
 
@@ -115,8 +142,10 @@ export class SimplifiedPerplexityService {
       const content = data.choices[0]?.message?.content || '';
       const citations = data.citations || [];
 
-      // Parse the response intelligently
-      return this.parsePerplexityResponse(content, citations, communityName);
+      console.log(`  📚 Received ${citations.length} citations from Perplexity`);
+
+      // Enhanced parsing with better extraction patterns
+      return this.parseEnhancedResponse(content, citations, communityName);
     } catch (error) {
       console.error('Perplexity query failed:', error);
       return {
@@ -128,34 +157,51 @@ export class SimplifiedPerplexityService {
   }
 
   /**
-   * Step 2: Get photos from official website only
+   * Step 2: Enhanced photo fetching with multiple strategies
    */
   async getOfficialPhotos(websiteUrl: string): Promise<string[]> {
     if (!websiteUrl) return [];
 
-    console.log(`📸 Fetching photos from official site: ${websiteUrl}`);
+    console.log(`📸 Enhanced photo search for: ${websiteUrl}`);
 
     try {
-      const response = await fetch(websiteUrl);
-      const html = await response.text();
+      const response = await fetch(websiteUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; MySeniorValet/1.0)'
+        }
+      }).catch(() => null);
+      
+      if (!response || !response.ok) {
+        console.log(`  ⚠️ Could not access website`);
+        return [];
+      }
 
-      // More selective photo extraction - prioritize community photos
-      const imageRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
-      const photos: string[] = [];
+      const html = await response.text();
+      const photos = new Set<string>();
+
+      // Strategy 1: Standard img tags with enhanced patterns
+      const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
       let match;
 
-      while ((match = imageRegex.exec(html)) !== null) {
+      while ((match = imgRegex.exec(html)) !== null) {
         const fullMatch = match[0];
         const imageUrl = match[1];
         
-        // Convert relative to absolute URLs
-        const absoluteUrl = new URL(imageUrl, websiteUrl).href;
+        // Handle relative URLs properly
+        let absoluteUrl: string;
+        try {
+          absoluteUrl = new URL(imageUrl, websiteUrl).href;
+        } catch {
+          continue;
+        }
         
-        // Skip logos, icons, social media images, tracking pixels
+        // Enhanced skip patterns - more comprehensive exclusions
         const skipPatterns = [
           'logo', 'icon', 'pixel', 'twitter', 'facebook', 
-          'social', 'x-20-20', 'linkedin', 'youtube', 
-          'tracking', 'analytics', '.svg', 'badge'
+          'instagram', 'linkedin', 'youtube', 'pinterest',
+          'tracking', 'analytics', '.svg', 'badge', 'button',
+          'arrow', 'spinner', 'loader', 'x1f', 'emoji',
+          'data:image', 'base64', '1x1', 'spacer', 'blank'
         ];
         
         const shouldSkip = skipPatterns.some(pattern => 
@@ -163,31 +209,68 @@ export class SimplifiedPerplexityService {
           fullMatch.toLowerCase().includes(pattern)
         );
         
-        if (!shouldSkip) {
-          // Prioritize images with relevant alt text or filenames
-          const relevantPatterns = [
-            'community', 'living', 'resident', 'room', 
-            'dining', 'activity', 'exterior', 'interior',
-            'apartment', 'facility', 'building', 'lounge'
-          ];
-          
+        // Enhanced relevance patterns
+        const relevantPatterns = [
+          'community', 'living', 'resident', 'room', 'bedroom',
+          'dining', 'activity', 'exterior', 'interior', 'lobby',
+          'apartment', 'facility', 'building', 'lounge', 'garden',
+          'courtyard', 'amenity', 'kitchen', 'bathroom', 'suite',
+          'senior', 'care', 'home', 'residence', 'gallery'
+        ];
+        
+        // Check for minimum image size indicators
+        const hasSize = /width=["']?(\d+)/i.exec(fullMatch);
+        const width = hasSize ? parseInt(hasSize[1]) : 0;
+        
+        if (!shouldSkip && width !== 1) {
           const isRelevant = relevantPatterns.some(pattern =>
             fullMatch.toLowerCase().includes(pattern) ||
             absoluteUrl.toLowerCase().includes(pattern)
           );
           
-          // Add relevant photos first, then others if we don't have enough
-          if (isRelevant || photos.length < 3) {
-            photos.push(absoluteUrl);
+          // Prioritize relevant and larger images
+          if (isRelevant || (width > 200 || photos.size < 5)) {
+            photos.add(absoluteUrl);
           }
         }
       }
 
-      console.log(`  Found ${photos.length} relevant photos from website`);
-      // Return first 10 relevant photos
-      return photos.slice(0, 10);
+      // Strategy 2: Look for gallery/slideshow data
+      const galleryPatterns = [
+        /data-src=["']([^"']+\.(jpg|jpeg|png|webp))/gi,
+        /data-image=["']([^"']+\.(jpg|jpeg|png|webp))/gi,
+        /href=["']([^"']+\.(jpg|jpeg|png|webp))["']/gi,
+        /"image":\s*"([^"]+\.(jpg|jpeg|png|webp))"/gi
+      ];
+
+      for (const pattern of galleryPatterns) {
+        let galleryMatch;
+        while ((galleryMatch = pattern.exec(html)) !== null) {
+          try {
+            const imageUrl = new URL(galleryMatch[1], websiteUrl).href;
+            if (!imageUrl.includes('thumb') && !imageUrl.includes('icon')) {
+              photos.add(imageUrl);
+            }
+          } catch {}
+        }
+      }
+
+      // Strategy 3: Open Graph and meta images
+      const metaRegex = /<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/gi;
+      let metaMatch;
+      while ((metaMatch = metaRegex.exec(html)) !== null) {
+        try {
+          photos.add(new URL(metaMatch[1], websiteUrl).href);
+        } catch {}
+      }
+
+      const photoArray = Array.from(photos);
+      console.log(`  ✅ Found ${photoArray.length} unique photos`);
+      
+      // Return up to 15 photos for good coverage
+      return photoArray.slice(0, 15);
     } catch (error) {
-      console.error('Failed to fetch photos:', error);
+      console.error('Enhanced photo fetch failed:', error);
       return [];
     }
   }
@@ -271,9 +354,9 @@ export class SimplifiedPerplexityService {
   }
 
   /**
-   * Parse Perplexity's natural language response
+   * Enhanced parser with better extraction patterns
    */
-  private parsePerplexityResponse(
+  private parseEnhancedResponse(
     content: string, 
     citations: string[],
     communityName: string
@@ -283,9 +366,10 @@ export class SimplifiedPerplexityService {
     // Check if community was found
     const found = !lowerContent.includes('could not find') && 
                   !lowerContent.includes('no information') &&
-                  lowerContent.includes(communityName.toLowerCase());
+                  !lowerContent.includes('unable to find');
 
     if (!found) {
+      console.log(`  ⚠️ Community not found by Perplexity`);
       return {
         found: false,
         name: communityName,
@@ -293,7 +377,14 @@ export class SimplifiedPerplexityService {
       };
     }
 
-    // Extract official website
+    // Enhanced extraction patterns for all data points
+    const result: CommunityIntelligence = {
+      found: true,
+      name: communityName,
+      sources: citations
+    };
+
+    // Extract official website with multiple patterns
     const websiteMatch = content.match(/(?:website|site|url):\s*(https?:\/\/[^\s]+)/i) ||
                         content.match(/(https?:\/\/[^\s]+)/);
     const officialWebsite = websiteMatch ? websiteMatch[1] : undefined;

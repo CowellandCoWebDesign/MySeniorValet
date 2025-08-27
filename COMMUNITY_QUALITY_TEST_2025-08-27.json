@@ -1,25 +1,25 @@
 {
-  "testDate": "2025-08-27T03:31:08.056Z",
+  "testDate": "2025-08-27T03:42:04.458Z",
   "aiModel": "Perplexity sonar-pro",
   "summary": {
     "totalTested": 10,
-    "averageQualityScore": 78.5,
+    "averageQualityScore": 82.1,
     "withPricing": 10,
-    "withContact": 5,
-    "withWebsite": 6,
-    "perplexityEnriched": 8,
-    "averageCitations": 4
+    "withContact": 6,
+    "withWebsite": 5,
+    "perplexityEnriched": 9,
+    "averageCitations": 4.1
   },
   "communities": [
     {
-      "communityName": "Kamloops Seniors Village",
-      "communityId": 72000,
-      "location": "Kamloops, BC",
+      "communityName": "Cedar Rapids Commons",
+      "communityId": 44066,
+      "location": "Orange City, IA",
       "dataQuality": {
         "hasBasicInfo": true,
         "hasPricing": true,
-        "hasContact": true,
-        "hasWebsite": false,
+        "hasContact": false,
+        "hasWebsite": true,
         "hasCareTypes": true,
         "hasDescription": false,
         "hasAmenities": true,
@@ -27,92 +27,39 @@
         "citationCount": 5
       },
       "perplexityData": {
-        "name": "Kamloops Seniors Village",
-        "website": "https://www.interiorhealth.ca/locations/kamloops-seniors-village[1].",
+        "name": "Cedar Rapids Commons",
         "pricing": {
           "assistedLiving": "$,",
+          "memoryCare": "$,",
           "independentLiving": "$,"
         },
         "careLevels": [
           "Assisted Living",
-          "Independent Living"
+          "Memory Care",
+          "Independent Living",
+          "Skilled Nursing"
         ],
-        "description": "Kamloops Seniors Village is a senior living community in Kamloops, BC, offering a range of care levels and amenities for older adults.\n\n- **Official website URL:** The most authoritative and current official page is provided by Interior Health: https://www.interiorhealth.ca/locations/kamloops-seniors-village[1].\n\n- **Phone number and exact address:**  \n  - The official Interior Health listing does not specify the phone number or street address directly in the search results[1].  \n  - If you requ...",
+        "description": "There is no evidence of a senior living community named **\"Cedar Rapids Commons\" in Orange City, IA** in the available search results or major senior living directories. The search results do not reference such a facility, and there are no official listings or contact details for \"Cedar Rapids Commons\" in Orange City, Iowa[1][2][3]. Below is a structured summary based on the information found:\n\n---\n\n### 1. CONTACT\n\n- **Official website URL:** Not found. No official website for \"Cedar Rapids Comm...",
         "citations": [
-          "https://www.interiorhealth.ca/locations/kamloops-seniors-village",
-          "https://www.interiorhealth.ca/locations/kamloops-seniors-health-wellness-centre",
-          "https://www.kamloops.ca/our-community/news-events/events-calendar/annual-seniors-picnic",
-          "https://www.instagram.com/p/DNQ8EDU1FUs/",
-          "https://www.parkplaceseniorsliving.com/category/seniors-living/"
+          "https://www.hud.gov/sites/dfiles/Housing/documents/202directloans.xlsx",
+          "https://www.caring.com/about/contact-by-telephone",
+          "https://getstarpro.com/top-performers-list/",
+          "https://www.whitehouse.gov/articles/2025/07/from-coast-to-coast-americans-are-seeing-the-benefits-of-president-trumps-big-beautiful-bill/",
+          "https://www.gatesfoundation.org/about/committed-grants"
         ],
         "model": "sonar-pro"
       },
-      "errors": [],
-      "score": 80
-    },
-    {
-      "communityName": "1234 Wilshire Blvd, Los Angeles, CA 90025",
-      "communityId": 51594,
-      "location": "Los Angeles, CA",
-      "dataQuality": {
-        "hasBasicInfo": true,
-        "hasPricing": true,
-        "hasContact": true,
-        "hasWebsite": false,
-        "hasCareTypes": true,
-        "hasDescription": true,
-        "hasAmenities": true,
-        "perplexityEnriched": false,
-        "citationCount": 0
-      },
-      "perplexityData": null,
       "errors": [],
       "score": 75
     },
     {
-      "communityName": "Palm Park 55+ Community",
-      "communityId": 39736,
-      "location": "Fort Worth, TX",
+      "communityName": "Piedmont Village",
+      "communityId": 14416,
+      "location": "Richmond, VA",
       "dataQuality": {
         "hasBasicInfo": true,
         "hasPricing": true,
         "hasContact": true,
-        "hasWebsite": true,
-        "hasCareTypes": true,
-        "hasDescription": true,
-        "hasAmenities": true,
-        "perplexityEnriched": true,
-        "citationCount": 5
-      },
-      "perplexityData": {
-        "name": "Palm Park 55+ Community",
-        "phone": "",
-        "careLevels": [
-          "Assisted Living",
-          "Memory Care",
-          "Independent Living"
-        ],
-        "description": "There is no evidence of a senior living community named **\"Palm Park 55+ Community\"** in Fort Worth, TX, based on current official and reputable sources. No search results reference this community by name, nor do they provide an address, website, or contact information for such a place.\n\nHowever, there are several well-known 55+ active adult communities in Fort Worth. For example:\n\n- **Overture River District 55+ Active Adult**  \n  - Address: 4925 Scott Rd, Fort Worth, TX 76114[1].\n  - Phone: No...",
-        "citations": [
-          "https://www.apartments.com/overture-river-district-55-active-adult-a-fort-worth-tx/cfesy1d/",
-          "https://www.apartments.com/overture-ridgmar-55-active-adult-apartmen-fort-worth-tx/f24cs6r/",
-          "https://robson.com/communities/pebblecreek/",
-          "https://www.tiktok.com/@holidaybestbits/video/7537434283158277398",
-          "https://www.tiktok.com/@anthonyhomes01/video/7536018005881294094"
-        ],
-        "model": "sonar-pro"
-      },
-      "errors": [],
-      "score": 100
-    },
-    {
-      "communityName": "Bangor Commons",
-      "communityId": 19497,
-      "location": "Oakland, ME",
-      "dataQuality": {
-        "hasBasicInfo": true,
-        "hasPricing": true,
-        "hasContact": false,
         "hasWebsite": true,
         "hasCareTypes": true,
         "hasDescription": false,
@@ -121,86 +68,14 @@
         "citationCount": 5
       },
       "perplexityData": {
-        "name": "Bangor Commons",
-        "pricing": {
-          "assistedLiving": "$,",
-          "memoryCare": "$,"
-        },
-        "careLevels": [
-          "Assisted Living",
-          "Memory Care",
-          "Independent Living"
-        ],
-        "description": "There is no evidence of a senior living community named **\"Bangor Commons\"** in Oakland, ME, based on current official and reputable sources. No search results reference such a facility in Oakland, Maine, nor do they provide any details about its website, pricing, contact information, care levels offered, or amenities.\n\nKey points:\n- **No official website or listing** for \"Bangor Commons\" senior living community in Oakland, ME could be found in available state databases or major senior living di...",
+        "name": "Piedmont Village",
+        "description": "No authoritative or official information about a senior living community named **\"Piedmont Village\" in Richmond, VA** is available in the provided search results. There are no listings, contact details, pricing, or service descriptions for a community by this name in Richmond, VA, in the results from official directories, regulatory agencies, or senior living resources.\n\n**Analysis and Context:**\n- None of the search results reference \"Piedmont Village\" as a senior living community in Richmond, ...",
         "citations": [
-          "https://www.apartments.com/1-bellevue-st-winslow-me-unit-3/ep4rdjq/",
-          "https://www.caring.com/about/contact-by-telephone",
+          "https://lucycorr.org/about-us/leadership/",
           "https://www.getstarpro.com/abuse-citations-list",
-          "https://mpuc-cms.maine.gov/CQM.Public.WebUI/Common/AdvanceSearch.aspx?MC=0&CI=1&FRM=0&DEF",
-          "https://michigantownships.org/wp-content/uploads/August-2025-Township-Focus.pdf"
-        ],
-        "model": "sonar-pro"
-      },
-      "errors": [],
-      "score": 75
-    },
-    {
-      "communityName": "Old Dominion Village",
-      "communityId": 47135,
-      "location": "Newport News, VA",
-      "dataQuality": {
-        "hasBasicInfo": true,
-        "hasPricing": true,
-        "hasContact": false,
-        "hasWebsite": true,
-        "hasCareTypes": true,
-        "hasDescription": false,
-        "hasAmenities": true,
-        "perplexityEnriched": true,
-        "citationCount": 5
-      },
-      "perplexityData": {
-        "name": "Old Dominion Village",
-        "careLevels": [
-          "Assisted Living"
-        ],
-        "description": "There is no evidence of a senior living community named **\"Old Dominion Village\" in Newport News, VA** in current official or reputable directories. The search results do not reference such a facility, and there are no listings on major senior living platforms or government resources for this name in Newport News.\n\n**Possible explanations:**\n- The community may not exist under this name.\n- It could be confused with Old Dominion University (located nearby in Norfolk, VA), but that is an education...",
-        "citations": [
-          "https://www.alexandriava.gov/housing/affordable-housing-projects-and-partners",
-          "https://www.wtkr.com/news/in-the-community/norfolk/robots-to-automate-food-delivery-at-old-dominion-university",
-          "http://www.dominionenergy.com/en/Economic-Development/Virginia",
-          "https://www.townebank.com",
-          "https://www.odu.edu/social-science-research-center/life-in-hampton-roads/politics-2025"
-        ],
-        "model": "sonar-pro"
-      },
-      "errors": [],
-      "score": 75
-    },
-    {
-      "communityName": "Diamond Senior Care of Sudbury",
-      "communityId": 57115,
-      "location": "Sudbury, ON",
-      "dataQuality": {
-        "hasBasicInfo": true,
-        "hasPricing": true,
-        "hasContact": true,
-        "hasWebsite": false,
-        "hasCareTypes": true,
-        "hasDescription": true,
-        "hasAmenities": true,
-        "perplexityEnriched": true,
-        "citationCount": 5
-      },
-      "perplexityData": {
-        "name": "Diamond Senior Care of Sudbury",
-        "description": "No official or authoritative information about **Diamond Senior Care of Sudbury** in Sudbury, ON is available in the provided search results. There are no details from official sources regarding their website, pricing, contact information, address, care levels offered, amenities, or a description.\n\n- The search results mention \"Diamond Senior Care\" only as part of a list on Caring.com[3], without any specific details about the Sudbury location.\n- No current pricing or care level information is p...",
-        "citations": [
-          "https://www.instagram.com/p/DNOGqWWxdW4/",
-          "https://sudbury.ma.us/townmanager/2025/08/15/camp-sewataro-property/",
-          "https://www.caring.com/about/contact-by-telephone",
-          "https://www.newswire.ca/news-releases/greater-sudbury-advances-growth-and-investment-in-first-half-of-2025-861980963.html",
-          "https://tandyleather.com"
+          "https://www.apartments.com/608-rugby-rd-charlottesville-va-unit-608-rugby-rd/d4k5gxk/",
+          "https://www.dpor.virginia.gov/sites/default/files/boards/Real_Estate/reb_ce_courses_approved.pdf",
+          "https://www.instagram.com/vmhceducation/?hl=en"
         ],
         "model": "sonar-pro"
       },
@@ -208,28 +83,9 @@
       "score": 90
     },
     {
-      "communityName": "Prairie Village",
-      "communityId": 48239,
-      "location": "La Crosse, KS",
-      "dataQuality": {
-        "hasBasicInfo": true,
-        "hasPricing": true,
-        "hasContact": false,
-        "hasWebsite": true,
-        "hasCareTypes": true,
-        "hasDescription": false,
-        "hasAmenities": true,
-        "perplexityEnriched": false,
-        "citationCount": 0
-      },
-      "perplexityData": null,
-      "errors": [],
-      "score": 60
-    },
-    {
-      "communityName": "ORCHARD POST ACUTE",
-      "communityId": 1793,
-      "location": "FRESNO, CA",
+      "communityName": "Local Loving Residential Care",
+      "communityId": 42148,
+      "location": "Mentone, TX",
       "dataQuality": {
         "hasBasicInfo": true,
         "hasPricing": true,
@@ -242,14 +98,14 @@
         "citationCount": 5
       },
       "perplexityData": {
-        "name": "ORCHARD POST ACUTE",
-        "description": "No official or authoritative information about \"Orchard Post Acute\" senior living community in Fresno, CA is available in the provided search results. There are no details regarding their website, pricing, phone number, address, care levels, amenities, or a description in the current data.\n\n**Key points:**\n- No official website, contact information, or address found in the search results.\n- No pricing or care level details are available.\n- No description or amenities are listed.\n\nIf you need ver...",
+        "name": "Local Loving Residential Care",
+        "description": "No evidence was found of a senior living community named \"Local Loving Residential Care\" in Mentone, TX, or any senior living facility in Mentone, TX, based on available official sources, directories, and business listings as of August 2025.\n\n**Key findings:**\n\n- There are no listings for \"Local Loving Residential Care\" or any similar senior living community in Mentone, TX, in major senior care directories, business registries, or local government resources[3].\n- Mentone, TX, is an extremely sma...",
         "citations": [
-          "https://comptroller.texas.gov/auto-data/purchasing/web_all_name.csv",
-          "https://data.oregon.gov/api/views/d4au-whvm/rows.pdf?app_token=U29jcmF0YS0td2VraWNrYXNz0",
-          "https://www.publichealthcareers.org/job/psychiatric-social-worker-i-custody-health-services-mental-health-social-ser-us-ca-santa-clara-25-y42-d-1418/",
-          "http://rodrepel.com/blog/",
-          "https://planthealth2025.eventscribe.net/agenda.asp"
+          "https://lovingcountytexas.com/texas-offender-search/",
+          "https://www.titusfuneralhome.com/obituaries",
+          "https://www.zip-codes.com/city/tx-mentone.asp",
+          "https://www.aplaceformom.com/assisted-living/california/big-bear-lake",
+          "https://www.instagram.com/reel/DNjaTHWxFEK/"
         ],
         "model": "sonar-pro"
       },
@@ -257,9 +113,9 @@
       "score": 80
     },
     {
-      "communityName": "Queen City Manor",
-      "communityId": 14015,
-      "location": "Charlotte, NC",
+      "communityName": "Pine Barrens Manor",
+      "communityId": 15263,
+      "location": "Mount Holly, NJ",
       "dataQuality": {
         "hasBasicInfo": true,
         "hasPricing": true,
@@ -272,7 +128,38 @@
         "citationCount": 5
       },
       "perplexityData": {
-        "name": "Queen City Manor",
+        "name": "Pine Barrens Manor",
+        "description": "No authoritative information about \"Pine Barrens Manor\" senior living community in Mount Holly, NJ is available in the provided search results, nor does it appear in major senior living directories or official sources as of August 2025. There are no listings, reviews, or official websites confirming its existence or providing details on contact information, pricing, care services, amenities, or facility specifics.\n\nIf you intended a different facility name or location, please clarify. Alternativ...",
+        "citations": [
+          "https://visitnj.org/nj/events/arts-culture",
+          "https://www.pace.edu/pace-clips",
+          "https://www.ag.ky.gov/Resources/Consumer-Resources/charity/Documents/charity.pdf",
+          "https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id=9415143",
+          "https://tidesandcurrents.noaa.gov/noaatidepredictions.html?id=8727001"
+        ],
+        "model": "sonar-pro"
+      },
+      "errors": [],
+      "score": 75
+    },
+    {
+      "communityName": "UnitingCare Mount Isa Central",
+      "communityId": 73660,
+      "location": "Mount Isa, QLD",
+      "dataQuality": {
+        "hasBasicInfo": true,
+        "hasPricing": true,
+        "hasContact": false,
+        "hasWebsite": true,
+        "hasCareTypes": true,
+        "hasDescription": true,
+        "hasAmenities": true,
+        "perplexityEnriched": true,
+        "citationCount": 5
+      },
+      "perplexityData": {
+        "name": "UnitingCare Mount Isa Central",
+        "website": "https://www.bluecare.org.au/community-care/locations/mount-isa-community-care[1]",
         "pricing": {
           "assistedLiving": "$,",
           "memoryCare": "$,"
@@ -282,48 +169,189 @@
           "Memory Care",
           "Independent Living"
         ],
-        "description": "There is no evidence of a senior living community named **\"Queen City Manor\"** in Charlotte, NC, based on current official and reputable sources. None of the search results reference such a facility or provide any details about its existence, location, services, or contact information.\n\n- No official website URL for \"Queen City Manor\" was found.\n- No pricing information for care levels is available.\n- No phone number or exact address can be confirmed.\n- There are no verified details regarding ca...",
+        "description": "No official senior living community named \"UnitingCare Mount Isa Central\" is found in current directories or official sources for Mount Isa, QLD. The most prominent aged care provider in Mount Isa is **BlueCare Mount Isa Community Care**, which offers a range of home and community-based aged care services[1][2]. Below is the most comprehensive information available for BlueCare Mount Isa Community Care, as no details for \"UnitingCare Mount Isa Central\" are present in recent listings.\n\n---\n\n## 1....",
         "citations": [
-          "https://www.zillow.com/homedetails/8731-Woodhill-Manor-Ct-Charlotte-NC-28215/6216797_zpid/",
-          "https://www.carolinarealtysearch.com/about-myers-park-real-estate-charlotte/",
-          "https://www.instagram.com/bedsidemanorclt/?hl=en",
-          "https://www.charlottenc.gov/Growth-and-Development/Planning-and-Development/Planning/Annexation",
-          "https://www.pucedofuneralhome.com/obit"
+          "https://www.bluecare.org.au/community-care/locations/mount-isa-community-care",
+          "https://www.bluecare.org.au",
+          "https://documents.parliament.qld.gov.au/events/han/2025/2025_08_07EstimatesEAC.pdf",
+          "https://au.indeed.com/q-child-protection-jobs.html",
+          "https://www.closingthegap.gov.au/sites/default/files/2025-07/closing-the-gap-2013.pdf"
         ],
         "model": "sonar-pro"
       },
       "errors": [],
+      "score": 85
+    },
+    {
+      "communityName": "Alamito Gardens (RAD)",
+      "communityId": 32082,
+      "location": "El Paso, TX",
+      "dataQuality": {
+        "hasBasicInfo": true,
+        "hasPricing": true,
+        "hasContact": true,
+        "hasWebsite": false,
+        "hasCareTypes": true,
+        "hasDescription": true,
+        "hasAmenities": true,
+        "perplexityEnriched": false,
+        "citationCount": 0
+      },
+      "perplexityData": null,
+      "errors": [],
       "score": 75
     },
     {
-      "communityName": "Hoosier Heritage Manor",
-      "communityId": 43233,
-      "location": "Brazil, IN",
+      "communityName": "HammondCare Melton West",
+      "communityId": 73392,
+      "location": "Melton, VIC",
       "dataQuality": {
         "hasBasicInfo": true,
         "hasPricing": true,
         "hasContact": false,
         "hasWebsite": true,
         "hasCareTypes": true,
-        "hasDescription": false,
+        "hasDescription": true,
+        "hasAmenities": true,
+        "perplexityEnriched": true,
+        "citationCount": 4
+      },
+      "perplexityData": {
+        "name": "HammondCare Melton West",
+        "website": "https://www.hammond.com.au/)",
+        "description": "No official or comprehensive information about \"HammondCare Melton West\" senior living community in Melton, VIC is available in the provided search results. There are no listings, contact details, pricing, or service descriptions for this facility in the search results.\n\n**Analysis and Inference:**\n- None of the search results mention HammondCare Melton West or provide any details about a HammondCare facility in Melton, VIC.\n- No official website, phone number, address, or email is listed for Ha...",
+        "citations": [
+          "https://nhanquyen.co/vic-danh-sach-day-du-cac-dia-diem-bo-phieu-som-cho-bau-cu-lien-bang-2025/",
+          "https://www.instagram.com/vmchvic/?hl=en",
+          "https://au.indeed.com/q-aged-care-nurse-l-hornsby-nsw-jobs.html",
+          "https://au.indeed.com/q-short-term-l-melbourne-vic-jobs.html"
+        ],
+        "model": "sonar-pro"
+      },
+      "errors": [],
+      "score": 84
+    },
+    {
+      "communityName": "GREENVILLE HOUSE",
+      "communityId": 33616,
+      "location": "Greenville, PA",
+      "dataQuality": {
+        "hasBasicInfo": true,
+        "hasPricing": true,
+        "hasContact": true,
+        "hasWebsite": false,
+        "hasCareTypes": true,
+        "hasDescription": true,
         "hasAmenities": true,
         "perplexityEnriched": true,
         "citationCount": 5
       },
       "perplexityData": {
-        "name": "Hoosier Heritage Manor",
-        "description": "There is no current, official information available from authoritative sources about a senior living community named **\"Hoosier Heritage Manor\" in Brazil, IN**. No official website, pricing, phone number, address, or details about care levels or amenities could be found in the provided search results or from recognized directories.\n\n**Key findings:**\n- No listing for \"Hoosier Heritage Manor\" appears in official provider directories, health plan listings, or recent news[3].\n- No official website ...",
+        "name": "GREENVILLE HOUSE",
+        "website": "https://www.greenville-house.com[2]",
+        "phone": "724-588-2312",
+        "pricing": {
+          "assistedLiving": "$,",
+          "memoryCare": "$,"
+        },
+        "careLevels": [
+          "Assisted Living",
+          "Memory Care",
+          "Independent Living",
+          "Skilled Nursing"
+        ],
+        "description": "**GREENVILLE HOUSE** in Greenville, PA appears to be an income-based apartment community for seniors, but there is no evidence from official or reputable senior living directories that it operates as a licensed assisted living, memory care, or skilled nursing facility. Below is all available information, structured per your requirements.\n\n---\n\n### 1. CONTACT\n\n- **Official website:** https://www.greenville-house.com[2]\n- **Main phone number:** 724-588-2312 (from website contact page)[2]\n- **Stree...",
         "citations": [
-          "http://obituaries.newsandtribune.com/obituaries/all-categories/search?view=standard&Waterfall=0&filter_date=anytime&limit=240",
-          "https://www.abonmarche.com/bids/",
-          "https://www.parkview.com/employer-solutions/signature-care/for-members/media/file/SignatureCareProviderDirectory.pdf",
-          "https://www.thoroughbreddailynews.com/wp-content/uploads/2025/08/2025yearlingcatalog_webfinalversion1.pdf",
-          "https://obituaries.tribstar.com/obituaries/search/?limit=485"
+          "https://www.realtor.com/realestateandhomes-detail/190-Hamburg-Rd_Greenville_PA_16125_M37508-96424",
+          "https://www.greenville-house.com",
+          "https://www.lcsnet.com",
+          "https://www.loutzenhiserfuneralhomes.com/obituaries",
+          "https://www.stpauls1867.org/services-and-communities/independent-living-in-the-colony/colony-resident-activity-sign-up"
         ],
         "model": "sonar-pro"
       },
       "errors": [],
-      "score": 75
+      "score": 90
+    },
+    {
+      "communityName": "Legacy at Maiden Park",
+      "communityId": 9181,
+      "location": "Rochester, NY",
+      "dataQuality": {
+        "hasBasicInfo": true,
+        "hasPricing": true,
+        "hasContact": true,
+        "hasWebsite": false,
+        "hasCareTypes": true,
+        "hasDescription": true,
+        "hasAmenities": true,
+        "perplexityEnriched": true,
+        "citationCount": 5
+      },
+      "perplexityData": {
+        "name": "Legacy at Maiden Park",
+        "website": "https://www.watermarkcommunities.com/legacy-at-maiden-park-rochester-ny/",
+        "phone": "585-581-0077",
+        "pricing": {
+          "assistedLiving": "$,",
+          "memoryCare": "$,"
+        },
+        "careLevels": [
+          "Assisted Living",
+          "Memory Care",
+          "Independent Living"
+        ],
+        "description": "**Legacy at Maiden Park** is a senior living community in Rochester, NY, offering a range of care levels and amenities. Below is the most comprehensive and structured information available from current sources.\n\n---\n\n### 1. CONTACT\n\n- **Official website URL:** Not found in current search results. Based on standard naming conventions and previous listings, the likely URL is https://www.watermarkcommunities.com/legacy-at-maiden-park-rochester-ny/ (verify for accuracy).\n- **Main phone number:** Not...",
+        "citations": [
+          "https://www.aplaceformom.com/community/crimson-ridge-gardens-96035",
+          "https://www.instagram.com/p/DM-5lUogeH1/",
+          "https://www.harnessracingupdate.com/pdf/hru/hru081025.pdf",
+          "https://www.unionomaha.com/news/2025/08/23/know-before-you-go-union-omaha-vs-av-alta-fc/",
+          "https://www.caring.com/about/contact-by-telephone"
+        ],
+        "model": "sonar-pro"
+      },
+      "errors": [],
+      "score": 90
+    },
+    {
+      "communityName": "Atria Westchase",
+      "communityId": 71792,
+      "location": "Houston, TX",
+      "dataQuality": {
+        "hasBasicInfo": true,
+        "hasPricing": true,
+        "hasContact": true,
+        "hasWebsite": false,
+        "hasCareTypes": true,
+        "hasDescription": false,
+        "hasAmenities": true,
+        "perplexityEnriched": true,
+        "citationCount": 2
+      },
+      "perplexityData": {
+        "name": "Atria Westchase",
+        "website": "https://www.atriaseniorliving.com/communities/atria-westchase-houston-tx[1].",
+        "phone": "281-759-7900",
+        "pricing": {
+          "assistedLiving": "$,",
+          "memoryCare": "$,"
+        },
+        "careLevels": [
+          "Assisted Living",
+          "Memory Care",
+          "Independent Living",
+          "Skilled Nursing"
+        ],
+        "description": "**Atria Westchase** is a senior living community in Houston, TX offering assisted living, memory care, and independent living. Below is the most comprehensive and current information available:\n\n---\n\n### 1. CONTACT\n\n- **Official website URL:** Not directly listed in search results; based on parent company, use https://www.atriaseniorliving.com/communities/atria-westchase-houston-tx[1].\n- **Main phone number:** 281-759-7900[1].\n- **Complete street address:** 11424 Richmond Avenue, Houston, TX 770...",
+        "citations": [
+          "https://www.aplaceformom.com/community/atria-westchase-51513",
+          "https://www.aplaceformom.com/providers/atria-21"
+        ],
+        "model": "sonar-pro"
+      },
+      "errors": [],
+      "score": 77
     }
   ]
 }
