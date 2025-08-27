@@ -1848,6 +1848,10 @@ export default function CommunityDetail() {
   const [upgradeFeature, setUpgradeFeature] = useState('');
   
   const { toast } = useToast();
+  
+  // Move useResponsive and searchQuery state here to ensure they're called before any conditional returns
+  const { isMobile, isTablet, isDesktop } = useResponsive();
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Always call useQuery hook regardless of ID validity to maintain consistent hook order
   const { data: community, isLoading, error } = useQuery<Community>({
@@ -2221,9 +2225,6 @@ export default function CommunityDetail() {
     // If still no photos, use default
     return photos.length > 0 ? photos : defaultPhotos;
   };
-
-  const { isMobile, isTablet, isDesktop } = useResponsive();
-  const [searchQuery, setSearchQuery] = useState("");
   
   return (
     <>
