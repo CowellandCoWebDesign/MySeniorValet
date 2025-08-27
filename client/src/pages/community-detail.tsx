@@ -1114,18 +1114,8 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
               </div>
               <div className="prose prose-sm dark:prose-invert max-w-none">
                 <p className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line">
-                  {community.description.split('\n\n').slice(0, 2).join('\n\n')}
+                  {community.description}
                 </p>
-                {community.description.split('\n\n').length > 2 && (
-                  <details className="mt-3">
-                    <summary className="cursor-pointer text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-semibold">
-                      Read full description ({community.description.split('\n\n').length} paragraphs)
-                    </summary>
-                    <p className="mt-3 text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line">
-                      {community.description.split('\n\n').slice(2).join('\n\n')}
-                    </p>
-                  </details>
-                )}
               </div>
               <div className="mt-3 text-xs text-purple-600 dark:text-purple-400 flex items-center">
                 <CheckCircle className="w-3 h-3 mr-1" />
