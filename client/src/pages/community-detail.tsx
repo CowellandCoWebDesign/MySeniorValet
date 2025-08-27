@@ -6,7 +6,7 @@ import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSig
          Mail, Globe, Users, User, Plus, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, Lock,
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
-         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3, Loader2, Camera } from 'lucide-react';
+         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3, Loader2, Camera, Search } from 'lucide-react';
 import type { Community } from '@shared/schema';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -42,6 +42,7 @@ import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
 import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
 import { PricingHistory } from "@/components/pricing-history";
 import { LiveWebIntelligence } from "@/components/LiveWebIntelligence";
+import { ExternalLinkWarning } from "@/components/ExternalLinkWarning";
 import valetMascot from '@/assets/valet-mascot.png';
 
 // Default photos for communities without images
@@ -108,19 +109,27 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
             console.log(`🎯 Found ${currentCommunityData.photos.length} photos from web scraping for ${community.name}`);
             console.log('📸 Photos found:', currentCommunityData.photos);
             
-            // Update the verification report with scraped photos
+            // Update the verification report with scraped photos - format them properly
             if (onVerificationReport) {
               console.log('🔄 Updating verification report with scraped photos...');
               onVerificationReport((prev: any) => {
+                const formattedPhotos = currentCommunityData.photos.map((photoUrl: string) => ({
+                  url: photoUrl,
+                  source: 'web'
+                }));
+                
                 const updated = {
                   ...prev,
-                  webIntelligence: {
-                    ...(prev?.webIntelligence || {}),
-                    images: currentCommunityData.photos,
-                    scrapedFrom: currentCommunityData.website
+                  verificationResults: {
+                    ...(prev?.verificationResults || {}),
+                    webIntelligence: {
+                      ...(prev?.verificationResults?.webIntelligence || {}),
+                      images: formattedPhotos,
+                      scrapedFrom: currentCommunityData.website
+                    }
                   }
                 };
-                console.log('✅ Verification report updated with photos:', updated.webIntelligence);
+                console.log('✅ Verification report updated with photos:', updated.verificationResults?.webIntelligence);
                 return updated;
               });
             }
@@ -317,7 +326,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
             </div>
           )}
           
-          {/* Communities Mentioned in Analysis */}
+          {/* Communities Mentioned in Analysis - Now with database matching */}
           {analysis.communityMentions && analysis.communityMentions.length > 0 && (
             <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
               <h3 className="font-semibold text-lg mb-4 flex items-center">
@@ -326,17 +335,71 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
                 <Badge className="ml-2" variant="secondary">{analysis.communityMentions.length} Communities</Badge>
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {analysis.communityMentions.map((communityName: string, index: number) => (
-                  <Link 
-                    key={index} 
-                    href={`/search?q=${encodeURIComponent(communityName)}`}
-                    className="flex items-center gap-2 p-3 bg-white/50 dark:bg-gray-900/50 rounded-lg border border-blue-200/50 dark:border-blue-700/50 hover:bg-white/70 dark:hover:bg-gray-900/70 hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer group"
-                  >
-                    <Home className="w-4 h-4 text-blue-500 flex-shrink-0 group-hover:text-blue-600" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">{communityName}</span>
-                    <ExternalLink className="w-3 h-3 text-gray-400 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                ))}
+                {analysis.communityMentions.map((communityName: string, index: number) => {
+                  // Check if this community is in our database (matchedCommunities)
+                  const matchedCommunity = analysis.matchedCommunities?.find((c: any) => 
+                    c.name === communityName || 
+                    c.name.toLowerCase().includes(communityName.toLowerCase()) ||
+                    communityName.toLowerCase().includes(c.name.toLowerCase())
+                  );
+                  
+                  // Also check extractedCommunities for website data
+                  const extractedCommunity = analysis.extractedCommunities?.find((c: any) => 
+                    c.name === communityName
+                  );
+                  
+                  if (matchedCommunity) {
+                    // Community exists in our database - link to detail page
+                    return (
+                      <Link 
+                        key={index} 
+                        href={`/community/${matchedCommunity.id}`}
+                        className="flex items-center gap-2 p-3 bg-white/50 dark:bg-gray-900/50 rounded-lg border border-blue-200/50 dark:border-blue-700/50 hover:bg-white/70 dark:hover:bg-gray-900/70 hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer group"
+                      >
+                        <Home className="w-4 h-4 text-blue-500 flex-shrink-0 group-hover:text-blue-600" />
+                        <div className="flex-1">
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 block">{communityName}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-500">In our database</span>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </Link>
+                    );
+                  } else if (extractedCommunity?.website) {
+                    // Not in our database but has a website - external link
+                    return (
+                      <div key={index} className="p-3 bg-white/50 dark:bg-gray-900/50 rounded-lg border border-blue-200/50 dark:border-blue-700/50">
+                        <div className="flex items-start gap-2">
+                          <Home className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">{communityName}</span>
+                            <ExternalLinkWarning 
+                              href={extractedCommunity.website.includes('://') ? extractedCommunity.website : `https://${extractedCommunity.website}`}
+                              className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline inline-flex items-center gap-1"
+                            >
+                              Visit Website
+                            </ExternalLinkWarning>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  } else {
+                    // Not in database and no website - search link
+                    return (
+                      <Link 
+                        key={index} 
+                        href={`/search?q=${encodeURIComponent(communityName)}`}
+                        className="flex items-center gap-2 p-3 bg-white/50 dark:bg-gray-900/50 rounded-lg border border-gray-200/50 dark:border-gray-700/50 hover:bg-white/70 dark:hover:bg-gray-900/70 hover:border-gray-300 dark:hover:border-gray-600 transition-all cursor-pointer group"
+                      >
+                        <Search className="w-4 h-4 text-gray-500 flex-shrink-0 group-hover:text-gray-600" />
+                        <div className="flex-1">
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-600 dark:group-hover:text-gray-400 block">{communityName}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-500">Search for this community</span>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </Link>
+                    );
+                  }
+                })}
               </div>
             </div>
           )}
@@ -413,7 +476,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
             </div>
           )}
           
-          {/* Data Sources */}
+          {/* Data Sources - Now Clickable with External Link Warnings */}
           {analysis.sources && analysis.sources.length > 0 && (
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-2">
@@ -421,11 +484,26 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
                 Data Sources:
               </p>
               <div className="flex flex-wrap gap-2">
-                {analysis.sources.map((source: string, index: number) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    {source}
-                  </Badge>
-                ))}
+                {analysis.sources.map((source: string, index: number) => {
+                  // Extract domain from source URL for display
+                  const domain = source.includes('://') ? 
+                    source.split('://')[1].split('/')[0].replace('www.', '') : 
+                    source.replace('www.', '');
+                  
+                  // Ensure URL has protocol
+                  const fullUrl = source.includes('://') ? source : `https://${source}`;
+                  
+                  return (
+                    <ExternalLinkWarning
+                      key={index}
+                      href={fullUrl}
+                      domain={domain}
+                      className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-300"
+                    >
+                      {domain}
+                    </ExternalLinkWarning>
+                  );
+                })}
               </div>
             </div>
           )}
