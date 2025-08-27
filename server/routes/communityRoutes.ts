@@ -702,21 +702,32 @@ export function registerCommunityRoutes(app: Express) {
       let communitySpecificData = realTimeData; // Keep existing data as fallback
       
       try {
-        // OPTIMIZED SEARCH QUERY: Use natural search terms that match real websites
+        // OPTIMIZED SEARCH QUERY: Handle recent management changes and name variations
         const communityBaseName = community.name
           .replace(' - A Provincial Senior Living Community', '')
+          .replace(' - A Provincial senior living community', '')
           .replace(' Senior Living Community', '')
           .replace(' Senior Living', '')
+          .replace(' Assisted Living', '')
           .trim();
         
-        const communitySearchQuery = `${communityBaseName} senior living ${community.city} California pricing availability contact`;
+        // Include address in search for more precise results
+        const communitySearchQuery = `${communityBaseName} ${community.address || ''} ${community.city} California senior living current phone contact website`;
         
-        console.log(`🔍 Optimized search query: "${communitySearchQuery}" (was: "${community.name}")`);
+        console.log(`🔍 Enhanced search query for recent changes: "${communitySearchQuery}"`);
         
-        // Use Perplexity to search for this SPECIFIC community
+        // Use Perplexity to search for this SPECIFIC community with management change awareness
         const perplexityResponse = await perplexityService.searchRealTime(
           communitySearchQuery,
-          `Find current information about ${communityBaseName} senior living community in ${community.city}, CA. Focus on pricing, contact details, services, and recent reviews.`
+          `Find CURRENT 2025 information about ${communityBaseName} senior living facility in ${community.city}, CA. 
+           IMPORTANT: This facility may have recently changed management or ownership (could now be operated by Provincial, Brookdale, or other companies).
+           Look for:
+           1. Current official phone number and website (verify it's not outdated)
+           2. Recent management changes or new ownership
+           3. Updated facility name if it has changed
+           4. Current pricing and availability
+           5. Any recent news about the facility
+           Note: Old information may still appear online - prioritize recent 2024-2025 sources.`
         );
         
         // Override with community-specific search results
@@ -761,26 +772,53 @@ export function registerCommunityRoutes(app: Express) {
       try {
         const updateData: any = {};
         
-        // Extract contact information from scraped data (NOT webIntelligence)
-        if (verificationReport.verificationResults?.scrapedData) {
-          const scraped = verificationReport.verificationResults.scrapedData;
+        // Extract contact information from AI verification (improved contact extraction)
+        if (verificationReport.contactInfo) {
+          const contactInfo = verificationReport.contactInfo;
           
           // Save phone number if found and not already present
-          if (scraped.phone && (!community.phone || community.phone.length < 10)) {
-            updateData.phone = scraped.phone;
-            console.log(`📞 Found phone number: ${scraped.phone}`);
+          if (contactInfo.phone && (!community.phone || community.phone.length < 10)) {
+            updateData.phone = contactInfo.phone;
+            console.log(`📞 Found phone number: ${contactInfo.phone}`);
           }
           
           // Save email if found and not already present  
-          if (scraped.email && (!community.email || !community.email.includes('@'))) {
-            updateData.email = scraped.email;
-            console.log(`📧 Found email: ${scraped.email}`);
+          if (contactInfo.email && (!community.email || !community.email.includes('@'))) {
+            updateData.email = contactInfo.email;
+            console.log(`📧 Found email: ${contactInfo.email}`);
           }
           
           // Save website if found and not already present
-          if (scraped.website && (!community.website || !community.website.startsWith('http'))) {
+          if (contactInfo.website && (!community.website || !community.website.startsWith('http'))) {
+            updateData.website = contactInfo.website;
+            console.log(`🌐 Found website: ${contactInfo.website}`);
+          }
+          
+          // Save fax if found and not already present
+          if (contactInfo.fax && !community.fax) {
+            updateData.fax = contactInfo.fax;
+            console.log(`📠 Found fax: ${contactInfo.fax}`);
+          }
+        }
+        
+        // Also check scraped data as fallback (if it still exists)
+        if (verificationReport.verificationResults?.scrapedData) {
+          const scraped = verificationReport.verificationResults.scrapedData;
+          
+          // Only use scraped data if we didn't find it in contactInfo
+          if (!updateData.phone && scraped.phone && (!community.phone || community.phone.length < 10)) {
+            updateData.phone = scraped.phone;
+            console.log(`📞 Found phone from scraped data: ${scraped.phone}`);
+          }
+          
+          if (!updateData.email && scraped.email && (!community.email || !community.email.includes('@'))) {
+            updateData.email = scraped.email;
+            console.log(`📧 Found email from scraped data: ${scraped.email}`);
+          }
+          
+          if (!updateData.website && scraped.website && (!community.website || !community.website.startsWith('http'))) {
             updateData.website = scraped.website;
-            console.log(`🌐 Found website: ${scraped.website}`);
+            console.log(`🌐 Found website from scraped data: ${scraped.website}`);
           }
         }
         

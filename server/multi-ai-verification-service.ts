@@ -68,6 +68,12 @@ interface MultiAIVerificationReport {
     source: string;
     confidence: number;
   };
+  contactInfo?: {
+    phone?: string;
+    email?: string;
+    website?: string;
+    fax?: string;
+  };
   recommendations: string[];
 }
 
@@ -265,6 +271,13 @@ export class MultiAIVerificationService {
         report.verificationResults.chatgptVerification
       );
 
+      // Extract contact information from AI responses
+      report.contactInfo = this.extractContactInfo(
+        perplexityData,
+        report.verificationResults.claudeVerification,
+        report.verificationResults.chatgptVerification
+      );
+      
       // Extract pricing information from AI data and website scraping
       report.pricing = this.extractPricingData(
         perplexityData,
@@ -738,6 +751,106 @@ REMEMBER: Verify as true if the web data appears relevant and helpful for famili
         confidence: 0
       };
     }
+  }
+
+  // Extract contact information from AI responses
+  extractContactInfo(perplexityData: any, claudeResult: any, chatgptResult: any): {
+    phone?: string;
+    email?: string;
+    website?: string;
+    fax?: string;
+  } {
+    const contactInfo: any = {};
+    
+    // Combine all text sources to search for contact info
+    const searchTexts = [
+      perplexityData?.searchContent || '',
+      perplexityData?.summary || '',
+      JSON.stringify(claudeResult || {}),  // Include full Claude response
+      JSON.stringify(chatgptResult || {}),  // Include full ChatGPT response
+      JSON.stringify(perplexityData || {})  // Include full Perplexity data
+    ].join(' ');
+    
+    // Extract phone numbers - look for current/updated numbers
+    // Priority: Look for phrases like "current phone", "new number", "updated contact"
+    const currentPhonePattern = /(?:current|new|updated|main|office|direct)[\s\w]*(?:phone|number|contact)[\s:]*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/gi;
+    const currentPhoneMatch = searchTexts.match(currentPhonePattern);
+    
+    if (currentPhoneMatch && currentPhoneMatch.length > 0) {
+      // Extract just the phone number from the match
+      const phoneNumberPattern = /\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/;
+      const phoneMatch = currentPhoneMatch[0].match(phoneNumberPattern);
+      if (phoneMatch) {
+        contactInfo.phone = phoneMatch[0].replace(/[^\d]/g, '').replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+        console.log(`📞 Found current phone number: ${contactInfo.phone}`);
+      }
+    } else {
+      // Fallback to general phone pattern
+      const phonePatterns = [
+        /\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/,
+        /\d{3}[-.\s]\d{3}[-.\s]\d{4}/,
+        /\(\d{3}\)\s?\d{3}-\d{4}/
+      ];
+      
+      for (const pattern of phonePatterns) {
+        const match = searchTexts.match(pattern);
+        if (match) {
+          const cleaned = match[0].replace(/[^\d]/g, '');
+          if (cleaned.length === 10 && !cleaned.startsWith('800') && !cleaned.startsWith('888') && !cleaned.startsWith('877') && !cleaned.startsWith('866')) {
+            contactInfo.phone = cleaned.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+            console.log(`📞 Found phone number: ${contactInfo.phone}`);
+            break;
+          }
+        }
+      }
+    }
+    
+    // Extract email
+    const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+    const emailMatch = searchTexts.match(emailPattern);
+    if (emailMatch && emailMatch.length > 0) {
+      // Filter out common non-community emails
+      const validEmail = emailMatch.find(email => 
+        !email.includes('example.com') && 
+        !email.includes('test.com') &&
+        !email.includes('@gmail.com') && 
+        !email.includes('@yahoo.com')
+      );
+      if (validEmail) {
+        contactInfo.email = validEmail.toLowerCase();
+        console.log(`📧 Found email: ${contactInfo.email}`);
+      }
+    }
+    
+    // Extract website - already handled earlier in the flow but include for completeness
+    const websitePattern = /(?:website|site|web|url|visit)[\s:]*(?:https?:\/\/)?([a-zA-Z0-9][a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}/gi;
+    const websiteMatch = searchTexts.match(websitePattern);
+    if (websiteMatch && websiteMatch.length > 0) {
+      const urlPattern = /(?:https?:\/\/)?([a-zA-Z0-9][a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}/;
+      const urlMatch = websiteMatch[0].match(urlPattern);
+      if (urlMatch) {
+        let website = urlMatch[0];
+        if (!website.startsWith('http')) {
+          website = 'https://' + website;
+        }
+        contactInfo.website = website;
+        console.log(`🌐 Found website: ${contactInfo.website}`);
+      }
+    }
+    
+    // Extract fax number if present
+    const faxPattern = /(?:fax)[\s:]*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/gi;
+    const faxMatch = searchTexts.match(faxPattern);
+    if (faxMatch && faxMatch.length > 0) {
+      const faxNumberPattern = /\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/;
+      const faxNumberMatch = faxMatch[0].match(faxNumberPattern);
+      if (faxNumberMatch) {
+        contactInfo.fax = faxNumberMatch[0].replace(/[^\d]/g, '').replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+        console.log(`📠 Found fax: ${contactInfo.fax}`);
+      }
+    }
+    
+    return contactInfo;
   }
 
   // Generate recommendations based on consensus
