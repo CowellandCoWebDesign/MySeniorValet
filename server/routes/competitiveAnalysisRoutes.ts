@@ -26,6 +26,14 @@ router.post('/api/competitive-analysis', async (req, res) => {
           `${community.city}, ${community.state}`
         );
         
+        console.log(`🔍 Competitive Analysis Result for ${community.name}:`, {
+          found: intelligence.found,
+          hasWebsite: !!intelligence.officialWebsite,
+          hasPhone: !!intelligence.phone,
+          hasPhotos: intelligence.photos?.length || 0,
+          sourcesCount: intelligence.sources?.length || 0
+        });
+        
         return res.json({
           success: true,
           communityId,

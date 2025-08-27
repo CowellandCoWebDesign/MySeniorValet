@@ -60,6 +60,7 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - **Document Signing**: Documenso
 
 ## Recent Changes
+- **AI Enrichment Parsing Bug Fixed** (2025-08-27): Resolved critical parsing issue where area searches were incorrectly marked as found. The system now properly distinguishes between specific community matches and fallback area searches. Fixed `parseNearbyOptions` to always return `found: false` for area searches and enhanced `parseEnhancedResponse` with positive indicator detection.
 - **Homepage AI Showcase Enhancement** (2025-08-27): Updated Community Directory card to prominently feature AI-powered capabilities, self-healing database, and transparency benefits. Added animated AI intelligence box explaining on-demand enrichment system. Changed community count to reflect actual database size (33,137+). Updated buttons and feature lists to emphasize revolutionary AI features.
 - **Error Resolution Completed** (2025-08-27): Fixed duplicate photo carousel code that was preventing server deployment. Application now starts successfully without errors.
 - **On-Demand AI Enrichment** (2025-08-26): Implemented intelligent system that enriches community data only when users search or view, reducing costs while ensuring fresh information. Features automatic duplicate removal, address correction, photo collection, and detailed amenity extraction.

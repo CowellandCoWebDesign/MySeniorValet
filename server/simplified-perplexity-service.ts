@@ -432,20 +432,53 @@ Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.`
     const lowerContent = content.toLowerCase();
     const lowerCommunityName = communityName.toLowerCase();
     
-    // Check if community was found
-    const found = !lowerContent.includes('could not find') && 
-                  !lowerContent.includes('no information') &&
-                  !lowerContent.includes('unable to find') &&
-                  !lowerContent.includes('not found');
+    // Check if community was found - be more precise with negative indicators
+    const notFoundIndicators = [
+      'could not find',
+      'no information available',
+      'unable to find', 
+      'no senior living community named',
+      'no listings',
+      'was not found',
+      'was **not found**',
+      'not found',
+      'cannot be found',
+      'does not exist'
+    ];
+    
+    // Check for negative context around the community name
+    const hasNegativeContext = notFoundIndicators.some(indicator => lowerContent.includes(indicator));
+    
+    // Check for positive indicators that suggest specific information was found
+    const hasPositiveIndicators = (
+      lowerContent.includes('located at') ||
+      lowerContent.includes('offers') ||
+      lowerContent.includes('provides') ||
+      lowerContent.includes('features') ||
+      lowerContent.includes('phone') ||
+      lowerContent.includes('contact') ||
+      lowerContent.includes('website') ||
+      lowerContent.includes('pricing') ||
+      lowerContent.includes('assisted living') ||
+      lowerContent.includes('memory care')
+    );
+    
+    // Only consider it found if there are no negative indicators AND positive indicators exist
+    const found = !hasNegativeContext && hasPositiveIndicators;
 
     if (!found) {
       console.log(`  ⚠️ Community not found by Perplexity`);
+      console.log(`  Debug: Content check - contains "${lowerCommunityName}": ${lowerContent.includes(lowerCommunityName)}`);
+      console.log(`  Debug: Citations count: ${citations.length}`);
+      console.log(`  Debug: First 200 chars of content: ${lowerContent.substring(0, 200)}`);
       return {
         found: false,
         name: communityName,
         sources: citations
       };
     }
+    
+    console.log(`  ✅ Found specific information for ${communityName}`);
     
     // Verify the response is about the correct community
     // Check for wrong community names in the content
@@ -662,8 +695,9 @@ Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.`
       }
     }
 
+    // Always return found: false for area searches since they're fallbacks when specific community isn't found
     return {
-      found: nearbyOptions.length > 0,
+      found: false,
       name: 'Area Search',
       nearbyOptions: nearbyOptions.slice(0, 10),
       description: `Found ${nearbyOptions.length} communities in the area`,
