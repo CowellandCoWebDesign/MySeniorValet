@@ -41,7 +41,7 @@ async function testPerplexityMiamiSearch() {
     const response = await axios.post<PerplexityResponse>(
       'https://api.perplexity.ai/chat/completions',
       {
-        model: 'sonar',  // Using base sonar model
+        model: 'sonar-pro',  // Using enhanced sonar-pro model for better search
         messages: [
           {
             role: 'system',

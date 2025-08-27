@@ -20,7 +20,7 @@ async function generatePerplexitySummary(productName: string, category: string, 
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: 'sonar',
+      model: 'sonar-pro',
       messages: [
         {
           role: 'system',
@@ -121,7 +121,7 @@ async function enrichAmazonProductsWithPerplexity() {
           ai_senior_benefits: aiResult.seniorBenefits,
           ai_generated_at: new Date().toISOString(),
           ai_provider: 'perplexity',
-          ai_model: 'sonar',
+          ai_model: 'sonar-pro',
           cost_control: '3_sentences_max'
         };
         

@@ -81,7 +81,7 @@ export class SimplifiedPerplexityService {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar',
+          model: 'sonar-pro',
           messages: [
             {
               role: 'system',
@@ -215,7 +215,7 @@ export class SimplifiedPerplexityService {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar',
+          model: 'sonar-pro',
           messages: [
             {
               role: 'user',
