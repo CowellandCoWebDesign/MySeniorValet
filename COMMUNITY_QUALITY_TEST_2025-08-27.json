@@ -1,0 +1,329 @@
+{
+  "testDate": "2025-08-27T03:31:08.056Z",
+  "aiModel": "Perplexity sonar-pro",
+  "summary": {
+    "totalTested": 10,
+    "averageQualityScore": 78.5,
+    "withPricing": 10,
+    "withContact": 5,
+    "withWebsite": 6,
+    "perplexityEnriched": 8,
+    "averageCitations": 4
+  },
+  "communities": [
+    {
+      "communityName": "Kamloops Seniors Village",
+      "communityId": 72000,
+      "location": "Kamloops, BC",
+      "dataQuality": {
+        "hasBasicInfo": true,
+        "hasPricing": true,
+        "hasContact": true,
+        "hasWebsite": false,
+        "hasCareTypes": true,
+        "hasDescription": false,
+        "hasAmenities": true,
+        "perplexityEnriched": true,
+        "citationCount": 5
+      },
+      "perplexityData": {
+        "name": "Kamloops Seniors Village",
+        "website": "https://www.interiorhealth.ca/locations/kamloops-seniors-village[1].",
+        "pricing": {
+          "assistedLiving": "$,",
+          "independentLiving": "$,"
+        },
+        "careLevels": [
+          "Assisted Living",
+          "Independent Living"
+        ],
+        "description": "Kamloops Seniors Village is a senior living community in Kamloops, BC, offering a range of care levels and amenities for older adults.\n\n- **Official website URL:** The most authoritative and current official page is provided by Interior Health: https://www.interiorhealth.ca/locations/kamloops-seniors-village[1].\n\n- **Phone number and exact address:**  \n  - The official Interior Health listing does not specify the phone number or street address directly in the search results[1].  \n  - If you requ...",
+        "citations": [
+          "https://www.interiorhealth.ca/locations/kamloops-seniors-village",
+          "https://www.interiorhealth.ca/locations/kamloops-seniors-health-wellness-centre",
+          "https://www.kamloops.ca/our-community/news-events/events-calendar/annual-seniors-picnic",
+          "https://www.instagram.com/p/DNQ8EDU1FUs/",
+          "https://www.parkplaceseniorsliving.com/category/seniors-living/"
+        ],
+        "model": "sonar-pro"
+      },
+      "errors": [],
+      "score": 80
+    },
+    {
+      "communityName": "1234 Wilshire Blvd, Los Angeles, CA 90025",
+      "communityId": 51594,
+      "location": "Los Angeles, CA",
+      "dataQuality": {
+        "hasBasicInfo": true,
+        "hasPricing": true,
+        "hasContact": true,
+        "hasWebsite": false,
+        "hasCareTypes": true,
+        "hasDescription": true,
+        "hasAmenities": true,
+        "perplexityEnriched": false,
+        "citationCount": 0
+      },
+      "perplexityData": null,
+      "errors": [],
+      "score": 75
+    },
+    {
+      "communityName": "Palm Park 55+ Community",
+      "communityId": 39736,
+      "location": "Fort Worth, TX",
+      "dataQuality": {
+        "hasBasicInfo": true,
+        "hasPricing": true,
+        "hasContact": true,
+        "hasWebsite": true,
+        "hasCareTypes": true,
+        "hasDescription": true,
+        "hasAmenities": true,
+        "perplexityEnriched": true,
+        "citationCount": 5
+      },
+      "perplexityData": {
+        "name": "Palm Park 55+ Community",
+        "phone": "",
+        "careLevels": [
+          "Assisted Living",
+          "Memory Care",
+          "Independent Living"
+        ],
+        "description": "There is no evidence of a senior living community named **\"Palm Park 55+ Community\"** in Fort Worth, TX, based on current official and reputable sources. No search results reference this community by name, nor do they provide an address, website, or contact information for such a place.\n\nHowever, there are several well-known 55+ active adult communities in Fort Worth. For example:\n\n- **Overture River District 55+ Active Adult**  \n  - Address: 4925 Scott Rd, Fort Worth, TX 76114[1].\n  - Phone: No...",
+        "citations": [
+          "https://www.apartments.com/overture-river-district-55-active-adult-a-fort-worth-tx/cfesy1d/",
+          "https://www.apartments.com/overture-ridgmar-55-active-adult-apartmen-fort-worth-tx/f24cs6r/",
+          "https://robson.com/communities/pebblecreek/",
+          "https://www.tiktok.com/@holidaybestbits/video/7537434283158277398",
+          "https://www.tiktok.com/@anthonyhomes01/video/7536018005881294094"
+        ],
+        "model": "sonar-pro"
+      },
+      "errors": [],
+      "score": 100
+    },
+    {
+      "communityName": "Bangor Commons",
+      "communityId": 19497,
+      "location": "Oakland, ME",
+      "dataQuality": {
+        "hasBasicInfo": true,
+        "hasPricing": true,
+        "hasContact": false,
+        "hasWebsite": true,
+        "hasCareTypes": true,
+        "hasDescription": false,
+        "hasAmenities": true,
+        "perplexityEnriched": true,
+        "citationCount": 5
+      },
+      "perplexityData": {
+        "name": "Bangor Commons",
+        "pricing": {
+          "assistedLiving": "$,",
+          "memoryCare": "$,"
+        },
+        "careLevels": [
+          "Assisted Living",
+          "Memory Care",
+          "Independent Living"
+        ],
+        "description": "There is no evidence of a senior living community named **\"Bangor Commons\"** in Oakland, ME, based on current official and reputable sources. No search results reference such a facility in Oakland, Maine, nor do they provide any details about its website, pricing, contact information, care levels offered, or amenities.\n\nKey points:\n- **No official website or listing** for \"Bangor Commons\" senior living community in Oakland, ME could be found in available state databases or major senior living di...",
+        "citations": [
+          "https://www.apartments.com/1-bellevue-st-winslow-me-unit-3/ep4rdjq/",
+          "https://www.caring.com/about/contact-by-telephone",
+          "https://www.getstarpro.com/abuse-citations-list",
+          "https://mpuc-cms.maine.gov/CQM.Public.WebUI/Common/AdvanceSearch.aspx?MC=0&CI=1&FRM=0&DEF",
+          "https://michigantownships.org/wp-content/uploads/August-2025-Township-Focus.pdf"
+        ],
+        "model": "sonar-pro"
+      },
+      "errors": [],
+      "score": 75
+    },
+    {
+      "communityName": "Old Dominion Village",
+      "communityId": 47135,
+      "location": "Newport News, VA",
+      "dataQuality": {
+        "hasBasicInfo": true,
+        "hasPricing": true,
+        "hasContact": false,
+        "hasWebsite": true,
+        "hasCareTypes": true,
+        "hasDescription": false,
+        "hasAmenities": true,
+        "perplexityEnriched": true,
+        "citationCount": 5
+      },
+      "perplexityData": {
+        "name": "Old Dominion Village",
+        "careLevels": [
+          "Assisted Living"
+        ],
+        "description": "There is no evidence of a senior living community named **\"Old Dominion Village\" in Newport News, VA** in current official or reputable directories. The search results do not reference such a facility, and there are no listings on major senior living platforms or government resources for this name in Newport News.\n\n**Possible explanations:**\n- The community may not exist under this name.\n- It could be confused with Old Dominion University (located nearby in Norfolk, VA), but that is an education...",
+        "citations": [
+          "https://www.alexandriava.gov/housing/affordable-housing-projects-and-partners",
+          "https://www.wtkr.com/news/in-the-community/norfolk/robots-to-automate-food-delivery-at-old-dominion-university",
+          "http://www.dominionenergy.com/en/Economic-Development/Virginia",
+          "https://www.townebank.com",
+          "https://www.odu.edu/social-science-research-center/life-in-hampton-roads/politics-2025"
+        ],
+        "model": "sonar-pro"
+      },
+      "errors": [],
+      "score": 75
+    },
+    {
+      "communityName": "Diamond Senior Care of Sudbury",
+      "communityId": 57115,
+      "location": "Sudbury, ON",
+      "dataQuality": {
+        "hasBasicInfo": true,
+        "hasPricing": true,
+        "hasContact": true,
+        "hasWebsite": false,
+        "hasCareTypes": true,
+        "hasDescription": true,
+        "hasAmenities": true,
+        "perplexityEnriched": true,
+        "citationCount": 5
+      },
+      "perplexityData": {
+        "name": "Diamond Senior Care of Sudbury",
+        "description": "No official or authoritative information about **Diamond Senior Care of Sudbury** in Sudbury, ON is available in the provided search results. There are no details from official sources regarding their website, pricing, contact information, address, care levels offered, amenities, or a description.\n\n- The search results mention \"Diamond Senior Care\" only as part of a list on Caring.com[3], without any specific details about the Sudbury location.\n- No current pricing or care level information is p...",
+        "citations": [
+          "https://www.instagram.com/p/DNOGqWWxdW4/",
+          "https://sudbury.ma.us/townmanager/2025/08/15/camp-sewataro-property/",
+          "https://www.caring.com/about/contact-by-telephone",
+          "https://www.newswire.ca/news-releases/greater-sudbury-advances-growth-and-investment-in-first-half-of-2025-861980963.html",
+          "https://tandyleather.com"
+        ],
+        "model": "sonar-pro"
+      },
+      "errors": [],
+      "score": 90
+    },
+    {
+      "communityName": "Prairie Village",
+      "communityId": 48239,
+      "location": "La Crosse, KS",
+      "dataQuality": {
+        "hasBasicInfo": true,
+        "hasPricing": true,
+        "hasContact": false,
+        "hasWebsite": true,
+        "hasCareTypes": true,
+        "hasDescription": false,
+        "hasAmenities": true,
+        "perplexityEnriched": false,
+        "citationCount": 0
+      },
+      "perplexityData": null,
+      "errors": [],
+      "score": 60
+    },
+    {
+      "communityName": "ORCHARD POST ACUTE",
+      "communityId": 1793,
+      "location": "FRESNO, CA",
+      "dataQuality": {
+        "hasBasicInfo": true,
+        "hasPricing": true,
+        "hasContact": true,
+        "hasWebsite": false,
+        "hasCareTypes": true,
+        "hasDescription": false,
+        "hasAmenities": true,
+        "perplexityEnriched": true,
+        "citationCount": 5
+      },
+      "perplexityData": {
+        "name": "ORCHARD POST ACUTE",
+        "description": "No official or authoritative information about \"Orchard Post Acute\" senior living community in Fresno, CA is available in the provided search results. There are no details regarding their website, pricing, phone number, address, care levels, amenities, or a description in the current data.\n\n**Key points:**\n- No official website, contact information, or address found in the search results.\n- No pricing or care level details are available.\n- No description or amenities are listed.\n\nIf you need ver...",
+        "citations": [
+          "https://comptroller.texas.gov/auto-data/purchasing/web_all_name.csv",
+          "https://data.oregon.gov/api/views/d4au-whvm/rows.pdf?app_token=U29jcmF0YS0td2VraWNrYXNz0",
+          "https://www.publichealthcareers.org/job/psychiatric-social-worker-i-custody-health-services-mental-health-social-ser-us-ca-santa-clara-25-y42-d-1418/",
+          "http://rodrepel.com/blog/",
+          "https://planthealth2025.eventscribe.net/agenda.asp"
+        ],
+        "model": "sonar-pro"
+      },
+      "errors": [],
+      "score": 80
+    },
+    {
+      "communityName": "Queen City Manor",
+      "communityId": 14015,
+      "location": "Charlotte, NC",
+      "dataQuality": {
+        "hasBasicInfo": true,
+        "hasPricing": true,
+        "hasContact": false,
+        "hasWebsite": true,
+        "hasCareTypes": true,
+        "hasDescription": false,
+        "hasAmenities": true,
+        "perplexityEnriched": true,
+        "citationCount": 5
+      },
+      "perplexityData": {
+        "name": "Queen City Manor",
+        "pricing": {
+          "assistedLiving": "$,",
+          "memoryCare": "$,"
+        },
+        "careLevels": [
+          "Assisted Living",
+          "Memory Care",
+          "Independent Living"
+        ],
+        "description": "There is no evidence of a senior living community named **\"Queen City Manor\"** in Charlotte, NC, based on current official and reputable sources. None of the search results reference such a facility or provide any details about its existence, location, services, or contact information.\n\n- No official website URL for \"Queen City Manor\" was found.\n- No pricing information for care levels is available.\n- No phone number or exact address can be confirmed.\n- There are no verified details regarding ca...",
+        "citations": [
+          "https://www.zillow.com/homedetails/8731-Woodhill-Manor-Ct-Charlotte-NC-28215/6216797_zpid/",
+          "https://www.carolinarealtysearch.com/about-myers-park-real-estate-charlotte/",
+          "https://www.instagram.com/bedsidemanorclt/?hl=en",
+          "https://www.charlottenc.gov/Growth-and-Development/Planning-and-Development/Planning/Annexation",
+          "https://www.pucedofuneralhome.com/obit"
+        ],
+        "model": "sonar-pro"
+      },
+      "errors": [],
+      "score": 75
+    },
+    {
+      "communityName": "Hoosier Heritage Manor",
+      "communityId": 43233,
+      "location": "Brazil, IN",
+      "dataQuality": {
+        "hasBasicInfo": true,
+        "hasPricing": true,
+        "hasContact": false,
+        "hasWebsite": true,
+        "hasCareTypes": true,
+        "hasDescription": false,
+        "hasAmenities": true,
+        "perplexityEnriched": true,
+        "citationCount": 5
+      },
+      "perplexityData": {
+        "name": "Hoosier Heritage Manor",
+        "description": "There is no current, official information available from authoritative sources about a senior living community named **\"Hoosier Heritage Manor\" in Brazil, IN**. No official website, pricing, phone number, address, or details about care levels or amenities could be found in the provided search results or from recognized directories.\n\n**Key findings:**\n- No listing for \"Hoosier Heritage Manor\" appears in official provider directories, health plan listings, or recent news[3].\n- No official website ...",
+        "citations": [
+          "http://obituaries.newsandtribune.com/obituaries/all-categories/search?view=standard&Waterfall=0&filter_date=anytime&limit=240",
+          "https://www.abonmarche.com/bids/",
+          "https://www.parkview.com/employer-solutions/signature-care/for-members/media/file/SignatureCareProviderDirectory.pdf",
+          "https://www.thoroughbreddailynews.com/wp-content/uploads/2025/08/2025yearlingcatalog_webfinalversion1.pdf",
+          "https://obituaries.tribstar.com/obituaries/search/?limit=485"
+        ],
+        "model": "sonar-pro"
+      },
+      "errors": [],
+      "score": 75
+    }
+  ]
+}
