@@ -131,18 +131,30 @@ function CommunityCard({
     // First check for verified pricing
     if (isHudProperty && community.rentPerMonth) {
       const rent = typeof community.rentPerMonth === 'string' 
-        ? parseInt(community.rentPerMonth.replace(/[^0-9]/g, '')) 
+        ? parseFloat(community.rentPerMonth) 
         : community.rentPerMonth;
-      return rent > 0 ? `$${rent.toLocaleString()}/mo` : null;
+      // Format HUD rent properly without adding thousands separators for reasonable values
+      if (rent > 0) {
+        // Only use toLocaleString for values over 10,000 (unlikely for HUD housing)
+        return rent < 10000 ? `$${Math.round(rent)}/mo` : `$${rent.toLocaleString()}/mo`;
+      }
+      return null;
     }
     
     if (community.livePricing?.assistedLiving) {
       const { min, max } = community.livePricing.assistedLiving;
-      return `$${min.toLocaleString()} - $${max.toLocaleString()}/mo`;
+      // Format pricing properly without incorrect thousands separators
+      const formatPrice = (price: number) => price < 10000 ? Math.round(price) : price.toLocaleString();
+      return `$${formatPrice(min)} - $${formatPrice(max)}/mo`;
     }
     
     if (community.monthlyRentRangeStart && community.monthlyRentRangeEnd) {
-      return `$${community.monthlyRentRangeStart.toLocaleString()} - $${community.monthlyRentRangeEnd.toLocaleString()}/mo`;
+      // Ensure proper formatting for reasonable rent values
+      const start = community.monthlyRentRangeStart;
+      const end = community.monthlyRentRangeEnd;
+      // Only use toLocaleString for values over 10,000
+      const formatPrice = (price: number) => price < 10000 ? Math.round(price) : price.toLocaleString();
+      return `$${formatPrice(start)} - $${formatPrice(end)}/mo`;
     }
     
     // If no verified pricing, return market intelligence pricing
