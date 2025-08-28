@@ -1,0 +1,178 @@
+/**
+ * NLP Search Routes
+ * Comprehensive natural language search API endpoints
+ */
+
+import { Router } from 'express';
+import { nlpSearchSystem } from '../services/nlp-search-system';
+
+const router = Router();
+
+/**
+ * Main NLP search endpoint
+ * POST /api/nlp/search
+ */
+router.post('/search', async (req, res) => {
+  try {
+    const { query, limit = 20, filters, userContext } = req.body;
+    
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({
+        error: 'Query is required',
+        _version: 'nlp_v1'
+      });
+    }
+    
+    // Perform NLP search
+    const results = await nlpSearchSystem.search(query, {
+      limit,
+      filters,
+      userContext
+    });
+    
+    // Add performance metrics
+    const response = {
+      ...results,
+      _version: 'nlp_v1',
+      _timestamp: Date.now(),
+      _performance: {
+        totalResults: results.results.length,
+        hasAnswer: !!results.answer,
+        intentConfidence: results.intent.confidence,
+        databasesSearched: results.intent.databases
+      }
+    };
+    
+    res.json(response);
+  } catch (error) {
+    console.error('NLP search error:', error);
+    res.status(500).json({
+      error: 'Search failed',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      _version: 'nlp_v1'
+    });
+  }
+});
+
+/**
+ * Intent classification endpoint
+ * POST /api/nlp/classify
+ */
+router.post('/classify', async (req, res) => {
+  try {
+    const { query } = req.body;
+    
+    if (!query) {
+      return res.status(400).json({
+        error: 'Query is required',
+        _version: 'nlp_v1'
+      });
+    }
+    
+    // Just classify intent without performing search
+    const nlp = nlpSearchSystem as any;
+    const intent = await nlp.classifyIntent(query);
+    
+    res.json({
+      query,
+      intent,
+      _version: 'nlp_v1',
+      _timestamp: Date.now()
+    });
+  } catch (error) {
+    console.error('Intent classification error:', error);
+    res.status(500).json({
+      error: 'Classification failed',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      _version: 'nlp_v1'
+    });
+  }
+});
+
+/**
+ * Q&A endpoint
+ * POST /api/nlp/ask
+ */
+router.post('/ask', async (req, res) => {
+  try {
+    const { question, context } = req.body;
+    
+    if (!question) {
+      return res.status(400).json({
+        error: 'Question is required',
+        _version: 'nlp_v1'
+      });
+    }
+    
+    // Perform search and generate answer
+    const results = await nlpSearchSystem.search(question, {
+      limit: 10,
+      userContext: context
+    });
+    
+    res.json({
+      question,
+      answer: results.answer || 'I couldn\'t find enough information to answer that question.',
+      sources: results.results.slice(0, 3).map(r => ({
+        type: r.type,
+        title: r.data.name || r.data.title || 'Untitled',
+        relevance: r.score
+      })),
+      confidence: results.intent.confidence,
+      _version: 'nlp_v1',
+      _timestamp: Date.now()
+    });
+  } catch (error) {
+    console.error('Q&A error:', error);
+    res.status(500).json({
+      error: 'Question answering failed',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      _version: 'nlp_v1'
+    });
+  }
+});
+
+/**
+ * Multi-database federation test endpoint
+ * GET /api/nlp/federation/test
+ */
+router.get('/federation/test', async (req, res) => {
+  try {
+    // Test federated search across all databases
+    const testQuery = 'senior care services in California';
+    const results = await nlpSearchSystem.search(testQuery, {
+      limit: 5
+    });
+    
+    // Group results by database
+    const groupedResults = results.results.reduce((acc, result) => {
+      const db = result.metadata?.database || 'unknown';
+      if (!acc[db]) acc[db] = [];
+      acc[db].push({
+        type: result.type,
+        score: result.score,
+        title: result.data.name || result.data.title || 'Untitled'
+      });
+      return acc;
+    }, {} as Record<string, any[]>);
+    
+    res.json({
+      testQuery,
+      databasesSearched: results.intent.databases,
+      resultsByDatabase: groupedResults,
+      totalResults: results.results.length,
+      facets: results.facets,
+      _version: 'nlp_v1',
+      _timestamp: Date.now()
+    });
+  } catch (error) {
+    console.error('Federation test error:', error);
+    res.status(500).json({
+      error: 'Federation test failed',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      _version: 'nlp_v1'
+    });
+  }
+});
+
+export default router;
