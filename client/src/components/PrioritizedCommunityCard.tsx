@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2, Home, Info, Sparkles, DollarSign, Activity, Bed, Users } from "lucide-react";
 import { MarketIntelligenceModal } from "./MarketIntelligenceModal";
-import professionalValetImage from '@assets/generated_images/Professional_MySeniorValet_concierge_character_c05b2405.png';
+import professionalValetImage from '@assets/generated_images/Young_professional_MySeniorValet_mascot_daebae34.png';
 
 interface CommunityCardProps {
   community: {
