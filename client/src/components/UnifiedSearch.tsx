@@ -73,12 +73,14 @@ export function UnifiedSearch() {
           throw new Error('Search failed');
         }
 
-        const data: UnifiedSearchResponse = await response.json();
+        const data = await response.json();
         
-        setResults(data.results || []);
-        setMetadata(data.metadata || null);
+        // Handle both 'results' and 'communities' field names
+        const searchResults = data.results || data.communities || [];
+        setResults(searchResults);
+        setMetadata(data.metadata || data.searchMetadata || null);
         setSuggestions(data.suggestions || []);
-        setAiInsights(data.aiInsights);
+        setAiInsights(data.aiInsights || data.insights);
         setShowResults(true);
       } catch (err) {
         console.error('Unified search error:', err);
