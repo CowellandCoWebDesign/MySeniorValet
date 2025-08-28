@@ -41,7 +41,7 @@ router.post('/search', async (req, res) => {
       results.intent,
       results.results,
       searchTime,
-      req.session?.userId
+      (req.session as any)?.userId
     );
     
     console.log(`🧠 KRAKEN LEARNS: Query "${query}" processed in ${searchTime}ms with ${results.results.length} results`);
@@ -111,9 +111,12 @@ router.post('/classify', async (req, res) => {
  */
 router.post('/ask', async (req, res) => {
   try {
-    const { question, context } = req.body;
+    const { question, query, context, userContext } = req.body;
     
-    if (!question) {
+    // Accept both 'query' and 'question' for flexibility
+    const actualQuery = question || query;
+    
+    if (!actualQuery) {
       return res.status(400).json({
         error: 'Question is required',
         _version: 'nlp_v1'
@@ -121,13 +124,13 @@ router.post('/ask', async (req, res) => {
     }
     
     // Perform search and generate answer
-    const results = await nlpSearchSystem.search(question, {
+    const results = await nlpSearchSystem.search(actualQuery, {
       limit: 10,
-      userContext: context
+      userContext: context || userContext
     });
     
     res.json({
-      question,
+      question: actualQuery,
       answer: results.answer || 'I couldn\'t find enough information to answer that question.',
       sources: results.results.slice(0, 3).map(r => ({
         type: r.type,

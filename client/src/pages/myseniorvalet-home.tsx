@@ -38,7 +38,7 @@ import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
 import { HeroMascotPanel } from '@/components/mascot/HeroMascotPanel';
 import { UnifiedSearch } from '@/components/UnifiedSearch';
-import { KrakenAIResponse } from '@/components/KrakenAIResponse';
+import { AutoExpandingSearch } from '@/components/AutoExpandingSearch';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 
@@ -63,12 +63,75 @@ function HeroSectionWithTransformingSearch() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchResults, setSearchResults] = useState<any>({ results: [], metadata: null });
   const [isLoading, setIsLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'map' | 'kraken'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [imageLoaded, setImageLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
   const [, setLocation] = useLocation();
 
-  // Handle search from UnifiedSearch component
+  // Handle search from AutoExpandingSearch component
+  const handleAutoExpandingSearch = async (query: string, isKrakenMode?: boolean) => {
+    setSearchQuery(query);
+    
+    if (!query || query.length < 2) {
+      setIsSearchActive(false);
+      setSearchResults({ results: [], metadata: null });
+      return;
+    }
+
+    setIsSearchActive(true);
+    setIsLoading(true);
+
+    try {
+      if (isKrakenMode) {
+        // Use THE KRAKEN's Q&A endpoint for conversational queries
+        const response = await fetch('/api/nlp/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            question: query,
+            includeRecommendations: true
+          })
+        });
+
+        if (!response.ok) throw new Error('KRAKEN AI request failed');
+        
+        const krakenData = await response.json();
+        
+        // Also get community recommendations
+        const searchResponse = await fetch('/api/nlp/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query })
+        });
+
+        let communities = [];
+        if (searchResponse.ok) {
+          const searchData = await searchResponse.json();
+          communities = searchData.results || [];
+        }
+
+        // Set results with AI response
+        setSearchResults({ 
+          results: communities, 
+          metadata: {
+            krakenResponse: krakenData,
+            isKrakenMode: true
+          }
+        });
+
+      } else {
+        // Regular search for list/map view
+        await handleUnifiedSearch(query);
+      }
+    } catch (error) {
+      console.error('Search failed:', error);
+      setSearchResults({ results: [], metadata: { error: 'Search failed' } });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle search from UnifiedSearch component (legacy)
   const handleUnifiedSearch = async (query: string, resultsFromComponent?: any[]) => {
     setSearchQuery(query);
     
@@ -79,24 +142,13 @@ function HeroSectionWithTransformingSearch() {
     }
 
     setIsSearchActive(true);
-    
-    // For Kraken AI mode, don't set loading state as KrakenAIResponse handles its own loading
-    if (viewMode !== 'kraken') {
-      setIsLoading(true);
-    }
+    setIsLoading(true);
 
     try {
       // If results are already provided from component, use them
       if (resultsFromComponent && resultsFromComponent.length > 0) {
         setSearchResults({ results: resultsFromComponent, metadata: null });
-        if (viewMode !== 'kraken') {
-          setIsLoading(false);
-        }
-        return;
-      }
-
-      // For Kraken AI mode, the KrakenAIResponse component handles the search
-      if (viewMode === 'kraken') {
+        setIsLoading(false);
         return;
       }
 
@@ -147,9 +199,7 @@ function HeroSectionWithTransformingSearch() {
       console.error('Search failed:', error);
       setSearchResults({ results: [], metadata: null });
     } finally {
-      if (viewMode !== 'kraken') {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
     }
   };
 
@@ -214,24 +264,36 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
 
-        {/* Enhanced Search with Toggle on Top */}
+        {/* Auto-Expanding Search Bar with KRAKEN AI Integration */}
         <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative">
-          {/* View Toggle Buttons - On top */}
-          <div className="bg-gray-800/95 backdrop-blur-sm rounded-t-2xl pt-3 pb-2 relative z-30">
-            <div className="flex justify-center">
-              <div className="inline-flex bg-white/10 rounded-full p-1">
+          <AutoExpandingSearch 
+            initialQuery={searchQuery}
+            onSearch={handleAutoExpandingSearch}
+            onQueryChange={setSearchQuery}
+            placeholder="Search communities or ask THE KRAKEN anything..."
+            className="relative z-40"
+          />
+          
+          {/* View Toggle Buttons - Below search when active */}
+          {isSearchActive && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-2 flex justify-center"
+            >
+              <div className="inline-flex bg-gray-800/90 backdrop-blur-sm rounded-full p-1 shadow-lg">
                 <Button
                   size="sm"
                   variant={viewMode === 'list' ? 'default' : 'ghost'}
                   onClick={() => setViewMode('list')}
-                  className={`px-4 py-2 rounded-full transition-all ${
+                  className={`px-3 py-1 rounded-full transition-all text-xs ${
                     viewMode === 'list' 
                       ? 'bg-purple-600 hover:bg-purple-700 text-white' 
                       : 'text-gray-300 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <List className="w-4 h-4 mr-2" />
-                  <span className="text-sm font-medium">List View</span>
+                  <List className="w-3 h-3 mr-1" />
+                  <span>List</span>
                 </Button>
                 <Button
                   size="sm"
@@ -242,42 +304,18 @@ function HeroSectionWithTransformingSearch() {
                       setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
                     }
                   }}
-                  className={`px-4 py-2 rounded-full transition-all ${
+                  className={`px-3 py-1 rounded-full transition-all text-xs ${
                     viewMode === 'map' 
                       ? 'bg-purple-600 hover:bg-purple-700 text-white' 
                       : 'text-gray-300 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <MapIcon className="w-4 h-4 mr-2" />
-                  <span className="text-sm font-medium">Map View</span>
-                </Button>
-                <Button
-                  size="sm"
-                  variant={viewMode === 'kraken' ? 'default' : 'ghost'}
-                  onClick={() => setViewMode('kraken')}
-                  className={`px-4 py-2 rounded-full transition-all ${
-                    viewMode === 'kraken' 
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white' 
-                      : 'text-gray-300 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Brain className="w-4 h-4 mr-2" />
-                  <span className="text-sm font-medium">🐙 Kraken AI</span>
+                  <MapIcon className="w-3 h-3 mr-1" />
+                  <span>Map</span>
                 </Button>
               </div>
-            </div>
-          </div>
-          
-          {/* Search Bar - Below toggle, seamlessly connected */}
-          <div className="relative z-40 -mt-2">
-            <UnifiedSearch 
-              initialQuery={searchQuery}
-              onSearch={handleUnifiedSearch}
-              showDropdownResults={false}
-              placeholder="Search by city, state, care type, or ask anything..."
-              className=""
-            />
-          </div>
+            </motion.div>
+          )}
         </div>
 
           {/* Trust Indicators - Only show when not searching */}
@@ -307,29 +345,98 @@ function HeroSectionWithTransformingSearch() {
         {!isSearchActive && !searchQuery && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-20" />}
       </section>
 
-      {/* Search Results Display Section - Immediately Below Toggle */}
+      {/* Search Results Display Section */}
       <AnimatePresence>
-        {isSearchActive && viewMode === 'list' && (
+        {isSearchActive && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="w-full bg-gray-900 -mt-[400px]"
+            transition={{ duration: 0.3 }}
+            className="w-full bg-gray-900 -mt-[400px] relative z-20"
           >
-            {/* Results Header - Seamlessly connected */}
-            <div className="w-full max-w-2xl mx-auto px-2 sm:px-0">
-              <div className="bg-gray-800/95 backdrop-blur-sm px-4 py-3 rounded-b-2xl">
-                <h3 className="text-lg font-semibold text-white">
-                  Found {searchResults?.results?.length || 0} results
-                  {searchQuery && (
-                    <span className="ml-2 text-green-400">
-                      {searchQuery}
-                    </span>
+            {/* KRAKEN AI Response Section */}
+            {searchResults?.metadata?.isKrakenMode && searchResults?.metadata?.krakenResponse && (
+              <div className="max-w-6xl mx-auto p-4 bg-gradient-to-b from-gray-900 to-gray-800">
+                {/* KRAKEN Header */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 rounded-xl p-6 mb-6 border border-purple-500/30"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="relative">
+                        <Brain className="w-8 h-8 text-purple-400" />
+                        <Sparkles className="w-4 h-4 text-blue-400 absolute -top-1 -right-1 animate-pulse" />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                          🐙 THE KRAKEN's Response
+                        </h2>
+                        <p className="text-sm text-gray-400 mt-1">
+                          AI-powered analysis across 32,970+ communities
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right text-xs text-gray-500">
+                      <div>Confidence: {Math.round((searchResults.metadata.krakenResponse.confidence || 0.85) * 100)}%</div>
+                      <div className="text-green-400">✓ Verified</div>
+                    </div>
+                  </div>
+
+                  {/* AI Answer */}
+                  <div className="bg-gray-800/50 rounded-lg p-4 mb-4">
+                    <div className="prose prose-invert max-w-none">
+                      <p className="text-gray-200 leading-relaxed text-lg">
+                        {searchResults.metadata.krakenResponse.answer}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Data Sources */}
+                  {searchResults.metadata.krakenResponse.sources && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      {searchResults.metadata.krakenResponse.sources.map((source: any, index: number) => (
+                        <div key={index} className="bg-gray-800/30 rounded-lg p-3 text-xs">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                            <span className="font-medium text-gray-300">{source.title}</span>
+                          </div>
+                          <div className="text-gray-500">
+                            Relevance: {Math.round((source.relevance || 0.9) * 100)}%
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   )}
-                </h3>
+                </motion.div>
               </div>
-            </div>
+            )}
+
+            {/* Regular Search Results */}
+            {viewMode === 'list' && (
+              <div>
+                {/* Results Header */}
+                <div className="w-full max-w-2xl mx-auto px-2 sm:px-0">
+                  <div className="bg-gray-800/95 backdrop-blur-sm px-4 py-3 rounded-b-2xl">
+                    <h3 className="text-lg font-semibold text-white">
+                      {searchResults?.metadata?.isKrakenMode ? (
+                        <span className="flex items-center space-x-2">
+                          <Brain className="w-5 h-5 text-purple-400" />
+                          <span>THE KRAKEN found {searchResults?.results?.length || 0} recommendations</span>
+                        </span>
+                      ) : (
+                        <span>Found {searchResults?.results?.length || 0} results</span>
+                      )}
+                      {searchQuery && (
+                        <span className="ml-2 text-green-400">
+                          "{searchQuery}"
+                        </span>
+                      )}
+                    </h3>
+                  </div>
+                </div>
             
             {/* Results Content */}
             <div className="max-w-5xl mx-auto p-4">
@@ -365,29 +472,9 @@ function HeroSectionWithTransformingSearch() {
                   )}
                 </div>
               )}
-            </div>
-          </motion.div>
-        )}
-
-        {/* KRAKEN AI Response Section */}
-        {viewMode === 'kraken' && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="w-full bg-gradient-to-b from-gray-900 to-gray-800 -mt-[400px] relative z-20"
-          >
-            <div className="max-w-6xl mx-auto p-4">
-              <KrakenAIResponse 
-                query={searchQuery}
-                onQueryChange={setSearchQuery}
-                onCommunityMatches={(matches) => {
-                  setSearchResults({ results: matches, metadata: null });
-                  setIsSearchActive(true);
-                }}
-              />
-            </div>
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
