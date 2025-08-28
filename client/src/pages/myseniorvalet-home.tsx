@@ -158,15 +158,15 @@ function HeroSectionWithTransformingSearch() {
         </div>
         
         <div className="relative z-10 h-full flex flex-col justify-start px-4 sm:px-8 pt-24 pb-8">
-        {/* Hero Text with Transparent Bubble Background - Positioned far right and up to avoid mascot */}
+        {/* Hero Text with Transparent Bubble Background - Right aligned text */}
         <div className="w-full flex justify-end mb-6">
           <div className="w-full max-w-lg mr-8 sm:mr-16 lg:mr-24">
-            <div className="bg-black/60 backdrop-blur-sm rounded-2xl px-4 sm:px-6 py-3 sm:py-4 text-center">
+            <div className="bg-black/60 backdrop-blur-sm rounded-2xl px-4 sm:px-6 py-3 sm:py-4 text-right">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 leading-tight">
                 Everything You Need. Nothing You Pay.
               </h1>
               
-              <div className="text-xs sm:text-sm text-gray-200 max-w-md mx-auto">
+              <div className="text-xs sm:text-sm text-gray-200">
                 <p className="leading-relaxed">
                   Search 35,000+ communities globally with real pricing & trusted reviews • 
                   We NEVER sell your info • Access 1,000's of services & support resources • 
