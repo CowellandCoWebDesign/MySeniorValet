@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2, Home, Info, Sparkles, DollarSign, Activity, Bed, Users } from "lucide-react";
 import { MarketIntelligenceModal } from "./MarketIntelligenceModal";
-import professionalValetImage from '@assets/generated_images/MySeniorValet_mascot_left-positioned_6c4b11ef.png';
 
 interface CommunityCardProps {
   community: {
@@ -399,37 +398,27 @@ function CommunityCard({
             }}
           />
         ) : (
-          <div className="absolute inset-0">
-            {/* Professional Valet Background Image - Left Positioned */}
-            <img 
-              src={professionalValetImage}
-              alt="MySeniorValet Professional Concierge"
-              className="absolute inset-0 w-full h-full object-contain object-left opacity-90"
-              style={{ objectPosition: 'left center' }}
-            />
-            {/* Darker overlay for text readability - focused on right side */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/30 to-black/60"></div>
-            
-            {/* Exploration Message - Positioned to the right */}
-            <div className="absolute inset-0 flex items-center justify-end pr-4">
-              <div className="bg-black/60 backdrop-blur-sm rounded-lg px-4 py-3 max-w-[55%] text-center">
-                <div className="text-lg font-bold text-white mb-1">
-                  ✨ Explore This Community
-                </div>
-                <div className="text-xs text-white/90 leading-relaxed">
-                  Click to discover detailed<br/>information about
-                  {community.communitySubtype === 'memory_care' ? ' Memory Care' :
-                   community.communitySubtype === 'skilled_nursing' ? ' Skilled Nursing' :
-                   community.communitySubtype === 'independent_living' ? ' Independent Living' :
-                   community.communitySubtype === 'hud_senior_housing' ? ' HUD Housing' :
-                   community.communitySubtype === 'active_adult_55plus' ? ' 55+ Active' :
-                   community.communitySubtype === 'mobile_home_park' ? ' Mobile Homes' :
-                   ' Senior Living'}
-                </div>
-                <div className="text-xs text-purple-300 mt-2 font-medium">
-                  View full profile →
-                </div>
-              </div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div className="text-5xl mb-2">
+              {community.communitySubtype === 'memory_care' ? '🧠' :
+               community.communitySubtype === 'skilled_nursing' ? '🏥' :
+               community.communitySubtype === 'independent_living' ? '🏡' :
+               community.communitySubtype === 'hud_senior_housing' ? '🏛️' :
+               community.communitySubtype === 'active_adult_55plus' ? '🎾' :
+               community.communitySubtype === 'mobile_home_park' ? '🚐' :
+               '🏢'}
+            </div>
+            <div className="text-sm text-white/80 text-center font-medium">
+              {community.communitySubtype === 'memory_care' ? 'Memory Care' :
+               community.communitySubtype === 'skilled_nursing' ? 'Skilled Nursing' :
+               community.communitySubtype === 'independent_living' ? 'Independent Living' :
+               community.communitySubtype === 'hud_senior_housing' ? 'HUD Housing' :
+               community.communitySubtype === 'active_adult_55plus' ? '55+ Active' :
+               community.communitySubtype === 'mobile_home_park' ? 'Mobile Park' :
+               'Senior Living'}
+            </div>
+            <div className="text-xs text-white/50 mt-1">
+              Photos coming soon
             </div>
           </div>
         )}

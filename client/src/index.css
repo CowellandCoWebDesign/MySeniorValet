@@ -7,18 +7,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Force hero text right alignment - CRITICAL FIX */
-.hero-text-right * {
-  text-align: right !important;
-}
-.hero-text-right h1,
-.hero-text-right p,
-.hero-text-right div {
-  text-align: right !important;
-  display: block !important;
-  width: 100% !important;
-}
-
 /* 3D Carousel Styles */
 .carousel-wrapper {
   perspective: 1200px;

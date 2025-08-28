@@ -37,15 +37,20 @@ import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
 import { HeroMascotPanel } from '@/components/mascot/HeroMascotPanel';
-// Import hotel concierge mascot for hero section - less prominent, positioned left at front desk
-import hotelConciergeMascot from '@assets/generated_images/Hotel_concierge_at_front_desk_775fe9f7.png';
-
 // Image paths from public directory
-const heroBackgroundImage = hotelConciergeMascot;
+const heroBackgroundImage = '/starry-night-hero.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 
-// Note: Preload handled by Vite for imported images
+// Preload critical hero image
+if (typeof document !== 'undefined') {
+  const link = document.createElement('link');
+  link.rel = 'preload';
+  link.as = 'image';
+  link.href = heroBackgroundImage;
+  link.type = 'image/png';
+  document.head.appendChild(link);
+}
 
 
 
@@ -135,62 +140,61 @@ function HeroSectionWithTransformingSearch() {
 
   return (
     <>
-      <section className="relative h-screen overflow-hidden" 
+      <section className="relative h-screen" 
         style={{
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
         }}
       >
-        {/* Background Image - Hotel concierge at front desk, positioned left */}
+        {/* Background Image */}
         <div className="absolute inset-0 h-full w-full">
           <img
             src={heroBackgroundImage}
-            alt="MySeniorValet concierge at luxury hotel front desk with golden bell - Your AI-powered senior care concierge"
-            className={`w-full h-full object-cover transition-opacity duration-700 ${
+            alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
+            className={`w-full h-full object-cover object-center transition-opacity duration-700 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
-            style={{ 
-              objectPosition: 'center center'
-            }}
             loading="eager"
             onLoad={() => setImageLoaded(true)}
+            fetchpriority="high"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
         </div>
         
-        <div className="relative z-10 h-full flex flex-col justify-start px-4 sm:px-8 pt-24 pb-8">
-        {/* Hero Text with Transparent Bubble Background - Right aligned text */}
-        <div className="w-full flex justify-end mb-6">
-          <div className="w-full max-w-lg mr-8 sm:mr-16 lg:mr-24">
-            {/* Right-aligned hero text with CSS class override */}
-            <div className="hero-text-right bg-black/60 backdrop-blur-sm rounded-2xl px-4 sm:px-6 py-3 sm:py-4">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 leading-tight">
-                Everything You Need. Nothing You Pay.
-              </h1>
-              
-              <div className="text-xs sm:text-sm text-gray-200">
-                <p className="leading-relaxed">
-                  Search 35,000+ communities globally with real pricing & trusted reviews • 
-                  We NEVER sell your info • Access 1,000's of services & support resources • 
-                  A platform built for families, not profits 💙
-                </p>
-              </div>
+        <div className="relative z-10 h-full flex flex-col justify-center px-2 sm:px-4 py-6 sm:py-8">
+        {/* Hero Text - Always Visible */}
+        <div className="w-full max-w-4xl mx-auto mb-6 text-center">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight">
+            Everything You Need.<br className="sm:hidden" /> Nothing You Pay.
+          </h1>
+          
+          <div className="text-xs sm:text-sm md:text-base text-gray-100 max-w-3xl mx-auto px-2 mb-6">
+            <div className="hidden sm:block">
+              <p className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                Search 35,000+ communities globally with real pricing & trusted reviews • 
+                We NEVER sell your info • Access 1,000's of services & support resources • 
+                A platform built for families, not profits 💙
+              </p>
+            </div>
+            <div className="sm:hidden">
+              <p className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                Search 35,000+ communities with real pricing. No fees, no data selling 💙
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Search Bar - Positioned far right and up to avoid mascot */}
-        <div className="w-full flex justify-end">
-          <div className="w-full max-w-lg mr-8 sm:mr-16 lg:mr-24 px-4">
-          <div className="relative bg-white/95 backdrop-blur rounded-xl shadow-2xl">
+        {/* Search Bar - Fixed Position Under Hero Text */}
+        <div className="w-full max-w-2xl mx-auto mb-4 px-2 sm:px-0">
+          <div className="relative bg-white rounded-lg sm:rounded-xl shadow-lg sm:shadow-2xl">
             <div className="flex items-center">
-              <Search className="absolute left-4 sm:left-5 w-5 h-5 text-gray-500" />
+              <Search className="absolute left-3 sm:left-4 w-4 sm:w-5 h-4 sm:h-5 text-gray-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Search by city, state, or care..."
-                className="w-full pl-12 sm:pl-14 pr-4 py-4 sm:py-5 text-lg bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-500 rounded-xl"
+                className="w-full pl-10 sm:pl-12 pr-2 sm:pr-4 py-3 sm:py-4 text-base sm:text-lg bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-500"
               />
               
               {/* Clear Button - Show only when text exists */}
@@ -198,15 +202,15 @@ function HeroSectionWithTransformingSearch() {
                 <Button
                   size="sm"
                   onClick={clearSearch}
-                  className="mr-2 p-2 bg-gray-200 hover:bg-gray-300 rounded-lg"
+                  className="mr-1 sm:mr-2 p-1 sm:p-2 bg-gray-200 hover:bg-gray-300"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3 sm:w-4 h-3 sm:h-4" />
                 </Button>
               )}
               
-              {/* AI Badge */}
-              <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white mr-3 text-xs sm:text-sm px-3 py-1.5">
-                <Sparkles className="w-3 sm:w-4 h-3 sm:h-4 mr-1" />
+              {/* AI Badge - Smaller on mobile */}
+              <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white mr-1 sm:mr-2 text-[10px] sm:text-xs px-2 sm:px-3">
+                <Sparkles className="w-2 sm:w-3 h-2 sm:h-3 mr-0.5 sm:mr-1" />
                 AI
               </Badge>
             </div>
@@ -214,8 +218,8 @@ function HeroSectionWithTransformingSearch() {
           
           {/* View Toggle - Show when search is active */}
           {isSearchActive && (
-            <div className="flex justify-center mt-4">
-              <div className="inline-flex bg-white/95 backdrop-blur rounded-full shadow-lg p-1">
+            <div className="flex justify-center mt-3">
+              <div className="inline-flex bg-white rounded-full shadow-lg p-1">
                 <Button
                   size="sm"
                   variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -250,27 +254,24 @@ function HeroSectionWithTransformingSearch() {
               </div>
             </div>
           )}
-          </div>
         </div>
 
-          {/* Trust Indicators - Only show when not searching, aligned to right */}
+          {/* Trust Indicators - Only show when not searching */}
           {!isSearchActive && (
-            <div className="flex justify-end px-2 mt-4 mb-6">
-              <div className="mr-8 sm:mr-16 lg:mr-24">
-                <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
-                  <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                    <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
-                    <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Pricing</span>
-                  </span>
-                  <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                    <Users2 className="h-2 w-2 sm:h-3 sm:w-3 text-green-300 flex-shrink-0" />
-                    <span className="text-[9px] sm:text-[10px] font-semibold text-white">Family Reviews</span>
-                  </span>
-                  <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                    <Brain className="h-2 w-2 sm:h-3 sm:w-3 text-purple-300 animate-pulse flex-shrink-0" />
-                    <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Availability</span>
-                  </span>
-                </div>
+            <div className="flex justify-center items-center px-2 mb-6">
+              <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
+                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                  <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Pricing</span>
+                </span>
+                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                  <Users2 className="h-2 w-2 sm:h-3 sm:w-3 text-green-300 flex-shrink-0" />
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Family Reviews</span>
+                </span>
+                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                  <Brain className="h-2 w-2 sm:h-3 sm:w-3 text-purple-300 animate-pulse flex-shrink-0" />
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Availability</span>
+                </span>
               </div>
             </div>
           )}
@@ -1225,61 +1226,26 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
 
-                  {/* 3D Care Spectrum Mini Carousel with Navigation */}
+                  {/* 3D Care Spectrum Mini Carousel */}
                   <div className="mb-6 overflow-hidden rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-4">
                     <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 text-center">EXPLORE 10 CARE LEVELS</p>
-                    <div className="relative">
-                      {/* Left Navigation Arrow */}
-                      <button
-                        onClick={() => {
-                          const carousel = document.getElementById('care-types-carousel');
-                          if (carousel) {
-                            carousel.scrollBy({ left: -140, behavior: 'smooth' });
-                          }
-                        }}
-                        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 rounded-full p-2 shadow-lg transition-all hover:scale-110"
-                        aria-label="Scroll left"
-                      >
-                        <ChevronLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                      </button>
-                      
-                      {/* Carousel Container */}
-                      <div 
-                        id="care-types-carousel"
-                        className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide px-10"
-                        style={{ scrollBehavior: 'smooth' }}
-                      >
-                        {careTypes.map((careType, index) => {
-                          const Icon = careType.icon;
-                          return (
-                            <div
-                              key={careType.id}
-                              className={`flex-shrink-0 ${careType.color} rounded-lg p-3 w-32 cursor-pointer hover:scale-105 transition-transform`}
-                              onClick={() => setLocation(`/care-types/${careType.id}`)}
-                            >
-                              <div className="flex flex-col items-center">
-                                <Icon className="w-8 h-8 text-white mb-1" />
-                                <p className="text-xs font-bold text-white text-center leading-tight">{careType.name}</p>
-                                <p className="text-[9px] text-white/80 text-center mt-1">{careType.avgCost}</p>
-                              </div>
+                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                      {careTypes.map((careType, index) => {
+                        const Icon = careType.icon;
+                        return (
+                          <div
+                            key={careType.id}
+                            className={`flex-shrink-0 ${careType.color} rounded-lg p-3 w-32 cursor-pointer hover:scale-105 transition-transform`}
+                            onClick={() => setLocation(`/care-types/${careType.id}`)}
+                          >
+                            <div className="flex flex-col items-center">
+                              <Icon className="w-8 h-8 text-white mb-1" />
+                              <p className="text-xs font-bold text-white text-center leading-tight">{careType.name}</p>
+                              <p className="text-[9px] text-white/80 text-center mt-1">{careType.avgCost}</p>
                             </div>
-                          );
-                        })}
-                      </div>
-                      
-                      {/* Right Navigation Arrow */}
-                      <button
-                        onClick={() => {
-                          const carousel = document.getElementById('care-types-carousel');
-                          if (carousel) {
-                            carousel.scrollBy({ left: 140, behavior: 'smooth' });
-                          }
-                        }}
-                        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 rounded-full p-2 shadow-lg transition-all hover:scale-110"
-                        aria-label="Scroll right"
-                      >
-                        <ChevronRight className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                      </button>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 

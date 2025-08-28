@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useLocation } from 'wouter';
-import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Flame, Layers, DollarSign, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Flame, Layers, DollarSign, Sparkles } from 'lucide-react';
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { AutocompleteSearch } from "@/components/AutocompleteSearch";
@@ -1855,95 +1855,60 @@ export default function MapSearch() {
             </Button>
           </div>
           
-          {/* Result Type Filter Tabs with Navigation */}
-          <div className="relative">
-            {/* Left Navigation Arrow */}
-            <button
-              onClick={() => {
-                const carousel = document.getElementById('map-filter-carousel');
-                if (carousel) {
-                  carousel.scrollBy({ left: -100, behavior: 'smooth' });
-                }
-              }}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 rounded-full p-1 shadow-lg transition-all hover:scale-110"
-              aria-label="Scroll left"
+          {/* Result Type Filter Tabs */}
+          <div className="flex items-center gap-1 overflow-x-auto pb-2">
+            <Button
+              size="sm"
+              variant={resultType === 'all' ? 'default' : 'ghost'}
+              onClick={() => setResultType('all')}
+              className={`flex-shrink-0 ${resultType === 'all' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
             >
-              <ChevronLeft className="w-4 h-4 text-gray-700 dark:text-gray-300" />
-            </button>
-            
-            {/* Carousel Container */}
-            <div 
-              id="map-filter-carousel"
-              className="flex items-center gap-1 overflow-x-auto pb-2 px-8 scrollbar-hide"
-              style={{ scrollBehavior: 'smooth' }}
+              All
+            </Button>
+            <Button
+              size="sm"
+              variant={resultType === 'communities' ? 'default' : 'ghost'}
+              onClick={() => setResultType('communities')}
+              className={`flex-shrink-0 ${resultType === 'communities' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
             >
-              <Button
-                size="sm"
-                variant={resultType === 'all' ? 'default' : 'ghost'}
-                onClick={() => setResultType('all')}
-                className={`flex-shrink-0 ${resultType === 'all' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
-              >
-                All
-              </Button>
-              <Button
-                size="sm"
-                variant={resultType === 'communities' ? 'default' : 'ghost'}
-                onClick={() => setResultType('communities')}
-                className={`flex-shrink-0 ${resultType === 'communities' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
-              >
-                Communities
-                {mapCommunities.length > 0 && (
-                  <Badge className="ml-1 bg-blue-500 text-white">{mapCommunities.length}</Badge>
-                )}
-              </Button>
-              <Button
-                size="sm"
-                variant={resultType === 'vendors' ? 'default' : 'ghost'}
-                onClick={() => setResultType('vendors')}
-                className={`flex-shrink-0 ${resultType === 'vendors' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
-              >
-                Services
-                {vendors.length > 0 && (
-                  <Badge className="ml-1 bg-blue-500 text-white">{vendors.length}</Badge>
-                )}
-              </Button>
-              <Button
-                size="sm"
-                variant={resultType === 'healthcare' ? 'default' : 'ghost'}
-                onClick={() => setResultType('healthcare')}
-                className={`flex-shrink-0 ${resultType === 'healthcare' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
-              >
-                Healthcare
-                {healthcareServices.length > 0 && (
-                  <Badge className="ml-1 bg-blue-500 text-white">{healthcareServices.length}</Badge>
-                )}
-              </Button>
-              <Button
-                size="sm"
-                variant={resultType === 'resources' ? 'default' : 'ghost'}
-                onClick={() => setResultType('resources')}
-                className={`flex-shrink-0 ${resultType === 'resources' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
-              >
-                Resources
-                {resources.length > 0 && (
-                  <Badge className="ml-1 bg-blue-500 text-white">{resources.length}</Badge>
-                )}
-              </Button>
-            </div>
-            
-            {/* Right Navigation Arrow */}
-            <button
-              onClick={() => {
-                const carousel = document.getElementById('map-filter-carousel');
-                if (carousel) {
-                  carousel.scrollBy({ left: 100, behavior: 'smooth' });
-                }
-              }}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 rounded-full p-1 shadow-lg transition-all hover:scale-110"
-              aria-label="Scroll right"
+              Communities
+              {mapCommunities.length > 0 && (
+                <Badge className="ml-1 bg-blue-500 text-white">{mapCommunities.length}</Badge>
+              )}
+            </Button>
+            <Button
+              size="sm"
+              variant={resultType === 'vendors' ? 'default' : 'ghost'}
+              onClick={() => setResultType('vendors')}
+              className={`flex-shrink-0 ${resultType === 'vendors' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
             >
-              <ChevronRight className="w-4 h-4 text-gray-700 dark:text-gray-300" />
-            </button>
+              Services
+              {vendors.length > 0 && (
+                <Badge className="ml-1 bg-blue-500 text-white">{vendors.length}</Badge>
+              )}
+            </Button>
+            <Button
+              size="sm"
+              variant={resultType === 'healthcare' ? 'default' : 'ghost'}
+              onClick={() => setResultType('healthcare')}
+              className={`flex-shrink-0 ${resultType === 'healthcare' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
+            >
+              Healthcare
+              {healthcareServices.length > 0 && (
+                <Badge className="ml-1 bg-blue-500 text-white">{healthcareServices.length}</Badge>
+              )}
+            </Button>
+            <Button
+              size="sm"
+              variant={resultType === 'resources' ? 'default' : 'ghost'}
+              onClick={() => setResultType('resources')}
+              className={`flex-shrink-0 ${resultType === 'resources' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
+            >
+              Resources
+              {resources.length > 0 && (
+                <Badge className="ml-1 bg-blue-500 text-white">{resources.length}</Badge>
+              )}
+            </Button>
           </div>
         </div>
 
