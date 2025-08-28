@@ -129,7 +129,7 @@ function HeroSectionWithTransformingSearch() {
   return (
     <section className="relative bg-black">
       {/* Background Image */}
-      <div className="absolute inset-0 h-[400px] sm:h-[500px]">
+      <div className="absolute inset-0 h-[450px] sm:h-[500px]">
         <img
           src={heroBackgroundImage}
           alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
@@ -139,7 +139,7 @@ function HeroSectionWithTransformingSearch() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
       </div>
       
-      <div className="relative z-10 px-4 py-8">
+      <div className="relative z-10 px-2 sm:px-4 py-6 sm:py-8">
         {/* Hero Text - Always Visible */}
         <div className="w-full max-w-4xl mx-auto mb-6 text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight">
@@ -163,22 +163,22 @@ function HeroSectionWithTransformingSearch() {
         </div>
 
         {/* Search Bar - Fixed Position Under Hero Text */}
-        <div className="w-full max-w-2xl mx-auto mb-4">
-          <div className="relative bg-white rounded-xl shadow-2xl">
+        <div className="w-full max-w-2xl mx-auto mb-4 px-2 sm:px-0">
+          <div className="relative bg-white rounded-lg sm:rounded-xl shadow-lg sm:shadow-2xl">
             <div className="flex items-center">
-              <Search className="absolute left-4 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 sm:left-4 w-4 sm:w-5 h-4 sm:h-5 text-gray-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Search communities by location, care type, or budget..."
-                className="w-full pl-12 pr-4 py-4 text-lg bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-500"
+                placeholder="Search by city, state, or care..."
+                className="w-full pl-10 sm:pl-12 pr-2 sm:pr-4 py-3 sm:py-4 text-base sm:text-lg bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-500"
               />
               
-              {/* View Toggle */}
+              {/* View Toggle - Hide on small mobile */}
               {isSearchActive && (
-                <div className="flex items-center mr-2 bg-gray-100 rounded-lg p-1">
+                <div className="hidden sm:flex items-center mr-2 bg-gray-100 rounded-lg p-1">
                   <Button
                     size="sm"
                     variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -203,19 +203,20 @@ function HeroSectionWithTransformingSearch() {
                 </div>
               )}
               
-              {/* Clear Button */}
+              {/* Clear Button - Show only when text exists */}
               {searchQuery && (
                 <Button
                   size="sm"
                   onClick={clearSearch}
-                  className="mr-2 bg-gray-200 hover:bg-gray-300"
+                  className="mr-1 sm:mr-2 p-1 sm:p-2 bg-gray-200 hover:bg-gray-300"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3 sm:w-4 h-3 sm:h-4" />
                 </Button>
               )}
               
-              <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white mr-2">
-                <Sparkles className="w-3 h-3 mr-1" />
+              {/* AI Badge - Smaller on mobile */}
+              <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white mr-1 sm:mr-2 text-[10px] sm:text-xs px-2 sm:px-3">
+                <Sparkles className="w-2 sm:w-3 h-2 sm:h-3 mr-0.5 sm:mr-1" />
                 AI
               </Badge>
             </div>
@@ -250,9 +251,9 @@ function HeroSectionWithTransformingSearch() {
               animate={{ opacity: 1, maxHeight: "600px" }}
               exit={{ opacity: 0, maxHeight: 0 }}
               transition={{ duration: 0.3 }}
-              className="w-full max-w-5xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden"
+              className="w-full max-w-5xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden mx-2 sm:mx-auto"
             >
-              <div className="p-4 max-h-[600px] overflow-y-auto">
+              <div className="p-2 sm:p-4 max-h-[400px] sm:max-h-[600px] overflow-y-auto">
                 {/* Loading State */}
                 {isLoading && (
                   <div className="flex items-center justify-center py-12">
