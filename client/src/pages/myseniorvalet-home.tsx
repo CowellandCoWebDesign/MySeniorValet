@@ -39,6 +39,7 @@ import { useSEO } from '@/hooks/useSEO';
 import { HeroMascotPanel } from '@/components/mascot/HeroMascotPanel';
 import { UnifiedSearch } from '@/components/UnifiedSearch';
 import { AutoExpandingSearch } from '@/components/AutoExpandingSearch';
+import ComprehensiveSearch from '@/components/ComprehensiveSearch';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 
@@ -340,31 +341,35 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
 
-        {/* Search Bar - Fixed Implementation */}
+        {/* Comprehensive Search - Zillow-level functionality */}
         <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative">
-          <div className="relative">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  handleAutoExpandingSearch(searchQuery, viewMode === 'learn');
+          <ComprehensiveSearch 
+            onSearch={(results) => {
+              // Process comprehensive search results
+              const communities = results.communities || [];
+              setSearchResults({ 
+                results: communities, 
+                metadata: {
+                  searchType: results.searchMetadata.searchType,
+                  totalResults: results.totalResults,
+                  processingTime: results.searchMetadata.processingTime,
+                  suggestions: results.searchMetadata.suggestions,
+                  facets: results.facets
                 }
-              }}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
-              placeholder={viewMode === 'learn' ? "Ask any question about senior living..." : "Search communities or ask anything..."}
-              className="w-full pl-12 pr-24 py-4 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-2 border-purple-300 focus:border-purple-500 outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 text-lg"
-            />
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <button
-              onClick={() => handleAutoExpandingSearch(searchQuery, viewMode === 'learn')}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2 rounded-xl shadow-md"
-            >
-              Search
-            </button>
-          </div>
+              });
+              setSearchQuery(results.searchMetadata.query);
+              setIsSearchActive(communities.length > 0);
+              setVisibleResults(10);
+            }}
+            onQueryChange={(query) => {
+              setSearchQuery(query);
+              setIsSearchFocused(query.length > 0);
+            }}
+            initialQuery={searchQuery}
+            placeholder={viewMode === 'learn' ? "Ask any question about senior living..." : "Search communities, cities, companies, or ask anything..."}
+            className="w-full"
+            showSuggestions={true}
+          />
         </div>
 
           {/* Trust Indicators - Only show when not searching */}

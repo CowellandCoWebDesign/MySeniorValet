@@ -24,6 +24,14 @@ MySeniorValet is an AI-powered "Google of Senior Care" platform, featuring "Lear
 
 ## System Architecture
 The platform is built with a modern web stack, emphasizing transparency and user engagement.
+
+**🔥 COMPREHENSIVE SEARCH SYSTEM (August 28, 2025)**:
+- **Zillow-Level Search Engine**: Handles ALL search types (companies, locations, prices, care types, natural language)
+- **Smart Search Detection**: Auto-detects search intent (company: "Atria" → 229 results, location: "California" → 53 results)
+- **Real-time Suggestions**: Dynamic autocomplete with contextual suggestions ("senior" → "senior under $5000", "senior near me")
+- **Backend APIs**: `/api/search/comprehensive` (main search), `/api/search/suggestions` (autocomplete)
+- **Frontend Component**: ComprehensiveSearch component with visual search type indicators and smart query processing
+- **Database Integration**: Connected to 32,970+ authentic communities with proper SQL optimization
 - **Frontend**: React with TypeScript, Tailwind CSS, and shadcn/ui components. Features include community cards, interactive Care Spectrum Slider, dynamic occupancy displays, circular map pins, and full dark mode support. Responsive design is a priority.
 - **Backend**: Express.js with TypeScript.
 - **Database**: PostgreSQL, managed with Drizzle ORM, storing comprehensive senior living data including pricing history and verification logs.
