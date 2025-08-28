@@ -211,17 +211,78 @@ export class NLPSearchSystem {
    */
   private extractEntities(query: string): QueryIntent['entities'] {
     const entities: QueryIntent['entities'] = {};
-    const lowerQuery = query.toLowerCase();
     
-    // Extract locations (states, cities)
-    const statePatterns = /\b(alabama|alaska|arizona|arkansas|california|colorado|connecticut|delaware|florida|georgia|hawaii|idaho|illinois|indiana|iowa|kansas|kentucky|louisiana|maine|maryland|massachusetts|michigan|minnesota|mississippi|missouri|montana|nebraska|nevada|new hampshire|new jersey|new mexico|new york|north carolina|north dakota|ohio|oklahoma|oregon|pennsylvania|rhode island|south carolina|south dakota|tennessee|texas|utah|vermont|virginia|washington|west virginia|wisconsin|wyoming)\b/gi;
-    const stateMatches = query.match(statePatterns);
-    if (stateMatches) {
-      entities.locations = stateMatches.map(s => s.trim());
+    // First expand abbreviations in the query
+    let expandedQuery = query;
+    Object.entries(this.abbreviations).forEach(([abbr, full]) => {
+      const regex = new RegExp(`\\b${abbr}\\b`, 'gi');
+      expandedQuery = expandedQuery.replace(regex, full);
+    });
+    
+    const lowerQuery = expandedQuery.toLowerCase();
+    
+    // State name to abbreviation mapping
+    const stateMap: Record<string, string> = {
+      'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
+      'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+      'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI', 'idaho': 'ID',
+      'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
+      'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+      'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
+      'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
+      'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+      'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
+      'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+      'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
+      'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
+      'wisconsin': 'WI', 'wyoming': 'WY'
+    };
+    
+    // Extract locations - focus on full state names first
+    const fullStatePattern = /\b(alabama|alaska|arizona|arkansas|california|colorado|connecticut|delaware|florida|georgia|hawaii|idaho|illinois|indiana|iowa|kansas|kentucky|louisiana|maine|maryland|massachusetts|michigan|minnesota|mississippi|missouri|montana|nebraska|nevada|new hampshire|new jersey|new mexico|new york|north carolina|north dakota|ohio|oklahoma|oregon|pennsylvania|rhode island|south carolina|south dakota|tennessee|texas|utah|vermont|virginia|washington|west virginia|wisconsin|wyoming)\b/gi;
+    
+    // For 2-letter state codes, only match when preceded by specific location words
+    // This prevents matching common words like "in", "or", "me"
+    const stateCodeWithContextPattern = /(?:near|in|at|from|to)\s+(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b/gi;
+    
+    // Also match state codes at the end of the query or after a comma
+    const standaloneStateCodePattern = /(?:,\s*|\s+)(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)(?:\s*$|\s*,)/g;
+    
+    const locations = [];
+    
+    // Extract full state names
+    const fullStateMatches = expandedQuery.match(fullStatePattern) || [];
+    fullStateMatches.forEach(match => {
+      const lower = match.toLowerCase().trim();
+      const abbr = stateMap[lower];
+      if (abbr) {
+        locations.push(abbr);
+      }
+    });
+    
+    // Extract state codes with context
+    const contextMatches = expandedQuery.matchAll(stateCodeWithContextPattern);
+    for (const match of contextMatches) {
+      if (match[1]) {
+        locations.push(match[1].toUpperCase());
+      }
     }
     
-    // Extract care types
-    const careTypes = ['memory care', 'assisted living', 'independent living', 'nursing home', 'skilled nursing', 'hospice'];
+    // Extract standalone state codes
+    const standaloneMatches = expandedQuery.matchAll(standaloneStateCodePattern);
+    for (const match of standaloneMatches) {
+      if (match[1]) {
+        locations.push(match[1].toUpperCase());
+      }
+    }
+    
+    // Remove duplicates and assign
+    if (locations.length > 0) {
+      entities.locations = [...new Set(locations)];
+    }
+    
+    // Extract care types (check both original and expanded query)
+    const careTypes = ['memory care', 'assisted living', 'independent living', 'nursing home', 'skilled nursing', 'hospice', 'assisted living facility'];
     entities.careTypes = careTypes.filter(type => lowerQuery.includes(type));
     
     // Extract price ranges
@@ -292,35 +353,91 @@ export class NLPSearchSystem {
   }
   
   /**
-   * Query Enhancement Pipeline
+   * Comprehensive Synonym Dictionary
+   */
+  private synonymDictionary: Record<string, string[]> = {
+    // Care Types
+    'memory care': ['alzheimer care', 'dementia care', 'cognitive care', 'memory support', 'memory unit'],
+    'assisted living': ['personal care', 'supportive living', 'residential care', 'care home', 'ALF'],
+    'independent living': ['senior living', 'retirement community', '55+', 'active adult', 'senior apartments'],
+    'nursing home': ['skilled nursing', 'long term care', 'SNF', 'nursing facility', 'care center'],
+    'hospice': ['end of life care', 'palliative care', 'comfort care'],
+    'respite': ['short term care', 'temporary care', 'relief care'],
+    
+    // Price Terms
+    'cheap': ['affordable', 'budget', 'economical', 'low cost', 'inexpensive'],
+    'expensive': ['luxury', 'premium', 'high-end', 'upscale'],
+    'price': ['cost', 'fee', 'rate', 'charge', 'pricing'],
+    
+    // Location Terms
+    'near': ['close to', 'by', 'around', 'nearby', 'adjacent to'],
+    'in': ['at', 'within', 'inside', 'located in'],
+    
+    // Quality Terms
+    'best': ['top', 'finest', 'premier', 'leading', 'superior'],
+    'good': ['quality', 'nice', 'decent', 'reputable'],
+    
+    // Amenity Terms
+    'pool': ['swimming pool', 'aquatic'],
+    'gym': ['fitness center', 'exercise room', 'workout facility'],
+    'dining': ['meals', 'food service', 'restaurant', 'cafeteria'],
+    'transportation': ['shuttle', 'transport', 'rides', 'van service']
+  };
+
+  /**
+   * Abbreviation Expansion Dictionary
+   */
+  private abbreviations: Record<string, string> = {
+    'ALF': 'assisted living facility',
+    'SNF': 'skilled nursing facility',
+    'MC': 'memory care',
+    'IL': 'independent living',
+    'AL': 'assisted living',
+    'NH': 'nursing home',
+    'HUD': 'housing and urban development'
+  };
+
+  /**
+   * Query Enhancement Pipeline with Comprehensive Synonyms
    */
   private async enhanceQuery(query: string, intent: QueryIntent): Promise<string> {
+    const expansions = new Set([query.toLowerCase()]);
+    
+    // Expand abbreviations first
     let enhanced = query;
-    
-    // Add synonyms for care types
-    const careTypeSynonyms: Record<string, string[]> = {
-      'memory care': ['alzheimer', 'dementia', 'cognitive'],
-      'assisted living': ['personal care', 'supportive living'],
-      'nursing home': ['skilled nursing', 'long term care']
-    };
-    
-    for (const [type, synonyms] of Object.entries(careTypeSynonyms)) {
-      if (query.toLowerCase().includes(type)) {
-        enhanced += ` ${synonyms.join(' ')}`;
+    Object.entries(this.abbreviations).forEach(([abbr, full]) => {
+      const regex = new RegExp(`\\b${abbr}\\b`, 'gi');
+      if (regex.test(enhanced)) {
+        enhanced = enhanced.replace(regex, full);
+        expansions.add(enhanced.toLowerCase());
       }
-    }
+    });
+    
+    // Apply synonym expansion
+    Object.entries(this.synonymDictionary).forEach(([term, synonyms]) => {
+      const regex = new RegExp(`\\b${term}\\b`, 'gi');
+      if (regex.test(query)) {
+        // Add first few synonyms to avoid query explosion
+        synonyms.slice(0, 2).forEach(synonym => {
+          expansions.add(synonym.toLowerCase());
+        });
+      }
+    });
+    
+    // Combine expansions
+    let finalQuery = Array.from(expansions).join(' ');
     
     // Add location context
     if (intent.entities.locations?.length) {
-      enhanced += ` location:${intent.entities.locations.join(',')}`;
+      finalQuery += ` location:${intent.entities.locations.join(',')}`;
     }
     
-    // Add modifier context
+    // Add modifier context  
     if (intent.entities.modifiers?.length) {
-      enhanced += ` ${intent.entities.modifiers.map(m => `modifier:${m}`).join(' ')}`;
+      finalQuery += ` ${intent.entities.modifiers.map(m => `modifier:${m}`).join(' ')}`;
     }
     
-    return enhanced;
+    return finalQuery;
   }
   
   /**
@@ -381,11 +498,13 @@ export class NLPSearchSystem {
         conditions.push(or(...locationConditions));
       }
       
-      // Care type filters - careTypes is an array column
+      // Care type filters - handle array column properly
       if (intent.entities.careTypes?.length) {
-        const careConditions = intent.entities.careTypes.map(type =>
-          sql`${communities.careTypes}::text ILIKE ${'%' + type + '%'}`
-        );
+        // Use ANY operator for PostgreSQL array columns
+        const careConditions = intent.entities.careTypes.map(type => {
+          // Cast array to text and use ILIKE for flexible matching
+          return sql`array_to_string(${communities.careTypes}, ',') ILIKE ${'%' + type + '%'}`;
+        });
         conditions.push(or(...careConditions));
       }
       
@@ -582,7 +701,7 @@ export class NLPSearchSystem {
       // Generate answer using Claude if available, otherwise OpenAI
       if (anthropic) {
         const response = await anthropic.messages.create({
-          model: 'claude-3-opus-20240229',
+          model: 'claude-3-5-sonnet-20241022',
           max_tokens: 500,
           messages: [{
             role: 'user',
