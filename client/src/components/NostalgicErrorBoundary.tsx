@@ -1,8 +1,8 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { Home, RefreshCw, AlertTriangle, Rocket } from 'lucide-react';
-import nostalgicSpaceImage from '@assets/generated_images/nostalgic_space_scene_corrected.svg';
+import { Home, RefreshCw, AlertTriangle } from 'lucide-react';
+import memorialSpaceScene from '@assets/generated_images/Memorial_plaques_in_space_73458db7.png';
 
 interface Props {
   children?: ReactNode;
@@ -36,18 +36,19 @@ class NostalgicErrorBoundary extends Component<Props, State> {
       
       return (
         <div 
-          className="min-h-screen relative overflow-hidden bg-gradient-to-b from-slate-900 via-purple-900 to-black"
+          className="min-h-screen relative overflow-hidden"
           style={{
-            backgroundImage: `url(${nostalgicSpaceImage})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
+            backgroundImage: `url(${memorialSpaceScene})`,
+            backgroundSize: 'contain',
+            backgroundPosition: 'top',
+            backgroundRepeat: 'no-repeat',
+            backgroundColor: '#0a0015'
           }}
         >
-          {/* Dark overlay with cloud effect for better text readability */}
+          {/* Dark overlay for better readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
           
-          {/* Animated cloud layers peeking effect */}
+          {/* Animated cloud layers for "peeking through clouds" effect */}
           <motion.div 
             className="absolute inset-0 pointer-events-none"
             animate={{
@@ -64,91 +65,111 @@ class NostalgicErrorBoundary extends Component<Props, State> {
           
           {/* Animated Stars Overlay */}
           <div className="absolute inset-0">
-            {[...Array(30)].map((_, i) => (
+            {[...Array(20)].map((_, i) => (
               <motion.div
                 key={i}
-                className="absolute w-1 h-1 bg-white rounded-full"
+                className="absolute w-0.5 h-0.5 bg-white rounded-full"
                 style={{
                   left: `${Math.random() * 100}%`,
                   top: `${Math.random() * 100}%`,
                 }}
                 animate={{
                   opacity: [0.3, 1, 0.3],
-                  scale: [0.5, 1.5, 0.5],
+                  scale: [0.5, 1.2, 0.5],
                 }}
                 transition={{
-                  duration: 3 + Math.random() * 3,
+                  duration: 2 + Math.random() * 2,
                   repeat: Infinity,
-                  delay: Math.random() * 3,
+                  delay: Math.random() * 2,
                 }}
               />
             ))}
           </div>
 
+          {/* Title at the very top */}
+          <motion.h2 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="absolute top-8 left-0 right-0 text-3xl font-bold text-center text-white z-20"
+          >
+            Remembering the Giants Who Built America
+          </motion.h2>
 
+          {/* Subtitle below the memorial plaques */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="absolute top-96 left-0 right-0 text-center text-gray-200 text-lg px-8 z-20"
+          >
+            Honoring Blockbuster, Toys R Us, RadioShack, Kmart, and Sears - The retail legends that defined generations
+          </motion.p>
 
-          {/* Main Error Content */}
-          <div className="relative z-10 flex items-center justify-center min-h-screen px-4">
+          {/* Main Error Content - positioned below memorial section */}
+          <div className="relative z-10 flex items-center justify-center min-h-screen px-4" style={{ paddingTop: '450px' }}>
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5 }}
               className="max-w-2xl w-full"
             >
-              <div className="bg-gradient-to-br from-orange-600 to-orange-700 p-1 rounded-xl">
+              <div className="bg-gradient-to-br from-indigo-600/90 to-purple-700/90 p-1 rounded-xl">
                 <div className="bg-slate-900/95 backdrop-blur-xl rounded-lg p-8 text-white">
                   <div className="flex items-center gap-3 mb-6">
-                    <AlertTriangle className="w-8 h-8 text-orange-500" />
-                    <h1 className="text-3xl font-bold">We'll Be Right Back!</h1>
+                    <AlertTriangle className="w-8 h-8 text-purple-400" />
+                    <h1 className="text-3xl font-bold">Taking a Moment to Remember</h1>
                   </div>
 
                   <div className="space-y-6">
-                    {/* Purple circle with heart */}
+                    {/* Memorial-themed error message */}
                     <div className="flex justify-center">
                       <motion.div
-                        animate={{ scale: [1, 1.1, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="w-32 h-32 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center relative"
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 3, repeat: Infinity }}
+                        className="w-32 h-32 bg-gradient-to-br from-indigo-500/50 to-purple-600/50 rounded-full flex items-center justify-center relative backdrop-blur-sm"
                       >
-                        <div className="text-5xl">❤️</div>
-                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full animate-pulse"></div>
+                        <div className="text-center">
+                          <div className="text-4xl mb-2">⭐</div>
+                          <div className="text-xs text-gray-300">Eternal</div>
+                        </div>
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-400/50 rounded-full animate-pulse"></div>
                       </motion.div>
                     </div>
 
                     <div className="text-center space-y-4">
-                      <h2 className="text-2xl font-semibold flex items-center justify-center gap-2">
-                        Sorry! High Traffic Alert 
-                        <span className="text-3xl">🚀</span>
+                      <h2 className="text-2xl font-semibold text-purple-300">
+                        Just as these giants took a pause, so must we
                       </h2>
                       
                       <p className="text-gray-300 text-lg">
-                        We are experiencing a lot of traffic right now and will be back soon!
+                        Our system is temporarily catching its breath. Like the companies we honor above, we'll return stronger.
                       </p>
 
                       <div className="bg-slate-800/50 rounded-lg p-6 text-left space-y-3">
-                        <p className="text-center mb-4">
-                          Thank you so much for your support of our mission to bring:
+                        <p className="text-center mb-4 text-purple-200">
+                          Like the retail giants we honor, we're building something that matters:
                         </p>
                         <div className="space-y-2">
                           <div className="flex items-start gap-3">
-                            <span className="text-green-400 mt-1">✓</span>
-                            <span>Transparency and access for all</span>
+                            <span className="text-purple-400 mt-1">★</span>
+                            <span>Transparency in senior care - no hidden fees</span>
                           </div>
                           <div className="flex items-start gap-3">
-                            <span className="text-green-400 mt-1">✓</span>
-                            <span>Real-time pricing information</span>
+                            <span className="text-purple-400 mt-1">★</span>
+                            <span>Real pricing without paywalls</span>
                           </div>
                           <div className="flex items-start gap-3">
-                            <span className="text-green-400 mt-1">✓</span>
-                            <span>Live availability updates</span>
+                            <span className="text-purple-400 mt-1">★</span>
+                            <span>35,000+ communities at your fingertips</span>
                           </div>
                           <div className="flex items-start gap-3">
-                            <span className="text-green-400 mt-1">✓</span>
-                            <span>Authentic ratings & reviews</span>
+                            <span className="text-purple-400 mt-1">★</span>
+                            <span>A legacy of trust and service</span>
                           </div>
                           <div className="flex items-start gap-3">
-                            <span className="text-green-400 mt-1">✓</span>
-                            <span>All in one trusted place!</span>
+                            <span className="text-purple-400 mt-1">★</span>
+                            <span>Honoring those who served America</span>
                           </div>
                         </div>
                       </div>
