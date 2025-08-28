@@ -291,13 +291,18 @@ export class ComprehensiveSearchEngine {
   private async buildLocationConditions(query: string): Promise<any[]> {
     const conditions: any[] = [];
     
-    // Handle "City, State" format
+    // Handle "City, State" format (e.g., "Miami, Florida" or "Miami, FL")
     if (query.includes(',')) {
       const [city, state] = query.split(',').map(s => s.trim());
+      // Be flexible with state matching
       conditions.push(
-        and(
-          ilike(communities.city, city),
-          ilike(communities.state, state.length === 2 ? state : `%${state}%`)
+        or(
+          and(
+            ilike(communities.city, `%${city}%`),
+            ilike(communities.state, `%${state}%`)
+          ),
+          // Also search just by city name in case state doesn't match exactly
+          ilike(communities.city, `%${city}%`)
         )
       );
     }
@@ -305,15 +310,72 @@ export class ComprehensiveSearchEngine {
     else if (query.match(/^\d{5}/)) {
       conditions.push(ilike(communities.zipCode, `${query}%`));
     }
-    // General location
+    // General location - be more inclusive
     else {
-      conditions.push(
-        or(
-          ilike(communities.city, `%${query}%`),
-          ilike(communities.state, `%${query}%`),
-          ilike(communities.county, `%${query}%`)
-        )
+      // Split query to handle multi-word locations better
+      const words = query.toLowerCase().split(/\s+/);
+      
+      // Check for state names and abbreviations
+      const stateAbbreviations: Record<string, string> = {
+        'alaska': 'AK', 'alabama': 'AL', 'arkansas': 'AR', 'arizona': 'AZ',
+        'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT',
+        'delaware': 'DE', 'florida': 'FL', 'georgia': 'GA',
+        'hawaii': 'HI', 'iowa': 'IA', 'idaho': 'ID', 'illinois': 'IL',
+        'indiana': 'IN', 'kansas': 'KS', 'kentucky': 'KY', 'louisiana': 'LA',
+        'massachusetts': 'MA', 'maryland': 'MD', 'maine': 'ME', 'michigan': 'MI',
+        'minnesota': 'MN', 'missouri': 'MO', 'mississippi': 'MS', 'montana': 'MT',
+        'north carolina': 'NC', 'north dakota': 'ND', 'nebraska': 'NE',
+        'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM',
+        'nevada': 'NV', 'new york': 'NY', 'ohio': 'OH', 'oklahoma': 'OK',
+        'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI',
+        'south carolina': 'SC', 'south dakota': 'SD', 'tennessee': 'TN',
+        'texas': 'TX', 'utah': 'UT', 'virginia': 'VA', 'vermont': 'VT',
+        'washington': 'WA', 'wisconsin': 'WI', 'west virginia': 'WV', 'wyoming': 'WY'
+      };
+      
+      // Check if query contains a state name
+      let stateCode = null;
+      let cityName = query;
+      
+      // Check each state name
+      for (const [stateName, code] of Object.entries(stateAbbreviations)) {
+        if (query.toLowerCase().includes(stateName)) {
+          stateCode = code;
+          // Extract city name by removing state from query
+          cityName = query.toLowerCase().replace(stateName, '').trim();
+          break;
+        }
+      }
+      
+      // Build flexible conditions
+      const locationConditions = [];
+      
+      // If we have both city and state, search for that combination
+      if (stateCode && cityName) {
+        locationConditions.push(
+          and(
+            ilike(communities.city, `%${cityName}%`),
+            ilike(communities.state, stateCode)  // Use state abbreviation
+          )
+        );
+        // Also add fallback to just search the city
+        locationConditions.push(ilike(communities.city, `%${cityName}%`));
+      }
+      
+      // Always include general search patterns
+      locationConditions.push(
+        ilike(communities.city, `%${query}%`),
+        ilike(communities.state, `%${query}%`),
+        ilike(communities.county, `%${query}%`),
+        ilike(communities.name, `%${query}%`)  // Also search community names
       );
+      
+      // Add state abbreviation condition if we found one
+      if (stateCode) {
+        locationConditions.push(ilike(communities.state, stateCode));
+      }
+      
+      conditions.push(or(...locationConditions));
     }
     
     return conditions;
@@ -322,17 +384,22 @@ export class ComprehensiveSearchEngine {
   private async buildPriceConditions(query: string): Promise<any[]> {
     const conditions: any[] = [];
     
-    // REAL PRICE FILTERING: Based on PostgreSQL best practices research
+    // IMPORTANT: Most communities don't have pricing until enrichment
+    // So we should NOT filter out communities without pricing by default
+    // Only apply price filters when explicitly requested
+    
     const priceMatch = query.match(/\$?(\d+(?:,\d{3})*(?:\.\d{2})?)/g);
     if (priceMatch) {
       const prices = priceMatch.map(p => parseInt(p.replace(/[$,]/g, '')));
-      console.log(`REAL price filtering: ${prices.join(', ')}`);
+      console.log(`Price filtering requested: ${prices.join(', ')}`);
+      console.log(`Note: Only showing communities with pricing data. Many communities require enrichment for pricing.`);
       
       if (query.includes('under') || query.includes('below') || query.includes('<')) {
-        // rentPerMonth is already NUMERIC type in database
+        // Only filter communities that HAVE pricing data
         conditions.push(
           and(
             isNotNull(communities.rentPerMonth),
+            sql`${communities.rentPerMonth} > 0`,  // Ensure it's a real price
             sql`${communities.rentPerMonth} < ${prices[0]}`
           )
         );
@@ -354,17 +421,18 @@ export class ComprehensiveSearchEngine {
       }
     }
     
-    // Handle qualitative terms with actual price ranges based on market research
+    // Handle qualitative terms
     if (query.includes('cheap') || query.includes('affordable')) {
-      console.log('Affordable filtering: under $4000/month');
+      console.log('Affordable filtering: showing communities under $4000/month (where pricing is available)');
       conditions.push(
         and(
           isNotNull(communities.rentPerMonth),
+          sql`${communities.rentPerMonth} > 0`,
           sql`${communities.rentPerMonth} < 4000`
         )
       );
     } else if (query.includes('expensive') || query.includes('luxury') || query.includes('premium')) {
-      console.log('Luxury filtering: over $7000/month');
+      console.log('Luxury filtering: showing communities over $7000/month (where pricing is available)');
       conditions.push(
         and(
           isNotNull(communities.rentPerMonth),
