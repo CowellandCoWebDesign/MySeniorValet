@@ -171,15 +171,24 @@ function HeroSectionWithTransformingSearch() {
           
           <div className="text-xs sm:text-sm md:text-base text-gray-100 max-w-3xl mx-auto px-2 mb-6">
             <div className="hidden sm:block">
-              <p className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                Search 35,000+ communities globally with real pricing & trusted reviews • 
-                We NEVER sell your info • Access 1,000's of services & support resources • 
-                A platform built for families, not profits 💙
-              </p>
+              <div className="flex flex-wrap justify-center gap-2 text-white">
+                <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  • Search 35,000+ communities globally with real pricing & trusted reviews
+                </span>
+                <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  • We NEVER sell your info
+                </span>
+                <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  • Access 1,000's of services & support resources
+                </span>
+                <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  • A platform built for families, not profits 💙
+                </span>
+              </div>
             </div>
             <div className="sm:hidden">
               <p className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
-                Search 35,000+ communities with real pricing. No fees, no data selling 💙
+                Search 35,000+ communities with real pricing • No fees, no data selling 💙
               </p>
             </div>
           </div>
