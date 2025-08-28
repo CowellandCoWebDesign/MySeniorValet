@@ -141,52 +141,48 @@ function HeroSectionWithTransformingSearch() {
 
   return (
     <>
-      <section className={`relative ${isSearchActive ? 'h-auto pb-4' : 'h-screen'}`}
+      <section className={`relative ${isSearchActive ? 'min-h-[400px]' : 'h-screen'}`}
         style={{
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
         }}
       >
         {/* Background Image */}
-        {!isSearchActive && (
-          <div className="absolute inset-0 h-full w-full">
-            <img
-              src={heroBackgroundImage}
-              alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
-              className={`w-full h-full object-cover object-center transition-opacity duration-700 ${
-                imageLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
-              loading="eager"
-              onLoad={() => setImageLoaded(true)}
-              fetchpriority="high"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
-          </div>
-        )}
+        <div className={`absolute inset-0 h-full w-full ${isSearchActive ? 'opacity-50' : ''}`}>
+          <img
+            src={heroBackgroundImage}
+            alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
+            className={`w-full h-full object-cover ${isSearchActive ? 'object-top' : 'object-center'} transition-opacity duration-700 ${
+              imageLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+            loading="eager"
+            onLoad={() => setImageLoaded(true)}
+            fetchpriority="high"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
+        </div>
         
-        <div className={`relative z-10 ${isSearchActive ? '' : 'h-full'} flex flex-col justify-center px-2 sm:px-4 ${isSearchActive ? 'py-4' : 'py-6 sm:py-8'}`}>
-        {/* Hero Text - Hidden when searching */}
-        {!isSearchActive && (
-          <div className="w-full max-w-4xl mx-auto mb-6 text-center">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight">
-              Everything You Need.<br className="sm:hidden" /> Nothing You Pay.
-            </h1>
-            
-            <div className="text-xs sm:text-sm md:text-base text-gray-100 max-w-3xl mx-auto px-2 mb-6">
-              <div className="hidden sm:block">
-                <p className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                  Search 35,000+ communities globally with real pricing & trusted reviews • 
-                  We NEVER sell your info • Access 1,000's of services & support resources • 
-                  A platform built for families, not profits 💙
-                </p>
-              </div>
-              <div className="sm:hidden">
-                <p className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
-                  Search 35,000+ communities with real pricing. No fees, no data selling 💙
-                </p>
-              </div>
+        <div className={`relative z-10 ${isSearchActive ? '' : 'h-full'} flex flex-col justify-center px-2 sm:px-4 py-6 sm:py-8`}>
+        {/* Hero Text - Always Visible */}
+        <div className={`w-full max-w-4xl mx-auto mb-6 text-center transition-all duration-300 ${isSearchActive ? 'scale-90' : 'scale-100'}`}>
+          <h1 className={`${isSearchActive ? 'text-xl sm:text-2xl md:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl'} font-bold text-white mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight`}>
+            Everything You Need.<br className="sm:hidden" /> Nothing You Pay.
+          </h1>
+          
+          <div className={`text-xs sm:text-sm md:text-base text-gray-100 max-w-3xl mx-auto px-2 ${isSearchActive ? 'mb-4' : 'mb-6'}`}>
+            <div className="hidden sm:block">
+              <p className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                Search 35,000+ communities globally with real pricing & trusted reviews • 
+                We NEVER sell your info • Access 1,000's of services & support resources • 
+                A platform built for families, not profits 💙
+              </p>
+            </div>
+            <div className="sm:hidden">
+              <p className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                Search 35,000+ communities with real pricing. No fees, no data selling 💙
+              </p>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Search Bar - Fixed Position Under Hero Text */}
         <div className="w-full max-w-2xl mx-auto mb-4 px-2 sm:px-0">
