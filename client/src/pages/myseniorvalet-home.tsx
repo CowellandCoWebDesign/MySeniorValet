@@ -67,6 +67,7 @@ function HeroSectionWithTransformingSearch() {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
   const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
+  const [visibleResults, setVisibleResults] = useState(10); // Start with 10 visible results
   const [, setLocation] = useLocation();
 
   // Handle search from AutoExpandingSearch component
@@ -80,6 +81,7 @@ function HeroSectionWithTransformingSearch() {
     }
 
     setIsSearchActive(true);
+    setVisibleResults(10); // Reset to show first 10 results for new search
     setIsLoading(true);
 
     try {
@@ -137,9 +139,7 @@ function HeroSectionWithTransformingSearch() {
           await handleUnifiedSearch(query);
         } else {
           const data = await response.json();
-          console.log('NLP Search Response:', data); // Debug log
           const communities = data.results?.map((r: any) => r.data || r) || [];
-          console.log('Extracted communities:', communities); // Debug log
           setSearchResults({ 
             results: communities, 
             metadata: {
@@ -148,7 +148,6 @@ function HeroSectionWithTransformingSearch() {
               suggestions: data.suggestions
             }
           });
-          console.log('Search results set:', { results: communities }); // Debug log
         }
       }
     } catch (error) {
@@ -382,15 +381,15 @@ function HeroSectionWithTransformingSearch() {
       </section>
 
       {/* Search Results Display Section */}
-      {console.log('Display check - isSearchActive:', isSearchActive, 'Results:', searchResults?.results?.length)}
       <AnimatePresence>
         {isSearchActive && (
-          <motion.div
+          <motion.section
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="w-full bg-gradient-to-b from-gray-900 to-gray-800 py-8"
+            className="w-full bg-gradient-to-b from-gray-900 to-gray-800 py-8 relative"
+            id="search-results"
           >
             {/* Learn Mode Response Section */}
             {searchResults?.metadata?.isResearchMode && searchResults?.metadata?.researchResponse && (
@@ -485,7 +484,8 @@ function HeroSectionWithTransformingSearch() {
               ) : (
                 <div className="space-y-3 pb-4">
                   {searchResults?.results && searchResults.results.length > 0 ? (
-                    searchResults.results.map((community: any, index: number) => (
+                    <>
+                      {searchResults.results.slice(0, visibleResults).map((community: any, index: number) => (
                         <motion.div
                           key={community.id}
                           initial={{ opacity: 0, y: 10 }}
@@ -501,7 +501,24 @@ function HeroSectionWithTransformingSearch() {
                             }}
                           />
                         </motion.div>
-                      ))
+                      ))}
+                      
+                      {/* Show More Button */}
+                      {searchResults.results.length > visibleResults && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="flex justify-center pt-4"
+                        >
+                          <button
+                            onClick={() => setVisibleResults(prev => prev + 10)}
+                            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105"
+                          >
+                            Show More Results ({visibleResults} of {searchResults.results.length})
+                          </button>
+                        </motion.div>
+                      )}
+                    </>
                   ) : (
                     <div className="text-center py-8">
                       <p className="text-gray-500">No results found for "{searchQuery}"</p>
@@ -512,7 +529,26 @@ function HeroSectionWithTransformingSearch() {
                 </div>
               </div>
             )}
-          </motion.div>
+            
+            {/* Back to Top Button - appears when there are many results */}
+            {searchResults?.results?.length > 10 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="fixed bottom-4 right-4 z-50"
+              >
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-full shadow-lg transition-all duration-300 transform hover:scale-110"
+                  aria-label="Back to top"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                  </svg>
+                </button>
+              </motion.div>
+            )}
+          </motion.section>
         )}
       </AnimatePresence>
     </>
