@@ -161,6 +161,7 @@ import WalgreensPage from "@/pages/vendors/walgreens";
 import CVSPharmacyPage from "@/pages/vendors/cvs-pharmacy";
 import MedicareGuidePage from "@/pages/resources/medicare-guide";
 import LocationLanding from "@/pages/location-landing";
+import PricingPage from "@/pages/pricing";
 
 function Router() {
   const [location] = useLocation();
@@ -177,6 +178,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={MySeniorValetHome} />
+      <Route path="/pricing" component={PricingPage} />
       <Route path="/canada" component={CanadaPage} />
       <Route path="/map" component={MapSearch} />
       <Route path="/map-search" component={MapSearch} />
