@@ -1226,26 +1226,61 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
 
-                  {/* 3D Care Spectrum Mini Carousel */}
+                  {/* 3D Care Spectrum Mini Carousel with Navigation */}
                   <div className="mb-6 overflow-hidden rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-4">
                     <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 text-center">EXPLORE 10 CARE LEVELS</p>
-                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                      {careTypes.map((careType, index) => {
-                        const Icon = careType.icon;
-                        return (
-                          <div
-                            key={careType.id}
-                            className={`flex-shrink-0 ${careType.color} rounded-lg p-3 w-32 cursor-pointer hover:scale-105 transition-transform`}
-                            onClick={() => setLocation(`/care-types/${careType.id}`)}
-                          >
-                            <div className="flex flex-col items-center">
-                              <Icon className="w-8 h-8 text-white mb-1" />
-                              <p className="text-xs font-bold text-white text-center leading-tight">{careType.name}</p>
-                              <p className="text-[9px] text-white/80 text-center mt-1">{careType.avgCost}</p>
+                    <div className="relative">
+                      {/* Left Navigation Arrow */}
+                      <button
+                        onClick={() => {
+                          const carousel = document.getElementById('care-types-carousel');
+                          if (carousel) {
+                            carousel.scrollBy({ left: -140, behavior: 'smooth' });
+                          }
+                        }}
+                        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 rounded-full p-2 shadow-lg transition-all hover:scale-110"
+                        aria-label="Scroll left"
+                      >
+                        <ChevronLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                      </button>
+                      
+                      {/* Carousel Container */}
+                      <div 
+                        id="care-types-carousel"
+                        className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide px-10"
+                        style={{ scrollBehavior: 'smooth' }}
+                      >
+                        {careTypes.map((careType, index) => {
+                          const Icon = careType.icon;
+                          return (
+                            <div
+                              key={careType.id}
+                              className={`flex-shrink-0 ${careType.color} rounded-lg p-3 w-32 cursor-pointer hover:scale-105 transition-transform`}
+                              onClick={() => setLocation(`/care-types/${careType.id}`)}
+                            >
+                              <div className="flex flex-col items-center">
+                                <Icon className="w-8 h-8 text-white mb-1" />
+                                <p className="text-xs font-bold text-white text-center leading-tight">{careType.name}</p>
+                                <p className="text-[9px] text-white/80 text-center mt-1">{careType.avgCost}</p>
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
+                      
+                      {/* Right Navigation Arrow */}
+                      <button
+                        onClick={() => {
+                          const carousel = document.getElementById('care-types-carousel');
+                          if (carousel) {
+                            carousel.scrollBy({ left: 140, behavior: 'smooth' });
+                          }
+                        }}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800 rounded-full p-2 shadow-lg transition-all hover:scale-110"
+                        aria-label="Scroll right"
+                      >
+                        <ChevronRight className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                      </button>
                     </div>
                   </div>
 

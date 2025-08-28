@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2, Home, Info, Sparkles, DollarSign, Activity, Bed, Users } from "lucide-react";
 import { MarketIntelligenceModal } from "./MarketIntelligenceModal";
-import spaceExplorerImage from '@assets/generated_images/MySeniorValet_distinguished_explorer.png';
+import professionalValetImage from '@assets/generated_images/Professional_MySeniorValet_concierge_character_c05b2405.png';
 
 interface CommunityCardProps {
   community: {
@@ -400,10 +400,10 @@ function CommunityCard({
           />
         ) : (
           <div className="absolute inset-0">
-            {/* Space Explorer Background Image */}
+            {/* Professional Valet Background Image */}
             <img 
-              src={spaceExplorerImage}
-              alt="MySeniorValet Space Explorer"
+              src={professionalValetImage}
+              alt="MySeniorValet Professional Concierge"
               className="absolute inset-0 w-full h-full object-cover opacity-90"
             />
             {/* Darker overlay for text readability */}
