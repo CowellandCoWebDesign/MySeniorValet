@@ -7,6 +7,7 @@
 
 import { Router } from 'express';
 import { unifiedSearchEngine } from '../services/unified-search-engine';
+import { enhancedSearchEngine } from '../services/enhanced-search-engine';
 import { cache } from '../cache';
 import { isAuthenticated } from '../replitAuth';
 
@@ -61,6 +62,8 @@ router.get('/api/search/unified', async (req, res) => {
  * Accepts search parameters in request body
  */
 router.post('/api/search/unified', async (req, res) => {
+  // Add option to use enhanced search engine
+  const useEnhanced = req.body.enhanced !== false; // Default to true
   try {
     const { 
       query, 
@@ -127,18 +130,21 @@ router.get('/api/search/suggestions', async (req, res) => {
       });
     }
     
-    // Generate suggestions from unified search
-    const searchResults = await unifiedSearchEngine.search(query as string, { limit: 5 });
-    const suggestions = searchResults.suggestions || [];
+    // Use enhanced search engine for better suggestions
+    const suggestions = await enhancedSearchEngine.getSuggestions(query as string);
     
-    // Add query-based suggestions
-    const autoComplete = [
-      `${query} assisted living`,
-      `${query} memory care`,
-      `${query} under $5000`
-    ].filter(s => s.length > query.toString().length);
+    // Ensure we always have some suggestions
+    if (suggestions.length === 0) {
+      // Fallback to basic pattern suggestions
+      const autoComplete = [
+        `${query} assisted living`,
+        `${query} memory care`,
+        `${query} under $5000`
+      ].filter(s => s.length > query.toString().length);
+      suggestions.push(...autoComplete);
+    }
     
-    const allSuggestions = [...new Set([...autoComplete, ...suggestions])].slice(0, 10);
+    const allSuggestions = [...new Set(suggestions)].slice(0, 10);
     
     // Cache for 1 minute
     await cache.set(cacheKey, JSON.stringify(allSuggestions), 60);
