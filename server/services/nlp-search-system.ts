@@ -276,6 +276,30 @@ export class NLPSearchSystem {
       }
     }
     
+    // Extract major city names
+    const majorCities = [
+      'san diego', 'san francisco', 'los angeles', 'san jose', 'san antonio',
+      'new york', 'chicago', 'houston', 'phoenix', 'philadelphia',
+      'dallas', 'austin', 'miami', 'atlanta', 'boston',
+      'seattle', 'denver', 'portland', 'las vegas', 'detroit',
+      'redding', 'sacramento', 'fresno', 'oakland', 'long beach',
+      'baltimore', 'milwaukee', 'albuquerque', 'tucson', 'nashville',
+      'memphis', 'louisville', 'charlotte', 'fort worth', 'columbus',
+      'indianapolis', 'san bernardino', 'riverside', 'orlando', 'tampa'
+    ];
+    
+    // Check for city names in the query
+    majorCities.forEach(city => {
+      if (lowerQuery.includes(city)) {
+        locations.push(city);
+      }
+    });
+    
+    // If no locations found and query is short (likely a city name), use the entire query
+    if (locations.length === 0 && query.split(' ').length <= 3 && !query.includes('?')) {
+      locations.push(query.trim());
+    }
+    
     // Remove duplicates and assign
     if (locations.length > 0) {
       entities.locations = [...new Set(locations)];
