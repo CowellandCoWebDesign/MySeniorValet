@@ -124,8 +124,8 @@ export function UnifiedSearch() {
     }
   };
 
-  const getIntentBadge = (intent?: string) => {
-    if (!intent) return null;
+  const getIntentBadge = (intent?: string | any) => {
+    if (!intent || typeof intent !== 'string') return null;
     
     const intentColors: Record<string, string> = {
       navigation: 'bg-blue-500',
