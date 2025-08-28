@@ -10,7 +10,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { OnboardingProvider } from "@/contexts/OnboardingContext";
 import { VoiceGuidanceProvider } from "@/components/VoiceGuidanceProvider";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+import NostalgicErrorBoundary from "@/components/NostalgicErrorBoundary";
 import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
 
 
@@ -403,11 +403,11 @@ function App() {
   }, []);
   
   return (
-    <ErrorBoundary>
+    <NostalgicErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AppContent />
       </QueryClientProvider>
-    </ErrorBoundary>
+    </NostalgicErrorBoundary>
   );
 }
 

@@ -2,6 +2,7 @@ import { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { Home, RefreshCw, AlertTriangle, Rocket } from 'lucide-react';
+import nostalgicSpaceImage from '@assets/generated_images/Nostalgic_space_scene_logos_3b09df12.png';
 
 interface Props {
   children?: ReactNode;
@@ -34,10 +35,21 @@ class NostalgicErrorBoundary extends Component<Props, State> {
       const isDevelopment = import.meta.env.DEV;
       
       return (
-        <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-slate-900 via-purple-900 to-black">
-          {/* Animated Stars Background */}
+        <div 
+          className="min-h-screen relative overflow-hidden bg-gradient-to-b from-slate-900 via-purple-900 to-black"
+          style={{
+            backgroundImage: `url(${nostalgicSpaceImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        >
+          {/* Dark overlay for better text readability */}
+          <div className="absolute inset-0 bg-black/40"></div>
+          
+          {/* Animated Stars Overlay */}
           <div className="absolute inset-0">
-            {[...Array(50)].map((_, i) => (
+            {[...Array(30)].map((_, i) => (
               <motion.div
                 key={i}
                 className="absolute w-1 h-1 bg-white rounded-full"
@@ -57,61 +69,6 @@ class NostalgicErrorBoundary extends Component<Props, State> {
               />
             ))}
           </div>
-
-          {/* Floating RadioShack Logo */}
-          <motion.div
-            className="absolute left-20 top-32"
-            animate={{
-              y: [-10, 10, -10],
-              rotate: [-5, 5, -5],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          >
-            <div className="bg-red-600 text-white px-4 py-2 rounded-lg shadow-2xl">
-              <div className="font-bold text-2xl">RadioShack</div>
-              <div className="text-xs">THE TECHNOLOGY STORE®</div>
-            </div>
-          </motion.div>
-
-          {/* Floating Blockbuster Logo */}
-          <motion.div
-            className="absolute right-20 top-40"
-            animate={{
-              y: [10, -10, 10],
-              rotate: [5, -5, 5],
-            }}
-            transition={{
-              duration: 7,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          >
-            <div className="bg-gradient-to-r from-blue-600 to-yellow-400 text-white px-6 py-3 rounded-lg shadow-2xl transform rotate-3">
-              <div className="font-extrabold text-3xl italic">BLOCKBUSTER</div>
-              <div className="text-xs text-center">VIDEO</div>
-            </div>
-          </motion.div>
-
-          {/* Floating Rocket Ship */}
-          <motion.div
-            className="absolute left-1/3 bottom-32"
-            animate={{
-              x: [0, 100, 0],
-              y: [0, -50, 0],
-              rotate: [0, 10, 0],
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          >
-            <Rocket className="w-16 h-16 text-orange-400 transform rotate-45" />
-          </motion.div>
 
           {/* Main Error Content */}
           <div className="relative z-10 flex items-center justify-center min-h-screen px-4">

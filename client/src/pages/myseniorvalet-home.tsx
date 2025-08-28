@@ -279,12 +279,7 @@ function HeroSectionWithTransformingSearch() {
 
                   {/* Filter Tabs - Connected UI */}
                   <div className="px-2 sm:px-4 pb-2">
-                    <UnifiedSearch 
-                      searchResults={searchResults}
-                      isLoading={isLoading}
-                      error={error}
-                      searchQuery={searchQuery}
-                    />
+                    <UnifiedSearch />
                   </div>
                 </div>
               </motion.div>
