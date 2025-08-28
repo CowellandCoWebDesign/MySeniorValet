@@ -9,6 +9,8 @@ MySeniorValet is an AI-powered "Google of Senior Care" platform, featuring "The 
 - **DocuSign Integration**: Configured DocuSign service for professional document signing and brand awareness (replacing Documenso)
 - **TypeScript Interfaces**: Added proper typing for pricing plans with comingSoon field support
 - **Route Configuration**: Added /vendor-signup, /family-signup, /vendor/signup, and /family/signup routes
+- **Enhanced Search Bar**: Replaced old search bar with new inline AI-powered search bar design featuring purple gradient, better placeholder text, and animated AI badge
+- **UnifiedSearch Fix**: Fixed "intent.charAt is not a function" error by adding proper type checking for intent string
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
