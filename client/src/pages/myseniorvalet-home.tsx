@@ -69,7 +69,7 @@ function HeroSectionWithTransformingSearch() {
   const [, setLocation] = useLocation();
 
   // Handle search from AutoExpandingSearch component
-  const handleAutoExpandingSearch = async (query: string, isKrakenMode?: boolean) => {
+  const handleAutoExpandingSearch = async (query: string, isResearchMode?: boolean) => {
     setSearchQuery(query);
     
     if (!query || query.length < 2) {
@@ -82,8 +82,8 @@ function HeroSectionWithTransformingSearch() {
     setIsLoading(true);
 
     try {
-      if (isKrakenMode) {
-        // Use THE KRAKEN's Q&A endpoint for conversational queries
+      if (isResearchMode) {
+        // Use MySeniorValet Research's Q&A endpoint for conversational queries
         const response = await fetch('/api/nlp/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -93,9 +93,9 @@ function HeroSectionWithTransformingSearch() {
           })
         });
 
-        if (!response.ok) throw new Error('KRAKEN AI request failed');
+        if (!response.ok) throw new Error('Research request failed');
         
-        const krakenData = await response.json();
+        const researchData = await response.json();
         
         // Also get community recommendations
         const searchResponse = await fetch('/api/nlp/search', {
@@ -114,8 +114,8 @@ function HeroSectionWithTransformingSearch() {
         setSearchResults({ 
           results: communities, 
           metadata: {
-            krakenResponse: krakenData,
-            isKrakenMode: true
+            researchResponse: researchData,
+            isResearchMode: true
           }
         });
 
@@ -270,7 +270,7 @@ function HeroSectionWithTransformingSearch() {
             initialQuery={searchQuery}
             onSearch={handleAutoExpandingSearch}
             onQueryChange={setSearchQuery}
-            placeholder="Search communities or ask THE KRAKEN anything..."
+            placeholder="Search communities or ask MySeniorValet Research anything..."
             className="relative z-40"
           />
           
@@ -355,10 +355,10 @@ function HeroSectionWithTransformingSearch() {
             transition={{ duration: 0.3 }}
             className="w-full bg-gray-900 -mt-[400px] relative z-20"
           >
-            {/* KRAKEN AI Response Section */}
-            {searchResults?.metadata?.isKrakenMode && searchResults?.metadata?.krakenResponse && (
+            {/* MySeniorValet Research Response Section */}
+            {searchResults?.metadata?.isResearchMode && searchResults?.metadata?.researchResponse && (
               <div className="max-w-6xl mx-auto p-4 bg-gradient-to-b from-gray-900 to-gray-800">
-                {/* KRAKEN Header */}
+                {/* Research Header */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -372,7 +372,7 @@ function HeroSectionWithTransformingSearch() {
                       </div>
                       <div>
                         <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                          🐙 THE KRAKEN's Response
+                          MySeniorValet Research Response
                         </h2>
                         <p className="text-sm text-gray-400 mt-1">
                           AI-powered analysis across 32,970+ communities
@@ -380,7 +380,7 @@ function HeroSectionWithTransformingSearch() {
                       </div>
                     </div>
                     <div className="text-right text-xs text-gray-500">
-                      <div>Confidence: {Math.round((searchResults.metadata.krakenResponse.confidence || 0.85) * 100)}%</div>
+                      <div>Confidence: {Math.round((searchResults.metadata.researchResponse.confidence || 0.85) * 100)}%</div>
                       <div className="text-green-400">✓ Verified</div>
                     </div>
                   </div>
@@ -389,15 +389,15 @@ function HeroSectionWithTransformingSearch() {
                   <div className="bg-gray-800/50 rounded-lg p-4 mb-4">
                     <div className="prose prose-invert max-w-none">
                       <p className="text-gray-200 leading-relaxed text-lg">
-                        {searchResults.metadata.krakenResponse.answer}
+                        {searchResults.metadata.researchResponse.answer}
                       </p>
                     </div>
                   </div>
 
                   {/* Data Sources */}
-                  {searchResults.metadata.krakenResponse.sources && (
+                  {searchResults.metadata.researchResponse.sources && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      {searchResults.metadata.krakenResponse.sources.map((source: any, index: number) => (
+                      {searchResults.metadata.researchResponse.sources.map((source: any, index: number) => (
                         <div key={index} className="bg-gray-800/30 rounded-lg p-3 text-xs">
                           <div className="flex items-center space-x-2 mb-1">
                             <div className="w-2 h-2 bg-green-400 rounded-full"></div>
@@ -421,10 +421,10 @@ function HeroSectionWithTransformingSearch() {
                 <div className="w-full max-w-2xl mx-auto px-2 sm:px-0">
                   <div className="bg-gray-800/95 backdrop-blur-sm px-4 py-3 rounded-b-2xl">
                     <h3 className="text-lg font-semibold text-white">
-                      {searchResults?.metadata?.isKrakenMode ? (
+                      {searchResults?.metadata?.isResearchMode ? (
                         <span className="flex items-center space-x-2">
                           <Brain className="w-5 h-5 text-purple-400" />
-                          <span>THE KRAKEN found {searchResults?.results?.length || 0} recommendations</span>
+                          <span>MySeniorValet Research found {searchResults?.results?.length || 0} recommendations</span>
                         </span>
                       ) : (
                         <span>Found {searchResults?.results?.length || 0} results</span>

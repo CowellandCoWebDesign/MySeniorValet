@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface AutoExpandingSearchProps {
-  onSearch: (query: string, isKrakenMode?: boolean) => void;
+  onSearch: (query: string, isResearchMode?: boolean) => void;
   onQueryChange?: (query: string) => void;
   initialQuery?: string;
   placeholder?: string;
@@ -20,7 +20,7 @@ export function AutoExpandingSearch({
 }: AutoExpandingSearchProps) {
   const [query, setQuery] = useState(initialQuery);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isKrakenMode, setIsKrakenMode] = useState(false);
+  const [isResearchMode, setIsResearchMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -43,9 +43,9 @@ export function AutoExpandingSearch({
     }
   }, [isExpanded]);
 
-  // Detect Kraken mode based on query content
-  const detectKrakenMode = useCallback((text: string) => {
-    const krakenTriggers = [
+  // Detect Research mode based on query content
+  const detectResearchMode = useCallback((text: string) => {
+    const researchTriggers = [
       'what', 'how', 'why', 'when', 'where', 'which',
       'tell me', 'explain', 'compare', 'recommend', 'suggest',
       'best', 'worst', 'cheapest', 'most expensive',
@@ -54,7 +54,7 @@ export function AutoExpandingSearch({
     ];
     
     const lowerText = text.toLowerCase();
-    const isQuestion = krakenTriggers.some(trigger => lowerText.includes(trigger));
+    const isQuestion = researchTriggers.some((trigger: string) => lowerText.includes(trigger));
     const isLongQuery = text.length > 50;
     const hasMultipleSentences = text.split(/[.!?]/).length > 2;
     
@@ -67,10 +67,10 @@ export function AutoExpandingSearch({
     setQuery(value);
     onQueryChange?.(value);
     
-    // Detect if we should enter Kraken mode
-    const shouldUseKraken = detectKrakenMode(value);
-    if (shouldUseKraken !== isKrakenMode) {
-      setIsKrakenMode(shouldUseKraken);
+    // Detect if we should enter Research mode
+    const shouldUseResearch = detectResearchMode(value);
+    if (shouldUseResearch !== isResearchMode) {
+      setIsResearchMode(shouldUseResearch);
     }
     
     adjustTextareaHeight();
@@ -90,7 +90,7 @@ export function AutoExpandingSearch({
     
     setIsLoading(true);
     try {
-      await onSearch(query, isKrakenMode);
+      await onSearch(query, isResearchMode);
     } finally {
       setIsLoading(false);
     }
@@ -130,12 +130,12 @@ export function AutoExpandingSearch({
             ? 'border-purple-500 shadow-purple-500/20' 
             : 'border-gray-200 dark:border-gray-600 hover:border-purple-300'
           }
-          ${isKrakenMode ? 'ring-2 ring-purple-400/50' : ''}
+          ${isResearchMode ? 'ring-2 ring-purple-400/50' : ''}
         `}>
           
-          {/* Kraken Mode Indicator */}
+          {/* Research Mode Indicator */}
           <AnimatePresence>
-            {isKrakenMode && (
+            {isResearchMode && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -144,7 +144,7 @@ export function AutoExpandingSearch({
               >
                 <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-3 py-1 rounded-full flex items-center space-x-1">
                   <Brain className="w-3 h-3" />
-                  <span>🐙 KRAKEN AI Mode</span>
+                  <span>MySeniorValet Research Mode</span>
                   <Sparkles className="w-3 h-3 animate-pulse" />
                 </div>
               </motion.div>
@@ -153,7 +153,7 @@ export function AutoExpandingSearch({
 
           {/* Search Icon */}
           <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
-            {isKrakenMode ? (
+            {isResearchMode ? (
               <Brain className="h-5 w-5 text-purple-600" />
             ) : (
               <Search className="h-5 w-5 text-gray-400" />
@@ -192,7 +192,7 @@ export function AutoExpandingSearch({
               size="sm"
               className={`
                 px-4 py-2 rounded-xl transition-all
-                ${isKrakenMode 
+                ${isResearchMode 
                   ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700' 
                   : 'bg-purple-600 hover:bg-purple-700'
                 }
@@ -201,7 +201,7 @@ export function AutoExpandingSearch({
             >
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
-              ) : isKrakenMode ? (
+              ) : isResearchMode ? (
                 <>
                   <MessageCircle className="w-4 h-4 mr-1" />
                   Ask
@@ -232,7 +232,7 @@ export function AutoExpandingSearch({
                       <span className="w-2 h-2 bg-green-400 rounded-full"></span>
                       <span>Live search across 32,970+ communities</span>
                     </span>
-                    {isKrakenMode && (
+                    {isResearchMode && (
                       <span className="flex items-center space-x-1">
                         <Brain className="w-3 h-3 text-purple-500" />
                         <span>Advanced AI analysis active</span>
