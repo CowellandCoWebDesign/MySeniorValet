@@ -308,8 +308,9 @@ export class UnifiedSearchEngine {
       }
       
       if (intent.extractedEntities.careType) {
+        // careTypes is an array field, need to check if array contains the value
         conditions.push(
-          ilike(communities.careTypes, `%${intent.extractedEntities.careType}%`)
+          sql`${communities.careTypes} && ARRAY[${intent.extractedEntities.careType}]::text[]`
         );
       }
       

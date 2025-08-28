@@ -121,8 +121,31 @@ function HeroSectionWithTransformingSearch() {
         });
 
       } else {
-        // Regular search for list/map view
-        await handleUnifiedSearch(query);
+        // Regular search for list/map view - use NLP search as primary
+        const response = await fetch('/api/nlp/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            query: query,
+            limit: 50
+          })
+        });
+
+        if (!response.ok) {
+          // Fallback to unified search
+          await handleUnifiedSearch(query);
+        } else {
+          const data = await response.json();
+          const communities = data.results?.map((r: any) => r.data || r) || [];
+          setSearchResults({ 
+            results: communities, 
+            metadata: {
+              intent: data.intent,
+              facets: data.facets,
+              suggestions: data.suggestions
+            }
+          });
+        }
       }
     } catch (error) {
       console.error('Search failed:', error);
