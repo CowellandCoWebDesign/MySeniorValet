@@ -5,7 +5,8 @@ MySeniorValet is a $50M AI-powered "Google of Senior Care" platform with living,
 
 ### Recent Changes (August 28, 2025)
 - **Hero Section Redesigned**: Simplified from complex transforming animations to clean static layout with search bar fixed below hero text
-- **Search Experience Enhanced**: Auto-activates on 2+ characters typed, results expand downward in white container with max-height scrolling
+- **Search Behavior Updated**: Search now only triggers on Enter key or Search button click (not automatically while typing)
+- **Community Cards Simplified**: Removed Reviews & Ratings and Inspections sections for cleaner card layout
 - **Performance Improved**: Removed sliding animations and complex state transforms for faster, more reliable user experience
 - **Search Accuracy Fixed**: Improved intent detection to recognize city names directly (e.g., "Redding" now correctly returns Redding, CA communities)
 - **Location Matching Enhanced**: Database search now properly handles both single cities and "City, State" formats with exact matching prioritization
