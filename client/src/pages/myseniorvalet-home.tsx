@@ -158,25 +158,28 @@ function HeroSectionWithTransformingSearch() {
         </div>
         
         <div className="relative z-10 h-full flex flex-col justify-center px-4 sm:px-8 py-8">
-        {/* Hero Text with Transparent Bubble Background - Positioned to avoid mascot on left */}
-        <div className="w-full max-w-3xl ml-auto mr-8 mb-8">
-          <div className="bg-black/50 backdrop-blur-sm rounded-2xl px-4 sm:px-6 py-4 sm:py-6 text-center">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 leading-tight">
-              Everything You Need. Nothing You Pay.
-            </h1>
-            
-            <div className="text-xs sm:text-sm md:text-base text-gray-200 max-w-2xl mx-auto">
-              <p className="leading-relaxed">
-                Search 35,000+ communities globally with real pricing & trusted reviews • 
-                We NEVER sell your info • Access 1,000's of services & support resources • 
-                A platform built for families, not profits 💙
-              </p>
+        {/* Hero Text with Transparent Bubble Background - Positioned far right to avoid mascot */}
+        <div className="w-full flex justify-end mb-8">
+          <div className="w-full max-w-xl mr-4 sm:mr-8 lg:mr-12">
+            <div className="bg-black/60 backdrop-blur-sm rounded-2xl px-4 sm:px-6 py-3 sm:py-4 text-center">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 leading-tight">
+                Everything You Need. Nothing You Pay.
+              </h1>
+              
+              <div className="text-xs sm:text-sm text-gray-200 max-w-md mx-auto">
+                <p className="leading-relaxed">
+                  Search 35,000+ communities globally with real pricing & trusted reviews • 
+                  We NEVER sell your info • Access 1,000's of services & support resources • 
+                  A platform built for families, not profits 💙
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Search Bar - Positioned to avoid mascot on left */}
-        <div className="w-full max-w-2xl ml-auto mr-8 px-4">
+        {/* Search Bar - Positioned far right to avoid mascot */}
+        <div className="w-full flex justify-end">
+          <div className="w-full max-w-xl mr-4 sm:mr-8 lg:mr-12 px-4">
           <div className="relative bg-white/95 backdrop-blur rounded-xl shadow-2xl">
             <div className="flex items-center">
               <Search className="absolute left-4 sm:left-5 w-5 h-5 text-gray-500" />
@@ -246,6 +249,7 @@ function HeroSectionWithTransformingSearch() {
               </div>
             </div>
           )}
+          </div>
         </div>
 
           {/* Trust Indicators - Only show when not searching */}
