@@ -170,7 +170,13 @@ IF FOUND, provide:
    - Accreditations or certifications
    - Parent company or management group
 
-Remember: Only provide details if the facility is EXACTLY named "${communityName}"`;
+ALSO INCLUDE:
+- Market analysis for ${location} area
+- List of 5-10 comparable communities in the area with their pricing
+- Average market rates for different care levels
+- Market trends and insights
+
+If "${communityName}" is not found exactly, still provide all the market data and comparable communities.`;
 
     try {
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -184,14 +190,16 @@ Remember: Only provide details if the facility is EXACTLY named "${communityName
           messages: [
             {
               role: 'system',
-              content: `You are an expert senior living research specialist with STRICT accuracy requirements.
-CRITICAL RULES:
-1. ONLY provide information about communities with the EXACT name requested
-2. If the community name in your sources doesn't match exactly, state that the specific community was not found
-3. Never mix or confuse information from different communities with similar names
-4. Example: If asked about "Hilltop Estates", DO NOT provide information about "Hilltop Springs" or any other variation
-5. Always verify the community name matches exactly before providing any details
-Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.`
+              content: `You are a comprehensive senior living market analyst providing detailed market research.
+Your goal is to provide valuable market data and analysis, not just exact matches.
+
+IMPORTANT: 
+1. Search for the requested community AND provide comprehensive market analysis
+2. If the exact community isn't found, still provide valuable market data for the area
+3. Include ALL senior living communities found in the specified location
+4. Provide actual pricing ranges, not just "Contact for pricing"
+5. Extract real data from your sources - websites, phone numbers, addresses
+6. Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://`
             },
             {
               role: 'user',
@@ -470,18 +478,12 @@ Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.`
       (structuredData && (structuredData.website || structuredData.phone || structuredData.photos))
     );
     
-    // Check if community was found - prioritize actual data over text indicators
+    // Check if community was found - more lenient now that we want market data
     const notFoundIndicators = [
-      'could not find',
-      'no information available',
-      'unable to find', 
-      'no senior living community named',
-      'no listings',
-      'was not found',
-      'was **not found**',
-      'not found',
-      'cannot be found',
-      'does not exist'
+      'could not find any senior living',
+      'no information available for any communities',
+      'unable to find any facilities', 
+      'no listings available'
     ];
     
     // Check for negative context around the community name
@@ -504,7 +506,8 @@ Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.`
     // Consider it found if:
     // 1. We have actual data (photos, website, phone) regardless of text
     // 2. OR there are positive indicators and no negative ones
-    const found = hasActualData || (!hasNegativeContext && hasPositiveIndicators);
+    // 3. OR we have market data even if the specific community wasn't found
+    const found = hasActualData || (!hasNegativeContext && hasPositiveIndicators) || citations.length > 0;
 
     if (!found) {
       console.log(`  ⚠️ Community not found by Perplexity`);
@@ -519,7 +522,7 @@ Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.`
       };
     }
     
-    console.log(`  ✅ Found specific information for ${communityName}`);
+    console.log(`  ✅ Found market information for ${communityName} area`);
     
     // Verify the response is about the correct community
     // Check for wrong community names in the content
@@ -677,7 +680,31 @@ Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.`
       
       result.amenities = amenities.length > 0 ? amenities : undefined;
 
-      // Create a clean description by removing JSON and URLs
+      // Extract nearby/comparable communities
+      const nearbyOptions = [];
+      const communityListPattern = /\d+\.\s*([^:]+?)(?:\s*[-–:]\s*)([^$\n]+)(\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?)?/g;
+      let communityMatch;
+      while ((communityMatch = communityListPattern.exec(content)) !== null) {
+        const name = communityMatch[1].trim();
+        const details = communityMatch[2].trim();
+        const pricing = communityMatch[3];
+        
+        if (name && name.length < 60 && !name.toLowerCase().includes('pricing')) {
+          nearbyOptions.push({
+            name: name,
+            address: details.replace(/\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/, '').trim(),
+            distance: 'In area',
+            pricing: pricing,
+            description: details
+          });
+        }
+      }
+      
+      if (nearbyOptions.length > 0) {
+        result.nearbyOptions = nearbyOptions.slice(0, 10);
+      }
+
+      // Create a clean description with market analysis info
       let cleanDescription = content
         .replace(/```json[\s\S]*?```/g, '')
         .replace(/\{[\s\S]*?\}/g, '')
@@ -686,11 +713,15 @@ Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.`
         .replace(/\s+/g, ' ')
         .trim();
 
-      // Take first meaningful sentence or 200 chars
+      // Include market analysis if present
+      const marketMatch = cleanDescription.match(/(?:market|average|pricing in).+?(?:\.|$)/i);
+      const marketInfo = marketMatch ? marketMatch[0] : '';
+      
+      // Take first meaningful sentence plus market info
       const firstSentence = cleanDescription.match(/^[^.!?]+[.!?]/);
-      result.description = firstSentence ? 
+      result.description = marketInfo || (firstSentence ? 
         firstSentence[0].trim() : 
-        cleanDescription.slice(0, 200) + (cleanDescription.length > 200 ? '...' : '');
+        cleanDescription.slice(0, 200) + (cleanDescription.length > 200 ? '...' : ''));
     }
 
     return result;
@@ -731,29 +762,80 @@ Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://.`
   private parseNearbyOptions(content: string, citations: string[]): CommunityIntelligence {
     const nearbyOptions = [];
     
-    // Simple pattern to extract community mentions
+    // Enhanced pattern extraction for communities
     const lines = content.split('\n');
+    
+    // Pattern 1: Numbered lists
+    const numberedPattern = /^\d+\.\s*(.+)/;
+    // Pattern 2: Bulleted lists
+    const bulletPattern = /^[-•*]\s*(.+)/;
+    // Pattern 3: Communities with pricing
+    const pricePattern = /\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/;
+    
     for (const line of lines) {
-      if (line.includes('miles') || line.includes('mi')) {
-        const nameMatch = line.match(/^[-•*]?\s*([^:,]+)/);
-        const distanceMatch = line.match(/(\d+\.?\d*)\s*mi/i);
+      let communityInfo = null;
+      
+      // Check for numbered or bulleted items
+      const numberedMatch = line.match(numberedPattern);
+      const bulletMatch = line.match(bulletPattern);
+      const itemContent = numberedMatch?.[1] || bulletMatch?.[1] || line;
+      
+      if (itemContent) {
+        // Extract name (usually before dash or colon)
+        const nameMatch = itemContent.match(/^([^-–:]+)/);
+        const name = nameMatch ? nameMatch[1].trim() : itemContent.trim();
         
-        if (nameMatch) {
+        // Extract pricing
+        const priceMatch = itemContent.match(pricePattern);
+        const pricing = priceMatch ? priceMatch[0] : undefined;
+        
+        // Extract distance
+        const distanceMatch = itemContent.match(/(\d+\.?\d*)\s*mi(?:les)?/i);
+        const distance = distanceMatch ? `${distanceMatch[1]} miles` : 'In area';
+        
+        // Extract address if present
+        const addressMatch = itemContent.match(/(?:at|located at)\s+([^,]+(?:,\s*[A-Z]{2}\s+\d{5})?)/i);
+        const address = addressMatch ? addressMatch[1] : '';
+        
+        // Only add if we have a reasonable name
+        if (name && name.length < 80 && !name.toLowerCase().includes('pricing') && 
+            !name.toLowerCase().includes('average') && !name.toLowerCase().includes('market')) {
           nearbyOptions.push({
-            name: nameMatch[1].trim(),
-            address: '',
-            distance: distanceMatch ? `${distanceMatch[1]} miles` : 'nearby'
+            name: name,
+            address: address,
+            distance: distance,
+            pricing: pricing,
+            description: itemContent
           });
         }
       }
     }
+    
+    // Also look for communities mentioned inline
+    const inlinePattern = /([A-Z][^,]+?)\s+(?:is|offers|provides)\s+([^.]+)/g;
+    let inlineMatch;
+    while ((inlineMatch = inlinePattern.exec(content)) !== null) {
+      const name = inlineMatch[1].trim();
+      const description = inlineMatch[2].trim();
+      
+      if (!nearbyOptions.some(opt => opt.name === name) && name.length < 60) {
+        nearbyOptions.push({
+          name: name,
+          address: '',
+          distance: 'In area',
+          description: description
+        });
+      }
+    }
 
-    // Always return found: false for area searches since they're fallbacks when specific community isn't found
+    // Return enriched data even for area searches
     return {
-      found: false,
-      name: 'Area Search',
-      nearbyOptions: nearbyOptions.slice(0, 10),
-      description: `Found ${nearbyOptions.length} communities in the area`,
+      found: nearbyOptions.length > 0,
+      name: 'Market Analysis',
+      nearbyOptions: nearbyOptions.slice(0, 15),
+      description: nearbyOptions.length > 0 
+        ? `Found ${nearbyOptions.length} senior living communities in the area with market data`
+        : 'No specific communities found in this search',
       sources: citations
     };
   }
