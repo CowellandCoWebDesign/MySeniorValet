@@ -195,66 +195,66 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
 
-        {/* Enhanced Unified Search Bar */}
-        <div className="w-full max-w-3xl mx-auto px-2 sm:px-0 relative">
-          {/* Main Search Input with AI Enhancement */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
-              <Search className="h-4 sm:h-5 w-4 sm:w-5 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask anything: locations, care types, pricing, availability, services..."
-              className="w-full pl-10 sm:pl-12 pr-32 py-3 sm:py-4 text-base sm:text-lg bg-white/95 backdrop-blur-sm border-2 border-purple-200 focus:border-purple-500 rounded-xl shadow-2xl"
-            />
-            <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:pr-3 gap-1 sm:gap-2">
-              {/* Clear Button */}
+        {/* Search Bar with Connected UI - Unified Component */}
+        <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative">
+          <div className={`relative bg-white ${isSearchActive ? 'rounded-t-lg sm:rounded-t-xl' : 'rounded-lg sm:rounded-xl'} shadow-lg sm:shadow-2xl`}>
+            <div className="flex items-center">
+              <Search className="absolute left-3 sm:left-4 w-4 sm:w-5 h-4 sm:h-5 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Search by city, state, or care..."
+                className="w-full pl-10 sm:pl-12 pr-2 sm:pr-4 py-3 sm:py-4 text-base sm:text-lg bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-500"
+              />
+              
+              {/* Clear Button - Show only when text exists */}
               {searchQuery && (
                 <Button
                   size="sm"
                   onClick={clearSearch}
-                  className="p-1.5 sm:p-2 bg-gray-200 hover:bg-gray-300 rounded-lg"
+                  className="mr-1 sm:mr-2 p-1 sm:p-2 bg-gray-200 hover:bg-gray-300"
                 >
                   <X className="w-3 sm:w-4 h-3 sm:h-4" />
                 </Button>
               )}
               
-              {/* AI Badge */}
-              <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-[10px] sm:text-xs px-2 sm:px-3">
-                <Sparkles className="w-2 sm:w-3 h-2 sm:h-3 mr-0.5 sm:mr-1 animate-pulse" />
+              {/* AI Badge - Smaller on mobile */}
+              <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white mr-1 sm:mr-2 text-[10px] sm:text-xs px-2 sm:px-3">
+                <Sparkles className="w-2 sm:w-3 h-2 sm:h-3 mr-0.5 sm:mr-1" />
                 AI
               </Badge>
             </div>
           </div>
           
-          {/* View Toggle - Appears when searching */}
+          {/* View Toggle and Tabs - Connected directly below search bar */}
           <AnimatePresence>
             {isSearchActive && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.2 }}
-                className="absolute top-full left-0 right-0 z-50 mt-2"
+                className="absolute top-full left-0 right-0 z-50"
+                style={{ marginTop: '-1px' }}
               >
-                <div className="bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-2xl p-2">
-                  <div className="flex justify-center">
+                <div className="bg-gray-900 rounded-b-lg sm:rounded-b-xl shadow-xl">
+                  {/* View Toggle Buttons */}
+                  <div className="flex justify-center py-2">
                     <div className="inline-flex bg-white/10 rounded-full p-1">
                       <Button
                         size="sm"
                         variant={viewMode === 'list' ? 'default' : 'ghost'}
                         onClick={() => setViewMode('list')}
-                        className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all text-xs sm:text-sm ${
+                        className={`px-4 py-2 rounded-full transition-all ${
                           viewMode === 'list' 
                             ? 'bg-purple-600 hover:bg-purple-700 text-white' 
                             : 'text-gray-300 hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        <List className="w-3 sm:w-4 h-3 sm:h-4 mr-1 sm:mr-2" />
-                        <span className="font-medium">List View</span>
+                        <List className="w-4 h-4 mr-2" />
+                        <span className="text-sm font-medium">List View</span>
                       </Button>
                       <Button
                         size="sm"
@@ -265,16 +265,21 @@ function HeroSectionWithTransformingSearch() {
                             setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
                           }
                         }}
-                        className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all text-xs sm:text-sm ${
+                        className={`px-4 py-2 rounded-full transition-all ${
                           viewMode === 'map' 
                             ? 'bg-purple-600 hover:bg-purple-700 text-white' 
                             : 'text-gray-300 hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        <MapIcon className="w-3 sm:w-4 h-3 sm:h-4 mr-1 sm:mr-2" />
-                        <span className="font-medium">Map View</span>
+                        <MapIcon className="w-4 h-4 mr-2" />
+                        <span className="text-sm font-medium">Map View</span>
                       </Button>
                     </div>
+                  </div>
+
+                  {/* Filter Tabs - Connected UI */}
+                  <div className="px-2 sm:px-4 pb-2">
+                    <UnifiedSearch />
                   </div>
                 </div>
               </motion.div>
