@@ -42,6 +42,16 @@ const heroBackgroundImage = '/starry-night-hero.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 
+// Preload critical hero image
+if (typeof document !== 'undefined') {
+  const link = document.createElement('link');
+  link.rel = 'preload';
+  link.as = 'image';
+  link.href = heroBackgroundImage;
+  link.type = 'image/png';
+  document.head.appendChild(link);
+}
+
 
 
 
@@ -50,6 +60,7 @@ function HeroSectionWithTransformingSearch() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [imageLoaded, setImageLoaded] = useState(false);
   const debouncedQuery = useDebounce(searchQuery, 500);
   const [, setLocation] = useLocation();
 
@@ -129,14 +140,22 @@ function HeroSectionWithTransformingSearch() {
 
   return (
     <>
-      <section className="relative bg-black h-screen">
+      <section className="relative h-screen" 
+        style={{
+          background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
+        }}
+      >
         {/* Background Image */}
         <div className="absolute inset-0 h-full w-full">
           <img
             src={heroBackgroundImage}
             alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
-            className="w-full h-full object-cover object-center"
+            className={`w-full h-full object-cover object-center transition-opacity duration-700 ${
+              imageLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
             loading="eager"
+            onLoad={() => setImageLoaded(true)}
+            fetchpriority="high"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
         </div>
