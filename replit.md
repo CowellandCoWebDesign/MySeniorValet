@@ -1,11 +1,14 @@
 # MySeniorValet - Senior Living Community Transparency Platform
 
 ## Overview
-MySeniorValet is an AI-powered "Google of Senior Care" platform, featuring "MySeniorValet Research," a unified AI search engine. It consolidates multiple search interfaces into one superintelligent system with natural language processing, predictive search, and multi-AI orchestration (Perplexity, Claude, ChatGPT). The platform provides comprehensive care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the TourMate™ tour scheduling system, One-Touch Emergency Contact Shortcut, trilingual support (English, French, Spanish), and self-healing mechanisms. MySeniorValet aims to bring transparency to senior living through its neural network architecture and autonomous decision-making. The business model ensures families receive full platform access for free, with revenue generated exclusively from B2B clients (communities, professionals, healthcare, vendors).
+MySeniorValet is an AI-powered "Google of Senior Care" platform, featuring "Learn Mode," a unified AI search engine. It consolidates multiple search interfaces into one superintelligent system with natural language processing, predictive search, and multi-AI orchestration (Perplexity, Claude, ChatGPT). The platform provides comprehensive care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the TourMate™ tour scheduling system, One-Touch Emergency Contact Shortcut, trilingual support (English, French, Spanish), and self-healing mechanisms. MySeniorValet aims to bring transparency to senior living through its neural network architecture and autonomous decision-making. The business model ensures families receive full platform access for free, with revenue generated exclusively from B2B clients (communities, professionals, healthcare, vendors).
 
 ## Recent Changes (August 28, 2025)
-- **MySeniorValet Research Rebrand**: Renamed from "THE KRAKEN" to "MySeniorValet Research" to avoid trademark conflicts
-- **NLP Search System - 100% Complete**: MySeniorValet Research is fully operational! Complete natural language processing implementation
+- **Learn Mode Implementation**: Rebranded AI system to "Learn" mode - creating the perfect trio: List, Map, Learn
+  - Added tab navigation above search bar for List, Map, Learn modes
+  - Learn mode automatically activates AI research capabilities
+  - Simplified branding for better user understanding
+- **NLP Search System - 100% Complete**: Learn mode is fully operational! Complete natural language processing implementation
   - **Synonym Dictionary**: 30+ categories including care types, locations, amenities, modifiers
   - **Abbreviation Expansion**: ALF→"assisted living facility", SNF→"skilled nursing", MC→"memory care"  
   - **State Mapping**: Full state names to abbreviations (Texas→TX, California→CA)
@@ -14,7 +17,7 @@ MySeniorValet is an AI-powered "Google of Senior Care" platform, featuring "MySe
   - **Intent Classification**: Search (0.5), Questions (0.85), Recommendations (0.75), Comparisons (0.8)
   - **Database Integration**: Successfully querying 32,970 communities across TX (3,626), CA (2,325), ON (1,711)
   - **API Endpoints**: 9 fully operational endpoints including search, classify, suggestions, analytics
-  - **Self-Learning Analytics**: MySeniorValet Research's neural network tracks every interaction for continuous improvement
+  - **Self-Learning Analytics**: Learn mode's neural network tracks every interaction for continuous improvement
   - **Multi-Database Federation**: Parallel search across communities, services, and healthcare databases
   - **Real-time Suggestions**: Sub-10ms predictive text with context-aware generation
   - **Performance Validated**: All systems tested and operational with <200ms response times

@@ -63,7 +63,7 @@ function HeroSectionWithTransformingSearch() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchResults, setSearchResults] = useState<any>({ results: [], metadata: null });
   const [isLoading, setIsLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'map' | 'learn'>('list');
   const [imageLoaded, setImageLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
   const [, setLocation] = useLocation();
@@ -82,8 +82,9 @@ function HeroSectionWithTransformingSearch() {
     setIsLoading(true);
 
     try {
-      if (isResearchMode) {
-        // Use MySeniorValet Research's Q&A endpoint for conversational queries
+      // Automatically use research mode if in Learn tab or if it's detected as a research query
+      if (isResearchMode || viewMode === 'learn') {
+        // Use Learn mode's Q&A endpoint for conversational queries
         const response = await fetch('/api/nlp/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -264,58 +265,68 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
 
-        {/* Auto-Expanding Search Bar with KRAKEN AI Integration */}
+        {/* View Mode Tabs - List, Map, Learn */}
+        <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 mb-3">
+          <div className="flex justify-center">
+            <div className="inline-flex bg-gray-800/90 backdrop-blur-sm rounded-full p-1 shadow-lg">
+              <Button
+                size="sm"
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                onClick={() => setViewMode('list')}
+                className={`px-4 py-2 rounded-full transition-all text-sm font-medium ${
+                  viewMode === 'list' 
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-md' 
+                    : 'text-gray-300 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <List className="w-4 h-4 mr-1.5" />
+                <span>List</span>
+              </Button>
+              <Button
+                size="sm"
+                variant={viewMode === 'map' ? 'default' : 'ghost'}
+                onClick={() => {
+                  setViewMode('map');
+                  if (searchQuery) {
+                    setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
+                  }
+                }}
+                className={`px-4 py-2 rounded-full transition-all text-sm font-medium ${
+                  viewMode === 'map' 
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-md' 
+                    : 'text-gray-300 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <MapPin className="w-4 h-4 mr-1.5" />
+                <span>Map</span>
+              </Button>
+              <Button
+                size="sm"
+                variant={viewMode === 'learn' ? 'default' : 'ghost'}
+                onClick={() => setViewMode('learn')}
+                className={`px-4 py-2 rounded-full transition-all text-sm font-medium ${
+                  viewMode === 'learn' 
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-md' 
+                    : 'text-gray-300 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Brain className="w-4 h-4 mr-1.5" />
+                <span>Learn</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Auto-Expanding Search Bar */}
         <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative">
           <AutoExpandingSearch 
             initialQuery={searchQuery}
             onSearch={handleAutoExpandingSearch}
             onQueryChange={setSearchQuery}
-            placeholder="Search communities or ask MySeniorValet Research anything..."
+            placeholder={viewMode === 'learn' ? "Ask any question about senior living..." : "Search communities or ask anything..."}
             className="relative z-40"
           />
-          
-          {/* View Toggle Buttons - Below search when active */}
-          {isSearchActive && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-2 flex justify-center"
-            >
-              <div className="inline-flex bg-gray-800/90 backdrop-blur-sm rounded-full p-1 shadow-lg">
-                <Button
-                  size="sm"
-                  variant={viewMode === 'list' ? 'default' : 'ghost'}
-                  onClick={() => setViewMode('list')}
-                  className={`px-3 py-1 rounded-full transition-all text-xs ${
-                    viewMode === 'list' 
-                      ? 'bg-purple-600 hover:bg-purple-700 text-white' 
-                      : 'text-gray-300 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <List className="w-3 h-3 mr-1" />
-                  <span>List</span>
-                </Button>
-                <Button
-                  size="sm"
-                  variant={viewMode === 'map' ? 'default' : 'ghost'}
-                  onClick={() => {
-                    setViewMode('map');
-                    if (searchQuery) {
-                      setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
-                    }
-                  }}
-                  className={`px-3 py-1 rounded-full transition-all text-xs ${
-                    viewMode === 'map' 
-                      ? 'bg-purple-600 hover:bg-purple-700 text-white' 
-                      : 'text-gray-300 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <MapIcon className="w-3 h-3 mr-1" />
-                  <span>Map</span>
-                </Button>
-              </div>
-            </motion.div>
-          )}
+
         </div>
 
           {/* Trust Indicators - Only show when not searching */}
@@ -355,7 +366,7 @@ function HeroSectionWithTransformingSearch() {
             transition={{ duration: 0.3 }}
             className="w-full bg-gray-900 -mt-[400px] relative z-20"
           >
-            {/* MySeniorValet Research Response Section */}
+            {/* Learn Mode Response Section */}
             {searchResults?.metadata?.isResearchMode && searchResults?.metadata?.researchResponse && (
               <div className="max-w-6xl mx-auto p-4 bg-gradient-to-b from-gray-900 to-gray-800">
                 {/* Research Header */}
@@ -372,7 +383,7 @@ function HeroSectionWithTransformingSearch() {
                       </div>
                       <div>
                         <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                          MySeniorValet Research Response
+                          Learn Mode Response
                         </h2>
                         <p className="text-sm text-gray-400 mt-1">
                           AI-powered analysis across 32,970+ communities
@@ -415,7 +426,7 @@ function HeroSectionWithTransformingSearch() {
             )}
 
             {/* Regular Search Results */}
-            {viewMode === 'list' && (
+            {(viewMode === 'list' || viewMode === 'learn') && (
               <div>
                 {/* Results Header */}
                 <div className="w-full max-w-2xl mx-auto px-2 sm:px-0">
@@ -424,7 +435,7 @@ function HeroSectionWithTransformingSearch() {
                       {searchResults?.metadata?.isResearchMode ? (
                         <span className="flex items-center space-x-2">
                           <Brain className="w-5 h-5 text-purple-400" />
-                          <span>MySeniorValet Research found {searchResults?.results?.length || 0} recommendations</span>
+                          <span>Learn Mode found {searchResults?.results?.length || 0} recommendations</span>
                         </span>
                       ) : (
                         <span>Found {searchResults?.results?.length || 0} results</span>

@@ -144,7 +144,7 @@ export function AutoExpandingSearch({
               >
                 <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-3 py-1 rounded-full flex items-center space-x-1">
                   <Brain className="w-3 h-3" />
-                  <span>MySeniorValet Research Mode</span>
+                  <span>Learn Mode Active</span>
                   <Sparkles className="w-3 h-3 animate-pulse" />
                 </div>
               </motion.div>
