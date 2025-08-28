@@ -38,8 +38,24 @@ interface UnifiedSearchResponse {
   };
 }
 
-export function UnifiedSearch() {
-  const [query, setQuery] = useState('');
+interface UnifiedSearchProps {
+  onSearch?: (query: string, results: any[]) => void;
+  initialQuery?: string;
+  autoFocus?: boolean;
+  showDropdownResults?: boolean;
+  placeholder?: string;
+  className?: string;
+}
+
+export function UnifiedSearch({ 
+  onSearch, 
+  initialQuery = '', 
+  autoFocus = false,
+  showDropdownResults = false,
+  placeholder = "Ask anything: locations, care types, pricing, availability, services...",
+  className = ""
+}: UnifiedSearchProps = {}) {
+  const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [metadata, setMetadata] = useState<UnifiedSearchResponse['metadata'] | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -49,6 +65,11 @@ export function UnifiedSearch() {
   const [error, setError] = useState<string | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const debouncedQuery = useDebounce(query, 300);
+  
+  // Update query when initialQuery prop changes
+  useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
 
   // Manual search function - only triggered by user action
   const performSearch = async () => {
@@ -80,7 +101,14 @@ export function UnifiedSearch() {
       setMetadata(data.metadata || data.searchMetadata || null);
       setSuggestions(data.suggestions || []);
       setAiInsights(data.aiInsights || data.insights);
-      setShowResults(true);
+      
+      // Call the onSearch callback if provided
+      if (onSearch) {
+        onSearch(query, searchResults);
+      }
+      
+      // Only show dropdown results if enabled
+      setShowResults(showDropdownResults);
     } catch (err) {
       console.error('Unified search error:', err);
       setError('Search is temporarily unavailable');
@@ -159,11 +187,16 @@ export function UnifiedSearch() {
             if (e.target.value === '') {
               setResults([]);
               setShowResults(false);
+              // Notify parent component about the clear
+              if (onSearch) {
+                onSearch('', []);
+              }
             }
           }}
           onKeyPress={handleKeyPress}
-          placeholder="Ask anything: locations, care types, pricing, availability, services..."
-          className="pl-10 pr-32 py-6 text-lg bg-white/95 backdrop-blur-sm border-2 border-purple-200 focus:border-purple-500 rounded-xl"
+          placeholder={placeholder}
+          className={`pl-10 pr-32 py-6 text-lg bg-white/95 backdrop-blur-sm border-2 border-purple-200 focus:border-purple-500 rounded-xl ${className}`}
+          autoFocus={autoFocus}
         />
         <div className="absolute inset-y-0 right-0 flex items-center pr-3 gap-2">
           {isLoading ? (

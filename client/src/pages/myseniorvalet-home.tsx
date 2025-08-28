@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { useDebounce } from "@/hooks/use-debounce";
+// Removed useDebounce - not needed with UnifiedSearch component
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
 import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, MapIcon } from "lucide-react";
 import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
@@ -60,25 +60,40 @@ if (typeof document !== 'undefined') {
 function HeroSectionWithTransformingSearch() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
+  const [searchResults, setSearchResults] = useState<any>({ results: [], metadata: null });
+  const [isLoading, setIsLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [imageLoaded, setImageLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
-  const debouncedQuery = useDebounce(searchQuery, 500);
   const [, setLocation] = useLocation();
 
-  // Fetch search results using unified search API
-  const { data: searchResults, isLoading } = useQuery({
-    queryKey: ['/api/search/unified', debouncedQuery],
-    queryFn: async () => {
-      if (!debouncedQuery || debouncedQuery.length < 2) {
-        return { results: [], metadata: null };
+  // Handle search from UnifiedSearch component
+  const handleUnifiedSearch = async (query: string, resultsFromComponent?: any[]) => {
+    setSearchQuery(query);
+    
+    if (!query || query.length < 2) {
+      setIsSearchActive(false);
+      setSearchResults({ results: [], metadata: null });
+      return;
+    }
+
+    setIsSearchActive(true);
+    setIsLoading(true);
+
+    try {
+      // If results are already provided from component, use them
+      if (resultsFromComponent && resultsFromComponent.length > 0) {
+        setSearchResults({ results: resultsFromComponent, metadata: null });
+        setIsLoading(false);
+        return;
       }
 
+      // Otherwise, fetch results
       const response = await fetch('/api/search/unified', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          query: debouncedQuery,
+          query: query,
           includeHospitals: true,
           includeServices: true,
           limit: 50
@@ -92,7 +107,7 @@ function HeroSectionWithTransformingSearch() {
       // Handle both 'communities' and 'results' field names from backend
       const rawResults = data.communities || data.results || [];
       
-      // Map communities directly (no need to filter by type since backend already returns communities)
+      // Map communities directly
       const communities = rawResults.map((r: any) => ({
           id: r.id,
           name: r.name,
@@ -115,29 +130,19 @@ function HeroSectionWithTransformingSearch() {
           occupancyRate: r.occupancyRate
         }));
 
-      return { results: communities, metadata: data.metadata };
-    },
-    enabled: !!debouncedQuery && debouncedQuery.length >= 2
-  });
-
-  // Auto-activate search when typing
-  useEffect(() => {
-    if (searchQuery.length >= 2) {
-      setIsSearchActive(true);
-    } else if (searchQuery.length === 0) {
-      setIsSearchActive(false);
+      setSearchResults({ results: communities, metadata: data.metadata });
+    } catch (error) {
+      console.error('Search failed:', error);
+      setSearchResults({ results: [], metadata: null });
+    } finally {
+      setIsLoading(false);
     }
-  }, [searchQuery]);
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && viewMode === 'map' && searchQuery) {
       setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
     }
-  };
-
-  const clearSearch = () => {
-    setSearchQuery('');
-    setIsSearchActive(false);
   };
 
   return (
@@ -195,38 +200,15 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
 
-        {/* Search Bar with Connected UI - Unified Component */}
+        {/* Enhanced Unified Search Bar - Always Visible */}
         <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative">
-          <div className={`relative bg-white ${isSearchActive ? 'rounded-t-lg sm:rounded-t-xl' : 'rounded-lg sm:rounded-xl'} shadow-lg sm:shadow-2xl`}>
-            <div className="flex items-center">
-              <Search className="absolute left-3 sm:left-4 w-4 sm:w-5 h-4 sm:h-5 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Search by city, state, or care..."
-                className="w-full pl-10 sm:pl-12 pr-2 sm:pr-4 py-3 sm:py-4 text-base sm:text-lg bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-500"
-              />
-              
-              {/* Clear Button - Show only when text exists */}
-              {searchQuery && (
-                <Button
-                  size="sm"
-                  onClick={clearSearch}
-                  className="mr-1 sm:mr-2 p-1 sm:p-2 bg-gray-200 hover:bg-gray-300"
-                >
-                  <X className="w-3 sm:w-4 h-3 sm:h-4" />
-                </Button>
-              )}
-              
-              {/* AI Badge - Smaller on mobile */}
-              <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white mr-1 sm:mr-2 text-[10px] sm:text-xs px-2 sm:px-3">
-                <Sparkles className="w-2 sm:w-3 h-2 sm:h-3 mr-0.5 sm:mr-1" />
-                AI
-              </Badge>
-            </div>
-          </div>
+          <UnifiedSearch 
+            initialQuery={searchQuery}
+            onSearch={handleUnifiedSearch}
+            showDropdownResults={false}
+            placeholder="Search by city, state, care type, or ask anything..."
+            className=""
+          />
           
           {/* View Toggle and Tabs - Connected directly below search bar */}
           <AnimatePresence>
@@ -277,10 +259,7 @@ function HeroSectionWithTransformingSearch() {
                     </div>
                   </div>
 
-                  {/* Filter Tabs - Connected UI */}
-                  <div className="px-2 sm:px-4 pb-2">
-                    <UnifiedSearch />
-                  </div>
+                  {/* View mode is shown above, no need for duplicate search */}
                 </div>
               </motion.div>
             )}
