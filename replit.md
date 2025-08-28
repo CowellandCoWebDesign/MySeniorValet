@@ -3,6 +3,13 @@
 ## Overview
 MySeniorValet is an AI-powered "Google of Senior Care" platform, featuring "The Kraken," a unified AI search engine. It consolidates multiple search interfaces into one superintelligent system with natural language processing, predictive search, and multi-AI orchestration (Perplexity, Claude, ChatGPT). The platform provides comprehensive care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the TourMate™ tour scheduling system, One-Touch Emergency Contact Shortcut, trilingual support (English, French, Spanish), and self-healing mechanisms. MySeniorValet aims to bring transparency to senior living through its neural network architecture and autonomous decision-making. The business model ensures families receive full platform access for free, with revenue generated exclusively from B2B clients (communities, professionals, healthcare, vendors).
 
+## Recent Changes (August 28, 2025)
+- **Vendor Signup System**: Implemented three-tier vendor signup (Basic $99/mo, Featured $399/mo, National Partner $999/mo) with "Coming Soon" badges on highest tier
+- **Family Signup Page**: Created dedicated family signup emphasizing 100% free access forever, no credit card required
+- **DocuSign Integration**: Configured DocuSign service for professional document signing and brand awareness (replacing Documenso)
+- **TypeScript Interfaces**: Added proper typing for pricing plans with comingSoon field support
+- **Route Configuration**: Added /vendor-signup, /family-signup, /vendor/signup, and /family/signup routes
+
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
 - **Notification Email Configuration**:

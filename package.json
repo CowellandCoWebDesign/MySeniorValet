@@ -86,6 +86,7 @@
     "cookie-parser": "^1.4.7",
     "csv-parser": "^3.2.0",
     "date-fns": "^3.6.0",
+    "docusign-esign": "^8.3.0",
     "drizzle-orm": "^0.39.1",
     "drizzle-zod": "^0.7.0",
     "embla-carousel-react": "^8.6.0",

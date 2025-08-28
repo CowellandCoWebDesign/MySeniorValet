@@ -99,6 +99,7 @@ import AIMapShowcase from "@/pages/ai-map-showcase";
 import AISearchIntelligence from "@/pages/ai-search-intelligence";
 import SimplifiedSearch from "@/pages/simplified-search";
 import VendorSignup from "@/pages/vendor-signup";
+import FamilySignup from "@/pages/family-signup";
 import VendorDashboard from "@/pages/vendor-dashboard";
 import VendorWelcome from "@/pages/vendor-welcome";
 import VendorMobilePayment from "@/pages/vendor-mobile-payment";
@@ -331,6 +332,8 @@ function Router() {
       <Route path="/ai-map-showcase" component={AIMapShowcase} />
       <Route path="/vendor-signup" component={VendorSignup} />
       <Route path="/vendor/signup" component={VendorSignup} />
+      <Route path="/family-signup" component={FamilySignup} />
+      <Route path="/family/signup" component={FamilySignup} />
       <Route path="/vendor-welcome" component={VendorWelcome} />
       <Route path="/vendor/dashboard" component={VendorDashboard} />
       <Route path="/vendor-mobile-payment/:productId" component={VendorMobilePayment} />

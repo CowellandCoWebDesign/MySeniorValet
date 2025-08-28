@@ -32,53 +32,65 @@ const vendorSignupSchema = z.object({
 
 type VendorSignupForm = z.infer<typeof vendorSignupSchema>;
 
-// Pricing plans - OFFICIAL VENDOR PRICING (3 TIERS ONLY)
-const pricingPlans = [
+interface PricingPlan {
+  id: string;
+  name: string;
+  price: number;
+  badge: string | null;
+  comingSoon?: boolean;
+  features: string[];
+}
+
+// Pricing plans - NEW VENDOR TIER SYSTEM
+const pricingPlans: PricingPlan[] = [
   {
     id: 'basic',
-    name: 'Basic Listing',
+    name: 'Basic Tier',
     price: 99,
     badge: null,
     features: [
-      'Full coverage across 1 entire state',
-      'Professional vendor listing & profile',
-      'Name, phone, category, description',
-      'Optional $25 verified badge',
-      'User reviews & ratings',
-      'Affiliate link support',
-      'Basic lead notifications'
+      'Enhanced vendor listing',
+      '5 qualified leads per month',
+      'Service area targeting',
+      'Basic company profile',
+      'Contact information display',
+      'Service categories',
+      'Standard search visibility',
+      'Email support'
     ]
   },
   {
     id: 'featured',
-    name: 'Featured Vendor',
-    price: 249,
+    name: 'Featured Tier',
+    price: 399,
     badge: 'Most Popular',
     features: [
-      'Coverage across up to 3 states',
-      'Featured placement in search results',
-      'Upload logo, brand colors, CTA button',
-      'Advanced analytics dashboard',
-      'Post vendor promos & special offers',
-      'Priority placement in vendor carousels',
-      'Approved vendor badge with verification',
-      'Enhanced lead scoring & insights'
+      'Everything in Basic, plus:',
+      'Featured vendor placement',
+      '25 qualified leads per month',
+      'Priority support & analytics',
+      'Custom landing page',
+      'Advanced lead scoring',
+      'Company logo & branding',
+      'Promotional campaigns',
+      'Phone support'
     ]
   },
   {
     id: 'national',
     name: 'National Partner',
-    price: 499,
-    badge: 'Best Value',
+    price: 999,
+    badge: 'Coming Soon',
+    comingSoon: true,
     features: [
-      'Full US & Canada nationwide coverage',
-      'Premium banner rotation & placement',
-      'Concierge system priority routing',
-      'AI-powered lead summaries & scoring',
-      'API integration for lead passback',
-      'Custom branded vendor microsite',
-      'Quarterly performance reports',
-      'Dedicated success manager',
+      'Everything in Featured, plus:',
+      'Unlimited leads nationwide',
+      'API integration access',
+      'Dedicated account manager',
+      'Custom integrations',
+      'White-label options',
+      'Quarterly business reviews',
+      'Priority routing in AI system',
       'International expansion ready'
     ]
   }
@@ -334,14 +346,20 @@ export default function VendorSignup() {
               return (
                 <Card 
                   key={plan.id}
-                  className={`cursor-pointer transition-all ${
-                    selectedPlan === plan.id 
-                      ? 'ring-2 ring-purple-600 shadow-lg' 
-                      : 'hover:shadow-md'
+                  className={`transition-all ${
+                    plan.comingSoon 
+                      ? 'opacity-75 cursor-not-allowed' 
+                      : `cursor-pointer ${
+                          selectedPlan === plan.id 
+                            ? 'ring-2 ring-purple-600 shadow-lg' 
+                            : 'hover:shadow-md'
+                        }`
                   }`}
                   onClick={() => {
-                    setSelectedPlan(plan.id);
-                    form.setValue('planType', plan.id as any);
+                    if (!plan.comingSoon) {
+                      setSelectedPlan(plan.id);
+                      form.setValue('planType', plan.id as any);
+                    }
                   }}
                 >
                   <CardHeader>
