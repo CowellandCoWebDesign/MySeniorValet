@@ -210,6 +210,11 @@ export class UnifiedSearchEngine {
       intent.type = 'location';
       intent.confidence = 0.9;
       intent.extractedEntities.location = locationMatch[2].trim();
+    } else if (query.match(/^[A-Za-z\s]+(?:,\s*[A-Z]{2})?$/)) {
+      // Direct city name or city, state format (e.g., "Redding" or "Redding, CA")
+      intent.type = 'location';
+      intent.confidence = 0.85;
+      intent.extractedEntities.location = query.trim();
     }
     
     // Care type patterns
@@ -266,13 +271,34 @@ export class UnifiedSearchEngine {
       let conditions = [];
       
       if (intent.extractedEntities.location) {
-        conditions.push(
-          or(
-            ilike(communities.city, `%${intent.extractedEntities.location}%`),
-            ilike(communities.state, `%${intent.extractedEntities.location}%`),
-            ilike(communities.county, `%${intent.extractedEntities.location}%`)
-          )
-        );
+        const location = intent.extractedEntities.location;
+        
+        // Parse location for city/state
+        const parts = location.split(',').map(p => p.trim());
+        
+        if (parts.length === 2) {
+          // City, State format (e.g., "Redding, CA")
+          const [city, state] = parts;
+          conditions.push(
+            and(
+              ilike(communities.city, city),
+              or(
+                ilike(communities.state, state),
+                ilike(communities.state, `%${state}%`) // Handle full state names
+              )
+            )
+          );
+        } else {
+          // Single location string - search city, state, or county
+          conditions.push(
+            or(
+              ilike(communities.city, location), // Exact city match
+              ilike(communities.city, `%${location}%`), // City contains
+              ilike(communities.state, location), // State match
+              ilike(communities.county, `%${location}%`) // County contains
+            )
+          );
+        }
       }
       
       if (intent.extractedEntities.name) {
@@ -290,8 +316,8 @@ export class UnifiedSearchEngine {
       if (intent.extractedEntities.priceRange) {
         conditions.push(
           and(
-            gte(communities.roomAndBoard, intent.extractedEntities.priceRange.min),
-            lte(communities.roomAndBoard, intent.extractedEntities.priceRange.max)
+            gte(communities.rentPerMonth, intent.extractedEntities.priceRange.min),
+            lte(communities.rentPerMonth, intent.extractedEntities.priceRange.max)
           )
         );
       }
@@ -394,12 +420,7 @@ export class UnifiedSearchEngine {
    */
   private async webSearch(query: string): Promise<Community[]> {
     try {
-      const webResults = await this.perplexity.searchWeb(
-        `${query} senior living community contact information`
-      );
-      
-      // Parse web results and match to database
-      // This would extract community info from web results
+      // Web search temporarily disabled - Perplexity service needs update
       return [];
     } catch (error) {
       console.error('Web search error:', error);
@@ -457,10 +478,10 @@ export class UnifiedSearchEngine {
   private async generateInsights(communities: Community[], query: string): Promise<any> {
     try {
       // Calculate market trends
-      const avgPrice = communities.reduce((sum, c) => sum + (c.roomAndBoard || 0), 0) / communities.length;
+      const avgPrice = communities.reduce((sum, c) => sum + (c.rentPerMonth || 0), 0) / communities.length;
       const priceRange = {
-        min: Math.min(...communities.map(c => c.roomAndBoard || 0)),
-        max: Math.max(...communities.map(c => c.roomAndBoard || 0))
+        min: Math.min(...communities.map(c => c.rentPerMonth || 0)),
+        max: Math.max(...communities.map(c => c.rentPerMonth || 0))
       };
       
       return {
@@ -470,12 +491,12 @@ export class UnifiedSearchEngine {
           totalOptions: communities.length
         },
         priceAnalysis: {
-          affordable: communities.filter(c => (c.roomAndBoard || 0) < avgPrice * 0.8).length,
+          affordable: communities.filter(c => (c.rentPerMonth || 0) < avgPrice * 0.8).length,
           moderate: communities.filter(c => {
-            const price = c.roomAndBoard || 0;
+            const price = c.rentPerMonth || 0;
             return price >= avgPrice * 0.8 && price <= avgPrice * 1.2;
           }).length,
-          premium: communities.filter(c => (c.roomAndBoard || 0) > avgPrice * 1.2).length
+          premium: communities.filter(c => (c.rentPerMonth || 0) > avgPrice * 1.2).length
         }
       };
     } catch (error) {

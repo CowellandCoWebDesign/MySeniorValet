@@ -262,7 +262,7 @@ function HeroSectionWithTransformingSearch() {
         {!isSearchActive && <HeroMascotPanel className="hidden sm:block absolute bottom-4 left-0 right-0 z-30" />}
       </section>
 
-      {/* Search Results - Display Below Hero Section */}
+      {/* Search Results - Display Below Hero Section with Bounded Height */}
       <AnimatePresence>
         {isSearchActive && viewMode === 'list' && (
           <motion.div
@@ -270,7 +270,7 @@ function HeroSectionWithTransformingSearch() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="w-full bg-white shadow-xl"
+            className="w-full bg-white shadow-xl max-h-[60vh] overflow-y-auto"
           >
             <div className="max-w-5xl mx-auto p-2 sm:p-4">
               {/* Loading State */}

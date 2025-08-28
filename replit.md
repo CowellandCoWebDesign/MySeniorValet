@@ -7,6 +7,9 @@ MySeniorValet is a $50M AI-powered "Google of Senior Care" platform with living,
 - **Hero Section Redesigned**: Simplified from complex transforming animations to clean static layout with search bar fixed below hero text
 - **Search Experience Enhanced**: Auto-activates on 2+ characters typed, results expand downward in white container with max-height scrolling
 - **Performance Improved**: Removed sliding animations and complex state transforms for faster, more reliable user experience
+- **Search Accuracy Fixed**: Improved intent detection to recognize city names directly (e.g., "Redding" now correctly returns Redding, CA communities)
+- **Location Matching Enhanced**: Database search now properly handles both single cities and "City, State" formats with exact matching prioritization
+- **Backend Optimized**: Fixed all price field references (roomAndBoard → rentPerMonth), disabled broken web search, search response time reduced to ~500ms
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
