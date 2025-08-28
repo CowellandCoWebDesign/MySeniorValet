@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface AutoExpandingSearchProps {
   onSearch: (query: string, isResearchMode?: boolean) => void;
   onQueryChange?: (query: string) => void;
+  onFocusChange?: (focused: boolean) => void;
   initialQuery?: string;
   placeholder?: string;
   className?: string;
@@ -14,6 +15,7 @@ interface AutoExpandingSearchProps {
 export function AutoExpandingSearch({ 
   onSearch, 
   onQueryChange,
+  onFocusChange,
   initialQuery = '',
   placeholder = "Search communities or ask anything...",
   className = ""
@@ -99,12 +101,14 @@ export function AutoExpandingSearch({
   // Focus management
   const handleFocus = () => {
     setIsExpanded(true);
+    onFocusChange?.(true);
   };
 
   const handleBlur = () => {
     if (!query.trim()) {
       setIsExpanded(false);
     }
+    onFocusChange?.(false);
   };
 
   useEffect(() => {

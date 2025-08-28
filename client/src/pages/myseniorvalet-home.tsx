@@ -66,6 +66,7 @@ function HeroSectionWithTransformingSearch() {
   const [viewMode, setViewMode] = useState<'list' | 'map' | 'learn'>('list');
   const [imageLoaded, setImageLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
+  const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
   const [, setLocation] = useLocation();
 
   // Handle search from AutoExpandingSearch component
@@ -343,6 +344,7 @@ function HeroSectionWithTransformingSearch() {
             initialQuery={searchQuery}
             onSearch={handleAutoExpandingSearch}
             onQueryChange={setSearchQuery}
+            onFocusChange={setIsSearchFocused}
             placeholder={viewMode === 'learn' ? "Ask any question about senior living..." : "Search communities or ask anything..."}
             className="relative z-40"
           />
@@ -376,9 +378,9 @@ function HeroSectionWithTransformingSearch() {
         {!isSearchActive && !searchQuery && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-20" />}
       </section>
 
-      {/* Search Results Display Section */}
+      {/* Search Results Display Section - Hide when search is focused on mobile */}
       <AnimatePresence>
-        {isSearchActive && (
+        {isSearchActive && !isSearchFocused && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
