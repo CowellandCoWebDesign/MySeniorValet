@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2, Home, Info, Sparkles, DollarSign, Activity, Bed, Users } from "lucide-react";
 import { MarketIntelligenceModal } from "./MarketIntelligenceModal";
-import spaceExplorerImage from '@assets/generated_images/MySeniorValet_space_explorer_18b24d58.png';
+import spaceExplorerImage from '@assets/generated_images/MySeniorValet_distinguished_explorer.png';
 
 interface CommunityCardProps {
   community: {
@@ -409,24 +409,24 @@ function CommunityCard({
             {/* Darker overlay for text readability */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/60"></div>
             
-            {/* Exploration Message */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
-              <div className="bg-black/50 backdrop-blur-sm rounded-lg px-4 py-3 max-w-[90%]">
+            {/* Exploration Message - Positioned to the right */}
+            <div className="absolute inset-0 flex items-center justify-end pr-4">
+              <div className="bg-black/60 backdrop-blur-sm rounded-lg px-4 py-3 max-w-[55%] text-center">
                 <div className="text-lg font-bold text-white mb-1">
                   ✨ Explore This Community
                 </div>
                 <div className="text-xs text-white/90 leading-relaxed">
-                  Click to discover detailed information about<br/>
-                  {community.communitySubtype === 'memory_care' ? 'Memory Care services' :
-                   community.communitySubtype === 'skilled_nursing' ? 'Skilled Nursing facilities' :
-                   community.communitySubtype === 'independent_living' ? 'Independent Living options' :
-                   community.communitySubtype === 'hud_senior_housing' ? 'HUD Senior Housing' :
-                   community.communitySubtype === 'active_adult_55plus' ? '55+ Active Living' :
-                   community.communitySubtype === 'mobile_home_park' ? 'Mobile Home options' :
-                   'this Senior Living community'}
+                  Click to discover detailed<br/>information about
+                  {community.communitySubtype === 'memory_care' ? ' Memory Care' :
+                   community.communitySubtype === 'skilled_nursing' ? ' Skilled Nursing' :
+                   community.communitySubtype === 'independent_living' ? ' Independent Living' :
+                   community.communitySubtype === 'hud_senior_housing' ? ' HUD Housing' :
+                   community.communitySubtype === 'active_adult_55plus' ? ' 55+ Active' :
+                   community.communitySubtype === 'mobile_home_park' ? ' Mobile Homes' :
+                   ' Senior Living'}
                 </div>
                 <div className="text-xs text-purple-300 mt-2 font-medium">
-                  View full profile for photos & details →
+                  View full profile →
                 </div>
               </div>
             </div>
