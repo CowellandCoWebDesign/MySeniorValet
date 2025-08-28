@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -10,8 +10,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send } from "lucide-react";
-import { UnifiedSearch } from "@/components/UnifiedSearch";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, MapIcon } from "lucide-react";
+import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -44,6 +44,307 @@ import { EmergencyButton } from "@/components/EmergencyButton";
 
 
 
+
+// Transforming Hero Section Component
+function HeroSectionWithTransformingSearch() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const debouncedQuery = useDebounce(searchQuery, 500);
+  const [, setLocation] = useLocation();
+
+  // Fetch search results using unified search API
+  const { data: searchResults, isLoading } = useQuery({
+    queryKey: ['/api/search/unified', debouncedQuery],
+    queryFn: async () => {
+      if (!debouncedQuery || debouncedQuery.length < 2) {
+        return { results: [], metadata: null };
+      }
+
+      const response = await fetch('/api/search/unified', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          query: debouncedQuery,
+          includeHospitals: true,
+          includeServices: true,
+          limit: 50
+        })
+      });
+
+      if (!response.ok) throw new Error('Search failed');
+      
+      const data = await response.json();
+      
+      // Filter for communities
+      const communities = data.results
+        .filter((r: any) => r.type === 'community')
+        .map((r: any) => ({
+          id: r.id,
+          name: r.name,
+          address: r.address,
+          city: r.city,
+          state: r.state,
+          careTypes: r.careTypes || [],
+          priceRange: r.priceRange,
+          rating: r.rating,
+          reviewCount: r.reviewCount,
+          photos: r.photos || [],
+          hudPropertyId: r.hudPropertyId,
+          rentPerMonth: r.price || r.rentPerMonth,
+          availableUnits: r.availableUnits,
+          communitySubtype: r.communitySubtype,
+          phone: r.phone,
+          website: r.website,
+          description: r.description,
+          totalUnits: r.totalUnits,
+          occupancyRate: r.occupancyRate
+        }));
+
+      return { results: communities, metadata: data.metadata };
+    },
+    enabled: !!debouncedQuery && debouncedQuery.length >= 2 && isSearchActive
+  });
+
+  const handleSearch = () => {
+    if (searchQuery && searchQuery.length >= 2) {
+      setIsSearchActive(true);
+      if (viewMode === 'map') {
+        setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
+      }
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setIsSearchActive(false);
+  };
+
+  return (
+    <section className="relative min-h-[600px] sm:min-h-screen bg-black pt-12 sm:pt-14">
+      <div className="absolute inset-0">
+        <img
+          src={heroBackgroundImage}
+          alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
+          className="w-full h-full object-cover object-top sm:object-center"
+          loading="eager"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
+      </div>
+      
+      <div className="relative hero-content min-h-[600px] sm:min-h-screen pt-2 sm:pt-3 md:pt-4 pb-20 sm:pb-4 mobile-keyboard-safe flex flex-col px-2 sm:px-4">
+        
+        {/* Hero Text - Animates Away on Search */}
+        <AnimatePresence>
+          {!isSearchActive && (
+            <motion.div
+              initial={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -50, scale: 0.95 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8 mt-2 sm:mt-8 md:mt-12 mb-3 sm:mb-6 text-center"
+            >
+              <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] sm:drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] leading-tight">
+                Everything You Need.<br className="sm:hidden" /> Nothing You Pay.
+              </h1>
+              
+              <div className="text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl text-gray-100 sm:text-gray-200 max-w-4xl mx-auto px-2">
+                <div className="hidden sm:block text-left inline-block">
+                  <ul className="space-y-2">
+                    <li className="flex items-start">
+                      <span className="text-blue-300 mr-2 mt-1">•</span>
+                      <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">We NEVER sell your info or require it to show you all options</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-blue-300 mr-2 mt-1">•</span>
+                      <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Search 35,000+ communities globally with real pricing & trusted reviews</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-blue-300 mr-2 mt-1">•</span>
+                      <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Access 1,000's of move-in services, healthcare providers & support resources</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-blue-300 mr-2 mt-1">•</span>
+                      <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">A platform built for families, not profits 💙</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="sm:hidden text-center">
+                  <p className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">Search 35,000+ communities with real pricing and trusted reviews. No fees, no data selling. Welcome to MySeniorValet 💙</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Search Bar - Slides to Top on Active Search */}
+        <motion.div
+          initial={false}
+          animate={{
+            y: isSearchActive ? -200 : 0,
+            position: isSearchActive ? "sticky" : "relative",
+            top: isSearchActive ? 0 : "auto",
+            backgroundColor: isSearchActive ? "rgba(255, 255, 255, 0.98)" : "transparent",
+            padding: isSearchActive ? "16px" : "0px",
+            zIndex: isSearchActive ? 50 : 10
+          }}
+          transition={{ duration: 0.6, ease: "easeInOut" }}
+          className="flex-grow flex items-start justify-center pt-2 sm:pt-8 md:pt-12"
+        >
+          <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 md:px-8">
+            <div className="w-full max-w-xl sm:max-w-2xl mx-auto px-2 sm:px-4 md:px-6 mb-2 sm:mb-3">
+              <div className="relative bg-white rounded-xl shadow-2xl">
+                <div className="flex items-center">
+                  <Search className="absolute left-4 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Search communities by location, care type, or budget..."
+                    className="w-full pl-12 pr-4 py-4 text-lg bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-500"
+                  />
+                  
+                  {/* View Toggle */}
+                  {isSearchActive && (
+                    <div className="flex items-center mr-2 bg-gray-100 rounded-lg p-1">
+                      <Button
+                        size="sm"
+                        variant={viewMode === 'list' ? 'default' : 'ghost'}
+                        onClick={() => setViewMode('list')}
+                        className="px-2 py-1"
+                      >
+                        <List className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={viewMode === 'map' ? 'default' : 'ghost'}
+                        onClick={() => {
+                          setViewMode('map');
+                          if (searchQuery) {
+                            setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
+                          }
+                        }}
+                        className="px-2 py-1"
+                      >
+                        <MapIcon className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
+                  
+                  {/* Search/Clear Button */}
+                  {isSearchActive ? (
+                    <Button
+                      size="sm"
+                      onClick={clearSearch}
+                      className="mr-2 bg-gray-200 hover:bg-gray-300"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleSearch}
+                      disabled={!searchQuery}
+                      className="mr-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                    >
+                      Search
+                    </Button>
+                  )}
+                  
+                  <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white mr-2">
+                    <Sparkles className="w-3 h-3 mr-1" />
+                    AI
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
+            {/* Trust Indicators - Only show when not searching */}
+            {!isSearchActive && (
+              <motion.div 
+                initial={{ opacity: 1 }} 
+                exit={{ opacity: 0 }}
+                className="animate-fade-in-up animation-delay-300 flex justify-center items-center px-2"
+              >
+                <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
+                  <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                    <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
+                    <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Pricing</span>
+                  </span>
+                  <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                    <Users2 className="h-2 w-2 sm:h-3 sm:w-3 text-green-300 flex-shrink-0" />
+                    <span className="text-[9px] sm:text-[10px] font-semibold text-white">Family Reviews</span>
+                  </span>
+                  <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                    <Brain className="h-2 w-2 sm:h-3 sm:w-3 text-purple-300 animate-pulse flex-shrink-0" />
+                    <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Availability</span>
+                  </span>
+                </div>
+              </motion.div>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Search Results - Display in Hero Area */}
+        <AnimatePresence>
+          {isSearchActive && viewMode === 'list' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              className="mt-4 px-4 pb-8 overflow-y-auto max-h-[calc(100vh-200px)]"
+            >
+              <div className="max-w-7xl mx-auto">
+                {/* Loading State */}
+                {isLoading && (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
+                    <span className="ml-3 text-white">Searching communities...</span>
+                  </div>
+                )}
+
+                {/* Results List */}
+                {!isLoading && searchResults?.results && (
+                  <div className="space-y-4">
+                    {searchResults.results.length > 0 ? (
+                      searchResults.results.map((community: any) => (
+                        <motion.div
+                          key={community.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                        >
+                          <PrioritizedCommunityCard
+                            community={community}
+                            variant="list"
+                            onSelect={() => window.location.href = `/community/${community.id}`}
+                          />
+                        </motion.div>
+                      ))
+                    ) : (
+                      <div className="text-center py-12">
+                        <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-white">No communities found matching your search.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      
+      {/* Hero Mascot Panel - Hidden when searching or on mobile */}
+      {!isSearchActive && <HeroMascotPanel className="hidden sm:block absolute bottom-4 left-0 right-0 z-30" />}
+    </section>
+  );
+}
 
 export default function MySeniorValetHome() {
   const { t, language } = useLanguage();
@@ -720,104 +1021,8 @@ export default function MySeniorValetHome() {
         </div>
       </header>
 
-      {/* Hero Section with Search - Mobile optimized */}
-      <section className="relative min-h-[600px] sm:min-h-screen bg-black pt-12 sm:pt-14">
-        <div className="absolute inset-0">
-          <img
-            src={heroBackgroundImage}
-            alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
-            className="w-full h-full object-cover object-top sm:object-center"
-            loading="eager"
-          />
-          {/* Enhanced darkening for better text readability on mobile */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
-        </div>
-        
-        <div className="relative hero-content min-h-[600px] sm:min-h-screen pt-2 sm:pt-3 md:pt-4 pb-20 sm:pb-4 mobile-keyboard-safe flex flex-col px-2 sm:px-4">
-          
-          {/* Hero Text Section - Mobile optimized */}
-          <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8 mt-2 sm:mt-8 md:mt-12 mb-3 sm:mb-6 text-center">
-            {/* Main Heading - Better sizing for all screens */}
-            <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 animate-fade-in-up drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] sm:drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] leading-tight">
-              Everything You Need.<br className="sm:hidden" /> Nothing You Pay.
-            </h1>
-            
-            {/* Key Features - Bullet points for better readability */}
-            <div className="text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl text-gray-100 sm:text-gray-200 max-w-4xl mx-auto animate-fade-in-up animation-delay-300 px-2">
-              <div className="hidden sm:block text-left inline-block">
-                <ul className="space-y-2">
-                  <li className="flex items-start">
-                    <span className="text-blue-300 mr-2 mt-1">•</span>
-                    <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">We NEVER sell your info or require it to show you all options</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-300 mr-2 mt-1">•</span>
-                    <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Search 35,000+ communities globally with real pricing & trusted reviews</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-300 mr-2 mt-1">•</span>
-                    <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Access 1,000's of move-in services, healthcare providers & support resources</span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-blue-300 mr-2 mt-1">•</span>
-                    <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">A platform built for families, not profits 💙</span>
-                  </li>
-                </ul>
-              </div>
-              <div className="sm:hidden text-center">
-                <p className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">Search 35,000+ communities with real pricing and trusted reviews. No fees, no data selling. Welcome to MySeniorValet 💙</p>
-              </div>
-            </div>
-          </div>
-          
-          {/* Search bar positioned higher up - Mobile optimized */}
-          <div className="flex-grow flex items-start justify-center pt-2 sm:pt-8 md:pt-12">
-            <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 md:px-8">
-              {/* Search Bar - Mobile responsive */}
-            <div className="w-full max-w-xl sm:max-w-2xl mx-auto px-2 sm:px-4 md:px-6 mb-2 sm:mb-3 animate-fade-in-up animation-delay-200" style={{ position: 'relative', zIndex: 99999 }}>
-              <UnifiedSearch />
-            </div>
-
-            {/* Trust Indicators - Mobile responsive */}
-            <div className="animate-fade-in-up animation-delay-300 flex justify-center items-center px-2">
-              <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
-                {/* Live Pricing Badge */}
-                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                  <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
-                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Pricing</span>
-                </span>
-                
-                {/* Community Reported Badge */}
-                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                  <Users2 className="h-2 w-2 sm:h-3 sm:w-3 text-green-300 flex-shrink-0" />
-                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Family Reviews</span>
-                </span>
-                
-                {/* AI Orchestration Badge - Hide on very small screens */}
-                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                  <Brain className="h-2 w-2 sm:h-3 sm:w-3 text-purple-300 animate-pulse flex-shrink-0" />
-                  <span className="text-[9px] sm:text-[10px] font-semibold text-white hidden xs:inline">Live Availability</span>
-                  <span className="text-[9px] sm:text-[10px] font-semibold text-white xs:hidden">Live</span>
-                </span>
-                
-                {/* AI Orchestra Badge - Hide on mobile */}
-                <span className="hidden sm:inline-flex items-center space-x-1 bg-gradient-to-r from-purple-800/90 to-indigo-800/90 backdrop-blur-md px-3 py-1 rounded-full shadow-md border border-purple-400/30">
-                  <Music className="h-3 w-3 text-yellow-300 animate-pulse flex-shrink-0" />
-                  <span className="text-[10px] font-semibold text-white">AI Triple-Verified</span>
-                </span>
-              </div>
-            </div>
-            </div>
-          </div>
-          {/* End centered positioning */}
-          
-        </div>
-        {/* End Hero Content */}
-        
-        {/* Hero Mascot Panel - Hidden on mobile to prevent overlap */}
-        <HeroMascotPanel className="hidden sm:block absolute bottom-4 left-0 right-0 z-30" />
-        
-      </section>
+      {/* Transforming Hero Section with Search - Mobile optimized */}
+      <HeroSectionWithTransformingSearch />
 
 
 
