@@ -40,6 +40,7 @@ import { HeroMascotPanel } from '@/components/mascot/HeroMascotPanel';
 import { UnifiedSearch } from '@/components/UnifiedSearch';
 import { AutoExpandingSearch } from '@/components/AutoExpandingSearch';
 import ComprehensiveSearch from '@/components/ComprehensiveSearch';
+import LearnModeInterface from '@/components/LearnModeInterface';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 

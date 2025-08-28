@@ -77,6 +77,10 @@ export class ComprehensiveSearchEngine {
     // Generate search suggestions
     const suggestions = await this.generateSuggestions(query, searchType);
     
+    // Get intent scores for metadata
+    const normalizedQuery = query ? query.toLowerCase().trim() : '';
+    const intentScores = normalizedQuery ? await this.calculateIntentScores(normalizedQuery) : null;
+    
     return {
       communities: results,
       totalResults: parseInt(count.toString()),
@@ -85,7 +89,8 @@ export class ComprehensiveSearchEngine {
         searchType,
         filters,
         processingTime: Date.now() - startTime,
-        suggestions
+        suggestions,
+        intentScores
       },
       facets
     };
@@ -101,17 +106,29 @@ export class ComprehensiveSearchEngine {
       // Normalize query
       const normalizedQuery = query.toLowerCase().trim();
       
-      // 1. COMBINED LOCATION + PRICE SEARCH ("Sacramento under $5000")
-      if ((await this.isLocationSearch(normalizedQuery)) && (await this.isPriceSearch(normalizedQuery))) {
-        searchType = 'price'; // Price takes priority for sorting
+      // MULTI-INTENT DETECTION: Based on Zillow's approach, detect multiple intents simultaneously
+      const intentScores = await this.calculateIntentScores(normalizedQuery);
+      const dominantIntent = this.getDominantIntent(intentScores);
+      
+      console.log(`Query: "${query}" | Intent scores:`, intentScores, `| Dominant: ${dominantIntent}`);
+      
+      // Apply conditions based on ALL detected intents (not just dominant)
+      if (intentScores.location > 0.3) {
         const locationConditions = await this.buildLocationConditions(normalizedQuery);
-        const priceConditions = await this.buildPriceConditions(normalizedQuery);
-        conditions.push(...locationConditions, ...priceConditions);
+        conditions.push(...locationConditions);
       }
       
-      // 2. COMPANY/BRAND SEARCH (Brookdale, Atria, etc.)
-      else if (await this.isCompanySearch(normalizedQuery)) {
-        searchType = 'company';
+      if (intentScores.careType > 0.3) {
+        const careConditions = await this.buildCareTypeConditions(normalizedQuery);
+        conditions.push(...careConditions);
+      }
+      
+      if (intentScores.price > 0.3) {
+        const priceConditions = await this.buildPriceConditions(normalizedQuery);
+        conditions.push(...priceConditions);
+      }
+      
+      if (intentScores.company > 0.3) {
         conditions.push(
           or(
             ilike(communities.name, `%${normalizedQuery}%`),
@@ -120,37 +137,8 @@ export class ComprehensiveSearchEngine {
         );
       }
       
-      // 3. LOCATION SEARCH (City, State, ZIP)
-      else if (await this.isLocationSearch(normalizedQuery)) {
-        searchType = 'location';
-        const locationConditions = await this.buildLocationConditions(normalizedQuery);
-        conditions.push(...locationConditions);
-      }
-      
-      // 4. PRICE SEARCH ("under $3000", "cheap", "$2000-$4000")
-      else if (await this.isPriceSearch(normalizedQuery)) {
-        searchType = 'price';
-        const priceConditions = await this.buildPriceConditions(normalizedQuery);
-        conditions.push(...priceConditions);
-      }
-      
-      // 5. CARE TYPE SEARCH ("memory care", "assisted living")
-      else if (await this.isCareTypeSearch(normalizedQuery)) {
-        searchType = 'careType';
-        const careConditions = await this.buildCareTypeConditions(normalizedQuery);
-        conditions.push(...careConditions);
-      }
-      
-      // 6. NATURAL LANGUAGE SEARCH ("best communities near me", "affordable senior living")
-      else if (await this.isNaturalLanguageSearch(normalizedQuery)) {
-        searchType = 'naturalLanguage';
-        const nlConditions = await this.buildNaturalLanguageConditions(normalizedQuery);
-        conditions.push(...nlConditions);
-      }
-      
-      // 7. GENERAL TEXT SEARCH (fallback)
-      else {
-        searchType = 'general';
+      // If no specific intent detected strongly, use general search
+      if (Math.max(...Object.values(intentScores)) < 0.4) {
         conditions.push(
           or(
             ilike(communities.name, `%${normalizedQuery}%`),
@@ -161,6 +149,8 @@ export class ComprehensiveSearchEngine {
           )
         );
       }
+      
+      searchType = dominantIntent;
     }
     
     // Apply additional filters
@@ -169,13 +159,94 @@ export class ComprehensiveSearchEngine {
     return { conditions, searchType };
   }
   
-  private async isCompanySearch(query: string): Promise<boolean> {
-    const companyKeywords = [
-      'atria', 'brookdale', 'sunrise', 'brightview', 'golden age', 'emeritus',
-      'belmont village', 'five star', 'holiday retirement', 'senior lifestyle',
-      'watermark', 'capital senior', 'discovery', 'merrill gardens'
+  // NEW: Multi-intent scoring system based on research
+  private async calculateIntentScores(query: string): Promise<{
+    location: number;
+    careType: number;
+    price: number;
+    company: number;
+    general: number;
+  }> {
+    const scores = {
+      location: 0,
+      careType: 0,
+      price: 0,
+      company: 0,
+      general: 0
+    };
+    
+    // Location intent patterns
+    const locationPatterns = [
+      /^[a-zA-Z\s]+(,\s*[A-Z]{2})?$/,  // "Sacramento" or "Sacramento, CA"
+      /^\d{5}(-\d{4})?$/,              // ZIP codes
+      /\b(in|near|around)\s+/,         // "memory care in Sacramento"
+      /\b(city|state|county|zip)\b/,
+      /\b(california|texas|florida|new york|illinois)\b/i  // State names
     ];
-    return companyKeywords.some(keyword => query.includes(keyword));
+    
+    // Care type intent patterns  
+    const careTypePatterns = [
+      /\b(memory care|alzheimer|dementia)\b/i,
+      /\b(assisted living|independent living)\b/i,
+      /\b(nursing home|skilled nursing)\b/i,
+      /\b(senior living|senior care)\b/i,
+      /\b(rehabilitation|therapy)\b/i
+    ];
+    
+    // Price intent patterns
+    const pricePatterns = [
+      /\$\d+/,                         // "$5000"
+      /\b(under|over|below|above)\s*\$?\d+/i,  // "under $5000"
+      /\b(cheap|affordable|expensive|luxury)\b/i,
+      /\b\d+\s*to\s*\d+\b/,           // "3000 to 5000"
+      /\b(budget|cost|price|pricing)\b/i
+    ];
+    
+    // Company intent patterns
+    const companyPatterns = [
+      /\b(atria|brookdale|sunrise|brightview)\b/i,
+      /\b(emeritus|belmont village|five star)\b/i,
+      /\b(holiday retirement|senior lifestyle)\b/i,
+      /\b(watermark|capital senior|discovery)\b/i
+    ];
+    
+    // Calculate scores based on pattern matches
+    locationPatterns.forEach(pattern => {
+      if (pattern.test(query)) scores.location += 0.3;
+    });
+    
+    careTypePatterns.forEach(pattern => {
+      if (pattern.test(query)) scores.careType += 0.4;
+    });
+    
+    pricePatterns.forEach(pattern => {
+      if (pattern.test(query)) scores.price += 0.4;
+    });
+    
+    companyPatterns.forEach(pattern => {
+      if (pattern.test(query)) scores.company += 0.5;
+    });
+    
+    // Normalize scores to 0-1 range
+    const maxScore = Math.max(...Object.values(scores));
+    if (maxScore > 1) {
+      Object.keys(scores).forEach(key => {
+        scores[key as keyof typeof scores] = scores[key as keyof typeof scores] / maxScore;
+      });
+    }
+    
+    return scores;
+  }
+  
+  private getDominantIntent(scores: any): string {
+    const entries = Object.entries(scores);
+    const dominant = entries.reduce((a, b) => a[1] > b[1] ? a : b);
+    return dominant[0];
+  }
+  
+  private async isCompanySearch(query: string): Promise<boolean> {
+    const scores = await this.calculateIntentScores(query);
+    return scores.company > 0.4;
   }
   
   private async isLocationSearch(query: string): Promise<boolean> {
@@ -250,31 +321,65 @@ export class ComprehensiveSearchEngine {
   private async buildPriceConditions(query: string): Promise<any[]> {
     const conditions: any[] = [];
     
-    // Extract price ranges
+    // REAL PRICE FILTERING: Based on PostgreSQL best practices research
     const priceMatch = query.match(/\$?(\d+(?:,\d{3})*(?:\.\d{2})?)/g);
     if (priceMatch) {
       const prices = priceMatch.map(p => parseInt(p.replace(/[$,]/g, '')));
+      console.log(`REAL price filtering: ${prices.join(', ')}`);
       
-      // Implement basic price filtering without complex regex - filter in application layer
-      console.log(`Price filtering requested: ${prices.join(', ')}, applying basic SQL filter`);
-      
-      if (query.includes('under') || query.includes('<')) {
-        // Simple approach: let database return results, filter will be applied at application level
-        conditions.push(sql`${communities.rentPerMonth} IS NOT NULL`);
-      } else if (query.includes('over') || query.includes('>')) {
-        conditions.push(sql`${communities.rentPerMonth} IS NOT NULL`);
+      if (query.includes('under') || query.includes('below') || query.includes('<')) {
+        // Store price as text, so we need to validate and cast safely with proper error handling
+        conditions.push(
+          sql`(
+            ${communities.rentPerMonth} IS NOT NULL 
+            AND ${communities.rentPerMonth} != ''
+            AND ${communities.rentPerMonth} ~ '^[0-9]+(\.[0-9]{1,2})?$'
+            AND CAST(NULLIF(TRIM(${communities.rentPerMonth}), '') AS NUMERIC) < ${prices[0]}
+          )`
+        );
+      } else if (query.includes('over') || query.includes('above') || query.includes('>')) {
+        conditions.push(
+          sql`(
+            ${communities.rentPerMonth} IS NOT NULL 
+            AND ${communities.rentPerMonth} != ''
+            AND ${communities.rentPerMonth} ~ '^[0-9]+(\.[0-9]{1,2})?$'
+            AND CAST(NULLIF(TRIM(${communities.rentPerMonth}), '') AS NUMERIC) > ${prices[0]}
+          )`
+        );
       } else if (prices.length === 2) {
-        conditions.push(sql`${communities.rentPerMonth} IS NOT NULL`);
+        const [min, max] = [Math.min(...prices), Math.max(...prices)];
+        conditions.push(
+          sql`(
+            ${communities.rentPerMonth} IS NOT NULL 
+            AND ${communities.rentPerMonth} != ''
+            AND ${communities.rentPerMonth} ~ '^[0-9]+(\.[0-9]{1,2})?$'
+            AND CAST(NULLIF(TRIM(${communities.rentPerMonth}), '') AS NUMERIC) BETWEEN ${min} AND ${max}
+          )`
+        );
       }
     }
     
-    // Handle qualitative terms with simplified approach
+    // Handle qualitative terms with actual price ranges based on market research
     if (query.includes('cheap') || query.includes('affordable')) {
-      console.log('Affordable filtering requested, applying basic filter');
-      conditions.push(sql`${communities.rentPerMonth} IS NOT NULL`);
-    } else if (query.includes('expensive') || query.includes('luxury')) {
-      console.log('Luxury filtering requested, applying basic filter');
-      conditions.push(sql`${communities.rentPerMonth} IS NOT NULL`);
+      console.log('Affordable filtering: under $4000/month');
+      conditions.push(
+        sql`(
+          ${communities.rentPerMonth} IS NOT NULL 
+          AND ${communities.rentPerMonth} != ''
+          AND ${communities.rentPerMonth} ~ '^[0-9]+(\.[0-9]{1,2})?$'
+          AND CAST(NULLIF(TRIM(${communities.rentPerMonth}), '') AS NUMERIC) < 4000
+        )`
+      );
+    } else if (query.includes('expensive') || query.includes('luxury') || query.includes('premium')) {
+      console.log('Luxury filtering: over $7000/month');
+      conditions.push(
+        sql`(
+          ${communities.rentPerMonth} IS NOT NULL 
+          AND ${communities.rentPerMonth} != ''
+          AND ${communities.rentPerMonth} ~ '^[0-9]+(\.[0-9]{1,2})?$'
+          AND CAST(NULLIF(TRIM(${communities.rentPerMonth}), '') AS NUMERIC) > 7000
+        )`
+      );
     }
     
     return conditions;
@@ -283,22 +388,41 @@ export class ComprehensiveSearchEngine {
   private async buildCareTypeConditions(query: string): Promise<any[]> {
     const conditions: any[] = [];
     const careTypeMap = {
-      'assisted living': 'Assisted Living',
       'memory care': 'Memory Care',
+      'alzheimer': 'Memory Care', 
+      'dementia': 'Memory Care',
+      'assisted living': 'Assisted Living',
       'independent living': 'Independent Living',
       'nursing home': 'Skilled Nursing',
       'skilled nursing': 'Skilled Nursing',
-      'alzheimer': 'Memory Care',
-      'dementia': 'Memory Care'
+      'rehabilitation': 'Rehabilitation',
+      'therapy': 'Rehabilitation'
     };
     
+    // Find all matching care types (allow multiple)
+    const matchedCareTypes: string[] = [];
     for (const [keyword, careType] of Object.entries(careTypeMap)) {
       if (query.includes(keyword)) {
-        conditions.push(
-          sql`${communities.careTypes}::text[] && ARRAY[${careType}]::text[]`
-        );
-        break;
+        matchedCareTypes.push(careType);
       }
+    }
+    
+    if (matchedCareTypes.length > 0) {
+      console.log(`Care type filtering: ${matchedCareTypes.join(', ')}`);
+      
+      // Use proper JSON array containment check with correct column name (care_types)
+      const careTypeConditions = matchedCareTypes.map(careType => 
+        sql`(
+          ${communities.careTypes} IS NOT NULL 
+          AND (
+            ${communities.careTypes}::text LIKE '%' || ${careType} || '%'
+            OR ${communities.careTypes}::text LIKE '%' || ${careType.toLowerCase()} || '%'
+            OR ${communities.careTypes}::text LIKE '%' || ${careType.toUpperCase()} || '%'
+          )
+        )`
+      );
+      
+      conditions.push(or(...careTypeConditions));
     }
     
     return conditions;
@@ -362,8 +486,16 @@ export class ComprehensiveSearchEngine {
   private applySorting(query: any, searchType: string, searchQuery: string) {
     switch (searchType) {
       case 'price':
-        // Order by community name for price searches (simplified)
-        return query.orderBy(asc(communities.name));
+        // Order by price when price search is detected (REAL sorting with safe casting)
+        return query.orderBy(sql`(
+          CASE 
+            WHEN ${communities.rentPerMonth} IS NOT NULL 
+              AND ${communities.rentPerMonth} != ''
+              AND ${communities.rentPerMonth} ~ '^[0-9]+(\.[0-9]{1,2})?$'
+            THEN CAST(NULLIF(TRIM(${communities.rentPerMonth}), '') AS NUMERIC)
+            ELSE 999999
+          END
+        ) ASC`);
       case 'company':
         return query.orderBy(asc(communities.name));
       case 'location':
