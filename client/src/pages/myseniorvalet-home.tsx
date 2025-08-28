@@ -200,21 +200,10 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
 
-        {/* Enhanced Unified Search Bar with Always-Visible Toggle */}
+        {/* Enhanced Search with Toggle on Top */}
         <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative">
-          {/* Search Bar */}
-          <div className="relative z-40">
-            <UnifiedSearch 
-              initialQuery={searchQuery}
-              onSearch={handleUnifiedSearch}
-              showDropdownResults={false}
-              placeholder="Search by city, state, care type, or ask anything..."
-              className=""
-            />
-          </div>
-          
-          {/* View Toggle Buttons - Always visible, attached to search bar */}
-          <div className="bg-gray-800/95 backdrop-blur-sm rounded-b-2xl -mt-2 pt-4 pb-2 relative z-30">
+          {/* View Toggle Buttons - On top */}
+          <div className="bg-gray-800/95 backdrop-blur-sm rounded-t-2xl pt-3 pb-2 relative z-30">
             <div className="flex justify-center">
               <div className="inline-flex bg-white/10 rounded-full p-1">
                 <Button
@@ -250,6 +239,17 @@ function HeroSectionWithTransformingSearch() {
                 </Button>
               </div>
             </div>
+          </div>
+          
+          {/* Search Bar - Below toggle, seamlessly connected */}
+          <div className="relative z-40 -mt-2">
+            <UnifiedSearch 
+              initialQuery={searchQuery}
+              onSearch={handleUnifiedSearch}
+              showDropdownResults={false}
+              placeholder="Search by city, state, care type, or ask anything..."
+              className=""
+            />
           </div>
         </div>
 
