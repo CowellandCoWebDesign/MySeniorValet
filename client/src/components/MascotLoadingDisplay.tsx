@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import valetGentleman from '@assets/gentleman-mascot.png';
-import nostalgicSpaceImage from '@assets/generated_images/comprehensive_space_scene.svg';
+import nostalgicSpaceImage from '@assets/generated_images/Nostalgic_retail_giants_space_scene_a5de68ed.png';
 import { getShuffledFacts } from '@/lib/loadingFacts';
 
 interface MascotLoadingDisplayProps {
