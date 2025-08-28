@@ -37,11 +37,11 @@ import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
 import { HeroMascotPanel } from '@/components/mascot/HeroMascotPanel';
-// Import new premium suited mascot for hero section
-import premiumSuitedMascot from '@assets/generated_images/Premium_suited_MySeniorValet_executive_5e286a52.png';
+// Import hotel concierge mascot for hero section - less prominent, positioned left at front desk
+import hotelConciergeMascot from '@assets/generated_images/Hotel_concierge_at_front_desk_775fe9f7.png';
 
 // Image paths from public directory
-const heroBackgroundImage = premiumSuitedMascot;
+const heroBackgroundImage = hotelConciergeMascot;
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 
@@ -140,22 +140,21 @@ function HeroSectionWithTransformingSearch() {
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
         }}
       >
-        {/* Background Image - Positioned to show full head */}
+        {/* Background Image - Hotel concierge at front desk, positioned left */}
         <div className="absolute inset-0 h-full w-full">
           <img
             src={heroBackgroundImage}
-            alt="MySeniorValet premium executive in black pinstriped suit with red tie - Your AI-powered senior care concierge"
+            alt="MySeniorValet concierge at luxury hotel front desk with golden bell - Your AI-powered senior care concierge"
             className={`w-full h-full object-cover transition-opacity duration-700 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
             style={{ 
-              objectPosition: 'left center',
-              transform: 'scale(1.1) translateY(5%)'
+              objectPosition: 'center center'
             }}
             loading="eager"
             onLoad={() => setImageLoaded(true)}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/40"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30"></div>
         </div>
         
         <div className="relative z-10 h-full flex flex-col justify-center px-4 sm:px-8 py-8">
