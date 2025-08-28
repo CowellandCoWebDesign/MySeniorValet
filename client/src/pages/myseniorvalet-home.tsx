@@ -161,14 +161,14 @@ function HeroSectionWithTransformingSearch() {
         {/* Hero Text with Transparent Bubble Background - Right aligned text */}
         <div className="w-full flex justify-end mb-6">
           <div className="w-full max-w-lg mr-8 sm:mr-16 lg:mr-24">
-            {/* Right-aligned hero text - Force right alignment */}
-            <div className="bg-black/60 backdrop-blur-sm rounded-2xl px-4 sm:px-6 py-3 sm:py-4" style={{ textAlign: 'right' }}>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 leading-tight" style={{ textAlign: 'right' }}>
+            {/* Right-aligned hero text with CSS class override */}
+            <div className="hero-text-right bg-black/60 backdrop-blur-sm rounded-2xl px-4 sm:px-6 py-3 sm:py-4">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 leading-tight">
                 Everything You Need. Nothing You Pay.
               </h1>
               
-              <div className="text-xs sm:text-sm text-gray-200" style={{ textAlign: 'right' }}>
-                <p className="leading-relaxed" style={{ textAlign: 'right' }}>
+              <div className="text-xs sm:text-sm text-gray-200">
+                <p className="leading-relaxed">
                   Search 35,000+ communities globally with real pricing & trusted reviews • 
                   We NEVER sell your info • Access 1,000's of services & support resources • 
                   A platform built for families, not profits 💙
