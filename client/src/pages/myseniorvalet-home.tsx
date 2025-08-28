@@ -157,10 +157,10 @@ function HeroSectionWithTransformingSearch() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30"></div>
         </div>
         
-        <div className="relative z-10 h-full flex flex-col justify-center px-4 sm:px-8 py-8">
-        {/* Hero Text with Transparent Bubble Background - Positioned far right to avoid mascot */}
-        <div className="w-full flex justify-end mb-8">
-          <div className="w-full max-w-xl mr-4 sm:mr-8 lg:mr-12">
+        <div className="relative z-10 h-full flex flex-col justify-start px-4 sm:px-8 pt-24 pb-8">
+        {/* Hero Text with Transparent Bubble Background - Positioned far right and up to avoid mascot */}
+        <div className="w-full flex justify-end mb-6">
+          <div className="w-full max-w-lg mr-8 sm:mr-16 lg:mr-24">
             <div className="bg-black/60 backdrop-blur-sm rounded-2xl px-4 sm:px-6 py-3 sm:py-4 text-center">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 leading-tight">
                 Everything You Need. Nothing You Pay.
@@ -177,9 +177,9 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
 
-        {/* Search Bar - Positioned far right to avoid mascot */}
+        {/* Search Bar - Positioned far right and up to avoid mascot */}
         <div className="w-full flex justify-end">
-          <div className="w-full max-w-xl mr-4 sm:mr-8 lg:mr-12 px-4">
+          <div className="w-full max-w-lg mr-8 sm:mr-16 lg:mr-24 px-4">
           <div className="relative bg-white/95 backdrop-blur rounded-xl shadow-2xl">
             <div className="flex items-center">
               <Search className="absolute left-4 sm:left-5 w-5 h-5 text-gray-500" />
@@ -252,22 +252,24 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
 
-          {/* Trust Indicators - Only show when not searching */}
+          {/* Trust Indicators - Only show when not searching, aligned to right */}
           {!isSearchActive && (
-            <div className="flex justify-center items-center px-2 mb-6">
-              <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
-                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                  <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
-                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Pricing</span>
-                </span>
-                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                  <Users2 className="h-2 w-2 sm:h-3 sm:w-3 text-green-300 flex-shrink-0" />
-                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Family Reviews</span>
-                </span>
-                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                  <Brain className="h-2 w-2 sm:h-3 sm:w-3 text-purple-300 animate-pulse flex-shrink-0" />
-                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Availability</span>
-                </span>
+            <div className="flex justify-end px-2 mt-4 mb-6">
+              <div className="mr-8 sm:mr-16 lg:mr-24">
+                <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
+                  <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                    <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
+                    <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Pricing</span>
+                  </span>
+                  <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                    <Users2 className="h-2 w-2 sm:h-3 sm:w-3 text-green-300 flex-shrink-0" />
+                    <span className="text-[9px] sm:text-[10px] font-semibold text-white">Family Reviews</span>
+                  </span>
+                  <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                    <Brain className="h-2 w-2 sm:h-3 sm:w-3 text-purple-300 animate-pulse flex-shrink-0" />
+                    <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Availability</span>
+                  </span>
+                </div>
               </div>
             </div>
           )}
