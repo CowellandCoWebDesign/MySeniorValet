@@ -109,9 +109,10 @@ export function MascotLoadingDisplay({
       className="min-h-screen flex items-center justify-center relative"
       style={{
         backgroundImage: `url(${nostalgicSpaceImage})`,
-        backgroundSize: 'cover',
+        backgroundSize: 'contain',
         backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: '#0a0015'
       }}
     >
       {/* Dark overlay for better readability */}
