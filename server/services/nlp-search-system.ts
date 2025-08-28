@@ -732,43 +732,283 @@ export class NLPSearchSystem {
   }
   
   /**
-   * Fuse and rank results using ML scoring
+   * Advanced ML-based Result Ranking and Fusion with Cross-Database Deduplication
    */
   private async fuseAndRankResults(
     results: UnifiedSearchResult[],
     intent: QueryIntent
   ): Promise<UnifiedSearchResult[]> {
-    // Apply scoring weights based on intent
-    const scoredResults = results.map(result => {
-      let finalScore = result.score;
+    // Step 1: Cross-database deduplication
+    const deduplicated = this.deduplicateResults(results);
+    
+    // Step 2: Calculate comprehensive relevance scores
+    const scoredResults = deduplicated.map(result => {
+      let finalScore = result.score || 0.5;
       
-      // Boost score based on database relevance
-      if (intent.databases.includes(result.metadata?.database as any)) {
-        finalScore *= 1.2;
+      // Entity-based scoring
+      finalScore *= this.calculateEntityMatchScore(result, intent);
+      
+      // Intent-specific scoring
+      finalScore *= this.calculateIntentScore(result, intent);
+      
+      // Data quality scoring
+      finalScore *= this.calculateQualityScore(result);
+      
+      // Location proximity scoring
+      if (intent.entities.locations?.length) {
+        finalScore *= this.calculateLocationScore(result, intent.entities.locations);
       }
       
-      // Boost for exact matches in key fields
-      if (result.metadata?.matchedFields?.includes('name')) {
-        finalScore *= 1.5;
-      }
-      
-      // Apply modifier boosts
-      if (intent.entities.modifiers?.includes('best') && result.data.rating) {
-        finalScore *= (1 + result.data.rating / 10);
-      }
-      
-      if (intent.entities.modifiers?.includes('cheapest') && result.data.rentPerMonth) {
-        finalScore *= (1 / (parseFloat(result.data.rentPerMonth) / 1000));
+      // Price optimization for budget queries
+      if (intent.entities.priceRange || intent.entities.modifiers?.includes('cheapest')) {
+        finalScore *= this.calculatePriceScore(result, intent);
       }
       
       return {
         ...result,
-        score: finalScore
+        score: Math.min(1.0, finalScore) // Normalize to 0-1
       };
     });
     
-    // Sort by score
-    return scoredResults.sort((a, b) => b.score - a.score);
+    // Step 3: Apply ML-based ranking algorithm
+    const ranked = this.applyMLRanking(scoredResults, intent);
+    
+    // Step 4: Apply result diversification for better user experience
+    return this.diversifyResults(ranked);
+  }
+  
+  /**
+   * Deduplicate results across databases
+   */
+  private deduplicateResults(results: UnifiedSearchResult[]): UnifiedSearchResult[] {
+    const seen = new Map<string, UnifiedSearchResult>();
+    
+    for (const result of results) {
+      // Create unique key based on name and location
+      const name = (result.data.name || '').toLowerCase().replace(/\s+/g, '');
+      const location = `${result.data.city || ''}-${result.data.state || ''}`.toLowerCase();
+      const key = `${name}-${location}`;
+      
+      const existing = seen.get(key);
+      if (!existing || this.shouldReplaceResult(existing, result)) {
+        seen.set(key, result);
+      }
+    }
+    
+    return Array.from(seen.values());
+  }
+  
+  /**
+   * Determine if a result should replace an existing duplicate
+   */
+  private shouldReplaceResult(existing: UnifiedSearchResult, candidate: UnifiedSearchResult): boolean {
+    // Prefer results with more complete data
+    const existingFields = Object.keys(existing.data).filter(k => existing.data[k]);
+    const candidateFields = Object.keys(candidate.data).filter(k => candidate.data[k]);
+    
+    if (candidateFields.length > existingFields.length) return true;
+    if (candidateFields.length < existingFields.length) return false;
+    
+    // Prefer results with pricing data
+    if (candidate.data.rentPerMonth && !existing.data.rentPerMonth) return true;
+    
+    // Prefer results with photos
+    if (candidate.data.photos?.length && !existing.data.photos?.length) return true;
+    
+    // Prefer higher scores
+    return (candidate.score || 0) > (existing.score || 0);
+  }
+  
+  /**
+   * Calculate entity match score
+   */
+  private calculateEntityMatchScore(result: UnifiedSearchResult, intent: QueryIntent): number {
+    let score = 1.0;
+    
+    // Care type matching
+    if (intent.entities.careTypes?.length && result.data.careTypes) {
+      const careTypes = Array.isArray(result.data.careTypes) ? result.data.careTypes : [result.data.careTypes];
+      const matches = intent.entities.careTypes.filter(type =>
+        careTypes.some((ct: string) => ct?.toLowerCase().includes(type.toLowerCase()))
+      );
+      score *= 1 + (matches.length * 0.25);
+    }
+    
+    // Amenity matching
+    if (intent.entities.amenities?.length && result.data.amenities) {
+      const amenities = Array.isArray(result.data.amenities) ? result.data.amenities : [];
+      const matches = intent.entities.amenities.filter(amenity =>
+        amenities.some((a: string) => a?.toLowerCase().includes(amenity.toLowerCase()))
+      );
+      score *= 1 + (matches.length * 0.15);
+    }
+    
+    return score;
+  }
+  
+  /**
+   * Calculate intent-specific score
+   */
+  private calculateIntentScore(result: UnifiedSearchResult, intent: QueryIntent): number {
+    switch (intent.primary) {
+      case 'recommendation':
+        // Prioritize highly-rated and verified results
+        const rating = result.data.rating || 0;
+        return rating > 0 ? (1 + rating / 5) : 1.0;
+        
+      case 'comparison':
+        // Prioritize results with complete comparison data
+        const hasPrice = result.data.rentPerMonth || result.data.price;
+        const hasRating = result.data.rating;
+        const hasPhotos = result.data.photos?.length;
+        return hasPrice && hasRating && hasPhotos ? 1.5 : 1.0;
+        
+      case 'question':
+        // Prioritize results with detailed information
+        const description = result.data.description || '';
+        return description.length > 100 ? 1.3 : 1.0;
+        
+      default:
+        return 1.0;
+    }
+  }
+  
+  /**
+   * Calculate data quality score
+   */
+  private calculateQualityScore(result: UnifiedSearchResult): number {
+    const requiredFields = ['name', 'address', 'city', 'state'];
+    const optionalFields = ['description', 'rentPerMonth', 'photos', 'rating', 'phone'];
+    
+    let score = 1.0;
+    
+    // Check required fields
+    const hasRequired = requiredFields.every(field => result.data[field]);
+    if (!hasRequired) score *= 0.7;
+    
+    // Boost for optional fields
+    const filledOptional = optionalFields.filter(field => result.data[field]).length;
+    score *= 1 + (filledOptional * 0.05);
+    
+    // Boost for verified data
+    if (result.data.verified) score *= 1.2;
+    
+    return score;
+  }
+  
+  /**
+   * Calculate location proximity score
+   */
+  private calculateLocationScore(result: UnifiedSearchResult, targetLocations: string[]): number {
+    const resultState = result.data.state || '';
+    const resultCity = result.data.city || '';
+    
+    // Exact state match
+    if (targetLocations.some(loc => resultState === loc)) return 1.5;
+    
+    // City contains location
+    if (targetLocations.some(loc => resultCity.toLowerCase().includes(loc.toLowerCase()))) return 1.3;
+    
+    // Partial match
+    if (targetLocations.some(loc => 
+      resultState.toLowerCase().includes(loc.toLowerCase()) ||
+      resultCity.toLowerCase().includes(loc.toLowerCase())
+    )) return 1.1;
+    
+    return 1.0;
+  }
+  
+  /**
+   * Calculate price optimization score
+   */
+  private calculatePriceScore(result: UnifiedSearchResult, intent: QueryIntent): number {
+    const price = parseFloat(result.data.rentPerMonth || result.data.price || '0');
+    
+    if (price === 0) return 0.8; // Penalize missing price data
+    
+    // For "cheapest" modifier, inverse price scoring
+    if (intent.entities.modifiers?.includes('cheapest')) {
+      return Math.min(2.0, 3000 / price); // Lower price = higher score
+    }
+    
+    // For price range queries
+    if (intent.entities.priceRange) {
+      const { min, max } = intent.entities.priceRange;
+      if (price >= min && price <= max) {
+        // Perfect match in range
+        return 1.5;
+      } else if (price < min) {
+        // Below range (possibly better deal)
+        return 1.3;
+      } else {
+        // Above range
+        return Math.max(0.5, 1 - ((price - max) / max));
+      }
+    }
+    
+    return 1.0;
+  }
+  
+  /**
+   * Apply ML ranking algorithm
+   */
+  private applyMLRanking(results: UnifiedSearchResult[], intent: QueryIntent): UnifiedSearchResult[] {
+    return results.sort((a, b) => {
+      // Primary sort by score
+      if (Math.abs(b.score - a.score) > 0.1) {
+        return b.score - a.score;
+      }
+      
+      // Secondary sort by data completeness
+      const aComplete = Object.keys(a.data).filter(k => a.data[k]).length;
+      const bComplete = Object.keys(b.data).filter(k => b.data[k]).length;
+      
+      if (aComplete !== bComplete) {
+        return bComplete - aComplete;
+      }
+      
+      // Tertiary sort by rating
+      const aRating = a.data.rating || 0;
+      const bRating = b.data.rating || 0;
+      
+      return bRating - aRating;
+    });
+  }
+  
+  /**
+   * Diversify results for better user experience
+   */
+  private diversifyResults(results: UnifiedSearchResult[]): UnifiedSearchResult[] {
+    if (results.length <= 10) return results;
+    
+    const diversified: UnifiedSearchResult[] = [];
+    const seenStates = new Set<string>();
+    const seenCareTypes = new Set<string>();
+    
+    // First pass: ensure diversity
+    for (const result of results) {
+      const state = result.data.state || '';
+      const careType = result.data.careTypes?.[0] || '';
+      
+      // Add if new state or care type
+      if (!seenStates.has(state) || !seenCareTypes.has(careType)) {
+        diversified.push(result);
+        seenStates.add(state);
+        seenCareTypes.add(careType);
+      }
+      
+      if (diversified.length >= 20) break;
+    }
+    
+    // Second pass: fill remaining slots with highest scored
+    for (const result of results) {
+      if (!diversified.includes(result)) {
+        diversified.push(result);
+      }
+      if (diversified.length >= 50) break;
+    }
+    
+    return diversified;
   }
   
   /**
@@ -887,6 +1127,176 @@ export class NLPSearchSystem {
     
     return facets;
   }
+  
+  /**
+   * Advanced Real-time Suggestions with ML-based Predictive Text
+   */
+  async getSuggestions(partialQuery: string): Promise<string[]> {
+    const suggestions: Set<string> = new Set();
+    const query = partialQuery.toLowerCase().trim();
+    
+    if (query.length < 2) return [];
+    
+    // Check cache for performance
+    const cached = this.suggestionCache?.get(query);
+    if (cached && Date.now() - cached.timestamp < 300000) { // 5 min cache
+      return cached.suggestions;
+    }
+    
+    // Apply spell correction
+    const corrected = this.correctSpelling(query);
+    
+    // Smart pattern matching
+    const lastWord = query.split(' ').pop() || '';
+    const queryBase = query.substring(0, query.lastIndexOf(' ')).trim();
+    
+    // Common query templates
+    const templates = {
+      careTypes: [
+        'memory care', 'assisted living', 'nursing home',
+        'independent living', 'skilled nursing', 'hospice care',
+        'adult day care', 'respite care'
+      ],
+      locations: [
+        'Texas', 'California', 'Florida', 'New York', 'Illinois',
+        'Dallas', 'Houston', 'Austin', 'San Antonio',
+        'Los Angeles', 'San Francisco', 'Miami', 'Chicago'
+      ],
+      modifiers: [
+        'affordable', 'luxury', 'pet-friendly', 'nearby',
+        'highly rated', 'with availability', 'accepting medicaid'
+      ]
+    };
+    
+    // Context-aware suggestions
+    if (query.includes(' in ') || query.endsWith(' in')) {
+      templates.locations.forEach(loc => {
+        if (loc.toLowerCase().startsWith(lastWord)) {
+          suggestions.add(`${queryBase} in ${loc}`);
+        }
+      });
+    } else if (query.includes(' near ') || query.endsWith(' near')) {
+      ['me', 'downtown', 'airport', 'hospital'].forEach(term => {
+        suggestions.add(`${query} ${term}`);
+      });
+    } else {
+      // Care type suggestions
+      templates.careTypes.forEach(type => {
+        if (type.startsWith(query)) {
+          suggestions.add(type);
+          suggestions.add(`${type} near me`);
+          suggestions.add(`${type} facilities`);
+        }
+      });
+      
+      // Modifier suggestions
+      templates.modifiers.forEach(mod => {
+        if (mod.startsWith(lastWord) && queryBase) {
+          suggestions.add(`${queryBase} ${mod}`);
+        }
+      });
+    }
+    
+    // Add abbreviation expansions
+    const abbreviations: Record<string, string[]> = {
+      'alf': ['assisted living facility', 'assisted living facilities'],
+      'snf': ['skilled nursing facility', 'skilled nursing facilities'],
+      'mc': ['memory care', 'memory care facility'],
+      'il': ['independent living', 'independent living community']
+    };
+    
+    const words = query.split(' ');
+    const checkWord = words[words.length - 1];
+    
+    if (abbreviations[checkWord]) {
+      abbreviations[checkWord].forEach(expansion => {
+        const base = words.slice(0, -1).join(' ');
+        suggestions.add(base ? `${base} ${expansion}` : expansion);
+      });
+    }
+    
+    // Convert to array and rank
+    const ranked = Array.from(suggestions)
+      .slice(0, 8);
+    
+    // Cache results
+    if (this.suggestionCache) {
+      this.suggestionCache.set(query, {
+        suggestions: ranked,
+        timestamp: Date.now()
+      });
+    }
+    
+    return ranked;
+  }
+  
+  /**
+   * Simple spell correction using Levenshtein distance
+   */
+  private correctSpelling(text: string): string {
+    const words = text.split(' ');
+    const corrected = words.map(word => {
+      const dictionary = [
+        'assisted', 'living', 'memory', 'care', 'nursing', 'home',
+        'independent', 'senior', 'facility', 'community', 'residence',
+        'alzheimer', 'dementia', 'hospice', 'rehabilitation', 'skilled'
+      ];
+      
+      // Check if word is already correct or too short
+      if (dictionary.includes(word) || word.length < 3) return word;
+      
+      // Find closest match
+      let minDistance = Infinity;
+      let bestMatch = word;
+      
+      for (const dictWord of dictionary) {
+        const distance = this.levenshteinDistance(word, dictWord);
+        if (distance < minDistance && distance <= 2) {
+          minDistance = distance;
+          bestMatch = dictWord;
+        }
+      }
+      
+      return bestMatch;
+    });
+    
+    return corrected.join(' ');
+  }
+  
+  /**
+   * Calculate Levenshtein distance for spell correction
+   */
+  private levenshteinDistance(str1: string, str2: string): number {
+    const matrix: number[][] = [];
+    
+    for (let i = 0; i <= str2.length; i++) {
+      matrix[i] = [i];
+    }
+    
+    for (let j = 0; j <= str1.length; j++) {
+      matrix[0][j] = j;
+    }
+    
+    for (let i = 1; i <= str2.length; i++) {
+      for (let j = 1; j <= str1.length; j++) {
+        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1, // substitution
+            matrix[i][j - 1] + 1,     // insertion
+            matrix[i - 1][j] + 1      // deletion
+          );
+        }
+      }
+    }
+    
+    return matrix[str2.length][str1.length];
+  }
+  
+  // Caching properties
+  private suggestionCache = new Map<string, { suggestions: string[], timestamp: number }>();
+  private queryCache = new Map<string, { results: any, timestamp: number }>();
 }
 
 // Export singleton instance

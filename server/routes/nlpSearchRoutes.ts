@@ -175,4 +175,31 @@ router.get('/federation/test', async (req, res) => {
   }
 });
 
+/**
+ * Get real-time search suggestions
+ * GET /api/nlp/suggestions?q=query
+ */
+router.get('/suggestions', async (req, res) => {
+  try {
+    const query = req.query.q as string;
+    
+    if (!query || query.length < 2) {
+      return res.json({ suggestions: [] });
+    }
+    
+    const suggestions = await nlpSearchSystem.getSuggestions(query);
+    
+    res.json({
+      suggestions,
+      _version: 'v4_streamlined_hero_' + Date.now()
+    });
+  } catch (error) {
+    console.error('Suggestions error:', error);
+    res.status(500).json({ 
+      error: 'Failed to generate suggestions',
+      _version: 'v4_streamlined_hero_' + Date.now()
+    });
+  }
+});
+
 export default router;
