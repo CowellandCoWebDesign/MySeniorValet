@@ -37,20 +37,15 @@ import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
 import { HeroMascotPanel } from '@/components/mascot/HeroMascotPanel';
+// Import new premium suited mascot for hero section
+import premiumSuitedMascot from '@assets/generated_images/Premium_suited_MySeniorValet_executive_5e286a52.png';
+
 // Image paths from public directory
-const heroBackgroundImage = '/starry-night-hero.png';
+const heroBackgroundImage = premiumSuitedMascot;
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 
-// Preload critical hero image
-if (typeof document !== 'undefined') {
-  const link = document.createElement('link');
-  link.rel = 'preload';
-  link.as = 'image';
-  link.href = heroBackgroundImage;
-  link.type = 'image/png';
-  document.head.appendChild(link);
-}
+// Note: Preload handled by Vite for imported images
 
 
 
@@ -149,7 +144,7 @@ function HeroSectionWithTransformingSearch() {
         <div className="absolute inset-0 h-full w-full">
           <img
             src={heroBackgroundImage}
-            alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
+            alt="MySeniorValet premium executive in black pinstriped suit with red tie - Your AI-powered senior care concierge"
             className={`w-full h-full object-cover object-center transition-opacity duration-700 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
