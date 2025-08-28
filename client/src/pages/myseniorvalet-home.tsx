@@ -217,44 +217,7 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
           
-          {/* View Toggle - Show when search is active */}
-          {isSearchActive && (
-            <div className="flex justify-center mt-3">
-              <div className="inline-flex bg-white rounded-full shadow-lg p-1">
-                <Button
-                  size="sm"
-                  variant={viewMode === 'list' ? 'default' : 'ghost'}
-                  onClick={() => setViewMode('list')}
-                  className={`px-4 py-2 rounded-full transition-all ${
-                    viewMode === 'list' 
-                      ? 'bg-purple-600 hover:bg-purple-700 text-white' 
-                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
-                  }`}
-                >
-                  <List className="w-4 h-4 mr-2" />
-                  <span className="text-sm font-medium">List View</span>
-                </Button>
-                <Button
-                  size="sm"
-                  variant={viewMode === 'map' ? 'default' : 'ghost'}
-                  onClick={() => {
-                    setViewMode('map');
-                    if (searchQuery) {
-                      setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
-                    }
-                  }}
-                  className={`px-4 py-2 rounded-full transition-all ${
-                    viewMode === 'map' 
-                      ? 'bg-purple-600 hover:bg-purple-700 text-white' 
-                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
-                  }`}
-                >
-                  <MapIcon className="w-4 h-4 mr-2" />
-                  <span className="text-sm font-medium">Map View</span>
-                </Button>
-              </div>
-            </div>
-          )}
+
         </div>
 
           {/* Trust Indicators - Only show when not searching */}
@@ -282,94 +245,136 @@ function HeroSectionWithTransformingSearch() {
         {!isSearchActive && <HeroMascotPanel className="hidden sm:block absolute bottom-4 left-0 right-0 z-30" />}
       </section>
 
-      {/* Search Results - Display Below Hero Section with Bounded Height */}
+      {/* Search Results - Display Below Hero Section */}
       <AnimatePresence>
-        {isSearchActive && viewMode === 'list' && (
+        {isSearchActive && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="w-full bg-white shadow-xl overflow-hidden"
+            className="w-full"
           >
-            {/* Filter Tabs */}
-            <div className="bg-gray-900 border-b border-gray-700">
-              <div className="max-w-5xl mx-auto px-2 sm:px-4">
-                <div className="flex space-x-1 py-2">
-                  <button
-                    onClick={() => setActiveTab('communities')}
-                    className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                      activeTab === 'communities' 
-                        ? 'bg-blue-600 text-white' 
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+            {/* View Toggle integrated with Results */}
+            <div className="bg-gray-900 shadow-xl">
+              {/* View Toggle Buttons */}
+              <div className="flex justify-center pt-3 pb-2">
+                <div className="inline-flex bg-white/10 rounded-full p-1">
+                  <Button
+                    size="sm"
+                    variant={viewMode === 'list' ? 'default' : 'ghost'}
+                    onClick={() => setViewMode('list')}
+                    className={`px-4 py-2 rounded-full transition-all ${
+                      viewMode === 'list' 
+                        ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                        : 'text-gray-300 hover:text-white hover:bg-white/10'
                     }`}
                   >
-                    <Building className="w-4 h-4 mr-1.5" />
-                    <span>Communities</span>
-                    {searchResults?.results && (
-                      <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                        {searchResults.results.filter((r: any) => !r.type || r.type === 'community').length}
-                      </span>
-                    )}
-                  </button>
-                  
-                  <button
-                    onClick={() => setActiveTab('services')}
-                    className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                      activeTab === 'services' 
-                        ? 'bg-blue-600 text-white' 
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                    <List className="w-4 h-4 mr-2" />
+                    <span className="text-sm font-medium">List View</span>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={viewMode === 'map' ? 'default' : 'ghost'}
+                    onClick={() => {
+                      setViewMode('map');
+                      if (searchQuery) {
+                        setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
+                      }
+                    }}
+                    className={`px-4 py-2 rounded-full transition-all ${
+                      viewMode === 'map' 
+                        ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                        : 'text-gray-300 hover:text-white hover:bg-white/10'
                     }`}
                   >
-                    <Users2 className="w-4 h-4 mr-1.5" />
-                    <span>Services</span>
-                    {searchResults?.services && (
-                      <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                        {searchResults.services.length}
-                      </span>
-                    )}
-                  </button>
-                  
-                  <button
-                    onClick={() => setActiveTab('healthcare')}
-                    className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                      activeTab === 'healthcare' 
-                        ? 'bg-blue-600 text-white' 
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
-                    }`}
-                  >
-                    <Heart className="w-4 h-4 mr-1.5" />
-                    <span>Healthcare</span>
-                    {searchResults?.healthcare && (
-                      <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                        {searchResults.healthcare.length}
-                      </span>
-                    )}
-                  </button>
-                  
-                  <button
-                    onClick={() => setActiveTab('resources')}
-                    className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                      activeTab === 'resources' 
-                        ? 'bg-blue-600 text-white' 
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
-                    }`}
-                  >
-                    <Book className="w-4 h-4 mr-1.5" />
-                    <span>Resources</span>
-                    {searchResults?.resources && (
-                      <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                        {searchResults.resources.length}
-                      </span>
-                    )}
-                  </button>
+                    <MapIcon className="w-4 h-4 mr-2" />
+                    <span className="text-sm font-medium">Map View</span>
+                  </Button>
                 </div>
               </div>
-            </div>
 
-            {/* Results Content */}
-            <div className="max-h-[50vh] overflow-y-auto">
-              <div className="max-w-5xl mx-auto p-2 sm:p-4">
+              {/* Filter Tabs - Only show in list view */}
+              {viewMode === 'list' && (
+                <div className="border-t border-gray-700">
+                  <div className="max-w-5xl mx-auto px-2 sm:px-4">
+                    <div className="flex space-x-1 py-2">
+                      <button
+                        onClick={() => setActiveTab('communities')}
+                        className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                          activeTab === 'communities' 
+                            ? 'bg-blue-600 text-white' 
+                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                        }`}
+                      >
+                        <Building className="w-4 h-4 mr-1.5" />
+                        <span>Communities</span>
+                        {searchResults?.results && (
+                          <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
+                            {searchResults.results.filter((r: any) => !r.type || r.type === 'community').length}
+                          </span>
+                        )}
+                      </button>
+                      
+                      <button
+                        onClick={() => setActiveTab('services')}
+                        className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                          activeTab === 'services' 
+                            ? 'bg-blue-600 text-white' 
+                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                        }`}
+                      >
+                        <Users2 className="w-4 h-4 mr-1.5" />
+                        <span>Services</span>
+                        {searchResults?.services && (
+                          <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
+                            {searchResults.services.length}
+                          </span>
+                        )}
+                      </button>
+                      
+                      <button
+                        onClick={() => setActiveTab('healthcare')}
+                        className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                          activeTab === 'healthcare' 
+                            ? 'bg-blue-600 text-white' 
+                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                        }`}
+                      >
+                        <Heart className="w-4 h-4 mr-1.5" />
+                        <span>Healthcare</span>
+                        {searchResults?.healthcare && (
+                          <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
+                            {searchResults.healthcare.length}
+                          </span>
+                        )}
+                      </button>
+                      
+                      <button
+                        onClick={() => setActiveTab('resources')}
+                        className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                          activeTab === 'resources' 
+                            ? 'bg-blue-600 text-white' 
+                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                        }`}
+                      >
+                        <Book className="w-4 h-4 mr-1.5" />
+                        <span>Resources</span>
+                        {searchResults?.resources && (
+                          <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
+                            {searchResults.resources.length}
+                          </span>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Results Content - Only show in list view */}
+              {viewMode === 'list' && (
+                <div className="bg-white max-h-[50vh] overflow-y-auto">
+                  <div className="max-w-5xl mx-auto p-2 sm:p-4">
                 {/* Loading State */}
                 {isLoading && (
                   <div className="flex items-center justify-center py-12">
@@ -445,9 +450,11 @@ function HeroSectionWithTransformingSearch() {
                     <Book className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-700 text-lg mb-2">Resources coming soon</p>
                     <p className="text-gray-500">Educational content and support resources</p>
-                  </div>
-                )}
+                    </div>
+                  )}
+                </div>
               </div>
+              )}
             </div>
           </motion.div>
         )}
