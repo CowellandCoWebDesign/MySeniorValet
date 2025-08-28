@@ -2,7 +2,7 @@ import { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { Home, RefreshCw, AlertTriangle, Rocket } from 'lucide-react';
-import nostalgicSpaceImage from '@assets/generated_images/Nostalgic_space_scene_logos_3b09df12.png';
+import nostalgicSpaceImage from '@assets/generated_images/nostalgic_space_scene_corrected.svg';
 
 interface Props {
   children?: ReactNode;

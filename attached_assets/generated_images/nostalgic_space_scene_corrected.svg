@@ -20,6 +20,18 @@
       <stop offset="70%" style="stop-color:#5b21b6;stop-opacity:0.12" />
       <stop offset="100%" style="stop-color:#312e81;stop-opacity:0.03" />
     </radialGradient>
+    
+    <!-- Gradients for logos -->
+    <linearGradient id="blockbusterGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="toysGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f97316;stop-opacity:1" />
+    </linearGradient>
   </defs>
   
   <!-- Space background -->
@@ -64,24 +76,47 @@
     <circle cx="0" cy="0" r="60" fill="none" stroke="rgba(220, 38, 38, 0.3)" stroke-width="2"/>
   </g>
   
-  <!-- Blockbuster Logo -->
-  <g transform="translate(800, 300) rotate(15)">
-    <!-- Blue background with yellow border -->
-    <rect x="-90" y="-25" width="180" height="50" fill="#1e40af" rx="8"/>
-    <rect x="-90" y="-25" width="180" height="50" fill="none" stroke="#fbbf24" stroke-width="3" rx="8"/>
-    <!-- BLOCKBUSTER text -->
-    <text x="0" y="2" font-family="Arial Black, sans-serif" font-size="20" font-weight="900" fill="white" text-anchor="middle" dominant-baseline="middle" style="font-style: italic;">BLOCKBUSTER</text>
-    <!-- VIDEO text -->
-    <text x="0" y="18" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#fbbf24" text-anchor="middle" dominant-baseline="middle">VIDEO</text>
+  <!-- Blockbuster Movie Ticket Logo (Authentic 1996 Design) -->
+  <g transform="translate(800, 280) rotate(12)">
+    <!-- Movie ticket shape with torn edge -->
+    <path d="M-100,-30 L80,-30 L85,-25 L90,-30 L95,-25 L100,-30 L100,30 L-100,30 Z" fill="#1e40af"/>
+    <!-- Torn left edge -->
+    <path d="M-100,-30 L-95,-25 L-100,-20 L-95,-15 L-100,-10 L-95,-5 L-100,0 L-95,5 L-100,10 L-95,15 L-100,20 L-95,25 L-100,30" fill="#1e40af"/>
+    <!-- Yellow text -->
+    <text x="0" y="-5" font-family="Arial Black, sans-serif" font-size="18" font-weight="900" fill="#fbbf24" text-anchor="middle" dominant-baseline="middle">BLOCKBUSTER</text>
+    <text x="0" y="15" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#fbbf24" text-anchor="middle" dominant-baseline="middle">VIDEO</text>
+    <!-- Inner border -->
+    <rect x="-95" y="-25" width="190" height="50" fill="none" stroke="#fbbf24" stroke-width="1" rx="3"/>
   </g>
   
-  <!-- Toys"R"Us Logo -->
-  <g transform="translate(450, 500) rotate(-10)">
-    <!-- Colorful background -->
-    <rect x="-60" y="-20" width="120" height="40" fill="#fbbf24" rx="6"/>
-    <rect x="-60" y="-20" width="120" height="40" fill="none" stroke="#f97316" stroke-width="2" rx="6"/>
-    <!-- TOYS"R"US text -->
-    <text x="0" y="2" font-family="Arial Black, sans-serif" font-size="16" font-weight="900" fill="#1e40af" text-anchor="middle" dominant-baseline="middle">TOYS"R"US</text>
+  <!-- Toys"R"Us with Geoffrey the Giraffe -->
+  <g transform="translate(400, 480) rotate(-8)">
+    <!-- Multi-colored TOYS"R"US letters (authentic colors) -->
+    <text x="-70" y="0" font-family="Arial Black, sans-serif" font-size="24" font-weight="900" fill="#1e40af" text-anchor="middle" dominant-baseline="middle">T</text>
+    <text x="-50" y="0" font-family="Arial Black, sans-serif" font-size="24" font-weight="900" fill="#22c55e" text-anchor="middle" dominant-baseline="middle">O</text>
+    <text x="-30" y="0" font-family="Arial Black, sans-serif" font-size="24" font-weight="900" fill="#8b5cf6" text-anchor="middle" dominant-baseline="middle">Y</text>
+    <text x="-10" y="0" font-family="Arial Black, sans-serif" font-size="24" font-weight="900" fill="#1e40af" text-anchor="middle" dominant-baseline="middle">S</text>
+    <text x="10" y="0" font-family="Arial Black, sans-serif" font-size="24" font-weight="900" fill="#8b5cf6" text-anchor="middle" dominant-baseline="middle" transform="scale(-1,1)">"</text>
+    <text x="20" y="0" font-family="Arial Black, sans-serif" font-size="24" font-weight="900" fill="#8b5cf6" text-anchor="middle" dominant-baseline="middle" transform="scale(-1,1)">R</text>
+    <text x="35" y="0" font-family="Arial Black, sans-serif" font-size="24" font-weight="900" fill="#8b5cf6" text-anchor="middle" dominant-baseline="middle" transform="scale(-1,1)">"</text>
+    <text x="50" y="0" font-family="Arial Black, sans-serif" font-size="24" font-weight="900" fill="#60a5fa" text-anchor="middle" dominant-baseline="middle">U</text>
+    <text x="70" y="0" font-family="Arial Black, sans-serif" font-size="24" font-weight="900" fill="#f97316" text-anchor="middle" dominant-baseline="middle">S</text>
+    
+    <!-- Geoffrey the Giraffe (simplified) -->
+    <g transform="translate(90, -10) scale(0.6)">
+      <!-- Giraffe neck and head -->
+      <ellipse cx="0" cy="20" rx="8" ry="25" fill="#f59e0b"/>
+      <circle cx="0" cy="-5" r="12" fill="#f59e0b"/>
+      <!-- Spots/Stars -->
+      <polygon points="0,-10 3,-5 0,0 -3,-5" fill="#ffffff"/>
+      <polygon points="-5,5 -2,10 -5,15 -8,10" fill="#ffffff"/>
+      <polygon points="5,15 8,20 5,25 2,20" fill="#ffffff"/>
+      <!-- Eyes -->
+      <circle cx="-4" cy="-8" r="2" fill="black"/>
+      <circle cx="4" cy="-8" r="2" fill="black"/>
+      <!-- Bowtie -->
+      <polygon points="-6,2 0,-2 6,2 0,6" fill="#dc2626"/>
+    </g>
   </g>
   
   <!-- Tower Records Logo -->
@@ -95,7 +130,7 @@
   </g>
   
   <!-- Circuit City Red Plug Logo -->
-  <g transform="translate(950, 480)">
+  <g transform="translate(950, 480) rotate(-5)">
     <!-- Plug prongs -->
     <rect x="-8" y="-45" width="6" height="25" fill="#9ca3af" rx="3"/>
     <rect x="2" y="-45" width="6" height="25" fill="#9ca3af" rx="3"/>
@@ -105,6 +140,64 @@
     <text x="0" y="-2" font-family="Arial Black, sans-serif" font-size="12" font-weight="900" fill="white" text-anchor="middle" dominant-baseline="middle">CIRCUIT</text>
     <!-- CITY text -->
     <text x="0" y="12" font-family="Arial Black, sans-serif" font-size="12" font-weight="900" fill="white" text-anchor="middle" dominant-baseline="middle">CITY</text>
+  </g>
+  
+  <!-- Sears Logo -->
+  <g transform="translate(150, 150) rotate(18)">
+    <!-- Red background -->
+    <rect x="-50" y="-20" width="100" height="40" fill="#dc2626" rx="5"/>
+    <!-- White SEARS text -->
+    <text x="0" y="2" font-family="Arial Black, sans-serif" font-size="20" font-weight="900" fill="white" text-anchor="middle" dominant-baseline="middle">SEARS</text>
+  </g>
+  
+  <!-- Kmart Logo -->
+  <g transform="translate(600, 150) rotate(-12)">
+    <!-- Red K with white background -->
+    <rect x="-45" y="-20" width="90" height="40" fill="white" rx="5"/>
+    <rect x="-45" y="-20" width="90" height="40" fill="none" stroke="#dc2626" stroke-width="2" rx="5"/>
+    <text x="-15" y="2" font-family="Arial Black, sans-serif" font-size="28" font-weight="900" fill="#dc2626" text-anchor="middle" dominant-baseline="middle">K</text>
+    <text x="15" y="2" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#dc2626" text-anchor="middle" dominant-baseline="middle">mart</text>
+  </g>
+  
+  <!-- CompUSA Logo -->
+  <g transform="translate(1000, 200) rotate(8)">
+    <!-- Blue background -->
+    <rect x="-60" y="-18" width="120" height="36" fill="#1e40af" rx="18"/>
+    <!-- White text -->
+    <text x="0" y="-2" font-family="Arial Black, sans-serif" font-size="14" font-weight="900" fill="white" text-anchor="middle" dominant-baseline="middle">CompUSA</text>
+    <text x="0" y="12" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#fbbf24" text-anchor="middle" dominant-baseline="middle">COMPUTER SUPERCENTER</text>
+  </g>
+  
+  <!-- Borders Books Logo -->
+  <g transform="translate(300, 600) rotate(-15)">
+    <!-- Green background -->
+    <rect x="-50" y="-25" width="100" height="50" fill="#059669" rx="8"/>
+    <!-- White text -->
+    <text x="0" y="-5" font-family="Times, serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">BORDERS</text>
+    <text x="0" y="12" font-family="Times, serif" font-size="10" font-weight="normal" fill="white" text-anchor="middle" dominant-baseline="middle">BOOKS • MUSIC • CAFÉ</text>
+  </g>
+  
+  <!-- KB Toys Logo -->
+  <g transform="translate(750, 600) rotate(10)">
+    <!-- Yellow and red design -->
+    <rect x="-40" y="-18" width="80" height="36" fill="#fbbf24" rx="18"/>
+    <text x="0" y="2" font-family="Arial Black, sans-serif" font-size="16" font-weight="900" fill="#dc2626" text-anchor="middle" dominant-baseline="middle">KB TOYS</text>
+  </g>
+  
+  <!-- FuncoLand Logo -->
+  <g transform="translate(100, 500) rotate(-20)">
+    <!-- Purple background -->
+    <rect x="-50" y="-18" width="100" height="36" fill="#7c3aed" rx="5"/>
+    <!-- Yellow text -->
+    <text x="0" y="2" font-family="Arial Black, sans-serif" font-size="14" font-weight="900" fill="#fbbf24" text-anchor="middle" dominant-baseline="middle">FuncoLand</text>
+  </g>
+  
+  <!-- Musicland Logo -->
+  <g transform="translate(1100, 400) rotate(25)">
+    <!-- Black background -->
+    <rect x="-45" y="-18" width="90" height="36" fill="#000000" rx="8"/>
+    <!-- White text -->
+    <text x="0" y="2" font-family="Arial Black, sans-serif" font-size="13" font-weight="900" fill="white" text-anchor="middle" dominant-baseline="middle">Musicland</text>
   </g>
   
   <!-- Additional atmospheric effects -->
