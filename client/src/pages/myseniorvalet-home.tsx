@@ -471,22 +471,22 @@ function HeroSectionWithTransformingSearch() {
                   </div>
                 </div>
             
-            {/* Results Content - Constrained width and better mobile layout */}
-            <div className="max-w-3xl mx-auto px-4">
+            {/* Results Content - Full width for mobile, constrained for desktop */}
+            <div className="max-w-4xl mx-auto px-4">
               {isLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
                   <span className="ml-3 text-gray-300">Searching...</span>
                 </div>
               ) : (
-                <div className="space-y-3 max-h-[60vh] overflow-y-auto pb-4">
+                <div className="space-y-3 pb-4">
                   {searchResults?.results && searchResults.results.length > 0 ? (
                     searchResults.results.map((community: any, index: number) => (
                         <motion.div
                           key={community.id}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.05 }}
+                          transition={{ delay: index * 0.01 }}
                         >
                           <PrioritizedCommunityCard
                             community={community}
