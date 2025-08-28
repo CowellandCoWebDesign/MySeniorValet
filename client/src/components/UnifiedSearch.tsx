@@ -50,48 +50,51 @@ export function UnifiedSearch() {
   const searchRef = useRef<HTMLDivElement>(null);
   const debouncedQuery = useDebounce(query, 300);
 
-  // Perform unified search
-  useEffect(() => {
-    if (!debouncedQuery || debouncedQuery.length < 2) {
+  // Manual search function - only triggered by user action
+  const performSearch = async () => {
+    if (!query || query.length < 2) {
       setResults([]);
       setShowResults(false);
       return;
     }
 
-    const performSearch = async () => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const response = await fetch('/api/search/unified', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: debouncedQuery })
-        });
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch('/api/search/unified', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
 
-        if (!response.ok) {
-          throw new Error('Search failed');
-        }
-
-        const data = await response.json();
-        
-        // Handle both 'results' and 'communities' field names
-        const searchResults = data.results || data.communities || [];
-        setResults(searchResults);
-        setMetadata(data.metadata || data.searchMetadata || null);
-        setSuggestions(data.suggestions || []);
-        setAiInsights(data.aiInsights || data.insights);
-        setShowResults(true);
-      } catch (err) {
-        console.error('Unified search error:', err);
-        setError('Search is temporarily unavailable');
-      } finally {
-        setIsLoading(false);
+      if (!response.ok) {
+        throw new Error('Search failed');
       }
-    };
 
-    performSearch();
-  }, [debouncedQuery]);
+      const data = await response.json();
+      
+      // Handle both 'results' and 'communities' field names
+      const searchResults = data.results || data.communities || [];
+      setResults(searchResults);
+      setMetadata(data.metadata || data.searchMetadata || null);
+      setSuggestions(data.suggestions || []);
+      setAiInsights(data.aiInsights || data.insights);
+      setShowResults(true);
+    } catch (err) {
+      console.error('Unified search error:', err);
+      setError('Search is temporarily unavailable');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle Enter key press
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      performSearch();
+    }
+  };
 
   // Close results when clicking outside
   useEffect(() => {
@@ -107,7 +110,8 @@ export function UnifiedSearch() {
 
   const handleSuggestionClick = (suggestion: string) => {
     setQuery(suggestion);
-    setShowResults(false);
+    // Wait for state update then search
+    setTimeout(() => performSearch(), 0);
   };
 
   const getSourceIcon = (source?: string) => {
@@ -149,17 +153,29 @@ export function UnifiedSearch() {
         <Input
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            // Clear results if input is cleared
+            if (e.target.value === '') {
+              setResults([]);
+              setShowResults(false);
+            }
+          }}
+          onKeyPress={handleKeyPress}
           placeholder="Ask anything: locations, care types, pricing, availability, services..."
-          className="pl-10 pr-24 py-6 text-lg bg-white/95 backdrop-blur-sm border-2 border-purple-200 focus:border-purple-500 rounded-xl"
+          className="pl-10 pr-32 py-6 text-lg bg-white/95 backdrop-blur-sm border-2 border-purple-200 focus:border-purple-500 rounded-xl"
         />
-        <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+        <div className="absolute inset-y-0 right-0 flex items-center pr-3 gap-2">
           {isLoading ? (
             <div className="animate-spin h-5 w-5 border-2 border-purple-500 border-t-transparent rounded-full" />
           ) : (
-            <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
-              AI-Powered
-            </Badge>
+            <Button
+              onClick={performSearch}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg px-4 py-2"
+            >
+              <Search className="h-4 w-4 mr-1" />
+              Search
+            </Button>
           )}
         </div>
       </div>
