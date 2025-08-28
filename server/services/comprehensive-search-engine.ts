@@ -104,90 +104,53 @@ export class ComprehensiveSearchEngine {
       searchType = 'browse';
     } else {
       // Normalize query
-      let normalizedQuery = query.toLowerCase().trim();
+      const normalizedQuery = query.toLowerCase().trim();
       
-      // SMART CITY-STATE PARSING: Handle "City State" or "City, State" patterns
-      const cityStatePatterns = [
-        /^([a-zA-Z\s]+?)(?:,?\s+)(alaska|ak)$/i,
-        /^([a-zA-Z\s]+?)(?:,?\s+)(florida|fl)$/i,
-        /^([a-zA-Z\s]+?)(?:,?\s+)(south carolina|sc)$/i,
-        /^([a-zA-Z\s]+?)(?:,?\s+)(new york|ny)$/i,
-        /^([a-zA-Z\s]+?)(?:,?\s+)(california|ca)$/i,
-        /^([a-zA-Z\s]+?)(?:,?\s+)([a-zA-Z]{2})$/i,  // Any 2-letter state code
-        /^([a-zA-Z\s]+?)(?:,?\s+)(alabama|arizona|arkansas|colorado|connecticut|delaware|georgia|hawaii|idaho|illinois|indiana|iowa|kansas|kentucky|louisiana|maine|maryland|massachusetts|michigan|minnesota|mississippi|missouri|montana|nebraska|nevada|new hampshire|new jersey|new mexico|north carolina|north dakota|ohio|oklahoma|oregon|pennsylvania|rhode island|south dakota|tennessee|texas|utah|vermont|virginia|washington|west virginia|wisconsin|wyoming)$/i
-      ];
+      // MULTI-INTENT DETECTION: Based on Zillow's approach, detect multiple intents simultaneously
+      const intentScores = await this.calculateIntentScores(normalizedQuery);
+      const dominantIntent = this.getDominantIntent(intentScores);
       
-      let cityStateMatch = null;
-      for (const pattern of cityStatePatterns) {
-        const match = normalizedQuery.match(pattern);
-        if (match) {
-          cityStateMatch = match;
-          break;
-        }
+      console.log(`Query: "${query}" | Intent scores:`, intentScores, `| Dominant: ${dominantIntent}`);
+      
+      // Apply conditions based on ALL detected intents (not just dominant)
+      if (intentScores.location > 0.3) {
+        const locationConditions = await this.buildLocationConditions(normalizedQuery);
+        conditions.push(...locationConditions);
       }
       
-      if (cityStateMatch) {
-        const city = cityStateMatch[1].trim();
-        const state = cityStateMatch[2].trim().toUpperCase();
-        
-        console.log(`CITY-STATE SEARCH: City="${city}", State="${state}"`);
-        searchType = 'location';
-        
-        // Build precise city + state conditions
-        const stateCode = state.length === 2 ? state : this.getStateCode(state);
+      if (intentScores.careType > 0.3) {
+        const careConditions = await this.buildCareTypeConditions(normalizedQuery);
+        conditions.push(...careConditions);
+      }
+      
+      if (intentScores.price > 0.3) {
+        const priceConditions = await this.buildPriceConditions(normalizedQuery);
+        conditions.push(...priceConditions);
+      }
+      
+      if (intentScores.company > 0.3) {
         conditions.push(
-          and(
-            ilike(communities.city, `%${city}%`),
-            eq(communities.state, stateCode)
+          or(
+            ilike(communities.name, `%${normalizedQuery}%`),
+            ilike(communities.managementCompany, `%${normalizedQuery}%`)
           )
         );
-      } else {
-        // MULTI-INTENT DETECTION: Based on Zillow's approach, detect multiple intents simultaneously
-        const intentScores = await this.calculateIntentScores(normalizedQuery);
-        const dominantIntent = this.getDominantIntent(intentScores);
-        
-        console.log(`Query: "${query}" | Intent scores:`, intentScores, `| Dominant: ${dominantIntent}`);
-        
-        // Apply conditions based on ALL detected intents (not just dominant)
-        if (intentScores.location > 0.3) {
-          const locationConditions = await this.buildLocationConditions(normalizedQuery);
-          conditions.push(...locationConditions);
-        }
-        
-        if (intentScores.careType > 0.3) {
-          const careConditions = await this.buildCareTypeConditions(normalizedQuery);
-          conditions.push(...careConditions);
-        }
-        
-        if (intentScores.price > 0.3) {
-          const priceConditions = await this.buildPriceConditions(normalizedQuery);
-          conditions.push(...priceConditions);
-        }
-        
-        if (intentScores.company > 0.3) {
-          conditions.push(
-            or(
-              ilike(communities.name, `%${normalizedQuery}%`),
-              ilike(communities.managementCompany, `%${normalizedQuery}%`)
-            )
-          );
-        }
-        
-        // If no specific intent detected strongly, use general search
-        if (Math.max(...Object.values(intentScores)) < 0.4) {
-          conditions.push(
-            or(
-              ilike(communities.name, `%${normalizedQuery}%`),
-              ilike(communities.city, `%${normalizedQuery}%`),
-              ilike(communities.state, `%${normalizedQuery}%`),
-              ilike(communities.managementCompany, `%${normalizedQuery}%`),
-              ilike(communities.address, `%${normalizedQuery}%`)
-            )
-          );
-        }
-        
-        searchType = dominantIntent;
       }
+      
+      // If no specific intent detected strongly, use general search
+      if (Math.max(...Object.values(intentScores)) < 0.4) {
+        conditions.push(
+          or(
+            ilike(communities.name, `%${normalizedQuery}%`),
+            ilike(communities.city, `%${normalizedQuery}%`),
+            ilike(communities.state, `%${normalizedQuery}%`),
+            ilike(communities.managementCompany, `%${normalizedQuery}%`),
+            ilike(communities.address, `%${normalizedQuery}%`)
+          )
+        );
+      }
+      
+      searchType = dominantIntent;
     }
     
     // Apply additional filters
