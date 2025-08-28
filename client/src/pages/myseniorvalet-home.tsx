@@ -158,14 +158,14 @@ function HeroSectionWithTransformingSearch() {
         </div>
         
         <div className="relative z-10 h-full flex flex-col justify-center px-4 sm:px-8 py-8">
-        {/* Hero Text with Transparent Bubble Background */}
-        <div className="w-full max-w-4xl mx-auto mb-8">
-          <div className="bg-black/40 backdrop-blur-sm rounded-2xl px-6 sm:px-8 py-6 sm:py-8 text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
+        {/* Hero Text with Transparent Bubble Background - Positioned to avoid mascot on left */}
+        <div className="w-full max-w-3xl ml-auto mr-8 mb-8">
+          <div className="bg-black/50 backdrop-blur-sm rounded-2xl px-4 sm:px-6 py-4 sm:py-6 text-center">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 leading-tight">
               Everything You Need. Nothing You Pay.
             </h1>
             
-            <div className="text-sm sm:text-base md:text-lg text-gray-100 max-w-3xl mx-auto">
+            <div className="text-xs sm:text-sm md:text-base text-gray-200 max-w-2xl mx-auto">
               <p className="leading-relaxed">
                 Search 35,000+ communities globally with real pricing & trusted reviews • 
                 We NEVER sell your info • Access 1,000's of services & support resources • 
@@ -175,8 +175,8 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
 
-        {/* Search Bar - Centered Below Hero Text */}
-        <div className="w-full max-w-3xl mx-auto px-4">
+        {/* Search Bar - Positioned to avoid mascot on left */}
+        <div className="w-full max-w-2xl ml-auto mr-8 px-4">
           <div className="relative bg-white/95 backdrop-blur rounded-xl shadow-2xl">
             <div className="flex items-center">
               <Search className="absolute left-4 sm:left-5 w-5 h-5 text-gray-500" />
