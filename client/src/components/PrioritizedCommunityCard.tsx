@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2, Home, Info, Sparkles, DollarSign, Activity, Bed, Users } from "lucide-react";
 import { MarketIntelligenceModal } from "./MarketIntelligenceModal";
+import spaceExplorerImage from '@assets/generated_images/MySeniorValet_space_explorer_18b24d58.png';
 
 interface CommunityCardProps {
   community: {
@@ -398,27 +399,36 @@ function CommunityCard({
             }}
           />
         ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <div className="text-5xl mb-2">
-              {community.communitySubtype === 'memory_care' ? '🧠' :
-               community.communitySubtype === 'skilled_nursing' ? '🏥' :
-               community.communitySubtype === 'independent_living' ? '🏡' :
-               community.communitySubtype === 'hud_senior_housing' ? '🏛️' :
-               community.communitySubtype === 'active_adult_55plus' ? '🎾' :
-               community.communitySubtype === 'mobile_home_park' ? '🚐' :
-               '🏢'}
-            </div>
-            <div className="text-sm text-white/80 text-center font-medium">
-              {community.communitySubtype === 'memory_care' ? 'Memory Care' :
-               community.communitySubtype === 'skilled_nursing' ? 'Skilled Nursing' :
-               community.communitySubtype === 'independent_living' ? 'Independent Living' :
-               community.communitySubtype === 'hud_senior_housing' ? 'HUD Housing' :
-               community.communitySubtype === 'active_adult_55plus' ? '55+ Active' :
-               community.communitySubtype === 'mobile_home_park' ? 'Mobile Park' :
-               'Senior Living'}
-            </div>
-            <div className="text-xs text-white/50 mt-1">
-              Photos coming soon
+          <div className="absolute inset-0">
+            {/* Space Explorer Background Image */}
+            <img 
+              src={spaceExplorerImage}
+              alt="MySeniorValet Space Explorer"
+              className="absolute inset-0 w-full h-full object-cover opacity-90"
+            />
+            {/* Darker overlay for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/60"></div>
+            
+            {/* Exploration Message */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
+              <div className="bg-black/50 backdrop-blur-sm rounded-lg px-4 py-3 max-w-[90%]">
+                <div className="text-lg font-bold text-white mb-1">
+                  ✨ Explore This Community
+                </div>
+                <div className="text-xs text-white/90 leading-relaxed">
+                  Click to discover detailed information about<br/>
+                  {community.communitySubtype === 'memory_care' ? 'Memory Care services' :
+                   community.communitySubtype === 'skilled_nursing' ? 'Skilled Nursing facilities' :
+                   community.communitySubtype === 'independent_living' ? 'Independent Living options' :
+                   community.communitySubtype === 'hud_senior_housing' ? 'HUD Senior Housing' :
+                   community.communitySubtype === 'active_adult_55plus' ? '55+ Active Living' :
+                   community.communitySubtype === 'mobile_home_park' ? 'Mobile Home options' :
+                   'this Senior Living community'}
+                </div>
+                <div className="text-xs text-purple-300 mt-2 font-medium">
+                  View full profile for photos & details →
+                </div>
+              </div>
             </div>
           </div>
         )}
