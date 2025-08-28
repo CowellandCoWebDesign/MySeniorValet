@@ -374,8 +374,8 @@ function HeroSectionWithTransformingSearch() {
         
         </div>
         
-        {/* Hero Mascot Panel - Hide when search is active, has focus, or has query */}
-        {!isSearchActive && !searchQuery && !isSearchFocused && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-20" />}
+        {/* Hero Mascot Panel - Temporarily disabled */}
+        {/* {!isSearchActive && !searchQuery && !isSearchFocused && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-20" />} */}
       </section>
 
       {/* Search Results Display Section */}
