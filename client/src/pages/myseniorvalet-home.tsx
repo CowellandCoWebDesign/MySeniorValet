@@ -160,7 +160,9 @@ function HeroSectionWithTransformingSearch() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
         </div>
         
-        <div className="relative z-10 h-full flex flex-col justify-center px-2 sm:px-4 py-6 sm:py-8">
+        <div className="relative z-10 h-full flex items-center px-2 sm:px-4">
+        {/* Hero Content Container */}
+        <div className="w-full">
         {/* Hero Text - Never Changes */}
         <div className="w-full max-w-4xl mx-auto mb-6 text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight">
@@ -240,8 +242,10 @@ function HeroSectionWithTransformingSearch() {
           )}
         </div>
         
-        {/* Hero Mascot Panel - Hidden when searching or on mobile */}
-        {!isSearchActive && <HeroMascotPanel className="hidden sm:block absolute bottom-4 left-0 right-0 z-30" />}
+        </div>
+        
+        {/* Hero Mascot Panel - Responsive positioning */}
+        {!isSearchActive && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-30" />}
       </section>
 
       {/* Search Results - Display Below Hero Section */}
