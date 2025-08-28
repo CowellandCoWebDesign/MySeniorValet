@@ -38,6 +38,7 @@ import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
 import { HeroMascotPanel } from '@/components/mascot/HeroMascotPanel';
 import { UnifiedSearch } from '@/components/UnifiedSearch';
+import { KrakenAIResponse } from '@/components/KrakenAIResponse';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 
@@ -62,7 +63,7 @@ function HeroSectionWithTransformingSearch() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchResults, setSearchResults] = useState<any>({ results: [], metadata: null });
   const [isLoading, setIsLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'map' | 'kraken'>('list');
   const [imageLoaded, setImageLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
   const [, setLocation] = useLocation();
@@ -78,17 +79,28 @@ function HeroSectionWithTransformingSearch() {
     }
 
     setIsSearchActive(true);
-    setIsLoading(true);
+    
+    // For Kraken AI mode, don't set loading state as KrakenAIResponse handles its own loading
+    if (viewMode !== 'kraken') {
+      setIsLoading(true);
+    }
 
     try {
       // If results are already provided from component, use them
       if (resultsFromComponent && resultsFromComponent.length > 0) {
         setSearchResults({ results: resultsFromComponent, metadata: null });
-        setIsLoading(false);
+        if (viewMode !== 'kraken') {
+          setIsLoading(false);
+        }
         return;
       }
 
-      // Otherwise, fetch results
+      // For Kraken AI mode, the KrakenAIResponse component handles the search
+      if (viewMode === 'kraken') {
+        return;
+      }
+
+      // Otherwise, fetch results for list/map view
       const response = await fetch('/api/search/unified', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -135,7 +147,9 @@ function HeroSectionWithTransformingSearch() {
       console.error('Search failed:', error);
       setSearchResults({ results: [], metadata: null });
     } finally {
-      setIsLoading(false);
+      if (viewMode !== 'kraken') {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -236,6 +250,19 @@ function HeroSectionWithTransformingSearch() {
                 >
                   <MapIcon className="w-4 h-4 mr-2" />
                   <span className="text-sm font-medium">Map View</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant={viewMode === 'kraken' ? 'default' : 'ghost'}
+                  onClick={() => setViewMode('kraken')}
+                  className={`px-4 py-2 rounded-full transition-all ${
+                    viewMode === 'kraken' 
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white' 
+                      : 'text-gray-300 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Brain className="w-4 h-4 mr-2" />
+                  <span className="text-sm font-medium">🐙 Kraken AI</span>
                 </Button>
               </div>
             </div>
@@ -338,6 +365,28 @@ function HeroSectionWithTransformingSearch() {
                   )}
                 </div>
               )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* KRAKEN AI Response Section */}
+        {viewMode === 'kraken' && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="w-full bg-gradient-to-b from-gray-900 to-gray-800 -mt-[400px] relative z-20"
+          >
+            <div className="max-w-6xl mx-auto p-4">
+              <KrakenAIResponse 
+                query={searchQuery}
+                onQueryChange={setSearchQuery}
+                onCommunityMatches={(matches) => {
+                  setSearchResults({ results: matches, metadata: null });
+                  setIsSearchActive(true);
+                }}
+              />
             </div>
           </motion.div>
         )}
