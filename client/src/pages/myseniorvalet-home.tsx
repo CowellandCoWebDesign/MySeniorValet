@@ -288,12 +288,11 @@ function HeroSectionWithTransformingSearch() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="w-full bg-gray-900"
-            style={{ marginTop: '-1px' }}
+            className="w-full bg-gray-900 -mt-[400px]"
           >
             {/* Results Header - Seamlessly connected */}
             <div className="w-full max-w-2xl mx-auto px-2 sm:px-0">
-              <div className="bg-gray-800/95 backdrop-blur-sm px-4 py-3 border-t border-gray-700">
+              <div className="bg-gray-800/95 backdrop-blur-sm px-4 py-3 rounded-b-2xl">
                 <h3 className="text-lg font-semibold text-white">
                   Found {searchResults?.results?.length || 0} results
                   {searchQuery && (
