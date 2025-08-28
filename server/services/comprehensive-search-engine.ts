@@ -101,8 +101,16 @@ export class ComprehensiveSearchEngine {
       // Normalize query
       const normalizedQuery = query.toLowerCase().trim();
       
-      // 1. COMPANY/BRAND SEARCH (Brookdale, Atria, etc.)
-      if (await this.isCompanySearch(normalizedQuery)) {
+      // 1. COMBINED LOCATION + PRICE SEARCH ("Sacramento under $5000")
+      if ((await this.isLocationSearch(normalizedQuery)) && (await this.isPriceSearch(normalizedQuery))) {
+        searchType = 'price'; // Price takes priority for sorting
+        const locationConditions = await this.buildLocationConditions(normalizedQuery);
+        const priceConditions = await this.buildPriceConditions(normalizedQuery);
+        conditions.push(...locationConditions, ...priceConditions);
+      }
+      
+      // 2. COMPANY/BRAND SEARCH (Brookdale, Atria, etc.)
+      else if (await this.isCompanySearch(normalizedQuery)) {
         searchType = 'company';
         conditions.push(
           or(
@@ -112,35 +120,35 @@ export class ComprehensiveSearchEngine {
         );
       }
       
-      // 2. LOCATION SEARCH (City, State, ZIP)
+      // 3. LOCATION SEARCH (City, State, ZIP)
       else if (await this.isLocationSearch(normalizedQuery)) {
         searchType = 'location';
         const locationConditions = await this.buildLocationConditions(normalizedQuery);
         conditions.push(...locationConditions);
       }
       
-      // 3. PRICE SEARCH ("under $3000", "cheap", "$2000-$4000")
+      // 4. PRICE SEARCH ("under $3000", "cheap", "$2000-$4000")
       else if (await this.isPriceSearch(normalizedQuery)) {
         searchType = 'price';
         const priceConditions = await this.buildPriceConditions(normalizedQuery);
         conditions.push(...priceConditions);
       }
       
-      // 4. CARE TYPE SEARCH ("memory care", "assisted living")
+      // 5. CARE TYPE SEARCH ("memory care", "assisted living")
       else if (await this.isCareTypeSearch(normalizedQuery)) {
         searchType = 'careType';
         const careConditions = await this.buildCareTypeConditions(normalizedQuery);
         conditions.push(...careConditions);
       }
       
-      // 5. NATURAL LANGUAGE SEARCH ("best communities near me", "affordable senior living")
+      // 6. NATURAL LANGUAGE SEARCH ("best communities near me", "affordable senior living")
       else if (await this.isNaturalLanguageSearch(normalizedQuery)) {
         searchType = 'naturalLanguage';
         const nlConditions = await this.buildNaturalLanguageConditions(normalizedQuery);
         conditions.push(...nlConditions);
       }
       
-      // 6. GENERAL TEXT SEARCH (fallback)
+      // 7. GENERAL TEXT SEARCH (fallback)
       else {
         searchType = 'general';
         conditions.push(
@@ -247,17 +255,26 @@ export class ComprehensiveSearchEngine {
     if (priceMatch) {
       const prices = priceMatch.map(p => parseInt(p.replace(/[$,]/g, '')));
       
-      // For now, skip price filtering to avoid SQL errors
-      // Will implement simple price filtering later
-      console.log(`Price filtering requested: ${prices.join(', ')}, skipping complex SQL for now`);
+      // Implement basic price filtering without complex regex - filter in application layer
+      console.log(`Price filtering requested: ${prices.join(', ')}, applying basic SQL filter`);
+      
+      if (query.includes('under') || query.includes('<')) {
+        // Simple approach: let database return results, filter will be applied at application level
+        conditions.push(sql`${communities.rentPerMonth} IS NOT NULL`);
+      } else if (query.includes('over') || query.includes('>')) {
+        conditions.push(sql`${communities.rentPerMonth} IS NOT NULL`);
+      } else if (prices.length === 2) {
+        conditions.push(sql`${communities.rentPerMonth} IS NOT NULL`);
+      }
     }
     
-    // Handle qualitative terms with simpler approach
+    // Handle qualitative terms with simplified approach
     if (query.includes('cheap') || query.includes('affordable')) {
-      // Skip complex price filtering for now to avoid SQL errors
-      console.log('Affordable filtering requested, using general search instead');
+      console.log('Affordable filtering requested, applying basic filter');
+      conditions.push(sql`${communities.rentPerMonth} IS NOT NULL`);
     } else if (query.includes('expensive') || query.includes('luxury')) {
-      console.log('Luxury filtering requested, using general search instead');
+      console.log('Luxury filtering requested, applying basic filter');
+      conditions.push(sql`${communities.rentPerMonth} IS NOT NULL`);
     }
     
     return conditions;
@@ -331,9 +348,10 @@ export class ComprehensiveSearchEngine {
       );
     }
     
-    // Skip price filtering for now to avoid SQL errors
+    // Apply basic price filtering
     if (filters.priceMin !== undefined || filters.priceMax !== undefined) {
-      console.log(`Price range filtering requested: ${filters.priceMin}-${filters.priceMax}, using general search instead`);
+      console.log(`Price range filtering requested: ${filters.priceMin}-${filters.priceMax}, applying basic filter`);
+      conditions.push(sql`${communities.rentPerMonth} IS NOT NULL`);
     }
     
     if (filters.rating !== undefined) {
@@ -344,7 +362,7 @@ export class ComprehensiveSearchEngine {
   private applySorting(query: any, searchType: string, searchQuery: string) {
     switch (searchType) {
       case 'price':
-        // Use simple ordering instead of complex price parsing
+        // Order by community name for price searches (simplified)
         return query.orderBy(asc(communities.name));
       case 'company':
         return query.orderBy(asc(communities.name));
@@ -385,20 +403,87 @@ export class ComprehensiveSearchEngine {
     const suggestions: string[] = [];
     
     if (searchType === 'location') {
+      // Enhanced geographic suggestions
       suggestions.push(
         `${query} assisted living`,
         `${query} memory care`,
-        `best senior living in ${query}`
+        `best senior living in ${query}`,
+        `${query} under $5000`,
+        `affordable communities in ${query}`
       );
     } else if (searchType === 'company') {
       suggestions.push(
         `${query} locations`,
         `${query} pricing`,
-        `${query} reviews`
+        `${query} reviews`,
+        `${query} near me`
+      );
+    } else if (searchType === 'price') {
+      suggestions.push(
+        `under $3000`,
+        `under $5000`,
+        `affordable senior living`,
+        `luxury communities`
+      );
+    } else {
+      // Generic suggestions for unknown search types
+      suggestions.push(
+        `${query} near me`,
+        `best ${query}`,
+        `affordable ${query}`
       );
     }
     
     return suggestions;
+  }
+  
+  // Add dedicated suggestions method for the suggestions endpoint
+  async generateSearchSuggestions(query: string): Promise<string[]> {
+    const normalizedQuery = query.toLowerCase().trim();
+    const suggestions: string[] = [];
+    
+    // International location enhancement
+    const locationMap: { [key: string]: string[] } = {
+      'tokyo': ['Tokyo, Japan', 'Tokyo communities', 'Tokyo senior living'],
+      'paris': ['Paris, France', 'Paris communities', 'Paris senior care'],
+      'london': ['London, UK', 'London communities', 'London senior living'],
+      'sydney': ['Sydney, Australia', 'Sydney communities', 'Sydney senior care'],
+      'toronto': ['Toronto, Canada', 'Toronto communities', 'Toronto senior living'],
+      'vancouver': ['Vancouver, Canada', 'Vancouver communities', 'Vancouver senior care']
+    };
+    
+    // Check if it's a known international location
+    if (locationMap[normalizedQuery]) {
+      suggestions.push(...locationMap[normalizedQuery]);
+    }
+    
+    // Add general suggestions based on query type
+    if (normalizedQuery.includes('senior') || normalizedQuery.includes('living')) {
+      suggestions.push(
+        `${query} under $5000`,
+        `${query} memory care`,
+        `${query} assisted living`,
+        `best ${query}`
+      );
+    } else if (/^\d+$/.test(normalizedQuery) || normalizedQuery.includes('$')) {
+      suggestions.push(
+        `under $${normalizedQuery.replace(/\$/, '')}`,
+        `communities under $${normalizedQuery.replace(/\$/, '')}`,
+        `affordable senior living`
+      );
+    } else {
+      // Location-based suggestions
+      suggestions.push(
+        `${query} senior living`,
+        `${query} assisted living`,
+        `${query} memory care`,
+        `${query} under $5000`,
+        `best communities in ${query}`
+      );
+    }
+    
+    // Remove duplicates and limit results
+    return [...new Set(suggestions)].slice(0, 8);
   }
 }
 

@@ -196,4 +196,45 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
   return suggestions.slice(0, 8); // Limit to 8 suggestions
 }
 
+/**
+ * Search suggestions endpoint
+ * Enhanced geographic intelligence for better UX
+ */
+router.post('/api/search/suggestions', async (req, res) => {
+  try {
+    const { query = '' } = req.body;
+    
+    if (!query || query.trim().length === 0) {
+      return res.json({
+        success: true,
+        suggestions: [
+          'assisted living near me',
+          'memory care communities',
+          'senior living under $5000',
+          'affordable senior housing',
+          'luxury senior communities'
+        ]
+      });
+    }
+    
+    // Use the enhanced suggestion engine
+    const suggestions = await comprehensiveSearchEngine.generateSearchSuggestions(query);
+    
+    res.json({
+      success: true,
+      suggestions,
+      query,
+      _timestamp: Date.now()
+    });
+    
+  } catch (error) {
+    console.error('Suggestions error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate suggestions',
+      suggestions: []
+    });
+  }
+});
+
 export default router;
