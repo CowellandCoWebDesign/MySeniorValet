@@ -382,11 +382,11 @@ function HeroSectionWithTransformingSearch() {
       <AnimatePresence>
         {isSearchActive && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="w-full bg-gray-900 -mt-[400px] relative z-20"
+            className="w-full bg-gradient-to-b from-gray-900 to-gray-800 py-8"
           >
             {/* Learn Mode Response Section */}
             {searchResults?.metadata?.isResearchMode && searchResults?.metadata?.researchResponse && (
@@ -451,8 +451,8 @@ function HeroSectionWithTransformingSearch() {
             {(viewMode === 'list' || viewMode === 'learn') && (
               <div>
                 {/* Results Header */}
-                <div className="w-full max-w-2xl mx-auto px-2 sm:px-0">
-                  <div className="bg-gray-800/95 backdrop-blur-sm px-4 py-3 rounded-b-2xl">
+                <div className="w-full max-w-3xl mx-auto px-4 mb-4">
+                  <div className="bg-gray-800/95 backdrop-blur-sm px-4 py-3 rounded-xl border border-gray-700">
                     <h3 className="text-lg font-semibold text-white">
                       {searchResults?.metadata?.isResearchMode ? (
                         <span className="flex items-center space-x-2">
@@ -471,15 +471,15 @@ function HeroSectionWithTransformingSearch() {
                   </div>
                 </div>
             
-            {/* Results Content */}
-            <div className="max-w-5xl mx-auto p-4">
+            {/* Results Content - Constrained width and better mobile layout */}
+            <div className="max-w-3xl mx-auto px-4">
               {isLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
                   <span className="ml-3 text-gray-300">Searching...</span>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3 max-h-[60vh] overflow-y-auto pb-4">
                   {searchResults?.results && searchResults.results.length > 0 ? (
                     searchResults.results.map((community: any, index: number) => (
                         <motion.div
