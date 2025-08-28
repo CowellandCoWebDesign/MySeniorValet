@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import valetGentleman from '@assets/gentleman-mascot.png';
+import nostalgicSpaceImage from '@assets/generated_images/nostalgic_space_scene_corrected.svg';
 import { getShuffledFacts } from '@/lib/loadingFacts';
 
 interface MascotLoadingDisplayProps {
@@ -102,10 +103,59 @@ export function MascotLoadingDisplay({
     );
   }
 
-  // Full version for dedicated loading screens
+  // Full version for dedicated loading screens with nostalgic space background
   return (
-    <div className="flex items-center justify-center p-8">
-      <div className="max-w-4xl w-full">
+    <div 
+      className="min-h-screen flex items-center justify-center relative"
+      style={{
+        backgroundImage: `url(${nostalgicSpaceImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Dark overlay for better readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
+      
+      {/* Animated cloud layers for "peeking through clouds" effect */}
+      <motion.div 
+        className="absolute inset-0 pointer-events-none"
+        animate={{
+          opacity: [0.3, 0.5, 0.3],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-transparent to-indigo-900/30"></div>
+      </motion.div>
+      
+      {/* Animated Stars Overlay */}
+      <div className="absolute inset-0">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-0.5 h-0.5 bg-white rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              opacity: [0.3, 1, 0.3],
+              scale: [0.5, 1.2, 0.5],
+            }}
+            transition={{
+              duration: 2 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="max-w-4xl w-full relative z-10 p-8">
         {/* Valet Gentleman Image */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -152,7 +202,7 @@ export function MascotLoadingDisplay({
           </div>
         )}
 
-        {/* Rotating Facts */}
+        {/* Rotating Facts with Nostalgic Theme */}
         <AnimatePresence mode="wait">
           <motion.div
             key={currentFactIndex}
@@ -160,14 +210,16 @@ export function MascotLoadingDisplay({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -50 }}
             transition={{ duration: 0.5 }}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
+            className="bg-gradient-to-br from-orange-600/90 to-orange-700/90 p-1 rounded-lg shadow-2xl"
           >
-            <h3 className="text-lg font-semibold mb-3 text-purple-700 dark:text-purple-400">
-              {currentFact.title}
-            </h3>
-            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-              {currentFact.fact}
-            </p>
+            <div className="bg-slate-900/95 backdrop-blur-xl rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-3 text-orange-400">
+                {currentFact.title}
+              </h3>
+              <p className="text-gray-200 leading-relaxed">
+                {currentFact.fact}
+              </p>
+            </div>
           </motion.div>
         </AnimatePresence>
 
@@ -218,12 +270,47 @@ export function MascotLoadingDisplay({
           </motion.div>
         </div>
 
+        {/* Nostalgic Floating Elements */}
+        <div className="absolute right-1/4 bottom-32">
+          <motion.div
+            animate={{
+              rotate: [0, 360],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{
+              duration: 12,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+            className="text-3xl opacity-60"
+          >
+            🌟
+          </motion.div>
+        </div>
+
+        <div className="absolute left-1/4 top-1/4">
+          <motion.div
+            animate={{
+              y: [0, -20, 0],
+              opacity: [0.4, 0.8, 0.4],
+            }}
+            transition={{
+              duration: 5,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="text-2xl"
+          >
+            ✨
+          </motion.div>
+        </div>
+
         {/* Friendly Message */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
-          className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6"
+          className="text-center text-sm text-orange-200 mt-6"
         >
           Your personal valet is working to find the best communities for you.
           <br />
