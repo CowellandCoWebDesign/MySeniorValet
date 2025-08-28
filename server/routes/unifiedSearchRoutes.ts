@@ -106,31 +106,56 @@ router.post('/api/search/unified', async (req, res) => {
  */
 router.get('/api/search/suggestions', async (req, res) => {
   try {
-    const { q: query } = req.query;
+    const query = req.query.query || req.query.q;
     
     if (!query || typeof query !== 'string' || query.length < 2) {
-      return res.json({ suggestions: [] });
+      return res.json({ 
+        suggestions: [],
+        _version: 'v4_streamlined_hero_' + Date.now(),
+        _timestamp: Date.now()
+      });
     }
     
     // Get cached suggestions
     const cacheKey = `suggestions:${query}`;
     const cached = await cache.get(cacheKey);
     if (cached) {
-      return res.json({ suggestions: JSON.parse(cached) });
+      return res.json({ 
+        suggestions: JSON.parse(cached),
+        _version: 'v4_streamlined_hero_' + Date.now(),
+        _timestamp: Date.now()
+      });
     }
     
     // Generate suggestions from unified search
-    const searchResults = await unifiedSearchEngine.search(query, { limit: 5 });
+    const searchResults = await unifiedSearchEngine.search(query as string, { limit: 5 });
     const suggestions = searchResults.suggestions || [];
     
-    // Cache for 1 minute
-    await cache.set(cacheKey, JSON.stringify(suggestions), 60);
+    // Add query-based suggestions
+    const autoComplete = [
+      `${query} assisted living`,
+      `${query} memory care`,
+      `${query} under $5000`
+    ].filter(s => s.length > query.toString().length);
     
-    res.json({ suggestions });
+    const allSuggestions = [...new Set([...autoComplete, ...suggestions])].slice(0, 10);
+    
+    // Cache for 1 minute
+    await cache.set(cacheKey, JSON.stringify(allSuggestions), 60);
+    
+    res.json({ 
+      suggestions: allSuggestions,
+      _version: 'v4_streamlined_hero_' + Date.now(),
+      _timestamp: Date.now()
+    });
     
   } catch (error) {
     console.error('Suggestions error:', error);
-    res.json({ suggestions: [] });
+    res.json({ 
+      suggestions: [],
+      _version: 'v4_streamlined_hero_' + Date.now(),
+      _timestamp: Date.now()
+    });
   }
 });
 

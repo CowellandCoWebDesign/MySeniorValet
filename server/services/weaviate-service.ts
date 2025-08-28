@@ -299,7 +299,7 @@ class WeaviateService {
         .withClassName(this.className)
         .withFields('communityId name description careTypes city state amenities specialties priceRange latitude longitude overallRating reviewSummary')
         .withNearText({ concepts: [query] })
-        .withLimit(limit)
+        .withLimit(typeof limit === 'number' ? limit : parseInt(String(limit)) || 50)
 ;
 
       if (Object.keys(whereFilter).length > 0) {

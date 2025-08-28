@@ -316,8 +316,8 @@ export class UnifiedSearchEngine {
       if (intent.extractedEntities.priceRange) {
         conditions.push(
           and(
-            gte(communities.rentPerMonth, intent.extractedEntities.priceRange.min),
-            lte(communities.rentPerMonth, intent.extractedEntities.priceRange.max)
+            gte(communities.rentPerMonth, String(intent.extractedEntities.priceRange.min)),
+            lte(communities.rentPerMonth, String(intent.extractedEntities.priceRange.max))
           )
         );
       }
@@ -345,7 +345,7 @@ export class UnifiedSearchEngine {
     
     try {
       const results = await this.weaviate.semanticSearch(query, {
-        limit: options?.limit || 50,
+        limit: typeof options?.limit === 'number' ? options.limit : 50,
         certainty: 0.7
       });
       
@@ -478,10 +478,20 @@ export class UnifiedSearchEngine {
   private async generateInsights(communities: Community[], query: string): Promise<any> {
     try {
       // Calculate market trends
-      const avgPrice = communities.reduce((sum, c) => sum + (c.rentPerMonth || 0), 0) / communities.length;
+      const avgPrice = communities.reduce((sum, c) => {
+        const rent = c.rentPerMonth ? 
+          (typeof c.rentPerMonth === 'string' ? parseFloat(c.rentPerMonth) : c.rentPerMonth) : 0;
+        return sum + rent;
+      }, 0) / communities.length;
+      
+      const prices = communities.map(c => {
+        if (!c.rentPerMonth) return 0;
+        return typeof c.rentPerMonth === 'string' ? parseFloat(c.rentPerMonth) : c.rentPerMonth;
+      });
+      
       const priceRange = {
-        min: Math.min(...communities.map(c => c.rentPerMonth || 0)),
-        max: Math.max(...communities.map(c => c.rentPerMonth || 0))
+        min: Math.min(...prices),
+        max: Math.max(...prices)
       };
       
       return {
@@ -491,12 +501,21 @@ export class UnifiedSearchEngine {
           totalOptions: communities.length
         },
         priceAnalysis: {
-          affordable: communities.filter(c => (c.rentPerMonth || 0) < avgPrice * 0.8).length,
+          affordable: communities.filter(c => {
+            const price = c.rentPerMonth ? 
+              (typeof c.rentPerMonth === 'string' ? parseFloat(c.rentPerMonth) : c.rentPerMonth) : 0;
+            return price < avgPrice * 0.8;
+          }).length,
           moderate: communities.filter(c => {
-            const price = c.rentPerMonth || 0;
+            const price = c.rentPerMonth ? 
+              (typeof c.rentPerMonth === 'string' ? parseFloat(c.rentPerMonth) : c.rentPerMonth) : 0;
             return price >= avgPrice * 0.8 && price <= avgPrice * 1.2;
           }).length,
-          premium: communities.filter(c => (c.rentPerMonth || 0) > avgPrice * 1.2).length
+          premium: communities.filter(c => {
+            const price = c.rentPerMonth ? 
+              (typeof c.rentPerMonth === 'string' ? parseFloat(c.rentPerMonth) : c.rentPerMonth) : 0;
+            return price > avgPrice * 1.2;
+          }).length
         }
       };
     } catch (error) {
@@ -608,7 +627,7 @@ export class UnifiedSearchEngine {
     // Limit pattern storage
     if (this.searchPatterns.size > 10000) {
       const oldest = this.searchPatterns.keys().next().value;
-      this.searchPatterns.delete(oldest);
+      if (oldest) this.searchPatterns.delete(oldest);
     }
   }
   
@@ -621,7 +640,7 @@ export class UnifiedSearchEngine {
     // Limit storage
     if (this.successfulQueries.size > 5000) {
       const oldest = this.successfulQueries.values().next().value;
-      this.successfulQueries.delete(oldest);
+      if (oldest) this.successfulQueries.delete(oldest);
     }
   }
   
