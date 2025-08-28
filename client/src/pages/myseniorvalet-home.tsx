@@ -37,6 +37,7 @@ import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
 import { HeroMascotPanel } from '@/components/mascot/HeroMascotPanel';
+import { UnifiedSearch } from '@/components/UnifiedSearch';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 
