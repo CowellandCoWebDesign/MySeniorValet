@@ -135,61 +135,59 @@ function HeroSectionWithTransformingSearch() {
 
   return (
     <>
-      <section className="relative h-screen" 
+      <section className="relative h-screen overflow-hidden" 
         style={{
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
         }}
       >
-        {/* Background Image */}
+        {/* Background Image - Positioned to show full head */}
         <div className="absolute inset-0 h-full w-full">
           <img
             src={heroBackgroundImage}
             alt="MySeniorValet premium executive in black pinstriped suit with red tie - Your AI-powered senior care concierge"
-            className={`w-full h-full object-cover object-center transition-opacity duration-700 ${
+            className={`w-full h-full object-cover transition-opacity duration-700 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
+            style={{ 
+              objectPosition: 'left center',
+              transform: 'scale(1.1) translateY(5%)'
+            }}
             loading="eager"
             onLoad={() => setImageLoaded(true)}
-            fetchpriority="high"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/40"></div>
         </div>
         
-        <div className="relative z-10 h-full flex flex-col justify-center px-2 sm:px-4 py-6 sm:py-8">
-        {/* Hero Text - Always Visible */}
-        <div className="w-full max-w-4xl mx-auto mb-6 text-center">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight">
-            Everything You Need.<br className="sm:hidden" /> Nothing You Pay.
-          </h1>
-          
-          <div className="text-xs sm:text-sm md:text-base text-gray-100 max-w-3xl mx-auto px-2 mb-6">
-            <div className="hidden sm:block">
-              <p className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+        <div className="relative z-10 h-full flex flex-col justify-center px-4 sm:px-8 py-8">
+        {/* Hero Text with Transparent Bubble Background */}
+        <div className="w-full max-w-4xl mx-auto mb-8">
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl px-6 sm:px-8 py-6 sm:py-8 text-center">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
+              Everything You Need. Nothing You Pay.
+            </h1>
+            
+            <div className="text-sm sm:text-base md:text-lg text-gray-100 max-w-3xl mx-auto">
+              <p className="leading-relaxed">
                 Search 35,000+ communities globally with real pricing & trusted reviews • 
                 We NEVER sell your info • Access 1,000's of services & support resources • 
                 A platform built for families, not profits 💙
               </p>
             </div>
-            <div className="sm:hidden">
-              <p className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
-                Search 35,000+ communities with real pricing. No fees, no data selling 💙
-              </p>
-            </div>
           </div>
         </div>
 
-        {/* Search Bar - Fixed Position Under Hero Text */}
-        <div className="w-full max-w-2xl mx-auto mb-4 px-2 sm:px-0">
-          <div className="relative bg-white rounded-lg sm:rounded-xl shadow-lg sm:shadow-2xl">
+        {/* Search Bar - Centered Below Hero Text */}
+        <div className="w-full max-w-3xl mx-auto px-4">
+          <div className="relative bg-white/95 backdrop-blur rounded-xl shadow-2xl">
             <div className="flex items-center">
-              <Search className="absolute left-3 sm:left-4 w-4 sm:w-5 h-4 sm:h-5 text-gray-400" />
+              <Search className="absolute left-4 sm:left-5 w-5 h-5 text-gray-500" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Search by city, state, or care..."
-                className="w-full pl-10 sm:pl-12 pr-2 sm:pr-4 py-3 sm:py-4 text-base sm:text-lg bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-500"
+                className="w-full pl-12 sm:pl-14 pr-4 py-4 sm:py-5 text-lg bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-500 rounded-xl"
               />
               
               {/* Clear Button - Show only when text exists */}
@@ -197,15 +195,15 @@ function HeroSectionWithTransformingSearch() {
                 <Button
                   size="sm"
                   onClick={clearSearch}
-                  className="mr-1 sm:mr-2 p-1 sm:p-2 bg-gray-200 hover:bg-gray-300"
+                  className="mr-2 p-2 bg-gray-200 hover:bg-gray-300 rounded-lg"
                 >
-                  <X className="w-3 sm:w-4 h-3 sm:h-4" />
+                  <X className="w-4 h-4" />
                 </Button>
               )}
               
-              {/* AI Badge - Smaller on mobile */}
-              <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white mr-1 sm:mr-2 text-[10px] sm:text-xs px-2 sm:px-3">
-                <Sparkles className="w-2 sm:w-3 h-2 sm:h-3 mr-0.5 sm:mr-1" />
+              {/* AI Badge */}
+              <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white mr-3 text-xs sm:text-sm px-3 py-1.5">
+                <Sparkles className="w-3 sm:w-4 h-3 sm:h-4 mr-1" />
                 AI
               </Badge>
             </div>
@@ -213,8 +211,8 @@ function HeroSectionWithTransformingSearch() {
           
           {/* View Toggle - Show when search is active */}
           {isSearchActive && (
-            <div className="flex justify-center mt-3">
-              <div className="inline-flex bg-white rounded-full shadow-lg p-1">
+            <div className="flex justify-center mt-4">
+              <div className="inline-flex bg-white/95 backdrop-blur rounded-full shadow-lg p-1">
                 <Button
                   size="sm"
                   variant={viewMode === 'list' ? 'default' : 'ghost'}
