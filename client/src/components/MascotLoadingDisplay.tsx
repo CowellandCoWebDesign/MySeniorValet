@@ -156,25 +156,27 @@ export function MascotLoadingDisplay({
         ))}
       </div>
 
-      <div className="max-w-7xl w-full relative z-10 p-8 pt-32">
-        {/* Title Section - positioned lower to not block memorial plaques */}
-        <motion.h2 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-3xl font-bold text-center mb-3 text-white"
-        >
-          {title}
-        </motion.h2>
+      {/* Title at the very top */}
+      <motion.h2 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="absolute top-8 left-0 right-0 text-3xl font-bold text-center text-white z-20"
+      >
+        {title}
+      </motion.h2>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="text-center text-gray-200 mb-6 text-base max-w-3xl mx-auto"
-        >
-          {subtitle}
-        </motion.p>
+      {/* Subtitle below the memorial plaques */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="absolute top-96 left-0 right-0 text-center text-gray-200 text-lg px-8 z-20"
+      >
+        {subtitle}
+      </motion.p>
+
+      <div className="max-w-7xl w-full relative z-10 p-8" style={{ paddingTop: '450px' }}>
 
         {/* Progress Bar */}
         {showProgress && (
