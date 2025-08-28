@@ -61,6 +61,7 @@ function HeroSectionWithTransformingSearch() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [activeTab, setActiveTab] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
   const debouncedQuery = useDebounce(searchQuery, 500);
   const [, setLocation] = useLocation();
 
@@ -289,54 +290,164 @@ function HeroSectionWithTransformingSearch() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="w-full bg-white shadow-xl max-h-[60vh] overflow-y-auto"
+            className="w-full bg-white shadow-xl overflow-hidden"
           >
-            <div className="max-w-5xl mx-auto p-2 sm:p-4">
-              {/* Loading State */}
-              {isLoading && (
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
-                  <span className="ml-3 text-gray-700">Searching communities...</span>
+            {/* Filter Tabs */}
+            <div className="bg-gray-900 border-b border-gray-700">
+              <div className="max-w-5xl mx-auto px-2 sm:px-4">
+                <div className="flex space-x-1 py-2">
+                  <button
+                    onClick={() => setActiveTab('communities')}
+                    className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      activeTab === 'communities' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                    }`}
+                  >
+                    <Building className="w-4 h-4 mr-1.5" />
+                    <span>Communities</span>
+                    {searchResults?.results && (
+                      <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
+                        {searchResults.results.filter((r: any) => !r.type || r.type === 'community').length}
+                      </span>
+                    )}
+                  </button>
+                  
+                  <button
+                    onClick={() => setActiveTab('services')}
+                    className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      activeTab === 'services' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                    }`}
+                  >
+                    <Users2 className="w-4 h-4 mr-1.5" />
+                    <span>Services</span>
+                    {searchResults?.services && (
+                      <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
+                        {searchResults.services.length}
+                      </span>
+                    )}
+                  </button>
+                  
+                  <button
+                    onClick={() => setActiveTab('healthcare')}
+                    className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      activeTab === 'healthcare' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                    }`}
+                  >
+                    <Heart className="w-4 h-4 mr-1.5" />
+                    <span>Healthcare</span>
+                    {searchResults?.healthcare && (
+                      <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
+                        {searchResults.healthcare.length}
+                      </span>
+                    )}
+                  </button>
+                  
+                  <button
+                    onClick={() => setActiveTab('resources')}
+                    className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      activeTab === 'resources' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
+                    }`}
+                  >
+                    <Book className="w-4 h-4 mr-1.5" />
+                    <span>Resources</span>
+                    {searchResults?.resources && (
+                      <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
+                        {searchResults.resources.length}
+                      </span>
+                    )}
+                  </button>
                 </div>
-              )}
+              </div>
+            </div>
 
-              {/* Results List */}
-              {!isLoading && searchResults?.results && (
-                <div className="space-y-4">
-                  {searchResults.results.length > 0 ? (
-                    <>
-                      <div className="flex items-center justify-between pb-2 border-b">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          Found {searchResults.results.length} communities
-                        </h3>
-                        <Badge className="bg-green-100 text-green-800">
-                          {searchQuery}
-                        </Badge>
+            {/* Results Content */}
+            <div className="max-h-[50vh] overflow-y-auto">
+              <div className="max-w-5xl mx-auto p-2 sm:p-4">
+                {/* Loading State */}
+                {isLoading && (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
+                    <span className="ml-3 text-gray-700">
+                      Searching {activeTab === 'communities' ? 'communities' : 
+                                activeTab === 'services' ? 'services' : 
+                                activeTab === 'healthcare' ? 'healthcare providers' : 
+                                'resources'}...
+                    </span>
+                  </div>
+                )}
+
+                {/* Communities Tab Results */}
+                {!isLoading && activeTab === 'communities' && searchResults?.results && (
+                  <div className="space-y-4">
+                    {searchResults.results.length > 0 ? (
+                      <>
+                        <div className="flex items-center justify-between pb-2 border-b">
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            Found {searchResults.results.length} communities
+                          </h3>
+                          <Badge className="bg-green-100 text-green-800">
+                            {searchQuery}
+                          </Badge>
+                        </div>
+                        {searchResults.results.map((community: any, index: number) => (
+                          <motion.div
+                            key={community.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                          >
+                            <PrioritizedCommunityCard
+                              community={community}
+                              variant="list"
+                              onSelect={() => window.location.href = `/community/${community.id}`}
+                            />
+                          </motion.div>
+                        ))}
+                      </>
+                    ) : (
+                      <div className="text-center py-12">
+                        <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-700 text-lg mb-2">No communities found</p>
+                        <p className="text-gray-500">Try adjusting your search terms</p>
                       </div>
-                      {searchResults.results.map((community: any, index: number) => (
-                        <motion.div
-                          key={community.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                        >
-                          <PrioritizedCommunityCard
-                            community={community}
-                            variant="list"
-                            onSelect={() => window.location.href = `/community/${community.id}`}
-                          />
-                        </motion.div>
-                      ))}
-                    </>
-                  ) : (
-                    <div className="text-center py-12">
-                      <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-700 text-lg mb-2">No communities found</p>
-                      <p className="text-gray-500">Try adjusting your search terms</p>
-                    </div>
-                  )}
-                </div>
-              )}
+                    )}
+                  </div>
+                )}
+                
+                {/* Services Tab Results */}
+                {!isLoading && activeTab === 'services' && (
+                  <div className="text-center py-12">
+                    <Users2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-700 text-lg mb-2">Services coming soon</p>
+                    <p className="text-gray-500">We're working on bringing you comprehensive service listings</p>
+                  </div>
+                )}
+                
+                {/* Healthcare Tab Results */}
+                {!isLoading && activeTab === 'healthcare' && (
+                  <div className="text-center py-12">
+                    <Heart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-700 text-lg mb-2">Healthcare providers coming soon</p>
+                    <p className="text-gray-500">Find nearby hospitals and medical facilities</p>
+                  </div>
+                )}
+                
+                {/* Resources Tab Results */}
+                {!isLoading && activeTab === 'resources' && (
+                  <div className="text-center py-12">
+                    <Book className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-700 text-lg mb-2">Resources coming soon</p>
+                    <p className="text-gray-500">Educational content and support resources</p>
+                  </div>
+                )}
+              </div>
             </div>
           </motion.div>
         )}

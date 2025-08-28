@@ -11,6 +11,8 @@ MySeniorValet is a $50M AI-powered "Google of Senior Care" platform with living,
 - **Search Accuracy Fixed**: Improved intent detection to recognize city names directly (e.g., "Redding" now correctly returns Redding, CA communities)
 - **Location Matching Enhanced**: Database search now properly handles both single cities and "City, State" formats with exact matching prioritization
 - **Backend Optimized**: Fixed all price field references (roomAndBoard → rentPerMonth), disabled broken web search, search response time reduced to ~500ms
+- **Filter Tabs Added**: Added 4 distinct filter tabs (Communities, Services, Healthcare, Resources) above search results on home page - no "All" tab as requested
+- **Pricing Display Fixed**: Corrected HUD pricing display issue showing $33,500/mo instead of $335/mo by using parseFloat instead of parseInt
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
