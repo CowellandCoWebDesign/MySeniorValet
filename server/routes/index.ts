@@ -190,6 +190,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register NLP Search System routes (Full Implementation)
   app.use('/api/nlp', nlpSearchRoutes);
   
+  // Register NLP Analytics Routes - THE KRAKEN'S NEURAL NETWORK
+  const nlpAnalyticsRoutes = await import('./nlpAnalyticsRoutes');
+  app.use('/api/nlp/analytics', nlpAnalyticsRoutes.default);
+  
   // Register Canadian community routes
   const canadianRoutes = await import('./canadianRoutes');
   app.use('/api/communities', canadianRoutes.default);

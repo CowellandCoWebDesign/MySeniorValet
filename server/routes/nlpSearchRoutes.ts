@@ -5,6 +5,7 @@
 
 import { Router } from 'express';
 import { nlpSearchSystem } from '../services/nlp-search-system';
+import { nlpAnalytics } from '../services/nlp-analytics';
 
 const router = Router();
 
@@ -23,12 +24,27 @@ router.post('/search', async (req, res) => {
       });
     }
     
+    // Track search start time
+    const startTime = Date.now();
+    
     // Perform NLP search
     const results = await nlpSearchSystem.search(query, {
       limit,
       filters,
       userContext
     });
+    
+    // Track analytics for self-learning
+    const searchTime = Date.now() - startTime;
+    await nlpAnalytics.trackSearch(
+      query,
+      results.intent,
+      results.results,
+      searchTime,
+      req.session?.userId
+    );
+    
+    console.log(`🧠 KRAKEN LEARNS: Query "${query}" processed in ${searchTime}ms with ${results.results.length} results`);
     
     // Add performance metrics
     const response = {
