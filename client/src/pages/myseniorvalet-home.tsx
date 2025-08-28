@@ -127,19 +127,19 @@ function HeroSectionWithTransformingSearch() {
   };
 
   return (
-    <section className="relative bg-black">
+    <section className="relative bg-black min-h-screen">
       {/* Background Image */}
-      <div className="absolute inset-0 h-[450px] sm:h-[500px]">
+      <div className="absolute inset-0">
         <img
           src={heroBackgroundImage}
           alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
-          className="w-full h-full object-cover object-top sm:object-center"
+          className="w-full h-full object-cover object-center"
           loading="eager"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
       </div>
       
-      <div className="relative z-10 px-2 sm:px-4 py-6 sm:py-8">
+      <div className="relative z-10 min-h-screen flex flex-col justify-center px-2 sm:px-4 py-6 sm:py-8">
         {/* Hero Text - Always Visible */}
         <div className="w-full max-w-4xl mx-auto mb-6 text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight">
@@ -561,7 +561,7 @@ export default function MySeniorValetHome() {
   }, []);
   
   // Mobile-optimized queries with reduced memory footprint
-  const { data: communityStats, isLoading } = useQuery({
+  const { data: communityStats, isLoading } = useQuery<{ count: string }>({
     queryKey: ["/api/communities/count"],
     retry: false,
     staleTime: 30 * 60 * 1000, // Cache for 30 minutes to reduce requests
