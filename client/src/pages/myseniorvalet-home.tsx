@@ -141,13 +141,13 @@ function HeroSectionWithTransformingSearch() {
 
   return (
     <>
-      <section className={`relative ${isSearchActive ? 'min-h-[320px]' : 'h-screen'}`}
+      <section className="relative h-auto"
         style={{
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
         }}
       >
         {/* Background Image */}
-        <div className={`absolute inset-0 h-full w-full ${isSearchActive ? 'opacity-40' : ''}`}>
+        <div className="absolute inset-0 h-full w-full">
           <img
             src={heroBackgroundImage}
             alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
@@ -156,19 +156,18 @@ function HeroSectionWithTransformingSearch() {
             }`}
             loading="eager"
             onLoad={() => setImageLoaded(true)}
-            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
         </div>
         
-        <div className={`relative z-10 ${isSearchActive ? '' : 'h-full'} flex flex-col justify-center px-2 sm:px-4 ${isSearchActive ? 'pt-8 pb-4' : 'py-6 sm:py-8'}`}>
-        {/* Hero Text - Always Visible */}
-        <div className={`w-full max-w-4xl mx-auto ${isSearchActive ? 'mb-4' : 'mb-6'} text-center transition-all duration-300`}>
-          <h1 className={`${isSearchActive ? 'text-xl sm:text-2xl md:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl'} font-bold text-white mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight`}>
+        <div className="relative z-10 flex flex-col justify-center px-2 sm:px-4 py-6 sm:py-8">
+        {/* Hero Text - Never Changes */}
+        <div className="w-full max-w-4xl mx-auto mb-6 text-center">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight">
             Everything You Need.<br className="sm:hidden" /> Nothing You Pay.
           </h1>
           
-          <div className={`text-xs sm:text-sm md:text-base text-gray-100 max-w-3xl mx-auto px-2 ${isSearchActive ? 'mb-3' : 'mb-6'}`}>
+          <div className="text-xs sm:text-sm md:text-base text-gray-100 max-w-3xl mx-auto px-2 mb-6">
             <div className="hidden sm:block">
               <p className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                 Search 35,000+ communities globally with real pricing & trusted reviews • 
@@ -326,9 +325,12 @@ function HeroSectionWithTransformingSearch() {
                       >
                         <Users2 className="w-4 h-4 mr-1.5" />
                         <span>Services</span>
-                        {searchResults?.services && (
+                        {searchResults?.results && (
                           <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                            {searchResults.services.length}
+                            {searchResults.results.filter((r: any) => 
+                              r.type === 'service' || r.communitySubtype === 'service_provider' || 
+                              r.description?.toLowerCase().includes('service')
+                            ).length}
                           </span>
                         )}
                       </button>
@@ -343,9 +345,14 @@ function HeroSectionWithTransformingSearch() {
                       >
                         <Heart className="w-4 h-4 mr-1.5" />
                         <span>Healthcare</span>
-                        {searchResults?.healthcare && (
+                        {searchResults?.results && (
                           <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                            {searchResults.healthcare.length}
+                            {searchResults.results.filter((r: any) => 
+                              r.type === 'healthcare' || r.communitySubtype === 'skilled_nursing' || 
+                              r.communitySubtype === 'memory_care' || r.communitySubtype === 'ccrc' ||
+                              r.description?.toLowerCase().includes('medical') ||
+                              r.description?.toLowerCase().includes('health')
+                            ).length}
                           </span>
                         )}
                       </button>
@@ -360,9 +367,13 @@ function HeroSectionWithTransformingSearch() {
                       >
                         <Book className="w-4 h-4 mr-1.5" />
                         <span>Resources</span>
-                        {searchResults?.resources && (
+                        {searchResults?.results && (
                           <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                            {searchResults.resources.length}
+                            {searchResults.results.filter((r: any) => 
+                              r.type === 'resource' || r.communitySubtype === 'adult_day_care' ||
+                              r.description?.toLowerCase().includes('resource') ||
+                              r.description?.toLowerCase().includes('support')
+                            ).length}
                           </span>
                         )}
                       </button>
@@ -427,31 +438,145 @@ function HeroSectionWithTransformingSearch() {
                 )}
                 
                 {/* Services Tab Results */}
-                {!isLoading && activeTab === 'services' && (
-                  <div className="text-center py-12">
-                    <Users2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-700 text-lg mb-2">Services coming soon</p>
-                    <p className="text-gray-500">We're working on bringing you comprehensive service listings</p>
+                {!isLoading && activeTab === 'services' && searchResults?.results && (
+                  <div className="space-y-4">
+                    {(() => {
+                      const serviceResults = searchResults.results.filter((r: any) => 
+                        r.type === 'service' || r.communitySubtype === 'service_provider' || 
+                        r.description?.toLowerCase().includes('service')
+                      );
+                      return serviceResults.length > 0 ? (
+                        <>
+                          <div className="flex items-center justify-between pb-2 border-b">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              Found {serviceResults.length} services
+                            </h3>
+                            <Badge className="bg-purple-100 text-purple-800">
+                              {searchQuery}
+                            </Badge>
+                          </div>
+                          {serviceResults.map((service: any, index: number) => (
+                            <motion.div
+                              key={service.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.05 }}
+                              className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                            >
+                              <h4 className="font-semibold text-gray-900">{service.name}</h4>
+                              <p className="text-gray-600 text-sm mt-1">
+                                {service.city}, {service.state}
+                              </p>
+                              {service.description && (
+                                <p className="text-gray-700 mt-2 text-sm">{service.description}</p>
+                              )}
+                            </motion.div>
+                          ))}
+                        </>
+                      ) : (
+                        <div className="text-center py-12">
+                          <Users2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-700 text-lg mb-2">No services found</p>
+                          <p className="text-gray-500">Try searching for home care, transportation, or meal services</p>
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
                 
                 {/* Healthcare Tab Results */}
-                {!isLoading && activeTab === 'healthcare' && (
-                  <div className="text-center py-12">
-                    <Heart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-700 text-lg mb-2">Healthcare providers coming soon</p>
-                    <p className="text-gray-500">Find nearby hospitals and medical facilities</p>
+                {!isLoading && activeTab === 'healthcare' && searchResults?.results && (
+                  <div className="space-y-4">
+                    {(() => {
+                      const healthcareResults = searchResults.results.filter((r: any) => 
+                        r.type === 'healthcare' || r.communitySubtype === 'skilled_nursing' || 
+                        r.communitySubtype === 'memory_care' || r.communitySubtype === 'ccrc' ||
+                        r.description?.toLowerCase().includes('medical') ||
+                        r.description?.toLowerCase().includes('health')
+                      );
+                      return healthcareResults.length > 0 ? (
+                        <>
+                          <div className="flex items-center justify-between pb-2 border-b">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              Found {healthcareResults.length} healthcare facilities
+                            </h3>
+                            <Badge className="bg-red-100 text-red-800">
+                              {searchQuery}
+                            </Badge>
+                          </div>
+                          {healthcareResults.map((provider: any, index: number) => (
+                            <motion.div
+                              key={provider.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.05 }}
+                            >
+                              <PrioritizedCommunityCard
+                                community={provider}
+                                variant="list"
+                                onSelect={() => window.location.href = `/community/${provider.id}`}
+                              />
+                            </motion.div>
+                          ))}
+                        </>
+                      ) : (
+                        <div className="text-center py-12">
+                          <Heart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-700 text-lg mb-2">No healthcare providers found</p>
+                          <p className="text-gray-500">Try searching for hospitals, clinics, or medical centers</p>
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
                 
                 {/* Resources Tab Results */}
-                {!isLoading && activeTab === 'resources' && (
-                  <div className="text-center py-12">
-                    <Book className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-700 text-lg mb-2">Resources coming soon</p>
-                    <p className="text-gray-500">Educational content and support resources</p>
-                    </div>
-                  )}
+                {!isLoading && activeTab === 'resources' && searchResults?.results && (
+                  <div className="space-y-4">
+                    {(() => {
+                      const resourceResults = searchResults.results.filter((r: any) => 
+                        r.type === 'resource' || r.communitySubtype === 'adult_day_care' ||
+                        r.description?.toLowerCase().includes('resource') ||
+                        r.description?.toLowerCase().includes('support')
+                      );
+                      return resourceResults.length > 0 ? (
+                        <>
+                          <div className="flex items-center justify-between pb-2 border-b">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              Found {resourceResults.length} resources
+                            </h3>
+                            <Badge className="bg-blue-100 text-blue-800">
+                              {searchQuery}
+                            </Badge>
+                          </div>
+                          {resourceResults.map((resource: any, index: number) => (
+                            <motion.div
+                              key={resource.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.05 }}
+                              className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                            >
+                              <h4 className="font-semibold text-gray-900">{resource.name}</h4>
+                              <p className="text-gray-600 text-sm mt-1">
+                                {resource.city}, {resource.state}
+                              </p>
+                              {resource.description && (
+                                <p className="text-gray-700 mt-2 text-sm">{resource.description}</p>
+                              )}
+                            </motion.div>
+                          ))}
+                        </>
+                      ) : (
+                        <div className="text-center py-12">
+                          <Book className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-700 text-lg mb-2">No resources found</p>
+                          <p className="text-gray-500">Try searching for support groups, educational materials, or guides</p>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
                 </div>
               </div>
               )}
