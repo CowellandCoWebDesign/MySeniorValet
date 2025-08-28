@@ -137,7 +137,9 @@ function HeroSectionWithTransformingSearch() {
           await handleUnifiedSearch(query);
         } else {
           const data = await response.json();
+          console.log('NLP Search Response:', data); // Debug log
           const communities = data.results?.map((r: any) => r.data || r) || [];
+          console.log('Extracted communities:', communities); // Debug log
           setSearchResults({ 
             results: communities, 
             metadata: {
@@ -146,6 +148,7 @@ function HeroSectionWithTransformingSearch() {
               suggestions: data.suggestions
             }
           });
+          console.log('Search results set:', { results: communities }); // Debug log
         }
       }
     } catch (error) {
@@ -379,6 +382,7 @@ function HeroSectionWithTransformingSearch() {
       </section>
 
       {/* Search Results Display Section */}
+      {console.log('Display check - isSearchActive:', isSearchActive, 'Results:', searchResults?.results?.length)}
       <AnimatePresence>
         {isSearchActive && (
           <motion.div
