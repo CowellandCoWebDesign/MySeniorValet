@@ -156,37 +156,22 @@ export function MascotLoadingDisplay({
         ))}
       </div>
 
-      <div className="max-w-4xl w-full relative z-10 p-8">
-        {/* Valet Gentleman Image */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex justify-center mb-8"
-        >
-          <img 
-            src={valetGentleman} 
-            alt="Your Senior Valet Assistant" 
-            className="w-48 h-48 object-contain"
-          />
-        </motion.div>
-
-        {/* Loading Title */}
+      <div className="max-w-7xl w-full relative z-10 p-8">
+        {/* Title Section */}
         <motion.h2 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="text-2xl font-bold text-center mb-2 text-gray-800 dark:text-gray-200"
+          className="text-3xl font-bold text-center mb-4 text-white"
         >
           {title}
         </motion.h2>
 
-        {/* Subtitle */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="text-center text-gray-600 dark:text-gray-400 mb-6"
+          className="text-center text-gray-200 mb-8 text-lg"
         >
           {subtitle}
         </motion.p>
@@ -203,76 +188,126 @@ export function MascotLoadingDisplay({
           </div>
         )}
 
-        {/* Rotating Facts with Nostalgic Theme */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentFactIndex}
+        {/* Main Content Section */}
+        <div className="flex gap-8">
+          {/* Left side - Loading content */}
+          <div className="flex-1">
+            {/* Rotating Facts with Nostalgic Theme */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentFactIndex}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 0.5 }}
+                className="bg-gradient-to-br from-orange-600/90 to-orange-700/90 p-1 rounded-lg shadow-2xl"
+              >
+                <div className="bg-slate-900/95 backdrop-blur-xl rounded-lg p-6">
+                  <h3 className="text-lg font-semibold mb-3 text-orange-400">
+                    {currentFact.title}
+                  </h3>
+                  <p className="text-gray-200 leading-relaxed">
+                    {currentFact.fact}
+                  </p>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Loading Indicators */}
+            <div className="mt-8 grid grid-cols-3 gap-4 text-center">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="flex flex-col items-center"
+              >
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full mb-2"
+                />
+                <span className="text-sm text-gray-300">Gathering Data</span>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.7 }}
+                className="flex flex-col items-center"
+              >
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="w-8 h-8 bg-purple-500 rounded-full mb-2 flex items-center justify-center"
+                >
+                  <span className="text-white text-xs">AI</span>
+                </motion.div>
+                <span className="text-sm text-gray-300">Processing</span>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.9 }}
+                className="flex flex-col items-center"
+              >
+                <motion.div
+                  animate={{ opacity: [0.3, 1, 0.3] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="w-8 h-8 bg-green-500 rounded-full mb-2"
+                />
+                <span className="text-sm text-gray-300">Verifying</span>
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Right side - Valet in info box */}
+          <motion.div 
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.5 }}
-            className="bg-gradient-to-br from-orange-600/90 to-orange-700/90 p-1 rounded-lg shadow-2xl"
+            transition={{ delay: 0.6 }}
+            className="w-80 bg-gradient-to-br from-indigo-600/90 to-purple-700/90 p-1 rounded-lg shadow-2xl"
           >
             <div className="bg-slate-900/95 backdrop-blur-xl rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-3 text-orange-400">
-                {currentFact.title}
+              {/* Valet Image */}
+              <div className="flex justify-center mb-4">
+                <img 
+                  src={valetGentleman} 
+                  alt="Your Senior Valet Assistant" 
+                  className="w-32 h-32 object-contain"
+                />
+              </div>
+              
+              {/* Valet Message */}
+              <h3 className="text-center text-lg font-semibold mb-3 text-purple-300">
+                Your Personal Valet
               </h3>
-              <p className="text-gray-200 leading-relaxed">
-                {currentFact.fact}
+              <p className="text-gray-200 text-sm leading-relaxed text-center">
+                I'm searching through our comprehensive database to find the perfect communities for you.
               </p>
+              
+              {/* Fun fact about the memorial */}
+              <div className="mt-4 pt-4 border-t border-gray-700">
+                <p className="text-xs text-gray-400 text-center italic">
+                  "In memory of the retail giants who served generations of families"
+                </p>
+              </div>
             </div>
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Loading Indicators */}
-        <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="flex flex-col items-center"
-          >
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full mb-2"
-            />
-            <span className="text-sm text-gray-600 dark:text-gray-400">Gathering Data</span>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7 }}
-            className="flex flex-col items-center"
-          >
-            <motion.div
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="w-8 h-8 bg-purple-500 rounded-full mb-2 flex items-center justify-center"
-            >
-              <span className="text-white text-xs">AI</span>
-            </motion.div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">Processing</span>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
-            className="flex flex-col items-center"
-          >
-            <motion.div
-              animate={{ opacity: [0.3, 1, 0.3] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="w-8 h-8 bg-green-500 rounded-full mb-2"
-            />
-            <span className="text-sm text-gray-600 dark:text-gray-400">Verifying</span>
           </motion.div>
         </div>
 
-        {/* Nostalgic Floating Elements */}
-        <div className="absolute right-1/4 bottom-32">
+        {/* Bottom Message */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="text-center text-sm text-orange-200 mt-8"
+        >
+          Analyzing over 33,560 verified senior living communities nationwide
+        </motion.p>
+
+        {/* Floating Stars */}
+        <div className="absolute right-10 bottom-20">
           <motion.div
             animate={{
               rotate: [0, 360],
@@ -289,7 +324,7 @@ export function MascotLoadingDisplay({
           </motion.div>
         </div>
 
-        <div className="absolute left-1/4 top-1/4">
+        <div className="absolute left-10 top-20">
           <motion.div
             animate={{
               y: [0, -20, 0],
@@ -305,18 +340,6 @@ export function MascotLoadingDisplay({
             ✨
           </motion.div>
         </div>
-
-        {/* Friendly Message */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="text-center text-sm text-orange-200 mt-6"
-        >
-          Your personal valet is working to find the best communities for you.
-          <br />
-          This typically takes a few seconds for comprehensive results.
-        </motion.p>
       </div>
     </div>
   );
