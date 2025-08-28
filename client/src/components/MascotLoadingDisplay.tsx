@@ -110,7 +110,7 @@ export function MascotLoadingDisplay({
       style={{
         backgroundImage: `url(${nostalgicSpaceImage})`,
         backgroundSize: 'contain',
-        backgroundPosition: 'center',
+        backgroundPosition: 'top',
         backgroundRepeat: 'no-repeat',
         backgroundColor: '#0a0015'
       }}

@@ -17,8 +17,8 @@ export default function NostalgicDemo() {
   if (showLoading) {
     return (
       <MascotLoadingDisplay 
-        title="Exploring the Future City of Fallen Great Companies"
-        subtitle="Where RadioShack, Blockbuster, and all the retail legends live on in digital memory"
+        title="Remembering the Giants Who Built America"
+        subtitle="Honoring Blockbuster, Toys R Us, RadioShack, Kmart, and Sears - The retail legends that defined generations"
         showProgress={true}
         progressDuration={8}
         factRotationSpeed={2000}
