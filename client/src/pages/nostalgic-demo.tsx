@@ -27,8 +27,8 @@ export default function NostalgicDemo() {
   if (showLoading) {
     return (
       <MascotLoadingDisplay 
-        title="Remembering the Giants Who Built America"
-        subtitle="Honoring Blockbuster, Toys R Us, RadioShack, Kmart, and Sears - The retail legends that defined generations"
+        title="Deep in Thought... Be Right Back"
+        subtitle="Our system is contemplating the mysteries of the universe - and your search results"
         showProgress={true}
         progressDuration={8}
         factRotationSpeed={2000}
@@ -47,12 +47,12 @@ export default function NostalgicDemo() {
         >
           <h1 className="text-5xl font-bold text-white mb-4 flex items-center justify-center gap-3">
             <Star className="text-yellow-400" />
-            Nostalgic Space Scene Demo
+            The Thinker Space Scene Demo
             <Sparkles className="text-purple-400" />
           </h1>
           <p className="text-xl text-purple-200 max-w-3xl mx-auto">
-            Experience the comprehensive "Future City of Fallen Great Companies" with historically accurate logos 
-            floating through space clouds - featuring RadioShack, Blockbuster, Toys"R"Us, and 9+ more retail legends.
+            Experience the contemplative space scene featuring Rodin's famous "The Thinker" statue 
+            floating majestically in cosmic space - symbolizing deep thought and thoughtful service.
           </p>
         </motion.div>
 
@@ -62,10 +62,10 @@ export default function NostalgicDemo() {
             <CardHeader>
               <CardTitle className="text-orange-400 flex items-center gap-2">
                 <Rocket className="w-6 h-6" />
-                Launch Loading Experience
+                Launch Contemplative Loading
               </CardTitle>
               <CardDescription className="text-gray-300">
-                See the complete nostalgic space scene with all fallen retail giants in action
+                See The Thinker statue in cosmic space contemplating your search results
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -73,7 +73,7 @@ export default function NostalgicDemo() {
                 onClick={handleShowLoading}
                 className="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white font-semibold py-3 px-6 rounded-lg shadow-lg"
               >
-                🚀 Launch Nostalgic Loading Screen
+                🤔 Launch Contemplative Loading Screen
               </Button>
             </CardContent>
           </Card>
@@ -82,10 +82,10 @@ export default function NostalgicDemo() {
             <CardHeader>
               <CardTitle className="text-red-400 flex items-center gap-2">
                 <AlertTriangle className="w-6 h-6" />
-                Test Error Boundary
+                Test Contemplative Error Page
               </CardTitle>
               <CardDescription className="text-gray-300">
-                Preview the memorial-themed error page with fallen retail giants
+                Preview the thoughtful error page with The Thinker in cosmic space
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -94,10 +94,10 @@ export default function NostalgicDemo() {
                 variant="destructive"
                 className="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-semibold py-3 px-6 rounded-lg shadow-lg"
               >
-                ⚠️ Trigger Memorial Error Page
+                💭 Trigger Contemplative Error Page
               </Button>
               <p className="text-xs text-gray-400 mt-2 text-center">
-                Click to simulate a system error and view the memorial error page
+                Click to simulate a system error and see The Thinker contemplating
               </p>
             </CardContent>
           </Card>

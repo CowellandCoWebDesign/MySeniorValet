@@ -2,7 +2,7 @@ import { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { Home, RefreshCw, AlertTriangle } from 'lucide-react';
-import memorialSpaceScene from '@assets/generated_images/Memorial_plaques_in_space_73458db7.png';
+import thinkerSpaceScene from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
 
 interface Props {
   children?: ReactNode;
@@ -38,7 +38,7 @@ class NostalgicErrorBoundary extends Component<Props, State> {
         <div 
           className="min-h-screen relative overflow-hidden"
           style={{
-            backgroundImage: `url(${memorialSpaceScene})`,
+            backgroundImage: `url(${thinkerSpaceScene})`,
             backgroundSize: 'contain',
             backgroundPosition: 'top',
             backgroundRepeat: 'no-repeat',
@@ -93,17 +93,17 @@ class NostalgicErrorBoundary extends Component<Props, State> {
             transition={{ delay: 0.3 }}
             className="absolute top-8 left-0 right-0 text-3xl font-bold text-center text-white z-20"
           >
-            Remembering the Giants Who Built America
+            Deep in Thought... Be Right Back
           </motion.h2>
 
-          {/* Subtitle below the memorial plaques */}
+          {/* Subtitle below The Thinker statue */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
             className="absolute top-96 left-0 right-0 text-center text-gray-200 text-lg px-8 z-20"
           >
-            Honoring Blockbuster, Toys R Us, RadioShack, Kmart, and Sears - The retail legends that defined generations
+            Our system is contemplating the mysteries of the universe - and your search results
           </motion.p>
 
           {/* Main Error Content - positioned below memorial section */}
@@ -118,11 +118,11 @@ class NostalgicErrorBoundary extends Component<Props, State> {
                 <div className="bg-slate-900/95 backdrop-blur-xl rounded-lg p-8 text-white">
                   <div className="flex items-center gap-3 mb-6">
                     <AlertTriangle className="w-8 h-8 text-purple-400" />
-                    <h1 className="text-3xl font-bold">Taking a Moment to Remember</h1>
+                    <h1 className="text-3xl font-bold">Taking a Moment to Think</h1>
                   </div>
 
                   <div className="space-y-6">
-                    {/* Memorial-themed error message */}
+                    {/* Contemplation-themed error message */}
                     <div className="flex justify-center">
                       <motion.div
                         animate={{ scale: [1, 1.05, 1] }}
@@ -130,8 +130,8 @@ class NostalgicErrorBoundary extends Component<Props, State> {
                         className="w-32 h-32 bg-gradient-to-br from-indigo-500/50 to-purple-600/50 rounded-full flex items-center justify-center relative backdrop-blur-sm"
                       >
                         <div className="text-center">
-                          <div className="text-4xl mb-2">⭐</div>
-                          <div className="text-xs text-gray-300">Eternal</div>
+                          <div className="text-4xl mb-2">🤔</div>
+                          <div className="text-xs text-gray-300">Thinking</div>
                         </div>
                         <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-400/50 rounded-full animate-pulse"></div>
                       </motion.div>
@@ -139,37 +139,37 @@ class NostalgicErrorBoundary extends Component<Props, State> {
 
                     <div className="text-center space-y-4">
                       <h2 className="text-2xl font-semibold text-purple-300">
-                        Just as these giants took a pause, so must we
+                        Like The Thinker above, we're pondering deeply
                       </h2>
                       
                       <p className="text-gray-300 text-lg">
-                        Our system is temporarily catching its breath. Like the companies we honor above, we'll return stronger.
+                        Our system is contemplating the best way to serve you. We'll be back in just a moment.
                       </p>
 
                       <div className="bg-slate-800/50 rounded-lg p-6 text-left space-y-3">
                         <p className="text-center mb-4 text-purple-200">
-                          Like the retail giants we honor, we're building something that matters:
+                          While we think, here's what we're contemplating for you:
                         </p>
                         <div className="space-y-2">
                           <div className="flex items-start gap-3">
-                            <span className="text-purple-400 mt-1">★</span>
-                            <span>Transparency in senior care - no hidden fees</span>
+                            <span className="text-purple-400 mt-1">💭</span>
+                            <span>Finding the perfect senior living community</span>
                           </div>
                           <div className="flex items-start gap-3">
-                            <span className="text-purple-400 mt-1">★</span>
-                            <span>Real pricing without paywalls</span>
+                            <span className="text-purple-400 mt-1">💭</span>
+                            <span>Analyzing pricing across 35,000+ locations</span>
                           </div>
                           <div className="flex items-start gap-3">
-                            <span className="text-purple-400 mt-1">★</span>
-                            <span>35,000+ communities at your fingertips</span>
+                            <span className="text-purple-400 mt-1">💭</span>
+                            <span>Calculating the best options for your needs</span>
                           </div>
                           <div className="flex items-start gap-3">
-                            <span className="text-purple-400 mt-1">★</span>
-                            <span>A legacy of trust and service</span>
+                            <span className="text-purple-400 mt-1">💭</span>
+                            <span>Ensuring transparency in every detail</span>
                           </div>
                           <div className="flex items-start gap-3">
-                            <span className="text-purple-400 mt-1">★</span>
-                            <span>Honoring those who served America</span>
+                            <span className="text-purple-400 mt-1">💭</span>
+                            <span>Preparing a personalized experience just for you</span>
                           </div>
                         </div>
                       </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import valetGentleman from '@assets/gentleman-mascot.png';
-import nostalgicSpaceImage from '@assets/generated_images/Memorial_plaques_in_space_73458db7.png';
+import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
 import { getShuffledFacts } from '@/lib/loadingFacts';
 
 interface MascotLoadingDisplayProps {
@@ -108,7 +108,7 @@ export function MascotLoadingDisplay({
     <div 
       className="min-h-screen flex items-center justify-center relative"
       style={{
-        backgroundImage: `url(${nostalgicSpaceImage})`,
+        backgroundImage: `url(${thinkerSpaceImage})`,
         backgroundSize: 'contain',
         backgroundPosition: 'top',
         backgroundRepeat: 'no-repeat',
