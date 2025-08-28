@@ -268,6 +268,53 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
             </div>
           )}
           
+          {/* Display actual extracted communities if available */}
+          {analysis.extractedCommunities && analysis.extractedCommunities.length > 0 && (
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-6 rounded-xl border border-green-200 dark:border-green-800 mb-6">
+              <h3 className="font-semibold text-lg mb-4 flex items-center">
+                <Building className="w-5 h-5 mr-2 text-green-600 dark:text-green-400" />
+                Comparable Communities Found in {community?.city}
+              </h3>
+              <div className="space-y-3">
+                {analysis.extractedCommunities.slice(0, 5).map((comm: any, idx: number) => (
+                  <div key={idx} className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-green-200 dark:border-green-700">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{comm.name}</p>
+                        {comm.price && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            <span className="font-medium">Pricing:</span> {comm.price}
+                          </p>
+                        )}
+                        {comm.distance && (
+                          <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                            {comm.distance} from {community?.name}
+                          </p>
+                        )}
+                      </div>
+                      {comm.rating && (
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                          <span className="text-sm font-medium">{comm.rating}</span>
+                        </div>
+                      )}
+                    </div>
+                    {comm.description && (
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">
+                        {comm.description}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {analysis.extractedCommunities.length > 5 && (
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
+                  + {analysis.extractedCommunities.length - 5} more communities found in the area
+                </p>
+              )}
+            </div>
+          )}
+          
           {/* Core Pricing Comparison */}
           {analysis.averageMonthlyRent && (
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
@@ -448,16 +495,20 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
             </div>
           )}
           
-          {/* Market Insights */}
+          {/* Market Insights - Enhanced with Real Data */}
           {analysis.insights && analysis.insights.length > 0 && (
-            <div>
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-6 rounded-xl border border-indigo-200 dark:border-indigo-800">
               <h3 className="font-semibold text-lg mb-3 flex items-center">
                 <Brain className="w-5 h-5 mr-2 text-purple-600 dark:text-purple-400" />
-                Quick Insights
+                AI-Generated Market Insights
+                <Badge className="ml-2 bg-purple-500 text-white text-xs">Live Analysis</Badge>
               </h3>
               <ul className="space-y-2">
-                {analysis.insights.slice(0, isExpanded ? undefined : 3).map((insight: string, index: number) => (
-                  <li key={index} className="flex items-start gap-3 p-3 bg-purple-50/50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                {analysis.insights
+                  .filter((insight: string) => insight && insight.length > 20 && !insight.includes('...'))
+                  .slice(0, isExpanded ? undefined : 5)
+                  .map((insight: string, index: number) => (
+                  <li key={index} className="flex items-start gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-800">
                     <span className="text-purple-500 mt-1">✓</span>
                     <span className="text-sm text-gray-700 dark:text-gray-300">{insight}</span>
                   </li>
@@ -550,29 +601,58 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
                     </h4>
                     <div className="text-white/90 text-sm leading-relaxed">
                       {(() => {
+                        // Use actual analysis data if available
+                        if (analysis.detailedSummary && analysis.detailedSummary.length > 100) {
+                          // Clean and format the actual summary from AI
+                          const summary = analysis.detailedSummary
+                            .replace(/\*\*/g, '')
+                            .replace(/##/g, '')
+                            .replace(/\n\n/g, ' ')
+                            .trim();
+                          
+                          // Return first 500 characters of the summary
+                          return summary.length > 500 ? summary.substring(0, 500) + '...' : summary;
+                        }
+                        
+                        // Use insights if available
+                        if (analysis.insights && analysis.insights.length > 0) {
+                          const meaningfulInsights = analysis.insights
+                            .filter((i: string) => i && i.length > 20 && !i.includes('...'))
+                            .slice(0, 3)
+                            .join(' ');
+                          
+                          if (meaningfulInsights.length > 50) {
+                            return meaningfulInsights;
+                          }
+                        }
+                        
+                        // Fallback to structured analysis
                         const communityName = community?.name || 'This community';
                         const city = community?.city || 'the area';
                         const state = community?.state || 'this region';
                         
-                        // Analyze pricing competitiveness
-                        const priceAnalysis = analysis.pricing?.comparedToNational ?
-                          (analysis.pricing.comparedToNational > 10 ? 
-                            `represents a premium option in the market, justified by its comprehensive service offerings and quality of care` :
-                            analysis.pricing.comparedToNational < -10 ?
-                            `offers exceptional value compared to similar communities` :
-                            `is competitively priced within market standards`) :
-                          `maintains market-appropriate pricing`;
-
-                        // Generate comprehensive verdict
-                        return `Based on comprehensive market analysis, ${communityName} in ${city}, ${state} ${priceAnalysis}. 
-                        ${analysis.pricing?.priceRange ? `With pricing at ${analysis.pricing.priceRange}, this community ` : 'This community '}
-                        positions itself ${analysis.pricing?.comparedToNational > 0 ? 'above' : analysis.pricing?.comparedToNational < 0 ? 'below' : 'at'} 
-                        the national average${analysis.pricing?.comparedToNational ? ` by ${Math.abs(analysis.pricing.comparedToNational)}%` : ''}.
-                        The market trend is ${analysis.trend || 'stable'}, indicating ${
-                          analysis.trend === 'increasing' ? 'growing demand and potential future value appreciation' :
-                          analysis.trend === 'decreasing' ? 'improving affordability and buying opportunities' :
-                          'consistent market conditions and predictable pricing'
-                        }.`;
+                        let verdict = `${communityName} in ${city}, ${state} offers senior living services in the local market. `;
+                        
+                        // Add pricing insight if available
+                        if (analysis.averageMonthlyRent && !analysis.averageMonthlyRent.includes('Contact')) {
+                          verdict += `Market analysis indicates average pricing around ${analysis.averageMonthlyRent} for similar communities in the area. `;
+                        }
+                        
+                        // Add care types
+                        const careTypes = [];
+                        if (community?.assistedLiving) careTypes.push('Assisted Living');
+                        if (community?.memoryCare) careTypes.push('Memory Care');
+                        if (community?.independentLiving) careTypes.push('Independent Living');
+                        if (careTypes.length > 0) {
+                          verdict += `The community specializes in ${careTypes.join(', ')}, providing comprehensive care options for residents. `;
+                        }
+                        
+                        // Add competitive positioning
+                        if (analysis.extractedCommunities && analysis.extractedCommunities.length > 0) {
+                          verdict += `Our analysis identified ${analysis.extractedCommunities.length} comparable communities in the area, providing context for informed decision-making. `;
+                        }
+                        
+                        return verdict;
                       })()}
                     </div>
                   </div>
@@ -1186,12 +1266,40 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                 })()}
                 
                 {/* Community-specific insights from web search */}
-                {localVerificationReport?.consensus?.verifiedFacts?.length > 0 && (
+                {(localVerificationReport?.consensus?.verifiedFacts?.length > 0 || 
+                  localVerificationReport?.verificationResults?.perplexityData?.searchContent ||
+                  localVerificationReport?.verificationResults?.webIntelligence?.description) ? (
                   <>
                     <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Information found about this specific community:
                     </p>
-                    {localVerificationReport.consensus.verifiedFacts.map((fact: any, idx: number) => {
+                    
+                    {/* Show description from web intelligence if available */}
+                    {localVerificationReport?.verificationResults?.webIntelligence?.description && (
+                      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                          {localVerificationReport.verificationResults.webIntelligence.description}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Show Perplexity search content if available */}
+                    {localVerificationReport?.verificationResults?.perplexityData?.searchContent && !localVerificationReport?.verificationResults?.webIntelligence?.description && (
+                      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                          {(() => {
+                            // Extract meaningful content from search results
+                            const content = localVerificationReport.verificationResults.perplexityData.searchContent;
+                            // Take first 500 characters of content for display
+                            const cleanContent = content.replace(/\*\*/g, '').replace(/\n\n/g, ' ').trim();
+                            return cleanContent.length > 500 ? cleanContent.substring(0, 500) + '...' : cleanContent;
+                          })()}
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Show verified facts if available */}
+                    {localVerificationReport?.consensus?.verifiedFacts?.length > 0 && localVerificationReport.consensus.verifiedFacts.map((fact: any, idx: number) => {
                       let factText = fact;
                       let isAddressCorrection = false;
                       let addressDetails = null;
@@ -1306,6 +1414,55 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                       );
                     }).filter(Boolean)}
                   </>
+                ) : (
+                  // Show "searching" or "no data" message
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {isVerifying ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <p>Searching for live web information about {community?.name}...</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <p className="font-medium">Gathering community insights...</p>
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <p className="text-sm text-gray-700 dark:text-gray-300">
+                            {(() => {
+                              // Generate meaningful insights based on community data
+                              const insights = [];
+                              
+                              // Location-based insight
+                              insights.push(`${community?.name} is located in ${community?.city}, ${community?.state}, offering senior living services to the local community.`);
+                              
+                              // Care types insight
+                              const careTypes = [];
+                              if (community?.assistedLiving) careTypes.push('Assisted Living');
+                              if (community?.memoryCare) careTypes.push('Memory Care');
+                              if (community?.independentLiving) careTypes.push('Independent Living');
+                              if (community?.skilledNursing) careTypes.push('Skilled Nursing');
+                              
+                              if (careTypes.length > 0) {
+                                insights.push(`This community specializes in ${careTypes.join(', ')}, providing comprehensive care services tailored to residents' needs.`);
+                              }
+                              
+                              // Size insight
+                              if (community?.totalUnits) {
+                                insights.push(`With ${community.totalUnits} units, this ${community.totalUnits > 100 ? 'large' : community.totalUnits > 50 ? 'mid-size' : 'intimate'} community offers ${community.totalUnits > 100 ? 'extensive amenities and diverse social opportunities' : 'personalized attention and a close-knit environment'}.`);
+                              }
+                              
+                              // Year built insight
+                              if (community?.yearBuilt) {
+                                const age = new Date().getFullYear() - community.yearBuilt;
+                                insights.push(`${age < 10 ? 'This modern facility was built in' : age < 20 ? 'Established in' : 'Operating since'} ${community.yearBuilt}, ${age < 10 ? 'featuring contemporary design and amenities' : age < 20 ? 'combining experience with updated facilities' : 'bringing decades of experience in senior care'}.`);
+                              }
+                              
+                              return insights.join(' ');
+                            })()}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
                 
                 {/* No specific information found */}
