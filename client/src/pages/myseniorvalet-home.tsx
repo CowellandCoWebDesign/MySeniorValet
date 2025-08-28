@@ -76,10 +76,11 @@ function HeroSectionWithTransformingSearch() {
       
       const data = await response.json();
       
-      // Filter for communities
-      const communities = data.results
-        .filter((r: any) => r.type === 'community')
-        .map((r: any) => ({
+      // Handle both 'communities' and 'results' field names from backend
+      const rawResults = data.communities || data.results || [];
+      
+      // Map communities directly (no need to filter by type since backend already returns communities)
+      const communities = rawResults.map((r: any) => ({
           id: r.id,
           name: r.name,
           address: r.address,
