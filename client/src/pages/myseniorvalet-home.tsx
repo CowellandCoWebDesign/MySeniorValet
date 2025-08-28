@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 // Removed useDebounce - not needed with UnifiedSearch component
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, MapIcon } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List } from "lucide-react";
 import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
@@ -266,53 +266,50 @@ function HeroSectionWithTransformingSearch() {
         </div>
 
         {/* View Mode Tabs - List, Map, Learn */}
-        <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 mb-3">
+        <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 mb-4 relative z-50">
           <div className="flex justify-center">
-            <div className="inline-flex bg-gray-800/90 backdrop-blur-sm rounded-full p-1 shadow-lg">
-              <Button
-                size="sm"
-                variant={viewMode === 'list' ? 'default' : 'ghost'}
+            <div className="inline-flex bg-gray-800/90 backdrop-blur-sm rounded-full p-1.5 shadow-xl border border-gray-700/50">
+              <button
+                type="button"
                 onClick={() => setViewMode('list')}
-                className={`px-4 py-2 rounded-full transition-all text-sm font-medium ${
+                className={`px-5 py-2.5 rounded-full transition-all duration-200 text-sm font-semibold flex items-center ${
                   viewMode === 'list' 
-                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-md' 
+                    ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg scale-105' 
                     : 'text-gray-300 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <List className="w-4 h-4 mr-1.5" />
+                <List className="w-4 h-4 mr-2" />
                 <span>List</span>
-              </Button>
-              <Button
-                size="sm"
-                variant={viewMode === 'map' ? 'default' : 'ghost'}
+              </button>
+              <button
+                type="button"
                 onClick={() => {
                   setViewMode('map');
                   if (searchQuery) {
                     setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
                   }
                 }}
-                className={`px-4 py-2 rounded-full transition-all text-sm font-medium ${
+                className={`px-5 py-2.5 rounded-full transition-all duration-200 text-sm font-semibold flex items-center ${
                   viewMode === 'map' 
-                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-md' 
+                    ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg scale-105' 
                     : 'text-gray-300 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <MapPin className="w-4 h-4 mr-1.5" />
+                <MapPin className="w-4 h-4 mr-2" />
                 <span>Map</span>
-              </Button>
-              <Button
-                size="sm"
-                variant={viewMode === 'learn' ? 'default' : 'ghost'}
+              </button>
+              <button
+                type="button"
                 onClick={() => setViewMode('learn')}
-                className={`px-4 py-2 rounded-full transition-all text-sm font-medium ${
+                className={`px-5 py-2.5 rounded-full transition-all duration-200 text-sm font-semibold flex items-center ${
                   viewMode === 'learn' 
-                    ? 'bg-purple-600 hover:bg-purple-700 text-white shadow-md' 
+                    ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg scale-105' 
                     : 'text-gray-300 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <Brain className="w-4 h-4 mr-1.5" />
+                <Brain className="w-4 h-4 mr-2" />
                 <span>Learn</span>
-              </Button>
+              </button>
             </div>
           </div>
         </div>
