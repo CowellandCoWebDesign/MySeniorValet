@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2, Home, Info, Sparkles, DollarSign, Activity } from "lucide-react";
+import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2, Home, Info, Sparkles, DollarSign, Activity, Bed, Users } from "lucide-react";
 import { MarketIntelligenceModal } from "./MarketIntelligenceModal";
 
 interface CommunityCardProps {
@@ -305,10 +305,10 @@ function CommunityCard({
   return (
     <>
     <Card className="w-full bg-gray-900 border-gray-700 hover:border-gray-600 transition-all duration-200 overflow-hidden">
-      {/* Split Header - Availability on Left (color by status), Pricing on Right (color by verification) */}
+      {/* Split Header - Availability on Left, Prominent Pricing on Right */}
       <div className="flex">
         {/* Availability Section - Color Coded by Availability Status */}
-        <div className={`${availability.bgColor} text-white px-4 py-2 flex-1 flex items-center`}>
+        <div className={`${availability.bgColor} text-white px-4 py-3 flex-1 flex items-center`}>
           <div className="text-left">
             <div className="text-sm font-bold text-white">{availability.status}</div>
             <div className={`text-xs ${availability.lightColor}`}>
@@ -317,26 +317,29 @@ function CommunityCard({
           </div>
         </div>
         
-        {/* Pricing Section - Color Coded by Verification Source */}
-        <div className={`${priceDisplay ? (marketPricing ? 'bg-purple-600' : pricingColors.bgColor) : 'bg-gray-700'} text-white px-4 py-2 flex items-center justify-end`}>
+        {/* Pricing Section - Made More Prominent */}
+        <div className="bg-gray-800 text-white px-4 py-3 min-w-[140px] flex items-center justify-end">
           <div className="text-right">
-            {marketPricing && (
-              <div className="text-xs text-purple-200 mb-1">Market Estimate</div>
+            {priceDisplay ? (
+              <>
+                <div className="text-2xl font-bold text-green-400">
+                  {priceDisplay}
+                </div>
+                <div className="text-xs text-gray-400">
+                  {isHudProperty ? 'HUD Verified' : community.verified ? 'Verified' : 'per month'}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-lg font-medium text-gray-500">
+                  Contact
+                </div>
+                <div className="text-xs text-gray-400">
+                  for pricing
+                </div>
+              </>
             )}
-            <span className="text-sm font-medium">
-              {loadingPricing ? 'Loading pricing...' : (priceDisplay || 'Pricing Unavailable')}
-            </span>
           </div>
-          {priceDisplay && !marketPricing && <div className={`w-2 h-2 ${pricingColors.dotColor} rounded-full ml-2`}></div>}
-          {marketPricing && (
-            <div className={`ml-2 text-xs px-2 py-0.5 rounded ${
-              marketPricing.confidence === 'high' ? 'bg-green-500/20 text-green-200' :
-              marketPricing.confidence === 'medium' ? 'bg-yellow-500/20 text-yellow-200' :
-              'bg-orange-500/20 text-orange-200'
-            }`}>
-              {marketPricing.confidence === 'high' ? '⬤' : marketPricing.confidence === 'medium' ? '◐' : '○'}
-            </div>
-          )}
         </div>
       </div>
 
@@ -511,64 +514,55 @@ function CommunityCard({
             )}
           </div>
 
-          {/* Live Intelligence Report - Right Side */}
-          <div className="bg-gradient-to-br from-blue-900/50 to-purple-900/50 rounded-lg p-3 border border-blue-700/30 flex-1">
-            {/* Header with AI Status */}
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center">
-                <Sparkles className="w-4 h-4 mr-1 text-blue-400" />
-                <span className="text-xs font-semibold text-blue-300">Live Intelligence</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-xs text-green-400">Active</span>
-              </div>
+          {/* Quick Info - Right Side */}
+          <div className="bg-gray-800 rounded-lg p-3 flex-1">
+            {/* Header */}
+            <div className="flex items-center mb-2">
+              <Info className="w-4 h-4 mr-1 text-blue-400" />
+              <span className="text-xs font-semibold text-gray-300">Quick Info</span>
             </div>
             
-            {/* AI Verification Badges - Mini Version */}
-            <div className="flex space-x-1 mb-2">
-              <div className="bg-blue-800/50 rounded px-1.5 py-0.5 text-xs text-blue-300 flex items-center">
-                <div className="w-1 h-1 bg-blue-400 rounded-full mr-1"></div>
-                <span>Perplexity</span>
-              </div>
-              <div className="bg-purple-800/50 rounded px-1.5 py-0.5 text-xs text-purple-300 flex items-center">
-                <div className="w-1 h-1 bg-purple-400 rounded-full mr-1"></div>
-                <span>Claude</span>
-              </div>
-              <div className="bg-green-800/50 rounded px-1.5 py-0.5 text-xs text-green-300 flex items-center">
-                <div className="w-1 h-1 bg-green-400 rounded-full mr-1"></div>
-                <span>ChatGPT</span>
-              </div>
-            </div>
-            
-            {/* Current Availability & Pricing - Updated Text */}
-            <div className="bg-gradient-to-r from-green-900/30 to-blue-900/30 rounded p-2">
-              <div className="text-xs text-gray-400 mb-1">Current Availability & Pricing</div>
-              
-              {/* Pricing Display - Updated to "Click for Live Analysis" */}
-              <div className="flex items-center mb-1">
-                <DollarSign className="w-3 h-3 mr-1 text-green-400" />
-                <span className="text-xs text-gray-400">Pricing:</span>
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.location.href = `/community/${community.id}`;
-                  }}
-                  className="text-sm text-blue-400 ml-1 hover:text-blue-300 underline cursor-pointer"
-                >
-                  Click for Live Analysis
-                </button>
-              </div>
-              
-              {/* Availability Status - Updated to show "Confirmed" */}
-              <div className="flex items-center">
-                <Activity className="w-3 h-3 mr-1 text-blue-400" />
-                <span className="text-xs text-blue-400">Status:</span>
-                <span className={`text-sm font-medium ml-1 ${
-                  availability.status !== 'Unconfirmed' ? 'text-green-400' : 'text-gray-400'
-                }`}>
-                  {availability.status !== 'Unconfirmed' ? 'Confirmed' : 'Unconfirmed'}
+            {/* Key Details */}
+            <div className="space-y-2">
+              {/* Community Type */}
+              <div className="flex items-center text-xs">
+                <Home className="w-3 h-3 mr-2 text-gray-400" />
+                <span className="text-gray-300">
+                  {community.communitySubtype === 'memory_care' ? 'Memory Care' :
+                   community.communitySubtype === 'skilled_nursing' ? 'Skilled Nursing' :
+                   community.communitySubtype === 'independent_living' ? 'Independent Living' :
+                   community.communitySubtype === 'assisted_living' ? 'Assisted Living' :
+                   community.communitySubtype === 'hud_senior_housing' ? 'HUD Senior Housing' :
+                   community.communitySubtype === 'active_adult_55plus' ? '55+ Active Adult' :
+                   community.communitySubtype === 'mobile_home_park' ? 'Mobile Home Park' :
+                   'Senior Living'}
                 </span>
+              </div>
+              
+              {/* Units/Capacity if available */}
+              {(community.totalUnits || community.totalUnitsHud) && (
+                <div className="flex items-center text-xs">
+                  <Bed className="w-3 h-3 mr-2 text-gray-400" />
+                  <span className="text-gray-300">
+                    {community.totalUnitsHud || community.totalUnits} Total Units
+                  </span>
+                </div>
+              )}
+              
+              {/* Pets Policy */}
+              <div className="flex items-center text-xs">
+                <Users className="w-3 h-3 mr-2 text-gray-400" />
+                <span className="text-gray-300">
+                  {community.petFriendly ? '✓ Pets Welcome' :
+                   community.petFriendly === false ? 'No Pets' :
+                   'Pet Policy Unknown'}
+                </span>
+              </div>
+              
+              {/* AI Verified Badge */}
+              <div className="flex items-center text-xs mt-2 pt-2 border-t border-gray-700">
+                <Sparkles className="w-3 h-3 mr-1 text-purple-400" />
+                <span className="text-purple-400 text-[11px]">AI-Verified Information</span>
               </div>
             </div>
           </div>
