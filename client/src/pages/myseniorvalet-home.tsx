@@ -127,7 +127,7 @@ function HeroSectionWithTransformingSearch() {
   };
 
   return (
-    <section className="relative min-h-[600px] sm:min-h-screen bg-black pt-12 sm:pt-14">
+    <section className="relative min-h-[400px] sm:min-h-[500px] bg-black pt-8">
       <div className="absolute inset-0">
         <img
           src={heroBackgroundImage}
@@ -138,7 +138,7 @@ function HeroSectionWithTransformingSearch() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
       </div>
       
-      <div className="relative hero-content min-h-[600px] sm:min-h-screen pt-2 sm:pt-3 md:pt-4 pb-20 sm:pb-4 mobile-keyboard-safe flex flex-col px-2 sm:px-4">
+      <div className="relative hero-content py-8 sm:py-12 flex flex-col px-2 sm:px-4">
         
         {/* Hero Text - Animates Away on Search */}
         <AnimatePresence>
@@ -147,9 +147,9 @@ function HeroSectionWithTransformingSearch() {
               initial={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -50, scale: 0.95 }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8 mt-2 sm:mt-8 md:mt-12 mb-3 sm:mb-6 text-center"
+              className="w-full max-w-4xl mx-auto px-3 sm:px-6 md:px-8 mt-4 mb-4 text-center"
             >
-              <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 sm:mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] sm:drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] leading-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight">
                 Everything You Need.<br className="sm:hidden" /> Nothing You Pay.
               </h1>
               
@@ -186,15 +186,17 @@ function HeroSectionWithTransformingSearch() {
         <motion.div
           initial={false}
           animate={{
-            y: isSearchActive ? -200 : 0,
-            position: isSearchActive ? "sticky" : "relative",
-            top: isSearchActive ? 0 : "auto",
+            y: isSearchActive ? -100 : 0,
+            position: isSearchActive ? "fixed" : "relative",
+            top: isSearchActive ? "60px" : "auto",
+            left: isSearchActive ? 0 : "auto",
+            right: isSearchActive ? 0 : "auto",
             backgroundColor: isSearchActive ? "rgba(255, 255, 255, 0.98)" : "transparent",
-            padding: isSearchActive ? "16px" : "0px",
+            padding: isSearchActive ? "12px" : "0px",
             zIndex: isSearchActive ? 50 : 10
           }}
           transition={{ duration: 0.6, ease: "easeInOut" }}
-          className="flex-grow flex items-start justify-center pt-2 sm:pt-8 md:pt-12"
+          className="flex items-start justify-center"
         >
           <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 md:px-8">
             <div className="w-full max-w-xl sm:max-w-2xl mx-auto px-2 sm:px-4 md:px-6 mb-2 sm:mb-3">
@@ -298,7 +300,7 @@ function HeroSectionWithTransformingSearch() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4, delay: 0.2 }}
-              className="mt-4 px-4 pb-8 overflow-y-auto max-h-[calc(100vh-200px)]"
+              className="mt-32 px-4 pb-8"
             >
               <div className="max-w-7xl mx-auto">
                 {/* Loading State */}
