@@ -325,6 +325,10 @@ function HeroSectionWithTransformingSearch() {
                           <PrioritizedCommunityCard
                             community={community}
                             variant="list"
+                            onSelect={() => {
+                              // Navigate to community detail page
+                              setLocation(`/community/${community.id}`);
+                            }}
                           />
                         </motion.div>
                       ))

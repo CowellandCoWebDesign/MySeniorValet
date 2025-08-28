@@ -316,7 +316,9 @@ function CommunityCard({
 
   return (
     <>
-    <Card className="w-full bg-gray-900 border-gray-700 hover:border-gray-600 transition-all duration-200 overflow-hidden">
+    <Card 
+      className="w-full bg-gray-900 border-gray-700 hover:border-gray-600 transition-all duration-200 overflow-hidden cursor-pointer hover:shadow-lg hover:shadow-purple-500/20"
+      onClick={onSelect}
       {/* Split Header - Availability on Left, Prominent Pricing on Right */}
       <div className="flex">
         {/* Availability Section - Color Coded by Availability Status */}
