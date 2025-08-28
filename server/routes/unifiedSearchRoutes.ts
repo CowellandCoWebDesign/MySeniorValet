@@ -57,6 +57,50 @@ router.get('/api/search/unified', async (req, res) => {
 });
 
 /**
+ * POST version of unified search endpoint
+ * Accepts search parameters in request body
+ */
+router.post('/api/search/unified', async (req, res) => {
+  try {
+    const { 
+      query, 
+      limit = 20, 
+      offset = 0,
+      filters,
+      userId
+    } = req.body;
+    
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({
+        error: 'Query parameter is required',
+        _version: 'unified_v1'
+      });
+    }
+    
+    // Execute unified search
+    const results = await unifiedSearchEngine.search(query, {
+      limit,
+      offset,
+      filters,
+      userId
+    });
+    
+    res.json({
+      ...results,
+      _version: 'unified_v1_kraken'
+    });
+    
+  } catch (error) {
+    console.error('Unified search error:', error);
+    res.status(500).json({
+      error: 'Search failed',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      _version: 'unified_v1'
+    });
+  }
+});
+
+/**
  * Search suggestions endpoint
  * Provides real-time suggestions as user types
  */
@@ -230,6 +274,6 @@ router.post('/api/search/analytics', async (req, res) => {
 export default router;
 
 // Also export as named export for routes/index.ts
-export function registerUnifiedSearchRoutes() {
-  return router;
+export function registerUnifiedSearchRoutes(app: any) {
+  app.use(router);
 }
