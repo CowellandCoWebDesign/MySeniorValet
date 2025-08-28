@@ -210,8 +210,9 @@ export class UnifiedSearchEngine {
       intent.type = 'location';
       intent.confidence = 0.9;
       intent.extractedEntities.location = locationMatch[2].trim();
-    } else if (query.match(/^[A-Za-z\s]+(?:,\s*[A-Z]{2})?$/)) {
-      // Direct city name or city, state format (e.g., "Redding" or "Redding, CA")
+    } else if (query.match(/^[A-Za-z\s]+,\s*[A-Z]{2}$/)) {
+      // City, State format only (e.g., "Redding, CA")
+      // Removed the general pattern that was catching company names
       intent.type = 'location';
       intent.confidence = 0.85;
       intent.extractedEntities.location = query.trim();
@@ -270,7 +271,33 @@ export class UnifiedSearchEngine {
     try {
       let conditions = [];
       
-      if (intent.extractedEntities.location) {
+      // CRITICAL FIX: Always search the raw query in name and management company fields
+      // This ensures company names like "Atria", "Brookdale" are found
+      const rawQuery = intent.extractedEntities.query || '';
+      if (rawQuery && rawQuery.trim()) {
+        const searchTerms = rawQuery.trim().split(' ').filter(term => term.length > 1);
+        
+        if (searchTerms.length > 0) {
+          const nameConditions = searchTerms.map(term =>
+            or(
+              ilike(communities.name, `%${term}%`),
+              ilike(communities.managementCompany, `%${term}%`),
+              ilike(communities.city, `%${term}%`),
+              ilike(communities.state, `%${term}%`)
+            )
+          );
+          
+          // All terms must match (AND logic for multiple words)
+          if (nameConditions.length > 1) {
+            conditions.push(and(...nameConditions));
+          } else {
+            conditions.push(nameConditions[0]);
+          }
+        }
+      }
+      
+      // Additional location filter if detected (but don't rely solely on this)
+      if (intent.extractedEntities.location && intent.type === 'location') {
         const location = intent.extractedEntities.location;
         
         // Parse location for city/state
@@ -288,25 +315,17 @@ export class UnifiedSearchEngine {
               )
             )
           );
-        } else {
-          // Single location string - search city, state, or county
-          conditions.push(
-            or(
-              ilike(communities.city, location), // Exact city match
-              ilike(communities.city, `%${location}%`), // City contains
-              ilike(communities.state, location), // State match
-              ilike(communities.county, `%${location}%`) // County contains
-            )
-          );
         }
       }
       
+      // Specific name entity if detected
       if (intent.extractedEntities.name) {
         conditions.push(
           ilike(communities.name, `%${intent.extractedEntities.name}%`)
         );
       }
       
+      // Care type filter
       if (intent.extractedEntities.careType) {
         // careTypes is an array field, need to check if array contains the value
         conditions.push(
@@ -314,6 +333,7 @@ export class UnifiedSearchEngine {
         );
       }
       
+      // Price range filter
       if (intent.extractedEntities.priceRange) {
         conditions.push(
           and(

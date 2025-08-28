@@ -511,15 +511,36 @@ export class NLPSearchSystem {
     try {
       const conditions = [];
       
-      // Location filters
-      if (intent.entities.locations?.length) {
-        const locationConditions = intent.entities.locations.map(loc =>
-          or(
-            ilike(communities.state, `%${loc}%`),
-            ilike(communities.city, `%${loc}%`)
-          )
-        );
-        conditions.push(or(...locationConditions));
+      // CRITICAL FIX: Simple search across all relevant fields
+      const searchTerms = query.trim().toLowerCase().split(' ').filter(term => term.length > 1);
+      
+      if (searchTerms.length > 0) {
+        // Build a simple OR condition for all search terms
+        const orConditions = [];
+        
+        for (const term of searchTerms) {
+          // Search in name (primary field for company searches)
+          orConditions.push(ilike(communities.name, `%${term}%`));
+          
+          // Search in location fields
+          orConditions.push(ilike(communities.city, `%${term}%`));
+          orConditions.push(ilike(communities.state, `%${term}%`));
+          
+          // Search in management company using COALESCE to handle nulls
+          orConditions.push(
+            sql`COALESCE(${communities.managementCompany}, '') ILIKE ${'%' + term + '%'}`
+          );
+          
+          // Search in address using COALESCE to handle nulls
+          orConditions.push(
+            sql`COALESCE(${communities.address}, '') ILIKE ${'%' + term + '%'}`
+          );
+        }
+        
+        // Add all conditions as OR
+        if (orConditions.length > 0) {
+          conditions.push(or(...orConditions));
+        }
       }
       
       // Care type filters - handle array column properly

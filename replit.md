@@ -1,41 +1,5 @@
-# MySeniorValet - Senior Living Community Transparency Platform
-
 ## Overview
 MySeniorValet is an AI-powered "Google of Senior Care" platform, featuring "Learn Mode," a unified AI search engine. It consolidates multiple search interfaces into one superintelligent system with natural language processing, predictive search, and multi-AI orchestration (Perplexity, Claude, ChatGPT). The platform provides comprehensive care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the TourMate™ tour scheduling system, One-Touch Emergency Contact Shortcut, trilingual support (English, French, Spanish), and self-healing mechanisms. MySeniorValet aims to bring transparency to senior living through its neural network architecture and autonomous decision-making. The business model ensures families receive full platform access for free, with revenue generated exclusively from B2B clients (communities, professionals, healthcare, vendors).
-
-## Recent Changes (August 28, 2025)
-- **Market Analysis Fix**: Resolved critical data quality issues on community detail pages
-  - Fixed data structure mismatch between backend and frontend in competitive analysis
-  - Enhanced Perplexity prompts from restrictive "exact match only" to comprehensive market analyst
-  - Transformed competitive analysis response to include extractedCommunities, detailedSummary, insights
-  - Improved data extraction for comparable communities, pricing, and market trends
-  - Market analysis now returns real data instead of generic placeholders
-- **Learn Mode Implementation**: Rebranded AI system to "Learn" mode - creating the perfect trio: List, Map, Learn
-  - Added tab navigation above search bar for List, Map, Learn modes
-  - Learn mode automatically activates AI research capabilities
-  - Simplified branding for better user understanding
-- **NLP Search System - 100% Complete**: Learn mode is fully operational! Complete natural language processing implementation
-  - **Synonym Dictionary**: 30+ categories including care types, locations, amenities, modifiers
-  - **Abbreviation Expansion**: ALF→"assisted living facility", SNF→"skilled nursing", MC→"memory care"  
-  - **State Mapping**: Full state names to abbreviations (Texas→TX, California→CA)
-  - **Context-Aware Detection**: Fixed false positives (e.g., "in" no longer detected as Indiana)
-  - **Entity Extraction**: Locations, care types, amenities ($3000 price ranges), modifiers (best, cheapest)
-  - **Intent Classification**: Search (0.5), Questions (0.85), Recommendations (0.75), Comparisons (0.8)
-  - **Database Integration**: Successfully querying 32,970 communities across TX (3,626), CA (2,325), ON (1,711)
-  - **API Endpoints**: 9 fully operational endpoints including search, classify, suggestions, analytics
-  - **Self-Learning Analytics**: Learn mode's neural network tracks every interaction for continuous improvement
-  - **Multi-Database Federation**: Parallel search across communities, services, and healthcare databases
-  - **Real-time Suggestions**: Sub-10ms predictive text with context-aware generation
-  - **Performance Validated**: All systems tested and operational with <200ms response times
-  - **100% Production Ready**: HNSW vector optimization, TypeScript errors resolved, frontend integration complete
-  - **Enterprise-Grade Analytics**: Comprehensive dashboard with self-learning neural network capabilities
-  - **Advanced Query Enhancement**: Real-time spell correction, synonym expansion, predictive suggestions
-- **Vendor Signup System**: Three-tier pricing (Basic $99/mo, Featured $399/mo, National Partner $999/mo)
-- **Family Signup Page**: 100% free access forever emphasis, no credit card required
-- **DocuSign Integration**: Professional document signing service configured
-- **Enhanced Search Interface**: UnifiedSearch component with purple gradient button, List/Map toggle on top
-- **Bug Fixes**: Fixed UnifiedSearch intent.charAt error, resolved port 5000 conflicts
-- **Claude Model Update**: Updated to claude-3-5-sonnet-20241022 for improved Q&A capabilities
 
 ## User Preferences
 - **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
@@ -69,7 +33,7 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - **UI/UX Decisions**: Clean, modern aesthetic with cosmic imagery and default dark mode. Consistent design, horizontal sliders, AI-generated product imagery. Search results display in a vertical "rolodex" style with regional theming. Content organization uses distinct visual theming. Compact design with reduced font sizes. Transparent navbar with gradient text. Prominent trust indicators. Engaging loading screen with custom Valet Gentleman character and "Did you know..." facts. Hero section features a HeroMascotPanel with rotating platform messages. Loading/error screens feature Rodin's The Thinker statue in cosmic space, conveying contemplation.
 - **System Design**: Supports dual subscription tiers. Dashboard separation for user analytics, business features, and unified super admin analytics with RBAC. Dual pricing display. Dynamic scaling cost controls for API calls with regional caching and batch processing. Robust pricing extraction supports various formats. Utilizes a unified search engine with intent detection, multi-source fusion, and self-learning algorithms. Data standardization and AI enrichment implemented for high data quality. The intelligence system follows a Perplexity-first approach for web scraping and verification, with Claude and ChatGPT as fallbacks.
 - **Payment System**: Integrated dual payment system supporting Stripe Checkout Sessions and Payment Element.
-- **Search & Navigation**: Simplified AI-powered semantic search with natural language queries. Live Market Intelligence section includes a 10-level care spectrum as an interactive 3D carousel. Healthcare search has enhanced map filtering and color-coded hospital cards. AI Search Interface maintains a 3-row layout for amenities/care services, distance/price sliders, and Complete Care Spectrum types. Unified autocomplete across all search pages. Intelligent search architecture includes exact match, alias variations, parent company search, and address-based fallbacks, with fuzzy search integration for misspellings.
+- **Search & Navigation**: Simplified AI-powered semantic search with natural language queries. Live Market Intelligence section includes a 10-level care spectrum as an interactive 3D carousel. Healthcare search has enhanced map filtering and color-coded hospital cards. AI Search Interface maintains a 3-row layout for amenities/care services, distance/price sliders, and Complete Care Spectrum types. Unified autocomplete across all search pages. Intelligent search architecture includes exact match, alias variations, parent company search, and address-based fallbacks, with fuzzy search integration for misspellings. NLP Search System is fully operational with synonym dictionary, abbreviation expansion, state mapping, context-aware detection, entity extraction, intent classification, database integration, and self-learning analytics.
 - **AI Deep Analysis**: Provides detailed comparative analysis (price comparisons, value leaders, HUD affordable options, neighborhood insights, care type matching, personalized recommendations). Generates market trends and actionable advice. AI personalization ensures empathetic interactions. "What We Found About [Community Name]" section focuses exclusively on specific community details from web searches. Multi-AI verification service prioritizes official website pricing at 95% confidence. Structured responses for reliable data extraction. The database features a self-healing architecture that automatically detects and corrects data issues, removes duplicates, and improves quality with each user interaction.
 - **Onboarding System**: Users can sign up with pre-filled preferences. Community creators have a comprehensive tutorial system with AI character guidance, a 7-step walkthrough, form validation, and seamless payment integration.
 - **Legal Document Version Control System**: Enterprise-level system with complete version history, integrity checks, audit trails, GDPR/CCPA compliance, document status management, and a professional frontend interface.
