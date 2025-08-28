@@ -181,7 +181,8 @@ export class ComprehensiveSearchEngine {
       /^\d{5}(-\d{4})?$/,              // ZIP codes
       /\b(in|near|around)\s+/,         // "memory care in Sacramento"
       /\b(city|state|county|zip)\b/,
-      /\b(california|texas|florida|new york|illinois)\b/i  // State names
+      /\b(california|texas|florida|new york|illinois)\b/i,  // State names
+      /\b(sacramento|los angeles|san francisco|san diego|chicago|houston|phoenix|philadelphia|san antonio|dallas|san jose|austin|jacksonville|columbus|charlotte|detroit|el paso|memphis|seattle|denver|washington|boston|nashville|baltimore|oklahoma city|louisville|portland|las vegas|milwaukee|albuquerque|tucson|fresno|mesa|atlanta|kansas city|colorado springs|miami|raleigh|omaha|long beach|virginia beach|oakland|minneapolis|tulsa|arlington|tampa|new orleans)\b/i  // Major cities
     ];
     
     // Care type intent patterns  
@@ -328,33 +329,27 @@ export class ComprehensiveSearchEngine {
       console.log(`REAL price filtering: ${prices.join(', ')}`);
       
       if (query.includes('under') || query.includes('below') || query.includes('<')) {
-        // Store price as text, so we need to validate and cast safely with proper error handling
+        // rentPerMonth is already NUMERIC type in database
         conditions.push(
-          sql`(
-            ${communities.rentPerMonth} IS NOT NULL 
-            AND ${communities.rentPerMonth} != ''
-            AND ${communities.rentPerMonth} ~ '^[0-9]+(\.[0-9]{1,2})?$'
-            AND CAST(NULLIF(TRIM(${communities.rentPerMonth}), '') AS NUMERIC) < ${prices[0]}
-          )`
+          and(
+            isNotNull(communities.rentPerMonth),
+            sql`${communities.rentPerMonth} < ${prices[0]}`
+          )
         );
       } else if (query.includes('over') || query.includes('above') || query.includes('>')) {
         conditions.push(
-          sql`(
-            ${communities.rentPerMonth} IS NOT NULL 
-            AND ${communities.rentPerMonth} != ''
-            AND ${communities.rentPerMonth} ~ '^[0-9]+(\.[0-9]{1,2})?$'
-            AND CAST(NULLIF(TRIM(${communities.rentPerMonth}), '') AS NUMERIC) > ${prices[0]}
-          )`
+          and(
+            isNotNull(communities.rentPerMonth),
+            sql`${communities.rentPerMonth} > ${prices[0]}`
+          )
         );
       } else if (prices.length === 2) {
         const [min, max] = [Math.min(...prices), Math.max(...prices)];
         conditions.push(
-          sql`(
-            ${communities.rentPerMonth} IS NOT NULL 
-            AND ${communities.rentPerMonth} != ''
-            AND ${communities.rentPerMonth} ~ '^[0-9]+(\.[0-9]{1,2})?$'
-            AND CAST(NULLIF(TRIM(${communities.rentPerMonth}), '') AS NUMERIC) BETWEEN ${min} AND ${max}
-          )`
+          and(
+            isNotNull(communities.rentPerMonth),
+            sql`${communities.rentPerMonth} BETWEEN ${min} AND ${max}`
+          )
         );
       }
     }
@@ -363,22 +358,18 @@ export class ComprehensiveSearchEngine {
     if (query.includes('cheap') || query.includes('affordable')) {
       console.log('Affordable filtering: under $4000/month');
       conditions.push(
-        sql`(
-          ${communities.rentPerMonth} IS NOT NULL 
-          AND ${communities.rentPerMonth} != ''
-          AND ${communities.rentPerMonth} ~ '^[0-9]+(\.[0-9]{1,2})?$'
-          AND CAST(NULLIF(TRIM(${communities.rentPerMonth}), '') AS NUMERIC) < 4000
-        )`
+        and(
+          isNotNull(communities.rentPerMonth),
+          sql`${communities.rentPerMonth} < 4000`
+        )
       );
     } else if (query.includes('expensive') || query.includes('luxury') || query.includes('premium')) {
       console.log('Luxury filtering: over $7000/month');
       conditions.push(
-        sql`(
-          ${communities.rentPerMonth} IS NOT NULL 
-          AND ${communities.rentPerMonth} != ''
-          AND ${communities.rentPerMonth} ~ '^[0-9]+(\.[0-9]{1,2})?$'
-          AND CAST(NULLIF(TRIM(${communities.rentPerMonth}), '') AS NUMERIC) > 7000
-        )`
+        and(
+          isNotNull(communities.rentPerMonth),
+          sql`${communities.rentPerMonth} > 7000`
+        )
       );
     }
     
@@ -486,16 +477,8 @@ export class ComprehensiveSearchEngine {
   private applySorting(query: any, searchType: string, searchQuery: string) {
     switch (searchType) {
       case 'price':
-        // Order by price when price search is detected (REAL sorting with safe casting)
-        return query.orderBy(sql`(
-          CASE 
-            WHEN ${communities.rentPerMonth} IS NOT NULL 
-              AND ${communities.rentPerMonth} != ''
-              AND ${communities.rentPerMonth} ~ '^[0-9]+(\.[0-9]{1,2})?$'
-            THEN CAST(NULLIF(TRIM(${communities.rentPerMonth}), '') AS NUMERIC)
-            ELSE 999999
-          END
-        ) ASC`);
+        // Order by price when price search is detected (numeric column)
+        return query.orderBy(sql`COALESCE(${communities.rentPerMonth}, 999999) ASC`);
       case 'company':
         return query.orderBy(asc(communities.name));
       case 'location':
