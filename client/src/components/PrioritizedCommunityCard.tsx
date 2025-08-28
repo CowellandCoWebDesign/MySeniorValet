@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2, Home, Info, Sparkles, DollarSign, Activity, Bed, Users } from "lucide-react";
 import { MarketIntelligenceModal } from "./MarketIntelligenceModal";
-import professionalValetImage from '@assets/generated_images/Young_professional_MySeniorValet_mascot_daebae34.png';
+import professionalValetImage from '@assets/generated_images/MySeniorValet_mascot_left-positioned_6c4b11ef.png';
 
 interface CommunityCardProps {
   community: {
@@ -400,14 +400,15 @@ function CommunityCard({
           />
         ) : (
           <div className="absolute inset-0">
-            {/* Professional Valet Background Image */}
+            {/* Professional Valet Background Image - Left Positioned */}
             <img 
               src={professionalValetImage}
               alt="MySeniorValet Professional Concierge"
-              className="absolute inset-0 w-full h-full object-cover opacity-90"
+              className="absolute inset-0 w-full h-full object-contain object-left opacity-90"
+              style={{ objectPosition: 'left center' }}
             />
-            {/* Darker overlay for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/60"></div>
+            {/* Darker overlay for text readability - focused on right side */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/30 to-black/60"></div>
             
             {/* Exploration Message - Positioned to the right */}
             <div className="absolute inset-0 flex items-center justify-end pr-4">
