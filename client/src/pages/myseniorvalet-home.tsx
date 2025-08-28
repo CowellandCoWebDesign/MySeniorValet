@@ -200,70 +200,57 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
 
-        {/* Enhanced Unified Search Bar - Always Visible */}
+        {/* Enhanced Unified Search Bar with Always-Visible Toggle */}
         <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative">
-          <UnifiedSearch 
-            initialQuery={searchQuery}
-            onSearch={handleUnifiedSearch}
-            showDropdownResults={false}
-            placeholder="Search by city, state, care type, or ask anything..."
-            className=""
-          />
+          {/* Search Bar */}
+          <div className="relative z-40">
+            <UnifiedSearch 
+              initialQuery={searchQuery}
+              onSearch={handleUnifiedSearch}
+              showDropdownResults={false}
+              placeholder="Search by city, state, care type, or ask anything..."
+              className=""
+            />
+          </div>
           
-          {/* View Toggle and Tabs - Connected directly below search bar */}
-          <AnimatePresence>
-            {isSearchActive && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className="absolute top-full left-0 right-0 z-50"
-                style={{ marginTop: '-1px' }}
-              >
-                <div className="bg-gray-900 rounded-b-lg sm:rounded-b-xl shadow-xl">
-                  {/* View Toggle Buttons */}
-                  <div className="flex justify-center py-2">
-                    <div className="inline-flex bg-white/10 rounded-full p-1">
-                      <Button
-                        size="sm"
-                        variant={viewMode === 'list' ? 'default' : 'ghost'}
-                        onClick={() => setViewMode('list')}
-                        className={`px-4 py-2 rounded-full transition-all ${
-                          viewMode === 'list' 
-                            ? 'bg-purple-600 hover:bg-purple-700 text-white' 
-                            : 'text-gray-300 hover:text-white hover:bg-white/10'
-                        }`}
-                      >
-                        <List className="w-4 h-4 mr-2" />
-                        <span className="text-sm font-medium">List View</span>
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={viewMode === 'map' ? 'default' : 'ghost'}
-                        onClick={() => {
-                          setViewMode('map');
-                          if (searchQuery) {
-                            setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
-                          }
-                        }}
-                        className={`px-4 py-2 rounded-full transition-all ${
-                          viewMode === 'map' 
-                            ? 'bg-purple-600 hover:bg-purple-700 text-white' 
-                            : 'text-gray-300 hover:text-white hover:bg-white/10'
-                        }`}
-                      >
-                        <MapIcon className="w-4 h-4 mr-2" />
-                        <span className="text-sm font-medium">Map View</span>
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* View mode is shown above, no need for duplicate search */}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* View Toggle Buttons - Always visible, attached to search bar */}
+          <div className="bg-gray-800/95 backdrop-blur-sm rounded-b-2xl -mt-2 pt-4 pb-2 relative z-30">
+            <div className="flex justify-center">
+              <div className="inline-flex bg-white/10 rounded-full p-1">
+                <Button
+                  size="sm"
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
+                  onClick={() => setViewMode('list')}
+                  className={`px-4 py-2 rounded-full transition-all ${
+                    viewMode === 'list' 
+                      ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                      : 'text-gray-300 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <List className="w-4 h-4 mr-2" />
+                  <span className="text-sm font-medium">List View</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant={viewMode === 'map' ? 'default' : 'ghost'}
+                  onClick={() => {
+                    setViewMode('map');
+                    if (searchQuery) {
+                      setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
+                    }
+                  }}
+                  className={`px-4 py-2 rounded-full transition-all ${
+                    viewMode === 'map' 
+                      ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                      : 'text-gray-300 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <MapIcon className="w-4 h-4 mr-2" />
+                  <span className="text-sm font-medium">Map View</span>
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
 
           {/* Trust Indicators - Only show when not searching */}
@@ -293,36 +280,42 @@ function HeroSectionWithTransformingSearch() {
         {!isSearchActive && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-30" />}
       </section>
 
-      {/* Search Results Display Section - Below Hero */}
+      {/* Search Results Display Section - Immediately Below Toggle */}
       <AnimatePresence>
         {isSearchActive && viewMode === 'list' && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.3 }}
-            className="w-full bg-white"
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="w-full bg-gray-900"
+            style={{ marginTop: '-1px' }}
           >
+            {/* Results Header - Seamlessly connected */}
+            <div className="w-full max-w-2xl mx-auto px-2 sm:px-0">
+              <div className="bg-gray-800/95 backdrop-blur-sm px-4 py-3 border-t border-gray-700">
+                <h3 className="text-lg font-semibold text-white">
+                  Found {searchResults?.results?.length || 0} results
+                  {searchQuery && (
+                    <span className="ml-2 text-green-400">
+                      {searchQuery}
+                    </span>
+                  )}
+                </h3>
+              </div>
+            </div>
+            
+            {/* Results Content */}
             <div className="max-w-5xl mx-auto p-4">
-              {/* Results Content */}
               {isLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
-                  <span className="ml-3 text-gray-700">Searching...</span>
+                  <span className="ml-3 text-gray-300">Searching...</span>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {searchResults?.results && searchResults.results.length > 0 ? (
-                    <>
-                      <div className="flex items-center justify-between pb-2 border-b">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          Found {searchResults.results.length} results
-                        </h3>
-                        <Badge className="bg-green-100 text-green-800">
-                          {searchQuery}
-                        </Badge>
-                      </div>
-                      {searchResults.results.map((community: any, index: number) => (
+                    searchResults.results.map((community: any, index: number) => (
                         <motion.div
                           key={community.id}
                           initial={{ opacity: 0, y: 10 }}
@@ -334,8 +327,7 @@ function HeroSectionWithTransformingSearch() {
                             variant="list"
                           />
                         </motion.div>
-                      ))}
-                    </>
+                      ))
                   ) : (
                     <div className="text-center py-8">
                       <p className="text-gray-500">No results found for "{searchQuery}"</p>
