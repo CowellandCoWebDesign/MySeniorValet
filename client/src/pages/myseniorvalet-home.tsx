@@ -127,19 +127,20 @@ function HeroSectionWithTransformingSearch() {
   };
 
   return (
-    <section className="relative bg-black min-h-screen">
-      {/* Background Image */}
-      <div className="absolute inset-0">
-        <img
-          src={heroBackgroundImage}
-          alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
-          className="w-full h-full object-cover object-center"
-          loading="eager"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
-      </div>
-      
-      <div className="relative z-10 min-h-screen flex flex-col justify-center px-2 sm:px-4 py-6 sm:py-8">
+    <>
+      <section className="relative bg-black h-screen">
+        {/* Background Image */}
+        <div className="absolute inset-0 h-full w-full">
+          <img
+            src={heroBackgroundImage}
+            alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
+            className="w-full h-full object-cover object-center"
+            loading="eager"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
+        </div>
+        
+        <div className="relative z-10 h-full flex flex-col justify-center px-2 sm:px-4 py-6 sm:py-8">
         {/* Hero Text - Always Visible */}
         <div className="w-full max-w-4xl mx-auto mb-6 text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight">
@@ -223,91 +224,92 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
 
-        {/* Trust Indicators - Only show when not searching */}
-        {!isSearchActive && (
-          <div className="flex justify-center items-center px-2 mb-6">
-            <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
-              <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
-                <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Pricing</span>
-              </span>
-              <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                <Users2 className="h-2 w-2 sm:h-3 sm:w-3 text-green-300 flex-shrink-0" />
-                <span className="text-[9px] sm:text-[10px] font-semibold text-white">Family Reviews</span>
-              </span>
-              <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                <Brain className="h-2 w-2 sm:h-3 sm:w-3 text-purple-300 animate-pulse flex-shrink-0" />
-                <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Availability</span>
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Search Results - Display Below Search Bar */}
-        <AnimatePresence>
-          {isSearchActive && viewMode === 'list' && (
-            <motion.div
-              initial={{ opacity: 0, maxHeight: 0 }}
-              animate={{ opacity: 1, maxHeight: "600px" }}
-              exit={{ opacity: 0, maxHeight: 0 }}
-              transition={{ duration: 0.3 }}
-              className="w-full max-w-5xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden mx-2 sm:mx-auto"
-            >
-              <div className="p-2 sm:p-4 max-h-[400px] sm:max-h-[600px] overflow-y-auto">
-                {/* Loading State */}
-                {isLoading && (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
-                    <span className="ml-3 text-gray-700">Searching communities...</span>
-                  </div>
-                )}
-
-                {/* Results List */}
-                {!isLoading && searchResults?.results && (
-                  <div className="space-y-4">
-                    {searchResults.results.length > 0 ? (
-                      <>
-                        <div className="flex items-center justify-between pb-2 border-b">
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            Found {searchResults.results.length} communities
-                          </h3>
-                          <Badge className="bg-green-100 text-green-800">
-                            {searchQuery}
-                          </Badge>
-                        </div>
-                        {searchResults.results.map((community: any, index: number) => (
-                          <motion.div
-                            key={community.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                          >
-                            <PrioritizedCommunityCard
-                              community={community}
-                              variant="list"
-                              onSelect={() => window.location.href = `/community/${community.id}`}
-                            />
-                          </motion.div>
-                        ))}
-                      </>
-                    ) : (
-                      <div className="text-center py-12">
-                        <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-700 text-lg mb-2">No communities found</p>
-                        <p className="text-gray-500">Try adjusting your search terms</p>
-                      </div>
-                    )}
-                  </div>
-                )}
+          {/* Trust Indicators - Only show when not searching */}
+          {!isSearchActive && (
+            <div className="flex justify-center items-center px-2 mb-6">
+              <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
+                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                  <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Pricing</span>
+                </span>
+                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                  <Users2 className="h-2 w-2 sm:h-3 sm:w-3 text-green-300 flex-shrink-0" />
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Family Reviews</span>
+                </span>
+                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                  <Brain className="h-2 w-2 sm:h-3 sm:w-3 text-purple-300 animate-pulse flex-shrink-0" />
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Availability</span>
+                </span>
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
-      </div>
-      
-      {/* Hero Mascot Panel - Hidden when searching or on mobile */}
-      {!isSearchActive && <HeroMascotPanel className="hidden sm:block absolute bottom-4 left-0 right-0 z-30" />}
-    </section>
+        </div>
+        
+        {/* Hero Mascot Panel - Hidden when searching or on mobile */}
+        {!isSearchActive && <HeroMascotPanel className="hidden sm:block absolute bottom-4 left-0 right-0 z-30" />}
+      </section>
+
+      {/* Search Results - Display Below Hero Section */}
+      <AnimatePresence>
+        {isSearchActive && viewMode === 'list' && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="w-full bg-white shadow-xl"
+          >
+            <div className="max-w-5xl mx-auto p-2 sm:p-4">
+              {/* Loading State */}
+              {isLoading && (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
+                  <span className="ml-3 text-gray-700">Searching communities...</span>
+                </div>
+              )}
+
+              {/* Results List */}
+              {!isLoading && searchResults?.results && (
+                <div className="space-y-4">
+                  {searchResults.results.length > 0 ? (
+                    <>
+                      <div className="flex items-center justify-between pb-2 border-b">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Found {searchResults.results.length} communities
+                        </h3>
+                        <Badge className="bg-green-100 text-green-800">
+                          {searchQuery}
+                        </Badge>
+                      </div>
+                      {searchResults.results.map((community: any, index: number) => (
+                        <motion.div
+                          key={community.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                        >
+                          <PrioritizedCommunityCard
+                            community={community}
+                            variant="list"
+                            onSelect={() => window.location.href = `/community/${community.id}`}
+                          />
+                        </motion.div>
+                      ))}
+                    </>
+                  ) : (
+                    <div className="text-center py-12">
+                      <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-700 text-lg mb-2">No communities found</p>
+                      <p className="text-gray-500">Try adjusting your search terms</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
