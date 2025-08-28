@@ -3,16 +3,26 @@ import { motion } from 'framer-motion';
 import { MascotLoadingDisplay } from '@/components/MascotLoadingDisplay';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Sparkles, Rocket, Star } from 'lucide-react';
+import { Sparkles, Rocket, Star, AlertTriangle } from 'lucide-react';
 
 export default function NostalgicDemo() {
   const [showLoading, setShowLoading] = useState(false);
+  const [shouldCrash, setShouldCrash] = useState(false);
 
   const handleShowLoading = () => {
     setShowLoading(true);
     // Auto-hide after 8 seconds to show the effect
     setTimeout(() => setShowLoading(false), 8000);
   };
+
+  const handleTriggerError = () => {
+    setShouldCrash(true);
+  };
+
+  // Intentionally throw error to trigger error boundary
+  if (shouldCrash) {
+    throw new Error('Simulating high traffic error for demonstration');
+  }
 
   if (showLoading) {
     return (
@@ -65,6 +75,30 @@ export default function NostalgicDemo() {
               >
                 🚀 Launch Nostalgic Loading Screen
               </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-slate-900/90 border-red-500/30 backdrop-blur-xl">
+            <CardHeader>
+              <CardTitle className="text-red-400 flex items-center gap-2">
+                <AlertTriangle className="w-6 h-6" />
+                Test Error Boundary
+              </CardTitle>
+              <CardDescription className="text-gray-300">
+                Preview the memorial-themed error page with fallen retail giants
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={handleTriggerError}
+                variant="destructive"
+                className="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-semibold py-3 px-6 rounded-lg shadow-lg"
+              >
+                ⚠️ Trigger Memorial Error Page
+              </Button>
+              <p className="text-xs text-gray-400 mt-2 text-center">
+                Click to simulate a system error and view the memorial error page
+              </p>
             </CardContent>
           </Card>
 
