@@ -194,9 +194,9 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
 
-        {/* Search Bar - Fixed Position Under Hero Text */}
-        <div className="w-full max-w-2xl mx-auto mb-4 px-2 sm:px-0">
-          <div className="relative bg-white rounded-lg sm:rounded-xl shadow-lg sm:shadow-2xl">
+        {/* Search Bar with Connected UI - Unified Component */}
+        <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative">
+          <div className={`relative bg-white ${isSearchActive ? 'rounded-t-lg sm:rounded-t-xl' : 'rounded-lg sm:rounded-xl'} shadow-lg sm:shadow-2xl`}>
             <div className="flex items-center">
               <Search className="absolute left-3 sm:left-4 w-4 sm:w-5 h-4 sm:h-5 text-gray-400" />
               <input
@@ -227,7 +227,68 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
           
+          {/* View Toggle and Tabs - Connected directly below search bar */}
+          <AnimatePresence>
+            {isSearchActive && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="absolute top-full left-0 right-0 z-50"
+                style={{ marginTop: '-1px' }}
+              >
+                <div className="bg-gray-900 rounded-b-lg sm:rounded-b-xl shadow-xl">
+                  {/* View Toggle Buttons */}
+                  <div className="flex justify-center py-2">
+                    <div className="inline-flex bg-white/10 rounded-full p-1">
+                      <Button
+                        size="sm"
+                        variant={viewMode === 'list' ? 'default' : 'ghost'}
+                        onClick={() => setViewMode('list')}
+                        className={`px-4 py-2 rounded-full transition-all ${
+                          viewMode === 'list' 
+                            ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                            : 'text-gray-300 hover:text-white hover:bg-white/10'
+                        }`}
+                      >
+                        <List className="w-4 h-4 mr-2" />
+                        <span className="text-sm font-medium">List View</span>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={viewMode === 'map' ? 'default' : 'ghost'}
+                        onClick={() => {
+                          setViewMode('map');
+                          if (searchQuery) {
+                            setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
+                          }
+                        }}
+                        className={`px-4 py-2 rounded-full transition-all ${
+                          viewMode === 'map' 
+                            ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                            : 'text-gray-300 hover:text-white hover:bg-white/10'
+                        }`}
+                      >
+                        <MapIcon className="w-4 h-4 mr-2" />
+                        <span className="text-sm font-medium">Map View</span>
+                      </Button>
+                    </div>
+                  </div>
 
+                  {/* Filter Tabs - Connected UI */}
+                  <div className="px-2 sm:px-4 pb-2">
+                    <UnifiedSearch 
+                      searchResults={searchResults}
+                      isLoading={isLoading}
+                      error={error}
+                      searchQuery={searchQuery}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
           {/* Trust Indicators - Only show when not searching */}
@@ -257,341 +318,55 @@ function HeroSectionWithTransformingSearch() {
         {!isSearchActive && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-30" />}
       </section>
 
-      {/* Search Results - Display Below Hero Section */}
+      {/* Search Results Display Section - Below Hero */}
       <AnimatePresence>
-        {isSearchActive && (
+        {isSearchActive && viewMode === 'list' && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+            exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.3 }}
-            className="w-full"
+            className="w-full bg-white"
           >
-            {/* View Toggle integrated with Results */}
-            <div className="bg-gray-900 shadow-xl">
-              {/* View Toggle Buttons */}
-              <div className="flex justify-center pt-3 pb-2">
-                <div className="inline-flex bg-white/10 rounded-full p-1">
-                  <Button
-                    size="sm"
-                    variant={viewMode === 'list' ? 'default' : 'ghost'}
-                    onClick={() => setViewMode('list')}
-                    className={`px-4 py-2 rounded-full transition-all ${
-                      viewMode === 'list' 
-                        ? 'bg-purple-600 hover:bg-purple-700 text-white' 
-                        : 'text-gray-300 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    <List className="w-4 h-4 mr-2" />
-                    <span className="text-sm font-medium">List View</span>
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={viewMode === 'map' ? 'default' : 'ghost'}
-                    onClick={() => {
-                      setViewMode('map');
-                      if (searchQuery) {
-                        setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
-                      }
-                    }}
-                    className={`px-4 py-2 rounded-full transition-all ${
-                      viewMode === 'map' 
-                        ? 'bg-purple-600 hover:bg-purple-700 text-white' 
-                        : 'text-gray-300 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    <MapIcon className="w-4 h-4 mr-2" />
-                    <span className="text-sm font-medium">Map View</span>
-                  </Button>
+            <div className="max-w-5xl mx-auto p-4">
+              {/* Results Content */}
+              {isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
+                  <span className="ml-3 text-gray-700">Searching...</span>
                 </div>
-              </div>
-
-              {/* Filter Tabs - Only show in list view */}
-              {viewMode === 'list' && (
-                <div className="border-t border-gray-700">
-                  <div className="max-w-5xl mx-auto px-2 sm:px-4">
-                    <div className="flex space-x-1 py-2">
-                      <button
-                        onClick={() => setActiveTab('communities')}
-                        className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                          activeTab === 'communities' 
-                            ? 'bg-blue-600 text-white' 
-                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
-                        }`}
-                      >
-                        <Building className="w-4 h-4 mr-1.5" />
-                        <span>Communities</span>
-                        {searchResults?.results && (
-                          <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                            {searchResults.results.filter((r: any) => !r.type || r.type === 'community').length}
-                          </span>
-                        )}
-                      </button>
-                      
-                      <button
-                        onClick={() => setActiveTab('services')}
-                        className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                          activeTab === 'services' 
-                            ? 'bg-blue-600 text-white' 
-                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
-                        }`}
-                      >
-                        <Users2 className="w-4 h-4 mr-1.5" />
-                        <span>Services</span>
-                        {searchResults?.results && (
-                          <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                            {searchResults.results.filter((r: any) => 
-                              r.type === 'service' || r.communitySubtype === 'service_provider' || 
-                              r.description?.toLowerCase().includes('service')
-                            ).length}
-                          </span>
-                        )}
-                      </button>
-                      
-                      <button
-                        onClick={() => setActiveTab('healthcare')}
-                        className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                          activeTab === 'healthcare' 
-                            ? 'bg-blue-600 text-white' 
-                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
-                        }`}
-                      >
-                        <Heart className="w-4 h-4 mr-1.5" />
-                        <span>Healthcare</span>
-                        {searchResults?.results && (
-                          <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                            {searchResults.results.filter((r: any) => 
-                              r.type === 'healthcare' || r.communitySubtype === 'skilled_nursing' || 
-                              r.communitySubtype === 'memory_care' || r.communitySubtype === 'ccrc' ||
-                              r.description?.toLowerCase().includes('medical') ||
-                              r.description?.toLowerCase().includes('health')
-                            ).length}
-                          </span>
-                        )}
-                      </button>
-                      
-                      <button
-                        onClick={() => setActiveTab('resources')}
-                        className={`flex items-center px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                          activeTab === 'resources' 
-                            ? 'bg-blue-600 text-white' 
-                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white'
-                        }`}
-                      >
-                        <Book className="w-4 h-4 mr-1.5" />
-                        <span>Resources</span>
-                        {searchResults?.results && (
-                          <span className="ml-2 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                            {searchResults.results.filter((r: any) => 
-                              r.type === 'resource' || r.communitySubtype === 'adult_day_care' ||
-                              r.description?.toLowerCase().includes('resource') ||
-                              r.description?.toLowerCase().includes('support')
-                            ).length}
-                          </span>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Results Content - Only show in list view */}
-              {viewMode === 'list' && (
-                <div className="bg-white max-h-[50vh] overflow-y-auto">
-                  <div className="max-w-5xl mx-auto p-2 sm:p-4">
-                {/* Loading State */}
-                {isLoading && (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
-                    <span className="ml-3 text-gray-700">
-                      Searching {activeTab === 'communities' ? 'communities' : 
-                                activeTab === 'services' ? 'services' : 
-                                activeTab === 'healthcare' ? 'healthcare providers' : 
-                                'resources'}...
-                    </span>
-                  </div>
-                )}
-
-                {/* Communities Tab Results */}
-                {!isLoading && activeTab === 'communities' && searchResults?.results && (
-                  <div className="space-y-4">
-                    {searchResults.results.length > 0 ? (
-                      <>
-                        <div className="flex items-center justify-between pb-2 border-b">
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            Found {searchResults.results.length} communities
-                          </h3>
-                          <Badge className="bg-green-100 text-green-800">
-                            {searchQuery}
-                          </Badge>
-                        </div>
-                        {searchResults.results.map((community: any, index: number) => (
-                          <motion.div
-                            key={community.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                          >
-                            <PrioritizedCommunityCard
-                              community={community}
-                              variant="list"
-                              onSelect={() => window.location.href = `/community/${community.id}`}
-                            />
-                          </motion.div>
-                        ))}
-                      </>
-                    ) : (
-                      <div className="text-center py-12">
-                        <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-700 text-lg mb-2">No communities found</p>
-                        <p className="text-gray-500">Try adjusting your search terms</p>
+              ) : (
+                <div className="space-y-4">
+                  {searchResults?.results && searchResults.results.length > 0 ? (
+                    <>
+                      <div className="flex items-center justify-between pb-2 border-b">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Found {searchResults.results.length} results
+                        </h3>
+                        <Badge className="bg-green-100 text-green-800">
+                          {searchQuery}
+                        </Badge>
                       </div>
-                    )}
-                  </div>
-                )}
-                
-                {/* Services Tab Results */}
-                {!isLoading && activeTab === 'services' && searchResults?.results && (
-                  <div className="space-y-4">
-                    {(() => {
-                      const serviceResults = searchResults.results.filter((r: any) => 
-                        r.type === 'service' || r.communitySubtype === 'service_provider' || 
-                        r.description?.toLowerCase().includes('service')
-                      );
-                      return serviceResults.length > 0 ? (
-                        <>
-                          <div className="flex items-center justify-between pb-2 border-b">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              Found {serviceResults.length} services
-                            </h3>
-                            <Badge className="bg-purple-100 text-purple-800">
-                              {searchQuery}
-                            </Badge>
-                          </div>
-                          {serviceResults.map((service: any, index: number) => (
-                            <motion.div
-                              key={service.id}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: index * 0.05 }}
-                              className="p-4 bg-gray-50 rounded-lg border border-gray-200"
-                            >
-                              <h4 className="font-semibold text-gray-900">{service.name}</h4>
-                              <p className="text-gray-600 text-sm mt-1">
-                                {service.city}, {service.state}
-                              </p>
-                              {service.description && (
-                                <p className="text-gray-700 mt-2 text-sm">{service.description}</p>
-                              )}
-                            </motion.div>
-                          ))}
-                        </>
-                      ) : (
-                        <div className="text-center py-12">
-                          <Users2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                          <p className="text-gray-700 text-lg mb-2">No services found</p>
-                          <p className="text-gray-500">Try searching for home care, transportation, or meal services</p>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                )}
-                
-                {/* Healthcare Tab Results */}
-                {!isLoading && activeTab === 'healthcare' && searchResults?.results && (
-                  <div className="space-y-4">
-                    {(() => {
-                      const healthcareResults = searchResults.results.filter((r: any) => 
-                        r.type === 'healthcare' || r.communitySubtype === 'skilled_nursing' || 
-                        r.communitySubtype === 'memory_care' || r.communitySubtype === 'ccrc' ||
-                        r.description?.toLowerCase().includes('medical') ||
-                        r.description?.toLowerCase().includes('health')
-                      );
-                      return healthcareResults.length > 0 ? (
-                        <>
-                          <div className="flex items-center justify-between pb-2 border-b">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              Found {healthcareResults.length} healthcare facilities
-                            </h3>
-                            <Badge className="bg-red-100 text-red-800">
-                              {searchQuery}
-                            </Badge>
-                          </div>
-                          {healthcareResults.map((provider: any, index: number) => (
-                            <motion.div
-                              key={provider.id}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: index * 0.05 }}
-                            >
-                              <PrioritizedCommunityCard
-                                community={provider}
-                                variant="list"
-                                onSelect={() => window.location.href = `/community/${provider.id}`}
-                              />
-                            </motion.div>
-                          ))}
-                        </>
-                      ) : (
-                        <div className="text-center py-12">
-                          <Heart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                          <p className="text-gray-700 text-lg mb-2">No healthcare providers found</p>
-                          <p className="text-gray-500">Try searching for hospitals, clinics, or medical centers</p>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                )}
-                
-                {/* Resources Tab Results */}
-                {!isLoading && activeTab === 'resources' && searchResults?.results && (
-                  <div className="space-y-4">
-                    {(() => {
-                      const resourceResults = searchResults.results.filter((r: any) => 
-                        r.type === 'resource' || r.communitySubtype === 'adult_day_care' ||
-                        r.description?.toLowerCase().includes('resource') ||
-                        r.description?.toLowerCase().includes('support')
-                      );
-                      return resourceResults.length > 0 ? (
-                        <>
-                          <div className="flex items-center justify-between pb-2 border-b">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              Found {resourceResults.length} resources
-                            </h3>
-                            <Badge className="bg-blue-100 text-blue-800">
-                              {searchQuery}
-                            </Badge>
-                          </div>
-                          {resourceResults.map((resource: any, index: number) => (
-                            <motion.div
-                              key={resource.id}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: index * 0.05 }}
-                              className="p-4 bg-gray-50 rounded-lg border border-gray-200"
-                            >
-                              <h4 className="font-semibold text-gray-900">{resource.name}</h4>
-                              <p className="text-gray-600 text-sm mt-1">
-                                {resource.city}, {resource.state}
-                              </p>
-                              {resource.description && (
-                                <p className="text-gray-700 mt-2 text-sm">{resource.description}</p>
-                              )}
-                            </motion.div>
-                          ))}
-                        </>
-                      ) : (
-                        <div className="text-center py-12">
-                          <Book className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                          <p className="text-gray-700 text-lg mb-2">No resources found</p>
-                          <p className="text-gray-500">Try searching for support groups, educational materials, or guides</p>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                )}
+                      {searchResults.results.map((community: any, index: number) => (
+                        <motion.div
+                          key={community.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                        >
+                          <PrioritizedCommunityCard
+                            community={community}
+                            variant="list"
+                          />
+                        </motion.div>
+                      ))}
+                    </>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">No results found for "{searchQuery}"</p>
+                    </div>
+                  )}
                 </div>
-              </div>
               )}
             </div>
           </motion.div>

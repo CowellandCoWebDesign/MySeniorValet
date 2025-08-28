@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -10,8 +10,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send } from "lucide-react";
-import { AutocompleteSearch } from "@/components/AutocompleteSearch";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, MapIcon } from "lucide-react";
+import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -36,13 +36,519 @@ import HospitalCarousel from "@/components/HospitalCarousel";
 import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
+import { HeroMascotPanel } from '@/components/mascot/HeroMascotPanel';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 
+// Preload critical hero image
+if (typeof document !== 'undefined') {
+  const link = document.createElement('link');
+  link.rel = 'preload';
+  link.as = 'image';
+  link.href = heroBackgroundImage;
+  link.type = 'image/png';
+  document.head.appendChild(link);
+}
 
 
+
+
+// Simplified Hero Section with Fixed Search Bar
+function HeroSectionWithTransformingSearch() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [activeTab, setActiveTab] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
+  const debouncedQuery = useDebounce(searchQuery, 500);
+  const [, setLocation] = useLocation();
+
+  // Fetch search results using unified search API
+  const { data: searchResults, isLoading } = useQuery({
+    queryKey: ['/api/search/unified', debouncedQuery],
+    queryFn: async () => {
+      if (!debouncedQuery || debouncedQuery.length < 2) {
+        return { results: [], metadata: null };
+      }
+
+      const response = await fetch('/api/search/unified', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          query: debouncedQuery,
+          includeHospitals: true,
+          includeServices: true,
+          limit: 50
+        })
+      });
+
+      if (!response.ok) throw new Error('Search failed');
+      
+      const data = await response.json();
+      
+      // Handle both 'communities' and 'results' field names from backend
+      const rawResults = data.communities || data.results || [];
+      
+      // Map communities directly (no need to filter by type since backend already returns communities)
+      const communities = rawResults.map((r: any) => ({
+          id: r.id,
+          name: r.name,
+          address: r.address,
+          city: r.city,
+          state: r.state,
+          careTypes: r.careTypes || [],
+          priceRange: r.priceRange,
+          rating: r.rating,
+          reviewCount: r.reviewCount,
+          photos: r.photos || [],
+          hudPropertyId: r.hudPropertyId,
+          rentPerMonth: r.price || r.rentPerMonth,
+          availableUnits: r.availableUnits,
+          communitySubtype: r.communitySubtype,
+          phone: r.phone,
+          website: r.website,
+          description: r.description,
+          totalUnits: r.totalUnits,
+          occupancyRate: r.occupancyRate
+        }));
+
+      return { results: communities, metadata: data.metadata };
+    },
+    enabled: !!debouncedQuery && debouncedQuery.length >= 2
+  });
+
+  // Auto-activate search when typing
+  useEffect(() => {
+    if (searchQuery.length >= 2) {
+      setIsSearchActive(true);
+    } else if (searchQuery.length === 0) {
+      setIsSearchActive(false);
+    }
+  }, [searchQuery]);
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && viewMode === 'map' && searchQuery) {
+      setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setIsSearchActive(false);
+  };
+
+  return (
+    <>
+      <section className="relative h-screen"
+        style={{
+          background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
+        }}
+      >
+        {/* Background Image */}
+        <div className="absolute inset-0 h-full w-full">
+          <img
+            src={heroBackgroundImage}
+            alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
+            className={`w-full h-full object-cover object-center transition-opacity duration-700 ${
+              imageLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+            loading="eager"
+            onLoad={() => setImageLoaded(true)}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
+        </div>
+        
+        <div className="relative z-10 h-full flex items-center px-2 sm:px-4">
+        {/* Hero Content Container */}
+        <div className="w-full">
+        {/* Hero Text - Never Changes */}
+        <div className="w-full max-w-4xl mx-auto mb-6 text-center">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight">
+            Everything You Need.<br className="sm:hidden" /> Nothing You Pay.
+          </h1>
+          
+          <div className="text-xs sm:text-sm md:text-base text-gray-100 max-w-3xl mx-auto px-2 mb-6">
+            <div className="hidden sm:block">
+              <div className="flex flex-wrap justify-center gap-2 text-white">
+                <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  • Search 35,000+ communities globally with real pricing & trusted reviews
+                </span>
+                <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  • We NEVER sell your info
+                </span>
+                <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  • Access 1,000's of services & support resources
+                </span>
+                <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  • A platform built for families, not profits 💙
+                </span>
+              </div>
+            </div>
+            <div className="sm:hidden">
+              <p className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                Search 35,000+ communities with real pricing • No fees, no data selling 💙
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Search Bar with Connected UI - Unified Component */}
+        <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative">
+          <div className={`relative bg-white ${isSearchActive ? 'rounded-t-lg sm:rounded-t-xl' : 'rounded-lg sm:rounded-xl'} shadow-lg sm:shadow-2xl`}>
+            <div className="flex items-center">
+              <Search className="absolute left-3 sm:left-4 w-4 sm:w-5 h-4 sm:h-5 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Search by city, state, or care..."
+                className="w-full pl-10 sm:pl-12 pr-2 sm:pr-4 py-3 sm:py-4 text-base sm:text-lg bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-500"
+              />
+              
+              {/* Clear Button - Show only when text exists */}
+              {searchQuery && (
+                <Button
+                  size="sm"
+                  onClick={clearSearch}
+                  className="mr-1 sm:mr-2 p-1 sm:p-2 bg-gray-200 hover:bg-gray-300"
+                >
+                  <X className="w-3 sm:w-4 h-3 sm:h-4" />
+                </Button>
+              )}
+              
+              {/* AI Badge - Smaller on mobile */}
+              <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white mr-1 sm:mr-2 text-[10px] sm:text-xs px-2 sm:px-3">
+                <Sparkles className="w-2 sm:w-3 h-2 sm:h-3 mr-0.5 sm:mr-1" />
+                AI
+              </Badge>
+            </div>
+          </div>
+          
+          {/* View Toggle and Tabs - Connected directly below search bar */}
+          <AnimatePresence>
+            {isSearchActive && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="absolute top-full left-0 right-0 z-50"
+                style={{ marginTop: '-1px' }}
+              >
+                <div className="bg-gray-900 rounded-b-lg sm:rounded-b-xl shadow-xl">
+                  {/* View Toggle Buttons */}
+                  <div className="flex justify-center py-2">
+                    <div className="inline-flex bg-white/10 rounded-full p-1">
+                      <Button
+                        size="sm"
+                        variant={viewMode === 'list' ? 'default' : 'ghost'}
+                        onClick={() => setViewMode('list')}
+                        className={`px-4 py-2 rounded-full transition-all ${
+                          viewMode === 'list' 
+                            ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                            : 'text-gray-300 hover:text-white hover:bg-white/10'
+                        }`}
+                      >
+                        <List className="w-4 h-4 mr-2" />
+                        <span className="text-sm font-medium">List View</span>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={viewMode === 'map' ? 'default' : 'ghost'}
+                        onClick={() => {
+                          setViewMode('map');
+                          if (searchQuery) {
+                            setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
+                          }
+                        }}
+                        className={`px-4 py-2 rounded-full transition-all ${
+                          viewMode === 'map' 
+                            ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                            : 'text-gray-300 hover:text-white hover:bg-white/10'
+                        }`}
+                      >
+                        <MapIcon className="w-4 h-4 mr-2" />
+                        <span className="text-sm font-medium">Map View</span>
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Filter Tabs - Connected UI */}
+                  <div className="px-2 sm:px-4 pb-2">
+                    <UnifiedSearch 
+                      searchResults={searchResults}
+                      isLoading={isLoading}
+                      error={error}
+                      searchQuery={searchQuery}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+          {/* Trust Indicators - Only show when not searching */}
+          {!isSearchActive && (
+            <div className="flex justify-center items-center px-2 mb-6">
+              <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
+                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                  <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Pricing</span>
+                </span>
+                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                  <Users2 className="h-2 w-2 sm:h-3 sm:w-3 text-green-300 flex-shrink-0" />
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Family Reviews</span>
+                </span>
+                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                  <Brain className="h-2 w-2 sm:h-3 sm:w-3 text-purple-300 animate-pulse flex-shrink-0" />
+                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Availability</span>
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        </div>
+        
+        {/* Hero Mascot Panel - Responsive positioning */}
+        {!isSearchActive && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-30" />}
+      </section>
+
+      {/* Search Results Display Section - Below Hero */}
+      <AnimatePresence>
+        {isSearchActive && viewMode === 'list' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+            className="w-full bg-white"
+          >
+            <div className="max-w-5xl mx-auto p-4">
+              {/* Results Content */}
+              {isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
+                  <span className="ml-3 text-gray-700">Searching...</span>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {searchResults?.results && searchResults.results.length > 0 ? (
+                    <>
+                      <div className="flex items-center justify-between pb-2 border-b">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Found {searchResults.results.length} results
+                        </h3>
+                        <Badge className="bg-green-100 text-green-800">
+                          {searchQuery}
+                        </Badge>
+                      </div>
+                      {searchResults.results.map((community: any, index: number) => (
+                        <motion.div
+                          key={community.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                        >
+                          <PrioritizedCommunityCard
+                            community={community}
+                            variant="list"
+                          />
+                        </motion.div>
+                      ))}
+                    </>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">No results found for "{searchQuery}"</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+                          <motion.div
+                            key={community.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                          >
+                            <PrioritizedCommunityCard
+                              community={community}
+                              variant="list"
+                              onSelect={() => window.location.href = `/community/${community.id}`}
+                            />
+                          </motion.div>
+                        ))}
+                      </>
+                    ) : (
+                      <div className="text-center py-12">
+                        <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-700 text-lg mb-2">No communities found</p>
+                        <p className="text-gray-500">Try adjusting your search terms</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {/* Services Tab Results */}
+                {!isLoading && activeTab === 'services' && searchResults?.results && (
+                  <div className="space-y-4">
+                    {(() => {
+                      const serviceResults = searchResults.results.filter((r: any) => 
+                        r.type === 'service' || r.communitySubtype === 'service_provider' || 
+                        r.description?.toLowerCase().includes('service')
+                      );
+                      return serviceResults.length > 0 ? (
+                        <>
+                          <div className="flex items-center justify-between pb-2 border-b">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              Found {serviceResults.length} services
+                            </h3>
+                            <Badge className="bg-purple-100 text-purple-800">
+                              {searchQuery}
+                            </Badge>
+                          </div>
+                          {serviceResults.map((service: any, index: number) => (
+                            <motion.div
+                              key={service.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.05 }}
+                              className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                            >
+                              <h4 className="font-semibold text-gray-900">{service.name}</h4>
+                              <p className="text-gray-600 text-sm mt-1">
+                                {service.city}, {service.state}
+                              </p>
+                              {service.description && (
+                                <p className="text-gray-700 mt-2 text-sm">{service.description}</p>
+                              )}
+                            </motion.div>
+                          ))}
+                        </>
+                      ) : (
+                        <div className="text-center py-12">
+                          <Users2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-700 text-lg mb-2">No services found</p>
+                          <p className="text-gray-500">Try searching for home care, transportation, or meal services</p>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+                
+                {/* Healthcare Tab Results */}
+                {!isLoading && activeTab === 'healthcare' && searchResults?.results && (
+                  <div className="space-y-4">
+                    {(() => {
+                      const healthcareResults = searchResults.results.filter((r: any) => 
+                        r.type === 'healthcare' || r.communitySubtype === 'skilled_nursing' || 
+                        r.communitySubtype === 'memory_care' || r.communitySubtype === 'ccrc' ||
+                        r.description?.toLowerCase().includes('medical') ||
+                        r.description?.toLowerCase().includes('health')
+                      );
+                      return healthcareResults.length > 0 ? (
+                        <>
+                          <div className="flex items-center justify-between pb-2 border-b">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              Found {healthcareResults.length} healthcare facilities
+                            </h3>
+                            <Badge className="bg-red-100 text-red-800">
+                              {searchQuery}
+                            </Badge>
+                          </div>
+                          {healthcareResults.map((provider: any, index: number) => (
+                            <motion.div
+                              key={provider.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.05 }}
+                            >
+                              <PrioritizedCommunityCard
+                                community={provider}
+                                variant="list"
+                                onSelect={() => window.location.href = `/community/${provider.id}`}
+                              />
+                            </motion.div>
+                          ))}
+                        </>
+                      ) : (
+                        <div className="text-center py-12">
+                          <Heart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-700 text-lg mb-2">No healthcare providers found</p>
+                          <p className="text-gray-500">Try searching for hospitals, clinics, or medical centers</p>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+                
+                {/* Resources Tab Results */}
+                {!isLoading && activeTab === 'resources' && searchResults?.results && (
+                  <div className="space-y-4">
+                    {(() => {
+                      const resourceResults = searchResults.results.filter((r: any) => 
+                        r.type === 'resource' || r.communitySubtype === 'adult_day_care' ||
+                        r.description?.toLowerCase().includes('resource') ||
+                        r.description?.toLowerCase().includes('support')
+                      );
+                      return resourceResults.length > 0 ? (
+                        <>
+                          <div className="flex items-center justify-between pb-2 border-b">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              Found {resourceResults.length} resources
+                            </h3>
+                            <Badge className="bg-blue-100 text-blue-800">
+                              {searchQuery}
+                            </Badge>
+                          </div>
+                          {resourceResults.map((resource: any, index: number) => (
+                            <motion.div
+                              key={resource.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.05 }}
+                              className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                            >
+                              <h4 className="font-semibold text-gray-900">{resource.name}</h4>
+                              <p className="text-gray-600 text-sm mt-1">
+                                {resource.city}, {resource.state}
+                              </p>
+                              {resource.description && (
+                                <p className="text-gray-700 mt-2 text-sm">{resource.description}</p>
+                              )}
+                            </motion.div>
+                          ))}
+                        </>
+                      ) : (
+                        <div className="text-center py-12">
+                          <Book className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-700 text-lg mb-2">No resources found</p>
+                          <p className="text-gray-500">Try searching for support groups, educational materials, or guides</p>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+                </div>
+              </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
 
 export default function MySeniorValetHome() {
   const { t, language } = useLanguage();
@@ -51,12 +557,13 @@ export default function MySeniorValetHome() {
   // Set SEO metadata for home page
   useSEO({
     title: 'Senior Living Made Simple - Find Communities, Real Pricing, No Hidden Fees',
-    description: 'Search 36,000+ senior living communities across USA, Canada & Mexico with transparent pricing, verified HUD rates, and real availability. Compare assisted living, memory care, nursing homes. Free tour scheduling, family sharing tools, and senior resources.',
+    description: 'Search 36,000+ senior living communities across USA, Canada, Mexico, Peru & Cuba with transparent pricing, verified HUD rates, and real availability. Compare assisted living, memory care, nursing homes. Free tour scheduling, family sharing tools, and senior resources.',
     keywords: 'senior living, assisted living, memory care, nursing homes, HUD senior housing, independent living, retirement communities, elder care, senior care facilities, Medicare, Medicaid, VA benefits, Canadian senior homes',
     canonicalUrl: 'https://www.myseniorvalet.com/'
   });
   
   const [searchQuery, setSearchQuery] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showProtectionModal, setShowProtectionModal] = useState(false);
   const [protectionSearchQuery, setProtectionSearchQuery] = useState('');
@@ -73,6 +580,18 @@ export default function MySeniorValetHome() {
       return () => clearTimeout(timer);
     }
   }, [toast]);
+  
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // 3D Carousel state
   const [currentRotation, setCurrentRotation] = useState(0);
@@ -281,7 +800,7 @@ export default function MySeniorValetHome() {
   }, []);
   
   // Mobile-optimized queries with reduced memory footprint
-  const { data: communityStats, isLoading } = useQuery({
+  const { data: communityStats, isLoading } = useQuery<{ count: string }>({
     queryKey: ["/api/communities/count"],
     retry: false,
     staleTime: 30 * 60 * 1000, // Cache for 30 minutes to reduce requests
@@ -706,178 +1225,8 @@ export default function MySeniorValetHome() {
         </div>
       </header>
 
-      {/* Hero Section with Search */}
-      <section className="relative min-h-screen bg-black pt-14">
-        <div className="absolute inset-0">
-          <img
-            src={heroBackgroundImage}
-            alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
-            className="w-full h-full object-contain sm:object-cover object-center sm:object-right"
-            loading="eager"
-          />
-          {/* Minimal darkening only at the very bottom for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-90% to-black/30"></div>
-        </div>
-        
-
-        
-        <div className="relative hero-content min-h-screen pt-2 sm:pt-3 md:pt-4 pb-3 md:pb-4 mobile-keyboard-safe flex flex-col">
-          
-          {/* Hero Text Section - At the top */}
-          <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8 mb-8 text-center">
-            {/* Main Heading - Animates in first */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 animate-fade-in-up drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
-              Empowering Families to Find Transparent, Affordable Senior Living and Care
-            </h1>
-            
-            {/* Subheading - Animates in second with delay */}
-            <p className="text-sm sm:text-base md:text-lg text-gray-200 max-w-3xl mx-auto animate-fade-in-up animation-delay-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-              Explore trusted senior living communities and connect with services that make life easier. Transparent pricing, real-time availability, and seamless service integration, all in one place.
-            </p>
-          </div>
-          
-          {/* Spacer to push search to middle */}
-          <div className="flex-1"></div>
-          
-          {/* Search Container */}
-          <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
-            
-            {/* All Action Buttons - Compact Horizontal Layout */}
-            <div className="mb-4 animate-fade-in-up animation-delay-100">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {/* Traditional Search - Points to map-search route */}
-                <Link href={`/map-search${searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''}`} className="w-full">
-                  <Button className="w-full h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200 border border-gray-600">
-                    <div className="flex items-center justify-start space-x-1.5">
-                      <Search className="h-4 w-4 flex-shrink-0" />
-                      <div className="text-left">
-                        <div className="text-[10px] font-semibold leading-tight">Traditional Browse</div>
-                        <div className="text-[8px] text-gray-400 leading-tight">Filter & Sort</div>
-                      </div>
-                    </div>
-                  </Button>
-                </Link>
-
-                {/* AI Intelligence - Links directly to simplified tab */}
-                <Link href="/ai-search-intelligence?mode=simplified" className="w-full">
-                  <Button className="w-full h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.01] transition-all duration-200">
-                    <div className="flex items-center justify-start space-x-1.5">
-                      <Sparkles className="h-4 w-4 flex-shrink-0" />
-                      <div className="text-left">
-                        <div className="text-[10px] font-semibold leading-tight">AI Assistant</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Ask Questions</div>
-                      </div>
-                    </div>
-                  </Button>
-                </Link>
-
-                {/* Live Availability Heatmap */}
-                <Link href="/availability-heatmap" className="w-full">
-                  <Button className="w-full h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 px-2 py-2 rounded-md transform hover:scale-[1.01]">
-                    <div className="flex items-center justify-start space-x-1.5">
-                      <Flame className="h-4 w-4 flex-shrink-0 animate-pulse" />
-                      <div className="text-left">
-                        <div className="text-[10px] font-semibold leading-tight">Live Heatmap</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Availability Now</div>
-                      </div>
-                    </div>
-                  </Button>
-                </Link>
-
-                {/* Competitive Market Analysis */}
-                <Link href="/competitive-analysis" className="w-full">
-                  <Button className="w-full h-auto bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 px-2 py-2 rounded-md transform hover:scale-[1.01]">
-                    <div className="flex items-center justify-start space-x-1.5">
-                      <TrendingUp className="h-4 w-4 flex-shrink-0" />
-                      <div className="text-left">
-                        <div className="text-[10px] font-semibold leading-tight">Market Analysis</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Price Compare</div>
-                      </div>
-                    </div>
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            {/* Search Bar - Full Screen Width - Slimmer Design */}
-            <div className="mb-3 animate-fade-in-up animation-delay-200" style={{ position: 'relative', zIndex: 99999 }}>
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                if (searchQuery) {
-                  window.location.href = `/map-search?q=${encodeURIComponent(searchQuery)}`;
-                }
-              }}>
-                <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl" style={{ overflow: 'visible' }}>
-                  <div className="flex items-center">
-                    <div className="flex-1 relative">
-                      <AutocompleteSearch
-                        value={searchQuery}
-                        onChange={setSearchQuery}
-                        onSubmit={(value) => {
-                          if (value) {
-                            window.location.href = `/map-search?q=${encodeURIComponent(value)}`;
-                          }
-                        }}
-                        placeholder={t('hero.searchPlaceholder')}
-                        hideSearchButton={true}
-                        inputClassName="w-full pl-10 pr-3 py-3 text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                      />
-                    </div>
-                    <div className="flex items-center mr-2">
-                      <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 text-xs px-3 py-1 font-semibold">
-                        AI-Powered
-                      </Badge>
-                    </div>
-                    <button
-                      type="submit"
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-2 m-2 rounded-lg transition-all flex items-center justify-center shadow-md hover:shadow-lg"
-                    >
-                      <Search className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
-
-            {/* Trust Indicators - Below search bar */}
-            <div className="animate-fade-in-up animation-delay-300 flex justify-center items-center">
-              <div className="flex flex-wrap justify-center items-center gap-2">
-                {/* Government Sources Badge */}
-                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-3 py-1 rounded-full shadow-md whitespace-nowrap">
-                  <Building2 className="h-3 w-3 text-blue-300 flex-shrink-0" />
-                  <span className="text-[10px] font-semibold text-white">Real HUD Pricing</span>
-                </span>
-                
-                {/* Community Reported Badge */}
-                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-3 py-1 rounded-full shadow-md whitespace-nowrap">
-                  <Users2 className="h-3 w-3 text-green-300 flex-shrink-0" />
-                  <span className="text-[10px] font-semibold text-white">Family Reviews</span>
-                </span>
-                
-                {/* AI Orchestration Badge */}
-                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-3 py-1 rounded-full shadow-md whitespace-nowrap">
-                  <Brain className="h-3 w-3 text-purple-300 animate-pulse flex-shrink-0" />
-                  <span className="text-[10px] font-semibold text-white">Live Availability</span>
-                </span>
-                
-                {/* AI Orchestra Badge - Attribution to the 3 AIs */}
-                <span className="inline-flex items-center space-x-1 bg-gradient-to-r from-purple-800/90 to-indigo-800/90 backdrop-blur-md px-3 py-1 rounded-full shadow-md whitespace-nowrap border border-purple-400/30">
-                  <Music className="h-3 w-3 text-yellow-300 animate-pulse flex-shrink-0" />
-                  <span className="text-[10px] font-semibold text-white">AI Triple-Verified</span>
-                </span>
-              </div>
-            </div>
-            
-          </div>
-          {/* End Search Container */}
-          
-          {/* Remaining space at bottom */}
-          <div className="flex-grow"></div>
-          
-        </div>
-        {/* End Hero Content */}
-        
-      </section>
+      {/* Transforming Hero Section with Search - Mobile optimized */}
+      <HeroSectionWithTransformingSearch />
 
 
 
@@ -888,124 +1237,20 @@ export default function MySeniorValetHome() {
         </div>
       </div>
 
-      {/* Senior Living Command Center with Integrated Marketplace */}
-      <section className="relative overflow-hidden">
-        {/* Command Center Header with Beautiful Gradient - matching marketplace page */}
-        <div className="px-4 py-12 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
-          {/* Animated gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-pink-900/20 animate-pulse"></div>
-          
-          <div className="max-w-7xl mx-auto relative z-10">
-            <div className="text-center">
-              <h2 className="text-5xl font-bold text-white mb-4">
-                Senior Living Command Center
-              </h2>
-              <div className="flex flex-col items-center gap-3 mb-6">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white">
-                  <Brain className="w-5 h-5" />
-                  <span className="text-sm font-semibold">Powered & Supported by Artificial Intelligence Orchestra</span>
-                </div>
-                <div className="flex flex-wrap items-center justify-center gap-2 px-4">
-                  <span className="text-xs text-white/80">Powered by:</span>
-                  <div className="flex flex-wrap items-center justify-center gap-2">
-                    <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-2 py-0.5 text-xs">
-                      1. Perplexity AI (Primary - Web Search)
-                    </Badge>
-                    <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 text-xs">
-                      2. Claude Sonnet 4.0 (Secondary - Analysis)
-                    </Badge>
-                    <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-2 py-0.5 text-xs">
-                      3. ChatGPT-4o (Backup - Verification)
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-              <div className="text-xl text-blue-100 max-w-4xl mx-auto mb-8">
-                <p className="mb-6">Access the most comprehensive senior living ecosystem ever assembled - over 42,000 resources spanning communities, vendors, healthcare, and education. Every listing enhanced by AI-powered search, Red Tag specials, and real-time market intelligence.</p>
-                <div className="space-y-2 text-lg">
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">🏘️</span>
-                    <span className="font-semibold">34,181+ Communities</span> with verified HUD pricing
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">🛍️</span>
-                    <span className="font-semibold">1,500+ Vendor Services</span> for senior living needs
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">🏥</span>
-                    <span className="font-semibold">6,800+ Healthcare Providers</span> nationwide
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">📚</span>
-                    <span className="font-semibold">100+ Educational Resources</span> for informed decisions
-                  </div>
-                </div>
-              </div>
-              
-              {/* Feature Badges */}
-              <div className="flex flex-wrap justify-center gap-3 mb-8">
-                <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 text-sm font-bold shadow-lg">
-                  <Flame className="w-4 h-4 mr-2" />
-                  Red Tag Specials
-                </Badge>
-                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                  <Brain className="w-4 h-4 mr-2" />
-                  AI Market Intelligence
-                </Badge>
-                <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                  <Calculator className="w-4 h-4 mr-2" />
-                  Cost Calculators
-                </Badge>
-                <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  42,481+ Total Resources
-                </Badge>
-                <Badge className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                  <Shield className="w-4 h-4 mr-2" />
-                  Complete Care Spectrum
-                </Badge>
-              </div>
-              
-              {/* Quick Stats Bar - like marketplace page */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">34,181+</div>
-                    <div className="text-xs text-blue-100">Communities</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">1,500+</div>
-                    <div className="text-xs text-blue-100">Vendors</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">6,800+</div>
-                    <div className="text-xs text-blue-100">Healthcare</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">100+</div>
-                    <div className="text-xs text-blue-100">Resources</div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      
+
       {/* Four Directory Cards Grid - Seamlessly Connected */}
       <section className="px-4 py-16 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
           <div className="max-w-7xl mx-auto">
             {/* Four Directory Cards in 2x2 Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
             {/* Community Directory */}
-            <Link href="/community-directory">
-              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-blue-500 relative overflow-hidden group transform hover:scale-105">
+            <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group transform hover:scale-105 cursor-pointer" onClick={(e) => {
+              // Only navigate if clicking on the card background, not buttons
+              const target = e.target as HTMLElement;
+              if (e.target === e.currentTarget || !target.closest('button')) {
+                window.location.href = '/community-directory';
+              }
+            }}>
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 opacity-50"></div>
                 <CardHeader className="relative z-10">
                   <div className="flex justify-between items-start mb-4">
@@ -1016,38 +1261,173 @@ export default function MySeniorValetHome() {
                       PRIMARY DATABASE
                     </Badge>
                   </div>
-                  <CardTitle className="text-2xl mb-2">Community Directory</CardTitle>
+                  <CardTitle className="text-2xl mb-2">AI-Powered Community Directory</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Complete Database Access
+                    Self-Healing Database with On-Demand Intelligence
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Access all 34,181+ senior living communities across the United States with verified pricing and real-time availability
+                    Revolutionary AI enrichment system that automatically improves data quality in real-time. Our self-healing architecture detects and corrects errors, enriches content on-demand, and guarantees true transparency without hidden fees or paywalls.
                   </p>
-                  
-                  <div className="flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+
+                  {/* Community count matching other cards */}
+                  <div className="inline-flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
                     <TrendingUp className="h-5 w-5 text-green-500" />
-                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">34,181+</span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Communities</span>
+                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">33,137+</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">AI-Enhanced Communities</span>
                   </div>
 
-                  <div className="space-y-2 mb-6">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">All U.S. Communities</span>
+                  {/* Flex container for side-by-side layout */}
+                  <div className="flex gap-3 mb-6">
+                    {/* Left side - AI Features */}
+                    <div className="space-y-2 flex-shrink-0 min-w-fit">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-purple-500 flex-shrink-0 animate-pulse" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">AI On-Demand Enrichment</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <RefreshCw className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Self-Healing Database</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">100% Transparency</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-indigo-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Real-Time Web Scraping</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Duplicate Auto-Removal</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Eye className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">No Hidden Fees Ever</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">5,936+ HUD Properties</span>
+                    
+                    {/* Right side - Global Coverage Areas Preview */}
+                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg">
+                      <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                        <span>🌍</span> Global Coverage
+                      </p>
+                      <div className="h-44 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-600 scrollbar-track-transparent">
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇺🇸</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">USA (28,348)</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇨🇦</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Canada (6,780)</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇦🇺</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Australia (2,231)</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇲🇽</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Mexico (405)</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇯🇵</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Japan (67)</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇨🇺</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Cuba (12)</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇵🇪</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Peru (10)</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇨🇷</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Costa Rica (5)</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🇵🇦</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Panama (5)</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-center text-blue-600 dark:text-blue-400 mt-2 font-medium">
+                        9 Countries • 3 Continents
+                      </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Real-Time Availability</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Verified Pricing Data</span>
+                  </div>
+
+                  {/* Horizontal Action Buttons Row */}
+                  <div className="mb-4 grid grid-cols-4 gap-2">
+                    {/* Traditional Search */}
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.location.href = '/map-search';
+                      }}
+                      className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
+                      <div className="flex flex-col items-center">
+                        <Search className="h-5 w-5 mb-1" />
+                        <div className="text-[10px] font-semibold leading-tight">Traditional Browse</div>
+                        <div className="text-[8px] text-gray-400 leading-tight">Filter & Sort</div>
+                      </div>
+                    </Button>
+
+                    {/* AI Intelligence */}
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.location.href = '/ai-search-intelligence?mode=simplified';
+                      }}
+                      className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                      <div className="flex flex-col items-center">
+                        <Sparkles className="h-5 w-5 mb-1" />
+                        <div className="text-[10px] font-semibold leading-tight">AI Assistant</div>
+                        <div className="text-[8px] text-white/80 leading-tight">Ask Questions</div>
+                      </div>
+                    </Button>
+
+                    {/* Live Heatmap */}
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.location.href = '/availability-heatmap';
+                      }}
+                      className="h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                      <div className="flex flex-col items-center">
+                        <Flame className="h-5 w-5 mb-1 animate-pulse" />
+                        <div className="text-[10px] font-semibold leading-tight">Live Heatmap</div>
+                        <div className="text-[8px] text-white/80 leading-tight">Availability Now</div>
+                      </div>
+                    </Button>
+
+                    {/* Market Analysis */}
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.location.href = '/competitive-analysis';
+                      }}
+                      className="h-auto bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                      <div className="flex flex-col items-center">
+                        <TrendingUp className="h-5 w-5 mb-1" />
+                        <div className="text-[10px] font-semibold leading-tight">Market Analysis</div>
+                        <div className="text-[8px] text-white/80 leading-tight">Price Compare</div>
+                      </div>
+                    </Button>
+                  </div>
+
+                  {/* AI Intelligence Box */}
+                  <div className="mb-4 p-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+                    <div className="flex items-start gap-3">
+                      <Brain className="h-6 w-6 text-purple-600 flex-shrink-0 animate-pulse" />
+                      <div className="flex-1">
+                        <h4 className="font-bold text-sm text-purple-900 dark:text-purple-100 mb-1">AI-Powered Intelligence</h4>
+                        <p className="text-xs text-purple-700 dark:text-purple-300 leading-relaxed">
+                          Our revolutionary system enriches data only when you search, saving costs while ensuring information is always fresh. 
+                          Features automatic duplicate removal, address correction, real-time photo collection, and comprehensive amenity extraction. 
+                          Every community gets smarter with each search!
+                        </p>
+                      </div>
                     </div>
                   </div>
 
@@ -1074,13 +1454,19 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
 
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
-                    <span className="font-semibold">Explore Directory</span>
+                  <Button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.location.href = '/community-directory';
+                    }}
+                    className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white hover:opacity-90 group-hover:shadow-lg transition-all relative overflow-hidden">
+                    <span className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
+                    <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
+                    <span className="font-semibold">Launch AI-Enhanced Directory</span>
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </CardContent>
               </Card>
-            </Link>
 
             {/* Senior Marketplace */}
             <Link href="/senior-marketplace">
@@ -1105,28 +1491,163 @@ export default function MySeniorValetHome() {
                     Professional services for your senior living needs - moving, legal, floral, transportation, and more
                   </p>
                   
-                  <div className="flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <TrendingUp className="h-5 w-5 text-green-500" />
-                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">1,500+</span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Vendor Services</span>
-                  </div>
-
-                  <div className="space-y-2 mb-6">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Moving & Relocation</span>
+                  {/* Flex container for side-by-side layout */}
+                  <div className="flex gap-3 mb-6">
+                    {/* Left side - Vendor count and Checkmarks */}
+                    <div className="space-y-2 flex-shrink-0 min-w-fit">
+                      <div className="flex items-center gap-2 mb-3">
+                        <TrendingUp className="h-5 w-5 text-green-500" />
+                        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">1,500+</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Vendors</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Moving & Relocation</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Legal & Financial</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Transportation</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Personal Services</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Legal & Financial Services</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Transportation Solutions</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Personal Services</span>
+                    
+                    {/* Right side - Maximum Height Scrollable Preview */}
+                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-lg">
+                      <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                        <span>🛒</span> Preview
+                      </p>
+                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-amber-300 dark:scrollbar-thumb-amber-600 scrollbar-track-transparent">
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🚚</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Senior Moving Companies</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">📦</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Downsizing Specialists</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">⚖️</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Elder Law Attorneys</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">💼</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Estate Planning</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏛️</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Financial Advisors</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🚗</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Medical Transportation</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🌸</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Florists & Gift Shops</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏠</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Home Modification</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🔒</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Insurance Brokers</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏦</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Veterans Benefits Assistance</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏡</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Real Estate Agents</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🧹</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Cleaning Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">✂️</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Beauty & Barber Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">👕</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Laundry Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">📸</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Portrait Photography</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🎉</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Event Planning</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🐕</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Pet Care Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">⛪</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Spiritual Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">📚</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Library Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🎭</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Entertainment Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🍴</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Catering Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">📱</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Tech Support Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏋️</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Fitness Trainers</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🎨</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Art & Craft Supplies</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏪</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Grocery Delivery</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">💐</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Memorial Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">📝</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Notary Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🔧</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Handyman Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🚐</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Shuttle Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🎁</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Gift Concierge</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-center text-amber-600 dark:text-amber-400 mt-2 font-medium">
+                        +more vendors
+                      </p>
                     </div>
                   </div>
 
@@ -1555,774 +2076,453 @@ export default function MySeniorValetHome() {
                 </CardContent>
               </Card>
             </Link>
-          </div>
-        </div>
-      </section>
 
-
-
-      {/* HUD Communities Showcase - Position 2 (Moved from Position 3) */}
-      <section ref={hudSectionRef} className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
-        {/* Background Government Building Image */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="Government building background"
-            className="w-full h-full object-cover opacity-75"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-green-50/40 to-emerald-50/40 dark:from-gray-900/60 dark:to-gray-800/60"></div>
-        </div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                HUD Communities & Government Verified
-              </h2>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-green-700 dark:text-green-300 font-medium">Government verified pricing</span>
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Income-based affordable</span>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">$57 - $800</div>
-              <div className="text-sm text-green-600 dark:text-green-300 font-medium">HUD verified</div>
-            </div>
-          </div>
-          
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-            {(hudCount as any)?.total || '6,078+'} affordable communities • 
-            Government transparency and income-based options
-          </p>
-          
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-md p-2 mb-4">
-            <p className="text-xs text-blue-800 dark:text-blue-200">
-              <span className="font-medium">Platform Promise:</span> Not all senior housing requires a six-figure budget. 
-              MySeniorValet shows everything — from $0 HUD properties to full-service memory care.
-            </p>
-          </div>
-        
-          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', height: '44rem'}}>
-            {/* Show HUD communities */}
-            {(!hudProperties || (hudProperties as any[]).length === 0) ? (
-              // Loading skeleton cards
-              Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[26rem] border border-gray-200 animate-pulse">
-                  <div className="aspect-[4/3] bg-gray-200"></div>
-                  <CardContent className="p-3">
-                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <>
-                {(hudProperties as any[]).slice(0, 25).map((community: any, index) => (
-                  <EnhancedCommunityCard
-                    key={`hud-${community.id}-${index}`}
-                    community={community}
-                    index={index}
-                    variant='hud'
-                  />
-                ))}
-                
-                {/* View All HUD Communities Card */}
-                <Link href="/search?careType=hud-affordable">
-                  <Card className="overflow-hidden flex-shrink-0 w-56 h-[26rem] border-2 border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-2xl transition-all cursor-pointer group">
-                    <div className="aspect-[4/3] bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
-                      <div className="text-center text-white">
-                        <Building2 className="h-16 w-16 mx-auto mb-3" />
-                        <h3 className="text-xl font-bold mb-2">View All HUD</h3>
-                        <p className="text-lg">Communities</p>
-                      </div>
+            {/* Family & Partner Services Section - NEW ROW */}
+            {/* Family Collaboration Center Card */}
+            <Link href="/family-collaboration">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-rose-400 relative overflow-hidden group transform hover:scale-105">
+                <div className="absolute inset-0 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 opacity-50"></div>
+                <CardHeader className="relative z-10">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg">
+                      <Users className="h-8 w-8" />
                     </div>
-                    
-                    <CardContent className="p-4">
-                      <div className="text-center">
-                        <h4 className="text-4xl font-bold text-green-600 dark:text-green-400 mb-2">
-                          {(hudCount as any)?.total || '6,078+'}
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                          Total HUD Communities
-                        </p>
-                        
-                        <div className="space-y-2 text-left mb-4">
-                          <div className="flex items-center text-sm">
-                            <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                            <span className="text-gray-700 dark:text-gray-300">Government verified pricing</span>
-                          </div>
-                          <div className="flex items-center text-sm">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                            <span className="text-gray-700 dark:text-gray-300">Income-based rates</span>
-                          </div>
-                          <div className="flex items-center text-sm">
-                            <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
-                            <span className="text-gray-700 dark:text-gray-300">Nationwide coverage</span>
-                          </div>
-                          <div className="flex items-center text-sm">
-                            <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
-                            <span className="text-gray-700 dark:text-gray-300">Live occupancy data</span>
-                          </div>
-                        </div>
-                        
-                        <div className="bg-green-100 dark:bg-green-900/30 rounded-lg p-3 mb-4">
-                          <p className="text-xs text-green-800 dark:text-green-200 font-medium">
-                            Search by income level, location, or specific needs
-                          </p>
-                        </div>
-                        
-                        <Button 
-                          className="w-full bg-green-600 hover:bg-green-700 text-white group-hover:scale-105 transition-transform"
-                        >
-                          Search All HUD Communities
-                          <ChevronRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      </section>
-
-
-
-      {/* Compact Benefits Bar */}
-      <section className="px-4 py-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-wrap justify-center items-center gap-4 text-sm">
-            <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-700/80 px-3 py-2 rounded-full">
-              <Brain className="w-4 h-4 text-blue-600" />
-              <span className="font-medium text-gray-900 dark:text-white">3-AI Verification</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-700/80 px-3 py-2 rounded-full">
-              <Shield className="w-4 h-4 text-green-600" />
-              <span className="font-medium text-gray-900 dark:text-white">HUD Verified</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-700/80 px-3 py-2 rounded-full">
-              <BarChart3 className="w-4 h-4 text-purple-600" />
-              <span className="font-medium text-gray-900 dark:text-white">34,171+ Communities</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Market Intelligence Section */}
-      <section className="px-4 py-12 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <MarketIntelligence />
-        </div>
-      </section>
-
-      {/* Florida Communities Section - Authentic Data */}
-      <section ref={floridaSectionRef} className="px-4 py-12 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              🌴 Florida Senior Living Paradise
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
-              Year-round sunshine and world-class senior communities
-            </p>
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <Badge className="bg-cyan-600 text-white px-3 py-1">
-                No State Income Tax
-              </Badge>
-              <Badge className="bg-blue-600 text-white px-3 py-1">
-                Beach & Golf Communities
-              </Badge>
-            </div>
-          </div>
-          
-          {/* Florida Communities Slider - Using Real API Data */}
-          {floridaLoading ? (
-            <div className="flex items-center justify-center h-40">
-              <div className="animate-spin w-8 h-8 border-4 border-cyan-600 border-t-transparent rounded-full"></div>
-            </div>
-          ) : !(floridaCommunities as any)?.communities?.length ? (
-            <div className="text-center text-gray-600 dark:text-gray-400">
-              <p>No Florida communities available at this time.</p>
-              <Button 
-                variant="outline" 
-                className="mt-4"
-                onClick={() => setLocation('/search?state=Florida')}
-              >
-                Search All Florida Communities
-              </Button>
-            </div>
-          ) : (
-            <div className="relative">
-              <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style={{height: '32rem'}}>
-                {((floridaCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => (
-                  <EnhancedCommunityCard
-                    key={`florida-${community.id}-${index}`}
-                    community={community}
-                    index={index}
-                    variant='featured'
-                  />
-                ))}
-              </div>
-              
-              <div className="text-center mt-6">
-                <Button 
-                  variant="outline" 
-                  className="border-cyan-300 text-cyan-700 hover:bg-cyan-50 dark:border-cyan-600 dark:text-cyan-300 dark:hover:bg-cyan-900/20"
-                  onClick={() => setLocation('/search?state=Florida')}
-                >
-                  View All Florida Communities
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Move-In Cost Calculator Section */}
-      <section className="px-4 py-12 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <MoveInCostCalculator />
-        </div>
-      </section>
-
-      {/* Cost Comparison Worksheet Section */}
-      <section className="px-4 py-12 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <CostComparisonWorksheet />
-        </div>
-      </section>
-
-      {/* Fort Worth, Texas Communities Promotional Section */}
-      <section ref={texasSectionRef} className="px-4 py-12 bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              ⭐ Fort Worth, Texas Communities
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
-              Discover premier senior living options in the heart of Texas
-            </p>
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <Badge className="bg-orange-600 text-white px-3 py-1">
-                Authentic Texas Hospitality
-              </Badge>
-              <Badge className="bg-red-600 text-white px-3 py-1">
-                Starting from $2,800/month
-              </Badge>
-            </div>
-          </div>
-          
-          {/* Fort Worth Communities Slider */}
-          <div className="relative">
-            {texasLoading ? (
-              <div className="flex items-center justify-center h-40">
-                <div className="animate-spin w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full"></div>
-              </div>
-            ) : !(texasCommunities as any)?.communities?.length ? (
-              <div className="text-center text-gray-600 dark:text-gray-400">
-                <p>No Texas communities available at this time.</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-2"
-                  onClick={() => setLocation('/search?state=TX')}
-                >
-                  Search Texas Communities
-                </Button>
-              </div>
-            ) : (
-              <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" style={{height: '44rem'}}>
-                {((texasCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => (
-                  <EnhancedCommunityCard
-                    key={`texas-${community.id}-${index}`}
-                    community={community}
-                    index={index}
-                    variant='featured'
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-
-
-      {/* Featured & Coastal Communities Section - Position 3 (Moved from Position 2) */}
-      <section ref={newYorkSectionRef} className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
-        {/* Background New York Skyline Image */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="New York skyline background"
-            className="w-full h-full object-cover opacity-75"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-50/40 to-blue-50/40 dark:from-gray-900/60 dark:to-gray-800/60"></div>
-        </div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                🗽 New York Communities
-              </h2>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-purple-700 dark:text-purple-300 font-medium">Empire State living</span>
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Metropolitan access</span>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">$3,200 - $4,800</div>
-              <div className="text-sm text-purple-600 dark:text-purple-300 font-medium">New York State</div>
-            </div>
-          </div>
-          
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-            {((newYorkCommunities as any)?.communities?.length || 0)} New York communities • 
-            Empire State senior living excellence
-          </p>
-        
-          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', height: '44rem'}}>
-            {/* Show New York communities */}
-            {newYorkLoading ? (
-              // Loading skeleton cards
-              Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
-                  <div className="aspect-[4/3] bg-gray-200"></div>
-                  <CardContent className="p-3">
-                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : ((newYorkCommunities as any)?.communities || []).length === 0 ? (
-              <div className="text-center text-gray-600 dark:text-gray-400 py-8 w-full">
-                <Building className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p>No New York communities available at this time.</p>
-              </div>
-            ) : (
-              ((newYorkCommunities as any)?.communities || []).slice(0, 6).map((community: any, index: number) => (
-                <EnhancedCommunityCard
-                  key={`newyork-${community.id}-${index}`}
-                  community={community}
-                  index={index}
-                  variant='featured'
-                />
-              ))
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Canadian Communities Section - NEW */}
-      <section ref={canadianSectionRef} className="px-4 py-12 relative dark:bg-gray-800">
-        {/* Background Canadian-themed styling */}
-        <div className="absolute inset-0 z-0">
-          <div className="w-full h-full bg-gradient-to-br from-red-100 via-white to-red-50 dark:from-red-900/20 dark:via-gray-900 dark:to-red-900/10">
-            {/* Canadian maple leaf pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-10 left-20 text-red-600 text-8xl">🍁</div>
-              <div className="absolute top-40 right-40 text-red-600 text-6xl rotate-45">🍁</div>
-              <div className="absolute bottom-20 left-1/3 text-red-600 text-7xl -rotate-12">🍁</div>
-              <div className="absolute bottom-10 right-20 text-red-600 text-5xl rotate-180">🍁</div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1 flex items-center gap-2">
-                <Flag className="h-6 w-6 text-red-600" />
-                {language === 'en' ? 'Featured Canadian Communities' : 'Communautés canadiennes en vedette'}
-              </h2>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-red-700 dark:text-red-300 font-medium">
-                  {language === 'en' ? 'Coast to coast coverage' : 'Couverture d\'un océan à l\'autre'}
-                </span>
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">
-                  {language === 'en' ? 'Bilingual services available' : 'Services bilingues disponibles'}
-                </span>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">$2,500 - $5,500 CAD</div>
-              <div className="text-sm text-red-600 dark:text-red-300 font-medium">
-                {language === 'en' ? 'Canadian communities' : 'Communautés canadiennes'}
-              </div>
-            </div>
-          </div>
-          
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-            {language === 'en' 
-              ? '24 communities across all 13 provinces and territories • 10 with bilingual French/English services' 
-              : '24 communautés dans les 13 provinces et territoires • 10 avec services bilingues français/anglais'}
-          </p>
-        
-          <div className="relative overflow-hidden">
-            <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth', height: '44rem'}}>
-              {/* Show Canadian communities */}
-              {canadianLoading ? (
-              // Loading skeleton cards
-              Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-64 h-96 border border-gray-200 animate-pulse">
-                  <div className="aspect-[4/3] bg-gray-200"></div>
-                  <CardContent className="p-3">
-                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <>
-                {((canadianCommunities as any[]) || []).slice(0, 12).map((community: any, index) => (
-                  <EnhancedCommunityCard
-                    key={`canadian-${community.id}-${index}`}
-                    community={community}
-                    index={index}
-                    variant='featured'
-                  />
-                ))}
-                
-                {/* View All Canadian Communities Card */}
-                <Link href="/canada">
-                  <Card className="overflow-hidden flex-shrink-0 w-64 h-96 border-2 border-red-500 bg-gradient-to-br from-red-50 to-white dark:from-red-900/20 dark:to-gray-900/20 hover:shadow-2xl transition-all cursor-pointer group">
-                    <div className="aspect-[4/3] bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
-                      <div className="text-center text-white">
-                        <Flag className="h-16 w-16 mx-auto mb-3" />
-                        <h3 className="text-xl font-bold mb-2">
-                          {language === 'en' ? 'View All' : 'Voir toutes'}
-                        </h3>
-                        <p className="text-lg">
-                          {language === 'en' ? 'Canadian Communities' : 'Communautés canadiennes'}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <CardContent className="p-4">
-                      <div className="text-center">
-                        <h4 className="text-4xl font-bold text-red-600 dark:text-red-400 mb-2">24</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                          {language === 'en' ? 'Total Canadian Communities' : 'Communautés canadiennes totales'}
-                        </p>
-                        
-                        <div className="space-y-2 text-left mb-4">
-                          <div className="flex items-center text-sm">
-                            <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
-                            <span className="text-gray-700 dark:text-gray-300">
-                              {language === 'en' ? '13 provinces & territories' : '13 provinces et territoires'}
-                            </span>
-                          </div>
-                          <div className="flex items-center text-sm">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                            <span className="text-gray-700 dark:text-gray-300">
-                              {language === 'en' ? '10 bilingual communities' : '10 communautés bilingues'}
-                            </span>
-                          </div>
-                          <div className="flex items-center text-sm">
-                            <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                            <span className="text-gray-700 dark:text-gray-300">
-                              {language === 'en' ? 'Coast to coast coverage' : 'D\'un océan à l\'autre'}
-                            </span>
-                          </div>
-                        </div>
-                        
-                        <Button 
-                          className="w-full bg-red-600 hover:bg-red-700 text-white group-hover:scale-105 transition-transform"
-                        >
-                          {language === 'en' ? 'Explore Canadian Communities' : 'Explorer les communautés'}
-                          <ChevronRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </>
-            )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Mexican Communities Section */}
-      <section ref={californiaSectionRef} className="px-4 py-8 relative overflow-hidden">
-        {/* Background with Mexican flag colors styling */}
-        <div className="absolute inset-0 z-0">
-          <div className="w-full h-full bg-gradient-to-br from-green-50 via-white to-red-50 dark:from-green-900/20 dark:via-gray-900 dark:to-red-900/20"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-green-100/30 via-white/20 to-red-100/30 dark:from-green-700/30 dark:via-gray-800/20 dark:to-red-700/30"></div>
-          {/* Mexican flag pattern overlay */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-10 left-20 text-green-600 text-8xl">🦅</div>
-            <div className="absolute top-40 right-40 text-red-600 text-6xl rotate-45">🌮</div>
-            <div className="absolute bottom-20 left-1/3 text-green-600 text-7xl -rotate-12">🌵</div>
-            <div className="absolute bottom-10 right-20 text-red-600 text-5xl rotate-180">🌺</div>
-          </div>
-        </div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-              <span className="text-2xl">🇲🇽</span>
-              Featured Mexican Communities
-            </h2>
-            <div className="text-right">
-              <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">$800 - $1,200 USD</div>
-              <div className="text-xs text-green-600 dark:text-green-400">Government-certified facilities</div>
-            </div>
-          </div>
-          
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{(mexicoCommunities as any[] || []).length || 101} authentic facilities • Ciudad de México, Cuernavaca, Guadalajara, Querétaro across 13 states</p>
-        
-          <div className="flex space-x-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
-            {mexicoLoading ? (
-              // Loading skeleton cards
-              Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-56 h-[30rem] border border-gray-200 animate-pulse">
-                  <div className="aspect-[4/3] bg-gray-200"></div>
-                  <CardContent className="p-3">
-                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              ((mexicoCommunities as any[] || []).slice(0, 12)).map((community: any, index: number) => (
-                <EnhancedCommunityCard
-                  key={`mexico-${community.id}-${index}`}
-                  community={community}
-                  index={index}
-                  variant='featured'
-                />
-              ))
-            )}
-          </div>
-        </div>
-      </section>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      {/* Care Marketplace Section - Removed and consolidated into Senior Healthcare Services Directory */}
-
-      {/* Hospital Directory Section - Removed and consolidated into Senior Healthcare Services Directory */}
-      {/* Government Resources Section - Removed and consolidated into Senior Resources Center page */}
-
-      {/* Partner Onboarding Section - Communities & Vendors */}
-      <section className="py-20 px-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Partner With MySeniorValet
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              List your community or service on the platform families trust for senior care decisions
-            </p>
-          </div>
-
-          {/* Two Cards Side by Side */}
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Communities Card - Enhanced to match Vendor quality */}
-            <Card className="shadow-xl overflow-hidden border-0 hover:shadow-2xl transition-shadow duration-300 relative">
-              {/* Premium badge */}
-              <div className="absolute top-0 right-0 bg-gradient-to-br from-blue-400 to-cyan-500 px-4 py-2 rounded-bl-lg">
-                <span className="text-xs font-bold text-white">34,171 COMMUNITIES</span>
-              </div>
-              
-              <CardContent className="p-8">
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg transform hover:scale-110 transition-transform duration-300">
-                    <Building className="w-8 h-8 text-white" />
+                    <Badge className="bg-gradient-to-r from-rose-500 to-pink-500 text-white px-3 py-1">
+                      FAMILIES
+                    </Badge>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-                    For Community Owners & Operators
-                  </h3>
-                  <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-                    List your senior living community and connect with qualified families actively searching for care
+                  <CardTitle className="text-2xl mb-2">Family Collaboration Center</CardTitle>
+                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Tour Planning & Communication Hub
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    Coordinate senior care decisions with TourMate™ scheduling, Tour Tracker reports, and family messaging.
                   </p>
                   
-                  {/* Enhanced Community Benefits */}
-                  <div className="space-y-3 mb-6 text-left w-full">
-                    <div className="flex items-start gap-3">
-                      <Star className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0 animate-pulse" />
-                      <div>
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Start Free - No Credit Card Required</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Claim your verified listing in minutes</p>
+                  {/* Flex container for side-by-side layout */}
+                  <div className="flex gap-3 mb-6">
+                    {/* Left side - Key Features and Checkmarks */}
+                    <div className="space-y-2 flex-shrink-0 min-w-fit">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Calendar className="h-5 w-5 text-rose-500 animate-pulse" />
+                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">TourMate™</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">System</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Schedule Tours Together</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Tour Tracker Reports</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Instant Messaging</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Share Favorites</span>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <TrendingUp className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Featured Placement Options</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Boost visibility in search & maps</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Tour Scheduler Integration</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Automated booking & lead capture</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <BarChart3 className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Analytics & Performance</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Track views, inquiries & conversions</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Enhanced Pricing Display */}
-                  <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-lg p-4 mb-6 w-full border border-blue-200 dark:border-blue-700">
-                    <div className="text-center">
-                      <p className="text-xs text-blue-600 dark:text-blue-400 font-semibold mb-1">4 TIER OPTIONS</p>
-                      <p className="text-sm font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                        Free → $149 → $249 → $349
+                    
+                    {/* Right side - Features Preview */}
+                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-rose-50/50 to-pink-50/50 dark:from-rose-900/10 dark:to-pink-900/10 rounded-lg">
+                      <p className="text-xs font-semibold text-rose-700 dark:text-rose-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                        <span>👨‍👩‍👧‍👦</span> Family Tools
                       </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Monthly subscriptions • Cancel anytime</p>
-                      <div className="mt-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded px-2 py-1">
-                        <p className="text-xs font-semibold">🎉 INTRODUCTORY PRICING - Take advantage now!</p>
-                        <p className="text-xs">More plans may come soon • Check back for updates</p>
+                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-rose-300 dark:scrollbar-thumb-rose-600 scrollbar-track-transparent">
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-3 w-3 text-rose-600" />
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Tour Scheduler</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Book tours at multiple communities</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-3 w-3 text-rose-600" />
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Tour Reports</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Compare visits side-by-side</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex items-center gap-2">
+                            <MessageSquare className="h-3 w-3 text-rose-600" />
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Family Chat</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Private family discussions</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex items-center gap-2">
+                            <Heart className="h-3 w-3 text-rose-600" />
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Favorites List</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Save & share top choices</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-3 w-3 text-rose-600" />
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Distance Calculator</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">See drive times for family</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex items-center gap-2">
+                            <DollarSign className="h-3 w-3 text-rose-600" />
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Cost Comparison</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Budget analysis tools</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex items-center gap-2">
+                            <CheckSquare className="h-3 w-3 text-rose-600" />
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Decision Matrix</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Pros & cons for each option</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-3 w-3 text-rose-600" />
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Notifications</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Tour reminders & updates</p>
+                        </div>
+                        <div className="mt-3 p-2 bg-gradient-to-r from-rose-500/20 to-pink-600/20 dark:from-rose-500/10 dark:to-pink-600/10 rounded border border-rose-300 dark:border-rose-700">
+                          <p className="text-xs font-semibold text-rose-700 dark:text-rose-300 text-center">🎯 100% FREE FOR FAMILIES</p>
+                          <p className="text-xs text-rose-600 dark:text-rose-400 text-center mt-1">No fees, ever!</p>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* CTA Button */}
-                  <Button
-                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 w-full"
-                    onClick={() => setLocation('/community-portal')}
-                  >
-                    <Building className="w-5 h-5 mr-2" />
-                    List My Community
+                  <Button className="w-full bg-gradient-to-r from-rose-500 to-pink-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                    <span className="font-semibold">Start Collaborating</span>
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
 
-            {/* Vendors Card - Enhanced */}
-            <Card className="shadow-xl overflow-hidden border-0 hover:shadow-2xl transition-shadow duration-300 relative">
-              {/* Premium badge */}
-              <div className="absolute top-0 right-0 bg-gradient-to-br from-yellow-400 to-amber-500 px-4 py-2 rounded-bl-lg">
-                <span className="text-xs font-bold text-gray-900">3 TIERS AVAILABLE</span>
-              </div>
-              
-              <CardContent className="p-8">
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg transform hover:scale-110 transition-transform duration-300">
-                    <Briefcase className="w-8 h-8 text-white" />
+            {/* Community Onboarding Card */}
+            <Link href="/community-portal">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-emerald-400 relative overflow-hidden group transform hover:scale-105">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 opacity-50"></div>
+                <CardHeader className="relative z-10">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg">
+                      <Building className="h-8 w-8" />
+                    </div>
+                    <Badge className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-3 py-1">
+                      COMMUNITIES
+                    </Badge>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-                    Vendor Marketplace
-                  </h3>
-                  <p className="text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
-                    Join 1,500+ vendors reaching families nationwide with trusted senior care services
+                  <CardTitle className="text-2xl mb-2">List Your Community</CardTitle>
+                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    {isLoading ? (
+                      <span className="animate-pulse">Loading community count...</span>
+                    ) : (
+                      `Join ${communityStats?.count ? Number(communityStats.count).toLocaleString() : '35,000'}+ Communities`
+                    )}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    Reach qualified families actively searching for senior care. Get your verified listing.
                   </p>
                   
-                  {/* Enhanced Vendor Benefits */}
-                  <div className="space-y-3 mb-6 text-left w-full">
-                    <div className="flex items-start gap-3">
-                      <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0 animate-pulse" />
-                      <div>
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Nationwide Coverage Available</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Reach families across all markets</p>
+                  {/* Flex container for side-by-side layout */}
+                  <div className="flex gap-3 mb-6">
+                    {/* Left side - Pricing and Checkmarks */}
+                    <div className="space-y-2 flex-shrink-0 min-w-fit">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Star className="h-5 w-5 text-yellow-500 animate-pulse" />
+                        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">Free</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">to Start</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">No Credit Card Required</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Tour Scheduler</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Analytics Dashboard</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Featured Placement</span>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
-                      <Users className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Reach 34,171 Communities</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Connect with families across North America</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <TrendingUp className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Premium Analytics & Leads</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Track performance & generate quality leads</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Shield className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Verified Partner Badge</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Build trust with official verification</p>
+                    
+                    {/* Right side - Pricing Tiers Preview */}
+                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 dark:from-emerald-900/10 dark:to-teal-900/10 rounded-lg">
+                      <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                        <span>💰</span> 4 Tier Options
+                      </p>
+                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-emerald-300 dark:scrollbar-thumb-emerald-600 scrollbar-track-transparent">
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Free Tier</p>
+                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">$0/mo</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Basic listing, photos, contact info</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Bronze Tier</p>
+                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">$149/mo</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Priority search, tour scheduler</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Silver Tier</p>
+                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">$249/mo</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Featured placement, analytics</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Gold Tier</p>
+                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">$349/mo</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Premium visibility, lead gen tools</p>
+                        </div>
+                        <div className="mt-3 p-2 bg-gradient-to-r from-green-500/20 to-emerald-600/20 dark:from-green-500/10 dark:to-emerald-600/10 rounded border border-green-300 dark:border-green-700">
+                          <p className="text-xs font-semibold text-green-700 dark:text-green-300 text-center">🎉 INTRODUCTORY PRICING</p>
+                          <p className="text-xs text-green-600 dark:text-green-400 text-center mt-1">Lock in rates now!</p>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Enhanced Pricing Display with Promotions */}
-                  <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/30 dark:to-indigo-900/30 rounded-lg p-4 mb-6 w-full border border-purple-200 dark:border-purple-700">
-                    <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg p-3 mb-3">
-                      <div className="flex items-center justify-center gap-4 text-xs sm:text-sm font-bold">
-                        <span>🎉 50% OFF First Month</span>
-                        <span className="hidden sm:inline">•</span>
-                        <span className="hidden sm:inline">💰 20% OFF Annual Plans</span>
+                  <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                    <span className="font-semibold">Get Started</span>
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Vendor Marketplace Card */}
+            <Link href="/vendor-marketplace-tiers">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-105">
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 opacity-50"></div>
+                <CardHeader className="relative z-10">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg">
+                      <Briefcase className="h-8 w-8" />
+                    </div>
+                    <Badge className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1">
+                      VENDORS
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-2xl mb-2">Vendor Partnership</CardTitle>
+                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Join 1,500+ Service Providers
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    Reach families nationwide with your senior care services across all markets.
+                  </p>
+                  
+                  {/* Flex container for side-by-side layout */}
+                  <div className="flex gap-3 mb-6">
+                    {/* Left side - Special Offer and Checkmarks */}
+                    <div className="space-y-2 flex-shrink-0 min-w-fit">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Sparkles className="h-5 w-5 text-purple-500 animate-pulse" />
+                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">50% OFF</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">First Month</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Nationwide Coverage</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Verified Badge</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Premium Analytics</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Lead Generation</span>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Professional tiers starting at:</p>
-                    <div className="flex flex-wrap justify-center gap-2 text-sm">
-                      <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300">$99 Basic (1 State)</Badge>
-                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">$249 Featured (3 States)</Badge>
-                      <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">$499 National Partner</Badge>
-                    </div>
-                    <div className="mt-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded px-2 py-1">
-                      <p className="text-xs font-semibold text-center">🚀 INTRODUCTORY PRICING - Take advantage now!</p>
-                      <p className="text-xs text-center">More plans may come soon • Check back for updates</p>
+                    
+                    {/* Right side - Coverage Tiers Preview */}
+                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 rounded-lg">
+                      <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                        <span>🌎</span> Coverage Tiers
+                      </p>
+                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-indigo-300 dark:scrollbar-thumb-indigo-600 scrollbar-track-transparent">
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Basic (1 State)</p>
+                            <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">$99/mo</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Single state coverage, basic listing</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Featured (3 States)</p>
+                            <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">$249/mo</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Regional presence, priority placement</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">National Partner</p>
+                            <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">$499/mo</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Nationwide reach, premium features</p>
+                        </div>
+                        <div className="mt-3 p-2 bg-gradient-to-r from-amber-500/20 to-orange-600/20 dark:from-amber-500/10 dark:to-orange-600/10 rounded border border-amber-300 dark:border-amber-700">
+                          <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 text-center">🚀 LIMITED TIME</p>
+                          <p className="text-xs text-amber-600 dark:text-amber-400 text-center mt-1">20% OFF Annual Plans</p>
+                        </div>
+                        <div className="p-2 bg-gradient-to-r from-purple-500/20 to-indigo-600/20 dark:from-purple-500/10 dark:to-indigo-600/10 rounded border border-purple-300 dark:border-purple-700">
+                          <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 text-center">Access to 34,171+ communities</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Enhanced CTA Buttons */}
-                  <div className="space-y-3 w-full">
-                    <Button
-                      className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 w-full transform hover:scale-105"
-                      onClick={() => setLocation('/vendor-marketplace-tiers')}
-                    >
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Explore Vendor Tiers
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="border-2 border-purple-300 dark:border-purple-600 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 font-medium px-8 py-2 rounded-lg transition-all duration-200 w-full"
-                      onClick={() => setLocation('/vendor-signup')}
-                    >
-                      Get Started Today
-                    </Button>
+                  <Button className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                    <span className="font-semibold">View Vendor Tiers</span>
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Senior Living Command Center Section - Moved after Resources */}
+      <section className="relative overflow-hidden">
+        {/* Command Center Header with Beautiful Gradient - matching marketplace page */}
+        <div className="px-4 py-12 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
+          {/* Animated gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-pink-900/20 animate-pulse"></div>
+          
+          <div className="max-w-7xl mx-auto relative z-10">
+            <div className="text-center">
+              <h2 className="text-5xl font-bold text-white mb-4">
+                Senior Living Command Center
+              </h2>
+              <div className="flex flex-col items-center gap-3 mb-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white">
+                  <Brain className="w-5 h-5" />
+                  <span className="text-sm font-semibold">AI-Powered Platform • FREE FOR FAMILIES ALWAYS</span>
+                </div>
+                <div className="flex flex-wrap items-center justify-center gap-2 px-4">
+                  <span className="text-xs text-white/80">Powered by:</span>
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-2 py-0.5 text-xs">
+                      1. Perplexity AI (Primary - Web Search)
+                    </Badge>
+                    <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 text-xs">
+                      2. Claude Sonnet 4.0 (Secondary - Analysis)
+                    </Badge>
+                    <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-2 py-0.5 text-xs">
+                      3. ChatGPT-4o (Backup - Verification)
+                    </Badge>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="text-xl text-blue-100 max-w-4xl mx-auto mb-8">
+                <p className="mb-6">Access the most comprehensive senior living ecosystem ever assembled - over 42,000 resources spanning communities, vendors, healthcare, and education. Every listing enhanced by AI-powered search, Red Tag specials, and real-time market intelligence.</p>
+                <div className="space-y-2 text-lg">
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-2xl">🏘️</span>
+                    <span className="font-semibold">34,181+ Communities</span> with verified HUD pricing
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-2xl">🛍️</span>
+                    <span className="font-semibold">1,500+ Vendor Services</span> for senior living needs
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-2xl">🏥</span>
+                    <span className="font-semibold">6,800+ Healthcare Providers</span> nationwide
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-2xl">📚</span>
+                    <span className="font-semibold">100+ Educational Resources</span> for informed decisions
+                  </div>
+                </div>
+              </div>
+              
+              {/* Feature Badges */}
+              <div className="flex flex-wrap justify-center gap-3 mb-8">
+                <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 text-sm font-bold shadow-lg">
+                  <Flame className="w-4 h-4 mr-2" />
+                  Red Tag Specials
+                </Badge>
+                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
+                  <Brain className="w-4 h-4 mr-2" />
+                  AI Market Intelligence
+                </Badge>
+                <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
+                  <Calculator className="w-4 h-4 mr-2" />
+                  Cost Calculators
+                </Badge>
+                <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
+                  <MapPin className="w-4 h-4 mr-2" />
+                  42,481+ Total Resources
+                </Badge>
+                <Badge className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
+                  <Shield className="w-4 h-4 mr-2" />
+                  Complete Care Spectrum
+                </Badge>
+              </div>
+              
+              {/* Quick Stats Bar - like marketplace page */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-2xl font-bold text-white">34,181+</div>
+                    <div className="text-xs text-blue-100">Communities</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-2xl font-bold text-white">1,500+</div>
+                    <div className="text-xs text-blue-100">Vendors</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-2xl font-bold text-white">6,800+</div>
+                    <div className="text-xs text-blue-100">Healthcare</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                  <CardContent className="p-3 text-center">
+                    <div className="text-2xl font-bold text-white">100+</div>
+                    <div className="text-xs text-blue-100">Resources</div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </div>
+        </div>
+      </section>
 
-          {/* Combined Disclaimer */}
+      {/* Partnership Information Section - Simplified */}
+      <section className="py-12 px-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          {/* Partnership Disclaimer */}
           <div className="mt-12 bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
             <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
               <Shield className="w-4 h-4 text-gray-600" />
