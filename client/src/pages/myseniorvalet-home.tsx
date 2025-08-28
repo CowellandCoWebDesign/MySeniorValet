@@ -177,33 +177,6 @@ function HeroSectionWithTransformingSearch() {
                 className="w-full pl-10 sm:pl-12 pr-2 sm:pr-4 py-3 sm:py-4 text-base sm:text-lg bg-transparent border-0 focus:outline-none text-gray-900 placeholder-gray-500"
               />
               
-              {/* View Toggle - Hide on small mobile */}
-              {isSearchActive && (
-                <div className="hidden sm:flex items-center mr-2 bg-gray-100 rounded-lg p-1">
-                  <Button
-                    size="sm"
-                    variant={viewMode === 'list' ? 'default' : 'ghost'}
-                    onClick={() => setViewMode('list')}
-                    className="px-2 py-1"
-                  >
-                    <List className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={viewMode === 'map' ? 'default' : 'ghost'}
-                    onClick={() => {
-                      setViewMode('map');
-                      if (searchQuery) {
-                        setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
-                      }
-                    }}
-                    className="px-2 py-1"
-                  >
-                    <MapIcon className="w-4 h-4" />
-                  </Button>
-                </div>
-              )}
-              
               {/* Clear Button - Show only when text exists */}
               {searchQuery && (
                 <Button
@@ -222,6 +195,45 @@ function HeroSectionWithTransformingSearch() {
               </Badge>
             </div>
           </div>
+          
+          {/* View Toggle - Show when search is active */}
+          {isSearchActive && (
+            <div className="flex justify-center mt-3">
+              <div className="inline-flex bg-white rounded-full shadow-lg p-1">
+                <Button
+                  size="sm"
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
+                  onClick={() => setViewMode('list')}
+                  className={`px-4 py-2 rounded-full transition-all ${
+                    viewMode === 'list' 
+                      ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                  }`}
+                >
+                  <List className="w-4 h-4 mr-2" />
+                  <span className="text-sm font-medium">List View</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant={viewMode === 'map' ? 'default' : 'ghost'}
+                  onClick={() => {
+                    setViewMode('map');
+                    if (searchQuery) {
+                      setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
+                    }
+                  }}
+                  className={`px-4 py-2 rounded-full transition-all ${
+                    viewMode === 'map' 
+                      ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                      : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                  }`}
+                >
+                  <MapIcon className="w-4 h-4 mr-2" />
+                  <span className="text-sm font-medium">Map View</span>
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
           {/* Trust Indicators - Only show when not searching */}
