@@ -126,7 +126,8 @@ export function UnifiedSearch({
                             queryToSearch.toLowerCase().includes('near') ||
                             queryToSearch.toLowerCase().includes('?');
       
-      const endpoint = isComplexQuery ? '/api/natural-language/search' : '/api/search/unified';
+      // THE KRAKEN NLP SYSTEM - Always use NLP for intelligent search
+      const endpoint = '/api/nlp/search';
       
       const response = await fetch(endpoint, {
         method: 'POST',

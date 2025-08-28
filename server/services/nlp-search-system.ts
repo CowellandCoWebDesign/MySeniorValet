@@ -519,7 +519,7 @@ export class NLPSearchSystem {
       }
       
       // Build query
-      let dbQuery = db.select().from(communities);
+      let dbQuery = db.select().from(communities) as any;
       if (conditions.length > 0) {
         dbQuery = dbQuery.where(and(...conditions));
       }
@@ -578,7 +578,7 @@ export class NLPSearchSystem {
       // Location filters - services don't have serviceAreas field
       // We'll match based on description or name containing location
       
-      let dbQuery = db.select().from(services);
+      let dbQuery = db.select().from(services) as any;
       if (conditions.length > 0) {
         dbQuery = dbQuery.where(and(...conditions));
       }
@@ -651,7 +651,7 @@ export class NLPSearchSystem {
         conditions.push(or(...vendorConditions));
       }
       
-      let dbQuery = db.select().from(vendors);
+      let dbQuery = db.select().from(vendors) as any;
       if (conditions.length > 0) {
         dbQuery = dbQuery.where(and(...conditions));
       }

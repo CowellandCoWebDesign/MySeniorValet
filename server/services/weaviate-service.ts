@@ -100,6 +100,22 @@ class WeaviateService {
               type: 'text',
             },
           },
+          vectorIndexConfig: {
+            distance: 'cosine',
+            type: 'hnsw',
+            hnsw: {
+              maxConnections: 64,
+              efConstruction: 256,
+              ef: 128,
+              dynamicEfMin: 100,
+              dynamicEfMax: 500,
+              dynamicEfFactor: 8,
+              vectorCacheMaxObjects: 1000000,
+              flatSearchCutoff: 40000,
+              skip: false,
+              cleanupIntervalSeconds: 300
+            }
+          },
           properties: [
             {
               name: 'communityId',
