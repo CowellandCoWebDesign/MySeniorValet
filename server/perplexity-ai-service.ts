@@ -117,6 +117,15 @@ CRITICAL INSTRUCTIONS:
       const sources = response.data.citations || [];
       const images = response.data.images || [];
       
+      // Log the unfiltered Perplexity response for debugging
+      console.log('\n=== UNFILTERED PERPLEXITY RESPONSE ===');
+      console.log(`Query: ${query}`);
+      console.log('Raw Response:');
+      console.log(summary);
+      console.log('Sources:', sources);
+      console.log('Images found:', images?.length || 0);
+      console.log('=== END PERPLEXITY RESPONSE ===\n');
+      
       return { summary, sources, images };
     } catch (error: any) {
       console.error('Perplexity API error:', error.response?.data || error.message);
