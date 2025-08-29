@@ -589,29 +589,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
             </div>
           )}
 
-          {/* AI-Enriched Description - NEW PROMINENT DISPLAY */}
-          {community?.description && community?.description.length > 100 && (
-            <div className="mb-6 p-5 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-xl border-2 border-purple-300 dark:border-purple-700 shadow-lg">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-bold text-xl flex items-center text-purple-900 dark:text-purple-100">
-                  <Sparkles className="w-6 h-6 mr-2 text-purple-600 animate-pulse" />
-                  AI-Generated Community Overview
-                </h4>
-                <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs px-3 py-1">
-                  ✨ AI Enhanced
-                </Badge>
-              </div>
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                <p className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-line">
-                  {community.description}
-                </p>
-              </div>
-              <div className="mt-3 text-xs text-purple-600 dark:text-purple-400 flex items-center">
-                <CheckCircle className="w-3 h-3 mr-1" />
-                AI-enriched content generated from verified data sources
-              </div>
-            </div>
-          )}
+
 
           {/* Community-Specific Web Intelligence - What We Found About */}
           {(realTimeData || localVerificationReport?.consensus?.verifiedFacts?.length > 0 || isVerifying) && (
@@ -693,43 +671,33 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     
                     {/* Show Perplexity search content if available */}
                     {localVerificationReport?.verificationResults?.perplexityData?.searchContent && !localVerificationReport?.verificationResults?.webIntelligence?.description && (
-                      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                          {(() => {
-                            // Extract meaningful content from search results
-                            const content = localVerificationReport.verificationResults.perplexityData.searchContent;
-                            
-                            // Check if content is mostly "Information not available" responses
-                            if (content.includes('Information not available') && content.split('Information not available').length > 3) {
-                              // Provide a better user-friendly message
-                              return `${community?.name} is a senior living community located in ${community?.city}, ${community?.state}. While comprehensive online information is limited, this community provides senior care services in your area. We recommend contacting them directly for current information about services, pricing, and availability.`;
-                            }
-                            
-                            // Check if content mentions other communities (wrong results)
-                            if (content.includes('Dominion Village') && content.includes('Poquoson') && community?.city !== 'Poquoson') {
-                              return `${community?.name} in ${community?.city}, ${community?.state} appears to be a smaller, locally-operated facility. Note: Search results may show other communities with similar names in different locations. For accurate information about this specific location, please contact the community directly.`;
-                            }
-                            
-                            // Clean and format the content normally
-                            const cleanContent = content
-                              .replace(/\*\*/g, '')
-                              .replace(/##/g, '')
-                              .replace(/\n\n+/g, '\n\n')
-                              .replace(/OFFICIAL WEBSITE:/g, 'Website:')
-                              .replace(/DIRECTORY LISTINGS:/g, 'Listed on:')
-                              .replace(/CURRENT PRICING:/g, 'Pricing:')
-                              .replace(/CONTACT INFORMATION:/g, 'Contact:')
-                              .replace(/CARE LEVELS OFFERED:/g, 'Care Types:')
-                              .replace(/KEY AMENITIES:/g, 'Amenities:')
-                              .replace(/AVAILABILITY STATUS:/g, 'Availability:')
-                              .replace(/RECENT UPDATES:/g, 'Recent Updates:')
-                              .replace(/MANAGEMENT\/OWNERSHIP:/g, 'Management:')
-                              .replace(/Information not available/g, 'Contact for details')
-                              .trim();
-                            
-                            return cleanContent.length > 800 ? cleanContent.substring(0, 800) + '...' : cleanContent;
-                          })()}
-                        </p>
+                      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg space-y-4">
+                        {/* Full unfiltered response in a structured format */}
+                        <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                          {localVerificationReport.verificationResults.perplexityData.searchContent}
+                        </div>
+                        
+                        {/* Show sources */}
+                        {localVerificationReport?.verificationResults?.perplexityData?.sources?.length > 0 && (
+                          <div className="border-t pt-3">
+                            <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Sources:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {localVerificationReport.verificationResults.perplexityData.sources.map((source: string, idx: number) => (
+                                <a 
+                                  key={idx}
+                                  href={source}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                                  title={source}
+                                >
+                                  <ExternalLink className="w-3 h-3 inline mr-1" />
+                                  Source {idx + 1}
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                     
