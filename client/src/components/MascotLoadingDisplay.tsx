@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import valetGentleman from '@assets/gentleman-mascot.png';
+import valetGentleman from '@/assets/valet-mascot.png';
 import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
 import { getShuffledFacts } from '@/lib/loadingFacts';
 

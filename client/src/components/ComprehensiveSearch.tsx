@@ -283,14 +283,14 @@ export function ComprehensiveSearch({
           </div>
         </form>
 
-        {/* Loading Display with Thinker */}
+        {/* Loading Display with Valet Mascot */}
         <MascotLoadingDisplay 
-          title="Deep in Thought..."
-          subtitle={`Contemplating 32,970+ communities for "${query}"`}
+          title="Your Senior Valet at Work"
+          subtitle={`Searching 32,970+ communities for "${query}"`}
           showProgress={true}
           progressDuration={3}
           factRotationSpeed={2500}
-          compact={false}
+          compact={true}
         />
       </div>
     );
