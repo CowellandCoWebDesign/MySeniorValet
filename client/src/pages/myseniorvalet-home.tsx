@@ -253,7 +253,7 @@ function HeroSectionWithTransformingSearch() {
 
   return (
     <>
-      <section className="relative h-screen"
+      <section className="relative min-h-screen"
         style={{
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
         }}
@@ -278,9 +278,9 @@ function HeroSectionWithTransformingSearch() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
         </div>
         
-        <div className="relative z-10 h-full flex items-center px-2 sm:px-4">
+        <div className="relative z-10 flex flex-col justify-center min-h-screen px-2 sm:px-4 py-20">
         {/* Hero Content Container */}
-        <div className="w-full">
+        <div className="w-full flex-grow flex flex-col justify-center">
         {/* Hero Text - Never Changes */}
         <div className="w-full max-w-4xl mx-auto mb-6 text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight">
@@ -392,9 +392,9 @@ function HeroSectionWithTransformingSearch() {
             />
           </div>
           
-          {/* Search Results - Attached directly to search bar */}
+          {/* Search Results - Flows naturally in hero section */}
           {isSearchActive && (viewMode === 'list' || viewMode === 'learn') && (
-            <div className="absolute top-full left-0 right-0 w-full max-w-2xl z-50">
+            <div className="w-full max-w-2xl mt-0">
               {/* Results Header */}
               <div className="">
                 <div className="bg-gray-800/95 backdrop-blur-sm px-4 py-3 border-x border-b border-gray-700 rounded-b-xl">
@@ -542,7 +542,6 @@ function HeroSectionWithTransformingSearch() {
         )}
         
         </div>
-        
         </div>
         
         {/* Hero Mascot Panel - Temporarily disabled */}
