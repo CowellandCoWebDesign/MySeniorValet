@@ -110,20 +110,16 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
         <div className="flex items-center justify-between h-20">
           {/* Left Section: Logo and Desktop Nav */}
           <div className="flex items-center space-x-8">
-            {/* Mobile Menu Button - Rich with Emoji */}
+            {/* Mobile Menu Button - Clean Design */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild className="lg:hidden">
-                <Button
-                  variant="outline"
-                  size="default"
-                  className="border-2 border-purple-400 dark:border-purple-600 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 hover:from-purple-100 hover:to-blue-100 dark:hover:from-gray-700 dark:hover:to-gray-800 text-gray-700 dark:text-gray-300 font-bold px-4 py-2.5 flex items-center gap-2 shadow-md hover:shadow-lg transition-all duration-200"
+                <button
+                  className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200"
                   aria-label="Open menu"
                 >
-                  <span className="text-lg">📋</span>
-                  <Menu className="h-5 w-5" />
-                  <span className="text-sm uppercase tracking-wide">Menu</span>
-                  <span className="text-lg">✨</span>
-                </Button>
+                  <span className="text-2xl">📋</span>
+                  <span className="text-sm font-bold uppercase tracking-wide">Menu</span>
+                </button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[320px] p-0 bg-white dark:bg-gray-900">
                 <SheetHeader className="p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
@@ -294,19 +290,15 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 <Accessibility className="h-6 w-6" />
               </Button>
             </Link>
-            {/* Language Selector - Professional */}
+            {/* Language Selector - Clean Flag Only */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="default" 
-                  className="hidden sm:flex items-center space-x-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 px-3 py-2 rounded-xl"
+                <button 
+                  className="text-3xl hover:scale-110 transition-transform duration-200 cursor-pointer focus:outline-none"
+                  aria-label="Select language"
                 >
-                  <Globe className="h-4 w-4" />
-                  <span className="text-lg">{currentLanguage.flag}</span>
-                  <span className="hidden lg:inline font-medium text-sm">{currentLanguage.label}</span>
-                  <ChevronDown className="h-3 w-3" />
-                </Button>
+                  {currentLanguage.flag}
+                </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuLabel>Select Language</DropdownMenuLabel>
@@ -347,7 +339,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 <Bell className="h-5 w-5" />
                 {unreadCount && Number(unreadCount) > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500">
-                    {Number(unreadCount)}
+                    {String(Number(unreadCount))}
                   </Badge>
                 )}
               </Button>
