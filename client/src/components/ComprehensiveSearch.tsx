@@ -140,6 +140,18 @@ export function ComprehensiveSearch({
       }
       
       const result = await response.json();
+      
+      // Process metadata to include fallback information
+      if (result.searchMetadata) {
+        result.metadata = {
+          ...result.searchMetadata,
+          fallbackApplied: result.searchMetadata.fallbackApplied,
+          fallbackMessage: result.searchMetadata.fallbackMessage,
+          originalResultCount: result.searchMetadata.originalFiltersRequested ? 0 : result.totalResults,
+          searchLocation: extractLocationFromQuery(searchQuery)
+        };
+      }
+      
       onSearch(result);
       
     } catch (error) {
@@ -220,6 +232,22 @@ export function ComprehensiveSearch({
 
   const searchIndicator = getSearchTypeIndicator();
   const SearchIcon = searchIndicator.icon;
+
+  // Helper function to extract location from search query
+  const extractLocationFromQuery = (query: string) => {
+    const locationKeywords = ['in', 'near', 'at'];
+    for (const keyword of locationKeywords) {
+      const index = query.toLowerCase().indexOf(keyword);
+      if (index !== -1) {
+        return query.substring(index + keyword.length).trim();
+      }
+    }
+    // If no location keyword, check if query looks like a location
+    if (query.match(/^[a-zA-Z\s]+(,\s*[A-Z]{2})?$/)) {
+      return query;
+    }
+    return null;
+  };
 
   return (
     <div className={`relative w-full ${className}`}>

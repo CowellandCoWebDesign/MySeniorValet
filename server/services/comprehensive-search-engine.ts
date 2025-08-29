@@ -109,7 +109,7 @@ export class ComprehensiveSearchEngine {
         totalResults = parseInt(count.toString());
         
         fallbackApplied = true;
-        fallbackMessage = "Oh no! We didn't find many communities matching your exact filters, but here's what we found in your area! Most detailed information (pricing, amenities, photos) becomes available after you select a community through our live enrichment system.";
+        fallbackMessage = "Oh no! We didn't find many communities matching all your filters, but here's what we found in your area! Most detailed information (pricing, amenities, photos) becomes available when you click on a community through our live enrichment system.";
       }
     }
     

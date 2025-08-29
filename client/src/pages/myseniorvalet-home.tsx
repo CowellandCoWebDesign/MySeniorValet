@@ -41,6 +41,7 @@ import { UnifiedSearch } from '@/components/UnifiedSearch';
 import { AutoExpandingSearch } from '@/components/AutoExpandingSearch';
 import ComprehensiveSearch from '@/components/ComprehensiveSearch';
 import LearnModeInterface from '@/components/LearnModeInterface';
+import GracefulFallbackMessage from '@/components/GracefulFallbackMessage';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 
@@ -503,6 +504,18 @@ function HeroSectionWithTransformingSearch() {
                 </div>
               ) : (
                 <div className="space-y-3 pb-4">
+                  {/* Graceful Fallback Message */}
+                  {searchResults?.metadata?.fallbackApplied && (
+                    <GracefulFallbackMessage
+                      message={searchResults.metadata.fallbackMessage || "Oh no! We didn't find many communities matching all your filters, but here's what we found in your area!"}
+                      originalResultCount={searchResults.metadata.originalResultCount || 0}
+                      totalFallbackResults={searchResults?.results?.length || 0}
+                      searchQuery={searchQuery}
+                      location={searchResults.metadata.searchLocation}
+                      careTypes={searchResults.metadata.careTypes}
+                    />
+                  )}
+                  
                   {searchResults?.results && searchResults.results.length > 0 ? (
                     <>
                       {searchResults.results.slice(0, visibleResults).map((community: any, index: number) => (
