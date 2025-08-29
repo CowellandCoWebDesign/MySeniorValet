@@ -90,17 +90,17 @@ export const SEOTemplates = {
     keywords: 'levels of senior care, types of senior living, care spectrum, assisted living vs memory care, senior care options'
   },
   healthcare: {
-    title: 'Healthcare Directory - Hospitals & Medical Centers',
+    title: 'AI-Powered Senior Healthcare Services Directory - Hospitals & Medical Centers',
     description: 'Find hospitals, medical centers, and healthcare facilities near senior living communities. Medicare & Medicaid accepted locations.',
     keywords: 'senior healthcare, hospitals near me, Medicare facilities, medical centers, senior health services'
   },
   marketplace: {
-    title: 'Senior Living Marketplace - Products & Services',
+    title: 'AI-Powered Senior Commercial Services Directory - Products & Services',
     description: 'Essential products and services for senior living. Medical supplies, mobility aids, home modifications, and senior-friendly products.',
     keywords: 'senior products, elderly care supplies, mobility aids, senior living marketplace, medical equipment'
   },
   resources: {
-    title: 'Senior Living Resources & Guides',
+    title: 'AI-Powered Senior Resources and Support Directory',
     description: 'Comprehensive guides for senior living decisions. Medicare, Medicaid, VA benefits, financial planning, and family resources.',
     keywords: 'senior living resources, Medicare guide, Medicaid help, VA benefits, senior care guides'
   },

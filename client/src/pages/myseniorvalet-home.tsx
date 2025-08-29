@@ -1240,7 +1240,7 @@ export default function MySeniorValetHome() {
                       PRIMARY DATABASE
                     </Badge>
                   </div>
-                  <CardTitle className="text-2xl mb-2">AI-Powered Community Directory</CardTitle>
+                  <CardTitle className="text-2xl mb-2">AI-Powered Senior Living Directory</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Self-Healing Database with On-Demand Intelligence
                   </CardDescription>
@@ -1462,7 +1462,7 @@ export default function MySeniorValetHome() {
                       COMMERCIAL
                     </Badge>
                   </div>
-                  <CardTitle className="text-2xl mb-2">Senior Marketplace</CardTitle>
+                  <CardTitle className="text-2xl mb-2">AI-Powered Senior Commercial Services Directory</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Commercial Vendor Services
                   </CardDescription>
@@ -1653,7 +1653,7 @@ export default function MySeniorValetHome() {
                       HEALTHCARE
                     </Badge>
                   </div>
-                  <CardTitle className="text-2xl mb-2">Senior Healthcare Services Directory</CardTitle>
+                  <CardTitle className="text-2xl mb-2">AI-Powered Senior Healthcare Services Directory</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Healthcare & Care Providers
                   </CardDescription>
@@ -1844,7 +1844,7 @@ export default function MySeniorValetHome() {
                       RESOURCES
                     </Badge>
                   </div>
-                  <CardTitle className="text-2xl mb-2">Senior Resources and Support Center</CardTitle>
+                  <CardTitle className="text-2xl mb-2">AI-Powered Senior Resources and Support Directory</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Educational Content & Support
                   </CardDescription>
