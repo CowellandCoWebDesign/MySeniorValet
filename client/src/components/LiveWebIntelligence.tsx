@@ -348,7 +348,7 @@ export function LiveWebIntelligence({
               Live Intelligence Found
             </CardTitle>
             <CardDescription>
-              Real-time information from {intelligence.sources.length} sources
+              Real-time information from {intelligence?.sources?.length || 0} sources
             </CardDescription>
           </div>
           <Button 
@@ -368,14 +368,14 @@ export function LiveWebIntelligence({
       {isExpanded && (
         <CardContent className="space-y-6">
           {/* Official Website */}
-          {intelligence.officialWebsite && (
+          {intelligence?.officialWebsite && (
             <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20">
               <div className="flex items-center gap-2">
                 <Globe className="h-4 w-4 text-blue-600" />
                 <span className="font-medium">Official Website</span>
               </div>
               <a 
-                href={intelligence.officialWebsite}
+                href={intelligence?.officialWebsite}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 text-blue-600 hover:underline"
@@ -387,16 +387,16 @@ export function LiveWebIntelligence({
           )}
 
           {/* Contact Information */}
-          {(intelligence.phone || intelligence.address) && (
+          {(intelligence?.phone || intelligence?.address) && (
             <div className="space-y-2">
               <h4 className="font-medium text-sm">Contact Information</h4>
-              {intelligence.phone && (
+              {intelligence?.phone && (
                 <div className="flex items-center gap-2 text-sm">
                   <Phone className="h-4 w-4 text-muted-foreground" />
                   <span>{intelligence.phone}</span>
                 </div>
               )}
-              {intelligence.address && (
+              {intelligence?.address && (
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   <span>{intelligence.address}</span>
@@ -406,23 +406,23 @@ export function LiveWebIntelligence({
           )}
 
           {/* Pricing Information */}
-          {intelligence.pricing && Object.keys(intelligence.pricing).length > 0 && (
+          {intelligence?.pricing && Object.keys(intelligence.pricing).length > 0 && (
             <div className="space-y-2">
               <h4 className="font-medium text-sm">Pricing Information</h4>
               <div className="grid gap-2">
-                {intelligence.pricing.assistedLiving && (
+                {intelligence?.pricing?.assistedLiving && (
                   <div className="flex items-center justify-between p-2 rounded bg-muted/50">
                     <span className="text-sm">Assisted Living</span>
                     <span className="font-semibold">{intelligence.pricing.assistedLiving}</span>
                   </div>
                 )}
-                {intelligence.pricing.memoryCare && (
+                {intelligence?.pricing?.memoryCare && (
                   <div className="flex items-center justify-between p-2 rounded bg-muted/50">
                     <span className="text-sm">Memory Care</span>
                     <span className="font-semibold">{intelligence.pricing.memoryCare}</span>
                   </div>
                 )}
-                {intelligence.pricing.independentLiving && (
+                {intelligence?.pricing?.independentLiving && (
                   <div className="flex items-center justify-between p-2 rounded bg-muted/50">
                     <span className="text-sm">Independent Living</span>
                     <span className="font-semibold">{intelligence.pricing.independentLiving}</span>
@@ -433,11 +433,11 @@ export function LiveWebIntelligence({
           )}
 
           {/* Care Levels */}
-          {intelligence.careLevels && intelligence.careLevels.length > 0 && (
+          {intelligence?.careLevels && intelligence.careLevels.length > 0 && (
             <div className="space-y-2">
               <h4 className="font-medium text-sm">Care Levels Offered</h4>
               <div className="flex flex-wrap gap-2">
-                {intelligence.careLevels.map((level, idx) => (
+                {intelligence?.careLevels?.map((level, idx) => (
                   <Badge key={idx} variant="secondary">
                     {level === 'Assisted Living' && <Heart className="h-3 w-3 mr-1" />}
                     {level === 'Memory Care' && <Brain className="h-3 w-3 mr-1" />}
@@ -451,11 +451,11 @@ export function LiveWebIntelligence({
           )}
 
           {/* Amenities */}
-          {intelligence.amenities && intelligence.amenities.length > 0 && (
+          {intelligence?.amenities && intelligence.amenities.length > 0 && (
             <div className="space-y-2">
               <h4 className="font-medium text-sm">Amenities</h4>
               <div className="flex flex-wrap gap-2">
-                {intelligence.amenities.map((amenity, idx) => (
+                {intelligence?.amenities?.map((amenity, idx) => (
                   <Badge key={idx} variant="outline">
                     {amenity}
                   </Badge>
@@ -465,14 +465,14 @@ export function LiveWebIntelligence({
           )}
 
           {/* Photos */}
-          {intelligence.photos && intelligence.photos.length > 0 && (
+          {intelligence?.photos && intelligence.photos.length > 0 && (
             <div className="space-y-2">
               <h4 className="font-medium text-sm flex items-center gap-2">
                 <Camera className="h-4 w-4" />
                 Photos from Official Website
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {intelligence.photos.slice(0, 6).map((photo, idx) => (
+                {intelligence?.photos?.slice(0, 6).map((photo, idx) => (
                   <div key={idx} className="aspect-square rounded-lg overflow-hidden bg-muted">
                     <img 
                       src={photo} 
@@ -490,24 +490,24 @@ export function LiveWebIntelligence({
           )}
 
           {/* Description */}
-          {intelligence.description && (
+          {intelligence?.description && (
             <div className="space-y-2">
               <h4 className="font-medium text-sm">About</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {intelligence.description}
+                {intelligence?.description}
               </p>
             </div>
           )}
 
           {/* Sources */}
-          {intelligence.sources && intelligence.sources.length > 0 && (
+          {intelligence?.sources && intelligence.sources.length > 0 && (
             <div className="pt-4 border-t space-y-2">
               <h4 className="font-medium text-sm flex items-center gap-2">
                 <Info className="h-4 w-4" />
                 Sources
               </h4>
               <div className="space-y-1">
-                {intelligence.sources.map((source, idx) => (
+                {intelligence?.sources?.map((source, idx) => (
                   <div key={idx} className="text-xs">
                     <a 
                       href={source}
@@ -522,7 +522,7 @@ export function LiveWebIntelligence({
                 ))}
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Data from {intelligence.sources.length} verified sources • 
+                Data from {intelligence?.sources?.length || 0} verified sources • 
                 Powered by AI-driven research
               </p>
             </div>
