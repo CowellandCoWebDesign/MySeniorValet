@@ -92,33 +92,125 @@ export function LiveWebIntelligence({
 
   // Auto-load intelligence when component mounts (if autoLoad is true)
   useEffect(() => {
-    // Only auto-load if we have verification report data to display
-    if (autoLoad && !hasTriedLoading && !intelligence && !fetchIntelligence.isPending && verificationReport) {
-      setHasTriedLoading(true);
-      // Skip the competitive analysis call if we already have data from verification
-      if (verificationReport?.searchResults || verificationReport?.verificationResults) {
-        // Use verification data directly instead of calling competitive analysis
-        const mockIntelligence: CommunityIntelligence = {
-          found: true,
-          name: communityName,
-          officialWebsite: verificationReport?.contactInfo?.website || verificationReport?.officialWebsite,
-          phone: verificationReport?.contactInfo?.phone || verificationReport?.phoneNumber,
-          pricing: verificationReport?.pricing,
-          description: verificationReport?.searchResults?.summary || verificationReport?.verificationResults?.perplexityData?.searchContent,
-          sources: verificationReport?.searchResults?.sources || verificationReport?.verificationResults?.perplexityData?.sources || [],
-          photos: verificationReport?.photos?.map((p: any) => p.url) || []
-        };
-        setIntelligence(mockIntelligence);
-        setIsExpanded(true);
-      } else {
-        // Only call competitive analysis if we don't have verification data
-        fetchIntelligence.mutate();
+    // If we have verification report data, use it directly
+    if (verificationReport && !intelligence) {
+      console.log('Using verification report data directly:', verificationReport);
+      
+      // Extract data from verification report
+      const webIntel = verificationReport?.verificationResults?.webIntelligence || 
+                      verificationReport?.webIntelligence ||
+                      {};
+      const perplexityData = verificationReport?.verificationResults?.perplexityData || 
+                            verificationReport?.perplexityData ||
+                            {};
+      
+      // Parse the perplexity response properly
+      let parsedDescription = '';
+      let parsedWebsite = '';
+      let parsedPhone = '';
+      let parsedPricing = {};
+      let parsedAmenities: string[] = [];
+      let parsedCareLevels: string[] = [];
+      
+      // Extract from perplexity search content
+      if (perplexityData.searchContent) {
+        parsedDescription = perplexityData.searchContent;
+        
+        // Try to extract structured data from the search content
+        const content = perplexityData.searchContent;
+        
+        // Extract website
+        const websiteMatch = content.match(/OFFICIAL WEBSITE:\s*([^\s]+)/i) || 
+                           content.match(/website:\s*([^\s]+)/i);
+        if (websiteMatch) parsedWebsite = websiteMatch[1];
+        
+        // Extract phone
+        const phoneMatch = content.match(/PHONE:\s*([\d-\(\)\s]+)/i) || 
+                          content.match(/phone:\s*([\d-\(\)\s]+)/i);
+        if (phoneMatch) parsedPhone = phoneMatch[1];
+        
+        // Extract pricing info
+        const pricingMatch = content.match(/CURRENT PRICING:\s*([^A-Z]+)/i) || 
+                           content.match(/pricing:\s*([^A-Z]+)/i);
+        if (pricingMatch) {
+          const pricingText = pricingMatch[1];
+          parsedPricing = { details: pricingText.trim() };
+        }
+        
+        // Extract care levels
+        const careLevelsMatch = content.match(/CARE LEVELS OFFERED:\s*([^A-Z]+)/i);
+        if (careLevelsMatch) {
+          parsedCareLevels = careLevelsMatch[1].split(',').map(s => s.trim()).filter(Boolean);
+        }
+        
+        // Extract amenities
+        const amenitiesMatch = content.match(/KEY AMENITIES:\s*([^A-Z]+)/i);
+        if (amenitiesMatch) {
+          parsedAmenities = amenitiesMatch[1].split(',').map(s => s.trim()).filter(Boolean);
+        }
       }
+      
+      const mockIntelligence: CommunityIntelligence = {
+        found: true,
+        name: communityName,
+        officialWebsite: parsedWebsite || 
+                        webIntel.website || 
+                        verificationReport?.contactInfo?.website || 
+                        verificationReport?.officialWebsite,
+        phone: parsedPhone ||
+               webIntel.phone || 
+               verificationReport?.contactInfo?.phone || 
+               verificationReport?.phoneNumber,
+        pricing: Object.keys(parsedPricing).length > 0 ? parsedPricing : 
+                (verificationReport?.pricing || webIntel.pricing),
+        description: parsedDescription || 
+                    webIntel.description ||
+                    verificationReport?.searchResults?.summary,
+        sources: perplexityData.sources || 
+                verificationReport?.searchResults?.sources || 
+                [],
+        photos: webIntel.images?.map((img: any) => typeof img === 'object' ? img.url : img) || 
+               verificationReport?.photos?.map((p: any) => typeof p === 'string' ? p : p.url) || 
+               [],
+        amenities: parsedAmenities.length > 0 ? parsedAmenities : 
+                  (webIntel.amenities || verificationReport?.amenities?.extracted),
+        careLevels: parsedCareLevels.length > 0 ? parsedCareLevels : 
+                   (webIntel.careLevels || verificationReport?.careLevels),
+        notes: perplexityData.searchContent ? 'Information from web search' : undefined
+      };
+      
+      setIntelligence(mockIntelligence);
+      setIsExpanded(true);
+      setHasTriedLoading(true);
     }
-  }, [autoLoad, hasTriedLoading, intelligence, fetchIntelligence, verificationReport, communityName]);
+    // Only call competitive analysis if no verification data and autoLoad is true
+    else if (autoLoad && !hasTriedLoading && !intelligence && !fetchIntelligence.isPending && !verificationReport) {
+      setHasTriedLoading(true);
+      fetchIntelligence.mutate();
+    }
+  }, [verificationReport, autoLoad, hasTriedLoading, intelligence, fetchIntelligence, communityName]);
 
-  // If we haven't fetched yet, show the button
-  if (!intelligence && !fetchIntelligence.isPending) {
+  // Loading state - show this while waiting for verification report
+  if (!intelligence && !verificationReport && autoLoad) {
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <RefreshCw className="h-5 w-5 animate-spin text-primary" />
+            <CardTitle>Searching for {communityName}...</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // If we haven't fetched yet and no verification report, show the button
+  if (!intelligence && !verificationReport && !autoLoad) {
     return (
       <Card className="border-2 border-dashed">
         <CardContent className="pt-6">
@@ -141,25 +233,6 @@ export function LiveWebIntelligence({
               Search Live Data
             </Button>
           </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Loading state
-  if (fetchIntelligence.isPending) {
-    return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <RefreshCw className="h-5 w-5 animate-spin text-primary" />
-            <CardTitle>Searching for {communityName}...</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-4 w-1/2" />
         </CardContent>
       </Card>
     );
