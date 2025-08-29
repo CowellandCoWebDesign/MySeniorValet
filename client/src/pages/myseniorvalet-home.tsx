@@ -362,7 +362,7 @@ function HeroSectionWithTransformingSearch() {
         </div>
 
         {/* Comprehensive Search - Zillow-level functionality */}
-        <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative">
+        <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative mb-8">
           <ComprehensiveSearch 
             onSearch={(results) => {
               // Process comprehensive search results
@@ -392,25 +392,25 @@ function HeroSectionWithTransformingSearch() {
           />
         </div>
 
-          {/* Trust Indicators - Only show when not searching */}
-          {!isSearchActive && (
-            <div className="flex justify-center items-center px-2 mb-6">
-              <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
-                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                  <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
-                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Pricing</span>
-                </span>
-                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                  <Users2 className="h-2 w-2 sm:h-3 sm:w-3 text-green-300 flex-shrink-0" />
-                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Family Reviews</span>
-                </span>
-                <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                  <Brain className="h-2 w-2 sm:h-3 sm:w-3 text-purple-300 animate-pulse flex-shrink-0" />
-                  <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Availability</span>
-                </span>
-              </div>
+        {/* Trust Indicators - Only show when not searching with proper spacing */}
+        {!isSearchActive && (
+          <div className="flex justify-center items-center px-2 mt-4 mb-8">
+            <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
+              <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
+                <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Pricing</span>
+              </span>
+              <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                <Users2 className="h-2 w-2 sm:h-3 sm:w-3 text-green-300 flex-shrink-0" />
+                <span className="text-[9px] sm:text-[10px] font-semibold text-white">Family Reviews</span>
+              </span>
+              <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                <Brain className="h-2 w-2 sm:h-3 sm:w-3 text-purple-300 animate-pulse flex-shrink-0" />
+                <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Availability</span>
+              </span>
             </div>
-          )}
+          </div>
+        )}
         </div>
         
         </div>
