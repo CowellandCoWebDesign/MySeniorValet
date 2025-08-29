@@ -9,6 +9,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
+import { MascotLoadingDisplay } from './MascotLoadingDisplay';
 
 interface SearchResult {
   communities: any[];
@@ -248,6 +249,52 @@ export function ComprehensiveSearch({
     }
     return null;
   };
+
+  // Show loading overlay when searching
+  if (isLoading) {
+    return (
+      <div className={`relative w-full ${className}`}>
+        {/* Search input (disabled) */}
+        <form onSubmit={handleSubmit} className="relative mb-4">
+          <div className="relative flex items-center">
+            <Input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={handleInputChange}
+              placeholder={placeholder}
+              className="w-full pl-12 pr-20 py-4 text-lg border-2 border-gray-300 dark:border-gray-600 
+                       rounded-xl bg-gray-100 dark:bg-gray-700 
+                       shadow-lg transition-all duration-200
+                       placeholder:text-gray-500 dark:placeholder:text-gray-400"
+              disabled={true}
+            />
+            <div className="absolute left-4 flex items-center">
+              <Search className="w-5 h-5 text-gray-400" />
+            </div>
+            <Button
+              type="submit"
+              disabled={true}
+              className="absolute right-2 px-4 py-2 bg-gray-400 dark:bg-gray-600
+                       text-white rounded-lg"
+            >
+              <Loader2 className="w-4 h-4 animate-spin" />
+            </Button>
+          </div>
+        </form>
+
+        {/* Loading Display with Thinker */}
+        <MascotLoadingDisplay 
+          title="Analyzing Your Search"
+          subtitle={`Searching through 32,970+ communities for "${query}"`}
+          showProgress={true}
+          progressDuration={3}
+          factRotationSpeed={2500}
+          compact={true}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={`relative w-full ${className}`}>
