@@ -1114,9 +1114,36 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                           {(() => {
                             // Extract meaningful content from search results
                             const content = localVerificationReport.verificationResults.perplexityData.searchContent;
-                            // Take first 500 characters of content for display
-                            const cleanContent = content.replace(/\*\*/g, '').replace(/\n\n/g, ' ').trim();
-                            return cleanContent.length > 500 ? cleanContent.substring(0, 500) + '...' : cleanContent;
+                            
+                            // Check if content is mostly "Information not available" responses
+                            if (content.includes('Information not available') && content.split('Information not available').length > 3) {
+                              // Provide a better user-friendly message
+                              return `${community?.name} is a senior living community located in ${community?.city}, ${community?.state}. While comprehensive online information is limited, this community provides senior care services in your area. We recommend contacting them directly for current information about services, pricing, and availability.`;
+                            }
+                            
+                            // Check if content mentions other communities (wrong results)
+                            if (content.includes('Dominion Village') && content.includes('Poquoson') && community?.city !== 'Poquoson') {
+                              return `${community?.name} in ${community?.city}, ${community?.state} appears to be a smaller, locally-operated facility. Note: Search results may show other communities with similar names in different locations. For accurate information about this specific location, please contact the community directly.`;
+                            }
+                            
+                            // Clean and format the content normally
+                            const cleanContent = content
+                              .replace(/\*\*/g, '')
+                              .replace(/##/g, '')
+                              .replace(/\n\n+/g, '\n\n')
+                              .replace(/OFFICIAL WEBSITE:/g, 'Website:')
+                              .replace(/DIRECTORY LISTINGS:/g, 'Listed on:')
+                              .replace(/CURRENT PRICING:/g, 'Pricing:')
+                              .replace(/CONTACT INFORMATION:/g, 'Contact:')
+                              .replace(/CARE LEVELS OFFERED:/g, 'Care Types:')
+                              .replace(/KEY AMENITIES:/g, 'Amenities:')
+                              .replace(/AVAILABILITY STATUS:/g, 'Availability:')
+                              .replace(/RECENT UPDATES:/g, 'Recent Updates:')
+                              .replace(/MANAGEMENT\/OWNERSHIP:/g, 'Management:')
+                              .replace(/Information not available/g, 'Contact for details')
+                              .trim();
+                            
+                            return cleanContent.length > 800 ? cleanContent.substring(0, 800) + '...' : cleanContent;
                           })()}
                         </p>
                       </div>

@@ -75,11 +75,14 @@ REQUIRED RESPONSE FORMAT - You MUST structure your response with these exact sec
 
 CRITICAL INSTRUCTIONS:
 1. Always use the exact section headers above
-2. If information is not available for a section, write "Information not available"
+2. If no specific information is found for a section, provide context about why and what alternatives exist. For example:
+   - Instead of "Information not available", say "No public website found. Contact community directly at [phone] for current information."
+   - Or "Pricing varies by care level and room type. Contact for personalized quote."
 3. Focus ONLY on the specific location mentioned in the search
-4. Prioritize official websites over directory listings
+4. If you find information about other communities with similar names in different locations, clearly note the distinction
 5. Include ALL URLs found - official sites, parent companies, and directories
-6. Be specific with pricing - include actual dollar amounts when found`;
+6. Be specific with pricing when found, but provide market context when exact pricing isn't available
+7. Always provide helpful, actionable information - never just say "not available"`;
 
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,
