@@ -29,7 +29,7 @@ export function MascotLoadingDisplay({
   title = "Searching Communities",
   subtitle = "Analyzing over 33,560 verified senior living options",
   showProgress = true,
-  progressDuration = 30,
+  progressDuration = 15, // Reduced from 30 to 15 seconds
   factRotationSpeed = 7000,
   compact = false,
   processStages = ["Searching web for photos", "Analyzing image quality", "Verifying sources"]

@@ -149,17 +149,8 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
       clearTimeout(timeoutId);
       console.error('Failed to fetch competitive analysis:', error);
       
-      // Set a minimal fallback state
-      setAnalysis({
-        error: true,
-        location: `${community.city}, ${community.state}`,
-        averageMonthlyRent: 'Contact for pricing',
-        insights: [
-          `Searching for senior living communities in ${community.city}, ${community.state}...`,
-          'Real-time data is being gathered from multiple sources'
-        ],
-        detailedSummary: `Gathering market data for ${community.city}, ${community.state}...`
-      });
+      // Don't show anything if analysis fails - just hide the component
+      setAnalysis(null);
     } finally {
       setIsLoading(false);
     }
@@ -174,6 +165,16 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     fetchAnalysis();
   }, [community?.id, community?.name, community?.city, community?.state]);
   
+  // Don't render anything if there's no analysis and not loading
+  if (!isLoading && !analysis) {
+    return null;
+  }
+
+  // Don't render if analysis failed or has no useful data
+  if (!isLoading && analysis && (!analysis.extractedCommunities || analysis.extractedCommunities.length === 0) && analysis.error) {
+    return null;
+  }
+
   return (
     <Card className="mb-8 border-2 border-indigo-200 dark:border-indigo-800">
       <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
