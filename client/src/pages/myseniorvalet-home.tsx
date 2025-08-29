@@ -427,7 +427,7 @@ function HeroSectionWithTransformingSearch() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="w-full bg-gradient-to-b from-gray-900 to-gray-800 py-8 relative"
+            className="w-full bg-gradient-to-b from-gray-900 to-gray-800 relative"
             id="search-results"
             style={{ transform: 'translateZ(0)' }}
           >
@@ -494,7 +494,7 @@ function HeroSectionWithTransformingSearch() {
             {(viewMode === 'list' || viewMode === 'learn') && (
               <div>
                 {/* Results Header */}
-                <div className="w-full max-w-3xl mx-auto px-4 mb-0">
+                <div className="w-full max-w-3xl mx-auto px-4">
                   <div className="bg-gray-800/95 backdrop-blur-sm px-4 py-3 rounded-t-xl border border-gray-700">
                     <h3 className="text-lg font-semibold text-white">
                       {searchResults?.metadata?.isResearchMode ? (
@@ -515,7 +515,7 @@ function HeroSectionWithTransformingSearch() {
                 </div>
             
             {/* Results Content - Full width for mobile, constrained for desktop */}
-            <div className="max-w-4xl mx-auto px-4 -mt-1">
+            <div className="max-w-4xl mx-auto px-4 -mt-[1px]">
               {isLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
