@@ -4,8 +4,23 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2, Home, Info, Sparkles, DollarSign, Activity, Bed, Users } from "lucide-react";
 import { MarketIntelligenceModal } from "./MarketIntelligenceModal";
-import thinkerPlaceholder from '@assets/generated_images/Thinker_statue_cosmic_placeholder_5ef720ce.png';
-import thinkerCornerPlaceholder from '@assets/generated_images/Complete_Thinker_in_cosmic_scene_7edc4191.png';
+
+// Multiple Thinker variations for random selection
+import thinkerVariation1 from '@assets/generated_images/Thinker_statue_cosmic_placeholder_5ef720ce.png';
+import thinkerVariation2 from '@assets/generated_images/Complete_Thinker_in_cosmic_scene_7edc4191.png';
+import thinkerVariation3 from '@assets/generated_images/Thinker_blue_nebula_variation_37e62e66.png';
+import thinkerVariation4 from '@assets/generated_images/Thinker_asteroid_orange_galaxy_ae4340c0.png';
+import thinkerVariation5 from '@assets/generated_images/Thinker_aurora_cosmic_energy_a006de4d.png';
+import thinkerVariation6 from '@assets/generated_images/Thinker_pink_cosmic_clouds_4681493c.png';
+
+const thinkerVariations = [
+  thinkerVariation1,
+  thinkerVariation2,
+  thinkerVariation3,
+  thinkerVariation4,
+  thinkerVariation5,
+  thinkerVariation6
+];
 
 interface CommunityCardProps {
   community: {
@@ -86,6 +101,9 @@ function CommunityCard({
   
   // State for handling broken images
   const [imageError, setImageError] = useState(false);
+  
+  // Select a Thinker variation based on community ID for consistency
+  const thinkerImage = thinkerVariations[community.id % thinkerVariations.length];
   
   // State for market pricing intelligence
   const [marketPricing, setMarketPricing] = useState<{
@@ -414,10 +432,10 @@ function CommunityCard({
             }}
           />
         ) : (
-          // Alternative: Complete Thinker statue positioned naturally in cosmic scene
+          // Random Thinker variation for visual diversity
           <div className="absolute inset-0">
             <img 
-              src={thinkerCornerPlaceholder} // Complete Thinker in cosmic space
+              src={thinkerImage} // Randomly selected Thinker variation
               alt="The Thinker statue contemplating in cosmic space"
               className="absolute inset-0 w-full h-full object-cover"
             />
