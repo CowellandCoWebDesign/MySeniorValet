@@ -168,18 +168,22 @@ export class ComprehensiveSearchEngine {
       
       if (intentScores.location >= 0.3) {
         const locationConditions = await this.buildLocationConditions(normalizedQuery);
+        console.log(`🔍 Raw location conditions built: ${locationConditions.length}`);
+        
         // Only add location conditions if they exist
         if (locationConditions.length > 0) {
           // Combine multiple location conditions with OR, not AND
           if (locationConditions.length > 1) {
             conditions.push(or(...locationConditions));
+            console.log(`🔍 Combined ${locationConditions.length} location conditions with OR`);
           } else {
             conditions.push(...locationConditions);
+            console.log(`🔍 Added single location condition`);
           }
         }
         // Check if this was a country search
         isCountrySearch = (locationConditions as any).__isCountrySearch;
-        console.log(`🔍 Location conditions built: ${locationConditions.length}, isCountrySearch: ${isCountrySearch}`);
+        console.log(`🔍 After location: conditions.length=${conditions.length}, isCountrySearch=${isCountrySearch}`);
       }
       
       if (intentScores.careType > 0.3) {
@@ -202,7 +206,9 @@ export class ComprehensiveSearchEngine {
       }
       
       // If no specific intent detected strongly AND not a country search, use general search
-      if (Math.max(...Object.values(intentScores)) < 0.4 && !isCountrySearch) {
+      // BUT don't add general search if we already added location conditions
+      const hasLocationConditions = intentScores.location >= 0.3;
+      if (Math.max(...Object.values(intentScores)) < 0.4 && !isCountrySearch && !hasLocationConditions) {
         conditions.push(
           or(
             ilike(communities.name, `%${normalizedQuery}%`),
@@ -212,6 +218,7 @@ export class ComprehensiveSearchEngine {
             ilike(communities.address, `%${normalizedQuery}%`)
           )
         );
+        console.log(`🔍 Added general search conditions for "${normalizedQuery}"`);
       }
       
       searchType = dominantIntent;
@@ -363,21 +370,18 @@ export class ComprehensiveSearchEngine {
       const [city, state] = query.split(',').map(s => s.trim());
       console.log(`🔍 Parsing location: city="${city}", state="${state}"`);
       
-      // Check if state is abbreviation or full name
+      // Build condition for city and state - simplified approach
       const stateUpper = state.toUpperCase();
       
-      // Build a condition that handles both abbreviations and full names
+      // Use a single condition that works
       conditions.push(
         and(
           ilike(communities.city, `%${city}%`),
-          or(
-            eq(communities.state, stateUpper), // For state abbreviations like 'CA'
-            ilike(communities.state, `%${state}%`) // For full state names
-          )
+          eq(communities.state, stateUpper) // Most states in DB are uppercase abbreviations
         )
       );
       
-      console.log(`🔍 Added city-state condition for "${city}" in "${state}" (checking both abbreviation and full name)`);
+      console.log(`🔍 Added city-state condition for "${city}" in state="${stateUpper}"`);
       return conditions; // Return early to avoid adding extra conditions
     }
     // ZIP code
