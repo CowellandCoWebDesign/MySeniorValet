@@ -119,7 +119,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                   className="border-2 border-purple-400 dark:border-purple-600 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 hover:from-purple-100 hover:to-blue-100 dark:hover:from-gray-700 dark:hover:to-gray-800 text-gray-700 dark:text-gray-300 font-bold px-4 py-2.5 flex items-center gap-2 shadow-md hover:shadow-lg transition-all duration-200"
                   aria-label="Open menu"
                 >
-                  <span className="text-lg">📱</span>
+                  <span className="text-lg">📋</span>
                   <Menu className="h-5 w-5" />
                   <span className="text-sm uppercase tracking-wide">Menu</span>
                   <span className="text-lg">✨</span>
