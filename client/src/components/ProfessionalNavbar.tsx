@@ -108,8 +108,20 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
     )}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          {/* Left Section: Logo and Desktop Nav */}
-          <div className="flex items-center space-x-8">
+          {/* Left Section: Accessibility, Logo and Desktop Nav */}
+          <div className="flex items-center space-x-4 lg:space-x-8">
+            {/* Accessibility Button - Traditional Blue Symbol (Far Left) */}
+            <Link href="/accessibility">
+              <Button
+                variant="outline"
+                size="icon"
+                className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 w-9 h-9 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                aria-label="Accessibility Options"
+              >
+                <Accessibility className="h-5 w-5" />
+              </Button>
+            </Link>
+            
             {/* Mobile Menu Button - Clean Design */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild className="lg:hidden">
@@ -270,19 +282,8 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
             </div>
           </div>
 
-          {/* Right Section: Accessibility, Language, Theme, User */}
+          {/* Right Section: Language, Theme, User */}
           <div className="flex items-center space-x-1 lg:space-x-2">
-            {/* Accessibility Button - Traditional Blue Symbol */}
-            <Link href="/accessibility">
-              <Button
-                variant="outline"
-                size="icon"
-                className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 w-9 h-9 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                aria-label="Accessibility Options"
-              >
-                <Accessibility className="h-5 w-5" />
-              </Button>
-            </Link>
             {/* Language Selector - Clean Flag Only */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
