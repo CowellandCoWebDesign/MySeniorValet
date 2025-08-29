@@ -21,6 +21,7 @@ import { PerplexityAIService, perplexityService } from "../perplexity-ai-service
 import { multiAIVerificationService } from "../multi-ai-verification-service";
 import { onDemandEnrichmentService } from "../services/on-demand-enrichment-service";
 import { optimizedEnrichmentService } from "../services/optimized-enrichment-service";
+import { simpleEnrichmentService } from "../services/simple-enrichment-service";
 
 export function registerCommunityRoutes(app: Express) {
   // IMPORTANT: Specific routes must come BEFORE the /:id route
@@ -678,26 +679,62 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
-  // Multi-AI Verification endpoint - OPTIMIZED with caching and parallel processing
+  // SIMPLIFIED Verification endpoint - Clean and direct
   app.post("/api/communities/:id/verify", async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const { realTimeData, forceRefresh } = req.body;
+      const { forceRefresh } = req.body;
       
       if (isNaN(communityId)) {
         return res.status(400).json({ error: "Invalid community ID" });
       }
 
-      console.log(`🚀 Verification request for community ${communityId} (cache: ${forceRefresh ? 'skip' : 'check'})`);
+      console.log(`🔍 Simple verification for community ${communityId}`);
 
-      // Use optimized enrichment service with caching and parallel processing
-      const verificationReport = await optimizedEnrichmentService.verifyWithOptimizations(
+      // Use the new simplified enrichment service
+      const enrichmentResult = await simpleEnrichmentService.enrichCommunity(
         communityId,
-        realTimeData || {},
-        { forceRefresh: forceRefresh || false }
+        forceRefresh || false
       );
 
-      // Return the verification report to the frontend
+      // Transform to match expected frontend format
+      const verificationReport = {
+        communityId: enrichmentResult.communityId,
+        communityName: enrichmentResult.communityName,
+        timestamp: enrichmentResult.lastUpdated,
+        
+        // Core verification data
+        verificationResults: {
+          webIntelligence: {
+            images: enrichmentResult.photos,
+            sources: enrichmentResult.searchResults?.sources || []
+          },
+          perplexityData: {
+            lastUpdated: enrichmentResult.lastUpdated,
+            searchContent: enrichmentResult.searchResults?.summary,
+            sources: enrichmentResult.searchResults?.sources || []
+          }
+        },
+        
+        // Consensus data
+        consensus: {
+          agreementLevel: enrichmentResult.verificationStatus === 'verified' ? 'strong' : 'weak',
+          verifiedFacts: [],
+          disputedFacts: [],
+          confidenceScore: enrichmentResult.confidence,
+          transparencyNotes: `Verification status: ${enrichmentResult.verificationStatus}`
+        },
+        
+        // Pricing data
+        pricing: enrichmentResult.pricing,
+        
+        // Contact info
+        contactInfo: {
+          phone: enrichmentResult.phoneNumber,
+          website: enrichmentResult.officialWebsite
+        }
+      };
+
       res.json(verificationReport);
 
     } catch (error) {
