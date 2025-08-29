@@ -475,8 +475,8 @@ function HeroSectionWithTransformingSearch() {
             {(viewMode === 'list' || viewMode === 'learn') && (
               <div>
                 {/* Results Header */}
-                <div className="w-full max-w-3xl mx-auto px-4 mb-4">
-                  <div className="bg-gray-800/95 backdrop-blur-sm px-4 py-3 rounded-xl border border-gray-700">
+                <div className="w-full max-w-3xl mx-auto px-4 mb-0">
+                  <div className="bg-gray-800/95 backdrop-blur-sm px-4 py-3 rounded-t-xl border border-gray-700">
                     <h3 className="text-lg font-semibold text-white">
                       {searchResults?.metadata?.isResearchMode ? (
                         <span className="flex items-center space-x-2">
@@ -496,7 +496,7 @@ function HeroSectionWithTransformingSearch() {
                 </div>
             
             {/* Results Content - Full width for mobile, constrained for desktop */}
-            <div className="max-w-4xl mx-auto px-4">
+            <div className="max-w-4xl mx-auto px-4 -mt-1">
               {isLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />

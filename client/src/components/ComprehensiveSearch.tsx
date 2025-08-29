@@ -320,15 +320,7 @@ export function ComprehensiveSearch({
             <SearchIcon className={`w-5 h-5 ${searchIndicator.color}`} />
           </div>
           
-          {/* Search type badge */}
-          {query && searchType !== 'general' && (
-            <Badge 
-              variant="secondary" 
-              className="absolute left-12 ml-2 text-xs bg-gray-100 dark:bg-gray-700"
-            >
-              {searchIndicator.label}
-            </Badge>
-          )}
+
           
           {/* Search button */}
           <Button
@@ -355,7 +347,7 @@ export function ComprehensiveSearch({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 
+            className="absolute top-full left-0 right-0 mt-0 bg-white dark:bg-gray-800 
                      border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 
                      max-h-80 overflow-y-auto"
           >
