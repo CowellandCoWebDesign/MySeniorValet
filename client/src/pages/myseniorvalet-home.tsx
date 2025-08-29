@@ -18,6 +18,7 @@ import { useQuery } from "@tanstack/react-query";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CareServiceCard } from "@/components/CareServiceCard";
+import { ProfessionalNavbar } from "@/components/ProfessionalNavbar";
 
 
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -255,7 +256,8 @@ function HeroSectionWithTransformingSearch() {
 
   return (
     <>
-      <section className="relative min-h-screen"
+      <ProfessionalNavbar transparent />
+      <section className="relative min-h-screen mt-16"
         style={{
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
         }}
