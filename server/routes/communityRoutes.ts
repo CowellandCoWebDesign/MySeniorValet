@@ -20,6 +20,7 @@ import { internalNotifications } from "../services/internal-notifications";
 import { PerplexityAIService, perplexityService } from "../perplexity-ai-service";
 import { multiAIVerificationService } from "../multi-ai-verification-service";
 import { onDemandEnrichmentService } from "../services/on-demand-enrichment-service";
+import { optimizedEnrichmentService } from "../services/optimized-enrichment-service";
 
 export function registerCommunityRoutes(app: Express) {
   // IMPORTANT: Specific routes must come BEFORE the /:id route
@@ -677,340 +678,33 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
-  // Multi-AI Verification endpoint - verify real-time data using multiple AI sources
+  // Multi-AI Verification endpoint - OPTIMIZED with caching and parallel processing
   app.post("/api/communities/:id/verify", async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const { realTimeData } = req.body;
+      const { realTimeData, forceRefresh } = req.body;
       
       if (isNaN(communityId)) {
         return res.status(400).json({ error: "Invalid community ID" });
       }
 
-      // Get community details
-      const [community] = await db
-        .select()
-        .from(communities)
-        .where(eq(communities.id, communityId))
-        .limit(1);
+      console.log(`🚀 Verification request for community ${communityId} (cache: ${forceRefresh ? 'skip' : 'check'})`);
 
-      if (!community) {
-        return res.status(404).json({ error: "Community not found" });
-      }
-
-      // CRITICAL FIX: Search for the SPECIFIC community's public website and management info
-      // Instead of using the city-level realTimeData, search for this exact community
-      let communitySpecificData = realTimeData; // Keep existing data as fallback
-      
-      try {
-        // OPTIMIZED SEARCH QUERY: Handle recent management changes and name variations
-        const communityBaseName = community.name
-          .replace(' - A Provincial Senior Living Community', '')
-          .replace(' - A Provincial senior living community', '')
-          .replace(' Senior Living Community', '')
-          .replace(' Senior Living', '')
-          .replace(' Assisted Living', '')
-          .trim();
-        
-        // Include address in search for more precise results
-        const communitySearchQuery = `${communityBaseName} ${community.address || ''} ${community.city} California senior living current phone contact website`;
-        
-        console.log(`🔍 Enhanced search query for recent changes: "${communitySearchQuery}"`);
-        
-        // Use Perplexity to search for this SPECIFIC community with management change awareness
-        const perplexityResponse = await perplexityService.searchRealTime(
-          communitySearchQuery,
-          `Find CURRENT 2025 information about ${communityBaseName} senior living facility in ${community.city}, CA. 
-           IMPORTANT: This facility may have recently changed management or ownership (could now be operated by Provincial, Brookdale, or other companies).
-           Look for:
-           1. Current official phone number and website (verify it's not outdated)
-           2. Recent management changes or new ownership
-           3. Updated facility name if it has changed
-           4. Current pricing and availability
-           5. Any recent news about the facility
-           Note: Old information may still appear online - prioritize recent 2024-2025 sources.`
-        );
-        
-        // Override with community-specific search results
-        communitySpecificData = {
-          ...realTimeData, // Keep any existing data
-          searchContent: perplexityResponse.summary,
-          sources: perplexityResponse.sources,
-          communityName: community.name, // Ensure exact name is used
-          lastUpdated: new Date().toISOString()
-        };
-        
-        console.log(`✅ Found specific information for ${community.name}`);
-      } catch (searchError) {
-        console.log(`⚠️ Could not search for specific community ${community.name}, using area data`);
-        // Continue with existing realTimeData if search fails
-      }
-
-      // Run multi-AI verification on the community-specific data
-      console.log(`🔬 Running Multi-AI Verification for ${community.name}`);
-      const verificationReport = await multiAIVerificationService.verifyRealTimeData(
+      // Use optimized enrichment service with caching and parallel processing
+      const verificationReport = await optimizedEnrichmentService.verifyWithOptimizations(
         communityId,
-        community.name,
-        communitySpecificData, // Use community-specific data instead of city-level data
-        {
-          city: community.city,
-          state: community.state,
-          zipCode: community.zipCode, // Fixed: use zipCode not zip
-          address: community.address,
-          careTypes: community.careTypes || [],
-          communitySubtype: community.communitySubtype,
-          rating: community.rating,
-          description: community.description,
-          hudPropertyId: community.hudPropertyId || null,
-          // Removed non-existent fields: communityType, bedCount, yearEstablished, ownershipType, certifications
-          website: community.website || null,
-          phone: community.phone || null,
-          email: community.email || null
-        }
+        realTimeData || {},
+        { forceRefresh: forceRefresh || false }
       );
 
-      // SAVE AI-ENRICHED DATA BACK TO DATABASE
-      try {
-        const updateData: any = {};
-        
-        // Extract contact information from AI verification (improved contact extraction)
-        if (verificationReport.contactInfo) {
-          const contactInfo = verificationReport.contactInfo;
-          
-          // Save phone number if found and not already present
-          if (contactInfo.phone && (!community.phone || community.phone.length < 10)) {
-            updateData.phone = contactInfo.phone;
-            console.log(`📞 Found phone number: ${contactInfo.phone}`);
-          }
-          
-          // Save email if found and not already present  
-          if (contactInfo.email && (!community.email || !community.email.includes('@'))) {
-            updateData.email = contactInfo.email;
-            console.log(`📧 Found email: ${contactInfo.email}`);
-          }
-          
-          // Save website if found and not already present
-          if (contactInfo.website && (!community.website || !community.website.startsWith('http'))) {
-            updateData.website = contactInfo.website;
-            console.log(`🌐 Found website: ${contactInfo.website}`);
-          }
-          
-          // Save fax if found and not already present
-          if (contactInfo.fax && !community.fax) {
-            updateData.fax = contactInfo.fax;
-            console.log(`📠 Found fax: ${contactInfo.fax}`);
-          }
-        }
-        
-        // Also check scraped data as fallback (if it still exists)
-        if (verificationReport.verificationResults?.scrapedData) {
-          const scraped = verificationReport.verificationResults.scrapedData;
-          
-          // Only use scraped data if we didn't find it in contactInfo
-          if (!updateData.phone && scraped.phone && (!community.phone || community.phone.length < 10)) {
-            updateData.phone = scraped.phone;
-            console.log(`📞 Found phone from scraped data: ${scraped.phone}`);
-          }
-          
-          if (!updateData.email && scraped.email && (!community.email || !community.email.includes('@'))) {
-            updateData.email = scraped.email;
-            console.log(`📧 Found email from scraped data: ${scraped.email}`);
-          }
-          
-          if (!updateData.website && scraped.website && (!community.website || !community.website.startsWith('http'))) {
-            updateData.website = scraped.website;
-            console.log(`🌐 Found website from scraped data: ${scraped.website}`);
-          }
-        }
-        
-        // Extract enriched description from AI insights and website scraping
-        if (verificationReport.aiInsights && (!community.description || community.description.length < 100)) {
-          // Check if we have scraped website data with extracted information
-          let extractedInfo = null;
-          
-          // Look for scraped data from multi-ai-verification-service
-          if (verificationReport.verificationResults?.webIntelligence) {
-            const webIntel = verificationReport.verificationResults.webIntelligence;
-            extractedInfo = {
-              about: verificationReport.aiInsights?.perplexity?.overview || '',
-              services: verificationReport.careTypes || [],
-              amenities: verificationReport.amenities || [],
-              activities: [], // These would be extracted from the scraped content
-              dining: '', // Would be extracted from scraped content
-              photos: webIntel.images || [],
-              pricing: verificationReport.pricing || {}
-            };
-            console.log(`🔍 Found extracted website information for enriched description`);
-          }
-          
-          try {
-            // Use OpenAI to generate a comprehensive description with extracted info
-            const { openAIIntegration } = require('../openai-integration');
-            const enrichedDescription = await openAIIntegration.generateCommunityDescription(
-              community,
-              extractedInfo
-            );
-            
-            if (enrichedDescription && enrichedDescription.length > 100) {
-              updateData.description = enrichedDescription;
-              console.log(`✨ Generated rich AI description using extracted website info (${enrichedDescription.length} chars)`);
-            }
-          } catch (error) {
-            console.log(`⚠️ OpenAI description generation failed, falling back to combined AI insights`);
-            
-            // Fallback to original logic if OpenAI fails
-            const aiDescription = [];
-            
-            // Build comprehensive description from AI insights
-            if (verificationReport.aiInsights.claude?.overview) {
-              aiDescription.push(verificationReport.aiInsights.claude.overview);
-            }
-            if (verificationReport.aiInsights.chatgpt?.overview) {
-              aiDescription.push(verificationReport.aiInsights.chatgpt.overview);
-            }
-            if (verificationReport.aiInsights.perplexity?.overview) {
-              aiDescription.push(verificationReport.aiInsights.perplexity.overview);
-            }
-            
-            // Combine and deduplicate descriptions
-            const combinedDescription = aiDescription
-              .filter(desc => desc && desc.length > 0)
-              .join('\n\n')
-              .substring(0, 2000); // Limit to 2000 chars
-            
-            if (combinedDescription && combinedDescription.length > 100) {
-              updateData.description = combinedDescription;
-              console.log(`📝 Generated description from AI insights (${combinedDescription.length} chars)`);
-            }
-          }
-        }
-        
-        // Extract pricing information if available
-        if (verificationReport.pricing && verificationReport.pricing.verified) {
-          const currentPriceRange = community.priceRange as any || {};
-          let updatedPriceRange = { ...currentPriceRange };
-          let priceUpdated = false;
-          
-          if (verificationReport.pricing.monthlyFrom && (!currentPriceRange.min || currentPriceRange.min === 0)) {
-            updatedPriceRange.min = verificationReport.pricing.monthlyFrom;
-            priceUpdated = true;
-          }
-          if (verificationReport.pricing.monthlyTo && (!currentPriceRange.max || currentPriceRange.max === 0)) {
-            updatedPriceRange.max = verificationReport.pricing.monthlyTo;
-            priceUpdated = true;
-          }
-          
-          if (priceUpdated) {
-            updateData.priceRange = updatedPriceRange;
-            console.log(`💰 Found pricing: $${updatedPriceRange.min} - $${updatedPriceRange.max}`);
-          }
-        }
-        
-        // Extract care types if available and not already present
-        if (verificationReport.careTypes && verificationReport.careTypes.length > 0 && 
-            (!community.careTypes || community.careTypes.length === 0)) {
-          updateData.careTypes = verificationReport.careTypes;
-          console.log(`🏥 Found care types: ${verificationReport.careTypes.join(', ')}`);
-        }
-        
-        // Extract amenities if available and not already present
-        if (verificationReport.amenities && verificationReport.amenities.length > 0 && 
-            (!community.amenities || community.amenities.length === 0)) {
-          updateData.amenities = verificationReport.amenities;
-          console.log(`✨ Found ${verificationReport.amenities.length} amenities`);
-        }
-        
-        // Check for address corrections with high confidence
-        if (verificationReport.addressInfo && verificationReport.addressInfo.confidence >= 70) {
-          const hasAddressChange = verificationReport.addressInfo.address && 
-            verificationReport.addressInfo.address !== community.address;
-          
-          if (hasAddressChange) {
-            console.log(`🏠 Address mismatch detected!`);
-            console.log(`   Current: ${community.address}, ${community.city}, ${community.state} ${community.zipCode}`);
-            console.log(`   Found: ${verificationReport.addressInfo.address}, ${verificationReport.addressInfo.city}, ${verificationReport.addressInfo.state} ${verificationReport.addressInfo.zipCode}`);
-            console.log(`   Confidence: ${verificationReport.addressInfo.confidence}%`);
-            
-            // Update address fields with high confidence corrections
-            if (verificationReport.addressInfo.address) {
-              updateData.address = verificationReport.addressInfo.address;
-            }
-            if (verificationReport.addressInfo.city) {
-              updateData.city = verificationReport.addressInfo.city;
-            }
-            if (verificationReport.addressInfo.state) {
-              updateData.state = verificationReport.addressInfo.state;
-            }
-            if (verificationReport.addressInfo.zipCode) {
-              updateData.zipCode = verificationReport.addressInfo.zipCode;
-            }
-            
-            console.log(`🔄 Updating address to correct version`);
-          }
-        }
-        
-        // Extract photos if available and not already present
-        if (verificationReport.verificationResults?.webIntelligence?.images && 
-            verificationReport.verificationResults.webIntelligence.images.length > 0 &&
-            (!community.photos || community.photos.length === 0)) {
-          const photoUrls = verificationReport.verificationResults.webIntelligence.images
-            .slice(0, 10) // Limit to 10 photos
-            .map((img: any) => img.url);
-          if (photoUrls.length > 0) {
-            updateData.photos = photoUrls;
-            console.log(`📸 Found ${photoUrls.length} photos`);
-          }
-        }
-        
-        // Only update if we have data to save
-        if (Object.keys(updateData).length > 0) {
-          // Update the lastPriceUpdate timestamp if we updated pricing
-          if (updateData.priceRange) {
-            updateData.lastPriceUpdate = new Date();
-          }
-          
-          await db
-            .update(communities)
-            .set(updateData)
-            .where(eq(communities.id, communityId));
-          
-          const fieldsUpdated = Object.keys(updateData).filter(k => k !== 'lastPriceUpdate');
-          console.log(`✅ Saved AI-enriched data for ${community.name}`);
-          console.log(`   📊 Fields updated: ${fieldsUpdated.join(', ')}`);
-          console.log(`   💾 Database updated successfully for community ID ${communityId}`);
-          
-          // Update the community object with the new data so it's reflected in the response
-          Object.assign(community, updateData);
-        } else {
-          console.log(`ℹ️ No new data to save for ${community.name} (all fields already populated)`);
-        }
-      } catch (saveError) {
-        console.error('❌ Error saving AI-enriched data:', saveError);
-        console.error('   Update data was:', updateData);
-        // Continue even if save fails - don't break the user experience
-      }
+      // Return the verification report to the frontend
+      res.json(verificationReport);
 
-      // Include enriched community data in the response
-      const enrichedResponse = {
-        ...verificationReport,
-        enrichedCommunity: {
-          phone: community.phone,
-          email: community.email,
-          website: community.website,
-          description: community.description,
-          amenities: community.amenities,
-          careTypes: community.careTypes,
-          priceRange: community.priceRange,
-          photos: community.photos
-        }
-      };
-      
-      res.json(enrichedResponse);
     } catch (error) {
-      console.error("Multi-AI verification error:", error);
+      console.error("Verification error:", error);
       res.status(500).json({ 
-        error: "Multi-AI verification temporarily unavailable",
-        fallback: "Showing web search results only"
+        error: "Failed to verify community data",
+        message: error instanceof Error ? error.message : "Unknown error"
       });
     }
   });
