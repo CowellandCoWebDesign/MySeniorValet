@@ -81,7 +81,7 @@ function HeroSectionWithTransformingSearch() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchResults, setSearchResults] = useState<any>({ results: [], metadata: null });
   const [isLoading, setIsLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'map' | 'learn'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'map' | 'discover'>('list');
   const [imageLoaded, setImageLoaded] = useState(false);
   const [searchCategory, setSearchCategory] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
   const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
@@ -104,7 +104,7 @@ function HeroSectionWithTransformingSearch() {
 
     try {
       // Automatically use research mode if in Learn tab or if it's detected as a research query
-      if (isResearchMode || viewMode === 'learn') {
+      if (isResearchMode || viewMode === 'discover') {
         // Use Learn mode's Q&A endpoint for conversational queries
         const response = await fetch('/api/nlp/ask', {
           method: 'POST',
@@ -335,12 +335,7 @@ function HeroSectionWithTransformingSearch() {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setViewMode('map');
-                  if (searchQuery) {
-                    setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
-                  }
-                }}
+                onClick={() => setViewMode('map')}
                 className={`px-2 sm:px-2.5 py-1 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 ${
                   viewMode === 'map' 
                     ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm' 
@@ -352,15 +347,15 @@ function HeroSectionWithTransformingSearch() {
               </button>
               <button
                 type="button"
-                onClick={() => setViewMode('learn')}
+                onClick={() => setViewMode('discover')}
                 className={`px-2 sm:px-2.5 py-1 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 ${
-                  viewMode === 'learn' 
+                  viewMode === 'discover' 
                     ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm' 
                     : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                 }`}
               >
-                <span className="text-xs sm:text-sm">🧠</span>
-                <span>Learn</span>
+                <span className="text-xs sm:text-sm">✨</span>
+                <span>Discover</span>
               </button>
             </div>
           </div>
@@ -370,7 +365,13 @@ function HeroSectionWithTransformingSearch() {
             <ComprehensiveSearch 
             searchCategory={searchCategory}
             onSearch={(results) => {
-              // Process comprehensive search results
+              // If map view is selected, redirect to map search page
+              if (viewMode === 'map' && results.searchMetadata.query) {
+                setLocation(`/map-search?q=${encodeURIComponent(results.searchMetadata.query)}`);
+                return;
+              }
+              
+              // Process comprehensive search results for list view
               const communities = results.communities || [];
               setSearchResults({ 
                 results: communities, 
@@ -391,7 +392,7 @@ function HeroSectionWithTransformingSearch() {
               setIsSearchFocused(query.length > 0);
             }}
             initialQuery={searchQuery}
-            placeholder={viewMode === 'learn' ? "Ask any question about senior living..." : "Search communities, cities, companies, or ask anything..."}
+            placeholder={viewMode === 'discover' ? "Discover senior living insights..." : viewMode === 'map' ? "Enter location to search on map..." : "Search communities, cities, companies, or ask anything..."}
             className="w-full"
             showSuggestions={true}
             />
@@ -453,7 +454,7 @@ function HeroSectionWithTransformingSearch() {
           </div>
           
           {/* Search Results - Premium Glass Design */}
-          {isSearchActive && (viewMode === 'list' || viewMode === 'learn') && (
+          {isSearchActive && (viewMode === 'list' || viewMode === 'discover') && (
             <div className="w-full max-w-2xl mt-4">
               {/* Results Header - Glass Morphism */}
               <div className="">
@@ -462,7 +463,7 @@ function HeroSectionWithTransformingSearch() {
                     {searchResults?.metadata?.isResearchMode ? (
                       <span className="flex items-center space-x-2">
                         <Brain className="w-5 h-5 text-purple-400" />
-                        <span>Learn Mode found {searchResults?.results?.length || 0} recommendations</span>
+                        <span>Discover Mode found {searchResults?.results?.length || 0} recommendations</span>
                       </span>
                     ) : (
                       <span>Found {searchResults?.results?.length || 0} results</span>
@@ -608,7 +609,7 @@ function HeroSectionWithTransformingSearch() {
         {/* {!isSearchActive && !searchQuery && !isSearchFocused && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-20" />} */}
       </section>
 
-      {/* Learn Mode Response Section - Moved outside hero but keeping special research display */}
+      {/* Discover Mode Response Section - Moved outside hero but keeping special research display */}
       <AnimatePresence mode="wait">
         {isSearchActive && searchResults?.metadata?.isResearchMode && searchResults?.metadata?.researchResponse && (
           <motion.section
@@ -617,7 +618,7 @@ function HeroSectionWithTransformingSearch() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="w-full bg-gradient-to-b from-gray-900 to-gray-800 relative"
-            id="learn-mode-results"
+            id="discover-mode-results"
             style={{ transform: 'translateZ(0)' }}
           >
             {(
@@ -636,7 +637,7 @@ function HeroSectionWithTransformingSearch() {
                       </div>
                       <div>
                         <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                          Learn Mode Response
+                          Discover Mode Response
                         </h2>
                         <p className="text-sm text-gray-400 mt-1">
                           AI-powered analysis across 32,970+ communities
