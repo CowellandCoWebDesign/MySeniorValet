@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
 import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, Car, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List } from "lucide-react";
 import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
+import { VendorServiceCard } from "@/components/VendorServiceCard";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -365,9 +366,10 @@ function HeroSectionWithTransformingSearch() {
             <ComprehensiveSearch 
             searchCategory={searchCategory}
             onSearch={(results) => {
-              // If map view is selected, redirect to map search page
+              // If map view is selected, redirect to map search page with category
               if (viewMode === 'map' && results.searchMetadata.query) {
-                setLocation(`/map-search?q=${encodeURIComponent(results.searchMetadata.query)}`);
+                const categoryParam = searchCategory !== 'communities' ? `&category=${searchCategory}` : '';
+                setLocation(`/map-search?q=${encodeURIComponent(results.searchMetadata.query)}${categoryParam}`);
                 return;
               }
               
@@ -380,7 +382,8 @@ function HeroSectionWithTransformingSearch() {
                   totalResults: results.totalResults,
                   processingTime: results.searchMetadata.processingTime,
                   suggestions: results.searchMetadata.suggestions,
-                  facets: results.facets
+                  facets: results.facets,
+                  searchCategory: searchCategory
                 }
               });
               setSearchQuery(results.searchMetadata.query);
@@ -392,7 +395,14 @@ function HeroSectionWithTransformingSearch() {
               setIsSearchFocused(query.length > 0);
             }}
             initialQuery={searchQuery}
-            placeholder={viewMode === 'discover' ? "Discover senior living insights..." : viewMode === 'map' ? "Enter location to search on map..." : "Search communities, cities, companies, or ask anything..."}
+            placeholder={
+              viewMode === 'discover' ? "Discover senior living insights..." : 
+              viewMode === 'map' ? "Enter location to search on map..." : 
+              searchCategory === 'services' ? "Search for senior care services, vendors, or providers..." :
+              searchCategory === 'healthcare' ? "Search for hospitals, clinics, or healthcare providers..." :
+              searchCategory === 'resources' ? "Search for guides, articles, or resources..." :
+              "Search communities, cities, companies, or ask anything..."
+            }
             className="w-full"
             showSuggestions={true}
             />
@@ -466,7 +476,12 @@ function HeroSectionWithTransformingSearch() {
                         <span>Discover Mode found {searchResults?.results?.length || 0} recommendations</span>
                       </span>
                     ) : (
-                      <span>Found {searchResults?.results?.length || 0} results</span>
+                      <span>
+                        Found {searchResults?.results?.length || 0} 
+                        {searchCategory === 'services' ? ' services' : 
+                         searchCategory === 'healthcare' ? ' healthcare providers' : 
+                         searchCategory === 'resources' ? ' resources' : ' communities'}
+                      </span>
                     )}
                     {searchQuery && (
                       <span className="ml-2 text-green-400">
@@ -500,20 +515,30 @@ function HeroSectionWithTransformingSearch() {
                     
                     {searchResults?.results && searchResults.results.length > 0 ? (
                       <>
-                        {searchResults.results.slice(0, visibleResults).map((community: any, index: number) => (
+                        {searchResults.results.slice(0, visibleResults).map((item: any, index: number) => (
                           <motion.div
-                            key={community.id}
+                            key={item.id}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.01 }}
                           >
-                            <PrioritizedCommunityCard
-                              community={community}
-                              variant="list"
-                              onSelect={() => {
-                                setLocation(`/community/${community.id}`);
-                              }}
-                            />
+                            {searchCategory === 'services' ? (
+                              <VendorServiceCard
+                                vendor={item}
+                                variant="list"
+                                onSelect={() => {
+                                  window.open(item.website || '#', '_blank');
+                                }}
+                              />
+                            ) : (
+                              <PrioritizedCommunityCard
+                                community={item}
+                                variant="list"
+                                onSelect={() => {
+                                  setLocation(`/community/${item.id}`);
+                                }}
+                              />
+                            )}
                           </motion.div>
                         ))}
                         
@@ -547,7 +572,12 @@ function HeroSectionWithTransformingSearch() {
                               <h3 className="text-xl font-semibold text-white mb-2">No Results Found</h3>
                               <p className="text-white/70">
                                 {searchQuery 
-                                  ? `We couldn't find any communities matching "${searchQuery}"`
+                                  ? `We couldn't find any ${
+                                      searchCategory === 'services' ? 'services' : 
+                                      searchCategory === 'healthcare' ? 'healthcare providers' :
+                                      searchCategory === 'resources' ? 'resources' :
+                                      'communities'
+                                    } matching "${searchQuery}"`
                                   : "Try adjusting your search criteria"}
                               </p>
                             </div>
