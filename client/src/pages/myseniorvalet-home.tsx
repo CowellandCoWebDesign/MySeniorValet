@@ -312,18 +312,18 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
 
-        {/* Unified Search Component with integrated toggles - Zillow-level functionality */}
+        {/* Unified Search Component with integrated toggles - Premium Glass Design */}
         <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative mb-8 z-40">
-          {/* View Mode Tabs - Attached to top of search bar */}
+          {/* View Mode Tabs - Glass Morphism Design */}
           <div className="flex justify-center">
-            <div className="inline-flex bg-gray-800/90 backdrop-blur-sm rounded-t-2xl p-1.5 shadow-xl border border-gray-700/50 border-b-0">
+            <div className="inline-flex bg-white/10 backdrop-blur-md rounded-t-2xl p-1.5 shadow-2xl border border-white/20">
               <button
                 type="button"
                 onClick={() => setViewMode('list')}
-                className={`px-5 py-2.5 rounded-full transition-all duration-200 text-sm font-semibold flex items-center ${
+                className={`px-6 py-3 rounded-xl transition-all duration-300 text-sm font-bold flex items-center transform ${
                   viewMode === 'list' 
-                    ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg scale-105' 
-                    : 'text-gray-300 hover:text-white hover:bg-white/10'
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50 scale-105' 
+                    : 'text-white/80 hover:text-white hover:bg-white/20'
                 }`}
               >
                 <List className="w-4 h-4 mr-2" />
@@ -337,10 +337,10 @@ function HeroSectionWithTransformingSearch() {
                     setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
                   }
                 }}
-                className={`px-5 py-2.5 rounded-full transition-all duration-200 text-sm font-semibold flex items-center ${
+                className={`px-6 py-3 rounded-xl transition-all duration-300 text-sm font-bold flex items-center transform ${
                   viewMode === 'map' 
-                    ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg scale-105' 
-                    : 'text-gray-300 hover:text-white hover:bg-white/10'
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50 scale-105' 
+                    : 'text-white/80 hover:text-white hover:bg-white/20'
                 }`}
               >
                 <MapPin className="w-4 h-4 mr-2" />
@@ -349,10 +349,10 @@ function HeroSectionWithTransformingSearch() {
               <button
                 type="button"
                 onClick={() => setViewMode('learn')}
-                className={`px-5 py-2.5 rounded-full transition-all duration-200 text-sm font-semibold flex items-center ${
+                className={`px-6 py-3 rounded-xl transition-all duration-300 text-sm font-bold flex items-center transform ${
                   viewMode === 'learn' 
-                    ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg scale-105' 
-                    : 'text-gray-300 hover:text-white hover:bg-white/10'
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50 scale-105' 
+                    : 'text-white/80 hover:text-white hover:bg-white/20'
                 }`}
               >
                 <Brain className="w-4 h-4 mr-2" />
@@ -361,7 +361,7 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
           
-          {/* Search bar styled to connect with toggles */}
+          {/* Search bar with premium glass effect */}
           <div className="-mt-[2px]">
             <ComprehensiveSearch 
             onSearch={(results) => {
@@ -392,12 +392,12 @@ function HeroSectionWithTransformingSearch() {
             />
           </div>
           
-          {/* Search Results - Flows naturally in hero section */}
+          {/* Search Results - Premium Glass Design */}
           {isSearchActive && (viewMode === 'list' || viewMode === 'learn') && (
-            <div className="w-full max-w-2xl mt-0">
-              {/* Results Header */}
+            <div className="w-full max-w-2xl mt-4">
+              {/* Results Header - Glass Morphism */}
               <div className="">
-                <div className="bg-gray-800/95 backdrop-blur-sm px-4 py-3 border-x border-b border-gray-700 rounded-b-xl">
+                <div className="bg-white/10 backdrop-blur-md px-4 py-3 border border-white/20 rounded-xl shadow-2xl">
                   <h3 className="text-lg font-semibold text-white">
                     {searchResults?.metadata?.isResearchMode ? (
                       <span className="flex items-center space-x-2">
@@ -416,8 +416,8 @@ function HeroSectionWithTransformingSearch() {
                 </div>
               </div>
               
-              {/* Results Content with full functionality */}
-              <div className="mt-2 max-h-[60vh] overflow-y-auto bg-gray-900/95 backdrop-blur-sm rounded-xl border border-gray-700 shadow-2xl">
+              {/* Results Content with premium glass design */}
+              <div className="mt-3 max-h-[60vh] overflow-y-auto bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-12">
                     <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
@@ -480,11 +480,11 @@ function HeroSectionWithTransformingSearch() {
                           className="inline-block"
                         >
                           <div className="relative">
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 blur-xl opacity-30"></div>
-                            <div className="relative bg-gray-800/90 backdrop-blur-sm rounded-2xl p-8 border border-gray-700">
-                              <MapPin className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 blur-xl opacity-40"></div>
+                            <div className="relative bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
+                              <MapPin className="w-16 h-16 text-white/60 mx-auto mb-4" />
                               <h3 className="text-xl font-semibold text-white mb-2">No Results Found</h3>
-                              <p className="text-gray-400">
+                              <p className="text-white/70">
                                 {searchQuery 
                                   ? `We couldn't find any communities matching "${searchQuery}"`
                                   : "Try adjusting your search criteria"}
