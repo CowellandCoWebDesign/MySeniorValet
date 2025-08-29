@@ -24,6 +24,8 @@ MySeniorValet is an AI-powered "Google of Senior Care" platform, featuring "Lear
 - **CRITICAL REMOVAL AUTHORIZATION RULE**: NO removal of functionality, features, or code sections without EXPLICIT user authorization. Any removal attempt must first be confirmed with user. This includes search results, UI components, data displays, or any existing functionality. Before proposing any removal, provide an IN-DEPTH explanation that includes: (1) What exactly will be removed, (2) Why the removal is being considered, (3) What impact the removal will have on functionality, (4) What alternative solutions exist, (5) Expected user experience changes after removal. Only proceed with removal after receiving explicit approval.
 
 ## System Architecture
+**Cache Duration Update (August 29, 2025)**: Web enrichment data from Perplexity API is now cached for 7 days (like Google) instead of 24 hours, reducing API costs by 85% while maintaining proper attribution and force-refresh options.
+
 The platform is built with a modern web stack, emphasizing transparency and user engagement.
 
 **🔥 COMPREHENSIVE SEARCH SYSTEM (August 28, 2025)**:

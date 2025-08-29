@@ -9,8 +9,8 @@ import { eq } from 'drizzle-orm';
 import { perplexityService } from '../perplexity-ai-service';
 import { ScalableCache } from '../infrastructure/cache';
 
-// Simple 24-hour cache
-const enrichmentCache = new ScalableCache(1000, 24 * 60 * 60 * 1000);
+// 7-day cache (like Google) for web enrichment data with proper attribution
+const enrichmentCache = new ScalableCache(1000, 7 * 24 * 60 * 60 * 1000);
 
 interface SimpleEnrichmentResult {
   communityId: number;
@@ -112,7 +112,7 @@ export class SimpleEnrichmentService {
     };
     
     // Step 7: Cache the result
-    enrichmentCache.set(`enrich:${communityId}`, result, 24 * 60 * 60 * 1000);
+    enrichmentCache.set(`enrich:${communityId}`, result, 7 * 24 * 60 * 60 * 1000);
     
     console.log(`✅ Enrichment complete: ${photos.length} photos, ${result.verificationStatus} status`);
     

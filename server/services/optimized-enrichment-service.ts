@@ -10,8 +10,8 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 
-// Initialize cache with 24-hour TTL for verification results
-const verificationCache = new ScalableCache(1000, 24 * 60 * 60 * 1000); // 24 hours
+// Initialize cache with 7-day TTL for verification results (like Google's cache duration)
+const verificationCache = new ScalableCache(1000, 7 * 24 * 60 * 60 * 1000); // 7 days
 
 interface EnrichmentOptions {
   forceRefresh?: boolean;
@@ -35,8 +35,8 @@ export class OptimizedEnrichmentService {
     
     if (cached) {
       const age = Date.now() - cached.timestamp;
-      // Use cache if less than 24 hours old
-      if (age < 24 * 60 * 60 * 1000) {
+      // Use cache if less than 7 days old
+      if (age < 7 * 24 * 60 * 60 * 1000) {
         console.log(`✅ Cache hit for community ${communityId}, age: ${Math.round(age / 1000 / 60)} minutes`);
         return cached;
       }
@@ -120,8 +120,8 @@ export class OptimizedEnrichmentService {
         communityId
       };
       
-      verificationCache.set(cacheKey, cacheData, 24 * 60 * 60 * 1000); // 24 hour cache
-      console.log(`✅ Enrichment completed in ${Date.now() - startTime}ms, cached for 24 hours`);
+      verificationCache.set(cacheKey, cacheData, 7 * 24 * 60 * 60 * 1000); // 7 day cache
+      console.log(`✅ Enrichment completed in ${Date.now() - startTime}ms, cached for 7 days`);
 
       // Update database with enriched data
       await this.updateDatabaseWithEnrichedData(communityId, enrichedData);
