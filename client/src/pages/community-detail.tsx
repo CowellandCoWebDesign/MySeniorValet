@@ -901,16 +901,16 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
   // Removed webIntelligenceData - now handled internally by simplified LiveWebIntelligence component
   const [isVerifying, setIsVerifying] = useState(false);
 
-  // Trigger Multi-AI verification when real-time data is available
+  // Trigger verification when component mounts (only once)
   useEffect(() => {
-    if (realTimeData && community?.id && !isVerifying) {
+    if (community?.id && !isVerifying && !localVerificationReport) {
       setIsVerifying(true);
       
-      // Call Multi-AI Verification endpoint
+      // Call simplified verification endpoint
       fetch(`/api/communities/${community.id}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ realTimeData })
+        body: JSON.stringify({ forceRefresh: false })
       })
       .then(res => res.json())
       .then(report => {
@@ -921,18 +921,22 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
           console.log('Calling onVerificationReport callback with:', report);
           onVerificationReport(report);
         }
+        // Update photos if we got any
+        if (report?.verificationResults?.webIntelligence?.images && onPhotosUpdate) {
+          onPhotosUpdate(report.verificationResults.webIntelligence.images);
+        }
       })
       .catch(error => {
-        // Silently handle error in production
+        console.error('Verification error:', error);
       })
       .finally(() => {
         setIsVerifying(false);
       });
     }
-  }, [realTimeData, community?.id]);
+  }, [community?.id]);
 
-  // Don't render if there's no real-time data yet
-  if (!realTimeData) {
+  // Don't render if there's no real-time data and no verification report
+  if (!realTimeData && !localVerificationReport) {
     return null;
   }
 
@@ -987,9 +991,12 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
             city={community.city}
             state={community.state}
             verificationReport={localVerificationReport}
+            autoLoad={true}
           />
         )}
         
+        {/* Only show additional sections if we have real-time data */}
+        {realTimeData && (
         <div className="space-y-6 mt-6">
           {/* Current Availability & Pricing - Enhanced with Web Intelligence Data */}
           {(realTimeData?.currentAvailability || realTimeData?.currentPricing || realTimeData?.waitlistStatus) && (
@@ -1530,6 +1537,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
             </div>
           </div>
         </div>
+        )}
       </CardContent>
     </Card>
   );

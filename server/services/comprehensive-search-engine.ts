@@ -203,6 +203,7 @@ export class ComprehensiveSearchEngine {
             ilike(communities.managementCompany, `%${normalizedQuery}%`)
           )
         );
+        console.log(`🔍 Added company search conditions for "${normalizedQuery}"`);
       }
       
       // If no specific intent detected strongly AND not a country search, use general search

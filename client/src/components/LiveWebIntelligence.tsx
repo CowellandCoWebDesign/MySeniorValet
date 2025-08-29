@@ -92,11 +92,30 @@ export function LiveWebIntelligence({
 
   // Auto-load intelligence when component mounts (if autoLoad is true)
   useEffect(() => {
-    if (autoLoad && !hasTriedLoading && !intelligence && !fetchIntelligence.isPending) {
+    // Only auto-load if we have verification report data to display
+    if (autoLoad && !hasTriedLoading && !intelligence && !fetchIntelligence.isPending && verificationReport) {
       setHasTriedLoading(true);
-      fetchIntelligence.mutate();
+      // Skip the competitive analysis call if we already have data from verification
+      if (verificationReport?.searchResults || verificationReport?.verificationResults) {
+        // Use verification data directly instead of calling competitive analysis
+        const mockIntelligence: CommunityIntelligence = {
+          found: true,
+          name: communityName,
+          officialWebsite: verificationReport?.contactInfo?.website || verificationReport?.officialWebsite,
+          phone: verificationReport?.contactInfo?.phone || verificationReport?.phoneNumber,
+          pricing: verificationReport?.pricing,
+          description: verificationReport?.searchResults?.summary || verificationReport?.verificationResults?.perplexityData?.searchContent,
+          sources: verificationReport?.searchResults?.sources || verificationReport?.verificationResults?.perplexityData?.sources || [],
+          photos: verificationReport?.photos?.map((p: any) => p.url) || []
+        };
+        setIntelligence(mockIntelligence);
+        setIsExpanded(true);
+      } else {
+        // Only call competitive analysis if we don't have verification data
+        fetchIntelligence.mutate();
+      }
     }
-  }, [autoLoad, hasTriedLoading, intelligence, fetchIntelligence]);
+  }, [autoLoad, hasTriedLoading, intelligence, fetchIntelligence, verificationReport, communityName]);
 
   // If we haven't fetched yet, show the button
   if (!intelligence && !fetchIntelligence.isPending) {
@@ -337,18 +356,15 @@ export function LiveWebIntelligence({
       "transition-all duration-300",
       isExpanded && "ring-2 ring-primary/20"
     )}>
-      <CardHeader 
-        className="cursor-pointer"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
+      <CardHeader>
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <CardTitle className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-green-600" />
-              Live Intelligence Found
+              AI Generated Community Overview
             </CardTitle>
             <CardDescription>
-              Real-time information from {intelligence?.sources?.length || 0} sources
+              {intelligence?.description ? 'Verified information from web sources' : `Real-time information from ${intelligence?.sources?.length || 0} sources`}
             </CardDescription>
           </div>
           <Button 
@@ -357,8 +373,10 @@ export function LiveWebIntelligence({
             onClick={(e) => {
               e.stopPropagation();
               setIntelligence(null);
+              setHasTriedLoading(false);
               fetchIntelligence.mutate();
             }}
+            title="Refresh intelligence"
           >
             <RefreshCw className="h-4 w-4" />
           </Button>
