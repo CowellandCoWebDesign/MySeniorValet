@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "@/components/theme-provider";
+import techLighthouse from '@assets/generated_images/Tech_store_lighthouse_89476c9d.png';
+import darkTechLighthouse from '@assets/generated_images/Dark_tech_lighthouse_a6796c39.png';
 
 interface NavbarProps {
   transparent?: boolean;
@@ -312,14 +314,18 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Theme Toggle - Lighthouse Changes with Theme */}
+            {/* Theme Toggle - Tech Lighthouse */}
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="text-2xl hover:scale-110 transition-transform duration-200 cursor-pointer focus:outline-none p-1"
+              className="hover:scale-110 transition-transform duration-200 cursor-pointer focus:outline-none p-1"
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
               title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
             >
-              {theme === 'dark' ? '🏮' : '⛯'}
+              <img 
+                src={theme === 'dark' ? darkTechLighthouse : techLighthouse} 
+                alt={theme === 'dark' ? 'Dark mode lighthouse' : 'Light mode lighthouse'}
+                className="w-8 h-8 object-contain"
+              />
             </button>
 
             {/* Notifications */}
