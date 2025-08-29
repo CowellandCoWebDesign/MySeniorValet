@@ -9,7 +9,7 @@ import { MarketIntelligenceModal } from "./MarketIntelligenceModal";
 import thinkerVariation1 from '@assets/generated_images/Thinker_statue_cosmic_placeholder_5ef720ce.png';
 import thinkerVariation2 from '@assets/generated_images/Complete_Thinker_in_cosmic_scene_7edc4191.png';
 import thinkerVariation3 from '@assets/generated_images/Thinker_blue_nebula_variation_37e62e66.png';
-import thinkerVariation4 from '@assets/generated_images/Full_Thinker_asteroid_uncropped_764d364c.png';
+import thinkerVariation4 from '@assets/generated_images/Wide_angle_complete_Thinker_dcc37abc.png';
 import thinkerVariation5 from '@assets/generated_images/Thinker_aurora_cosmic_energy_a006de4d.png';
 import thinkerVariation6 from '@assets/generated_images/Thinker_pink_cosmic_clouds_4681493c.png';
 
