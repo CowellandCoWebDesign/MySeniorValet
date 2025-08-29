@@ -54,26 +54,26 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Navigation items organized by category
+  // Navigation items organized by category - using actual existing routes
   const navigationItems = {
     main: [
       { label: "Home", icon: Home, href: "/" },
-      { label: "Search", icon: Search, href: "/search" },
-      { label: "Map View", icon: MapPin, href: "/map" },
-      { label: "Communities", icon: Building2, href: "/communities" },
+      { label: "Search", icon: Search, href: "/simplified-search" },
+      { label: "Map View", icon: MapPin, href: "/map-search" },
+      { label: "Communities", icon: Building2, href: "/community-directory" },
     ],
     resources: [
-      { label: "Learn Mode", icon: Brain, href: "/learn" },
-      { label: "Healthcare", icon: Heart, href: "/healthcare" },
+      { label: "Learn Mode", icon: Brain, href: "/care-guide" },
+      { label: "Healthcare", icon: Heart, href: "/hospitals" },
       { label: "Services", icon: Users, href: "/services" },
-      { label: "Resources", icon: BookOpen, href: "/resources" },
+      { label: "Resources", icon: BookOpen, href: "/senior-resources" },
       { label: "Pricing Guide", icon: DollarSign, href: "/pricing" },
     ],
     tools: [
       { label: "Tour Scheduler", icon: Calendar, href: "/tours" },
-      { label: "Cost Calculator", icon: BarChart3, href: "/calculator" },
-      { label: "Compare", icon: FileText, href: "/compare" },
-      { label: "Saved", icon: Heart, href: "/saved" },
+      { label: "Cost Calculator", icon: BarChart3, href: "/costs" },
+      { label: "AI Assistant", icon: Brain, href: "/ai-support" },
+      { label: "Family Hub", icon: Heart, href: "/family-collaboration" },
     ],
     support: [
       { label: "Help Center", icon: HelpCircle, href: "/help" },
@@ -133,14 +133,14 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                       Main
                     </p>
                     {navigationItems.main.map((item) => (
-                      <Link key={item.href} href={item.href}>
-                        <a
-                          className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          <item.icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                          <span className="text-sm font-medium">{item.label}</span>
-                        </a>
+                      <Link 
+                        key={item.href} 
+                        href={item.href}
+                        className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <item.icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                        <span className="text-sm font-medium">{item.label}</span>
                       </Link>
                     ))}
                     
@@ -150,14 +150,14 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                       Resources
                     </p>
                     {navigationItems.resources.map((item) => (
-                      <Link key={item.href} href={item.href}>
-                        <a
-                          className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          <item.icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                          <span className="text-sm font-medium">{item.label}</span>
-                        </a>
+                      <Link 
+                        key={item.href} 
+                        href={item.href}
+                        className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <item.icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                        <span className="text-sm font-medium">{item.label}</span>
                       </Link>
                     ))}
                     
@@ -167,14 +167,14 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                       Tools
                     </p>
                     {navigationItems.tools.map((item) => (
-                      <Link key={item.href} href={item.href}>
-                        <a
-                          className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          <item.icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                          <span className="text-sm font-medium">{item.label}</span>
-                        </a>
+                      <Link 
+                        key={item.href} 
+                        href={item.href}
+                        className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <item.icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                        <span className="text-sm font-medium">{item.label}</span>
                       </Link>
                     ))}
                   </div>
@@ -183,27 +183,27 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
             </Sheet>
 
             {/* Logo */}
-            <Link href="/">
-              <a className="flex items-center space-x-2">
-                <Home className="h-8 w-8 text-purple-600" />
-                <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  MySeniorValet
-                </span>
-              </a>
+            <Link href="/" className="flex items-center space-x-2 cursor-pointer">
+              <Home className="h-8 w-8 text-purple-600" />
+              <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                MySeniorValet
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-1">
               {navigationItems.main.map((item) => (
-                <Link key={item.href} href={item.href}>
-                  <a className={cn(
+                <Link 
+                  key={item.href} 
+                  href={item.href}
+                  className={cn(
                     "px-3 py-2 rounded-md text-sm font-medium transition-colors",
                     location === item.href 
                       ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
                       : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                  )}>
-                    {item.label}
-                  </a>
+                  )}
+                >
+                  {item.label}
                 </Link>
               ))}
               
@@ -218,11 +218,9 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 <DropdownMenuContent align="start" className="w-56">
                   {navigationItems.resources.map((item) => (
                     <DropdownMenuItem key={item.href} asChild>
-                      <Link href={item.href}>
-                        <a className="flex items-center space-x-2 w-full">
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.label}</span>
-                        </a>
+                      <Link href={item.href} className="flex items-center space-x-2 w-full cursor-pointer">
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.label}</span>
                       </Link>
                     </DropdownMenuItem>
                   ))}
@@ -240,11 +238,9 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 <DropdownMenuContent align="start" className="w-56">
                   {navigationItems.tools.map((item) => (
                     <DropdownMenuItem key={item.href} asChild>
-                      <Link href={item.href}>
-                        <a className="flex items-center space-x-2 w-full">
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.label}</span>
-                        </a>
+                      <Link href={item.href} className="flex items-center space-x-2 w-full cursor-pointer">
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.label}</span>
                       </Link>
                     </DropdownMenuItem>
                   ))}
@@ -331,37 +327,29 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/profile">
-                      <a className="flex items-center space-x-2 w-full">
-                        <User className="h-4 w-4" />
-                        <span>Profile</span>
-                      </a>
+                    <Link href="/dashboard" className="flex items-center space-x-2 w-full cursor-pointer">
+                      <User className="h-4 w-4" />
+                      <span>Dashboard</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/settings">
-                      <a className="flex items-center space-x-2 w-full">
-                        <Settings className="h-4 w-4" />
-                        <span>Settings</span>
-                      </a>
+                    <Link href="/notification-preferences" className="flex items-center space-x-2 w-full cursor-pointer">
+                      <Settings className="h-4 w-4" />
+                      <span>Settings</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/accessibility">
-                      <a className="flex items-center space-x-2 w-full">
-                        <Accessibility className="h-4 w-4" />
-                        <span>Accessibility</span>
-                      </a>
+                    <Link href="/accessibility" className="flex items-center space-x-2 w-full cursor-pointer">
+                      <Accessibility className="h-4 w-4" />
+                      <span>Accessibility</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/api/logout">
-                      <a className="flex items-center space-x-2 w-full text-red-600">
-                        <LogOut className="h-4 w-4" />
-                        <span>Sign Out</span>
-                      </a>
-                    </Link>
+                    <a href="/api/logout" className="flex items-center space-x-2 w-full text-red-600 cursor-pointer">
+                      <LogOut className="h-4 w-4" />
+                      <span>Sign Out</span>
+                    </a>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
