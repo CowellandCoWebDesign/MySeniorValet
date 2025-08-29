@@ -1858,22 +1858,24 @@ const HeroPhotoCarousel = ({
   // Show The Thinker loading screen when no photos available or photos are loading
   if (hasNoRealPhotos || isLoadingWebPhotos) {
     return (
-      <div className="w-full h-full">
-        <MascotLoadingDisplay 
-          title="Deep in Thought..."
-          subtitle={`Gathering authentic photos for ${communityName}`}
-          showProgress={true}
-          progressDuration={10}
-          factRotationSpeed={3000}
-          compact={false}
-          processStages={[
-            "Searching official website for photos",
-            "Scanning social media and listings",
-            "Analyzing image quality and authenticity",
-            "Verifying photo sources and ownership",
-            "Organizing visual content library"
-          ]}
-        />
+      <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+        <div className="scale-75 max-w-md">
+          <MascotLoadingDisplay 
+            title="Deep in Thought..."
+            subtitle={`Gathering authentic photos for ${communityName}`}
+            showProgress={true}
+            progressDuration={10}
+            factRotationSpeed={3000}
+            compact={true}
+            processStages={[
+              "Searching official website for photos",
+              "Scanning social media and listings",
+              "Analyzing image quality and authenticity",
+              "Verifying photo sources and ownership",
+              "Organizing visual content library"
+            ]}
+          />
+        </div>
       </div>
     );
   }
