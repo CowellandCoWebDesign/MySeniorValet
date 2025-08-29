@@ -107,6 +107,19 @@ Collection of creative light ON/OFF designs for MySeniorValet theme toggle funct
 9. **Glowing Mushrooms** - `attached_assets/generated_images/Glowing_mushrooms_9481dec9.png`
 10. **Solar Eclipse** - `attached_assets/generated_images/Solar_eclipse_9d6c9317.png`
 
+## Chandelier Collection (Batch 4)
+
+1. **Victorian Crystal Chandelier** - `attached_assets/generated_images/Victorian_crystal_chandelier_56b1af95.png`
+2. **Modern Orb Chandelier** - `attached_assets/generated_images/Modern_orb_chandelier_a4a7e06a.png`
+3. **Art Deco Chandelier** - `attached_assets/generated_images/Art_Deco_chandelier_51c17f43.png`
+4. **Farmhouse Mason Jar Chandelier** - `attached_assets/generated_images/Farmhouse_mason_jar_chandelier_c6ce79be.png`
+5. **French Empire Chandelier** - `attached_assets/generated_images/French_Empire_chandelier_6535e517.png`
+6. **Bubble Glass Chandelier** - `attached_assets/generated_images/Bubble_glass_chandelier_6d330f75.png`
+7. **Murano Glass Chandelier** - `attached_assets/generated_images/Murano_glass_chandelier_c93d2df5.png`
+8. **Sputnik Chandelier** - `attached_assets/generated_images/Sputnik_chandelier_80f842c7.png`
+9. **Waterfall Crystal Chandelier** - `attached_assets/generated_images/Waterfall_crystal_chandelier_8cb635b5.png`
+10. **Rustic Antler Chandelier** - `attached_assets/generated_images/Rustic_antler_chandelier_34ed6978.png`
+
 ## Implementation Status
 
 ### Currently Active:

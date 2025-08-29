@@ -61,6 +61,18 @@ import SubwayTrainLights from '@assets/generated_images/Subway_train_lights_dfb4
 import GlowingMushrooms from '@assets/generated_images/Glowing_mushrooms_9481dec9.png';
 import SolarEclipse from '@assets/generated_images/Solar_eclipse_9d6c9317.png';
 
+// Chandelier Collection
+import VictorianCrystalChandelier from '@assets/generated_images/Victorian_crystal_chandelier_56b1af95.png';
+import ModernOrbChandelier from '@assets/generated_images/Modern_orb_chandelier_a4a7e06a.png';
+import ArtDecoChandelier from '@assets/generated_images/Art_Deco_chandelier_51c17f43.png';
+import FarmhouseMasonJarChandelier from '@assets/generated_images/Farmhouse_mason_jar_chandelier_c6ce79be.png';
+import FrenchEmpireChandelier from '@assets/generated_images/French_Empire_chandelier_6535e517.png';
+import BubbleGlassChandelier from '@assets/generated_images/Bubble_glass_chandelier_6d330f75.png';
+import MuranoGlassChandelier from '@assets/generated_images/Murano_glass_chandelier_c93d2df5.png';
+import SputnikChandelier from '@assets/generated_images/Sputnik_chandelier_80f842c7.png';
+import WaterfallCrystalChandelier from '@assets/generated_images/Waterfall_crystal_chandelier_8cb635b5.png';
+import RusticAntlerChandelier from '@assets/generated_images/Rustic_antler_chandelier_34ed6978.png';
+
 interface LightDesign {
   name: string;
   category: string;
@@ -379,6 +391,68 @@ const lightDesigns: LightDesign[] = [
     category: 'Decorative',
     images: { on: SubwayTrainLights },
     description: 'Urban transit approach'
+  },
+  
+  // Chandelier Collection - Luxury Light Mode Options
+  {
+    name: 'Victorian Crystal Chandelier',
+    category: 'Chandelier',
+    images: { on: VictorianCrystalChandelier },
+    description: 'Opulent gold frame with sparkling crystals creating rainbow prisms'
+  },
+  {
+    name: 'Modern Orb Chandelier',
+    category: 'Chandelier',
+    images: { on: ModernOrbChandelier },
+    description: 'Minimalist Scandinavian design with frosted glass spheres'
+  },
+  {
+    name: 'Art Deco Chandelier',
+    category: 'Chandelier',
+    images: { on: ArtDecoChandelier },
+    description: '1920s glamour with cascading crystal tiers and gold detailing'
+  },
+  {
+    name: 'Farmhouse Mason Jar Chandelier',
+    category: 'Chandelier',
+    images: { on: FarmhouseMasonJarChandelier },
+    description: 'Rustic charm with Edison bulbs in mason jars'
+  },
+  {
+    name: 'French Empire Chandelier',
+    category: 'Chandelier',
+    images: { on: FrenchEmpireChandelier },
+    description: 'Majestic bronze eagles with candelabra lights and crystal drops'
+  },
+  {
+    name: 'Bubble Glass Chandelier',
+    category: 'Chandelier',
+    images: { on: BubbleGlassChandelier },
+    description: 'Magical iridescent spheres casting rainbow reflections'
+  },
+  {
+    name: 'Murano Glass Chandelier',
+    category: 'Chandelier',
+    images: { on: MuranoGlassChandelier },
+    description: 'Vibrant Italian masterpiece with hand-blown glass flowers'
+  },
+  {
+    name: 'Sputnik Chandelier',
+    category: 'Chandelier',
+    images: { on: SputnikChandelier },
+    description: 'Mid-century modern atomic age design with brass starburst'
+  },
+  {
+    name: 'Waterfall Crystal Chandelier',
+    category: 'Chandelier',
+    images: { on: WaterfallCrystalChandelier },
+    description: 'Spectacular spiral cascade of crystals with LED lighting'
+  },
+  {
+    name: 'Rustic Antler Chandelier',
+    category: 'Chandelier',
+    images: { on: RusticAntlerChandelier },
+    description: 'Natural deer antlers with Edison bulbs for lodge aesthetic'
   }
 ];
 
