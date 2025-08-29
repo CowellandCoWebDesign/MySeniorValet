@@ -44,6 +44,7 @@ import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal"
 import { PricingHistory } from "@/components/pricing-history";
 import { LiveWebIntelligence } from "@/components/LiveWebIntelligence";
 import { ExternalLinkWarning } from "@/components/ExternalLinkWarning";
+import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
 import valetMascot from '@/assets/valet-mascot.png';
 
 // Default photos for communities without images
@@ -1703,11 +1704,7 @@ const HeroPhotoCarousel = ({
     
     console.log(`📷 Total unique photos: ${uniquePhotos.length}`);
     
-    // Return unique photos or default placeholders if none
-    if (uniquePhotos.length === 0) {
-      console.log('⚠️ No photos found, using default placeholders');
-      return defaultPhotos.map(url => ({ url, source: 'placeholder' as const }));
-    }
+    // Return unique photos only if they exist - don't use placeholders
     return uniquePhotos;
   };
   
@@ -1846,27 +1843,30 @@ const HeroPhotoCarousel = ({
 
   // Check if we're still loading photos from web intelligence
   const isLoadingWebPhotos = !verificationReport?.webIntelligence?.images && verificationReport?.timestamp;
-  const hasDefaultPhotos = safePhotos.every(photo => defaultPhotos.includes(photo.url));
-  const hasOnlyPlaceholders = safePhotos.every(photo => photo.source === 'placeholder');
-  
-  // Determine loading stage based on verification report content
-  const getLoadingStage = () => {
-    if (!verificationReport) return 'initializing';
-    if (verificationReport?.marketAnalysis && !verificationReport?.webIntelligence) return 'searching';
-    if (verificationReport?.webIntelligence && !verificationReport?.webIntelligence?.images) return 'extracting';
-    return 'complete';
-  };
-  
-  const loadingStage = getLoadingStage();
+  const hasNoRealPhotos = safePhotos.length === 0;
   
   console.log('Photo loading state:', {
     isLoadingWebPhotos,
-    hasDefaultPhotos,
-    hasOnlyPlaceholders,
-    loadingStage,
+    hasNoRealPhotos,
     safePhotos,
     verificationReport: !!verificationReport
   });
+
+  // Show The Thinker loading screen when no photos available or photos are loading
+  if (hasNoRealPhotos || isLoadingWebPhotos) {
+    return (
+      <div className="w-full h-full">
+        <MascotLoadingDisplay 
+          title="Deep in Thought..."
+          subtitle={`Gathering authentic photos for ${communityName}`}
+          showProgress={true}
+          progressDuration={10}
+          factRotationSpeed={3000}
+          compact={false}
+        />
+      </div>
+    );
+  }
 
   return (
     <div 
@@ -1879,90 +1879,55 @@ const HeroPhotoCarousel = ({
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* Always render a container that maintains height */}
+      {/* Photo Carousel Container */}
       <div className="w-full h-full bg-gray-100 dark:bg-gray-800 relative">
-        {/* Photo Carousel - Always show photos if available */}
-        {safePhotos.length > 0 && (
-          <div className="w-full h-full overflow-hidden">
-            <div 
-              className="flex h-full"
-              style={{
-                transform: `translateX(calc(-${currentIndex * 100}% + ${translateX}px))`,
-                transition: isTransitioning || !isDragging ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
-              }}
-            >
-              {safePhotos.map((photo, index) => {
-                // Ensure proper URL handling for scraped photos
-                const photoUrl = photo.url.startsWith('http') ? photo.url : 
-                               photo.url.startsWith('//') ? `https:${photo.url}` :
-                               photo.url.startsWith('/') ? `https://example.com${photo.url}` : 
-                               photo.url;
-                
-                return (
-                  <div key={`photo-${index}-${photoUpdateKey}`} className="relative w-full h-full flex-shrink-0">
-                    <img
-                      src={photoUrl}
-                      alt={`${communityName} - ${photo.source === 'web' ? 'Web Scraped' : 'Community'} Photo ${index + 1}`}
-                      className="w-full h-full object-cover select-none"
-                      draggable={false}
-                      loading={index === 0 ? "eager" : "lazy"}
-                      onLoad={() => {
-                        console.log(`✅ Successfully loaded photo ${index + 1}:`, photoUrl);
-                      }}
-                      onError={(e) => {
-                        console.log(`❌ Failed to load photo ${index + 1}:`, photoUrl);
-                        // Replace with working fallback image
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/hero-senior-community.svg';
-                      }}
-                    />
-                    {/* Attribution for web-sourced photos */}
-                    {photo.source === 'web' && (
-                      <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs backdrop-blur-sm">
-                        <div className="flex items-center gap-1">
-                          <Globe className="w-3 h-3" />
-                          <span>Sourced from public web</span>
-                        </div>
+        <div className="w-full h-full overflow-hidden">
+          <div 
+            className="flex h-full"
+            style={{
+              transform: `translateX(calc(-${currentIndex * 100}% + ${translateX}px))`,
+              transition: isTransitioning || !isDragging ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+            }}
+          >
+            {safePhotos.map((photo, index) => {
+              // Ensure proper URL handling for scraped photos
+              const photoUrl = photo.url.startsWith('http') ? photo.url : 
+                             photo.url.startsWith('//') ? `https:${photo.url}` :
+                             photo.url.startsWith('/') ? `https://example.com${photo.url}` : 
+                             photo.url;
+              
+              return (
+                <div key={`photo-${index}-${photoUpdateKey}`} className="relative w-full h-full flex-shrink-0">
+                  <img
+                    src={photoUrl}
+                    alt={`${communityName} - ${photo.source === 'web' ? 'Web Scraped' : 'Community'} Photo ${index + 1}`}
+                    className="w-full h-full object-cover select-none"
+                    draggable={false}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    onLoad={() => {
+                      console.log(`✅ Successfully loaded photo ${index + 1}:`, photoUrl);
+                    }}
+                    onError={(e) => {
+                      console.log(`❌ Failed to load photo ${index + 1}:`, photoUrl);
+                      // Replace with working fallback image
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/hero-senior-community.svg';
+                    }}
+                  />
+                  {/* Attribution for web-sourced photos */}
+                  {photo.source === 'web' && (
+                    <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs backdrop-blur-sm">
+                      <div className="flex items-center gap-1">
+                        <Globe className="w-3 h-3" />
+                        <span>Sourced from public web</span>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-        
-        {/* Loading overlay - Only show when actively searching for photos */}
-        {hasDefaultPhotos && isLoadingWebPhotos && (
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/95 via-purple-50/95 to-pink-50/95 dark:from-blue-900/95 dark:via-purple-900/95 dark:to-pink-900/95 flex items-center justify-center z-20 backdrop-blur-sm">
-            <div className="text-center p-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-lg">
-              <div className="relative">
-                <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center animate-pulse">
-                  <Globe className="w-10 h-10 text-white animate-bounce" />
+                    </div>
+                  )}
                 </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center animate-ping">
-                  <Sparkles className="w-5 h-5 text-white" />
-                </div>
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
-                🔍 Searching Live Web for Real Photos
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 max-w-xs mx-auto">
-                Finding authentic community photos from verified sources across the internet...
-              </p>
-              <div className="flex items-center justify-center gap-1">
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-                <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                <div className="w-2 h-2 bg-pink-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-500 mt-3 font-medium">
-                This may take 10-15 seconds - it's worth the wait!
-                <br />
-                <span className="text-[10px] opacity-75">Swipe to browse photos</span>
-              </p>
-            </div>
+              );
+            })}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Navigation arrows - only show if more than 1 photo */}
@@ -2442,8 +2407,8 @@ export default function CommunityDetail() {
       photos.push(...webPhotos);
     }
     
-    // If still no photos, use default
-    return photos.length > 0 ? photos : defaultPhotos;
+    // Return only real photos - no defaults/placeholders
+    return photos;
   };
   
   return (
@@ -2495,7 +2460,7 @@ export default function CommunityDetail() {
                 {/* Enhanced Photo Carousel - Responsive heights */}
                 <div className="relative block w-full h-[200px] sm:h-[280px] md:h-[320px] lg:h-[400px]">
                   <HeroPhotoCarousel 
-                    photos={(community.photos && community.photos.length > 0) ? community.photos : defaultPhotos} 
+                    photos={community.photos || []} 
                     communityName={community.name}
                     communityId={community.id}
                     community={community}
