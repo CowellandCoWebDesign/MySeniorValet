@@ -103,7 +103,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
       "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
       transparent && !isScrolled 
         ? "bg-transparent" 
-        : "bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-md",
+        : "bg-white dark:bg-gray-900 shadow-md",
       className
     )}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -116,7 +116,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
                   aria-label="Open menu"
                 >
                   <Menu className="h-6 w-6" />
@@ -140,7 +140,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <item.icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                        <span className="text-sm font-medium">{item.label}</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.label}</span>
                       </Link>
                     ))}
                     
@@ -157,7 +157,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <item.icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                        <span className="text-sm font-medium">{item.label}</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.label}</span>
                       </Link>
                     ))}
                     
@@ -174,7 +174,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <item.icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                        <span className="text-sm font-medium">{item.label}</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.label}</span>
                       </Link>
                     ))}
                   </div>
@@ -210,7 +210,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               {/* Resources Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="space-x-1">
+                  <Button variant="ghost" className="space-x-1 text-gray-700 dark:text-gray-300">
                     <span>Resources</span>
                     <ChevronDown className="h-4 w-4" />
                   </Button>
@@ -230,7 +230,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               {/* Tools Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="space-x-1">
+                  <Button variant="ghost" className="space-x-1 text-gray-700 dark:text-gray-300">
                     <span>Tools</span>
                     <ChevronDown className="h-4 w-4" />
                   </Button>
@@ -254,7 +254,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
             {/* Language Selector */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="hidden sm:flex items-center space-x-2">
+                <Button variant="ghost" size="sm" className="hidden sm:flex items-center space-x-2 text-gray-700 dark:text-gray-300">
                   <span className="text-lg">{currentLanguage.flag}</span>
                   <span className="hidden md:inline">{currentLanguage.label}</span>
                   <ChevronDown className="h-4 w-4" />
@@ -284,7 +284,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               variant="ghost"
               size="icon"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
             >
               {theme === 'dark' ? (
                 <Sun className="h-5 w-5" />
@@ -295,7 +295,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
 
             {/* Notifications */}
             {isAuthenticated && (
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative text-gray-700 dark:text-gray-300">
                 <Bell className="h-5 w-5" />
                 {unreadCount && Number(unreadCount) > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500">
@@ -356,12 +356,12 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
             ) : (
               <div className="flex items-center space-x-2">
                 <Link href="/api/login">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="text-gray-700 dark:text-gray-300">
                     Sign In
                   </Button>
                 </Link>
                 <Link href="/api/login">
-                  <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                  <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
                     Sign Up
                   </Button>
                 </Link>
