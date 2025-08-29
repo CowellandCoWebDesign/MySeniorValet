@@ -362,7 +362,7 @@ function HeroSectionWithTransformingSearch() {
         </div>
 
         {/* Comprehensive Search - Zillow-level functionality */}
-        <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative mb-8">
+        <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative mb-8 z-40">
           <ComprehensiveSearch 
             onSearch={(results) => {
               // Process comprehensive search results
@@ -390,6 +390,114 @@ function HeroSectionWithTransformingSearch() {
             className="w-full"
             showSuggestions={true}
           />
+          
+          {/* Search Results - Attached directly to search bar */}
+          {isSearchActive && (viewMode === 'list' || viewMode === 'learn') && (
+            <div className="absolute top-full left-0 right-0 w-full max-w-2xl z-50">
+              {/* Results Header */}
+              <div className="">
+                <div className="bg-gray-800/95 backdrop-blur-sm px-4 py-3 border-x border-b border-gray-700 rounded-b-xl">
+                  <h3 className="text-lg font-semibold text-white">
+                    {searchResults?.metadata?.isResearchMode ? (
+                      <span className="flex items-center space-x-2">
+                        <Brain className="w-5 h-5 text-purple-400" />
+                        <span>Learn Mode found {searchResults?.results?.length || 0} recommendations</span>
+                      </span>
+                    ) : (
+                      <span>Found {searchResults?.results?.length || 0} results</span>
+                    )}
+                    {searchQuery && (
+                      <span className="ml-2 text-green-400">
+                        "{searchQuery}"
+                      </span>
+                    )}
+                  </h3>
+                </div>
+              </div>
+              
+              {/* Results Content with full functionality */}
+              <div className="mt-2 max-h-[60vh] overflow-y-auto bg-gray-900/95 backdrop-blur-sm rounded-xl border border-gray-700 shadow-2xl">
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
+                    <span className="ml-3 text-gray-300">Searching...</span>
+                  </div>
+                ) : (
+                  <div className="space-y-3 p-4" style={{ willChange: 'auto' }}>
+                    {/* Graceful Fallback Message */}
+                    {searchResults?.metadata?.fallbackApplied && (
+                      <GracefulFallbackMessage
+                        message={searchResults.metadata.fallbackMessage || "Oh no! We didn't find many communities matching all your filters, but here's what we found in your area!"}
+                        originalResultCount={searchResults.metadata.originalResultCount || 0}
+                        totalFallbackResults={searchResults?.results?.length || 0}
+                        searchQuery={searchQuery}
+                        location={searchResults.metadata.searchLocation}
+                        careTypes={searchResults.metadata.careTypes}
+                      />
+                    )}
+                    
+                    {searchResults?.results && searchResults.results.length > 0 ? (
+                      <>
+                        {searchResults.results.slice(0, visibleResults).map((community: any, index: number) => (
+                          <motion.div
+                            key={community.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.01 }}
+                          >
+                            <PrioritizedCommunityCard
+                              community={community}
+                              variant="list"
+                              onSelect={() => {
+                                setLocation(`/community/${community.id}`);
+                              }}
+                            />
+                          </motion.div>
+                        ))}
+                        
+                        {/* Show More Button */}
+                        {searchResults.results.length > visibleResults && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex justify-center pt-4"
+                          >
+                            <button
+                              onClick={() => setVisibleResults(prev => prev + 10)}
+                              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105"
+                            >
+                              Show More Results ({visibleResults} of {searchResults.results.length})
+                            </button>
+                          </motion.div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="text-center py-8">
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="inline-block"
+                        >
+                          <div className="relative">
+                            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 blur-xl opacity-30"></div>
+                            <div className="relative bg-gray-800/90 backdrop-blur-sm rounded-2xl p-8 border border-gray-700">
+                              <MapPin className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                              <h3 className="text-xl font-semibold text-white mb-2">No Results Found</h3>
+                              <p className="text-gray-400">
+                                {searchQuery 
+                                  ? `We couldn't find any communities matching "${searchQuery}"`
+                                  : "Try adjusting your search criteria"}
+                              </p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Trust Indicators - Only show when not searching with proper spacing */}
@@ -411,114 +519,7 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
         )}
-        
-        {/* Search Results - Display directly in hero section with full functionality */}
-        {isSearchActive && (viewMode === 'list' || viewMode === 'learn') && (
-          <div className="w-full max-w-4xl mx-auto">
-            {/* Results Header */}
-            <div className="px-4">
-              <div className="bg-gray-800/95 backdrop-blur-sm px-4 py-3 rounded-t-xl border border-gray-700">
-                <h3 className="text-lg font-semibold text-white">
-                  {searchResults?.metadata?.isResearchMode ? (
-                    <span className="flex items-center space-x-2">
-                      <Brain className="w-5 h-5 text-purple-400" />
-                      <span>Learn Mode found {searchResults?.results?.length || 0} recommendations</span>
-                    </span>
-                  ) : (
-                    <span>Found {searchResults?.results?.length || 0} results</span>
-                  )}
-                  {searchQuery && (
-                    <span className="ml-2 text-green-400">
-                      "{searchQuery}"
-                    </span>
-                  )}
-                </h3>
-              </div>
-            </div>
-            
-            {/* Results Content with full functionality */}
-            <div className="px-4 -mt-[1px] max-h-[60vh] overflow-y-auto">
-              {isLoading ? (
-                <div className="flex items-center justify-center py-12 bg-gray-900/50 rounded-b-xl">
-                  <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
-                  <span className="ml-3 text-gray-300">Searching...</span>
-                </div>
-              ) : (
-                <div className="space-y-3 pb-4 bg-gray-900/50 rounded-b-xl" style={{ willChange: 'auto' }}>
-                  {/* Graceful Fallback Message */}
-                  {searchResults?.metadata?.fallbackApplied && (
-                    <GracefulFallbackMessage
-                      message={searchResults.metadata.fallbackMessage || "Oh no! We didn't find many communities matching all your filters, but here's what we found in your area!"}
-                      originalResultCount={searchResults.metadata.originalResultCount || 0}
-                      totalFallbackResults={searchResults?.results?.length || 0}
-                      searchQuery={searchQuery}
-                      location={searchResults.metadata.searchLocation}
-                      careTypes={searchResults.metadata.careTypes}
-                    />
-                  )}
-                  
-                  {searchResults?.results && searchResults.results.length > 0 ? (
-                    <>
-                      {searchResults.results.slice(0, visibleResults).map((community: any, index: number) => (
-                        <motion.div
-                          key={community.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.01 }}
-                        >
-                          <PrioritizedCommunityCard
-                            community={community}
-                            variant="list"
-                            onSelect={() => {
-                              setLocation(`/community/${community.id}`);
-                            }}
-                          />
-                        </motion.div>
-                      ))}
-                      
-                      {/* Show More Button */}
-                      {searchResults.results.length > visibleResults && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="flex justify-center pt-4"
-                        >
-                          <button
-                            onClick={() => setVisibleResults(prev => prev + 10)}
-                            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105"
-                          >
-                            Show More Results ({visibleResults} of {searchResults.results.length})
-                          </button>
-                        </motion.div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="text-center py-8">
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="inline-block"
-                      >
-                        <div className="relative">
-                          <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 blur-xl opacity-30"></div>
-                          <div className="relative bg-gray-800/90 backdrop-blur-sm rounded-2xl p-8 border border-gray-700">
-                            <MapPin className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-                            <h3 className="text-xl font-semibold text-white mb-2">No Results Found</h3>
-                            <p className="text-gray-400">
-                              {searchQuery 
-                                ? `We couldn't find any communities matching "${searchQuery}"`
-                                : "Try adjusting your search criteria"}
-                            </p>
-                          </div>
-                        </div>
-                      </motion.div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+
         
         {/* Back to Top Button - appears when there are many results */}
         {searchResults?.results?.length > 10 && (
