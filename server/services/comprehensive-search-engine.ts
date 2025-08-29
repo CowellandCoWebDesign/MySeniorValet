@@ -31,6 +31,9 @@ export interface SearchResult {
     filters: SearchFilters;
     processingTime: number;
     suggestions?: string[];
+    fallbackApplied?: boolean;
+    fallbackMessage?: string;
+    originalFiltersRequested?: SearchFilters;
   };
   facets: {
     states: { name: string; count: number }[];
@@ -46,6 +49,12 @@ export class ComprehensiveSearchEngine {
     const startTime = Date.now();
     const { limit = 20, offset = 0 } = options;
     
+    // Store original filters for fallback message
+    const originalFilters = { ...filters };
+    const hasFilters = filters.priceMin || filters.priceMax || filters.rating || 
+                      (filters.features && filters.features.length > 0) ||
+                      (filters.careTypes && filters.careTypes.length > 0);
+    
     // Detect search type and build conditions
     const { conditions, searchType } = await this.buildSearchConditions(query, filters);
     
@@ -60,7 +69,7 @@ export class ComprehensiveSearchEngine {
     searchQuery = this.applySorting(searchQuery, searchType, query);
     
     // Execute with pagination
-    const results = await searchQuery
+    let results = await searchQuery
       .limit(limit)
       .offset(offset);
     
@@ -69,7 +78,40 @@ export class ComprehensiveSearchEngine {
     if (conditions.length > 0) {
       countQuery = countQuery.where(and(...conditions));
     }
-    const [{ count }] = await countQuery;
+    let [{ count }] = await countQuery;
+    let totalResults = parseInt(count.toString());
+    
+    // GRACEFUL FALLBACK: If we have filters but too few results, show location-only results
+    let fallbackApplied = false;
+    let fallbackMessage = '';
+    
+    if (hasFilters && totalResults < 5) {
+      console.log('Applying graceful fallback - too few results with filters');
+      
+      // Build location-only conditions
+      const locationOnlyConditions = await this.buildLocationOnlyConditions(query);
+      
+      if (locationOnlyConditions.length > 0) {
+        // Re-run search with only location filters
+        let fallbackQuery = db.select().from(communities)
+          .where(and(...locationOnlyConditions));
+        
+        fallbackQuery = this.applySorting(fallbackQuery, 'location', query);
+        
+        results = await fallbackQuery
+          .limit(limit)
+          .offset(offset);
+        
+        // Get new count
+        const fallbackCountQuery = db.select({ count: sql`count(*)` }).from(communities)
+          .where(and(...locationOnlyConditions));
+        [{ count }] = await fallbackCountQuery;
+        totalResults = parseInt(count.toString());
+        
+        fallbackApplied = true;
+        fallbackMessage = "Oh no! We didn't find many communities matching your exact filters, but here's what we found in your area! Most detailed information (pricing, amenities, photos) becomes available after you select a community through our live enrichment system.";
+      }
+    }
     
     // Build facets for filtering
     const facets = await this.buildFacets(conditions);
@@ -83,14 +125,17 @@ export class ComprehensiveSearchEngine {
     
     return {
       communities: results,
-      totalResults: parseInt(count.toString()),
+      totalResults,
       searchMetadata: {
         query,
         searchType,
         filters,
         processingTime: Date.now() - startTime,
         suggestions,
-        intentScores
+        intentScores,
+        fallbackApplied,
+        fallbackMessage: fallbackApplied ? fallbackMessage : undefined,
+        originalFiltersRequested: fallbackApplied ? originalFilters : undefined
       },
       facets
     };
