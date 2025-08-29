@@ -54,32 +54,32 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Navigation items organized by category - using actual existing routes
+  // Navigation items organized by category - using actual existing routes with emojis
   const navigationItems = {
     main: [
-      { label: "Home", icon: Home, href: "/" },
-      { label: "Search", icon: Search, href: "/simplified-search" },
-      { label: "Map View", icon: MapPin, href: "/map-search" },
-      { label: "Communities", icon: Building2, href: "/community-directory" },
+      { label: "Home", icon: Home, href: "/", emoji: "🏠" },
+      { label: "Search", icon: Search, href: "/simplified-search", emoji: "🔍" },
+      { label: "Map View", icon: MapPin, href: "/map-search", emoji: "🗺️" },
+      { label: "Communities", icon: Building2, href: "/community-directory", emoji: "🏘️" },
     ],
     resources: [
-      { label: "Learn Mode", icon: Brain, href: "/care-guide" },
-      { label: "Healthcare", icon: Heart, href: "/hospitals" },
-      { label: "Services", icon: Users, href: "/services" },
-      { label: "Resources", icon: BookOpen, href: "/senior-resources" },
-      { label: "Pricing Guide", icon: DollarSign, href: "/pricing" },
+      { label: "Learn Mode", icon: Brain, href: "/care-guide", emoji: "🧠" },
+      { label: "Healthcare", icon: Heart, href: "/hospitals", emoji: "🏥" },
+      { label: "Services", icon: Users, href: "/services", emoji: "👥" },
+      { label: "Resources", icon: BookOpen, href: "/senior-resources", emoji: "📚" },
+      { label: "Pricing Guide", icon: DollarSign, href: "/pricing", emoji: "💰" },
     ],
     tools: [
-      { label: "Tour Scheduler", icon: Calendar, href: "/tours" },
-      { label: "Cost Calculator", icon: BarChart3, href: "/costs" },
-      { label: "AI Assistant", icon: Brain, href: "/ai-support" },
-      { label: "Family Hub", icon: Heart, href: "/family-collaboration" },
+      { label: "Tour Scheduler", icon: Calendar, href: "/tours", emoji: "📅" },
+      { label: "Cost Calculator", icon: BarChart3, href: "/costs", emoji: "🧮" },
+      { label: "AI Assistant", icon: Brain, href: "/ai-support", emoji: "🤖" },
+      { label: "Family Hub", icon: Heart, href: "/family-collaboration", emoji: "👨‍👩‍👧‍👦" },
     ],
     support: [
-      { label: "Help Center", icon: HelpCircle, href: "/help" },
-      { label: "Contact Us", icon: Phone, href: "/contact" },
-      { label: "About", icon: Info, href: "/about" },
-      { label: "Privacy", icon: Shield, href: "/privacy" },
+      { label: "Help Center", icon: HelpCircle, href: "/help", emoji: "❓" },
+      { label: "Contact Us", icon: Phone, href: "/contact", emoji: "📞" },
+      { label: "About", icon: Info, href: "/about", emoji: "ℹ️" },
+      { label: "Privacy", icon: Shield, href: "/privacy", emoji: "🔒" },
     ]
   };
 
@@ -110,17 +110,19 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
         <div className="flex items-center justify-between h-20">
           {/* Left Section: Logo and Desktop Nav */}
           <div className="flex items-center space-x-8">
-            {/* Mobile Menu Button - Professional with text */}
+            {/* Mobile Menu Button - Rich with Emoji */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild className="lg:hidden">
                 <Button
                   variant="outline"
                   size="default"
-                  className="border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold px-4 py-2 flex items-center gap-2 shadow-sm"
+                  className="border-2 border-purple-400 dark:border-purple-600 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 hover:from-purple-100 hover:to-blue-100 dark:hover:from-gray-700 dark:hover:to-gray-800 text-gray-700 dark:text-gray-300 font-bold px-4 py-2.5 flex items-center gap-2 shadow-md hover:shadow-lg transition-all duration-200"
                   aria-label="Open menu"
                 >
+                  <span className="text-lg">📱</span>
                   <Menu className="h-5 w-5" />
-                  <span className="text-sm">MENU</span>
+                  <span className="text-sm uppercase tracking-wide">Menu</span>
+                  <span className="text-lg">✨</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[320px] p-0 bg-white dark:bg-gray-900">
@@ -145,6 +147,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                         className="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 dark:hover:from-gray-800 dark:hover:to-gray-800 transition-all duration-200 group"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
+                        <span className="text-xl">{item.emoji}</span>
                         <div className="p-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg group-hover:bg-white dark:group-hover:bg-gray-700 transition-colors">
                           <item.icon className="h-4 w-4 text-gray-600 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400" />
                         </div>
@@ -164,6 +167,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                         className="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 dark:hover:from-gray-800 dark:hover:to-gray-800 transition-all duration-200 group"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
+                        <span className="text-xl">{item.emoji}</span>
                         <div className="p-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg group-hover:bg-white dark:group-hover:bg-gray-700 transition-colors">
                           <item.icon className="h-4 w-4 text-gray-600 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400" />
                         </div>
@@ -183,6 +187,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                         className="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 dark:hover:from-gray-800 dark:hover:to-gray-800 transition-all duration-200 group"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
+                        <span className="text-xl">{item.emoji}</span>
                         <div className="p-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg group-hover:bg-white dark:group-hover:bg-gray-700 transition-colors">
                           <item.icon className="h-4 w-4 text-gray-600 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400" />
                         </div>
@@ -194,32 +199,40 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               </SheetContent>
             </Sheet>
 
-            {/* Logo - Enhanced Professional Design */}
+            {/* Logo - Game-Changing Rich Design */}
             <Link href="/" className="flex items-center space-x-3 cursor-pointer group">
-              <div className="p-2.5 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
-                <Home className="h-6 w-6 text-white" />
+              <div className="relative">
+                <div className="p-2.5 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
+                  <Home className="h-6 w-6 text-white" />
+                </div>
+                <span className="absolute -top-1 -right-1 text-sm">✨</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  MySeniorValet
-                </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400 font-medium -mt-1">Clarity in Senior Living</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🌟</span>
+                  <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                    MySeniorValet
+                  </span>
+                  <span className="text-lg">💎</span>
+                </div>
+                <span className="text-xs text-gray-500 dark:text-gray-400 font-medium -mt-1">🏆 Clarity in Senior Living 🌈</span>
               </div>
             </Link>
 
-            {/* Desktop Navigation - Enhanced Professional */}
+            {/* Desktop Navigation - Rich with Emojis */}
             <div className="hidden lg:flex items-center space-x-2">
               {navigationItems.main.map((item) => (
                 <Link 
                   key={item.href} 
                   href={item.href}
                   className={cn(
-                    "px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200",
+                    "px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2",
                     location === item.href 
                       ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md"
                       : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:shadow-sm"
                   )}
                 >
+                  <span className="text-base">{item.emoji}</span>
                   {item.label}
                 </Link>
               ))}
@@ -236,6 +249,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                   {navigationItems.resources.map((item) => (
                     <DropdownMenuItem key={item.href} asChild>
                       <Link href={item.href} className="flex items-center space-x-2 w-full cursor-pointer">
+                        <span className="text-base">{item.emoji}</span>
                         <item.icon className="h-4 w-4" />
                         <span>{item.label}</span>
                       </Link>
@@ -256,6 +270,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                   {navigationItems.tools.map((item) => (
                     <DropdownMenuItem key={item.href} asChild>
                       <Link href={item.href} className="flex items-center space-x-2 w-full cursor-pointer">
+                        <span className="text-base">{item.emoji}</span>
                         <item.icon className="h-4 w-4" />
                         <span>{item.label}</span>
                       </Link>
@@ -266,8 +281,19 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
             </div>
           </div>
 
-          {/* Right Section: Language, Theme, User */}
+          {/* Right Section: Accessibility, Language, Theme, User */}
           <div className="flex items-center space-x-2">
+            {/* Accessibility Button - Traditional Blue Symbol */}
+            <Link href="/accessibility">
+              <Button
+                variant="outline"
+                size="icon"
+                className="bg-blue-600 hover:bg-blue-700 text-white border-2 border-blue-700 w-11 h-11 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg group"
+                aria-label="Accessibility Options"
+              >
+                <Accessibility className="h-6 w-6" />
+              </Button>
+            </Link>
             {/* Language Selector - Professional */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
