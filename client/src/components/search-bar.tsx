@@ -68,10 +68,10 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
       </div>
 
       <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="relative">
-        <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border-2 border-gradient-to-r from-blue-200/50 to-purple-200/50 dark:border-gray-600 hover:border-blue-300/70 focus-within:border-blue-500 focus-within:shadow-blue-200/25 focus-within:shadow-2xl transition-all duration-500 backdrop-blur-sm">
-          <div className="flex items-center relative">
+        <div className="relative bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border-2 border-blue-200/50 dark:border-gray-600 hover:border-blue-300/70 focus-within:border-blue-500 focus-within:shadow-2xl transition-all duration-500">
+          <div className="flex items-center">
             <div className="pl-3 sm:pl-4 pr-2">
-              <Search className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 drop-shadow-sm" />
+              <Search className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
             </div>
             <Input
               type="text"
@@ -103,7 +103,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
               type="submit"
               onClick={handleSearch}
               disabled={!searchParams.location.trim()}
-              className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-500 text-white px-3 py-2 sm:px-4 sm:py-3 m-1 sm:m-2 rounded-xl sm:rounded-2xl transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:hover:scale-100 font-bold text-xs sm:text-sm"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white px-3 py-2 sm:px-4 sm:py-3 m-1 sm:m-2 rounded-xl transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 disabled:hover:scale-100 font-bold text-xs sm:text-sm"
             >
               <Search className="w-5 h-5 lg:w-6 lg:h-6 mr-2" />
               <span className="hidden sm:inline">Search</span>
@@ -115,7 +115,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
 
       {/* Advanced Search Filters */}
       {showAdvancedFilters && (
-        <div className="mt-4 p-4 bg-gradient-to-br from-gray-50/80 to-white/80 dark:from-gray-800/80 dark:to-gray-700/80 backdrop-blur-md rounded-2xl border border-gray-200/50 dark:border-gray-600/50 shadow-lg">
+        <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-600 shadow-lg">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Care Type Filter */}
             <div className="space-y-2">
