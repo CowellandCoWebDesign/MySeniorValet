@@ -85,13 +85,32 @@ export class OptimizedEnrichmentService {
         this.performParallelVerification(communityId, community, realTimeData)
       ]);
 
-      // Merge results
+      // Merge results - ensure webIntelligence is included for photos
       const enrichedData = {
         ...verificationReport,
         communitySpecificData,
         lastUpdated: new Date().toISOString(),
-        enrichmentTime: Date.now() - startTime
+        enrichmentTime: Date.now() - startTime,
+        // Ensure webIntelligence structure exists for frontend compatibility
+        verificationResults: {
+          ...verificationReport.verificationResults,
+          webIntelligence: verificationReport.verificationResults?.webIntelligence || {
+            images: [],
+            sources: communitySpecificData?.sources || []
+          }
+        }
       };
+      
+      // If no photos found, add fallback stock photos based on community type
+      if (!enrichedData.verificationResults.webIntelligence?.images?.length) {
+        console.log('📷 No real photos found, using stock photos as fallback');
+        const careType = community.careType || 'senior living';
+        enrichedData.verificationResults.webIntelligence = {
+          ...enrichedData.verificationResults.webIntelligence,
+          images: this.getStockPhotosForCommunity(careType),
+          isStockPhotos: true
+        };
+      }
 
       // Cache the results
       const cacheKey = `verify:${communityId}`;
