@@ -396,56 +396,56 @@ function HeroSectionWithTransformingSearch() {
             showSuggestions={true}
             />
             
-            {/* Category Tabs - Beautiful tabs attached directly below search bar */}
-            <div className="flex justify-center -mt-2">
-              <div className="inline-flex bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-b-2xl rounded-t-none shadow-2xl border-2 border-t-0 border-purple-300/50 dark:border-purple-700/50 p-2 px-3">
+            {/* Category Tabs - Smaller tabs attached directly below search bar */}
+            <div className="flex justify-center -mt-1">
+              <div className="inline-flex bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-b-xl rounded-t-none shadow-xl border border-t-0 border-purple-200/40 dark:border-purple-700/40 p-1">
                 <button
                   type="button"
                   onClick={() => setSearchCategory('communities')}
-                  className={`px-4 sm:px-5 py-2.5 rounded-full transition-all duration-300 text-xs sm:text-sm font-bold flex items-center gap-2 ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
                     searchCategory === 'communities' 
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg transform scale-105' 
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:scale-105'
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                   }`}
                 >
-                  <span className="text-lg sm:text-xl">🏘️</span>
+                  <span className="text-sm">🏘️</span>
                   <span className="hidden sm:inline">Communities</span>
                   <span className="sm:hidden">Homes</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setSearchCategory('services')}
-                  className={`px-4 sm:px-5 py-2.5 rounded-full transition-all duration-300 text-xs sm:text-sm font-bold flex items-center gap-2 ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
                     searchCategory === 'services' 
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg transform scale-105' 
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:scale-105'
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                   }`}
                 >
-                  <span className="text-lg sm:text-xl">🛍️</span>
+                  <span className="text-sm">🛍️</span>
                   <span>Services</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setSearchCategory('healthcare')}
-                  className={`px-4 sm:px-5 py-2.5 rounded-full transition-all duration-300 text-xs sm:text-sm font-bold flex items-center gap-2 ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
                     searchCategory === 'healthcare' 
-                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg transform scale-105' 
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:scale-105'
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
+                        : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                   }`}
                 >
-                  <span className="text-lg sm:text-xl">🏥</span>
+                  <span className="text-sm">🏥</span>
                   <span>Healthcare</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setSearchCategory('resources')}
-                  className={`px-4 sm:px-5 py-2.5 rounded-full transition-all duration-300 text-xs sm:text-sm font-bold flex items-center gap-2 ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
                     searchCategory === 'resources' 
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg transform scale-105' 
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:scale-105'
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                   }`}
                 >
-                  <span className="text-lg sm:text-xl">📚</span>
+                  <span className="text-sm">📚</span>
                   <span>Resources</span>
                 </button>
               </div>
