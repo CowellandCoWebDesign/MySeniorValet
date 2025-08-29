@@ -168,7 +168,15 @@ export class ComprehensiveSearchEngine {
       
       if (intentScores.location >= 0.3) {
         const locationConditions = await this.buildLocationConditions(normalizedQuery);
-        conditions.push(...locationConditions);
+        // Only add location conditions if they exist
+        if (locationConditions.length > 0) {
+          // Combine multiple location conditions with OR, not AND
+          if (locationConditions.length > 1) {
+            conditions.push(or(...locationConditions));
+          } else {
+            conditions.push(...locationConditions);
+          }
+        }
         // Check if this was a country search
         isCountrySearch = (locationConditions as any).__isCountrySearch;
         console.log(`🔍 Location conditions built: ${locationConditions.length}, isCountrySearch: ${isCountrySearch}`);
@@ -355,15 +363,22 @@ export class ComprehensiveSearchEngine {
       const [city, state] = query.split(',').map(s => s.trim());
       console.log(`🔍 Parsing location: city="${city}", state="${state}"`);
       
-      // Simple and direct approach that works
+      // Check if state is abbreviation or full name
+      const stateUpper = state.toUpperCase();
+      
+      // Build a condition that handles both abbreviations and full names
       conditions.push(
         and(
           ilike(communities.city, `%${city}%`),
-          ilike(communities.state, `%${state}%`)
+          or(
+            eq(communities.state, stateUpper), // For state abbreviations like 'CA'
+            ilike(communities.state, `%${state}%`) // For full state names
+          )
         )
       );
       
-      console.log(`🔍 Added direct city-state condition for "${city}" in "${state}"`);
+      console.log(`🔍 Added city-state condition for "${city}" in "${state}" (checking both abbreviation and full name)`);
+      return conditions; // Return early to avoid adding extra conditions
     }
     // ZIP code
     else if (query.match(/^\d{5}/)) {
