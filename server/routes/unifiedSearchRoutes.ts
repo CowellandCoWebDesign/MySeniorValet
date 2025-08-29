@@ -103,67 +103,8 @@ router.post('/api/search/unified', async (req, res) => {
   }
 });
 
-/**
- * Search suggestions endpoint
- * Provides real-time suggestions as user types
- */
-router.get('/api/search/suggestions', async (req, res) => {
-  try {
-    const query = req.query.query || req.query.q;
-    
-    if (!query || typeof query !== 'string' || query.length < 2) {
-      return res.json({ 
-        suggestions: [],
-        _version: 'v4_streamlined_hero_' + Date.now(),
-        _timestamp: Date.now()
-      });
-    }
-    
-    // Get cached suggestions
-    const cacheKey = `suggestions:${query}`;
-    const cached = await cache.get(cacheKey);
-    if (cached) {
-      return res.json({ 
-        suggestions: JSON.parse(cached),
-        _version: 'v4_streamlined_hero_' + Date.now(),
-        _timestamp: Date.now()
-      });
-    }
-    
-    // Use enhanced search engine for better suggestions
-    const suggestions = await enhancedSearchEngine.getSuggestions(query as string);
-    
-    // Ensure we always have some suggestions
-    if (suggestions.length === 0) {
-      // Fallback to basic pattern suggestions
-      const autoComplete = [
-        `${query} assisted living`,
-        `${query} memory care`,
-        `${query} under $5000`
-      ].filter(s => s.length > query.toString().length);
-      suggestions.push(...autoComplete);
-    }
-    
-    const allSuggestions = [...new Set(suggestions)].slice(0, 10);
-    
-    // Cache for 1 minute
-    await cache.set(cacheKey, JSON.stringify(allSuggestions), 60);
-    
-    res.json({ 
-      suggestions: allSuggestions,
-      _version: 'v4_streamlined_hero_' + Date.now(),
-      _timestamp: Date.now()
-    });
-    
-  } catch (error) {
-    console.error('Suggestions error:', error);
-    res.json({ 
-      suggestions: [],
-      _version: 'v4_streamlined_hero_' + Date.now(),
-      _timestamp: Date.now()
-    });
-  }
-});
+// NOTE: Suggestions endpoint DISABLED - handled by comprehensiveSearchRoutes.ts
+// This avoids conflicts and ensures the enhanced database-driven suggestions are used
 
 /**
  * Search insights endpoint

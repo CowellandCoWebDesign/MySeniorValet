@@ -99,7 +99,7 @@ router.get('/api/search/comprehensive', async (req, res) => {
 /**
  * Enhanced Search suggestions endpoint with intelligent prediction
  */
-router.get('/api/search/suggestions', async (req, res) => {
+router.get('/suggestions', async (req, res) => {
   try {
     const { q: query = '' } = req.query;
     const queryStr = (query as string).toLowerCase().trim();
@@ -148,15 +148,36 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
   const normalizedQuery = query.toLowerCase().trim();
   const queryWords = normalizedQuery.split(/\s+/);
   
-  // INTELLIGENT DATABASE-DRIVEN SUGGESTIONS
+  // COMPREHENSIVE DATABASE-DRIVEN SUGGESTIONS
   
-  // 1. REAL CITY MATCHES (from actual data)
   try {
     const { db } = await import('../db');
     const { communities } = await import('@shared/schema');
-    const { ilike, sql } = await import('drizzle-orm');
+    const { ilike, sql, or } = await import('drizzle-orm');
     
-    // Get actual cities that match the query
+    // 1. COMMUNITY NAME MATCHES (highest priority)
+    const communityMatches = await db
+      .select({
+        name: communities.name,
+        city: communities.city,
+        state: communities.state,
+        communitySubtype: communities.communitySubtype
+      })
+      .from(communities)
+      .where(
+        or(
+          ilike(communities.name, `${normalizedQuery}%`),  // Starts with
+          ilike(communities.name, `%${normalizedQuery}%`)  // Contains
+        )
+      )
+      .orderBy(sql`CASE WHEN LOWER(name) LIKE ${normalizedQuery + '%'} THEN 1 ELSE 2 END`)
+      .limit(8);
+    
+    communityMatches.forEach(community => {
+      suggestions.push(community.name);
+    });
+    
+    // 2. CITY MATCHES (with state context)
     const cityMatches = await db
       .selectDistinct({
         city: communities.city,
@@ -164,104 +185,160 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         count: sql<number>`COUNT(*)::int`.as('count')
       })
       .from(communities)
-      .where(ilike(communities.city, `${normalizedQuery}%`))
+      .where(
+        or(
+          ilike(communities.city, `${normalizedQuery}%`),   // Starts with
+          ilike(communities.city, `%${normalizedQuery}%`)   // Contains
+        )
+      )
       .groupBy(communities.city, communities.state)
-      .orderBy(sql`COUNT(*) DESC`)
-      .limit(3);
+      .orderBy(sql`CASE WHEN LOWER(city) LIKE ${normalizedQuery + '%'} THEN 1 ELSE 2 END, COUNT(*) DESC`)
+      .limit(6);
     
     cityMatches.forEach(city => {
-      suggestions.push(
-        `${city.city}, ${city.state}`,
-        `Assisted living in ${city.city}`,
-        `Memory care ${city.city}`,
-        `Senior living ${city.city} under $5000`
-      );
+      suggestions.push(`${city.city}, ${city.state}`);
     });
     
-    // 2. REAL COMMUNITY NAME MATCHES
-    const communityMatches = await db
-      .select({
-        name: communities.name,
-        city: communities.city,
-        state: communities.state
+    // 3. STATE MATCHES
+    const stateMatches = await db
+      .selectDistinct({
+        state: communities.state,
+        count: sql<number>`COUNT(*)::int`.as('count')
       })
       .from(communities)
-      .where(ilike(communities.name, `${normalizedQuery}%`))
+      .where(
+        or(
+          ilike(communities.state, `${normalizedQuery}%`),
+          ilike(communities.state, `%${normalizedQuery}%`)
+        )
+      )
+      .groupBy(communities.state)
+      .orderBy(sql`COUNT(*) DESC`)
       .limit(5);
     
-    communityMatches.forEach(community => {
-      suggestions.push(community.name);
+    stateMatches.forEach(state => {
+      suggestions.push(state.state);
     });
+    
+    // 4. COUNTRY MATCHES
+    if (normalizedQuery.length >= 2) {
+      const countryMatches = await db
+        .selectDistinct({
+          country: communities.country,
+          count: sql<number>`COUNT(*)::int`.as('count')
+        })
+        .from(communities)
+        .where(
+          or(
+            ilike(communities.country, `${normalizedQuery}%`),
+            ilike(communities.country, `%${normalizedQuery}%`)
+          )
+        )
+        .groupBy(communities.country)
+        .orderBy(sql`COUNT(*) DESC`)
+        .limit(3);
+      
+      countryMatches.forEach(country => {
+        if (country.country && country.country !== 'United States') {
+          suggestions.push(country.country);
+        }
+      });
+    }
     
   } catch (error) {
     console.error('Database suggestion error:', error);
   }
   
-  // 3. SMART CONTEXTUAL SUGGESTIONS
+  // 5. COMMON SEARCH PATTERNS (most searched)
+  const commonSearches = [
+    'Assisted living near me',
+    'Memory care facilities',
+    'Senior living under $3000',
+    'Independent living communities',
+    'Nursing homes with good ratings',
+    'Affordable senior housing',
+    'Luxury senior communities',
+    'Active adult communities 55+',
+    'Senior living with amenities',
+    'Memory care for Alzheimer\'s',
+    'Senior apartments',
+    'Continuing care retirement communities'
+  ];
   
-  // Location-based intelligence
-  const stateAbbreviations = ['CA', 'FL', 'TX', 'NY', 'PA', 'OH', 'IL', 'MI', 'NC', 'GA'];
-  const isLocationQuery = queryWords.some(word => 
-    word.length >= 3 && /^[a-zA-Z]+$/.test(word) && !['the', 'and', 'for'].includes(word)
-  );
+  // Add common searches that match the query
+  commonSearches.forEach(search => {
+    if (search.toLowerCase().includes(normalizedQuery) || 
+        normalizedQuery.length >= 3 && search.toLowerCase().startsWith(normalizedQuery)) {
+      suggestions.push(search);
+    }
+  });
   
-  if (isLocationQuery) {
-    suggestions.push(
-      `${query} senior living communities`,
-      `Best assisted living in ${query}`,
-      `Memory care facilities ${query}`,
-      `${query} nursing homes`,
-      `Luxury senior living ${query}`,
-      `Affordable senior housing ${query}`
+  // 6. LOCATION-BASED COMPLETIONS
+  if (normalizedQuery.length >= 2) {
+    const isLocationQuery = queryWords.some(word => 
+      word.length >= 2 && /^[a-zA-Z]+$/.test(word)
     );
+    
+    if (isLocationQuery) {
+      suggestions.push(
+        `Senior living in ${query}`,
+        `Assisted living in ${query}`,
+        `Memory care in ${query}`,
+        `${query} nursing homes`,
+        `Best senior communities in ${query}`
+      );
+    }
   }
   
-  // Care type intelligence
+  // 7. CARE TYPE INTELLIGENCE
   const careTypeMapping = {
-    'memory': ['Memory care communities', 'Alzheimer care facilities', 'Dementia care units'],
-    'assisted': ['Assisted living communities', 'Assisted living with amenities', 'Assisted living pricing'],
-    'independent': ['Independent living communities', 'Active adult communities', 'Senior apartments'],
-    'nursing': ['Nursing homes', 'Skilled nursing facilities', 'Long-term care'],
-    'alzheimer': ['Alzheimer care facilities', 'Memory care units', 'Dementia care specialists'],
-    'dementia': ['Dementia care facilities', 'Memory care communities', 'Specialized dementia units']
+    'memory': ['Memory care communities', 'Memory care facilities', 'Alzheimer care facilities'],
+    'assisted': ['Assisted living communities', 'Assisted living facilities', 'Assisted living with amenities'],
+    'independent': ['Independent living communities', 'Senior apartments', 'Active adult communities 55+'],
+    'nursing': ['Nursing homes', 'Skilled nursing facilities', 'Long-term care facilities'],
+    'alzheimer': ['Alzheimer care facilities', 'Memory care for Alzheimer\'s', 'Dementia care specialists'],
+    'dementia': ['Dementia care facilities', 'Memory care communities', 'Specialized dementia units'],
+    'continuing': ['Continuing care retirement communities', 'CCRC communities', 'Life care communities'],
+    'active': ['Active adult communities', '55+ communities', 'Senior lifestyle communities'],
+    'luxury': ['Luxury senior living', 'Premium senior communities', 'High-end assisted living']
   };
   
   Object.entries(careTypeMapping).forEach(([keyword, suggestionList]) => {
     if (normalizedQuery.includes(keyword)) {
-      suggestions.push(...suggestionList);
+      suggestions.push(...suggestionList.slice(0, 3)); // Limit to top 3 per category
     }
   });
   
-  // Price-based intelligence
-  const priceKeywords = ['cheap', 'affordable', 'budget', 'expensive', 'luxury', 'premium'];
+  // 9. PRICE-BASED SUGGESTIONS
+  const priceKeywords = ['cheap', 'affordable', 'budget', 'expensive', 'luxury', 'premium', 'under'];
   const hasPriceIntent = priceKeywords.some(keyword => normalizedQuery.includes(keyword)) || 
-                        normalizedQuery.includes('$') || normalizedQuery.includes('under');
+                        normalizedQuery.includes('$');
   
-  if (hasPriceIntent) {
+  if (hasPriceIntent || normalizedQuery.includes('cost')) {
     suggestions.push(
       'Senior living under $3000',
-      'Affordable assisted living',
-      'Budget memory care',
       'Senior living under $5000',
+      'Affordable assisted living',
+      'Budget-friendly memory care',
       'Luxury senior communities',
-      'Premium assisted living'
+      'Premium assisted living facilities'
     );
   }
   
-  // Company-based intelligence (real senior living companies)
+  // 8. MAJOR SENIOR LIVING COMPANIES
   const companies = [
     'Atria', 'Brookdale', 'Sunrise', 'Brightview', 'Belmont Village',
-    'Vi Living', 'Five Star', 'LCS', 'Capital Senior Living', 'Erickson Living'
+    'Vi Living', 'Five Star', 'LCS', 'Capital Senior Living', 'Erickson Living',
+    'Holiday Retirement', 'Discovery Senior Living', 'Merrill Gardens', 'Silverado'
   ];
   
   companies.forEach(company => {
     if (company.toLowerCase().startsWith(normalizedQuery) || 
         normalizedQuery.includes(company.toLowerCase())) {
       suggestions.push(
-        `${company} senior living`,
         `${company} communities`,
-        `${company} locations near me`,
-        `${company} pricing and amenities`
+        `${company} senior living`,
+        `${company} locations`
       );
     }
   });
@@ -292,27 +369,40 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
     suggestions.push(...completionSuggestions);
   }
   
-  // Remove duplicates and rank by relevance
+  // Remove duplicates and apply intelligent ranking
   const uniqueSuggestions = [...new Set(suggestions)];
   
-  // Smart ranking: prioritize exact matches, then startsWith, then contains
+  // SMART RANKING ALGORITHM
   const ranked = uniqueSuggestions.sort((a, b) => {
     const aLower = a.toLowerCase();
     const bLower = b.toLowerCase();
     
-    // Exact match gets highest priority
+    // 1. Exact match gets highest priority
     if (aLower === normalizedQuery) return -1;
     if (bLower === normalizedQuery) return 1;
     
-    // Starts with gets second priority
-    if (aLower.startsWith(normalizedQuery) && !bLower.startsWith(normalizedQuery)) return -1;
-    if (bLower.startsWith(normalizedQuery) && !aLower.startsWith(normalizedQuery)) return 1;
+    // 2. Starts with gets second priority
+    const aStartsWith = aLower.startsWith(normalizedQuery);
+    const bStartsWith = bLower.startsWith(normalizedQuery);
+    if (aStartsWith && !bStartsWith) return -1;
+    if (bStartsWith && !aStartsWith) return 1;
     
-    // Shorter suggestions are often better
-    return a.length - b.length;
+    // 3. Community names get priority over generic suggestions
+    const aIsGeneric = aLower.includes('senior living') || aLower.includes('assisted living');
+    const bIsGeneric = bLower.includes('senior living') || bLower.includes('assisted living');
+    if (!aIsGeneric && bIsGeneric) return -1;
+    if (!bIsGeneric && aIsGeneric) return 1;
+    
+    // 4. Shorter suggestions are often better (but not too short)
+    if (a.length >= 10 && b.length >= 10) {
+      return a.length - b.length;
+    }
+    
+    // 5. Default alphabetical
+    return a.localeCompare(b);
   });
   
-  return ranked.slice(0, 8); // Return top 8 suggestions
+  return ranked.slice(0, 10); // Return top 10 suggestions
 }
 
 /**
