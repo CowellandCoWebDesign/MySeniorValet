@@ -365,88 +365,91 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
           
-          {/* Enhanced Search Bar with Game-Changing Features */}
-          <div className="w-full max-w-2xl">
-            <ComprehensiveSearch 
-            searchCategory={searchCategory}
-            onSearch={(results) => {
-              // Process comprehensive search results
-              const communities = results.communities || [];
-              setSearchResults({ 
-                results: communities, 
-                metadata: {
-                  searchType: results.searchMetadata.searchType,
-                  totalResults: results.totalResults,
-                  processingTime: results.searchMetadata.processingTime,
-                  suggestions: results.searchMetadata.suggestions,
-                  facets: results.facets
-                }
-              });
-              setSearchQuery(results.searchMetadata.query);
-              setIsSearchActive(communities.length > 0);
-              setVisibleResults(10);
-            }}
-            onQueryChange={(query) => {
-              setSearchQuery(query);
-              setIsSearchFocused(query.length > 0);
-            }}
-            initialQuery={searchQuery}
-            placeholder={viewMode === 'learn' ? "Ask any question about senior living..." : "Search communities, cities, companies, or ask anything..."}
-            className="w-full"
-            showSuggestions={true}
-            />
-            
-            {/* Category Tabs - Below Search Bar */}
-            <div className="flex justify-center mt-4">
-              <div className="inline-flex bg-white/10 backdrop-blur-md rounded-xl p-1 shadow-xl border border-white/20">
-                <button
-                  type="button"
-                  onClick={() => setSearchCategory('communities')}
-                  className={`px-4 py-2 rounded-lg transition-all duration-300 text-xs font-semibold flex items-center ${
-                    searchCategory === 'communities' 
-                      ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg' 
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Building2 className="w-3 h-3 mr-1.5" />
-                  Communities
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSearchCategory('services')}
-                  className={`px-4 py-2 rounded-lg transition-all duration-300 text-xs font-semibold flex items-center ${
-                    searchCategory === 'services' 
-                      ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg' 
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Briefcase className="w-3 h-3 mr-1.5" />
-                  Services
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSearchCategory('healthcare')}
-                  className={`px-4 py-2 rounded-lg transition-all duration-300 text-xs font-semibold flex items-center ${
-                    searchCategory === 'healthcare' 
-                      ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg' 
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Heart className="w-3 h-3 mr-1.5" />
-                  Healthcare
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSearchCategory('resources')}
-                  className={`px-4 py-2 rounded-lg transition-all duration-300 text-xs font-semibold flex items-center ${
-                    searchCategory === 'resources' 
-                      ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg' 
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <BookOpen className="w-3 h-3 mr-1.5" />
-                  Resources
-                </button>
+          {/* Enhanced Search Bar with Integrated Tabs */}
+          <div className="w-full max-w-2xl relative">
+            <div className="relative">
+              <ComprehensiveSearch 
+              searchCategory={searchCategory}
+              onSearch={(results) => {
+                // Process comprehensive search results
+                const communities = results.communities || [];
+                setSearchResults({ 
+                  results: communities, 
+                  metadata: {
+                    searchType: results.searchMetadata.searchType,
+                    totalResults: results.totalResults,
+                    processingTime: results.searchMetadata.processingTime,
+                    suggestions: results.searchMetadata.suggestions,
+                    facets: results.facets
+                  }
+                });
+                setSearchQuery(results.searchMetadata.query);
+                setIsSearchActive(communities.length > 0);
+                setVisibleResults(10);
+              }}
+              onQueryChange={(query) => {
+                setSearchQuery(query);
+                setIsSearchFocused(query.length > 0);
+              }}
+              initialQuery={searchQuery}
+              placeholder={viewMode === 'learn' ? "Ask any question about senior living..." : "Search communities, cities, companies, or ask anything..."}
+              className="w-full"
+              showSuggestions={true}
+              />
+              
+              {/* Category Tabs - Beautiful inline tabs attached to search bar */}
+              <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 z-30">
+                <div className="inline-flex bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-full shadow-2xl border-2 border-purple-300/50 dark:border-purple-700/50 p-1">
+                  <button
+                    type="button"
+                    onClick={() => setSearchCategory('communities')}
+                    className={`px-4 sm:px-5 py-2 rounded-full transition-all duration-300 text-xs sm:text-sm font-bold flex items-center gap-1.5 ${
+                      searchCategory === 'communities' 
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg transform scale-105' 
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:scale-105'
+                    }`}
+                  >
+                    <span className="text-base sm:text-lg">🏘️</span>
+                    <span className="hidden sm:inline">Communities</span>
+                    <span className="sm:hidden">Homes</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSearchCategory('services')}
+                    className={`px-4 sm:px-5 py-2 rounded-full transition-all duration-300 text-xs sm:text-sm font-bold flex items-center gap-1.5 ${
+                      searchCategory === 'services' 
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg transform scale-105' 
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:scale-105'
+                    }`}
+                  >
+                    <span className="text-base sm:text-lg">🛍️</span>
+                    <span>Services</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSearchCategory('healthcare')}
+                    className={`px-4 sm:px-5 py-2 rounded-full transition-all duration-300 text-xs sm:text-sm font-bold flex items-center gap-1.5 ${
+                      searchCategory === 'healthcare' 
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg transform scale-105' 
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:scale-105'
+                    }`}
+                  >
+                    <span className="text-base sm:text-lg">🏥</span>
+                    <span>Healthcare</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSearchCategory('resources')}
+                    className={`px-4 sm:px-5 py-2 rounded-full transition-all duration-300 text-xs sm:text-sm font-bold flex items-center gap-1.5 ${
+                      searchCategory === 'resources' 
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg transform scale-105' 
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:scale-105'
+                    }`}
+                  >
+                    <span className="text-base sm:text-lg">📚</span>
+                    <span>Resources</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
