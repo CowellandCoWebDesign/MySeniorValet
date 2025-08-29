@@ -21,7 +21,7 @@ MySeniorValet is an AI-powered "Google of Senior Care" platform, featuring "Lear
 - **Single Home Page Rule**: The primary home page is `client/src/pages/myseniorvalet-home.tsx` (VERSION 3). DO NOT create or use `home.tsx`. All home page edits must target `myseniorvalet-home.tsx`. Root path "/" routes to MySeniorValetHome component only.
 - **Golden Data Rule**: Zero tolerance for synthetic, mock, sample, or placeholder data. All data must come from verified authentic sources.
 - **Map Interface Preferences**: Legend button positioned on map at top-right (not in header). Map Layers control positioned 60px below Legend button. Heatmap toggle removed from interface to prevent UI overlap issues.
-- **CRITICAL REMOVAL AUTHORIZATION RULE**: NO removal of functionality, features, or code sections without EXPLICIT user authorization. Any removal attempt must first be confirmed with user. This includes search results, UI components, data displays, or any existing functionality.
+- **CRITICAL REMOVAL AUTHORIZATION RULE**: NO removal of functionality, features, or code sections without EXPLICIT user authorization. Any removal attempt must first be confirmed with user. This includes search results, UI components, data displays, or any existing functionality. Before proposing any removal, provide an IN-DEPTH explanation that includes: (1) What exactly will be removed, (2) Why the removal is being considered, (3) What impact the removal will have on functionality, (4) What alternative solutions exist, (5) Expected user experience changes after removal. Only proceed with removal after receiving explicit approval.
 
 ## System Architecture
 The platform is built with a modern web stack, emphasizing transparency and user engagement.
