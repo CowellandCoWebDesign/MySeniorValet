@@ -160,9 +160,14 @@ export class ComprehensiveSearchEngine {
       console.log(`Query: "${query}" | Intent scores:`, intentScores, `| Dominant: ${dominantIntent}`);
       
       // Apply conditions based on ALL detected intents (not just dominant)
+      let isCountrySearch = false;
+      
       if (intentScores.location >= 0.3) {
         const locationConditions = await this.buildLocationConditions(normalizedQuery);
         conditions.push(...locationConditions);
+        // Check if this was a country search
+        isCountrySearch = (locationConditions as any).__isCountrySearch;
+        console.log(`🔍 Location conditions built: ${locationConditions.length}, isCountrySearch: ${isCountrySearch}`);
       }
       
       if (intentScores.careType > 0.3) {
@@ -184,8 +189,8 @@ export class ComprehensiveSearchEngine {
         );
       }
       
-      // If no specific intent detected strongly, use general search
-      if (Math.max(...Object.values(intentScores)) < 0.4) {
+      // If no specific intent detected strongly AND not a country search, use general search
+      if (Math.max(...Object.values(intentScores)) < 0.4 && !isCountrySearch) {
         conditions.push(
           or(
             ilike(communities.name, `%${normalizedQuery}%`),
@@ -384,14 +389,15 @@ export class ComprehensiveSearchEngine {
       let stateCode = null;
       let cityName = query;
       
-      // Country mapping for international search
+      // Country mapping for international search (matches database format)
       const countryMapping: Record<string, string> = {
         'canada': 'CA',
         'australia': 'AU', 
         'mexico': 'Mexico',
         'japan': 'Japan',
         'united states': 'US',
-        'usa': 'US'
+        'usa': 'US',
+        'us': 'US'
       };
       
       // Check for countries first
@@ -406,7 +412,10 @@ export class ComprehensiveSearchEngine {
       
       // If it's a country search, handle differently
       if (countryCode) {
+        console.log(`🌍 Country search detected: "${query}" → "${countryCode}"`);
         conditions.push(eq(communities.country, countryCode));
+        // Mark this as a specific country search to avoid general fallback
+        (conditions as any).__isCountrySearch = true;
         return conditions;
       }
 
