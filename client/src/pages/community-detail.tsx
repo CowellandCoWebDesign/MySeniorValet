@@ -901,9 +901,13 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
   // Removed webIntelligenceData - now handled internally by simplified LiveWebIntelligence component
   const [isVerifying, setIsVerifying] = useState(false);
 
+  // Track if we've already started verification to prevent duplicates
+  const [hasStartedVerification, setHasStartedVerification] = useState(false);
+  
   // Trigger verification when component mounts (only once)
   useEffect(() => {
-    if (community?.id && !isVerifying && !localVerificationReport) {
+    if (community?.id && !hasStartedVerification && !localVerificationReport) {
+      setHasStartedVerification(true);
       setIsVerifying(true);
       
       // Call simplified verification endpoint
@@ -928,6 +932,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
       })
       .catch(error => {
         console.error('Verification error:', error);
+        setHasStartedVerification(false); // Allow retry on error
       })
       .finally(() => {
         setIsVerifying(false);

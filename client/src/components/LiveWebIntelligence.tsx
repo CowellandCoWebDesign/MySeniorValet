@@ -169,7 +169,17 @@ export function LiveWebIntelligence({
         sources: perplexityData.sources || 
                 verificationReport?.searchResults?.sources || 
                 [],
-        photos: webIntel.images?.map((img: any) => typeof img === 'object' ? img.url : img) || 
+        photos: webIntel.images?.map((img: any) => typeof img === 'object' ? img.url : img)
+                  ?.filter((url: string) => {
+                    // Filter out logos, icons, and social media images
+                    const lowercaseUrl = url.toLowerCase();
+                    return !lowercaseUrl.includes('logo') &&
+                           !lowercaseUrl.includes('icon') &&
+                           !lowercaseUrl.includes('twitter') &&
+                           !lowercaseUrl.includes('facebook') &&
+                           !lowercaseUrl.includes('x-20-20') &&
+                           !lowercaseUrl.includes('social');
+                  }) || 
                verificationReport?.photos?.map((p: any) => typeof p === 'string' ? p : p.url) || 
                [],
         amenities: parsedAmenities.length > 0 ? parsedAmenities : 
@@ -584,9 +594,9 @@ export function LiveWebIntelligence({
           {intelligence?.description && (
             <div className="space-y-2">
               <h4 className="font-medium text-sm">About</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <div className="text-sm text-muted-foreground leading-relaxed">
                 {intelligence?.description}
-              </p>
+              </div>
             </div>
           )}
 
