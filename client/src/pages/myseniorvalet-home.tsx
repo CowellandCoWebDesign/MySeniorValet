@@ -411,6 +411,61 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
         )}
+        
+        {/* Search Results - Display directly in hero section */}
+        {isSearchActive && (viewMode === 'list' || viewMode === 'learn') && (
+          <div className="w-full max-w-3xl mx-auto">
+            {/* Results Header */}
+            <div className="px-4">
+              <div className="bg-gray-800/95 backdrop-blur-sm px-4 py-3 rounded-t-xl border border-gray-700">
+                <h3 className="text-lg font-semibold text-white">
+                  <span>Found {searchResults?.totalResults || searchResults?.results?.length || 0} results</span>
+                  {searchQuery && (
+                    <span className="ml-2 text-green-400">
+                      "{searchQuery}"
+                    </span>
+                  )}
+                </h3>
+              </div>
+            </div>
+            
+            {/* Results Content */}
+            <div className="px-4 -mt-[1px] max-h-[60vh] overflow-y-auto">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-12 bg-gray-900/50 rounded-b-xl">
+                  <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
+                  <span className="ml-3 text-gray-300">Searching...</span>
+                </div>
+              ) : (
+                <div className="space-y-3 pb-4 bg-gray-900/50 rounded-b-xl">
+                  {searchResults?.results && searchResults.results.length > 0 ? (
+                    searchResults.results.slice(0, visibleResults).map((community: any, index: number) => (
+                      <motion.div
+                        key={community.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.01 }}
+                      >
+                        <PrioritizedCommunityCard
+                          community={community}
+                          variant="list"
+                          onSelect={() => {
+                            setLocation(`/community/${community.id}`);
+                          }}
+                        />
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-400">
+                      No communities found matching your search.
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        
         </div>
         
         </div>
@@ -419,20 +474,19 @@ function HeroSectionWithTransformingSearch() {
         {/* {!isSearchActive && !searchQuery && !isSearchFocused && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-20" />} */}
       </section>
 
-      {/* Search Results Display Section - Optimized animations */}
+      {/* Learn Mode Response Section - Moved outside hero but keeping special research display */}
       <AnimatePresence mode="wait">
-        {isSearchActive && (
+        {isSearchActive && searchResults?.metadata?.isResearchMode && searchResults?.metadata?.researchResponse && (
           <motion.section
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="w-full bg-gradient-to-b from-gray-900 to-gray-800 relative"
-            id="search-results"
+            id="learn-mode-results"
             style={{ transform: 'translateZ(0)' }}
           >
-            {/* Learn Mode Response Section */}
-            {searchResults?.metadata?.isResearchMode && searchResults?.metadata?.researchResponse && (
+            {(
               <div className="max-w-6xl mx-auto p-4 bg-gradient-to-b from-gray-900 to-gray-800">
                 {/* Research Header */}
                 <motion.div
