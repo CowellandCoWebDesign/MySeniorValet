@@ -40,7 +40,7 @@ export function ComprehensiveSearch({
   onSearch,
   onQueryChange,
   initialQuery = '',
-  placeholder = "Search communities, cities, companies, or ask anything...",
+  placeholder = "🔍 Search communities, cities, companies, or ask anything... ✨",
   className = "",
   showSuggestions = true
 }: ComprehensiveSearchProps) {
@@ -213,21 +213,21 @@ export function ComprehensiveSearch({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Get search type icon and color
+  // Get search type icon and color with emojis
   const getSearchTypeIndicator = () => {
     switch (searchType) {
       case 'location':
-        return { icon: MapPin, color: 'text-blue-500', label: 'Location' };
+        return { icon: MapPin, color: 'text-blue-500', label: '📍 Location', emoji: '🗺️' };
       case 'company':
-        return { icon: Building, color: 'text-purple-500', label: 'Company' };
+        return { icon: Building, color: 'text-purple-500', label: '🏢 Company', emoji: '🏢' };
       case 'price':
-        return { icon: DollarSign, color: 'text-green-500', label: 'Price' };
+        return { icon: DollarSign, color: 'text-green-500', label: '💰 Price', emoji: '💵' };
       case 'careType':
-        return { icon: Brain, color: 'text-orange-500', label: 'Care Type' };
+        return { icon: Brain, color: 'text-orange-500', label: '🧠 Care Type', emoji: '🏥' };
       case 'naturalLanguage':
-        return { icon: MessageCircle, color: 'text-pink-500', label: 'AI Research' };
+        return { icon: MessageCircle, color: 'text-pink-500', label: '🤖 AI Research', emoji: '✨' };
       default:
-        return { icon: Search, color: 'text-gray-500', label: 'General' };
+        return { icon: Search, color: 'text-gray-500', label: '🔍 General', emoji: '🔎' };
     }
   };
 
@@ -314,33 +314,49 @@ export function ComprehensiveSearch({
             onChange={handleInputChange}
             onKeyDown={handleKeyPress}
             placeholder={placeholder}
-            className="w-full pl-12 pr-20 py-4 text-lg border-2 border-gray-300 dark:border-gray-600 
-                     rounded-xl bg-white dark:bg-gray-800 
-                     focus:border-blue-500 dark:focus:border-blue-400 
-                     shadow-lg hover:shadow-xl transition-all duration-200
-                     placeholder:text-gray-500 dark:placeholder:text-gray-400"
+            className="w-full pl-16 pr-32 py-5 text-lg border-3 border-purple-400 dark:border-purple-600 
+                     rounded-2xl bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900
+                     focus:border-purple-500 dark:focus:border-purple-400 focus:from-white focus:to-blue-50
+                     shadow-xl hover:shadow-2xl transition-all duration-300
+                     placeholder:text-gray-600 dark:placeholder:text-gray-400 font-medium"
             disabled={isLoading}
           />
           
-          {/* Search type indicator */}
-          <div className="absolute left-4 flex items-center">
+          {/* Rich Search type indicator with emoji */}
+          <div className="absolute left-3 flex items-center gap-2">
+            <span className="text-2xl animate-pulse">{searchIndicator.emoji}</span>
             <SearchIcon className={`w-5 h-5 ${searchIndicator.color}`} />
           </div>
           
-
+          {/* Search type badge */}
+          {query && (
+            <Badge className="absolute left-16 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-gray-800/90 text-xs">
+              {searchIndicator.label}
+            </Badge>
+          )}
           
-          {/* Search button */}
+          {/* Enhanced Search button with emojis */}
           <Button
             type="submit"
             disabled={isLoading || !query.trim()}
-            className="absolute right-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 
-                     disabled:bg-gray-400 dark:disabled:bg-gray-600
-                     text-white rounded-lg transition-colors duration-200"
+            className="absolute right-2 px-5 py-3 bg-gradient-to-r from-purple-600 to-blue-600 
+                     hover:from-purple-700 hover:to-blue-700 
+                     disabled:from-gray-400 disabled:to-gray-500
+                     text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200
+                     font-bold flex items-center gap-2"
           >
             {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm">🔄</span>
+              </>
             ) : (
-              <Search className="w-4 h-4" />
+              <>
+                <Search className="w-4 h-4" />
+                <span className="text-sm">✨</span>
+                <span className="hidden sm:inline text-sm">SEARCH</span>
+                <span className="text-sm">🚀</span>
+              </>
             )}
           </Button>
         </div>
@@ -358,20 +374,39 @@ export function ComprehensiveSearch({
                      border border-gray-200 dark:border-gray-700 rounded-b-xl rounded-t-none shadow-xl z-50 
                      max-h-80 overflow-y-auto border-t-0"
           >
-            {suggestions.map((suggestion, index) => (
-              <button
-                key={index}
-                onClick={() => handleSuggestionClick(suggestion)}
-                className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 
-                         transition-colors duration-150 first:rounded-t-xl last:rounded-b-xl
-                         border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-              >
-                <div className="flex items-center space-x-3">
-                  <Search className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-900 dark:text-gray-100">{suggestion}</span>
-                </div>
-              </button>
-            ))}
+            {suggestions.map((suggestion, index) => {
+              // Determine emoji based on suggestion content
+              const getSuggestionEmoji = () => {
+                const lower = suggestion.toLowerCase();
+                if (lower.includes('cheap') || lower.includes('affordable') || lower.includes('$')) return '💰';
+                if (lower.includes('near') || lower.includes('location')) return '📍';
+                if (lower.includes('memory') || lower.includes('dementia')) return '🧠';
+                if (lower.includes('assisted') || lower.includes('care')) return '🏥';
+                if (lower.includes('luxury') || lower.includes('premium')) return '💎';
+                if (lower.includes('pet') || lower.includes('animal')) return '🐕';
+                return '🔍';
+              };
+              
+              return (
+                <button
+                  key={index}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  className="w-full px-4 py-3 text-left hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 
+                           dark:hover:from-gray-700 dark:hover:to-gray-800
+                           transition-all duration-150 first:rounded-t-xl last:rounded-b-xl
+                           border-b border-gray-100 dark:border-gray-700 last:border-b-0 group"
+                >
+                  <div className="flex items-center space-x-3">
+                    <span className="text-lg group-hover:scale-125 transition-transform">{getSuggestionEmoji()}</span>
+                    <Search className="w-4 h-4 text-gray-400 group-hover:text-purple-500" />
+                    <span className="text-gray-900 dark:text-gray-100 font-medium group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                      {suggestion}
+                    </span>
+                    <span className="ml-auto text-sm opacity-0 group-hover:opacity-100 transition-opacity">✨</span>
+                  </div>
+                </button>
+              );
+            })}
           </motion.div>
         )}
       </AnimatePresence>
