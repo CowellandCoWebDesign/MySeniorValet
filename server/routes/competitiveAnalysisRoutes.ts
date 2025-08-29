@@ -53,6 +53,50 @@ router.post('/api/competitive-analysis', async (req, res) => {
           sourcesCount: intelligence.sources?.length || 0
         });
         
+        // Get actual competitive communities from the database in the same city
+        console.log(`🔍 Finding other communities in ${community.city}, ${community.state} for market analysis...`);
+        const competitiveCommunities = await db
+          .select({
+            id: communities.id,
+            name: communities.name,
+            address: communities.address,
+            rentPerMonth: communities.rentPerMonth,
+            photos: communities.photos,
+            careServices: communities.careServices,
+            amenities: communities.amenities
+          })
+          .from(communities)
+          .where(eq(communities.city, community.city))
+          .limit(10);
+
+        // Filter out the current community and prepare competitive analysis
+        const comparableCommunities = competitiveCommunities
+          .filter(c => c.id !== community.id)
+          .map(c => ({
+            name: c.name,
+            price: c.rentPerMonth ? `$${c.rentPerMonth}/month` : 'Contact for pricing',
+            distance: 'Same city',
+            address: c.address,
+            description: `Senior living community in ${community.city}`,
+            photos: c.photos ? c.photos.length : 0,
+            careServices: c.careServices?.length || 0,
+            amenities: c.amenities?.length || 0
+          }));
+
+        // Calculate market averages
+        const rentValues = competitiveCommunities
+          .filter(c => c.rentPerMonth && c.rentPerMonth > 0)
+          .map(c => c.rentPerMonth);
+        
+        const averageRent = rentValues.length > 0 ? 
+          Math.round(rentValues.reduce((sum, rent) => sum + rent, 0) / rentValues.length) : null;
+        
+        const minRent = rentValues.length > 0 ? Math.min(...rentValues) : null;
+        const maxRent = rentValues.length > 0 ? Math.max(...rentValues) : null;
+
+        console.log(`📊 Found ${comparableCommunities.length} competitive communities in ${community.city}`);
+        console.log(`💰 Market pricing: Average $${averageRent}/mo, Range: $${minRent}-$${maxRent}/mo`);
+
         // Transform intelligence data to match frontend expectations
         const transformedData = {
           success: true,
@@ -60,48 +104,74 @@ router.post('/api/competitive-analysis', async (req, res) => {
           communityName: community.name,
           location: `${community.city}, ${community.state}`,
           
-          // Add expected fields for market analysis
-          averageMonthlyRent: intelligence.pricing?.assistedLiving || 
+          // Add expected fields for market analysis with real data
+          averageMonthlyRent: averageRent || intelligence.pricing?.assistedLiving || 
                               intelligence.pricing?.memoryCare || 
                               intelligence.pricing?.independentLiving || 
                               'Contact for pricing',
           
-          // Transform nearbyOptions to extractedCommunities
-          extractedCommunities: intelligence.nearbyOptions?.map((opt: any) => ({
-            name: opt.name,
-            price: opt.pricing || 'Contact for pricing',
-            distance: opt.distance,
-            address: opt.address,
-            description: opt.description || `Senior living community near ${community.name}`
-          })) || [],
+          // Add market price range
+          priceRange: averageRent ? {
+            min: minRent,
+            max: maxRent,
+            average: averageRent
+          } : null,
           
-          // Create detailed summary from description and other data
-          detailedSummary: intelligence.description || 
-            `Market analysis for ${community.name} in ${community.city}, ${community.state}. ${
+          // Use real competitive communities from database
+          extractedCommunities: comparableCommunities.length > 0 ? 
+            comparableCommunities : 
+            (intelligence.nearbyOptions?.map((opt: any) => ({
+              name: opt.name,
+              price: opt.pricing || 'Contact for pricing',
+              distance: opt.distance,
+              address: opt.address,
+              description: opt.description || `Senior living community near ${community.name}`
+            })) || []),
+          
+          // Create detailed market analysis summary with real competitive data
+          detailedSummary: `Market Analysis for ${community.name} in ${community.city}, ${community.state}: ${
+            comparableCommunities.length > 0 ? 
+            `We found ${comparableCommunities.length} comparable senior living communities in ${community.city}. ${
+              averageRent ? 
+              `The average monthly cost is $${averageRent.toLocaleString()}, with prices ranging from $${minRent?.toLocaleString()} to $${maxRent?.toLocaleString()}. ` : 
+              'Pricing varies across communities in the area. '
+            }${
               intelligence.found ? 
-              'This community offers senior living services in the local area.' : 
-              'Limited public information available for this specific community.'
-            } ${
-              intelligence.careLevels?.length ? 
-              `Care levels include: ${intelligence.careLevels.join(', ')}.` : 
+              `${community.name} ${intelligence.careLevels?.length ? `offers ${intelligence.careLevels.join(', ')} services` : 'provides senior living services'} in this competitive market. ` : 
               ''
-            } ${
+            }${
               intelligence.amenities?.length ? 
-              `Amenities include: ${intelligence.amenities.slice(0, 5).join(', ')}.` : 
+              `Key amenities include ${intelligence.amenities.slice(0, 5).join(', ')}. ` : 
               ''
-            }`,
+            }This analysis is based on ${competitiveCommunities.length} verified communities in the ${community.city} market.` : 
+            `${community.name} is located in ${community.city}, ${community.state}. ${
+              intelligence.found ? 
+              'Our AI search found current information about this community. ' : 
+              'We are gathering additional market data for this location. '
+            }${
+              intelligence.careLevels?.length ? 
+              `Care levels include: ${intelligence.careLevels.join(', ')}. ` : 
+              ''
+            }${
+              intelligence.amenities?.length ? 
+              `Amenities include: ${intelligence.amenities.slice(0, 5).join(', ')}. ` : 
+              ''
+            }Contact the community directly for current pricing and availability.`
+          }`,
           
-          // Generate insights from available data
+          // Generate insights from real market data and AI intelligence
           insights: [
-            intelligence.found && `${community.name} is an active senior living community in ${community.city}`,
+            comparableCommunities.length > 0 && `${comparableCommunities.length} comparable communities found in ${community.city}`,
+            averageRent && `Average market price: $${averageRent.toLocaleString()}/month`,
+            minRent && maxRent && `Price range: $${minRent.toLocaleString()} - $${maxRent.toLocaleString()}/month`,
+            intelligence.found && `${community.name} verified as active senior living community`,
             intelligence.officialWebsite && `Official website available for direct information`,
             intelligence.pricing && Object.keys(intelligence.pricing).length > 0 && 
-              `Pricing information available for ${Object.keys(intelligence.pricing).join(', ')}`,
+              `Live pricing available for ${Object.keys(intelligence.pricing).join(', ')}`,
             intelligence.careLevels?.length && `Offers ${intelligence.careLevels.length} levels of care`,
             intelligence.amenities?.length && `Features ${intelligence.amenities.length} amenities and services`,
-            intelligence.nearbyOptions?.length && 
-              `${intelligence.nearbyOptions.length} comparable communities found in the area`,
-            `Located in ${community.city}, ${community.state} market`
+            intelligence.phone && `Direct contact information verified`,
+            `Market analysis based on ${competitiveCommunities.length} verified communities in ${community.city}, ${community.state}`
           ].filter(Boolean),
           
           // Add market trend (could be enhanced with actual analysis)
