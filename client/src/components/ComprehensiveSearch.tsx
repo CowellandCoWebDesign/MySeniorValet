@@ -314,7 +314,7 @@ export function ComprehensiveSearch({
             onChange={handleInputChange}
             onKeyDown={handleKeyPress}
             placeholder={placeholder}
-            className="w-full pl-16 pr-32 py-5 text-lg border-3 border-purple-400 dark:border-purple-600 
+            className="w-full pl-12 pr-24 py-5 text-lg border-3 border-purple-400 dark:border-purple-600 
                      rounded-2xl bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900
                      focus:border-purple-500 dark:focus:border-purple-400 focus:from-white focus:to-blue-50
                      shadow-xl hover:shadow-2xl transition-all duration-300
@@ -322,40 +322,27 @@ export function ComprehensiveSearch({
             disabled={isLoading}
           />
           
-          {/* Rich Search type indicator with emoji */}
-          <div className="absolute left-3 flex items-center gap-2">
-            <span className="text-2xl animate-pulse">{searchIndicator.emoji}</span>
+          {/* Clean Search type indicator */}
+          <div className="absolute left-4 flex items-center">
             <SearchIcon className={`w-5 h-5 ${searchIndicator.color}`} />
           </div>
           
-          {/* Search type badge */}
-          {query && (
-            <Badge className="absolute left-16 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-gray-800/90 text-xs">
-              {searchIndicator.label}
-            </Badge>
-          )}
-          
-          {/* Enhanced Search button with emojis */}
+          {/* Clean Search button */}
           <Button
             type="submit"
             disabled={isLoading || !query.trim()}
-            className="absolute right-2 px-5 py-3 bg-gradient-to-r from-purple-600 to-blue-600 
+            className="absolute right-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 
                      hover:from-purple-700 hover:to-blue-700 
                      disabled:from-gray-400 disabled:to-gray-500
                      text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200
-                     font-bold flex items-center gap-2"
+                     font-bold flex items-center gap-1.5"
           >
             {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span className="text-sm">🔄</span>
-              </>
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <>
-                <Search className="w-4 h-4" />
-                <span className="text-sm">✨</span>
-                <span className="hidden sm:inline text-sm">SEARCH</span>
-                <span className="text-sm">🚀</span>
+                <Search className="w-5 h-5" />
+                <span className="hidden sm:inline">Search</span>
               </>
             )}
           </Button>
