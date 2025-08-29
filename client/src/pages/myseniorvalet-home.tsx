@@ -312,10 +312,11 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
 
-        {/* View Mode Tabs - List, Map, Learn */}
-        <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 mb-4 relative z-50">
+        {/* Unified Search Component with integrated toggles - Zillow-level functionality */}
+        <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative mb-8 z-40">
+          {/* View Mode Tabs - Attached to top of search bar */}
           <div className="flex justify-center">
-            <div className="inline-flex bg-gray-800/90 backdrop-blur-sm rounded-full p-1.5 shadow-xl border border-gray-700/50">
+            <div className="inline-flex bg-gray-800/90 backdrop-blur-sm rounded-t-2xl p-1.5 shadow-xl border border-gray-700/50 border-b-0">
               <button
                 type="button"
                 onClick={() => setViewMode('list')}
@@ -359,11 +360,10 @@ function HeroSectionWithTransformingSearch() {
               </button>
             </div>
           </div>
-        </div>
-
-        {/* Comprehensive Search - Zillow-level functionality */}
-        <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative mb-8 z-40">
-          <ComprehensiveSearch 
+          
+          {/* Search bar styled to connect with toggles */}
+          <div className="-mt-[2px]">
+            <ComprehensiveSearch 
             onSearch={(results) => {
               // Process comprehensive search results
               const communities = results.communities || [];
@@ -389,7 +389,8 @@ function HeroSectionWithTransformingSearch() {
             placeholder={viewMode === 'learn' ? "Ask any question about senior living..." : "Search communities, cities, companies, or ask anything..."}
             className="w-full"
             showSuggestions={true}
-          />
+            />
+          </div>
           
           {/* Search Results - Attached directly to search bar */}
           {isSearchActive && (viewMode === 'list' || viewMode === 'learn') && (
