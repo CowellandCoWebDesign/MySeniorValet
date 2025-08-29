@@ -285,12 +285,12 @@ export function ComprehensiveSearch({
 
         {/* Loading Display with Thinker */}
         <MascotLoadingDisplay 
-          title="Analyzing Your Search"
-          subtitle={`Searching through 32,970+ communities for "${query}"`}
+          title="Deep in Thought..."
+          subtitle={`Contemplating 32,970+ communities for "${query}"`}
           showProgress={true}
           progressDuration={3}
           factRotationSpeed={2500}
-          compact={true}
+          compact={false}
         />
       </div>
     );
