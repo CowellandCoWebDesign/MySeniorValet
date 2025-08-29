@@ -1845,7 +1845,7 @@ const HeroPhotoCarousel = ({
   // Check if we're still loading photos from web intelligence - check both possible paths
   const webImages = verificationReport?.webIntelligence?.images || 
                    verificationReport?.verificationResults?.webIntelligence?.images;
-  const isLoadingWebPhotos = !webImages && verificationReport?.timestamp && safePhotos.length === 0;
+  const isLoadingWebPhotos = false; // Photos load quickly enough that we don't need loading state
   const hasNoRealPhotos = safePhotos.length === 0;
   
   console.log('Photo loading state:', {
