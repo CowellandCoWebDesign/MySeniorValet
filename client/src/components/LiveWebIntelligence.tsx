@@ -140,13 +140,13 @@ export function LiveWebIntelligence({
         // Extract care levels
         const careLevelsMatch = content.match(/CARE LEVELS OFFERED:\s*([^A-Z]+)/i);
         if (careLevelsMatch) {
-          parsedCareLevels = careLevelsMatch[1].split(',').map(s => s.trim()).filter(Boolean);
+          parsedCareLevels = careLevelsMatch[1].split(',').map((s: string) => s.trim()).filter(Boolean);
         }
         
         // Extract amenities
         const amenitiesMatch = content.match(/KEY AMENITIES:\s*([^A-Z]+)/i);
         if (amenitiesMatch) {
-          parsedAmenities = amenitiesMatch[1].split(',').map(s => s.trim()).filter(Boolean);
+          parsedAmenities = amenitiesMatch[1].split(',').map((s: string) => s.trim()).filter(Boolean);
         }
       }
       
