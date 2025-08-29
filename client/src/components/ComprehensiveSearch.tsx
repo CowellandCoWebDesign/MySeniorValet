@@ -376,32 +376,7 @@ export function ComprehensiveSearch({
         )}
       </AnimatePresence>
 
-      {/* Quick search examples */}
-      {!query && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {[
-            'Atria senior living',
-            'Memory care near me', 
-            'Senior living under $3000',
-            'Best assisted living in California'
-          ].map((example) => (
-            <Button
-              key={example}
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setQuery(example);
-                handleSearch(example);
-              }}
-              className="text-sm text-gray-600 dark:text-gray-400 
-                       hover:text-blue-600 dark:hover:text-blue-400
-                       border-gray-300 dark:border-gray-600"
-            >
-              {example}
-            </Button>
-          ))}
-        </div>
-      )}
+
     </div>
   );
 }
