@@ -57,6 +57,7 @@ export class ComprehensiveSearchEngine {
     
     // Detect search type and build conditions
     const { conditions, searchType } = await this.buildSearchConditions(query, filters);
+    console.log(`🔍 Total conditions built: ${conditions.length}, searchType: ${searchType}`);
     
 
     
@@ -64,7 +65,10 @@ export class ComprehensiveSearchEngine {
     let searchQuery = db.select().from(communities);
     
     if (conditions.length > 0) {
+      console.log(`🔍 Applying ${conditions.length} search conditions for query: "${query}"`);
       searchQuery = searchQuery.where(and(...conditions));
+    } else {
+      console.log(`⚠️ No search conditions applied for query: "${query}"`);
     }
     
     // Add sorting based on search type
@@ -91,7 +95,7 @@ export class ComprehensiveSearchEngine {
       console.log('Applying graceful fallback - too few results with filters');
       
       // Build location-only conditions
-      const locationOnlyConditions = await this.buildLocationOnlyConditions(query);
+      const locationOnlyConditions = await this.buildLocationConditions(query);
       
       if (locationOnlyConditions.length > 0) {
         // Re-run search with only location filters
@@ -134,7 +138,7 @@ export class ComprehensiveSearchEngine {
         filters,
         processingTime: Date.now() - startTime,
         suggestions,
-        intentScores,
+
         fallbackApplied,
         fallbackMessage: fallbackApplied ? fallbackMessage : undefined,
         originalFiltersRequested: fallbackApplied ? originalFilters : undefined
@@ -206,8 +210,11 @@ export class ComprehensiveSearchEngine {
     }
     
     // Apply additional filters
+    console.log(`🔍 Before applyFilters: ${conditions.length} conditions`);
     this.applyFilters(conditions, filters);
+    console.log(`🔍 After applyFilters: ${conditions.length} conditions`);
     
+    console.log(`🔍 Final conditions count before return: ${conditions.length}`);
     return { conditions, searchType };
   }
   
@@ -346,17 +353,17 @@ export class ComprehensiveSearchEngine {
     // Handle "City, State" format (e.g., "Miami, Florida" or "Miami, FL")
     if (query.includes(',')) {
       const [city, state] = query.split(',').map(s => s.trim());
-      // Be flexible with state matching
+      console.log(`🔍 Parsing location: city="${city}", state="${state}"`);
+      
+      // Simple and direct approach that works
       conditions.push(
-        or(
-          and(
-            ilike(communities.city, `%${city}%`),
-            ilike(communities.state, `%${state}%`)
-          ),
-          // Also search just by city name in case state doesn't match exactly
-          ilike(communities.city, `%${city}%`)
+        and(
+          ilike(communities.city, `%${city}%`),
+          ilike(communities.state, `%${state}%`)
         )
       );
+      
+      console.log(`🔍 Added direct city-state condition for "${city}" in "${state}"`);
     }
     // ZIP code
     else if (query.match(/^\d{5}/)) {
