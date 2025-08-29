@@ -696,6 +696,54 @@ export function registerCommunityRoutes(app: Express) {
         communityId,
         forceRefresh || false
       );
+      
+      // Update database with discovered information
+      if (enrichmentResult.searchResults?.summary) {
+        const updates: any = {};
+        let hasUpdates = false;
+        
+        // Get current community data
+        const [current] = await db.select().from(communities).where(eq(communities.id, communityId)).limit(1);
+        
+        if (current) {
+          // Update website if found and different
+          if (enrichmentResult.officialWebsite && current.website !== enrichmentResult.officialWebsite) {
+            updates.website = enrichmentResult.officialWebsite;
+            hasUpdates = true;
+            console.log(`✅ Updating website to: ${enrichmentResult.officialWebsite}`);
+          }
+          
+          // Update phone if found and different
+          if (enrichmentResult.phoneNumber && current.phone !== enrichmentResult.phoneNumber) {
+            updates.phone = enrichmentResult.phoneNumber;
+            hasUpdates = true;
+            console.log(`✅ Updating phone to: ${enrichmentResult.phoneNumber}`);
+          }
+          
+          // Update description if we have good content and current is lacking
+          if (enrichmentResult.searchResults?.summary && 
+              enrichmentResult.searchResults.summary.length > 100 &&
+              (!current.description || current.description.length < 50)) {
+            updates.description = enrichmentResult.searchResults.summary.substring(0, 1000);
+            hasUpdates = true;
+            console.log(`✅ Updating description with enriched content`);
+          }
+          
+          // Apply updates if any
+          if (hasUpdates) {
+            await db.update(communities)
+              .set({
+                ...updates,
+                updatedAt: new Date()
+              })
+              .where(eq(communities.id, communityId));
+            console.log(`✅ On-demand enrichment completed for community ${communityId}:`, { 
+              fieldsUpdated: Object.keys(updates),
+              protectedFieldsSkipped: []
+            });
+          }
+        }
+      }
 
       // Transform to match expected frontend format
       const verificationReport = {
