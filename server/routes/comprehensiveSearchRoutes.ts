@@ -97,37 +97,44 @@ router.get('/api/search/comprehensive', async (req, res) => {
 });
 
 /**
- * Search suggestions endpoint
+ * Enhanced Search suggestions endpoint with intelligent prediction
  */
 router.get('/api/search/suggestions', async (req, res) => {
   try {
     const { q: query = '' } = req.query;
+    const queryStr = (query as string).toLowerCase().trim();
     
-    if (!query || (query as string).length < 2) {
+    // Starter suggestions for empty or very short queries
+    if (!queryStr || queryStr.length < 1) {
       return res.json({
         suggestions: [
-          'Atria senior living',
-          'Brookdale communities',
-          'Memory care near me',
-          'Assisted living under $3000',
-          'Best senior living in California',
-          'Independent living Florida'
+          'Assisted living near me',
+          'Memory care facilities',
+          'Independent living communities',
+          'Senior living under $3000',
+          'Nursing homes with high ratings',
+          'Active adult communities 55+',
+          'Dementia care specialists',
+          'Senior housing with amenities'
         ]
       });
     }
     
-    // Get suggestions based on partial query
-    const cacheKey = `suggestions:${query}`;
-    const cached = await cache.get(cacheKey);
-    if (cached) {
-      return res.json(JSON.parse(cached));
-    }
+    // Generate fresh suggestions for better user experience
+    // Temporarily disable cache for immediate improvement
+    // const cacheKey = `enhanced_suggestions:${queryStr}`;
+    // const cached = await cache.get(cacheKey);
+    // if (cached) {
+    //   return res.json(JSON.parse(cached));
+    // }
     
-    // Generate dynamic suggestions
-    const suggestions = await generateSearchSuggestions(query as string);
+    // Generate intelligent suggestions
+    const suggestions = await generateSearchSuggestions(queryStr);
     const response = { suggestions };
     
-    await cache.set(cacheKey, JSON.stringify(response), 300); // 5 minutes
+    // Cache for 2 minutes for performance
+    const cacheKey = `enhanced_suggestions:${queryStr}`;
+    await cache.set(cacheKey, JSON.stringify(response), 120);
     res.json(response);
     
   } catch (error) {
@@ -139,61 +146,173 @@ router.get('/api/search/suggestions', async (req, res) => {
 async function generateSearchSuggestions(query: string): Promise<string[]> {
   const suggestions: string[] = [];
   const normalizedQuery = query.toLowerCase().trim();
+  const queryWords = normalizedQuery.split(/\s+/);
   
-  // Location-based suggestions
-  if (normalizedQuery.match(/^[a-zA-Z\s]{2,}$/)) {
+  // INTELLIGENT DATABASE-DRIVEN SUGGESTIONS
+  
+  // 1. REAL CITY MATCHES (from actual data)
+  try {
+    const { db } = await import('../db');
+    const { communities } = await import('@shared/schema');
+    const { ilike, sql } = await import('drizzle-orm');
+    
+    // Get actual cities that match the query
+    const cityMatches = await db
+      .selectDistinct({
+        city: communities.city,
+        state: communities.state,
+        count: sql<number>`COUNT(*)::int`.as('count')
+      })
+      .from(communities)
+      .where(ilike(communities.city, `${normalizedQuery}%`))
+      .groupBy(communities.city, communities.state)
+      .orderBy(sql`COUNT(*) DESC`)
+      .limit(3);
+    
+    cityMatches.forEach(city => {
+      suggestions.push(
+        `${city.city}, ${city.state}`,
+        `Assisted living in ${city.city}`,
+        `Memory care ${city.city}`,
+        `Senior living ${city.city} under $5000`
+      );
+    });
+    
+    // 2. REAL COMMUNITY NAME MATCHES
+    const communityMatches = await db
+      .select({
+        name: communities.name,
+        city: communities.city,
+        state: communities.state
+      })
+      .from(communities)
+      .where(ilike(communities.name, `${normalizedQuery}%`))
+      .limit(5);
+    
+    communityMatches.forEach(community => {
+      suggestions.push(community.name);
+    });
+    
+  } catch (error) {
+    console.error('Database suggestion error:', error);
+  }
+  
+  // 3. SMART CONTEXTUAL SUGGESTIONS
+  
+  // Location-based intelligence
+  const stateAbbreviations = ['CA', 'FL', 'TX', 'NY', 'PA', 'OH', 'IL', 'MI', 'NC', 'GA'];
+  const isLocationQuery = queryWords.some(word => 
+    word.length >= 3 && /^[a-zA-Z]+$/.test(word) && !['the', 'and', 'for'].includes(word)
+  );
+  
+  if (isLocationQuery) {
     suggestions.push(
-      `${query} senior living`,
-      `${query} assisted living`,
-      `${query} memory care`,
-      `Best senior communities in ${query}`,
-      `Affordable senior living ${query}`
+      `${query} senior living communities`,
+      `Best assisted living in ${query}`,
+      `Memory care facilities ${query}`,
+      `${query} nursing homes`,
+      `Luxury senior living ${query}`,
+      `Affordable senior housing ${query}`
     );
   }
   
-  // Company-based suggestions
-  const companies = ['Atria', 'Brookdale', 'Sunrise', 'Brightview'];
-  for (const company of companies) {
-    if (company.toLowerCase().startsWith(normalizedQuery)) {
+  // Care type intelligence
+  const careTypeMapping = {
+    'memory': ['Memory care communities', 'Alzheimer care facilities', 'Dementia care units'],
+    'assisted': ['Assisted living communities', 'Assisted living with amenities', 'Assisted living pricing'],
+    'independent': ['Independent living communities', 'Active adult communities', 'Senior apartments'],
+    'nursing': ['Nursing homes', 'Skilled nursing facilities', 'Long-term care'],
+    'alzheimer': ['Alzheimer care facilities', 'Memory care units', 'Dementia care specialists'],
+    'dementia': ['Dementia care facilities', 'Memory care communities', 'Specialized dementia units']
+  };
+  
+  Object.entries(careTypeMapping).forEach(([keyword, suggestionList]) => {
+    if (normalizedQuery.includes(keyword)) {
+      suggestions.push(...suggestionList);
+    }
+  });
+  
+  // Price-based intelligence
+  const priceKeywords = ['cheap', 'affordable', 'budget', 'expensive', 'luxury', 'premium'];
+  const hasPriceIntent = priceKeywords.some(keyword => normalizedQuery.includes(keyword)) || 
+                        normalizedQuery.includes('$') || normalizedQuery.includes('under');
+  
+  if (hasPriceIntent) {
+    suggestions.push(
+      'Senior living under $3000',
+      'Affordable assisted living',
+      'Budget memory care',
+      'Senior living under $5000',
+      'Luxury senior communities',
+      'Premium assisted living'
+    );
+  }
+  
+  // Company-based intelligence (real senior living companies)
+  const companies = [
+    'Atria', 'Brookdale', 'Sunrise', 'Brightview', 'Belmont Village',
+    'Vi Living', 'Five Star', 'LCS', 'Capital Senior Living', 'Erickson Living'
+  ];
+  
+  companies.forEach(company => {
+    if (company.toLowerCase().startsWith(normalizedQuery) || 
+        normalizedQuery.includes(company.toLowerCase())) {
       suggestions.push(
         `${company} senior living`,
-        `${company} locations`,
-        `${company} pricing`,
-        `${company} reviews`
+        `${company} communities`,
+        `${company} locations near me`,
+        `${company} pricing and amenities`
       );
     }
-  }
+  });
   
-  // Care type suggestions
-  if (normalizedQuery.includes('memory') || normalizedQuery.includes('alzheimer')) {
+  // 4. QUESTION-BASED SUGGESTIONS (Natural Language)
+  const questionWords = ['what', 'how', 'where', 'which', 'best', 'top'];
+  const hasQuestionIntent = questionWords.some(word => normalizedQuery.includes(word));
+  
+  if (hasQuestionIntent || normalizedQuery.includes('?')) {
     suggestions.push(
-      'Memory care communities',
-      'Alzheimer care facilities',
-      'Memory care pricing',
-      'Best memory care near me'
+      'What is the best senior living community?',
+      'How much does assisted living cost?',
+      'What amenities do senior communities offer?',
+      'How do I choose memory care?',
+      'Best senior living communities near me'
     );
   }
   
-  if (normalizedQuery.includes('assisted')) {
-    suggestions.push(
-      'Assisted living communities',
-      'Assisted living costs',
-      'Assisted living near me',
-      'Best assisted living facilities'
-    );
+  // 5. INTELLIGENT COMPLETION SUGGESTIONS
+  if (normalizedQuery.length >= 2) {
+    const completionSuggestions = [
+      `${query} near me`,
+      `${query} with amenities`,
+      `${query} reviews and ratings`,
+      `${query} cost and pricing`,
+      `${query} availability`
+    ];
+    suggestions.push(...completionSuggestions);
   }
   
-  // Price-based suggestions
-  if (normalizedQuery.includes('cheap') || normalizedQuery.includes('affordable')) {
-    suggestions.push(
-      'Affordable senior living',
-      'Senior living under $3000',
-      'Cheap assisted living',
-      'Budget senior communities'
-    );
-  }
+  // Remove duplicates and rank by relevance
+  const uniqueSuggestions = [...new Set(suggestions)];
   
-  return suggestions.slice(0, 8); // Limit to 8 suggestions
+  // Smart ranking: prioritize exact matches, then startsWith, then contains
+  const ranked = uniqueSuggestions.sort((a, b) => {
+    const aLower = a.toLowerCase();
+    const bLower = b.toLowerCase();
+    
+    // Exact match gets highest priority
+    if (aLower === normalizedQuery) return -1;
+    if (bLower === normalizedQuery) return 1;
+    
+    // Starts with gets second priority
+    if (aLower.startsWith(normalizedQuery) && !bLower.startsWith(normalizedQuery)) return -1;
+    if (bLower.startsWith(normalizedQuery) && !aLower.startsWith(normalizedQuery)) return 1;
+    
+    // Shorter suggestions are often better
+    return a.length - b.length;
+  });
+  
+  return ranked.slice(0, 8); // Return top 8 suggestions
 }
 
 /**
