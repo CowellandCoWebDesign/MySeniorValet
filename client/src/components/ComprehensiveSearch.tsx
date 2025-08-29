@@ -7,7 +7,6 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Search, Brain, Sparkles, MessageCircle, Loader2, MapPin, DollarSign, Building } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Badge } from './ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MascotLoadingDisplay } from './MascotLoadingDisplay';
 
@@ -322,27 +321,27 @@ export function ComprehensiveSearch({
             disabled={isLoading}
           />
           
-          {/* Clean Search type indicator */}
+          {/* Search emoji on the left */}
           <div className="absolute left-4 flex items-center">
-            <SearchIcon className={`w-5 h-5 ${searchIndicator.color}`} />
+            <span className="text-xl">🔍</span>
           </div>
           
-          {/* Clean Search button */}
+          {/* Search button with rocket emoji */}
           <Button
             type="submit"
             disabled={isLoading || !query.trim()}
-            className="absolute right-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 
+            className="absolute right-2 px-3 py-2 bg-gradient-to-r from-purple-600 to-blue-600 
                      hover:from-purple-700 hover:to-blue-700 
                      disabled:from-gray-400 disabled:to-gray-500
                      text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200
-                     font-bold flex items-center gap-1.5"
+                     font-bold flex items-center gap-1 overflow-hidden"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <>
-                <Search className="w-5 h-5" />
-                <span className="hidden sm:inline">Search</span>
+                <Search className="w-4 h-4" />
+                <span>🚀</span>
               </>
             )}
           </Button>
