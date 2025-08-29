@@ -18,7 +18,7 @@ router.post('/api/search/comprehensive', async (req, res) => {
     const { 
       query = '', 
       filters = {},
-      limit = 20, 
+      limit = 1000, 
       offset = 0 
     } = req.body;
     
@@ -60,7 +60,7 @@ router.get('/api/search/comprehensive', async (req, res) => {
       priceMin,
       priceMax,
       rating,
-      limit = '20', 
+      limit = '1000', 
       offset = '0' 
     } = req.query;
     
@@ -254,7 +254,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
       countryMatches.forEach(country => {
         if (country.country) {
           // Use full country name if available, otherwise use database value
-          const displayName = countryMapping[country.country] || country.country;
+          const displayName = countryMapping[country.country as keyof typeof countryMapping] || country.country;
           // Include all countries for international coverage
           if (displayName !== 'United States' || normalizedQuery.includes('us') || normalizedQuery.includes('unit')) {
             suggestions.push(displayName);
