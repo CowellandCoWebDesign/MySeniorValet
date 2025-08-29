@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -48,23 +48,25 @@ import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 
-// Preload critical images
+// Preload critical images asynchronously to avoid blocking
 if (typeof document !== 'undefined') {
-  // Preload hero image
-  const link = document.createElement('link');
-  link.rel = 'preload';
-  link.as = 'image';
-  link.href = heroBackgroundImage;
-  link.type = 'image/png';
-  document.head.appendChild(link);
-  
-  // Preload Thinker image for loading screens
-  const thinkerLink = document.createElement('link');
-  thinkerLink.rel = 'preload';
-  thinkerLink.as = 'image';
-  thinkerLink.href = thinkerSpaceImage;
-  thinkerLink.type = 'image/png';
-  document.head.appendChild(thinkerLink);
+  setTimeout(() => {
+    // Preload hero image
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = heroBackgroundImage;
+    link.type = 'image/png';
+    document.head.appendChild(link);
+    
+    // Preload Thinker image for loading screens
+    const thinkerLink = document.createElement('link');
+    thinkerLink.rel = 'preload';
+    thinkerLink.as = 'image';
+    thinkerLink.href = thinkerSpaceImage;
+    thinkerLink.type = 'image/png';
+    document.head.appendChild(thinkerLink);
+  }, 100); // Delay to not block initial render
 }
 
 
@@ -256,16 +258,22 @@ function HeroSectionWithTransformingSearch() {
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
         }}
       >
-        {/* Background Image */}
+        {/* Background Image - Optimized loading */}
         <div className="absolute inset-0 h-full w-full">
           <img
             src={heroBackgroundImage}
             alt="Professional gentleman presenting under starry night sky - Your guide to senior living transparency"
-            className={`w-full h-full object-cover object-center transition-opacity duration-700 ${
+            className={`w-full h-full object-cover object-center transition-opacity duration-500 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
             loading="eager"
+            decoding="async"
             onLoad={() => setImageLoaded(true)}
+            style={{ 
+              willChange: imageLoaded ? 'auto' : 'opacity',
+              contentVisibility: 'auto',
+              transform: 'translateZ(0)' // Force GPU acceleration
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
         </div>
@@ -411,16 +419,17 @@ function HeroSectionWithTransformingSearch() {
         {/* {!isSearchActive && !searchQuery && !isSearchFocused && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-20" />} */}
       </section>
 
-      {/* Search Results Display Section */}
-      <AnimatePresence>
+      {/* Search Results Display Section - Optimized animations */}
+      <AnimatePresence mode="wait">
         {isSearchActive && (
           <motion.section
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="w-full bg-gradient-to-b from-gray-900 to-gray-800 py-8 relative"
             id="search-results"
+            style={{ transform: 'translateZ(0)' }}
           >
             {/* Learn Mode Response Section */}
             {searchResults?.metadata?.isResearchMode && searchResults?.metadata?.researchResponse && (
@@ -513,7 +522,7 @@ function HeroSectionWithTransformingSearch() {
                   <span className="ml-3 text-gray-300">Searching...</span>
                 </div>
               ) : (
-                <div className="space-y-3 pb-4">
+                <div className="space-y-3 pb-4" style={{ willChange: 'auto' }}>
                   {/* Graceful Fallback Message */}
                   {searchResults?.metadata?.fallbackApplied && (
                     <GracefulFallbackMessage
@@ -847,12 +856,22 @@ export default function MySeniorValetHome() {
     return () => observer.disconnect();
   }, []);
   
+  // Load community stats after initial render to improve page load speed
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  
+  useEffect(() => {
+    // Defer stats loading to improve initial page load time
+    const timer = setTimeout(() => setInitialLoadComplete(true), 200);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Mobile-optimized queries with reduced memory footprint
   const { data: communityStats, isLoading } = useQuery<{ count: string }>({
     queryKey: ["/api/communities/count"],
     retry: false,
     staleTime: 30 * 60 * 1000, // Cache for 30 minutes to reduce requests
     gcTime: 60 * 60 * 1000,   // Keep in cache for 1 hour
+    enabled: initialLoadComplete, // Defer to improve initial load time
   });
 
   // Lazy load platform stats only when needed
@@ -1322,7 +1341,9 @@ export default function MySeniorValetHome() {
                   {/* Community count matching other cards */}
                   <div className="inline-flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
                     <TrendingUp className="h-5 w-5 text-green-500" />
-                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">33,137+</span>
+                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {communityStats?.count || "32,970+"}
+                    </span>
                     <span className="text-sm text-gray-600 dark:text-gray-400">AI-Enhanced Communities</span>
                   </div>
 
