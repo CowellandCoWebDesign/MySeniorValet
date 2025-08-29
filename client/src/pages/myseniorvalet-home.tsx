@@ -365,8 +365,8 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
           
-          {/* Search bar with premium glass effect */}
-          <div className="-mt-[2px]">
+          {/* Enhanced Search Bar with Game-Changing Features */}
+          <div className="w-full max-w-2xl">
             <ComprehensiveSearch 
             onSearch={(results) => {
               // Process comprehensive search results
