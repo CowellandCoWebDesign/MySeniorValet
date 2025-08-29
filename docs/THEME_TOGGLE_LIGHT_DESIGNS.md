@@ -94,6 +94,27 @@ Collection of creative light ON/OFF designs for MySeniorValet theme toggle funct
 ### Fire & Ignition
 1. **Match Strike Ignition** - `attached_assets/generated_images/Match_strike_ON_45056c27.png`
 
+## New Additions (Batch 3)
+
+1. **Lighthouse ON/OFF Comparison** - `attached_assets/generated_images/Lighthouse_ON_OFF_comparison_a63d884c.png`
+2. **Radio Dial Glow** - `attached_assets/generated_images/Radio_dial_glow_eacddb9c.png`
+3. **Lightning Strike** - `attached_assets/generated_images/Lightning_strike_d64167c8.png`
+4. **Fireplace Embers** - `attached_assets/generated_images/Fireplace_embers_7854232b.png`
+5. **Motel Vacancy Sign** - `attached_assets/generated_images/Motel_vacancy_sign_ae0ac2af.png`
+6. **Crystal Geode Glow** - `attached_assets/generated_images/Crystal_geode_glow_8cc74b7e.png`
+7. **Hollywood Mirror Lights** - `attached_assets/generated_images/Hollywood_mirror_lights_03b77425.png`
+8. **Subway Train Lights** - `attached_assets/generated_images/Subway_train_lights_dfb4a1ef.png`
+9. **Glowing Mushrooms** - `attached_assets/generated_images/Glowing_mushrooms_9481dec9.png`
+10. **Solar Eclipse** - `attached_assets/generated_images/Solar_eclipse_9d6c9317.png`
+
+## Implementation Status
+
+### Currently Active:
+1. **Motel Vacancy Sign** - Community Directory Header (hospitality theme)
+2. **Match Strike** - Dark Mode Toggle (instant transformation)  
+3. **Cinema Projector** - Light Mode Toggle (illumination)
+4. **Holographic Display** - Senior Living Command Center (futuristic data viz)
+
 ## Notes
 - All images generated at 1:1 aspect ratio for icon use
 - Consider creating OFF versions for single-state images
@@ -101,3 +122,4 @@ Collection of creative light ON/OFF designs for MySeniorValet theme toggle funct
 - Power button universally understood across cultures
 - Sunrise/sunset split provides natural day/night metaphor
 - Jellyfish ties to cosmic/space theme with underwater cosmos aesthetic
+- Gallery accessible at `/admin/light-gallery` for review

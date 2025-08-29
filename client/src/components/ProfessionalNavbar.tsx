@@ -25,8 +25,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "@/components/theme-provider";
-import japanesePagodaLighthouse from '@assets/generated_images/Japanese_pagoda_lighthouse_a5e3f687.png';
-import darkPagodaLighthouse from '@assets/generated_images/Dark_pagoda_lighthouse_1cb46d0d.png';
+// Theme Toggle Light Designs - As per user specifications
+import matchStrikeON from '@assets/generated_images/Match_strike_ON_45056c27.png'; // Dark mode toggle
+import projectorBeamON from '@assets/generated_images/Projector_beam_ON_8052678e.png'; // Light mode toggle
 
 interface NavbarProps {
   transparent?: boolean;
@@ -314,7 +315,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Theme Toggle - Tech Lighthouse */}
+            {/* Theme Toggle - Match Strike (Dark) / Projector Beam (Light) */}
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className="hover:scale-110 transition-transform duration-200 cursor-pointer focus:outline-none p-1"
@@ -322,9 +323,9 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
             >
               <img 
-                src={theme === 'dark' ? darkPagodaLighthouse : japanesePagodaLighthouse} 
-                alt={theme === 'dark' ? 'Nighttime pagoda lighthouse' : 'Daytime pagoda lighthouse'}
-                className="w-8 h-8 object-contain"
+                src={theme === 'dark' ? projectorBeamON : matchStrikeON} 
+                alt={theme === 'dark' ? 'Cinema projector beam' : 'Match strike ignition'}
+                className="w-8 h-8 object-contain rounded"
               />
             </button>
 

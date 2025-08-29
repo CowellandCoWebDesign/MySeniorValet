@@ -123,6 +123,7 @@ import TherapyServicesDetails from "@/pages/therapy-services-details";
 import AdultDayCareDetails from "@/pages/adult-day-care-details";
 import PersonalCareDetails from "@/pages/personal-care-details";
 import CompanionCareDetails from "@/pages/companion-care-details";
+import LightDesignGallery from "@/pages/light-design-gallery";
 import HospiceCareDetails from "@/pages/hospice-care-details";
 import MedicalEquipmentDetails from "@/pages/medical-equipment-details";
 import NursingServicesDetails from "@/pages/nursing-services-details";
@@ -226,6 +227,7 @@ function Router() {
       <Route path="/admin/data-quality" component={DataQualityDashboard} />
       <Route path="/admin/photo-quality" component={PhotoQualityAdmin} />
       <Route path="/admin/audit-logs" component={LegalDocumentHistory} />
+      <Route path="/admin/light-gallery" component={LightDesignGallery} />
       
       {/* Nostalgic Demo Page */}
       <Route path="/nostalgic-demo" component={NostalgicDemo} />
