@@ -2631,7 +2631,7 @@ export default function CommunityDetail() {
                           
                           // Check if pets are allowed from multiple sources
                           const isPetFriendly = enrichedPets?.allowed || 
-                                               (enrichedAmenities && enrichedAmenities.some(a => 
+                                               (enrichedAmenities && enrichedAmenities.some((a: string) => 
                                                  a.toLowerCase().includes('pet') || 
                                                  a.toLowerCase().includes('dog') || 
                                                  a.toLowerCase().includes('cat')
@@ -3361,7 +3361,7 @@ export default function CommunityDetail() {
                               )}
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                              {displayAmenities.map((amenity, index) => (
+                              {displayAmenities.map((amenity: string, index: number) => (
                                 <div key={index} className="flex items-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
                                   <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
                                   <span className="text-sm text-gray-900 dark:text-gray-100">{amenity}</span>
