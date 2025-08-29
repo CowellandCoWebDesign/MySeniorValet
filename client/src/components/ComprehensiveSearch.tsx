@@ -33,6 +33,7 @@ interface ComprehensiveSearchProps {
   placeholder?: string;
   className?: string;
   showSuggestions?: boolean;
+  searchCategory?: 'communities' | 'services' | 'healthcare' | 'resources';
 }
 
 export function ComprehensiveSearch({ 
@@ -41,7 +42,8 @@ export function ComprehensiveSearch({
   initialQuery = '',
   placeholder = "🔍 Search communities, cities, companies, or ask anything... ✨",
   className = "",
-  showSuggestions = true
+  showSuggestions = true,
+  searchCategory = 'communities'
 }: ComprehensiveSearchProps) {
   const [query, setQuery] = useState(initialQuery);
   const [isLoading, setIsLoading] = useState(false);
@@ -101,7 +103,7 @@ export function ComprehensiveSearch({
     // Get suggestions if query is long enough
     if (value.length >= 2 && showSuggestions) {
       try {
-        const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(value)}`);
+        const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(value)}&category=${searchCategory}`);
         if (response.ok) {
           const data = await response.json();
           setSuggestions(data.suggestions || []);
@@ -123,7 +125,17 @@ export function ComprehensiveSearch({
     setShowSuggestionDropdown(false);
     
     try {
-      const response = await fetch('/api/search/comprehensive', {
+      // Determine API endpoint based on search category
+      let apiEndpoint = '/api/search/comprehensive';
+      if (searchCategory === 'services') {
+        apiEndpoint = '/api/vendors/search';
+      } else if (searchCategory === 'healthcare') {
+        apiEndpoint = '/api/healthcare/search';
+      } else if (searchCategory === 'resources') {
+        apiEndpoint = '/api/resources/search';
+      }
+      
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -131,7 +143,8 @@ export function ComprehensiveSearch({
         body: JSON.stringify({
           query: searchQuery,
           limit: 100,
-          offset: 0
+          offset: 0,
+          category: searchCategory
         })
       });
       
@@ -141,14 +154,15 @@ export function ComprehensiveSearch({
       
       const result = await response.json();
       
-      // Process metadata to include fallback information
+      // Process metadata to include fallback information and category
       if (result.searchMetadata) {
         result.metadata = {
           ...result.searchMetadata,
           fallbackApplied: result.searchMetadata.fallbackApplied,
           fallbackMessage: result.searchMetadata.fallbackMessage,
           originalResultCount: result.searchMetadata.originalFiltersRequested ? 0 : result.totalResults,
-          searchLocation: extractLocationFromQuery(searchQuery)
+          searchLocation: extractLocationFromQuery(searchQuery),
+          searchCategory: searchCategory
         };
       }
       
@@ -164,7 +178,8 @@ export function ComprehensiveSearch({
           query: searchQuery,
           searchType: 'error',
           processingTime: 0,
-          suggestions: []
+          suggestions: [],
+          searchCategory: searchCategory
         },
         facets: {
           states: [],
@@ -261,7 +276,12 @@ export function ComprehensiveSearch({
               type="text"
               value={query}
               onChange={handleInputChange}
-              placeholder={placeholder}
+              placeholder={
+              searchCategory === 'services' ? '🔍 Search for senior care services and vendors...' :
+              searchCategory === 'healthcare' ? '🏥 Search for hospitals, clinics, and medical facilities...' :
+              searchCategory === 'resources' ? '📚 Search for guides, articles, and educational content...' :
+              placeholder
+            }
               className="w-full pl-12 pr-20 py-4 text-lg border-2 border-gray-300 dark:border-gray-600 
                        rounded-xl bg-gray-100 dark:bg-gray-700 
                        shadow-lg transition-all duration-200
@@ -312,7 +332,12 @@ export function ComprehensiveSearch({
             value={query}
             onChange={handleInputChange}
             onKeyDown={handleKeyPress}
-            placeholder={placeholder}
+            placeholder={
+              searchCategory === 'services' ? '🔍 Search for senior care services and vendors...' :
+              searchCategory === 'healthcare' ? '🏥 Search for hospitals, clinics, and medical facilities...' :
+              searchCategory === 'resources' ? '📚 Search for guides, articles, and educational content...' :
+              placeholder
+            }
             className="w-full pl-12 pr-24 py-5 text-lg border-3 border-purple-400 dark:border-purple-600 
                      rounded-2xl bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900
                      focus:border-purple-500 dark:focus:border-purple-400 focus:from-white focus:to-blue-50

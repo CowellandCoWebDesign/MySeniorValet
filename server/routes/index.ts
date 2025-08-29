@@ -54,6 +54,7 @@ import enhancedWeaviateRoutes from "./enhanced-weaviate-routes";
 import naturalLanguageSearchRoutes from "./naturalLanguageSearch";
 import nlpSearchRoutes from "./nlpSearchRoutes";
 import comprehensiveSearchRoutes from "./comprehensiveSearchRoutes";
+import categorySearchRoutes from "./categorySearchRoutes";
 import { registerPlatformRoutes } from "./platformRoutes";
 import { registerCommunityOnboardingRoutes } from "./communityOnboardingRoutes";
 import { registerCRMIntegrationRoutes } from "./crmIntegrationRoutes";
@@ -110,6 +111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerMappingFixRoutes(app);
   registerUnifiedSearchRoutes(app); // Unified search handles both text and map searches
   app.use('/', comprehensiveSearchRoutes); // CRITICAL: Comprehensive search - handles all search types like Zillow
+  app.use('/', categorySearchRoutes); // Category-specific search routes (Services, Healthcare, Resources)
   registerMultiAITestRoutes(app);
   registerDirectoryRoutes(app); // Register directory filtering routes
   registerCommunityRoutes(app);

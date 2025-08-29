@@ -83,7 +83,7 @@ function HeroSectionWithTransformingSearch() {
   const [isLoading, setIsLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'map' | 'learn'>('list');
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [activeTab, setActiveTab] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
+  const [searchCategory, setSearchCategory] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
   const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
   const [visibleResults, setVisibleResults] = useState(10); // Start with 10 visible results
   const [, setLocation] = useLocation();
@@ -368,6 +368,7 @@ function HeroSectionWithTransformingSearch() {
           {/* Enhanced Search Bar with Game-Changing Features */}
           <div className="w-full max-w-2xl">
             <ComprehensiveSearch 
+            searchCategory={searchCategory}
             onSearch={(results) => {
               // Process comprehensive search results
               const communities = results.communities || [];
@@ -394,6 +395,60 @@ function HeroSectionWithTransformingSearch() {
             className="w-full"
             showSuggestions={true}
             />
+            
+            {/* Category Tabs - Below Search Bar */}
+            <div className="flex justify-center mt-4">
+              <div className="inline-flex bg-white/10 backdrop-blur-md rounded-xl p-1 shadow-xl border border-white/20">
+                <button
+                  type="button"
+                  onClick={() => setSearchCategory('communities')}
+                  className={`px-4 py-2 rounded-lg transition-all duration-300 text-xs font-semibold flex items-center ${
+                    searchCategory === 'communities' 
+                      ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg' 
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Building2 className="w-3 h-3 mr-1.5" />
+                  Communities
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSearchCategory('services')}
+                  className={`px-4 py-2 rounded-lg transition-all duration-300 text-xs font-semibold flex items-center ${
+                    searchCategory === 'services' 
+                      ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg' 
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Briefcase className="w-3 h-3 mr-1.5" />
+                  Services
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSearchCategory('healthcare')}
+                  className={`px-4 py-2 rounded-lg transition-all duration-300 text-xs font-semibold flex items-center ${
+                    searchCategory === 'healthcare' 
+                      ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg' 
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Heart className="w-3 h-3 mr-1.5" />
+                  Healthcare
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSearchCategory('resources')}
+                  className={`px-4 py-2 rounded-lg transition-all duration-300 text-xs font-semibold flex items-center ${
+                    searchCategory === 'resources' 
+                      ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg' 
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <BookOpen className="w-3 h-3 mr-1.5" />
+                  Resources
+                </button>
+              </div>
+            </div>
           </div>
           
           {/* Search Results - Premium Glass Design */}

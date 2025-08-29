@@ -299,9 +299,9 @@ export class EnhancedAIEnrichmentService {
         }
       }
       
-      // Full name fuzzy matching with lower threshold
+      // Full name fuzzy matching with much lower threshold for better tolerance
       const fullSimilarity = this.calculateSimilarity(query, communityNameLower);
-      if (fullSimilarity >= 0.40) { // 40% threshold for full name matching
+      if (fullSimilarity >= 0.25) { // 25% threshold for full name matching (very tolerant)
         matches.push({ community, similarity: fullSimilarity * 100 });
       }
     }
@@ -375,10 +375,18 @@ export class EnhancedAIEnrichmentService {
           // Validate the result matches our community
           const nameMatch = this.validateCommunityMatch(communityName, result.name || '');
           
-          // Lower threshold for alias and parent company searches
-          const threshold = strategy.type === 'alias' || strategy.type === 'parent' ? 0.4 : 0.5;
+          // Much lower threshold to be more tolerant with name variations
+          // Different thresholds based on strategy type
+          let threshold = 0.3; // Default 30% minimum
+          if (strategy.type === 'exact') {
+            threshold = 0.35; // 35% for exact searches
+          } else if (strategy.type === 'address') {
+            threshold = 0.25; // 25% for address-based (most tolerant)
+          } else if (strategy.type === 'fuzzy') {
+            threshold = 0.25; // 25% for fuzzy searches
+          }
           
-          if (nameMatch > threshold) { // Dynamic similarity threshold
+          if (nameMatch >= threshold) { // Dynamic similarity threshold
             console.log(`  ✅ Found match with ${Math.round(nameMatch * 100)}% name similarity`);
             return {
               ...result,
