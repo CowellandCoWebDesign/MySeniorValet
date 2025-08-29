@@ -312,13 +312,14 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Theme Toggle - Lighthouse Emoji */}
+            {/* Theme Toggle - Lighthouse Changes with Theme */}
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className="text-2xl hover:scale-110 transition-transform duration-200 cursor-pointer focus:outline-none p-1"
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
             >
-              🏮
+              {theme === 'dark' ? '🏮' : '⛯'}
             </button>
 
             {/* Notifications */}
