@@ -288,9 +288,16 @@ export function ComprehensiveSearch({
           title="Deep in Thought..."
           subtitle={`Contemplating 32,970+ communities for "${query}"`}
           showProgress={true}
-          progressDuration={3}
-          factRotationSpeed={2500}
+          progressDuration={8}
+          factRotationSpeed={3000}
           compact={false}
+          processStages={[
+            "Searching official websites for photos",
+            "Scanning social media and listings", 
+            "Analyzing image quality and authenticity",
+            "Verifying photo sources and ownership",
+            "Organizing visual content library"
+          ]}
         />
       </div>
     );

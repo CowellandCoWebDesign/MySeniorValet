@@ -4,6 +4,17 @@ import valetGentleman from '@/assets/valet-mascot.png';
 import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
 import { getShuffledFacts } from '@/lib/loadingFacts';
 
+// Preload The Thinker image immediately when component loads
+const preloadThinkerImage = () => {
+  if (typeof document !== 'undefined') {
+    const img = new Image();
+    img.src = thinkerSpaceImage;
+  }
+};
+
+// Call preload immediately
+preloadThinkerImage();
+
 interface MascotLoadingDisplayProps {
   title?: string;
   subtitle?: string;
@@ -26,8 +37,14 @@ export function MascotLoadingDisplay({
   const [facts] = useState(() => getShuffledFacts());
   const [currentFactIndex, setCurrentFactIndex] = useState(0);
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
+    // Preload image and track loading state
+    const img = new Image();
+    img.onload = () => setImageLoaded(true);
+    img.src = thinkerSpaceImage;
+
     const factInterval = setInterval(() => {
       setCurrentFactIndex((prev) => (prev + 1) % facts.length);
     }, factRotationSpeed);
@@ -114,6 +131,22 @@ export function MascotLoadingDisplay({
     );
   }
 
+  // Show simple loading state while image loads
+  if (!imageLoaded) {
+    return (
+      <div className="w-full h-full flex items-center justify-center relative min-h-[400px] bg-gray-900">
+        <div className="text-center">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full mx-auto mb-4"
+          />
+          <p className="text-white">{title}</p>
+        </div>
+      </div>
+    );
+  }
+
   // Full version - smaller and more focused on process status
   return (
     <div 
@@ -190,28 +223,30 @@ export function MascotLoadingDisplay({
           </div>
         )}
 
-        {/* Current Process Stage */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentStageIndex}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.5 }}
-            className="bg-black/50 backdrop-blur-sm rounded-lg p-4 mb-6"
-          >
-            <div className="flex items-center justify-center gap-3">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                className="w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full"
-              />
-              <p className="text-blue-400 font-medium">
-                {processStages[currentStageIndex]}
-              </p>
-            </div>
-          </motion.div>
-        </AnimatePresence>
+        {/* Current Process Stage - Only show if image is loaded */}
+        {imageLoaded && (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentStageIndex}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="bg-black/50 backdrop-blur-sm rounded-lg p-4 mb-6"
+            >
+              <div className="flex items-center justify-center gap-3">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  className="w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full"
+                />
+                <p className="text-blue-400 font-medium">
+                  {processStages[currentStageIndex]}
+                </p>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        )}
 
         {/* Compact Loading Indicators */}
         <div className="grid grid-cols-3 gap-4 text-center">

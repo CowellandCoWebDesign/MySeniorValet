@@ -44,17 +44,27 @@ import LearnModeInterface from '@/components/LearnModeInterface';
 import GracefulFallbackMessage from '@/components/GracefulFallbackMessage';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
+import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 
-// Preload critical hero image
+// Preload critical images
 if (typeof document !== 'undefined') {
+  // Preload hero image
   const link = document.createElement('link');
   link.rel = 'preload';
   link.as = 'image';
   link.href = heroBackgroundImage;
   link.type = 'image/png';
   document.head.appendChild(link);
+  
+  // Preload Thinker image for loading screens
+  const thinkerLink = document.createElement('link');
+  thinkerLink.rel = 'preload';
+  thinkerLink.as = 'image';
+  thinkerLink.href = thinkerSpaceImage;
+  thinkerLink.type = 'image/png';
+  document.head.appendChild(thinkerLink);
 }
 
 
