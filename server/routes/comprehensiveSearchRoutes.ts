@@ -99,7 +99,7 @@ router.get('/api/search/comprehensive', async (req, res) => {
 /**
  * Enhanced Search suggestions endpoint with intelligent prediction
  */
-router.get('/suggestions', async (req, res) => {
+router.get('/api/search/suggestions', async (req, res) => {
   try {
     const { q: query = '' } = req.query;
     const queryStr = (query as string).toLowerCase().trim();
@@ -170,7 +170,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
           ilike(communities.name, `%${normalizedQuery}%`)  // Contains
         )
       )
-      .orderBy(sql`CASE WHEN LOWER(name) LIKE ${normalizedQuery + '%'} THEN 1 ELSE 2 END`)
+      .orderBy(communities.name)
       .limit(8);
     
     communityMatches.forEach(community => {
@@ -192,7 +192,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         )
       )
       .groupBy(communities.city, communities.state)
-      .orderBy(sql`CASE WHEN LOWER(city) LIKE ${normalizedQuery + '%'} THEN 1 ELSE 2 END, COUNT(*) DESC`)
+      .orderBy(sql`COUNT(*) DESC`)
       .limit(6);
     
     cityMatches.forEach(city => {
@@ -220,8 +220,21 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
       suggestions.push(state.state);
     });
     
-    // 4. COUNTRY MATCHES
+    // 4. INTERNATIONAL COUNTRY MATCHES
     if (normalizedQuery.length >= 2) {
+      // Map country codes to full names for better user experience
+      const countryMapping = {
+        'US': 'United States',
+        'CA': 'Canada', 
+        'AU': 'Australia',
+        'Mexico': 'Mexico',
+        'Japan': 'Japan',
+        'CU': 'Cuba',
+        'PE': 'Peru', 
+        'PA': 'Panama',
+        'CR': 'Costa Rica'
+      };
+      
       const countryMatches = await db
         .selectDistinct({
           country: communities.country,
@@ -236,23 +249,44 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         )
         .groupBy(communities.country)
         .orderBy(sql`COUNT(*) DESC`)
-        .limit(3);
+        .limit(5);
       
       countryMatches.forEach(country => {
-        if (country.country && country.country !== 'United States') {
-          suggestions.push(country.country);
+        if (country.country) {
+          // Use full country name if available, otherwise use database value
+          const displayName = countryMapping[country.country] || country.country;
+          // Include all countries for international coverage
+          if (displayName !== 'United States' || normalizedQuery.includes('us') || normalizedQuery.includes('unit')) {
+            suggestions.push(displayName);
+          }
         }
       });
+      
+      // Add specific international suggestions for common queries
+      const internationalSuggestions = [];
+      if (normalizedQuery.includes('canad') || normalizedQuery.includes('ca')) {
+        internationalSuggestions.push('Senior living in Canada', 'Canada assisted living');
+      }
+      if (normalizedQuery.includes('austr') || normalizedQuery.includes('au')) {
+        internationalSuggestions.push('Senior living in Australia', 'Australia aged care');
+      }
+      if (normalizedQuery.includes('mexic') || normalizedQuery.includes('mx')) {
+        internationalSuggestions.push('Senior living in Mexico', 'Mexico retirement communities');
+      }
+      if (normalizedQuery.includes('japan') || normalizedQuery.includes('jp')) {
+        internationalSuggestions.push('Senior living in Japan', 'Japan elder care');
+      }
+      suggestions.push(...internationalSuggestions);
     }
     
   } catch (error) {
     console.error('Database suggestion error:', error);
   }
   
-  // 5. COMMON SEARCH PATTERNS (most searched)
+  // 5. COMMON SEARCH PATTERNS (including international)
   const commonSearches = [
     'Assisted living near me',
-    'Memory care facilities',
+    'Memory care facilities', 
     'Senior living under $3000',
     'Independent living communities',
     'Nursing homes with good ratings',
@@ -262,7 +296,13 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
     'Senior living with amenities',
     'Memory care for Alzheimer\'s',
     'Senior apartments',
-    'Continuing care retirement communities'
+    'Continuing care retirement communities',
+    // International options
+    'Senior living in Canada',
+    'Australia aged care facilities',
+    'Mexico retirement communities',
+    'International senior living',
+    'Retirement abroad options'
   ];
   
   // Add common searches that match the query
