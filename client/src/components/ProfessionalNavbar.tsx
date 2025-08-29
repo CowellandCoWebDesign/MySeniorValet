@@ -113,17 +113,15 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
         <div className="flex items-center justify-between h-20">
           {/* Left Section: Mobile Menu, Logo and Desktop Nav */}
           <div className="flex items-center space-x-4 lg:space-x-8">
-            {/* Mobile Menu Button - Far Left */}
+            {/* Mobile Menu Button - Far Left with Checklist Emoji */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild className="lg:hidden">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                <button
+                  className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200"
                   aria-label="Open menu"
                 >
-                  <Menu className="h-5 w-5" />
-                </Button>
+                  <span className="text-2xl">📋</span>
+                </button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[320px] p-0 bg-white dark:bg-gray-900">
                 <SheetHeader className="p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
@@ -274,20 +272,8 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
             </div>
           </div>
 
-          {/* Right Section: Accessibility, Language, Notifications, User, Theme */}
+          {/* Right Section: Language, Notifications, User, Theme, Accessibility */}
           <div className="flex items-center space-x-1 lg:space-x-2">
-            {/* Accessibility Button */}
-            <Link href="/accessibility">
-              <Button
-                variant="outline"
-                size="icon"
-                className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 w-9 h-9 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                aria-label="Accessibility Options"
-              >
-                <Accessibility className="h-5 w-5" />
-              </Button>
-            </Link>
-
             {/* Language Selector */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -399,7 +385,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               </div>
             )}
 
-            {/* Theme Toggle - Far Right - Cinema Projector (Dark) / Victorian Crystal Chandelier (Light) */}
+            {/* Theme Toggle - Victorian Crystal Chandelier (Light) / Cinema Projector (Dark) */}
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className="hover:scale-110 transition-transform duration-200 cursor-pointer focus:outline-none p-1 ml-2"
@@ -407,11 +393,23 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
             >
               <img 
-                src={theme === 'dark' ? victorianCrystalChandelier : projectorBeamON} 
-                alt={theme === 'dark' ? 'Victorian Crystal Chandelier' : 'Cinema Projector Beam'}
+                src={theme === 'dark' ? projectorBeamON : victorianCrystalChandelier} 
+                alt={theme === 'dark' ? 'Cinema Projector' : 'Victorian Crystal Chandelier'}
                 className="w-8 h-8 object-contain rounded"
               />
             </button>
+
+            {/* Accessibility Button - Furthest Right */}
+            <Link href="/accessibility">
+              <Button
+                variant="outline"
+                size="icon"
+                className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 w-9 h-9 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                aria-label="Accessibility Options"
+              >
+                <Accessibility className="h-5 w-5" />
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
