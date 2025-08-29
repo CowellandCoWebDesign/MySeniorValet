@@ -12,6 +12,7 @@ export interface PlatformStatsData {
   statesCovered: number;
   countiesCovered: number;
   citiesCovered: number;
+  countriesCovered: number;
   totalAvailableUnits: number;
   totalUnitCapacity: number;
   totalResidentCapacity: number;
@@ -100,6 +101,11 @@ export class EnhancedPlatformStatsService {
         .from(communities)
         .execute();
 
+      const [countryCount] = await db
+        .select({ count: sql<number>`count(distinct ${communities.country})::int` })
+        .from(communities)
+        .execute();
+
       // Comprehensive pricing count - includes all pricing sources
       const [pricingCount] = await db
         .select({ count: sql<number>`count(*)::int` })
@@ -152,6 +158,7 @@ export class EnhancedPlatformStatsService {
         statesCovered: stateCount?.count || 0,
         countiesCovered: countyCount?.count || 0,
         citiesCovered: cityCount?.count || 0,
+        countriesCovered: countryCount?.count || 0,
         totalAvailableUnits: withAvailability * 10, // Estimated average
         totalUnitCapacity: totalCommunities * 20, // Estimated average
         totalResidentCapacity: totalCommunities * 20, // Estimated average
@@ -197,6 +204,7 @@ export class EnhancedPlatformStatsService {
         statesCovered: 101,
         countiesCovered: 1664,
         citiesCovered: 4698,
+        countriesCovered: 9,
         totalAvailableUnits: 633371,
         totalUnitCapacity: 633371,
         totalResidentCapacity: 633371,
@@ -242,7 +250,7 @@ export class EnhancedPlatformStatsService {
     return {
       totalCommunities: stats.totalCommunities.toLocaleString(),
       communityCount: stats.totalCommunities,
-      coverage: `${stats.statesCovered} States • ${stats.countiesCovered.toLocaleString()} Counties • ${stats.citiesCovered.toLocaleString()} Cities`,
+      coverage: `${stats.statesCovered} States • ${stats.countiesCovered.toLocaleString()} Counties • ${stats.citiesCovered.toLocaleString()} Cities • ${stats.countriesCovered} Countries`,
       availability: stats.totalAvailableUnits > 0 ? 
         `${stats.totalAvailableUnits.toLocaleString()} Units Available` : 
         'Real-time Availability Tracking',

@@ -10,7 +10,11 @@ export function registerStatsRoutes(app: Express) {
   app.get("/api/platform/stats/formatted", async (req, res) => {
     try {
       const stats = await enhancedPlatformStats.getFormattedStats();
-      res.json(stats);
+      const fullStats = await enhancedPlatformStats.getPlatformStats();
+      res.json({
+        ...stats,
+        countriesCovered: fullStats.countriesCovered
+      });
     } catch (error) {
       console.error("Error fetching formatted platform stats:", error);
       res.status(500).json({ error: "Failed to fetch formatted statistics" });

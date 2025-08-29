@@ -58,6 +58,8 @@ export class ComprehensiveSearchEngine {
     // Detect search type and build conditions
     const { conditions, searchType } = await this.buildSearchConditions(query, filters);
     
+
+    
     // Execute main search
     let searchQuery = db.select().from(communities);
     
@@ -158,7 +160,7 @@ export class ComprehensiveSearchEngine {
       console.log(`Query: "${query}" | Intent scores:`, intentScores, `| Dominant: ${dominantIntent}`);
       
       // Apply conditions based on ALL detected intents (not just dominant)
-      if (intentScores.location > 0.3) {
+      if (intentScores.location >= 0.3) {
         const locationConditions = await this.buildLocationConditions(normalizedQuery);
         conditions.push(...locationConditions);
       }
@@ -382,6 +384,32 @@ export class ComprehensiveSearchEngine {
       let stateCode = null;
       let cityName = query;
       
+      // Country mapping for international search
+      const countryMapping: Record<string, string> = {
+        'canada': 'CA',
+        'australia': 'AU', 
+        'mexico': 'Mexico',
+        'japan': 'Japan',
+        'united states': 'US',
+        'usa': 'US'
+      };
+      
+      // Check for countries first
+      let countryCode = null;
+      const lowerQuery = query.toLowerCase().trim();
+      for (const [countryName, code] of Object.entries(countryMapping)) {
+        if (lowerQuery === countryName) {
+          countryCode = code;
+          break;
+        }
+      }
+      
+      // If it's a country search, handle differently
+      if (countryCode) {
+        conditions.push(eq(communities.country, countryCode));
+        return conditions;
+      }
+
       // Check each state name
       for (const [stateName, code] of Object.entries(stateAbbreviations)) {
         if (query.toLowerCase().includes(stateName)) {
