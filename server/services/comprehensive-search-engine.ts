@@ -554,11 +554,11 @@ export class ComprehensiveSearchEngine {
       // Use proper JSON array containment check with correct column name (care_types)
       const careTypeConditions = matchedCareTypes.map(careType => 
         sql`(
-          ${communities.careTypes} IS NOT NULL 
+          ${communities.care_types} IS NOT NULL 
           AND (
-            ${communities.careTypes}::text LIKE '%' || ${careType} || '%'
-            OR ${communities.careTypes}::text LIKE '%' || ${careType.toLowerCase()} || '%'
-            OR ${communities.careTypes}::text LIKE '%' || ${careType.toUpperCase()} || '%'
+            ${communities.care_types}::text LIKE '%' || ${careType} || '%'
+            OR ${communities.care_types}::text LIKE '%' || ${careType.toLowerCase()} || '%'
+            OR ${communities.care_types}::text LIKE '%' || ${careType.toUpperCase()} || '%'
           )
         )`
       );
