@@ -102,79 +102,91 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
     <nav className={cn(
       "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
       transparent && !isScrolled 
-        ? "bg-transparent" 
-        : "bg-white dark:bg-gray-900 shadow-md",
+        ? "bg-transparent backdrop-blur-sm" 
+        : "bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-200/20 dark:border-gray-800/20",
       className
     )}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           {/* Left Section: Logo and Desktop Nav */}
           <div className="flex items-center space-x-8">
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button - Professional with text */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild className="lg:hidden">
                 <Button
-                  variant="ghost"
-                  size="icon"
-                  className="hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+                  variant="outline"
+                  size="default"
+                  className="border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 font-semibold px-4 py-2 flex items-center gap-2 shadow-sm"
                   aria-label="Open menu"
                 >
-                  <Menu className="h-6 w-6" />
+                  <Menu className="h-5 w-5" />
+                  <span className="text-sm">MENU</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] p-0">
-                <SheetHeader className="p-4 border-b">
-                  <SheetTitle className="text-left">MySeniorValet</SheetTitle>
+              <SheetContent side="left" className="w-[320px] p-0 bg-white dark:bg-gray-900">
+                <SheetHeader className="p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md">
+                      <Home className="h-5 w-5 text-white" />
+                    </div>
+                    <SheetTitle className="text-xl font-bold text-gray-900 dark:text-white">MySeniorValet</SheetTitle>
+                  </div>
                 </SheetHeader>
                 <div className="py-4">
-                  {/* Mobile Navigation */}
-                  <div className="space-y-1 px-3">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
-                      Main
+                  {/* Mobile Navigation - Enhanced Professional */}
+                  <div className="space-y-1 px-4">
+                    <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-3 py-3">
+                      Main Navigation
                     </p>
                     {navigationItems.main.map((item) => (
                       <Link 
                         key={item.href} 
                         href={item.href}
-                        className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        className="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 dark:hover:from-gray-800 dark:hover:to-gray-800 transition-all duration-200 group"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        <item.icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.label}</span>
+                        <div className="p-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg group-hover:bg-white dark:group-hover:bg-gray-700 transition-colors">
+                          <item.icon className="h-4 w-4 text-gray-600 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400" />
+                        </div>
+                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">{item.label}</span>
                       </Link>
                     ))}
                     
-                    <Separator className="my-2" />
+                    <Separator className="my-4 mx-3" />
                     
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
+                    <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-3 py-3">
                       Resources
                     </p>
                     {navigationItems.resources.map((item) => (
                       <Link 
                         key={item.href} 
                         href={item.href}
-                        className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        className="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 dark:hover:from-gray-800 dark:hover:to-gray-800 transition-all duration-200 group"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        <item.icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.label}</span>
+                        <div className="p-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg group-hover:bg-white dark:group-hover:bg-gray-700 transition-colors">
+                          <item.icon className="h-4 w-4 text-gray-600 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400" />
+                        </div>
+                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">{item.label}</span>
                       </Link>
                     ))}
                     
-                    <Separator className="my-2" />
+                    <Separator className="my-4 mx-3" />
                     
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
-                      Tools
+                    <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-3 py-3">
+                      Tools & Features
                     </p>
                     {navigationItems.tools.map((item) => (
                       <Link 
                         key={item.href} 
                         href={item.href}
-                        className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        className="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-blue-50 dark:hover:from-gray-800 dark:hover:to-gray-800 transition-all duration-200 group"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        <item.icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{item.label}</span>
+                        <div className="p-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg group-hover:bg-white dark:group-hover:bg-gray-700 transition-colors">
+                          <item.icon className="h-4 w-4 text-gray-600 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400" />
+                        </div>
+                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white">{item.label}</span>
                       </Link>
                     ))}
                   </div>
@@ -182,37 +194,42 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               </SheetContent>
             </Sheet>
 
-            {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2 cursor-pointer">
-              <Home className="h-8 w-8 text-purple-600" />
-              <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                MySeniorValet
-              </span>
+            {/* Logo - Enhanced Professional Design */}
+            <Link href="/" className="flex items-center space-x-3 cursor-pointer group">
+              <div className="p-2.5 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
+                <Home className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  MySeniorValet
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 font-medium -mt-1">Clarity in Senior Living</span>
+              </div>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-1">
+            {/* Desktop Navigation - Enhanced Professional */}
+            <div className="hidden lg:flex items-center space-x-2">
               {navigationItems.main.map((item) => (
                 <Link 
                   key={item.href} 
                   href={item.href}
                   className={cn(
-                    "px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    "px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200",
                     location === item.href 
-                      ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:shadow-sm"
                   )}
                 >
                   {item.label}
                 </Link>
               ))}
               
-              {/* Resources Dropdown */}
+              {/* Resources Dropdown - Enhanced */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="space-x-1 text-gray-700 dark:text-gray-300">
+                  <Button variant="ghost" className="space-x-2 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2.5 rounded-xl">
                     <span>Resources</span>
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-4 w-4 transition-transform duration-200" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56">
@@ -227,12 +244,12 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Tools Dropdown */}
+              {/* Tools Dropdown - Enhanced */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="space-x-1 text-gray-700 dark:text-gray-300">
+                  <Button variant="ghost" className="space-x-2 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 px-4 py-2.5 rounded-xl">
                     <span>Tools</span>
-                    <ChevronDown className="h-4 w-4" />
+                    <ChevronDown className="h-4 w-4 transition-transform duration-200" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56">
@@ -251,13 +268,18 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
 
           {/* Right Section: Language, Theme, User */}
           <div className="flex items-center space-x-2">
-            {/* Language Selector */}
+            {/* Language Selector - Professional */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="hidden sm:flex items-center space-x-2 text-gray-700 dark:text-gray-300">
+                <Button 
+                  variant="outline" 
+                  size="default" 
+                  className="hidden sm:flex items-center space-x-2 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 px-3 py-2 rounded-xl"
+                >
+                  <Globe className="h-4 w-4" />
                   <span className="text-lg">{currentLanguage.flag}</span>
-                  <span className="hidden md:inline">{currentLanguage.label}</span>
-                  <ChevronDown className="h-4 w-4" />
+                  <span className="hidden lg:inline font-medium text-sm">{currentLanguage.label}</span>
+                  <ChevronDown className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -279,12 +301,12 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Theme Toggle */}
+            {/* Theme Toggle - Professional */}
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+              className="border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 w-10 h-10 rounded-xl transition-all duration-200"
             >
               {theme === 'dark' ? (
                 <Sun className="h-5 w-5" />
@@ -354,15 +376,22 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
                 <Link href="/api/login">
-                  <Button variant="ghost" size="sm" className="text-gray-700 dark:text-gray-300">
+                  <Button 
+                    variant="outline" 
+                    size="default" 
+                    className="border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 px-5 py-2.5 rounded-xl transition-all duration-200"
+                  >
                     Sign In
                   </Button>
                 </Link>
                 <Link href="/api/login">
-                  <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
-                    Sign Up
+                  <Button 
+                    size="default" 
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold shadow-md hover:shadow-lg px-5 py-2.5 rounded-xl transition-all duration-200"
+                  >
+                    Get Started
                   </Button>
                 </Link>
               </div>
