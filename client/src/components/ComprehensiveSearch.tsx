@@ -131,7 +131,7 @@ export function ComprehensiveSearch({
         },
         body: JSON.stringify({
           query: searchQuery,
-          limit: 20,
+          limit: 100,
           offset: 0
         })
       });

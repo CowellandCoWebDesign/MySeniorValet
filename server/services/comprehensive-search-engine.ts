@@ -47,7 +47,7 @@ export class ComprehensiveSearchEngine {
   
   async search(query: string, filters: SearchFilters = {}, options: { limit?: number; offset?: number } = {}): Promise<SearchResult> {
     const startTime = Date.now();
-    const { limit = 20, offset = 0 } = options;
+    const { limit = 100, offset = 0 } = options;
     
     // Store original filters for fallback message
     const originalFilters = { ...filters };
