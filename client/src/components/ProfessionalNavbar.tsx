@@ -26,8 +26,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "@/components/theme-provider";
 // Theme Toggle Light Designs - As per user specifications
-import matchStrikeON from '@assets/generated_images/Match_strike_ON_45056c27.png'; // Dark mode toggle
-import victorianCrystalChandelier from '@assets/generated_images/Victorian_crystal_chandelier_56b1af95.png'; // Light mode toggle
+import projectorBeamON from '@assets/generated_images/Projector_beam_ON_8052678e.png'; // Dark mode toggle (Cinema Projector)
+import victorianCrystalChandelier from '@assets/generated_images/Victorian_crystal_chandelier_56b1af95.png'; // Light mode toggle (Victorian Crystal)
 
 interface NavbarProps {
   transparent?: boolean;
@@ -315,7 +315,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Theme Toggle - Match Strike (Dark) / Victorian Crystal Chandelier (Light) */}
+            {/* Theme Toggle - Cinema Projector (Dark) / Victorian Crystal Chandelier (Light) */}
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className="hover:scale-110 transition-transform duration-200 cursor-pointer focus:outline-none p-1"
@@ -323,8 +323,8 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
             >
               <img 
-                src={theme === 'dark' ? victorianCrystalChandelier : matchStrikeON} 
-                alt={theme === 'dark' ? 'Victorian Crystal Chandelier' : 'Match strike ignition'}
+                src={theme === 'dark' ? victorianCrystalChandelier : projectorBeamON} 
+                alt={theme === 'dark' ? 'Victorian Crystal Chandelier' : 'Cinema Projector Beam'}
                 className="w-8 h-8 object-contain rounded"
               />
             </button>

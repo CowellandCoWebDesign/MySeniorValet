@@ -124,7 +124,7 @@ Collection of creative light ON/OFF designs for MySeniorValet theme toggle funct
 
 ### Currently Active:
 1. **Motel Vacancy Sign** - Community Directory Header (hospitality theme)
-2. **Match Strike** - Dark Mode Toggle (instant transformation)  
+2. **Cinema Projector** - Dark Mode Toggle (bright beam illumination)  
 3. **Victorian Crystal Chandelier** - Light Mode Toggle (opulent elegance and brilliance)
 4. **Holographic Display** - Senior Living Command Center (futuristic data viz)
 
