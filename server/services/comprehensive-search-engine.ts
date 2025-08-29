@@ -580,9 +580,9 @@ export class ComprehensiveSearchEngine {
     if (matchedCareTypes.length > 0) {
       console.log(`Care type filtering: ${matchedCareTypes.join(', ')}`);
       
-      // Use proper JSON array containment check with correct column name (care_types)
+      // Use correct column name: careTypes (camelCase, not snake_case)
       const careTypeConditions = matchedCareTypes.map(careType => 
-        ilike(communities.care_types, `%${careType}%`)
+        sql`${communities.careTypes}::text ILIKE '%' || ${careType} || '%'`
       );
       
       conditions.push(or(...careTypeConditions));
