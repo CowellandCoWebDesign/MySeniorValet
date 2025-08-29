@@ -447,7 +447,7 @@ export function LiveWebIntelligence({
               AI Generated Community Overview
             </CardTitle>
             <CardDescription className="text-sm">
-              Verified information from web sources • Last updated: {new Date().toLocaleDateString()}
+              Verified information from web sources • Powered by Perplexity AI
             </CardDescription>
           </div>
           <Button 

@@ -595,10 +595,13 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
           {(realTimeData || localVerificationReport?.consensus?.verifiedFacts?.length > 0 || isVerifying) && (
             <div className="mt-6 mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="font-semibold text-lg flex items-center">
-                  <Globe className="w-5 h-5 mr-2 text-indigo-600" />
-                  What We Found About {community?.name}
-                </h4>
+                <div className="flex flex-col gap-1">
+                  <h4 className="font-semibold text-lg flex items-center">
+                    <Globe className="w-5 h-5 mr-2 text-indigo-600" />
+                    What We Found About {community?.name}
+                  </h4>
+                  <p className="text-xs text-muted-foreground">Powered by Perplexity AI</p>
+                </div>
                 <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
                   Live Web Search
                 </Badge>
