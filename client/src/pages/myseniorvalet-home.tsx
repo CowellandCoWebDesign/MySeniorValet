@@ -318,19 +318,19 @@ function HeroSectionWithTransformingSearch() {
 
         {/* Unified Search Component with integrated toggles - Premium Glass Design */}
         <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative mb-8 z-40">
-          {/* View Mode Tabs - Beautiful Emoji Design */}
+          {/* View Mode Tabs - Compact Beautiful Design */}
           <div className="flex justify-center">
-            <div className="inline-flex bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-t-xl p-1 shadow-xl border border-purple-200/40 dark:border-purple-700/40">
+            <div className="inline-flex bg-white/85 dark:bg-gray-800/85 backdrop-blur-md rounded-t-lg p-0.5 shadow-lg border border-purple-200/30 dark:border-purple-700/30">
               <button
                 type="button"
                 onClick={() => setViewMode('list')}
-                className={`px-3 sm:px-4 py-2 rounded-full transition-all duration-300 text-xs sm:text-sm font-semibold flex items-center gap-1.5 ${
+                className={`px-2 sm:px-2.5 py-1 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 ${
                   viewMode === 'list' 
-                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
+                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm' 
                     : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                 }`}
               >
-                <span className="text-base sm:text-lg">📋</span>
+                <span className="text-xs sm:text-sm">📋</span>
                 <span>List</span>
               </button>
               <button
@@ -341,25 +341,25 @@ function HeroSectionWithTransformingSearch() {
                     setLocation(`/map-search?q=${encodeURIComponent(searchQuery)}`);
                   }
                 }}
-                className={`px-3 sm:px-4 py-2 rounded-full transition-all duration-300 text-xs sm:text-sm font-semibold flex items-center gap-1.5 ${
+                className={`px-2 sm:px-2.5 py-1 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 ${
                   viewMode === 'map' 
-                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
+                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm' 
                     : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                 }`}
               >
-                <span className="text-base sm:text-lg">🗺️</span>
+                <span className="text-xs sm:text-sm">🗺️</span>
                 <span>Map</span>
               </button>
               <button
                 type="button"
                 onClick={() => setViewMode('learn')}
-                className={`px-3 sm:px-4 py-2 rounded-full transition-all duration-300 text-xs sm:text-sm font-semibold flex items-center gap-1.5 ${
+                className={`px-2 sm:px-2.5 py-1 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 ${
                   viewMode === 'learn' 
-                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
+                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm' 
                     : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                 }`}
               >
-                <span className="text-base sm:text-lg">🧠</span>
+                <span className="text-xs sm:text-sm">🧠</span>
                 <span>Learn</span>
               </button>
             </div>
