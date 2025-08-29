@@ -126,11 +126,10 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild className="lg:hidden">
                 <button
-                  className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200"
+                  className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200"
                   aria-label="Open menu"
                 >
                   <span className="text-2xl">📋</span>
-                  <span className="text-sm font-bold uppercase tracking-wide">Menu</span>
                 </button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[320px] p-0 bg-white dark:bg-gray-900">
@@ -313,19 +312,14 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Theme Toggle - Compact */}
-            <Button
-              variant="outline"
-              size="icon"
+            {/* Theme Toggle - Lighthouse Emoji */}
+            <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 w-9 h-9 rounded-lg transition-all duration-200"
+              className="text-2xl hover:scale-110 transition-transform duration-200 cursor-pointer focus:outline-none p-1"
+              aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
-              {theme === 'dark' ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </Button>
+              🏮
+            </button>
 
             {/* Notifications */}
             {isAuthenticated && (
