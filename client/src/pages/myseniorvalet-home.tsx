@@ -46,6 +46,7 @@ import GracefulFallbackMessage from '@/components/GracefulFallbackMessage';
 const heroBackgroundImage = '/starry-night-hero.png';
 import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
 import sunsetThinkerHero from '@assets/generated_images/Sunset_Thinker_left_edge_1c0dfd6c.png';
+import heroThinkerImage from '@assets/generated_images/Thinker_leftmost_boundary_observing_7dcdb3aa.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 
@@ -262,8 +263,8 @@ function HeroSectionWithTransformingSearch() {
         {/* Background Image - Optimized loading */}
         <div className="absolute inset-0 h-full w-full">
           <img
-            src={sunsetThinkerHero}
-            alt="The Thinker contemplating in cosmic sunset - Your guide to senior living wisdom"
+            src={heroThinkerImage}
+            alt="The Thinker contemplating as storms clear - Your guide through life's challenges to senior living wisdom"
             className={`w-full h-full object-cover object-center transition-opacity duration-500 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
