@@ -195,41 +195,34 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               </SheetContent>
             </Sheet>
 
-            {/* Logo - Game-Changing Rich Design */}
-            <Link href="/" className="flex items-center space-x-3 cursor-pointer group">
-              <div className="relative">
-                <div className="p-2.5 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300">
-                  <Home className="h-6 w-6 text-white" />
-                </div>
-                <span className="absolute -top-1 -right-1 text-sm">✨</span>
+            {/* Logo - Clean Professional Design */}
+            <Link href="/" className="flex items-center space-x-2 cursor-pointer group">
+              <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300">
+                <Home className="h-5 w-5 text-white" />
               </div>
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">🌟</span>
-                  <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                    MySeniorValet
-                  </span>
-                  <span className="text-lg">💎</span>
-                </div>
-                <span className="text-xs text-gray-500 dark:text-gray-400 font-medium -mt-1">🏆 Clarity in Senior Living 🌈</span>
+              <div className="hidden sm:flex flex-col">
+                <span className="text-lg lg:text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  MySeniorValet
+                </span>
+                <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium -mt-1">Clarity in Senior Living</span>
               </div>
             </Link>
 
-            {/* Desktop Navigation - Rich with Emojis */}
-            <div className="hidden lg:flex items-center space-x-2">
+            {/* Desktop Navigation - Compact with Icons */}
+            <div className="hidden lg:flex items-center space-x-1">
               {navigationItems.main.map((item) => (
                 <Link 
                   key={item.href} 
                   href={item.href}
                   className={cn(
-                    "px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2",
+                    "px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-1.5",
                     location === item.href 
                       ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md"
                       : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:shadow-sm"
                   )}
                 >
-                  <span className="text-base">{item.emoji}</span>
-                  {item.label}
+                  <span className="text-sm">{item.emoji}</span>
+                  <span className="hidden xl:inline">{item.label}</span>
                 </Link>
               ))}
               
@@ -278,23 +271,23 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
           </div>
 
           {/* Right Section: Accessibility, Language, Theme, User */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 lg:space-x-2">
             {/* Accessibility Button - Traditional Blue Symbol */}
             <Link href="/accessibility">
               <Button
                 variant="outline"
                 size="icon"
-                className="bg-blue-600 hover:bg-blue-700 text-white border-2 border-blue-700 w-11 h-11 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg group"
+                className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 w-9 h-9 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                 aria-label="Accessibility Options"
               >
-                <Accessibility className="h-6 w-6" />
+                <Accessibility className="h-5 w-5" />
               </Button>
             </Link>
             {/* Language Selector - Clean Flag Only */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button 
-                  className="text-3xl hover:scale-110 transition-transform duration-200 cursor-pointer focus:outline-none"
+                  className="text-2xl hover:scale-110 transition-transform duration-200 cursor-pointer focus:outline-none p-1"
                   aria-label="Select language"
                 >
                   {currentLanguage.flag}
@@ -319,12 +312,12 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Theme Toggle - Professional */}
+            {/* Theme Toggle - Compact */}
             <Button
               variant="outline"
               size="icon"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 w-10 h-10 rounded-xl transition-all duration-200"
+              className="border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 w-9 h-9 rounded-lg transition-all duration-200"
             >
               {theme === 'dark' ? (
                 <Sun className="h-5 w-5" />
