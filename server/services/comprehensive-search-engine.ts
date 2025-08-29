@@ -444,13 +444,42 @@ export class ComprehensiveSearchEngine {
         locationConditions.push(ilike(communities.city, `%${cityName}%`));
       }
       
-      // Always include general search patterns
+      // Enhanced location search with international administrative divisions
       locationConditions.push(
         ilike(communities.city, `%${query}%`),
         ilike(communities.state, `%${query}%`),
-        ilike(communities.county, `%${query}%`),
-        ilike(communities.name, `%${query}%`)  // Also search community names
+        ilike(communities.name, `%${query}%`)  // Community names
       );
+      
+      // Enhanced county/administrative division search
+      // Handle variations: "Harris County", "Orange County", "Cook County" etc.
+      const countyVariations = [
+        query,  // Exact query
+        query.replace(/\s+county$/i, ''),  // Remove "County" suffix
+        query.replace(/\s+parish$/i, ''),  // Remove "Parish" suffix (Louisiana)
+        query.replace(/\s+borough$/i, ''), // Remove "Borough" suffix (Alaska, NYC)
+        `${query.replace(/\s+(county|parish|borough)$/i, '')} County`, // Add County if missing
+      ];
+      
+      const countyConditions = countyVariations.map(variation => 
+        ilike(communities.county, `%${variation}%`)
+      );
+      locationConditions.push(or(...countyConditions));
+      
+      // International administrative divisions
+      // Canada: Provinces, Territories
+      // Australia: States, Territories  
+      // Mexico: States (Estados)
+      // Japan: Prefectures
+      if (query.toLowerCase().includes('province') || 
+          query.toLowerCase().includes('territory') || 
+          query.toLowerCase().includes('prefecture') ||
+          query.toLowerCase().includes('estado')) {
+        locationConditions.push(
+          ilike(communities.state, `%${query}%`),
+          ilike(communities.county, `%${query}%`)
+        );
+      }
       
       // Add state abbreviation condition if we found one
       if (stateCode) {
@@ -553,14 +582,7 @@ export class ComprehensiveSearchEngine {
       
       // Use proper JSON array containment check with correct column name (care_types)
       const careTypeConditions = matchedCareTypes.map(careType => 
-        sql`(
-          ${communities.care_types} IS NOT NULL 
-          AND (
-            ${communities.care_types}::text LIKE '%' || ${careType} || '%'
-            OR ${communities.care_types}::text LIKE '%' || ${careType.toLowerCase()} || '%'
-            OR ${communities.care_types}::text LIKE '%' || ${careType.toUpperCase()} || '%'
-          )
-        )`
+        ilike(communities.care_types, `%${careType}%`)
       );
       
       conditions.push(or(...careTypeConditions));

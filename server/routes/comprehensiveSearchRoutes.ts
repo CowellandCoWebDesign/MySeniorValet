@@ -179,7 +179,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
     
     // 2. CITY MATCHES (with state context)
     const cityMatches = await db
-      .selectDistinct({
+      .select({
         city: communities.city,
         state: communities.state,
         count: sql<number>`COUNT(*)::int`.as('count')
@@ -192,7 +192,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         )
       )
       .groupBy(communities.city, communities.state)
-      .orderBy(sql`COUNT(*) DESC`)
+      .orderBy(sql`count DESC`)
       .limit(6);
     
     cityMatches.forEach(city => {
@@ -201,7 +201,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
     
     // 3. STATE MATCHES
     const stateMatches = await db
-      .selectDistinct({
+      .select({
         state: communities.state,
         count: sql<number>`COUNT(*)::int`.as('count')
       })
@@ -213,7 +213,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         )
       )
       .groupBy(communities.state)
-      .orderBy(sql`COUNT(*) DESC`)
+      .orderBy(sql`count DESC`)
       .limit(5);
     
     stateMatches.forEach(state => {
@@ -236,7 +236,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
       };
       
       const countryMatches = await db
-        .selectDistinct({
+        .select({
           country: communities.country,
           count: sql<number>`COUNT(*)::int`.as('count')
         })
@@ -248,7 +248,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
           )
         )
         .groupBy(communities.country)
-        .orderBy(sql`COUNT(*) DESC`)
+        .orderBy(sql`count DESC`)
         .limit(5);
       
       countryMatches.forEach(country => {
