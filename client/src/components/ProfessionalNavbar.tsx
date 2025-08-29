@@ -25,8 +25,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "@/components/theme-provider";
-import techLighthouse from '@assets/generated_images/Tech_store_lighthouse_89476c9d.png';
-import darkTechLighthouse from '@assets/generated_images/Dark_tech_lighthouse_a6796c39.png';
+import japanesePagodaLighthouse from '@assets/generated_images/Japanese_pagoda_lighthouse_a5e3f687.png';
+import darkPagodaLighthouse from '@assets/generated_images/Dark_pagoda_lighthouse_1cb46d0d.png';
 
 interface NavbarProps {
   transparent?: boolean;
@@ -322,8 +322,8 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
             >
               <img 
-                src={theme === 'dark' ? darkTechLighthouse : techLighthouse} 
-                alt={theme === 'dark' ? 'Dark mode lighthouse' : 'Light mode lighthouse'}
+                src={theme === 'dark' ? darkPagodaLighthouse : japanesePagodaLighthouse} 
+                alt={theme === 'dark' ? 'Nighttime pagoda lighthouse' : 'Daytime pagoda lighthouse'}
                 className="w-8 h-8 object-contain"
               />
             </button>
