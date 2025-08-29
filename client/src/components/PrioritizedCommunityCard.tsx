@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Heart, Building, MapPin, Star, Phone, MessageCircle, Share2, Home, Info, Sparkles, DollarSign, Activity, Bed, Users } from "lucide-react";
 import { MarketIntelligenceModal } from "./MarketIntelligenceModal";
 import thinkerPlaceholder from '@assets/generated_images/Thinker_statue_cosmic_placeholder_5ef720ce.png';
+import thinkerCornerPlaceholder from '@assets/generated_images/Thinker_statue_corner_cosmic_1200940a.png';
 
 interface CommunityCardProps {
   community: {
@@ -413,13 +414,14 @@ function CommunityCard({
             }}
           />
         ) : (
+          // Alternative Option: Use thinkerCornerPlaceholder instead of thinkerPlaceholder for corner positioning
           <div className="absolute inset-0">
             <img 
-              src={thinkerPlaceholder}
+              src={thinkerCornerPlaceholder} // Alternative: smaller Thinker in bottom-right corner
               alt="The Thinker statue in cosmic space"
-              className="absolute inset-0 w-full h-full object-cover opacity-60"
+              className="absolute inset-0 w-full h-full object-cover opacity-70"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
               <div className="text-sm text-white/90 text-center font-medium">
                 {community.communitySubtype === 'memory_care' ? 'Memory Care' :
