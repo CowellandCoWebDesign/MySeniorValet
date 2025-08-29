@@ -1863,6 +1863,13 @@ const HeroPhotoCarousel = ({
           progressDuration={10}
           factRotationSpeed={3000}
           compact={false}
+          processStages={[
+            "Searching official website for photos",
+            "Scanning social media and listings",
+            "Analyzing image quality and authenticity",
+            "Verifying photo sources and ownership",
+            "Organizing visual content library"
+          ]}
         />
       </div>
     );
@@ -2816,43 +2823,7 @@ export default function CommunityDetail() {
                     </div>
                   </div>
                   
-                  {/* In-App Messaging Button - Bottom of card */}
-                  <div className="mt-3 px-3 sm:px-4 pb-3 sm:pb-4">
-                    {/* Check subscription tier for messaging access */}
-                    {(() => {
-                      const tier = community.subscriptionTier || 'verified';
-                      
-                      if (tier === 'verified') {
-                        // Community hasn't claimed profile and opted into messaging
-                        return (
-                          <div>
-                            <Button
-                              variant="outline"
-                              disabled
-                              className="bg-gray-50 border-gray-300 text-gray-500 font-semibold px-3 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm shadow-sm cursor-not-allowed opacity-70 w-full"
-                            >
-                              <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
-                              <span className="flex items-center gap-0.5 sm:gap-1">
-                                Direct Messaging Unavailable
-                                <HelpCircle className="h-3 w-3 sm:h-4 sm:w-4" />
-                              </span>
-                            </Button>
-                            <p className="text-[10px] sm:text-xs text-white/70 mt-1 sm:mt-2 text-center">
-                              This community hasn't claimed their profile and opted into instant messaging yet
-                            </p>
-                          </div>
-                        );
-                      }
-                      
-                      // Standard tier and above have messaging access
-                      return (
-                        <MessageCommunityButton
-                          communityId={community.id}
-                          communityName={community.name}
-                        />
-                      );
-                    })()}
-                  </div>
+
                 </div>
               </Card>
             </div>
