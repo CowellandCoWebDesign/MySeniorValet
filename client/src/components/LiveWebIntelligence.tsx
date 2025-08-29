@@ -439,20 +439,20 @@ export function LiveWebIntelligence({
       "transition-all duration-300",
       isExpanded && "ring-2 ring-primary/20"
     )}>
-      <CardHeader>
+      <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-600" />
+          <div className="space-y-2">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <CheckCircle className="h-6 w-6 text-green-600" />
               AI Generated Community Overview
             </CardTitle>
-            <CardDescription>
-              {intelligence?.description ? 'Verified information from web sources' : `Real-time information from ${intelligence?.sources?.length || 0} sources`}
+            <CardDescription className="text-sm">
+              Verified information from web sources • Last updated: {new Date().toLocaleDateString()}
             </CardDescription>
           </div>
           <Button 
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={(e) => {
               e.stopPropagation();
               setIntelligence(null);
@@ -460,6 +460,7 @@ export function LiveWebIntelligence({
               fetchIntelligence.mutate();
             }}
             title="Refresh intelligence"
+            className="h-8 w-8"
           >
             <RefreshCw className="h-4 w-4" />
           </Button>
@@ -467,66 +468,126 @@ export function LiveWebIntelligence({
       </CardHeader>
 
       {isExpanded && (
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-5 pt-0">
+          {/* Description - Show first if available */}
+          {intelligence?.description && (
+            <div className="p-4 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border border-blue-100 dark:border-blue-900">
+              <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-blue-600" />
+                Community Overview
+              </h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {intelligence.description}
+              </p>
+            </div>
+          )}
+
           {/* Official Website */}
           {intelligence?.officialWebsite && (
-            <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20">
-              <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-blue-600" />
-                <span className="font-medium">Official Website</span>
+            <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-100 dark:border-green-900">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-green-100 dark:bg-green-900">
+                  <Globe className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <span className="font-semibold text-sm">Official Website</span>
+                  <p className="text-xs text-muted-foreground">Visit for more information</p>
+                </div>
               </div>
               <a 
                 href={intelligence?.officialWebsite}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 text-blue-600 hover:underline"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors text-sm font-medium"
               >
                 Visit Site
-                <ExternalLink className="h-3 w-3" />
+                <ExternalLink className="h-4 w-4" />
               </a>
             </div>
           )}
 
           {/* Contact Information */}
           {(intelligence?.phone || intelligence?.address) && (
-            <div className="space-y-2">
-              <h4 className="font-medium text-sm">Contact Information</h4>
-              {intelligence?.phone && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span>{intelligence.phone}</span>
-                </div>
-              )}
-              {intelligence?.address && (
-                <div className="flex items-center gap-2 text-sm">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span>{intelligence.address}</span>
-                </div>
-              )}
+            <div className="p-4 rounded-lg bg-gray-50 dark:bg-gray-950/20 border border-gray-200 dark:border-gray-800">
+              <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                <Phone className="h-4 w-4 text-gray-600" />
+                Contact Information
+              </h4>
+              <div className="space-y-3">
+                {intelligence?.phone && (
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-blue-100 dark:bg-blue-900">
+                      <Phone className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Phone</p>
+                      <a href={`tel:${intelligence.phone}`} className="font-medium text-sm hover:text-primary transition-colors">
+                        {intelligence.phone}
+                      </a>
+                    </div>
+                  </div>
+                )}
+                {intelligence?.address && (
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-900">
+                      <MapPin className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Address</p>
+                      <p className="font-medium text-sm">{intelligence.address}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
           {/* Pricing Information */}
           {intelligence?.pricing && Object.keys(intelligence.pricing).length > 0 && (
-            <div className="space-y-2">
-              <h4 className="font-medium text-sm">Pricing Information</h4>
-              <div className="grid gap-2">
+            <div className="p-4 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-100 dark:border-amber-900">
+              <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-amber-600" />
+                Pricing Information
+              </h4>
+              <div className="grid gap-3">
                 {intelligence?.pricing?.assistedLiving && (
-                  <div className="flex items-center justify-between p-2 rounded bg-muted/50">
-                    <span className="text-sm">Assisted Living</span>
-                    <span className="font-semibold">{intelligence.pricing.assistedLiving}</span>
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-800">
+                    <div className="flex items-center gap-2">
+                      <Heart className="h-4 w-4 text-red-500" />
+                      <span className="text-sm font-medium">Assisted Living</span>
+                    </div>
+                    <span className="text-lg font-bold text-amber-600 dark:text-amber-400">
+                      {intelligence.pricing.assistedLiving}
+                    </span>
                   </div>
                 )}
                 {intelligence?.pricing?.memoryCare && (
-                  <div className="flex items-center justify-between p-2 rounded bg-muted/50">
-                    <span className="text-sm">Memory Care</span>
-                    <span className="font-semibold">{intelligence.pricing.memoryCare}</span>
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-800">
+                    <div className="flex items-center gap-2">
+                      <Brain className="h-4 w-4 text-purple-500" />
+                      <span className="text-sm font-medium">Memory Care</span>
+                    </div>
+                    <span className="text-lg font-bold text-amber-600 dark:text-amber-400">
+                      {intelligence.pricing.memoryCare}
+                    </span>
                   </div>
                 )}
                 {intelligence?.pricing?.independentLiving && (
-                  <div className="flex items-center justify-between p-2 rounded bg-muted/50">
-                    <span className="text-sm">Independent Living</span>
-                    <span className="font-semibold">{intelligence.pricing.independentLiving}</span>
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-800">
+                    <div className="flex items-center gap-2">
+                      <Home className="h-4 w-4 text-blue-500" />
+                      <span className="text-sm font-medium">Independent Living</span>
+                    </div>
+                    <span className="text-lg font-bold text-amber-600 dark:text-amber-400">
+                      {intelligence.pricing.independentLiving}
+                    </span>
+                  </div>
+                )}
+                {intelligence?.pricing?.details && (
+                  <div className="mt-2 p-2 rounded bg-amber-100/50 dark:bg-amber-900/20">
+                    <p className="text-xs text-muted-foreground">
+                      {intelligence.pricing.details}
+                    </p>
                   </div>
                 )}
               </div>
@@ -535,16 +596,19 @@ export function LiveWebIntelligence({
 
           {/* Care Levels */}
           {intelligence?.careLevels && intelligence.careLevels.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="font-medium text-sm">Care Levels Offered</h4>
+            <div className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border border-purple-100 dark:border-purple-900">
+              <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                <Heart className="h-4 w-4 text-purple-600" />
+                Care Levels Offered
+              </h4>
               <div className="flex flex-wrap gap-2">
                 {intelligence?.careLevels?.map((level, idx) => (
-                  <Badge key={idx} variant="secondary">
-                    {level === 'Assisted Living' && <Heart className="h-3 w-3 mr-1" />}
-                    {level === 'Memory Care' && <Brain className="h-3 w-3 mr-1" />}
-                    {level === 'Independent Living' && <Home className="h-3 w-3 mr-1" />}
-                    {level === 'Skilled Nursing' && <Building className="h-3 w-3 mr-1" />}
-                    {level}
+                  <Badge key={idx} variant="secondary" className="px-3 py-1.5">
+                    {level === 'Assisted Living' && <Heart className="h-3 w-3 mr-1.5 text-red-500" />}
+                    {level === 'Memory Care' && <Brain className="h-3 w-3 mr-1.5 text-purple-500" />}
+                    {level === 'Independent Living' && <Home className="h-3 w-3 mr-1.5 text-blue-500" />}
+                    {level === 'Skilled Nursing' && <Building className="h-3 w-3 mr-1.5 text-green-500" />}
+                    <span className="text-xs font-medium">{level}</span>
                   </Badge>
                 ))}
               </div>
@@ -553,15 +617,24 @@ export function LiveWebIntelligence({
 
           {/* Amenities */}
           {intelligence?.amenities && intelligence.amenities.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="font-medium text-sm">Amenities</h4>
-              <div className="flex flex-wrap gap-2">
-                {intelligence?.amenities?.map((amenity, idx) => (
-                  <Badge key={idx} variant="outline">
-                    {amenity}
-                  </Badge>
+            <div className="p-4 rounded-lg bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-950/20 dark:to-cyan-950/20 border border-teal-100 dark:border-teal-900">
+              <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-teal-600" />
+                Amenities & Features
+              </h4>
+              <div className="grid grid-cols-2 gap-2">
+                {intelligence?.amenities?.slice(0, 8).map((amenity, idx) => (
+                  <div key={idx} className="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-gray-900 border border-teal-200 dark:border-teal-800">
+                    <CheckCircle className="h-3 w-3 text-teal-600 flex-shrink-0" />
+                    <span className="text-xs font-medium">{amenity}</span>
+                  </div>
                 ))}
               </div>
+              {intelligence.amenities.length > 8 && (
+                <p className="text-xs text-muted-foreground mt-2 text-center">
+                  +{intelligence.amenities.length - 8} more amenities
+                </p>
+              )}
             </div>
           )}
 
@@ -590,15 +663,6 @@ export function LiveWebIntelligence({
             </div>
           )}
 
-          {/* Description */}
-          {intelligence?.description && (
-            <div className="space-y-2">
-              <h4 className="font-medium text-sm">About</h4>
-              <div className="text-sm text-muted-foreground leading-relaxed">
-                {intelligence?.description}
-              </div>
-            </div>
-          )}
 
           {/* Sources */}
           {intelligence?.sources && intelligence.sources.length > 0 && (
