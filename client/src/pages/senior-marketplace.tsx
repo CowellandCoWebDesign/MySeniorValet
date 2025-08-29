@@ -45,7 +45,7 @@ export default function SeniorMarketplace() {
 
   // Set SEO metadata for marketplace page
   useSEO({
-    title: 'Senior Vendor Marketplace - Trusted Senior Living Services & Products',
+    title: 'Services Directory - Trusted Senior Living Services & Products',
     description: 'Browse 1,500+ verified vendors offering senior living services: pharmacy, medical supplies, home care, moving services, and more. Trusted partners serving families nationwide.',
     keywords: 'senior services, senior vendors, pharmacy services, medical supplies, home care, senior products, elder care services, senior living marketplace',
     canonicalUrl: 'https://www.myseniorvalet.com/senior-marketplace'
@@ -92,7 +92,7 @@ export default function SeniorMarketplace() {
               </Link>
               <Button variant="default" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
                 <ShoppingCart className="w-4 h-4 mr-2" />
-                Marketplace
+                Services
               </Button>
             </div>
 
@@ -131,7 +131,7 @@ export default function SeniorMarketplace() {
                     <Link href="/senior-marketplace" onClick={() => setIsMenuOpen(false)}>
                       <Button variant="default" className="w-full justify-start bg-gradient-to-r from-purple-600 to-indigo-600">
                         <ShoppingCart className="w-4 h-4 mr-2" />
-                        Vendor Marketplace
+                        Services Directory
                       </Button>
                     </Link>
                   </nav>
@@ -158,7 +158,7 @@ export default function SeniorMarketplace() {
             className="text-center space-y-8"
           >
             <h1 className="text-5xl sm:text-6xl font-bold text-white tracking-tight">
-              Senior Vendor Marketplace
+              Services Directory
             </h1>
             <p className="text-xl sm:text-2xl text-purple-100 max-w-3xl mx-auto">
               Connect with 1,500+ trusted vendors offering essential services for senior living
@@ -248,7 +248,7 @@ export default function SeniorMarketplace() {
               </Badge>
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 <Briefcase className="inline w-8 h-8 mr-2 text-purple-600" />
-                Vendor Marketplace
+                Services Directory
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-300">
                 Join 1,500+ vendors reaching families nationwide • Nationwide coverage • Analytics & leads

@@ -55,7 +55,7 @@ Key Platform Features:
 • 34,180 Communities: Comprehensive coverage across all 50 states and Canadian provinces
 • Family Collaboration Tools: Secure messaging, tour tracking, and decision support
 • Healthcare Integration: 6,806 hospitals with CMS ratings and service information
-• Senior Vendor Marketplace: Connecting families with trusted service providers
+• Services Directory: Connecting families with trusted service providers
 
 The platform addresses critical challenges in senior living research:
 - 87% of families struggle to find accurate pricing information

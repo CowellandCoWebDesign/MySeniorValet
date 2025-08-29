@@ -2291,7 +2291,7 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
 
-            {/* Vendor Marketplace Card */}
+            {/* Services Directory Card */}
             <Link href="/vendor-marketplace-tiers">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-105">
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 opacity-50"></div>
@@ -2304,7 +2304,7 @@ export default function MySeniorValetHome() {
                       VENDORS
                     </Badge>
                   </div>
-                  <CardTitle className="text-2xl mb-2">Vendor Partnership</CardTitle>
+                  <CardTitle className="text-2xl mb-2">Services Partnership</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Join 1,500+ Service Providers
                   </CardDescription>

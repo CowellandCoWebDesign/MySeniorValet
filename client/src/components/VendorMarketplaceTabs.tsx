@@ -63,7 +63,7 @@ export function VendorMarketplaceTabs() {
     return (
       <div className="w-full min-h-[400px] flex items-center justify-center">
         <LoadingMascot 
-          message="Loading 1,500+ trusted senior service vendors..."
+          message="Loading 1,500+ trusted senior service providers..."
           variant="loading"
           size="lg"
         />
