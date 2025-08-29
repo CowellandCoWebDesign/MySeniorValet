@@ -354,9 +354,9 @@ export function ComprehensiveSearch({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute top-full left-0 right-0 mt-0 bg-white dark:bg-gray-800 
-                     border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 
-                     max-h-80 overflow-y-auto"
+            className="absolute top-full left-0 right-0 -mt-2 bg-white dark:bg-gray-800 
+                     border border-gray-200 dark:border-gray-700 rounded-b-xl rounded-t-none shadow-xl z-50 
+                     max-h-80 overflow-y-auto border-t-0"
           >
             {suggestions.map((suggestion, index) => (
               <button
