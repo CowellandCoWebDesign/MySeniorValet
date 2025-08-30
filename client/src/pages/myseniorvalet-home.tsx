@@ -298,9 +298,7 @@ function HeroSectionWithTransformingSearch() {
             <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white whitespace-nowrap leading-[1.1] drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
               Everything You Need. Nothing You Pay.
             </h1>
-          </div>
-          <div className="mt-0.5 bg-black/40 backdrop-blur-sm rounded-xl px-4 py-1.5 inline-block">
-            <p className="text-xs sm:text-sm text-white font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+            <p className="text-xs sm:text-sm text-white font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] mt-1">
               Welcome to the dawn of transparency in senior living 🌅
             </p>
           </div>
