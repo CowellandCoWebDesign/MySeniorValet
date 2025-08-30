@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GradientLogo from '@assets/generated_images/Gradient_text_logo_design_c2ad4089.png';
 import CosmicBackground from '@assets/generated_images/Cosmic_nebula_pricing_background_f11facca.png';
-import ProfessionalNavbar from "@/components/ProfessionalNavbar";
+import { ProfessionalNavbar } from "@/components/ProfessionalNavbar";
 
 export default function PricingPage() {
   return (
