@@ -53,7 +53,7 @@ import MotelVacancySign from '@assets/generated_images/Motel_vacancy_sign_ae0ac2
 import RetroMedicalSign from '@assets/generated_images/Retro_medical_clinic_neon_sign_bdc37a10.png';
 import RetroShoppingSign from '@assets/generated_images/Retro_shopping_center_neon_sign_dbb6f040.png';
 import RetroLibrarySign from '@assets/generated_images/Retro_library_resource_center_sign_c0d548ed.png';
-import RetroFamilyLivingRoom from '@assets/generated_images/Retro_family_living_room_fb79eb41.png';
+import RetroFamilyLivingRoom from '@assets/generated_images/80s_Memphis_design_living_room_86518012.png';
 import RetroGrandHotelMarquee from '@assets/generated_images/Retro_grand_hotel_marquee_51bb7e27.png';
 import RetroVendorMarketplace from '@assets/generated_images/Retro_vendor_marketplace_sign_b412c8cc.png';
 import RetroGuestServices from '@assets/generated_images/Retro_guest_services_sign_b951be1b.png';
