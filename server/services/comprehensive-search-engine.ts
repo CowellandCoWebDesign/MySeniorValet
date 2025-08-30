@@ -4,7 +4,7 @@
  */
 
 import { db } from '../db';
-import { communities } from '@shared/schema';
+import { communities, healthcareServiceTypes } from '@shared/schema';
 import { eq, and, or, ilike, gte, lte, sql, desc, asc, isNotNull } from 'drizzle-orm';
 
 export interface SearchFilters {
@@ -24,6 +24,7 @@ export interface SearchFilters {
 
 export interface SearchResult {
   communities: any[];
+  healthcareServices?: any[]; // Optional healthcare services results
   totalResults: number;
   searchMetadata: {
     query: string;
@@ -34,12 +35,14 @@ export interface SearchResult {
     fallbackApplied?: boolean;
     fallbackMessage?: string;
     originalFiltersRequested?: SearchFilters;
+    includesHealthcare?: boolean; // Indicates if healthcare results are included
   };
   facets: {
     states: { name: string; count: number }[];
     careTypes: { name: string; count: number }[];
     priceRanges: { range: string; count: number }[];
     ratings: { rating: number; count: number }[];
+    healthcareTypes?: { name: string; count: number }[]; // Optional healthcare facets
   };
 }
 
@@ -55,9 +58,12 @@ export class ComprehensiveSearchEngine {
                       (filters.features && filters.features.length > 0) ||
                       (filters.careTypes && filters.careTypes.length > 0);
     
+    // Check if this is a healthcare-related search
+    const isHealthcareSearch = await this.isHealthcareSearch(query.toLowerCase());
+    
     // Detect search type and build conditions
     const { conditions, searchType } = await this.buildSearchConditions(query, filters);
-    console.log(`🔍 Total conditions built: ${conditions.length}, searchType: ${searchType}`);
+    console.log(`🔍 Total conditions built: ${conditions.length}, searchType: ${searchType}, isHealthcare: ${isHealthcareSearch}`);
     
 
     
@@ -129,8 +135,19 @@ export class ComprehensiveSearchEngine {
     const normalizedQuery = query ? query.toLowerCase().trim() : '';
     const intentScores = normalizedQuery ? await this.calculateIntentScores(normalizedQuery) : null;
     
+    // If this is a healthcare search, also get healthcare services
+    let healthcareServices: any[] | undefined;
+    let healthcareTypeFacets: { name: string; count: number }[] | undefined;
+    
+    if (isHealthcareSearch) {
+      const healthcareResults = await this.searchHealthcareServices(query, limit, offset);
+      healthcareServices = healthcareResults.services;
+      healthcareTypeFacets = healthcareResults.facets;
+    }
+    
     return {
       communities: results,
+      healthcareServices,
       totalResults,
       searchMetadata: {
         query,
@@ -141,9 +158,13 @@ export class ComprehensiveSearchEngine {
 
         fallbackApplied,
         fallbackMessage: fallbackApplied ? fallbackMessage : undefined,
-        originalFiltersRequested: fallbackApplied ? originalFilters : undefined
+        originalFiltersRequested: fallbackApplied ? originalFilters : undefined,
+        includesHealthcare: isHealthcareSearch
       },
-      facets
+      facets: {
+        ...facets,
+        healthcareTypes: healthcareTypeFacets
+      }
     };
   }
   
@@ -749,6 +770,69 @@ export class ComprehensiveSearchEngine {
     }
     
     return suggestions;
+  }
+  
+  // Check if the query is healthcare-related
+  private async isHealthcareSearch(query: string): Promise<boolean> {
+    const healthcareKeywords = [
+      'hospital', 'hospitals', 'medical', 'clinic', 'urgent care', 
+      'therapy', 'therapist', 'physical therapy', 'occupational therapy',
+      'speech therapy', 'adult day', 'respite', 'home care', 'home health',
+      'personal care', 'emergency', 'surgery', 'diagnostic', 'radiology',
+      'cardiology', 'neurology', 'oncology', 'pediatric', 'maternity',
+      'trauma', 'rehabilitation', 'rehab', 'hospice', 'palliative',
+      'dialysis', 'infusion', 'wound care', 'pain management',
+      'mental health', 'behavioral health', 'psychiatric', 'counseling',
+      'pharmacy', 'laboratory', 'lab', 'imaging', 'x-ray', 'mri', 'ct scan',
+      'specialist', 'primary care', 'doctor', 'physician', 'nurse',
+      'healthcare', 'health care', 'medical center', 'health center',
+      'community health', 'wellness', 'preventive care', 'screening',
+      'vaccine', 'immunization', 'testing', 'diagnosis', 'treatment'
+    ];
+    
+    const lowerQuery = query.toLowerCase();
+    return healthcareKeywords.some(keyword => lowerQuery.includes(keyword));
+  }
+  
+  // Search healthcare services
+  private async searchHealthcareServices(query: string, limit: number, offset: number): Promise<{
+    services: any[];
+    facets: { name: string; count: number }[];
+  }> {
+    try {
+      const lowerQuery = query.toLowerCase();
+      
+      // Search healthcare service types
+      const searchQuery = db
+        .select()
+        .from(healthcareServiceTypes)
+        .where(
+          or(
+            ilike(healthcareServiceTypes.name, `%${lowerQuery}%`),
+            ilike(healthcareServiceTypes.displayName, `%${lowerQuery}%`),
+            ilike(healthcareServiceTypes.serviceType, `%${lowerQuery}%`)
+          )
+        )
+        .orderBy(desc(healthcareServiceTypes.count))
+        .limit(limit)
+        .offset(offset);
+      
+      const services = await searchQuery;
+      
+      // Build facets from results
+      const facets = services
+        .filter(s => s.count > 0)
+        .map(s => ({
+          name: s.displayName,
+          count: s.count
+        }))
+        .slice(0, 10); // Top 10 facets
+      
+      return { services, facets };
+    } catch (error) {
+      console.error('Healthcare services search error:', error);
+      return { services: [], facets: [] };
+    }
   }
   
   // Add dedicated suggestions method for the suggestions endpoint

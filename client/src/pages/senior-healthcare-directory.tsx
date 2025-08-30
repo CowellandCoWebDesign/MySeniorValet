@@ -51,6 +51,15 @@ export default function SeniorHealthcareDirectory() {
   const { data: careServicesAnalytics } = useQuery({
     queryKey: ['/api/care-services/analytics/summary'],
   });
+  
+  // Fetch comprehensive healthcare service types
+  const { data: healthcareTypesData } = useQuery({
+    queryKey: ['/api/healthcare-services/homepage'],
+  });
+  
+  const { data: healthcareStats } = useQuery({
+    queryKey: ['/api/healthcare-services/statistics'],
+  });
 
   // Fetch hospitals data
   const { data: hospitalsData, isLoading: hospitalsLoading } = useQuery({
@@ -153,7 +162,102 @@ export default function SeniorHealthcareDirectory() {
     s.name?.toLowerCase().includes('pharmacy')
   );
 
-  const healthcareServices: HealthcareService[] = [
+  // Build healthcare services from comprehensive API data
+  const healthcareTypesAll = (healthcareTypesData as any)?.data?.all || [];
+  
+  // Map icon names to Lucide icons
+  const iconMap: { [key: string]: any } = {
+    '🏥': Stethoscope,
+    '🚑': Monitor,
+    '🏨': BedDouble,
+    '🏠': Home,
+    '💊': Pill,
+    '🩺': Heart,
+    '👥': Users,
+    '🔬': TestTube,
+    '❤️': Heart,
+    '🫁': Activity,
+    '🕊️': HeartHandshake,
+    '🌿': Brain,
+    '👩‍⚕️': UserCheck,
+    '🧠': BrainCircuit,
+    '💉': Activity,
+    '💧': Activity,
+    '🩹': Shield,
+    '😴': Moon,
+    '🎨': Palette,
+    '🚐': Car,
+    '🍎': Apple,
+    '🚫': AlertCircle,
+    '💻': Video,
+    '🦽': Package,
+    '🦷': Smile,
+    '👁️': Eye,
+    '👂': Ear,
+    '🏭': Activity,
+    '🏘️': Users,
+    '🛡️': Shield,
+    '🧪': TestTube,
+    '📡': Monitor
+  };
+  
+  // Map service types to gradient colors
+  const colorMap: { [key: string]: string } = {
+    'hospital': 'from-blue-500 to-cyan-500',
+    'home_care': 'from-green-500 to-emerald-500',
+    'therapy': 'from-purple-500 to-indigo-500',
+    'hospice': 'from-teal-500 to-cyan-500',
+    'respite': 'from-amber-500 to-orange-500',
+    'personal_care': 'from-red-500 to-orange-500',
+    'adult_day': 'from-pink-500 to-rose-500',
+    'dental': 'from-indigo-500 to-purple-500',
+    'vision': 'from-blue-600 to-indigo-600',
+    'hearing': 'from-yellow-500 to-amber-500',
+    'medical_equipment': 'from-gray-500 to-slate-500',
+    'pharmacy': 'from-green-600 to-teal-600',
+    'skilled_nursing': 'from-blue-600 to-indigo-600',
+    'palliative': 'from-teal-600 to-cyan-600',
+    'nutrition': 'from-orange-500 to-red-500',
+    'companion': 'from-pink-500 to-rose-500',
+    'transportation': 'from-purple-600 to-indigo-600',
+    'mental_health': 'from-indigo-500 to-purple-500',
+    'substance_abuse': 'from-red-600 to-orange-600',
+    'dialysis': 'from-cyan-500 to-blue-500',
+    'infusion': 'from-teal-500 to-green-500',
+    'wound_care': 'from-red-500 to-pink-500',
+    'pain_management': 'from-amber-600 to-orange-600',
+    'sleep_disorder': 'from-indigo-600 to-purple-600',
+    'cardiac_rehab': 'from-red-500 to-pink-500',
+    'pulmonary_rehab': 'from-blue-500 to-cyan-500',
+    'occupational_health': 'from-green-500 to-teal-500',
+    'urgent_care': 'from-red-500 to-orange-500',
+    'telemedicine': 'from-purple-500 to-pink-500',
+    'community_health': 'from-green-500 to-emerald-500',
+    'preventive_care': 'from-blue-500 to-green-500',
+    'diagnostic': 'from-cyan-500 to-teal-500',
+    'laboratory': 'from-purple-500 to-indigo-500',
+    'radiology': 'from-blue-600 to-cyan-600',
+    'surgery_center': 'from-red-600 to-pink-600'
+  };
+  
+  // Build healthcare services array from API data
+  const healthcareServices: HealthcareService[] = healthcareTypesAll
+    .filter((type: any) => type.count > 0) // Only show categories with providers
+    .map((type: any, index: number) => ({
+      id: index + 1,
+      name: type.name,
+      category: type.parent_category?.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) || 'Healthcare',
+      description: type.description || type.display_name,
+      providerCount: type.count,
+      verified: type.count > 0,
+      icon: iconMap[type.icon] || Activity,
+      link: `/${type.service_type.replace(/_/g, '-')}`,
+      color: colorMap[type.service_type] || 'from-gray-500 to-slate-500',
+      badge: type.count > 100 ? 'POPULAR' : type.metadata?.coveredByMedicare ? 'MEDICARE' : undefined
+    }));
+  
+  // Add fallback static data if API is not available
+  const fallbackServices: HealthcareService[] = [
     {
       id: 1,
       name: "Hospital Services",
@@ -417,9 +521,14 @@ export default function SeniorHealthcareDirectory() {
     }
   ];
 
-  // Calculate total providers
-  const totalProviders = (careServicesAnalytics as any)?.totalServices || 
+  // Calculate total providers from comprehensive healthcare stats
+  const totalProviders = (healthcareStats as any)?.statistics?.overall?.total_provider_count || 
+    (careServicesAnalytics as any)?.totalServices || 
     healthcareServices.reduce((sum, service) => sum + service.providerCount, 0);
+  
+  // Get categorized counts from healthcare stats
+  const statsData = (healthcareStats as any)?.statistics || {};
+  const topCategories = statsData?.top_categories || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -445,33 +554,47 @@ export default function SeniorHealthcareDirectory() {
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <Stethoscope className="h-8 w-8 text-white mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">1,956</div>
-                  <div className="text-sm text-blue-100">CMS Hospitals</div>
-                  <div className="text-xs text-blue-200 mt-1">7 Types</div>
+                  <div className="text-2xl font-bold text-white">
+                    {topCategories[0]?.count || 1956}
+                  </div>
+                  <div className="text-sm text-blue-100">
+                    {topCategories[0]?.name || 'CMS Hospitals'}
+                  </div>
+                  <div className="text-xs text-blue-200 mt-1">Verified</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <Activity className="h-8 w-8 text-white mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">30+</div>
-                  <div className="text-sm text-blue-100">Specialties</div>
-                  <div className="text-xs text-blue-200 mt-1">All Verified</div>
+                  <div className="text-2xl font-bold text-white">
+                    {statsData?.overall?.total_categories || 36}
+                  </div>
+                  <div className="text-sm text-blue-100">Service Types</div>
+                  <div className="text-xs text-blue-200 mt-1">Comprehensive</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <Shield className="h-8 w-8 text-white mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">1,785</div>
-                  <div className="text-sm text-blue-100">Emergency</div>
-                  <div className="text-xs text-blue-200 mt-1">24/7 Services</div>
+                  <div className="text-2xl font-bold text-white">
+                    {topCategories[1]?.count || 707}
+                  </div>
+                  <div className="text-sm text-blue-100">
+                    {topCategories[1]?.name?.replace('Programs', '') || 'Adult Day'}
+                  </div>
+                  <div className="text-xs text-blue-200 mt-1">Licensed</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <Heart className="h-8 w-8 text-white mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">1,368</div>
-                  <div className="text-sm text-blue-100">Cardiology</div>
-                  <div className="text-xs text-blue-200 mt-1">Heart Centers</div>
+                  <div className="text-2xl font-bold text-white">
+                    {topCategories[2]?.count || 561}
+                  </div>
+                  <div className="text-sm text-blue-100">
+                    {topCategories[2]?.name || 'Respite Care'}
+                  </div>
+                  <div className="text-xs text-blue-200 mt-1">Active</div>
                 </CardContent>
               </Card>
             </div>
@@ -585,6 +708,139 @@ export default function SeniorHealthcareDirectory() {
                 );
               })}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Comprehensive Healthcare Services Grid - All 36 Categories */}
+      <section className="px-4 py-12 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Comprehensive Healthcare Services Directory
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-2">
+              Browse all {statsData?.overall?.total_categories || 36} healthcare service categories
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-500">
+              {totalProviders?.toLocaleString() || '4,029'}+ verified providers nationwide
+            </p>
+          </div>
+
+          {/* Healthcare Categories Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {healthcareServices.length > 0 ? (
+              healthcareServices.map((service) => {
+                const Icon = service.icon;
+                return (
+                  <motion.div
+                    key={service.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: service.id * 0.02 }}
+                    className="group cursor-pointer"
+                    onClick={() => setLocation(service.link)}
+                  >
+                    <Card className="h-full hover:shadow-xl transition-all duration-300 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-600">
+                      <CardContent className="p-5">
+                        <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${service.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                          <Icon className="h-6 w-6 text-white" />
+                        </div>
+                        <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100 mb-1">
+                          {service.name}
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                          {service.description}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                              {service.providerCount.toLocaleString()}
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-gray-500">
+                              providers
+                            </span>
+                          </div>
+                          {service.badge && (
+                            <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                              {service.badge}
+                            </Badge>
+                          )}
+                        </div>
+                        {service.verified && (
+                          <div className="flex items-center gap-1 mt-3 text-green-600 dark:text-green-400">
+                            <CheckCircle className="h-4 w-4" />
+                            <span className="text-xs">Verified Providers</span>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })
+            ) : (
+              // Show all healthcare types from API if available
+              healthcareTypesAll.map((type: any, index: number) => {
+                const Icon = iconMap[type.icon] || Activity;
+                const color = colorMap[type.service_type] || 'from-gray-500 to-slate-500';
+                return (
+                  <motion.div
+                    key={type.categoryId}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.02 }}
+                    className="group cursor-pointer"
+                  >
+                    <Card className="h-full hover:shadow-xl transition-all duration-300 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-600">
+                      <CardContent className="p-5">
+                        <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                          <Icon className="h-6 w-6 text-white" />
+                        </div>
+                        <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100 mb-1">
+                          {type.name}
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                          {type.description || type.displayName}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-lg font-bold ${type.count > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-600'}`}>
+                              {type.count.toLocaleString()}
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-gray-500">
+                              providers
+                            </span>
+                          </div>
+                          {type.metadata?.coveredByMedicare && (
+                            <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                              MEDICARE
+                            </Badge>
+                          )}
+                        </div>
+                        {type.count > 0 && (
+                          <div className="flex items-center gap-1 mt-3 text-green-600 dark:text-green-400">
+                            <CheckCircle className="h-4 w-4" />
+                            <span className="text-xs">Active Providers</span>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })
+            )}
+          </div>
+
+          {/* View More Button */}
+          <div className="text-center mt-8">
+            <Button 
+              size="lg"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg"
+              onClick={() => setLocation('/healthcare-search')}
+            >
+              <Search className="mr-2 h-5 w-5" />
+              Search All Healthcare Providers
+            </Button>
           </div>
         </div>
       </section>
