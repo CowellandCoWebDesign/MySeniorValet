@@ -50,6 +50,9 @@ import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic
 import sunsetThinkerHero from '@assets/generated_images/Sunset_Thinker_left_edge_1c0dfd6c.png';
 import heroThinkerImage from '@assets/generated_images/Thinker_leftmost_boundary_observing_7dcdb3aa.png';
 import MotelVacancySign from '@assets/generated_images/Motel_vacancy_sign_ae0ac2af.png';
+import RetroMedicalSign from '@assets/generated_images/Retro_medical_clinic_neon_sign_bdc37a10.png';
+import RetroShoppingSign from '@assets/generated_images/Retro_shopping_center_neon_sign_dbb6f040.png';
+import RetroLibrarySign from '@assets/generated_images/Retro_library_resource_center_sign_c0d548ed.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 
@@ -1460,16 +1463,23 @@ export default function MySeniorValetHome() {
             {/* Senior Marketplace */}
             <Link href="/senior-marketplace">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-amber-400 relative overflow-hidden group transform hover:scale-105">
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 opacity-50"></div>
-                <CardHeader className="relative z-10">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="p-4 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg">
-                      <ShoppingCart className="h-8 w-8" />
-                    </div>
-                    <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1">
-                      COMMERCIAL
-                    </Badge>
+                {/* Full-size Retro Shopping Sign Image at top of card */}
+                <div className="relative h-64 w-full">
+                  <img 
+                    src={RetroShoppingSign} 
+                    alt="Retro shopping center neon sign" 
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {/* Overlay elements on the image */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg">
+                    <span className="text-3xl">🛍️</span>
                   </div>
+                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1">
+                    COMMERCIAL
+                  </Badge>
+                </div>
+                <CardHeader className="relative z-10">
                   <CardTitle className="text-2xl mb-2">AI-Powered Senior Commercial Services Directory</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Commercial Vendor Services
@@ -1651,16 +1661,23 @@ export default function MySeniorValetHome() {
             {/* Senior Healthcare Services Directory */}
             <Link href="/senior-healthcare-directory">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-teal-400 relative overflow-hidden group transform hover:scale-105">
-                <div className="absolute inset-0 bg-gradient-to-br from-teal-50 to-blue-50 dark:from-teal-900/20 dark:to-blue-900/20 opacity-50"></div>
-                <CardHeader className="relative z-10">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="p-4 rounded-xl bg-gradient-to-br from-teal-500 to-blue-500 text-white shadow-lg">
-                      <Stethoscope className="h-8 w-8" />
-                    </div>
-                    <Badge className="bg-gradient-to-r from-teal-500 to-blue-500 text-white px-3 py-1">
-                      HEALTHCARE
-                    </Badge>
+                {/* Full-size Retro Medical Sign Image at top of card */}
+                <div className="relative h-64 w-full">
+                  <img 
+                    src={RetroMedicalSign} 
+                    alt="Retro medical clinic neon sign" 
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {/* Overlay elements on the image */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-teal-500 to-blue-500 text-white shadow-lg">
+                    <span className="text-3xl">🏥</span>
                   </div>
+                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-teal-500 to-blue-500 text-white px-3 py-1">
+                    HEALTHCARE
+                  </Badge>
+                </div>
+                <CardHeader className="relative z-10">
                   <CardTitle className="text-2xl mb-2">AI-Powered Senior Healthcare Services Directory</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Healthcare & Care Providers
@@ -1842,16 +1859,23 @@ export default function MySeniorValetHome() {
             {/* Senior Resources and Support Center */}
             <Link href="/senior-resources-center">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-purple-400 relative overflow-hidden group transform hover:scale-105">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 opacity-50"></div>
-                <CardHeader className="relative z-10">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="p-4 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 text-white shadow-lg">
-                      <Book className="h-8 w-8" />
-                    </div>
-                    <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-3 py-1">
-                      RESOURCES
-                    </Badge>
+                {/* Full-size Retro Library Sign Image at top of card */}
+                <div className="relative h-64 w-full">
+                  <img 
+                    src={RetroLibrarySign} 
+                    alt="Retro library resource center sign" 
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {/* Overlay elements on the image */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 text-white shadow-lg">
+                    <span className="text-3xl">📚</span>
                   </div>
+                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-3 py-1">
+                    RESOURCES
+                  </Badge>
+                </div>
+                <CardHeader className="relative z-10">
                   <CardTitle className="text-2xl mb-2">AI-Powered Senior Resources and Support Directory</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Educational Content & Support
