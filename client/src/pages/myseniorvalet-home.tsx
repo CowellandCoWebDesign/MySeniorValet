@@ -412,16 +412,10 @@ function HeroSectionWithTransformingSearch() {
                   : 'bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 p-1 shadow-lg border border-purple-200/50 dark:border-purple-700/50'
                 : ''
             }`}>
-              {/* Wrapper to override search bar background when not active */}
+              {/* Wrapper to apply transparency when not searching */}
               <div className={`${!isSearchActive 
                 ? '[&_input]:!bg-white/30 [&_input]:dark:!bg-gray-800/30 [&_input]:!backdrop-blur-sm [&_input]:!border-white/40 [&_input]:dark:!border-gray-600/40' 
-                : searchCategory === 'services'
-                ? '[&_input:focus]:!ring-green-400 [&_input:focus]:!border-green-400 [&_input]:!bg-gradient-to-br [&_input]:!from-green-50/50 [&_input]:!to-emerald-50/50 dark:[&_input]:!from-green-900/20 dark:[&_input]:!to-emerald-900/20'
-                : searchCategory === 'healthcare'
-                ? '[&_input:focus]:!ring-red-400 [&_input:focus]:!border-red-400 [&_input]:!bg-gradient-to-br [&_input]:!from-red-50/50 [&_input]:!to-pink-50/50 dark:[&_input]:!from-red-900/20 dark:[&_input]:!to-pink-900/20'
-                : searchCategory === 'resources'
-                ? '[&_input:focus]:!ring-amber-400 [&_input:focus]:!border-amber-400 [&_input]:!bg-gradient-to-br [&_input]:!from-amber-50/50 [&_input]:!to-orange-50/50 dark:[&_input]:!from-amber-900/20 dark:[&_input]:!to-orange-900/20'
-                : '[&_input:focus]:!ring-purple-400 [&_input:focus]:!border-purple-400 [&_input]:!bg-gradient-to-br [&_input]:!from-purple-50/50 [&_input]:!to-blue-50/50 dark:[&_input]:!from-purple-900/20 dark:[&_input]:!to-blue-900/20'
+                : ''
               }`}>
               <ComprehensiveSearch 
               searchCategory={searchCategory}

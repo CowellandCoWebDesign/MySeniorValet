@@ -282,10 +282,15 @@ export function ComprehensiveSearch({
               searchCategory === 'resources' ? '📚 Search for guides, articles, and educational content...' :
               placeholder
             }
-              className="w-full pl-12 pr-20 py-4 text-lg border-2 border-gray-300 dark:border-gray-600 
-                       rounded-xl bg-gray-100 dark:bg-gray-700 
-                       shadow-lg transition-all duration-200
-                       placeholder:text-gray-500 dark:placeholder:text-gray-400"
+              className={`w-full pl-12 pr-20 py-4 text-lg border-2 rounded-xl shadow-lg transition-all duration-200 placeholder:text-gray-500 dark:placeholder:text-gray-400
+                       ${searchCategory === 'services'
+                         ? 'border-green-400 dark:border-green-600 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20'
+                         : searchCategory === 'healthcare'
+                         ? 'border-red-400 dark:border-red-600 bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20'
+                         : searchCategory === 'resources'
+                         ? 'border-amber-400 dark:border-amber-600 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20'
+                         : 'border-purple-400 dark:border-purple-600 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20'
+                       }`}
               disabled={true}
             />
             <div className="absolute left-4 flex items-center">
@@ -338,11 +343,15 @@ export function ComprehensiveSearch({
               searchCategory === 'resources' ? '📚 Search for guides, articles, and educational content...' :
               placeholder
             }
-            className="w-full pl-12 pr-24 py-5 text-lg border-3 border-purple-400 dark:border-purple-600 
-                     rounded-2xl bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900
-                     focus:border-purple-500 dark:focus:border-purple-400 focus:from-white focus:to-blue-50
-                     shadow-xl hover:shadow-2xl transition-all duration-300
-                     placeholder:text-gray-600 dark:placeholder:text-gray-400 font-medium"
+            className={`w-full pl-12 pr-24 py-5 text-lg border-3 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 placeholder:text-gray-600 dark:placeholder:text-gray-400 font-medium
+                     ${searchCategory === 'services'
+                       ? 'border-green-400 dark:border-green-600 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 focus:border-green-500 dark:focus:border-green-400 focus:from-green-50 focus:to-emerald-100'
+                       : searchCategory === 'healthcare'
+                       ? 'border-red-400 dark:border-red-600 bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 focus:border-red-500 dark:focus:border-red-400 focus:from-red-50 focus:to-pink-100'
+                       : searchCategory === 'resources'
+                       ? 'border-amber-400 dark:border-amber-600 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 focus:border-amber-500 dark:focus:border-amber-400 focus:from-amber-50 focus:to-orange-100'
+                       : 'border-purple-400 dark:border-purple-600 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 focus:border-purple-500 dark:focus:border-purple-400 focus:from-purple-50 focus:to-blue-100'
+                     }`}
             disabled={isLoading}
           />
           
