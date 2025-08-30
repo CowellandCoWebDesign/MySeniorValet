@@ -294,10 +294,12 @@ function HeroSectionWithTransformingSearch() {
         <div className="relative z-10 flex flex-col min-h-screen px-2 sm:px-4">
         {/* Hero Title - Positioned Higher */}
         <div className="w-full text-center pt-[4vh] sm:pt-[5vh] md:pt-[6vh] lg:pt-[5vh]">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-[1.1] drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
-            <span className="block">Everything You Need.</span>
-            <span className="block mt-1 sm:mt-2">Nothing You Pay.</span>
-          </h1>
+          <div className="inline-block bg-black/50 backdrop-blur-sm rounded-2xl px-6 sm:px-8 py-4 sm:py-5">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-[1.1] drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
+              <span className="block">Everything You Need.</span>
+              <span className="block mt-1 sm:mt-2">Nothing You Pay.</span>
+            </h1>
+          </div>
         </div>
 
         {/* Content Container - Flexible Spacer and Search */}
@@ -521,7 +523,7 @@ function HeroSectionWithTransformingSearch() {
                     <span className="text-[9px] sm:text-[10px] font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Live Availability</span>
                   </span>
                 </div>
-                <div className="space-y-1 text-center">
+                <div className="space-y-1 text-center bg-black/40 backdrop-blur-sm rounded-xl px-4 py-2">
                   <p className="text-xs sm:text-sm text-white font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
                     Welcome to the dawn of transparency in senior living 🌅
                   </p>
