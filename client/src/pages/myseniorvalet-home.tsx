@@ -310,17 +310,15 @@ function HeroSectionWithTransformingSearch() {
               <button
                 type="button"
                 onClick={() => setSearchCategory('communities')}
-                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1
+                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                   ${searchCategory === 'communities' 
-                    ? 'bg-[#F4E4BC] text-purple-900 z-30 shadow-md transform translate-y-[-2px] border border-purple-300'
-                    : 'bg-[#E8D5A3] text-gray-700 hover:bg-[#DCC799] hover:translate-y-[-1px] border border-gray-300'
+                    ? isSearchActive 
+                      ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20'
+                      : 'bg-white/50 dark:bg-gray-800/50 text-purple-600 dark:text-purple-300 border-t border-l border-r border-purple-300/40 dark:border-purple-600/40 z-20'
+                    : isSearchActive
+                      ? 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
+                      : 'bg-white/30 dark:bg-gray-800/30 text-gray-300 dark:text-gray-500 hover:bg-white/40 dark:hover:bg-gray-800/40 border-t border-l border-r border-white/20 dark:border-gray-700/30 hover:text-purple-500 dark:hover:text-purple-400'
                   }`}
-                style={{
-                  clipPath: 'polygon(0 30%, 15px 0, calc(100% - 15px) 0, 100% 30%, 100% 100%, 0 100%)',
-                  marginRight: '-8px',
-                  transition: 'all 0.2s ease-out',
-                  boxShadow: searchCategory === 'communities' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.1)'
-                }}
               >
                 <span className="text-sm">🏘️</span>
                 <div className="flex flex-col items-start leading-tight">
@@ -332,17 +330,15 @@ function HeroSectionWithTransformingSearch() {
               <button
                 type="button"
                 onClick={() => setSearchCategory('services')}
-                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1
+                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                   ${searchCategory === 'services' 
-                    ? 'bg-[#F4E4BC] text-purple-900 z-30 shadow-md transform translate-y-[-2px] border border-purple-300'
-                    : 'bg-[#E8D5A3] text-gray-700 hover:bg-[#DCC799] hover:translate-y-[-1px] border border-gray-300'
+                    ? isSearchActive 
+                      ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20'
+                      : 'bg-white/50 dark:bg-gray-800/50 text-purple-600 dark:text-purple-300 border-t border-l border-r border-purple-300/40 dark:border-purple-600/40 z-20'
+                    : isSearchActive
+                      ? 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
+                      : 'bg-white/30 dark:bg-gray-800/30 text-gray-300 dark:text-gray-500 hover:bg-white/40 dark:hover:bg-gray-800/40 border-t border-l border-r border-white/20 dark:border-gray-700/30 hover:text-purple-500 dark:hover:text-purple-400'
                   }`}
-                style={{
-                  clipPath: 'polygon(0 30%, 15px 0, calc(100% - 15px) 0, 100% 30%, 100% 100%, 0 100%)',
-                  marginRight: '-8px',
-                  transition: 'all 0.2s ease-out',
-                  boxShadow: searchCategory === 'services' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.1)'
-                }}
               >
                 <span className="text-sm">🛍️</span>
                 <div className="flex flex-col items-start leading-tight">
@@ -353,17 +349,15 @@ function HeroSectionWithTransformingSearch() {
               <button
                 type="button"
                 onClick={() => setSearchCategory('healthcare')}
-                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1
+                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                   ${searchCategory === 'healthcare' 
-                    ? 'bg-[#F4E4BC] text-purple-900 z-30 shadow-md transform translate-y-[-2px] border border-purple-300'
-                    : 'bg-[#E8D5A3] text-gray-700 hover:bg-[#DCC799] hover:translate-y-[-1px] border border-gray-300'
+                    ? isSearchActive 
+                      ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20'
+                      : 'bg-white/50 dark:bg-gray-800/50 text-purple-600 dark:text-purple-300 border-t border-l border-r border-purple-300/40 dark:border-purple-600/40 z-20'
+                    : isSearchActive
+                      ? 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
+                      : 'bg-white/30 dark:bg-gray-800/30 text-gray-300 dark:text-gray-500 hover:bg-white/40 dark:hover:bg-gray-800/40 border-t border-l border-r border-white/20 dark:border-gray-700/30 hover:text-purple-500 dark:hover:text-purple-400'
                   }`}
-                style={{
-                  clipPath: 'polygon(0 30%, 15px 0, calc(100% - 15px) 0, 100% 30%, 100% 100%, 0 100%)',
-                  marginRight: '-8px',
-                  transition: 'all 0.2s ease-out',
-                  boxShadow: searchCategory === 'healthcare' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.1)'
-                }}
               >
                 <span className="text-sm">🏥</span>
                 <div className="flex flex-col items-start leading-tight">
@@ -374,17 +368,15 @@ function HeroSectionWithTransformingSearch() {
               <button
                 type="button"
                 onClick={() => setSearchCategory('resources')}
-                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1
+                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                   ${searchCategory === 'resources' 
-                    ? 'bg-[#F4E4BC] text-purple-900 z-30 shadow-md transform translate-y-[-2px] border border-purple-300'
-                    : 'bg-[#E8D5A3] text-gray-700 hover:bg-[#DCC799] hover:translate-y-[-1px] border border-gray-300'
+                    ? isSearchActive 
+                      ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20'
+                      : 'bg-white/50 dark:bg-gray-800/50 text-purple-600 dark:text-purple-300 border-t border-l border-r border-purple-300/40 dark:border-purple-600/40 z-20'
+                    : isSearchActive
+                      ? 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
+                      : 'bg-white/30 dark:bg-gray-800/30 text-gray-300 dark:text-gray-500 hover:bg-white/40 dark:hover:bg-gray-800/40 border-t border-l border-r border-white/20 dark:border-gray-700/30 hover:text-purple-500 dark:hover:text-purple-400'
                   }`}
-                style={{
-                  clipPath: 'polygon(0 30%, 15px 0, calc(100% - 15px) 0, 100% 30%, 100% 100%, 0 100%)',
-                  marginRight: '-8px',
-                  transition: 'all 0.2s ease-out',
-                  boxShadow: searchCategory === 'resources' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.1)'
-                }}
               >
                 <span className="text-sm">📚</span>
                 <div className="flex flex-col items-start leading-tight">
@@ -395,21 +387,20 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
           
-          {/* Search Bar Container - Always Visible */}
-          <div className="w-full max-w-2xl rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300">
-            <div className={`rounded-b-xl rounded-tr-xl transition-all duration-300 ${
+          {/* Search Bar Container - COMPLETELY transparent until searching */}
+          <div className={`w-full max-w-2xl rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 ${
+            isSearchActive 
+              ? 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 border-purple-400 dark:border-purple-600 p-3 shadow-2xl' 
+              : ''
+          }`}>
+            <div className={`rounded-lg transition-all duration-300 ${
               isSearchActive 
-                ? 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 border-purple-400 dark:border-purple-600 p-3 shadow-2xl' 
-                : 'bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm p-2 border border-t-0 border-white/30 dark:border-gray-600/30'
+                ? 'bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-900/20 dark:to-blue-900/20 p-1'
+                : ''
             }`}>
-              <div className={`rounded-lg transition-all duration-300 ${
-                isSearchActive 
-                  ? 'bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-900/20 dark:to-blue-900/20 p-1'
-                  : ''
-              }`}>
-                {/* Wrapper to override search bar background when not active */}
-                <div className={`${!isSearchActive ? '[&_input]:!bg-white/70 [&_input]:dark:!bg-gray-800/70 [&_input]:!backdrop-blur-sm [&_input]:!border-white/60 [&_input]:dark:!border-gray-600/60' : ''}`}>
-                <ComprehensiveSearch 
+              {/* Wrapper to override search bar background when not active */}
+              <div className={`${!isSearchActive ? '[&_input]:!bg-white/30 [&_input]:dark:!bg-gray-800/30 [&_input]:!backdrop-blur-sm [&_input]:!border-white/40 [&_input]:dark:!border-gray-600/40' : ''}`}>
+              <ComprehensiveSearch 
               searchCategory={searchCategory}
               onSearch={(results) => {
               // If map view is selected, redirect to map search page with category
@@ -452,14 +443,12 @@ function HeroSectionWithTransformingSearch() {
             className="w-full"
             showSuggestions={true}
             />
-                </div>
-              </div>
             </div>
-          </div>
+            </div>
             
-          {/* View Mode Tabs - Always visible */}
-          <div className="w-full max-w-2xl flex justify-center mt-3 pb-2">
-            <div className={`inline-flex rounded-full p-1 transition-all duration-300 ${
+            {/* View Mode Tabs - NO background until searching */}
+            <div className="flex justify-center mt-3 pb-2">
+              <div className={`inline-flex rounded-full p-1 transition-all duration-300 ${
                 isSearchActive 
                   ? 'bg-gradient-to-r from-purple-100/50 to-blue-100/50 dark:from-purple-900/30 dark:to-blue-900/30 backdrop-blur-sm shadow-inner'
                   : 'bg-transparent'
@@ -692,6 +681,7 @@ function HeroSectionWithTransformingSearch() {
             </button>
           </motion.div>
         )}
+        </div>
         
         {/* Hero Mascot Panel - Temporarily disabled */}
         {/* {!isSearchActive && !searchQuery && !isSearchFocused && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-20" />} */}
