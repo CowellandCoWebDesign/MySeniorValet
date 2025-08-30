@@ -315,11 +315,11 @@ function HeroSectionWithTransformingSearch() {
                 className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                   ${searchCategory === 'communities' 
                     ? isSearchActive 
-                      ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20'
-                      : 'bg-white/50 dark:bg-gray-800/50 text-purple-600 dark:text-purple-300 border-t border-l border-r border-purple-300/40 dark:border-purple-600/40 z-20'
+                      ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20 shadow-lg'
+                      : 'bg-gradient-to-r from-purple-400/80 to-blue-400/80 text-white border-t border-l border-r border-purple-300 dark:border-purple-600 z-20 shadow-md'
                     : isSearchActive
-                      ? 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
-                      : 'bg-white/30 dark:bg-gray-800/30 text-gray-300 dark:text-gray-500 hover:bg-white/40 dark:hover:bg-gray-800/40 border-t border-l border-r border-white/20 dark:border-gray-700/30 hover:text-purple-500 dark:hover:text-purple-400'
+                      ? 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white/90 dark:hover:bg-gray-800/90 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400 shadow-sm'
+                      : 'bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 border-t border-l border-r border-white/30 dark:border-gray-700/30 hover:text-purple-300 dark:hover:text-purple-300'
                   }`}
               >
                 <span className="text-sm">🏘️</span>
@@ -335,11 +335,11 @@ function HeroSectionWithTransformingSearch() {
                 className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                   ${searchCategory === 'services' 
                     ? isSearchActive 
-                      ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20'
-                      : 'bg-white/50 dark:bg-gray-800/50 text-purple-600 dark:text-purple-300 border-t border-l border-r border-purple-300/40 dark:border-purple-600/40 z-20'
+                      ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20 shadow-lg'
+                      : 'bg-gradient-to-r from-purple-400/80 to-blue-400/80 text-white border-t border-l border-r border-purple-300 dark:border-purple-600 z-20 shadow-md'
                     : isSearchActive
-                      ? 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
-                      : 'bg-white/30 dark:bg-gray-800/30 text-gray-300 dark:text-gray-500 hover:bg-white/40 dark:hover:bg-gray-800/40 border-t border-l border-r border-white/20 dark:border-gray-700/30 hover:text-purple-500 dark:hover:text-purple-400'
+                      ? 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white/90 dark:hover:bg-gray-800/90 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400 shadow-sm'
+                      : 'bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 border-t border-l border-r border-white/30 dark:border-gray-700/30 hover:text-purple-300 dark:hover:text-purple-300'
                   }`}
               >
                 <span className="text-sm">🛍️</span>
@@ -354,11 +354,11 @@ function HeroSectionWithTransformingSearch() {
                 className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                   ${searchCategory === 'healthcare' 
                     ? isSearchActive 
-                      ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20'
-                      : 'bg-white/50 dark:bg-gray-800/50 text-purple-600 dark:text-purple-300 border-t border-l border-r border-purple-300/40 dark:border-purple-600/40 z-20'
+                      ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20 shadow-lg'
+                      : 'bg-gradient-to-r from-purple-400/80 to-blue-400/80 text-white border-t border-l border-r border-purple-300 dark:border-purple-600 z-20 shadow-md'
                     : isSearchActive
-                      ? 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
-                      : 'bg-white/30 dark:bg-gray-800/30 text-gray-300 dark:text-gray-500 hover:bg-white/40 dark:hover:bg-gray-800/40 border-t border-l border-r border-white/20 dark:border-gray-700/30 hover:text-purple-500 dark:hover:text-purple-400'
+                      ? 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white/90 dark:hover:bg-gray-800/90 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400 shadow-sm'
+                      : 'bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 border-t border-l border-r border-white/30 dark:border-gray-700/30 hover:text-purple-300 dark:hover:text-purple-300'
                   }`}
               >
                 <span className="text-sm">🏥</span>
@@ -373,11 +373,11 @@ function HeroSectionWithTransformingSearch() {
                 className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                   ${searchCategory === 'resources' 
                     ? isSearchActive 
-                      ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20'
-                      : 'bg-white/50 dark:bg-gray-800/50 text-purple-600 dark:text-purple-300 border-t border-l border-r border-purple-300/40 dark:border-purple-600/40 z-20'
+                      ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20 shadow-lg'
+                      : 'bg-gradient-to-r from-purple-400/80 to-blue-400/80 text-white border-t border-l border-r border-purple-300 dark:border-purple-600 z-20 shadow-md'
                     : isSearchActive
-                      ? 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
-                      : 'bg-white/30 dark:bg-gray-800/30 text-gray-300 dark:text-gray-500 hover:bg-white/40 dark:hover:bg-gray-800/40 border-t border-l border-r border-white/20 dark:border-gray-700/30 hover:text-purple-500 dark:hover:text-purple-400'
+                      ? 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white/90 dark:hover:bg-gray-800/90 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400 shadow-sm'
+                      : 'bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 border-t border-l border-r border-white/30 dark:border-gray-700/30 hover:text-purple-300 dark:hover:text-purple-300'
                   }`}
               >
                 <span className="text-sm">📚</span>
