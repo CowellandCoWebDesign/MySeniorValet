@@ -339,43 +339,6 @@ function CommunityCard({
     <Card 
       className="w-full bg-gray-900 border-gray-700 hover:border-gray-600 transition-all duration-200 overflow-hidden cursor-pointer hover:shadow-lg hover:shadow-purple-500/20"
       onClick={onSelect}>
-      {/* Split Header - Availability on Left, Prominent Pricing on Right */}
-      <div className="flex">
-        {/* Availability Section - Color Coded by Availability Status */}
-        <div className={`${availability.bgColor} text-white px-4 py-3 flex-1 flex items-center`}>
-          <div className="text-left">
-            <div className="text-sm font-bold text-white">{availability.status}</div>
-            <div className={`text-xs ${availability.lightColor}`}>
-              {availability.detail}
-            </div>
-          </div>
-        </div>
-        
-        {/* Pricing Section - Made More Prominent */}
-        <div className="bg-gray-800 text-white px-4 py-3 min-w-[140px] flex items-center justify-end">
-          <div className="text-right">
-            {priceDisplay ? (
-              <>
-                <div className="text-2xl font-bold text-green-400">
-                  {priceDisplay}
-                </div>
-                <div className="text-xs text-gray-400">
-                  {isHudProperty ? 'HUD Verified' : community.verified ? 'Verified' : 'per month'}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="text-lg font-medium text-gray-500">
-                  Contact
-                </div>
-                <div className="text-xs text-gray-400">
-                  for pricing
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
 
       {/* Main Card Content - Purple Gradient */}
       <div className="relative bg-gradient-to-br from-purple-600 to-purple-800 text-white min-h-[140px] flex items-center justify-center overflow-hidden">
@@ -647,8 +610,8 @@ function CommunityCard({
           </Button>
         </div>
 
-        {/* View Full Details */}
-        <div className="mt-3 text-center">
+        {/* Bottom Row - View Details and Pricing */}
+        <div className="mt-3 flex justify-between items-center">
           <button 
             className="text-blue-400 hover:text-blue-300 text-sm transition-colors"
             onClick={(e: React.MouseEvent) => {
@@ -658,6 +621,26 @@ function CommunityCard({
           >
             View Full Details →
           </button>
+          
+          {/* Price Display - Bottom Right */}
+          <div className="text-right">
+            {priceDisplay ? (
+              <>
+                <div className="text-xl font-bold text-green-400">
+                  {priceDisplay}
+                </div>
+                <div className="text-xs text-gray-400">
+                  {isHudProperty ? 'HUD Verified' : community.verified ? 'Verified' : 'per month'}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-sm font-medium text-gray-500">
+                  Contact for pricing
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
