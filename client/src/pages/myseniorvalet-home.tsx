@@ -292,18 +292,12 @@ function HeroSectionWithTransformingSearch() {
         </div>
         
         <div className="relative z-10 flex flex-col min-h-screen px-2 sm:px-4">
-        {/* Hero Title - Positioned at Mantle */}
-        <div className="w-full text-center pt-[18vh] sm:pt-[20vh] md:pt-[22vh] lg:pt-[20vh]">
+        {/* Hero Title - Positioned at Very Top of Image */}
+        <div className="w-full text-center pt-[8vh] sm:pt-[10vh] md:pt-[12vh] lg:pt-[10vh]">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-[1.1] drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
             <span className="block">Everything You Need.</span>
             <span className="block mt-1 sm:mt-2">Nothing You Pay.</span>
           </h1>
-          
-          <div className="text-sm sm:text-base md:text-lg text-gray-100 mt-3 sm:mt-4">
-            <p className="drop-shadow-[0_3px_6px_rgba(0,0,0,1)] font-medium">
-              A platform built for families, not profits 💙
-            </p>
-          </div>
         </div>
 
         {/* Content Container - Flexible Spacer and Search */}
@@ -484,9 +478,14 @@ function HeroSectionWithTransformingSearch() {
                     <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Availability</span>
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm text-purple-200 font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
-                  Welcome to the dawn of transparency in senior living 🌅
-                </p>
+                <div className="space-y-1">
+                  <p className="text-xs sm:text-sm text-purple-200 font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                    Welcome to the dawn of transparency in senior living 🌅
+                  </p>
+                  <p className="text-xs sm:text-sm text-blue-200 font-semibold drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                    The platform families trust. No fees. No gimmicks. 💙
+                  </p>
+                </div>
               </div>
             )}
           </div>
