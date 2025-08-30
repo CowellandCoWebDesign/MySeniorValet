@@ -271,8 +271,22 @@ function HeroSectionWithTransformingSearch() {
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
         }}
       >
-        {/* Background Image - Optimized loading */}
-        <div className="absolute inset-0 h-full w-full">
+        {/* Background Image - Optimized loading - Clickable for home navigation */}
+        <div 
+          className="absolute inset-0 h-full w-full cursor-pointer"
+          onClick={(e) => {
+            // Only trigger if clicking the background image directly
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'IMG' || target === e.currentTarget) {
+              // Check if we're already on home page
+              if (window.location.pathname === '/') {
+                window.location.reload(); // Refresh if already on home
+              } else {
+                setLocation('/'); // Navigate to home if on different page
+              }
+            }
+          }}
+        >
           <img
             src={RetroFamilyLivingRoom}
             alt="Home Sweet Home - Your warm welcome to senior living wisdom"

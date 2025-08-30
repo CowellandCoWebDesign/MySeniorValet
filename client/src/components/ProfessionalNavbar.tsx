@@ -126,8 +126,8 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               <SheetContent side="left" className="w-[320px] p-0 bg-white dark:bg-gray-900">
                 <SheetHeader className="p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md">
-                      <Home className="h-5 w-5 text-white" />
+                    <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md flex items-center justify-center">
+                      <span className="text-xl">🏡</span>
                     </div>
                     <SheetTitle className="text-xl font-bold text-gray-900 dark:text-white">MySeniorValet</SheetTitle>
                   </div>
@@ -199,8 +199,8 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
 
             {/* Logo - Clean Professional Design */}
             <Link href="/" className="flex items-center space-x-2 cursor-pointer group">
-              <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300">
-                <Home className="h-5 w-5 text-white" />
+              <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300 flex items-center justify-center">
+                <span className="text-xl">🏡</span>
               </div>
               <div className="hidden sm:flex flex-col">
                 <span className="text-lg lg:text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
