@@ -342,8 +342,27 @@ function CommunityCard({
 
       {/* Main Card Content - Purple Gradient */}
       <div className="relative bg-gradient-to-br from-purple-600 to-purple-800 text-white min-h-[140px] flex items-center justify-center overflow-hidden">
-        {/* Share and Favorite buttons */}
-        <div className="absolute top-3 right-3 flex gap-2 z-20">
+        {/* Price Display - Top Right */}
+        <div className="absolute top-2 right-2 z-20">
+          {priceDisplay ? (
+            <div className="bg-green-700 border border-green-400 rounded-lg px-3 py-2 shadow-lg">
+              <div className="text-xl font-bold text-white">
+                {priceDisplay}
+              </div>
+              <div className="text-xs text-green-200">
+                {isHudProperty ? 'HUD Verified' : community.verified ? 'Verified' : 'per month'}
+              </div>
+            </div>
+          ) : (
+            <div className="bg-black/80 border border-purple-400 rounded-lg px-3 py-2 shadow-lg cursor-pointer hover:bg-black/90 transition-all">
+              <div className="text-sm font-semibold text-purple-300">Click to</div>
+              <div className="text-xs text-purple-400">Find Price Now!</div>
+            </div>
+          )}
+        </div>
+        
+        {/* Share and Favorite buttons - Moved to left */}
+        <div className="absolute top-3 left-3 flex gap-2 z-20">
           <Button
             size="sm"
             variant="ghost"
@@ -610,8 +629,8 @@ function CommunityCard({
           </Button>
         </div>
 
-        {/* Bottom Row - View Details and Pricing */}
-        <div className="mt-3 flex justify-between items-center">
+        {/* View Full Details */}
+        <div className="mt-3 text-center">
           <button 
             className="text-blue-400 hover:text-blue-300 text-sm transition-colors"
             onClick={(e: React.MouseEvent) => {
@@ -621,26 +640,6 @@ function CommunityCard({
           >
             View Full Details →
           </button>
-          
-          {/* Price Display - Bottom Right */}
-          <div className="text-right">
-            {priceDisplay ? (
-              <>
-                <div className="text-xl font-bold text-green-400">
-                  {priceDisplay}
-                </div>
-                <div className="text-xs text-gray-400">
-                  {isHudProperty ? 'HUD Verified' : community.verified ? 'Verified' : 'per month'}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="text-sm font-medium text-gray-500">
-                  Contact for pricing
-                </div>
-              </>
-            )}
-          </div>
         </div>
       </CardContent>
     </Card>
