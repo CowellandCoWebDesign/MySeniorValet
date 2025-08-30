@@ -387,17 +387,19 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
           
-          {/* Search Bar Container - NO background until searching */}
+          {/* Search Bar Container - COMPLETELY transparent until searching */}
           <div className={`w-full max-w-2xl rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 ${
             isSearchActive 
               ? 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 border-purple-400 dark:border-purple-600 p-3 shadow-2xl' 
-              : 'bg-transparent p-1'
+              : ''
           }`}>
             <div className={`rounded-lg transition-all duration-300 ${
               isSearchActive 
                 ? 'bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-900/20 dark:to-blue-900/20 p-1'
-                : 'bg-transparent'
+                : ''
             }`}>
+              {/* Wrapper to override search bar background when not active */}
+              <div className={`${!isSearchActive ? '[&_input]:!bg-white/30 [&_input]:dark:!bg-gray-800/30 [&_input]:!backdrop-blur-sm [&_input]:!border-white/40 [&_input]:dark:!border-gray-600/40' : ''}`}>
               <ComprehensiveSearch 
               searchCategory={searchCategory}
               onSearch={(results) => {
@@ -441,6 +443,7 @@ function HeroSectionWithTransformingSearch() {
             className="w-full"
             showSuggestions={true}
             />
+            </div>
             </div>
             
             {/* View Mode Tabs - NO background until searching */}
