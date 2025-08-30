@@ -534,9 +534,6 @@ function HeroSectionWithTransformingSearch() {
                   <p className="text-xs sm:text-sm text-white font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
                     Welcome to the dawn of transparency in senior living 🌅
                   </p>
-                  <p className="text-xs sm:text-sm text-white font-semibold drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
-                    The platform families trust. No fees. No gimmicks. 💙
-                  </p>
                 </div>
               </div>
             )}
