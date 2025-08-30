@@ -291,24 +291,25 @@ function HeroSectionWithTransformingSearch() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
         </div>
         
-        <div className="relative z-10 flex flex-col justify-start min-h-screen px-2 sm:px-4 pt-24 pb-8">
-        {/* Hero Content Container */}
-        <div className="w-full flex-grow flex flex-col justify-start">
-        {/* Hero Text - Clean and Centered */}
-        <div className="w-full max-w-4xl mx-auto mb-8 text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight">
-            Everything You Need.<br className="sm:hidden" /> Nothing You Pay.
+        <div className="relative z-10 flex flex-col min-h-screen px-2 sm:px-4">
+        {/* Hero Title - Positioned at Mantle */}
+        <div className="w-full text-center pt-[18vh] sm:pt-[20vh] md:pt-[22vh] lg:pt-[20vh]">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-[1.1] drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
+            <span className="block">Everything You Need.</span>
+            <span className="block mt-1 sm:mt-2">Nothing You Pay.</span>
           </h1>
           
-          <div className="text-base sm:text-lg md:text-xl text-gray-100 max-w-3xl mx-auto px-4">
-            <p className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] font-medium">
+          <div className="text-sm sm:text-base md:text-lg text-gray-100 mt-3 sm:mt-4">
+            <p className="drop-shadow-[0_3px_6px_rgba(0,0,0,1)] font-medium">
               A platform built for families, not profits 💙
             </p>
           </div>
         </div>
 
+        {/* Content Container - Flexible Spacer and Search */}
+        <div className="flex-grow flex flex-col justify-center mt-8 sm:mt-12 md:mt-16">
         {/* Unified Search Component with File Folder Tab Design - Simplified */}
-        <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative mb-8 z-40">
+        <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative z-40 mb-4 sm:mb-6">
           {/* Category Tabs - File Folder Style - Simplified */}
           <div className="flex justify-start pl-4">
             <div className="inline-flex gap-0.5">
@@ -489,6 +490,7 @@ function HeroSectionWithTransformingSearch() {
               </div>
             )}
           </div>
+        </div>
           
           {/* Search Results - Premium Glass Design */}
           {isSearchActive && (viewMode === 'list' || viewMode === 'discover') && (
@@ -618,7 +620,6 @@ function HeroSectionWithTransformingSearch() {
             </div>
           )}
         </div>
-
         
         {/* Back to Top Button - appears when there are many results */}
         {searchResults?.results?.length > 10 && (
@@ -638,8 +639,6 @@ function HeroSectionWithTransformingSearch() {
             </button>
           </motion.div>
         )}
-        
-        </div>
         </div>
         
         {/* Hero Mascot Panel - Temporarily disabled */}
