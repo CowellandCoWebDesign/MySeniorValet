@@ -299,7 +299,7 @@ function HeroSectionWithTransformingSearch() {
               Everything You Need. Nothing You Pay.
             </h1>
           </div>
-          <div className="mt-2 bg-black/40 backdrop-blur-sm rounded-xl px-4 py-2 inline-block">
+          <div className="mt-0.5 bg-black/40 backdrop-blur-sm rounded-xl px-4 py-1.5 inline-block">
             <p className="text-xs sm:text-sm text-white font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
               Welcome to the dawn of transparency in senior living 🌅
             </p>
