@@ -568,7 +568,7 @@ function HeroSectionWithTransformingSearch() {
               </div>
               
               {/* Results Content with premium glass design */}
-              <div className="mt-3 max-h-[60vh] overflow-y-auto bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20">
+              <div className="mt-3 max-h-[90vh] overflow-y-auto bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-12">
                     <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
