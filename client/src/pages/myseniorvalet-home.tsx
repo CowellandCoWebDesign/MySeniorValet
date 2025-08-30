@@ -323,77 +323,65 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
 
-        {/* Unified Search Component with File Folder Tab Design */}
+        {/* Unified Search Component with File Folder Tab Design - Simplified */}
         <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative mb-8 z-40">
-          {/* Category Tabs - File Folder Style */}
+          {/* Category Tabs - File Folder Style - Simplified */}
           <div className="flex justify-start pl-4">
-            <div className="inline-flex gap-1">
+            <div className="inline-flex gap-0.5">
               <button
                 type="button"
                 onClick={() => setSearchCategory('communities')}
-                className={`relative px-4 sm:px-5 py-2.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 
+                className={`relative px-4 sm:px-5 py-2 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 rounded-t-lg
                   ${searchCategory === 'communities' 
-                    ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 rounded-t-xl border-t border-l border-r border-purple-300/50 dark:border-purple-600/50 shadow-[0_-2px_10px_rgba(168,85,247,0.2)] translate-y-[1px] z-10' 
-                    : 'bg-white/60 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 hover:bg-white/70 dark:hover:bg-gray-800/70 rounded-t-lg border-t border-l border-r border-gray-200/30 dark:border-gray-700/30 hover:text-purple-600 dark:hover:text-purple-400'
+                    ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20' 
+                    : 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
                   }`}
               >
                 <span className="text-sm">🏘️</span>
                 <span className="hidden sm:inline">Communities</span>
                 <span className="sm:hidden">Homes</span>
-                {searchCategory === 'communities' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/95 dark:bg-gray-800/95"></div>
-                )}
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('services')}
-                className={`relative px-4 sm:px-5 py-2.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 
+                className={`relative px-4 sm:px-5 py-2 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 rounded-t-lg
                   ${searchCategory === 'services' 
-                    ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 rounded-t-xl border-t border-l border-r border-purple-300/50 dark:border-purple-600/50 shadow-[0_-2px_10px_rgba(168,85,247,0.2)] translate-y-[1px] z-10' 
-                    : 'bg-white/60 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 hover:bg-white/70 dark:hover:bg-gray-800/70 rounded-t-lg border-t border-l border-r border-gray-200/30 dark:border-gray-700/30 hover:text-purple-600 dark:hover:text-purple-400'
+                    ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20' 
+                    : 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
                   }`}
               >
                 <span className="text-sm">🛍️</span>
                 <span>Services</span>
-                {searchCategory === 'services' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/95 dark:bg-gray-800/95"></div>
-                )}
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('healthcare')}
-                className={`relative px-4 sm:px-5 py-2.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 
+                className={`relative px-4 sm:px-5 py-2 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 rounded-t-lg
                   ${searchCategory === 'healthcare' 
-                    ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 rounded-t-xl border-t border-l border-r border-purple-300/50 dark:border-purple-600/50 shadow-[0_-2px_10px_rgba(168,85,247,0.2)] translate-y-[1px] z-10' 
-                    : 'bg-white/60 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 hover:bg-white/70 dark:hover:bg-gray-800/70 rounded-t-lg border-t border-l border-r border-gray-200/30 dark:border-gray-700/30 hover:text-purple-600 dark:hover:text-purple-400'
+                    ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20' 
+                    : 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
                   }`}
               >
                 <span className="text-sm">🏥</span>
                 <span>Healthcare</span>
-                {searchCategory === 'healthcare' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/95 dark:bg-gray-800/95"></div>
-                )}
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('resources')}
-                className={`relative px-4 sm:px-5 py-2.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 
+                className={`relative px-4 sm:px-5 py-2 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 rounded-t-lg
                   ${searchCategory === 'resources' 
-                    ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 rounded-t-xl border-t border-l border-r border-purple-300/50 dark:border-purple-600/50 shadow-[0_-2px_10px_rgba(168,85,247,0.2)] translate-y-[1px] z-10' 
-                    : 'bg-white/60 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 hover:bg-white/70 dark:hover:bg-gray-800/70 rounded-t-lg border-t border-l border-r border-gray-200/30 dark:border-gray-700/30 hover:text-purple-600 dark:hover:text-purple-400'
+                    ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20' 
+                    : 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
                   }`}
               >
                 <span className="text-sm">📚</span>
                 <span>Resources</span>
-                {searchCategory === 'resources' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/95 dark:bg-gray-800/95"></div>
-                )}
               </button>
             </div>
           </div>
           
-          {/* Search Bar - Inside the File Folder */}
-          <div className="w-full max-w-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-b-xl rounded-tr-xl shadow-2xl border border-purple-300/50 dark:border-purple-600/50 relative -mt-[1px] p-3">
+          {/* Search Bar Container - Stable File Folder Body */}
+          <div className="w-full max-w-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-b-xl rounded-tr-xl shadow-2xl border-2 border-t-0 border-purple-400 dark:border-purple-600 relative z-10 p-3">
             <div className="bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-1">
               <ComprehensiveSearch 
               searchCategory={searchCategory}
