@@ -234,6 +234,77 @@ router.post('/api/healthcare/search', async (req, res) => {
   }
 });
 
+// Hospital statistics endpoint for directory page
+router.get('/api/hospitals/statistics', async (req, res) => {
+  try {
+    // Get hospital type statistics
+    const hospitalTypes = await db.execute(sql`
+      SELECT 
+        hospital_type, 
+        COUNT(*) as count,
+        STRING_AGG(DISTINCT ownership, ', ') as ownership_types
+      FROM hospitals 
+      WHERE is_active = true
+      GROUP BY hospital_type
+      ORDER BY count DESC
+    `);
+    
+    // Get top services statistics
+    const topServices = await db.execute(sql`
+      SELECT 
+        UNNEST(services) as service,
+        COUNT(*) as count
+      FROM hospitals 
+      WHERE is_active = true AND services IS NOT NULL
+      GROUP BY service
+      ORDER BY count DESC
+      LIMIT 15
+    `);
+    
+    // Get specialty statistics
+    const specialties = await db.execute(sql`
+      SELECT 
+        UNNEST(specialties) as specialty,
+        COUNT(*) as count
+      FROM hospitals 
+      WHERE is_active = true AND specialties IS NOT NULL
+      GROUP BY specialty
+      ORDER BY count DESC
+      LIMIT 20
+    `);
+    
+    // Get total counts
+    const totals = await db.execute(sql`
+      SELECT 
+        COUNT(*) as total_hospitals,
+        COUNT(DISTINCT hospital_type) as unique_types,
+        COUNT(CASE WHEN emergency_services = true THEN 1 END) as emergency_count,
+        COUNT(CASE WHEN trauma_level IS NOT NULL THEN 1 END) as trauma_centers,
+        COUNT(CASE WHEN array_length(services, 1) > 10 THEN 1 END) as comprehensive_centers
+      FROM hospitals
+      WHERE is_active = true
+    `);
+    
+    res.json({
+      hospitalTypes: hospitalTypes.rows || [],
+      topServices: topServices.rows || [],
+      specialties: specialties.rows || [],
+      totals: totals.rows[0] || {},
+      success: true
+    });
+  } catch (error) {
+    console.error('Hospital statistics error:', error);
+    res.status(500).json({ 
+      error: 'Failed to get hospital statistics',
+      hospitalTypes: [],
+      topServices: [],
+      specialties: [],
+      totals: {},
+      success: false
+    });
+  }
+});
+
 // Resources search endpoint - Using real educational_resources table
 router.post('/api/resources/search', async (req, res) => {
   try {

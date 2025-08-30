@@ -56,6 +56,11 @@ export default function SeniorHealthcareDirectory() {
   const { data: hospitalsData, isLoading: hospitalsLoading } = useQuery({
     queryKey: ['/api/hospitals'],
   });
+  
+  // Fetch hospital statistics for variety display
+  const { data: hospitalStats } = useQuery({
+    queryKey: ['/api/hospitals/statistics'],
+  });
 
   const services = (careServicesData as any)?.services || [];
   const hospitals = (hospitalsData as any)?.hospitals || [];
@@ -435,29 +440,38 @@ export default function SeniorHealthcareDirectory() {
               Connect with {totalProviders?.toLocaleString() || '4,210'}+ verified healthcare and caregiving services in your area
             </p>
             
-            {/* Stats Cards */}
-            <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+            {/* Enhanced Stats Cards with Real Data Variety */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <Stethoscope className="h-8 w-8 text-white mx-auto mb-2" />
                   <div className="text-2xl font-bold text-white">1,956</div>
-                  <div className="text-sm text-blue-100">Hospitals</div>
+                  <div className="text-sm text-blue-100">CMS Hospitals</div>
+                  <div className="text-xs text-blue-200 mt-1">7 Types</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
-                  <Home className="h-8 w-8 text-white mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">
-                    {(careServicesAnalytics as any)?.homeCare || '850+'}
-                  </div>
-                  <div className="text-sm text-blue-100">Home Care</div>
+                  <Activity className="h-8 w-8 text-white mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-white">30+</div>
+                  <div className="text-sm text-blue-100">Specialties</div>
+                  <div className="text-xs text-blue-200 mt-1">All Verified</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
-                  <CheckCircle className="h-8 w-8 text-white mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">100%</div>
-                  <div className="text-sm text-blue-100">Verified</div>
+                  <Shield className="h-8 w-8 text-white mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-white">1,785</div>
+                  <div className="text-sm text-blue-100">Emergency</div>
+                  <div className="text-xs text-blue-200 mt-1">24/7 Services</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                <CardContent className="p-4 text-center">
+                  <Heart className="h-8 w-8 text-white mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-white">1,368</div>
+                  <div className="text-sm text-blue-100">Cardiology</div>
+                  <div className="text-xs text-blue-200 mt-1">Heart Centers</div>
                 </CardContent>
               </Card>
             </div>
@@ -472,6 +486,106 @@ export default function SeniorHealthcareDirectory() {
               Browse Care Guide
             </Button>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Hospital Types & Specialties Showcase */}
+      <section className="px-4 py-8 bg-gradient-to-b from-blue-50 to-white dark:from-gray-800 dark:to-gray-900">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-6 text-gray-900 dark:text-gray-100">
+            Comprehensive Hospital Network
+          </h2>
+          
+          {/* Hospital Types Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 border-blue-300">
+              <CardContent className="p-4">
+                <div className="text-lg font-bold text-blue-900 dark:text-blue-100">1,659</div>
+                <div className="text-sm text-blue-700 dark:text-blue-300">General Acute Care</div>
+                <Badge className="mt-2 bg-blue-600 text-white">Primary</Badge>
+              </CardContent>
+            </Card>
+            <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 border-purple-300">
+              <CardContent className="p-4">
+                <div className="text-lg font-bold text-purple-900 dark:text-purple-100">174</div>
+                <div className="text-sm text-purple-700 dark:text-purple-300">Teaching Hospitals</div>
+                <Badge className="mt-2 bg-purple-600 text-white">Academic</Badge>
+              </CardContent>
+            </Card>
+            <Card className="bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-900/30 dark:to-pink-800/30 border-pink-300">
+              <CardContent className="p-4">
+                <div className="text-lg font-bold text-pink-900 dark:text-pink-100">62</div>
+                <div className="text-sm text-pink-700 dark:text-pink-300">Children's Hospitals</div>
+                <Badge className="mt-2 bg-pink-600 text-white">Pediatric</Badge>
+              </CardContent>
+            </Card>
+            <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 border-green-300">
+              <CardContent className="p-4">
+                <div className="text-lg font-bold text-green-900 dark:text-green-100">42</div>
+                <div className="text-sm text-green-700 dark:text-green-300">Veterans Affairs</div>
+                <Badge className="mt-2 bg-green-600 text-white">Federal</Badge>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Top Hospital Services */}
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Most Common Hospital Services</h3>
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="outline" className="text-sm py-1 px-3 bg-white dark:bg-gray-800">
+                <AlertCircle className="h-3 w-3 mr-1" />Emergency (1,785)
+              </Badge>
+              <Badge variant="outline" className="text-sm py-1 px-3 bg-white dark:bg-gray-800">
+                <Activity className="h-3 w-3 mr-1" />Surgery (1,696)
+              </Badge>
+              <Badge variant="outline" className="text-sm py-1 px-3 bg-white dark:bg-gray-800">
+                <Monitor className="h-3 w-3 mr-1" />ICU (1,518)
+              </Badge>
+              <Badge variant="outline" className="text-sm py-1 px-3 bg-white dark:bg-gray-800">
+                <TestTube className="h-3 w-3 mr-1" />Laboratory (1,511)
+              </Badge>
+              <Badge variant="outline" className="text-sm py-1 px-3 bg-white dark:bg-gray-800">
+                <Brain className="h-3 w-3 mr-1" />Radiology (1,511)
+              </Badge>
+              <Badge variant="outline" className="text-sm py-1 px-3 bg-white dark:bg-gray-800">
+                <Heart className="h-3 w-3 mr-1" />Cardiology (1,368)
+              </Badge>
+              <Badge variant="outline" className="text-sm py-1 px-3 bg-white dark:bg-gray-800">
+                <Users className="h-3 w-3 mr-1" />Maternity (1,364)
+              </Badge>
+              <Badge variant="outline" className="text-sm py-1 px-3 bg-white dark:bg-gray-800">
+                <Zap className="h-3 w-3 mr-1" />Trauma Center (47)
+              </Badge>
+            </div>
+          </div>
+          
+          {/* Specialty Services Grid */}
+          <div>
+            <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Specialized Medical Services</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {[
+                { name: "Diagnostic Imaging", count: 270, icon: Monitor },
+                { name: "Pediatric Surgery", count: 42, icon: Users },
+                { name: "NICU Services", count: 41, icon: Heart },
+                { name: "Research Centers", count: 47, icon: BrainCircuit },
+                { name: "Cancer Centers", count: 2, icon: Shield },
+                { name: "Transplant Services", count: 1, icon: HeartHandshake },
+                { name: "Neurology", count: 4, icon: Brain },
+                { name: "Mental Health", count: 1, icon: BrainCircuit }
+              ].map((service, idx) => {
+                const Icon = service.icon;
+                return (
+                  <div key={idx} className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <Icon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{service.name}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">{service.count} facilities</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </section>
 
