@@ -1,14 +1,10 @@
 import { Router } from 'express';
-import OpenAI from 'openai';
 import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { like, or, and, sql, desc } from 'drizzle-orm';
+import fetch from 'node-fetch';
 
 const router = Router();
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 // Safety check for malicious prompts
 function isSafePrompt(prompt: string): boolean {
@@ -170,7 +166,7 @@ router.post('/public/ai-chat', async (req, res) => {
     // Find relevant platform resources
     const platformResources = await findRelevantResources(query);
     
-    // Create the ChatGPT prompt
+    // Create the Perplexity prompt
     const systemPrompt = `You are MySeniorValet's AI Assistant, helping families find senior living information. 
     
 IMPORTANT CONTEXT:
@@ -178,36 +174,56 @@ IMPORTANT CONTEXT:
 - We cover all US states and Canadian provinces
 - We have 4,784 HUD/affordable housing properties
 - We provide transparent pricing without paywalls
-- Our AI Orchestra includes Perplexity (web search), Claude (analysis), and ChatGPT (general assistance)
 
 When answering:
 1. Be helpful, empathetic, and informative
 2. If the question is about senior care, provide practical guidance
 3. Reference specific features of MySeniorValet when relevant
 4. Keep responses concise but comprehensive
-5. Use the newest OpenAI model "gpt-5" which was released August 7, 2025`;
+5. Include relevant information from web sources when available`;
 
-    // Call OpenAI API
-    let completion;
+    // Call Perplexity Sonar API
+    let perplexityResponse;
     try {
-      console.log('Calling OpenAI GPT-5 with query:', query);
-      completion = await openai.chat.completions.create({
-        model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: query }
-        ],
-        max_completion_tokens: 500, // gpt-5 uses max_completion_tokens instead of max_tokens
-        // temperature: 1 is the default and only supported value for gpt-5
-      });
-      console.log('OpenAI response received:', completion.choices[0]);
-    } catch (openaiError: any) {
-      console.error('OpenAI API Error:', openaiError?.message || openaiError);
-      console.error('Error details:', openaiError?.response?.data || openaiError);
+      console.log('Calling Perplexity Sonar with query:', query);
       
-      // Provide a fallback response if OpenAI fails
+      const response = await fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'sonar', // Using basic sonar model for cost-effective search
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: query }
+          ],
+          temperature: 0.2,
+          top_p: 0.9,
+          search_recency_filter: 'month', // Get recent information
+          return_images: false,
+          return_related_questions: true,
+          stream: false
+        })
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Perplexity API error:', response.status, errorText);
+        throw new Error(`Perplexity API error: ${response.status}`);
+      }
+      
+      perplexityResponse = await response.json();
+      console.log('Perplexity response received:', perplexityResponse.choices?.[0]?.finish_reason);
+      console.log('Citations:', perplexityResponse.citations?.length || 0, 'sources');
+      
+    } catch (perplexityError: any) {
+      console.error('Perplexity API Error:', perplexityError?.message || perplexityError);
+      
+      // Provide a fallback response if Perplexity fails
       const fallbackResponse = {
-        answer: "I'm here to help you navigate senior living options. While I'm experiencing a temporary connection issue, MySeniorValet has extensive resources including 32,970+ communities across the US and Canada. You can explore our pricing comparisons, map search, or browse by care type. What specific information are you looking for?",
+        answer: "I'm here to help you navigate senior living options. MySeniorValet has extensive resources including 32,970+ communities across the US and Canada. You can explore our pricing comparisons, map search, or browse by care type. What specific information are you looking for?",
         suggestions: ["Search by location", "Compare pricing", "Learn about care types", "View HUD properties"]
       };
       
@@ -217,21 +233,24 @@ When answering:
         answer: fallbackResponse.answer,
         platformResources: platformResources,
         suggestions: fallbackResponse.suggestions,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        model: 'fallback'
       });
     }
 
-    const aiResponse = completion?.choices?.[0]?.message?.content;
+    const aiResponse = perplexityResponse?.choices?.[0]?.message?.content;
+    const citations = perplexityResponse?.citations || [];
     
     if (!aiResponse) {
-      console.error('Empty response from OpenAI:', completion);
+      console.error('Empty response from Perplexity:', perplexityResponse);
       throw new Error('No response from AI');
     }
 
-    // Create a structured response from the plain text
+    // Create a structured response with citations
     const parsedResponse = {
       answer: aiResponse,
-      suggestions: ["Search by location", "Compare pricing", "Learn about care types", "View HUD properties"]
+      suggestions: perplexityResponse?.related_questions || ["Search by location", "Compare pricing", "Learn about care types", "View HUD properties"],
+      citations: citations
     };
 
     // Format the final response
@@ -241,6 +260,8 @@ When answering:
       answer: parsedResponse.answer || aiResponse,
       platformResources: platformResources,
       suggestions: parsedResponse.suggestions || [],
+      citations: parsedResponse.citations || [],
+      model: 'perplexity-sonar',
       timestamp: new Date().toISOString()
     };
 
