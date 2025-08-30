@@ -611,6 +611,74 @@ function HeroSectionWithTransformingSearch() {
                                   window.open(item.website || '#', '_blank');
                                 }}
                               />
+                            ) : searchCategory === 'healthcare' ? (
+                              // Healthcare Provider Card
+                              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow border border-red-200 dark:border-red-800">
+                                <div className="flex items-start gap-4">
+                                  <div className="p-3 bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 rounded-lg">
+                                    <span className="text-2xl">🏥</span>
+                                  </div>
+                                  <div className="flex-1">
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                      {item.name || item.business_name}
+                                    </h3>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                      {item.city && item.state ? `${item.city}, ${item.state}` : 'Healthcare Facility'}
+                                    </p>
+                                    {item.care_types && (
+                                      <div className="flex flex-wrap gap-1 mt-2">
+                                        {item.care_types.slice(0, 3).map((type: string, idx: number) => (
+                                          <span key={idx} className="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded">
+                                            {type}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    )}
+                                    <div className="flex items-center gap-4 mt-3">
+                                      {item.phone && (
+                                        <a href={`tel:${item.phone}`} className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                                          📞 {item.phone}
+                                        </a>
+                                      )}
+                                      {item.website && (
+                                        <a href={item.website} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                                          🌐 Website
+                                        </a>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : searchCategory === 'resources' ? (
+                              // Resource Card
+                              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow border border-amber-200 dark:border-amber-800">
+                                <div className="flex items-start gap-4">
+                                  <div className="p-3 bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 rounded-lg">
+                                    <span className="text-2xl">📚</span>
+                                  </div>
+                                  <div className="flex-1">
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                      {item.name || item.title}
+                                    </h3>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                      {item.type || 'Educational Resource'} • {item.category || 'General'}
+                                    </p>
+                                    {item.description && (
+                                      <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
+                                        {item.description}
+                                      </p>
+                                    )}
+                                    {item.url && (
+                                      <button 
+                                        onClick={() => window.open(item.url, '_blank')}
+                                        className="mt-3 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all"
+                                      >
+                                        View Resource →
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
                             ) : (
                               <PrioritizedCommunityCard
                                 community={item}
