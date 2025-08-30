@@ -116,13 +116,20 @@ export function Footer() {
           </div>
         </div>
         
-        {/* Vaporwave Logo Section */}
-        <div className="flex justify-center mb-6">
-          <img 
-            src={VaporwaveLogo} 
-            alt="MySeniorValet - Retro Synthwave Style" 
-            className="h-16 md:h-20 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300"
-          />
+        {/* Vaporwave Logo Section - Enhanced */}
+        <div className="flex justify-center my-8 py-6 border-t border-b border-purple-800/30">
+          <div className="relative group">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-cyan-600/20 blur-xl group-hover:blur-2xl transition-all duration-500"></div>
+            <img 
+              src={VaporwaveLogo} 
+              alt="MySeniorValet - Retro Synthwave Style" 
+              className="relative h-24 md:h-32 lg:h-40 w-auto object-contain opacity-95 hover:opacity-100 transition-all duration-500 transform hover:scale-105 drop-shadow-[0_0_30px_rgba(168,85,247,0.5)]"
+              style={{
+                filter: 'brightness(1.1) contrast(1.1)',
+                animation: 'pulse 4s ease-in-out infinite'
+              }}
+            />
+          </div>
         </div>
         
         {/* Compact Bottom Bar */}
