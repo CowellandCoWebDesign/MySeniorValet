@@ -787,7 +787,15 @@ export class ComprehensiveSearchEngine {
       'specialist', 'primary care', 'doctor', 'physician', 'nurse',
       'healthcare', 'health care', 'medical center', 'health center',
       'community health', 'wellness', 'preventive care', 'screening',
-      'vaccine', 'immunization', 'testing', 'diagnosis', 'treatment'
+      'vaccine', 'immunization', 'testing', 'diagnosis', 'treatment',
+      // Additional healthcare services
+      'dental', 'dentist', 'dentistry', 'orthodontic', 'oral',
+      'vision', 'eye', 'optometry', 'optometrist', 'ophthalmology', 'optical',
+      'hearing', 'audiology', 'audiologist', 'ear',
+      'podiatry', 'podiatrist', 'foot', 'chiropractor', 'chiropractic',
+      'acupuncture', 'nutritionist', 'dietitian', 'nutrition',
+      'substance abuse', 'addiction', 'detox', 'recovery',
+      'outpatient', 'inpatient', 'ambulatory', 'telemedicine', 'telehealth'
     ];
     
     const lowerQuery = query.toLowerCase();
