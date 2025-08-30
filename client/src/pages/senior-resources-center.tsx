@@ -44,6 +44,7 @@ export default function SeniorResourcesCenter() {
   // Get support resources from API or use hardcoded ones as fallback
   const apiResources = (resourcesData as any)?.supportResources || [];
   const hasApiData = apiResources.length > 0;
+  const resources = apiResources; // Use API resources for display
 
   // Essential Resources - All 32 senior resources
   const governmentResources = [

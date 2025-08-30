@@ -44,7 +44,7 @@ import transportationRoutes from "./transportationRoutes";
 import familyConnectRoutes from "./familyConnectRoutes";
 import amazonProductRoutes from "./amazonProductRoutes";
 import servicesManagementRoutes from "./servicesManagementRoutes";
-import { setupResourcesManagementRoutes } from "./resourcesManagementRoutes";
+import { setupSimpleResourcesRoutes } from "./simpleResourcesRoutes";
 import { featureAccessRouter } from "./featureAccessRoutes";
 import { registerAnalyticsRoutes } from "./analyticsRoutes";
 import { setupVAResourcesRoutes } from "./vaResourcesRoutes";
@@ -160,7 +160,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerAnalyticsRoutes(app);
   setupVAResourcesRoutes(app);
   setupSeniorResourcesRoutes(app);
-  setupResourcesManagementRoutes(app);
+  setupSimpleResourcesRoutes(app);
   
   // Register moving services routes
   movingRoutes(app);
