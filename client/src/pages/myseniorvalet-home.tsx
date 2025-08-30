@@ -390,7 +390,7 @@ function HeroSectionWithTransformingSearch() {
           </div>
           
           {/* Search Bar Container - Always visible with tab-specific styling */}
-          <div className={`w-full max-w-2xl rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 p-3 shadow-2xl ${
+          <div className={`w-full max-w-xl rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 p-3 shadow-2xl ${
             searchCategory === 'services'
               ? 'border-green-500 dark:border-green-600' 
               : searchCategory === 'healthcare'
