@@ -53,6 +53,9 @@ import MotelVacancySign from '@assets/generated_images/Motel_vacancy_sign_ae0ac2
 import RetroMedicalSign from '@assets/generated_images/Retro_medical_clinic_neon_sign_bdc37a10.png';
 import RetroShoppingSign from '@assets/generated_images/Retro_shopping_center_neon_sign_dbb6f040.png';
 import RetroLibrarySign from '@assets/generated_images/Retro_library_resource_center_sign_c0d548ed.png';
+import RetroFamilyLivingRoom from '@assets/generated_images/Retro_family_living_room_fb79eb41.png';
+import RetroRealEstateSign from '@assets/generated_images/Retro_real_estate_listing_sign_2de4d75e.png';
+import RetroPartnershipSign from '@assets/generated_images/Retro_partnership_handshake_sign_970aab8a.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 
@@ -2094,16 +2097,23 @@ export default function MySeniorValetHome() {
             {/* Family Collaboration Center Card */}
             <Link href="/family-collaboration">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-rose-400 relative overflow-hidden group transform hover:scale-105">
-                <div className="absolute inset-0 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 opacity-50"></div>
-                <CardHeader className="relative z-10">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="p-4 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg">
-                      <Users className="h-8 w-8" />
-                    </div>
-                    <Badge className="bg-gradient-to-r from-rose-500 to-pink-500 text-white px-3 py-1">
-                      FAMILIES
-                    </Badge>
+                {/* Full-size Retro Family Living Room Image at top of card */}
+                <div className="relative h-64 w-full">
+                  <img 
+                    src={RetroFamilyLivingRoom} 
+                    alt="Retro family living room with cozy fireplace" 
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {/* Overlay elements on the image */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg">
+                    <span className="text-3xl">👨‍👩‍👧‍👦</span>
                   </div>
+                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white px-3 py-1">
+                    FAMILIES
+                  </Badge>
+                </div>
+                <CardHeader className="relative z-10">
                   <CardTitle className="text-2xl mb-2">Family Collaboration Center</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Tour Planning & Communication Hub
@@ -2222,16 +2232,23 @@ export default function MySeniorValetHome() {
             {/* Community Onboarding Card */}
             <Link href="/community-portal">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-emerald-400 relative overflow-hidden group transform hover:scale-105">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 opacity-50"></div>
-                <CardHeader className="relative z-10">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg">
-                      <Building className="h-8 w-8" />
-                    </div>
-                    <Badge className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-3 py-1">
-                      COMMUNITIES
-                    </Badge>
+                {/* Full-size Retro Real Estate Sign Image at top of card */}
+                <div className="relative h-64 w-full">
+                  <img 
+                    src={RetroRealEstateSign} 
+                    alt="Retro real estate listing sign" 
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {/* Overlay elements on the image */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg">
+                    <span className="text-3xl">🏢</span>
                   </div>
+                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-3 py-1">
+                    COMMUNITIES
+                  </Badge>
+                </div>
+                <CardHeader className="relative z-10">
                   <CardTitle className="text-2xl mb-2">List Your Community</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     {isLoading ? (
@@ -2326,16 +2343,23 @@ export default function MySeniorValetHome() {
             {/* Services Directory Card */}
             <Link href="/vendor-marketplace-tiers">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-105">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 opacity-50"></div>
-                <CardHeader className="relative z-10">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg">
-                      <Briefcase className="h-8 w-8" />
-                    </div>
-                    <Badge className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1">
-                      VENDORS
-                    </Badge>
+                {/* Full-size Retro Partnership Sign Image at top of card */}
+                <div className="relative h-64 w-full">
+                  <img 
+                    src={RetroPartnershipSign} 
+                    alt="Retro partnership handshake sign" 
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {/* Overlay elements on the image */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg">
+                    <span className="text-3xl">🤝</span>
                   </div>
+                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1">
+                    VENDORS
+                  </Badge>
+                </div>
+                <CardHeader className="relative z-10">
                   <CardTitle className="text-2xl mb-2">Services Partnership</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Join 1,500+ Service Providers
