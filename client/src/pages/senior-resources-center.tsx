@@ -41,7 +41,9 @@ export default function SeniorResourcesCenter() {
     queryKey: ['/api/resources/categories'],
   });
 
-  const resources = (resourcesData as any)?.resources || [];
+  // Get support resources from API or use hardcoded ones as fallback
+  const apiResources = (resourcesData as any)?.supportResources || [];
+  const hasApiData = apiResources.length > 0;
 
   // Essential Resources - All 32 senior resources
   const governmentResources = [
@@ -953,7 +955,7 @@ export default function SeniorResourcesCenter() {
             <div className="mt-6 inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 px-6 py-3 rounded-full">
               <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               <span className="text-lg font-semibold text-blue-900 dark:text-blue-100">
-                32 Verified Government Resources
+                {hasApiData ? apiResources.length : 32} Verified Government Resources
               </span>
             </div>
           </div>
@@ -1006,7 +1008,31 @@ export default function SeniorResourcesCenter() {
 
           {/* Resources Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {governmentResources.map((resource, index) => {
+            {(hasApiData ? apiResources.map((resource: any) => ({
+              category: resource.category || 'Support',
+              name: resource.title,
+              description: resource.description,
+              phone: resource.phoneNumber,
+              website: resource.website,
+              icon: resource.icon === 'Stethoscope' ? Stethoscope :
+                    resource.icon === 'DollarSign' ? DollarSign :
+                    resource.icon === 'Shield' ? Shield :
+                    resource.icon === 'Users' ? Users :
+                    resource.icon === 'Brain' ? Brain :
+                    resource.icon === 'Heart' ? Heart :
+                    resource.icon === 'ShoppingBasket' ? ShoppingBasket :
+                    resource.icon === 'Pill' ? Pill :
+                    resource.icon === 'Home' ? Home :
+                    resource.icon === 'Utensils' ? Utensils :
+                    resource.icon === 'Car' ? Car :
+                    resource.icon === 'Monitor' ? Monitor :
+                    resource.icon === 'MessageSquare' ? MessageSquare :
+                    resource.icon === 'Phone' ? Phone :
+                    resource.icon === 'GraduationCap' ? GraduationCap :
+                    resource.icon === 'Book' ? Book :
+                    resource.icon === 'Building' ? Building : Users,
+              color: resource.categoryColor || 'blue'
+            })) : governmentResources).map((resource, index) => {
               const Icon = resource.icon;
               const colorMap: Record<string, string> = {
                 blue: 'from-blue-500 to-blue-600',
