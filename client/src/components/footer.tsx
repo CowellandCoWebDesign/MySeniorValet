@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { Home, Facebook, Twitter, Linkedin, MapPin, Building, Shield, Settings, User, Store } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import VaporwaveLogo from '@assets/generated_images/Vaporwave_synthwave_style_b2ebe5ea.png';
 
 export function Footer() {
   const { data: formattedStats, isLoading } = useQuery({
@@ -113,6 +114,15 @@ export function Footer() {
               <li><Link href="/accessibility" className="hover:text-blue-400 transition-colors">Accessibility</Link></li>
             </ul>
           </div>
+        </div>
+        
+        {/* Vaporwave Logo Section */}
+        <div className="flex justify-center mb-6">
+          <img 
+            src={VaporwaveLogo} 
+            alt="MySeniorValet - Retro Synthwave Style" 
+            className="h-16 md:h-20 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300"
+          />
         </div>
         
         {/* Compact Bottom Bar */}
