@@ -4,10 +4,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GradientLogo from '@assets/generated_images/Gradient_text_logo_design_c2ad4089.png';
+import CosmicBackground from '@assets/generated_images/Cosmic_nebula_pricing_background_f11facca.png';
+import ProfessionalNavbar from "@/components/ProfessionalNavbar";
 
 export default function PricingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-black">
+      <ProfessionalNavbar />
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="text-center">
@@ -18,24 +21,33 @@ export default function PricingPage() {
             MySeniorValet Pricing
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 mb-2">
-            The $50M AI-Powered Senior Care Intelligence Platform
+            Your Trusted Senior Care Intelligence Platform
           </p>
           <p className="text-2xl font-semibold text-green-600 dark:text-green-400">
             ✨ Families Are ALWAYS FREE ✨
           </p>
         </div>
 
-        {/* Platform Showcase Banner */}
-        <div className="mt-8 p-6 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white">
-          <div className="flex flex-col items-center justify-center space-y-4">
+        {/* Platform Showcase Banner with Beautiful Background */}
+        <div 
+          className="mt-8 p-8 rounded-xl text-white relative overflow-hidden"
+          style={{
+            backgroundImage: `url(${CosmicBackground})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        >
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-black/40 rounded-xl"></div>
+          <div className="relative z-10 flex flex-col items-center justify-center space-y-4">
             <img 
               src={GradientLogo}
               alt="MySeniorValet - Your Trusted Senior Living Guide"
-              className="h-32 w-auto object-contain opacity-95"
+              className="h-32 w-auto object-contain drop-shadow-2xl"
             />
             <div className="text-center">
-              <p className="text-xl font-semibold mb-2">Trusted by Thousands of Families Nationwide</p>
-              <p className="text-sm opacity-90">Complete transparency in senior care • No hidden fees • Always free for families</p>
+              <p className="text-2xl font-bold mb-2 drop-shadow-lg">Trusted by Thousands of Families Nationwide</p>
+              <p className="text-lg opacity-95 drop-shadow">Complete transparency in senior care • No hidden fees • Always free for families</p>
             </div>
           </div>
         </div>
