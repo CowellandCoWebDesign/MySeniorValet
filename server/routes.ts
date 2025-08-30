@@ -74,6 +74,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { duplicateRoutes } = await import('./routes/duplicateRoutes');
   app.use('/api/duplicates', duplicateRoutes);
   
+  // Register AI chat/research routes
+  const aiChatRoutes = await import('./routes/ai-chat-routes');
+  app.use('/api', aiChatRoutes.default);
+  
   // Register sitemap generation for SEO
   const sitemapGenerator = await import('./sitemap-generator');
   app.get('/sitemap.xml', sitemapGenerator.generateSitemap);

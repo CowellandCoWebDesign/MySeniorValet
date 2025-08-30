@@ -41,6 +41,7 @@ import { useSEO } from '@/hooks/useSEO';
 import { HeroMascotPanel } from '@/components/mascot/HeroMascotPanel';
 import { UnifiedSearch } from '@/components/UnifiedSearch';
 import { AutoExpandingSearch } from '@/components/AutoExpandingSearch';
+import { AIChatResponse } from '@/components/AIChatResponse';
 import ComprehensiveSearch from '@/components/ComprehensiveSearch';
 import LearnModeInterface from '@/components/LearnModeInterface';
 import GracefulFallbackMessage from '@/components/GracefulFallbackMessage';
@@ -114,39 +115,28 @@ function HeroSectionWithTransformingSearch() {
     try {
       // Automatically use research mode if in Learn tab or if it's detected as a research query
       if (isResearchMode || viewMode === 'discover') {
-        // Use Learn mode's Q&A endpoint for conversational queries
-        const response = await fetch('/api/nlp/ask', {
+        // Use Public AI Chat endpoint for conversational queries
+        const response = await fetch('/api/public/ai-chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
-            question: query,
-            includeRecommendations: true
+            query: query
           })
         });
 
         if (!response.ok) throw new Error('Research request failed');
         
-        const researchData = await response.json();
+        const aiChatResponse = await response.json();
         
-        // Also get community recommendations
-        const searchResponse = await fetch('/api/nlp/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query })
-        });
-
-        let communities = [];
-        if (searchResponse.ok) {
-          const searchData = await searchResponse.json();
-          communities = searchData.results || [];
-        }
-
-        // Set results with AI response
+        // Set results with AI response and platform resources
         setSearchResults({ 
-          results: communities, 
+          results: [], // No community results in research mode initially
           metadata: {
-            researchResponse: researchData,
-            isResearchMode: true
+            aiResponse: aiChatResponse.answer,
+            platformResources: aiChatResponse.platformResources || [],
+            suggestions: aiChatResponse.suggestions || [],
+            isResearchMode: true,
+            timestamp: aiChatResponse.timestamp
           }
         });
 
@@ -820,73 +810,26 @@ function HeroSectionWithTransformingSearch() {
         {/* {!isSearchActive && !searchQuery && !isSearchFocused && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-20" />} */}
       </section>
 
-      {/* Research Mode Response Section - Moved outside hero but keeping special research display */}
+      {/* Research Mode Response Section - Using New AI Chat Component */}
       <AnimatePresence mode="wait">
-        {isSearchActive && searchResults?.metadata?.isResearchMode && searchResults?.metadata?.researchResponse && (
+        {isSearchActive && searchResults?.metadata?.isResearchMode && searchResults?.metadata?.aiResponse && (
           <motion.section
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="w-full bg-gradient-to-b from-gray-900 to-gray-800 relative"
+            className="w-full bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 relative"
             id="discover-mode-results"
             style={{ transform: 'translateZ(0)' }}
           >
             {(
-              <div className="max-w-6xl mx-auto p-4 bg-gradient-to-b from-gray-900 to-gray-800">
-                {/* Research Header */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 rounded-xl p-6 mb-6 border border-purple-500/30"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="relative">
-                        <Brain className="w-8 h-8 text-purple-400" />
-                        <Sparkles className="w-4 h-4 text-blue-400 absolute -top-1 -right-1 animate-pulse" />
-                      </div>
-                      <div>
-                        <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                          Research Mode Response
-                        </h2>
-                        <p className="text-sm text-gray-400 mt-1">
-                          AI-powered analysis across 32,970+ communities
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right text-xs text-gray-500">
-                      <div>Confidence: {Math.round((searchResults.metadata.researchResponse.confidence || 0.85) * 100)}%</div>
-                      <div className="text-green-400">✓ Verified</div>
-                    </div>
-                  </div>
-
-                  {/* AI Answer */}
-                  <div className="bg-gray-800/50 rounded-lg p-4 mb-4">
-                    <div className="prose prose-invert max-w-none">
-                      <p className="text-gray-200 leading-relaxed text-lg">
-                        {searchResults.metadata.researchResponse.answer}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Data Sources */}
-                  {searchResults.metadata.researchResponse.sources && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      {searchResults.metadata.researchResponse.sources.map((source: any, index: number) => (
-                        <div key={index} className="bg-gray-800/30 rounded-lg p-3 text-xs">
-                          <div className="flex items-center space-x-2 mb-1">
-                            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                            <span className="font-medium text-gray-300">{source.title}</span>
-                          </div>
-                          <div className="text-gray-500">
-                            Relevance: {Math.round((source.relevance || 0.9) * 100)}%
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </motion.div>
+              <div className="max-w-4xl mx-auto p-4">
+                <AIChatResponse
+                  aiResponse={searchResults.metadata.aiResponse}
+                  platformResources={searchResults.metadata.platformResources}
+                  suggestions={searchResults.metadata.suggestions}
+                  timestamp={searchResults.metadata.timestamp}
+                />
               </div>
             )}
 
