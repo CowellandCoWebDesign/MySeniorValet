@@ -49,6 +49,7 @@ const heroBackgroundImage = '/starry-night-hero.png';
 import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
 import sunsetThinkerHero from '@assets/generated_images/Sunset_Thinker_left_edge_1c0dfd6c.png';
 import heroThinkerImage from '@assets/generated_images/Thinker_leftmost_boundary_observing_7dcdb3aa.png';
+import MotelVacancySign from '@assets/generated_images/Motel_vacancy_sign_ae0ac2af.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 
@@ -1239,6 +1240,14 @@ export default function MySeniorValetHome() {
                     <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1">
                       PRIMARY DATABASE
                     </Badge>
+                  </div>
+                  {/* Beautiful Vacancy Sign Image */}
+                  <div className="mb-4 relative">
+                    <img 
+                      src={MotelVacancySign} 
+                      alt="Retro motel vacancy sign" 
+                      className="w-full h-32 object-cover rounded-lg shadow-lg"
+                    />
                   </div>
                   <CardTitle className="text-2xl mb-2">AI-Powered Senior Living Directory</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
