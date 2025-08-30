@@ -55,7 +55,7 @@ import RetroShoppingSign from '@assets/generated_images/Retro_shopping_center_ne
 import RetroLibrarySign from '@assets/generated_images/Retro_library_resource_center_sign_c0d548ed.png';
 import RetroFamilyLivingRoom from '@assets/generated_images/Retro_family_living_room_fb79eb41.png';
 import RetroGrandHotelMarquee from '@assets/generated_images/Retro_grand_hotel_marquee_51bb7e27.png';
-import RetroPartnershipSign from '@assets/generated_images/Retro_partnership_handshake_sign_970aab8a.png';
+import RetroVendorMarketplace from '@assets/generated_images/Retro_vendor_marketplace_sign_b412c8cc.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 
@@ -2346,8 +2346,8 @@ export default function MySeniorValetHome() {
                 {/* Full-size Retro Partnership Sign Image at top of card */}
                 <div className="relative h-64 w-full">
                   <img 
-                    src={RetroPartnershipSign} 
-                    alt="Retro partnership handshake sign" 
+                    src={RetroVendorMarketplace} 
+                    alt="Retro vendor marketplace sign" 
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                   {/* Overlay elements on the image */}
