@@ -392,16 +392,37 @@ function HeroSectionWithTransformingSearch() {
           {/* Search Bar Container - COMPLETELY transparent until searching */}
           <div className={`w-full max-w-2xl rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 ${
             isSearchActive 
-              ? 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 border-purple-400 dark:border-purple-600 p-3 shadow-2xl' 
+              ? searchCategory === 'services'
+                ? 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 border-green-500 dark:border-green-600 p-3 shadow-2xl' 
+                : searchCategory === 'healthcare'
+                ? 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 border-red-500 dark:border-red-600 p-3 shadow-2xl' 
+                : searchCategory === 'resources'
+                ? 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 border-amber-500 dark:border-amber-600 p-3 shadow-2xl' 
+                : 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 border-purple-500 dark:border-purple-600 p-3 shadow-2xl' 
               : ''
           }`}>
             <div className={`rounded-lg transition-all duration-300 ${
               isSearchActive 
-                ? 'bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-900/20 dark:to-blue-900/20 p-1'
+                ? searchCategory === 'services'
+                  ? 'bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 p-1 shadow-lg border border-green-200/50 dark:border-green-700/50'
+                  : searchCategory === 'healthcare'
+                  ? 'bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 p-1 shadow-lg border border-red-200/50 dark:border-red-700/50'
+                  : searchCategory === 'resources'
+                  ? 'bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 p-1 shadow-lg border border-amber-200/50 dark:border-amber-700/50'
+                  : 'bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 p-1 shadow-lg border border-purple-200/50 dark:border-purple-700/50'
                 : ''
             }`}>
               {/* Wrapper to override search bar background when not active */}
-              <div className={`${!isSearchActive ? '[&_input]:!bg-white/30 [&_input]:dark:!bg-gray-800/30 [&_input]:!backdrop-blur-sm [&_input]:!border-white/40 [&_input]:dark:!border-gray-600/40' : ''}`}>
+              <div className={`${!isSearchActive 
+                ? '[&_input]:!bg-white/30 [&_input]:dark:!bg-gray-800/30 [&_input]:!backdrop-blur-sm [&_input]:!border-white/40 [&_input]:dark:!border-gray-600/40' 
+                : searchCategory === 'services'
+                ? '[&_input:focus]:!ring-green-400 [&_input:focus]:!border-green-400 [&_input]:!bg-gradient-to-br [&_input]:!from-green-50/50 [&_input]:!to-emerald-50/50 dark:[&_input]:!from-green-900/20 dark:[&_input]:!to-emerald-900/20'
+                : searchCategory === 'healthcare'
+                ? '[&_input:focus]:!ring-red-400 [&_input:focus]:!border-red-400 [&_input]:!bg-gradient-to-br [&_input]:!from-red-50/50 [&_input]:!to-pink-50/50 dark:[&_input]:!from-red-900/20 dark:[&_input]:!to-pink-900/20'
+                : searchCategory === 'resources'
+                ? '[&_input:focus]:!ring-amber-400 [&_input:focus]:!border-amber-400 [&_input]:!bg-gradient-to-br [&_input]:!from-amber-50/50 [&_input]:!to-orange-50/50 dark:[&_input]:!from-amber-900/20 dark:[&_input]:!to-orange-900/20'
+                : '[&_input:focus]:!ring-purple-400 [&_input:focus]:!border-purple-400 [&_input]:!bg-gradient-to-br [&_input]:!from-purple-50/50 [&_input]:!to-blue-50/50 dark:[&_input]:!from-purple-900/20 dark:[&_input]:!to-blue-900/20'
+              }`}>
               <ComprehensiveSearch 
               searchCategory={searchCategory}
               onSearch={(results) => {
