@@ -389,34 +389,27 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
           
-          {/* Search Bar Container - COMPLETELY transparent until searching */}
-          <div className={`w-full max-w-2xl rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 ${
-            isSearchActive 
-              ? searchCategory === 'services'
-                ? 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 border-green-500 dark:border-green-600 p-3 shadow-2xl' 
-                : searchCategory === 'healthcare'
-                ? 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 border-red-500 dark:border-red-600 p-3 shadow-2xl' 
-                : searchCategory === 'resources'
-                ? 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 border-amber-500 dark:border-amber-600 p-3 shadow-2xl' 
-                : 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 border-purple-500 dark:border-purple-600 p-3 shadow-2xl' 
-              : ''
+          {/* Search Bar Container - Always visible with tab-specific styling */}
+          <div className={`w-full max-w-2xl rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 p-3 shadow-2xl ${
+            searchCategory === 'services'
+              ? 'border-green-500 dark:border-green-600' 
+              : searchCategory === 'healthcare'
+              ? 'border-red-500 dark:border-red-600' 
+              : searchCategory === 'resources'
+              ? 'border-amber-500 dark:border-amber-600' 
+              : 'border-purple-500 dark:border-purple-600'
           }`}>
-            <div className={`rounded-lg transition-all duration-300 ${
-              isSearchActive 
-                ? searchCategory === 'services'
-                  ? 'bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 p-1 shadow-lg border border-green-200/50 dark:border-green-700/50'
-                  : searchCategory === 'healthcare'
-                  ? 'bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 p-1 shadow-lg border border-red-200/50 dark:border-red-700/50'
-                  : searchCategory === 'resources'
-                  ? 'bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 p-1 shadow-lg border border-amber-200/50 dark:border-amber-700/50'
-                  : 'bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 p-1 shadow-lg border border-purple-200/50 dark:border-purple-700/50'
-                : ''
+            <div className={`rounded-lg transition-all duration-300 p-1 shadow-lg border ${
+              searchCategory === 'services'
+                ? 'bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 border-green-200/50 dark:border-green-700/50'
+                : searchCategory === 'healthcare'
+                ? 'bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 border-red-200/50 dark:border-red-700/50'
+                : searchCategory === 'resources'
+                ? 'bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border-amber-200/50 dark:border-amber-700/50'
+                : 'bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 border-purple-200/50 dark:border-purple-700/50'
             }`}>
-              {/* Wrapper to apply transparency when not searching */}
-              <div className={`${!isSearchActive 
-                ? '[&_input]:!bg-white/30 [&_input]:dark:!bg-gray-800/30 [&_input]:!backdrop-blur-sm [&_input]:!border-white/40 [&_input]:dark:!border-gray-600/40' 
-                : ''
-              }`}>
+              {/* Search component wrapper */}
+              <div>
               <ComprehensiveSearch 
               searchCategory={searchCategory}
               onSearch={(results) => {
