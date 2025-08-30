@@ -300,26 +300,10 @@ function HeroSectionWithTransformingSearch() {
             Everything You Need.<br className="sm:hidden" /> Nothing You Pay.
           </h1>
           
-          <div className="text-sm sm:text-base md:text-lg text-gray-100 max-w-3xl mx-auto px-4">
-            <div className="hidden sm:block">
-              <div className="space-y-1">
-                <p className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                  • Search 35,000+ communities globally with real pricing & trusted reviews
-                </p>
-                <p className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                  • We NEVER sell your info • Access 1,000's of services & support resources
-                </p>
-                <p className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                  • A platform built for families, not profits 💙
-                </p>
-              </div>
-            </div>
-            <div className="sm:hidden">
-              <p className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
-                Search 35,000+ communities with real pricing<br/>
-                No fees • No data selling • Built for families 💙
-              </p>
-            </div>
+          <div className="text-base sm:text-lg md:text-xl text-gray-100 max-w-3xl mx-auto px-4">
+            <p className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] font-medium">
+              A platform built for families, not profits 💙
+            </p>
           </div>
         </div>
 
@@ -331,51 +315,63 @@ function HeroSectionWithTransformingSearch() {
               <button
                 type="button"
                 onClick={() => setSearchCategory('communities')}
-                className={`relative px-4 sm:px-5 py-2 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 rounded-t-lg
+                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                   ${searchCategory === 'communities' 
                     ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20' 
                     : 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
                   }`}
               >
                 <span className="text-sm">🏘️</span>
-                <span className="hidden sm:inline">Communities</span>
-                <span className="sm:hidden">Homes</span>
+                <div className="flex flex-col items-start leading-tight">
+                  <span className="hidden sm:inline">Communities</span>
+                  <span className="sm:hidden">Homes</span>
+                  <span className="text-[8px] opacity-75">35,000+</span>
+                </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('services')}
-                className={`relative px-4 sm:px-5 py-2 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 rounded-t-lg
+                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                   ${searchCategory === 'services' 
                     ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20' 
                     : 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
                   }`}
               >
                 <span className="text-sm">🛍️</span>
-                <span>Services</span>
+                <div className="flex flex-col items-start leading-tight">
+                  <span>Services</span>
+                  <span className="text-[8px] opacity-75">1,000+</span>
+                </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('healthcare')}
-                className={`relative px-4 sm:px-5 py-2 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 rounded-t-lg
+                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                   ${searchCategory === 'healthcare' 
                     ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20' 
                     : 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
                   }`}
               >
                 <span className="text-sm">🏥</span>
-                <span>Healthcare</span>
+                <div className="flex flex-col items-start leading-tight">
+                  <span>Healthcare</span>
+                  <span className="text-[8px] opacity-75">10,000+</span>
+                </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('resources')}
-                className={`relative px-4 sm:px-5 py-2 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 rounded-t-lg
+                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                   ${searchCategory === 'resources' 
                     ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20' 
                     : 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
                   }`}
               >
                 <span className="text-sm">📚</span>
-                <span>Resources</span>
+                <div className="flex flex-col items-start leading-tight">
+                  <span>Resources</span>
+                  <span className="text-[8px] opacity-75">500+</span>
+                </div>
               </button>
             </div>
           </div>
@@ -472,7 +468,7 @@ function HeroSectionWithTransformingSearch() {
             
             {/* Trust Indicators - Right under view mode buttons */}
             {!isSearchActive && (
-              <div className="flex justify-center items-center mt-2">
+              <div className="flex flex-col justify-center items-center mt-2 space-y-2">
                 <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
                   <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
                     <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
@@ -487,6 +483,9 @@ function HeroSectionWithTransformingSearch() {
                     <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Availability</span>
                   </span>
                 </div>
+                <p className="text-xs sm:text-sm text-purple-200 font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                  Welcome to the dawn of transparency in senior living 🌅
+                </p>
               </div>
             )}
           </div>
