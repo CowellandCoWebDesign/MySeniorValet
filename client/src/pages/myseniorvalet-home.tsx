@@ -54,6 +54,11 @@ import RetroMedicalSign from '@assets/generated_images/Retro_medical_clinic_neon
 import RetroShoppingSign from '@assets/generated_images/Retro_shopping_center_neon_sign_dbb6f040.png';
 import RetroLibrarySign from '@assets/generated_images/Retro_library_resource_center_sign_c0d548ed.png';
 import RetroFamilyLivingRoom from '@assets/generated_images/80s_Memphis_design_living_room_86518012.png';
+import ModernReceptionDesk from '@assets/generated_images/Modern_minimalist_reception_desk_52d947a5.png';
+import WarmWoodDesk from '@assets/generated_images/Warm_wood_concierge_desk_092bf982.png';
+import GlassHealthcareDesk from '@assets/generated_images/Glass_healthcare_reception_desk_85442b51.png';
+import SophisticatedGrayDesk from '@assets/generated_images/Sophisticated_gray_concierge_desk_f4d58e57.png';
+import ScandinavianCurvedDesk from '@assets/generated_images/Scandinavian_curved_reception_desk_491e4171.png';
 import RetroGrandHotelMarquee from '@assets/generated_images/Retro_grand_hotel_marquee_51bb7e27.png';
 import RetroVendorMarketplace from '@assets/generated_images/Retro_vendor_marketplace_sign_b412c8cc.png';
 import RetroGuestServices from '@assets/generated_images/Retro_guest_services_sign_b951be1b.png';
@@ -274,8 +279,8 @@ function HeroSectionWithTransformingSearch() {
         {/* Background Image - Optimized loading */}
         <div className="absolute inset-0 h-full w-full">
           <img
-            src={RetroFamilyLivingRoom}
-            alt="Home Sweet Home - Your warm welcome to senior living wisdom"
+            src={ModernReceptionDesk}
+            alt="Professional concierge service for senior living guidance"
             className={`w-full h-full object-cover object-center transition-opacity duration-500 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
@@ -288,7 +293,7 @@ function HeroSectionWithTransformingSearch() {
               transform: 'translateZ(0)' // Force GPU acceleration
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 sm:via-transparent to-black/50"></div>
         </div>
         
         <div className="relative z-10 flex flex-col min-h-screen px-2 sm:px-4">
