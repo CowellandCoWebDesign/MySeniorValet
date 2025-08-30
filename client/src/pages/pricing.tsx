@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import GradientLogo from '@assets/generated_images/Gradient_text_logo_design_c2ad4089.png';
 
 export default function PricingPage() {
   return (
@@ -24,20 +25,17 @@ export default function PricingPage() {
           </p>
         </div>
 
-        {/* Revenue Target Banner */}
+        {/* Platform Showcase Banner */}
         <div className="mt-8 p-6 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-            <div>
-              <p className="text-sm opacity-90">Monthly Target</p>
-              <p className="text-3xl font-bold">$210,000</p>
-            </div>
-            <div>
-              <p className="text-sm opacity-90">Annual Base</p>
-              <p className="text-3xl font-bold">$2.52M</p>
-            </div>
-            <div>
-              <p className="text-sm opacity-90">With 15% Growth</p>
-              <p className="text-3xl font-bold">$5.3M</p>
+          <div className="flex flex-col items-center justify-center space-y-4">
+            <img 
+              src={GradientLogo}
+              alt="MySeniorValet - Your Trusted Senior Living Guide"
+              className="h-32 w-auto object-contain opacity-95"
+            />
+            <div className="text-center">
+              <p className="text-xl font-semibold mb-2">Trusted by Thousands of Families Nationwide</p>
+              <p className="text-sm opacity-90">Complete transparency in senior care • No hidden fees • Always free for families</p>
             </div>
           </div>
         </div>
