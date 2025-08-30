@@ -78,6 +78,8 @@ import realDataRoutes from "./real-data-api";
 import socialMediaRoutes from "./social-media-api";
 import emailCampaignRoutes from "./email-campaign-api";
 import { atriaRoutes } from "./atria-routes";
+import healthcareServicesRoutes from "./healthcareServicesRoutes";
+import careServicesRoutes from "./careServicesRoutes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Note: Replit Auth is already initialized in server/routes.ts
@@ -217,6 +219,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register Enterprise Market Analysis routes
   app.use('/api/enterprise', enterpriseMarketRoutes);
+  
+  // Register Healthcare Services routes (comprehensive 36 categories)
+  app.use('/api', healthcareServicesRoutes);
+  
+  // Register Care Services routes (existing functionality)
+  app.use('/api', careServicesRoutes);
 
   return httpServer;
 }

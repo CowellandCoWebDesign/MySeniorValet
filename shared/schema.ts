@@ -4585,6 +4585,49 @@ export const hospitalQualityMetrics = pgTable("hospital_quality_metrics", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// ========== COMPREHENSIVE HEALTHCARE SERVICE TYPES ==========
+// Master table for all healthcare service types (30+ categories)
+export const healthcareServiceTypes = pgTable("healthcare_service_types", {
+  id: serial("id").primaryKey(),
+  categoryId: text("category_id").unique().notNull(), // Unique identifier for the category
+  name: text("name").notNull(),
+  displayName: text("display_name").notNull(), // User-friendly name with count
+  description: text("description"),
+  icon: text("icon"), // Emoji or icon identifier
+  serviceType: text("service_type", {
+    enum: [
+      "hospital", "home_care", "therapy", "hospice", "respite", "personal_care",
+      "adult_day", "dental", "vision", "hearing", "medical_equipment", "pharmacy",
+      "skilled_nursing", "palliative", "nutrition", "companion", "transportation",
+      "mental_health", "substance_abuse", "dialysis", "infusion", "wound_care",
+      "pain_management", "sleep_disorder", "cardiac_rehab", "pulmonary_rehab",
+      "occupational_health", "urgent_care", "telemedicine", "community_health",
+      "preventive_care", "diagnostic", "laboratory", "radiology", "surgery_center"
+    ]
+  }).notNull(),
+  parentCategory: text("parent_category", {
+    enum: ["medical_facilities", "home_services", "therapy_rehab", "specialized_care", "support_services", "equipment_supplies"]
+  }),
+  count: integer("count").default(0), // Number of providers in this category
+  isActive: boolean("is_active").default(true),
+  sortOrder: integer("sort_order").default(0), // Display order
+  metadata: jsonb("metadata").$type<{
+    searchKeywords?: string[];
+    relatedCategories?: string[];
+    averageCost?: { min: number; max: number };
+    coveredByMedicare?: boolean;
+    coveredByMedicaid?: boolean;
+    requiresPrescription?: boolean;
+    licensingRequirements?: string[];
+  }>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_healthcare_service_types_category").on(table.categoryId),
+  index("idx_healthcare_service_types_type").on(table.serviceType),
+  index("idx_healthcare_service_types_active").on(table.isActive),
+]);
+
 // Service Relations
 export const serviceCategoriesRelations = relations(serviceCategories, ({ many }) => ({
   services: many(services),
@@ -4825,6 +4868,15 @@ export const insertHospitalQualityMetricsSchema = createInsertSchema(hospitalQua
 });
 export type InsertHospitalQualityMetrics = z.infer<typeof insertHospitalQualityMetricsSchema>;
 export type HospitalQualityMetrics = typeof hospitalQualityMetrics.$inferSelect;
+
+// Healthcare Service Types Insert Schemas and Types
+export const insertHealthcareServiceTypeSchema = createInsertSchema(healthcareServiceTypes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertHealthcareServiceType = z.infer<typeof insertHealthcareServiceTypeSchema>;
+export type HealthcareServiceType = typeof healthcareServiceTypes.$inferSelect;
 
 // ============ SMART NOTIFICATION SYSTEM TABLES ============
 
