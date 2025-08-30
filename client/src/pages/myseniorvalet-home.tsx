@@ -1231,24 +1231,23 @@ export default function MySeniorValetHome() {
                 window.location.href = '/community-directory';
               }
             }}>
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 opacity-50"></div>
+                {/* Full-size Vacancy Sign Image at top of card */}
+                <div className="relative h-64 w-full">
+                  <img 
+                    src={MotelVacancySign} 
+                    alt="Retro motel vacancy sign" 
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {/* Overlay elements on the image */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg">
+                    <span className="text-3xl">🏢</span>
+                  </div>
+                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1">
+                    PRIMARY DATABASE
+                  </Badge>
+                </div>
                 <CardHeader className="relative z-10">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="p-4 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg">
-                      <Building2 className="h-8 w-8" />
-                    </div>
-                    <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1">
-                      PRIMARY DATABASE
-                    </Badge>
-                  </div>
-                  {/* Beautiful Vacancy Sign Image */}
-                  <div className="mb-4 relative">
-                    <img 
-                      src={MotelVacancySign} 
-                      alt="Retro motel vacancy sign" 
-                      className="w-full h-32 object-cover rounded-lg shadow-lg"
-                    />
-                  </div>
                   <CardTitle className="text-2xl mb-2">AI-Powered Senior Living Directory</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Self-Healing Database with On-Demand Intelligence
