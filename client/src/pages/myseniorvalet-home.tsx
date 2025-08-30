@@ -327,49 +327,62 @@ function HeroSectionWithTransformingSearch() {
 
         {/* Unified Search Component with integrated toggles - Premium Glass Design */}
         <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative mb-8 z-40">
-          {/* View Mode Tabs - Compact Beautiful Design */}
+          {/* Category Tabs - Now on top */}
           <div className="flex justify-center">
-            <div className="inline-flex bg-white/85 dark:bg-gray-800/85 backdrop-blur-md rounded-t-lg p-0.5 shadow-lg border border-purple-200/30 dark:border-purple-700/30">
+            <div className="inline-flex bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-t-lg shadow-xl border border-purple-200/40 dark:border-purple-700/40 p-1">
               <button
                 type="button"
-                onClick={() => setViewMode('list')}
-                className={`px-2 sm:px-2.5 py-1 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 ${
-                  viewMode === 'list' 
-                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm' 
+                onClick={() => setSearchCategory('communities')}
+                className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
+                  searchCategory === 'communities' 
+                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
                     : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                 }`}
               >
-                <span className="text-xs sm:text-sm">📋</span>
-                <span>List</span>
+                <span className="text-sm">🏘️</span>
+                <span className="hidden sm:inline">Communities</span>
+                <span className="sm:hidden">Homes</span>
               </button>
               <button
                 type="button"
-                onClick={() => setViewMode('map')}
-                className={`px-2 sm:px-2.5 py-1 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 ${
-                  viewMode === 'map' 
-                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm' 
+                onClick={() => setSearchCategory('services')}
+                className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
+                  searchCategory === 'services' 
+                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
                     : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                 }`}
               >
-                <span className="text-xs sm:text-sm">🗺️</span>
-                <span>Map</span>
+                <span className="text-sm">🛍️</span>
+                <span>Services</span>
               </button>
               <button
                 type="button"
-                onClick={() => setViewMode('discover')}
-                className={`px-2 sm:px-2.5 py-1 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 ${
-                  viewMode === 'discover' 
-                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm' 
+                onClick={() => setSearchCategory('healthcare')}
+                className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
+                  searchCategory === 'healthcare' 
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
+                }`}
+              >
+                <span className="text-sm">🏥</span>
+                <span>Healthcare</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSearchCategory('resources')}
+                className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
+                  searchCategory === 'resources' 
+                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
                     : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                 }`}
               >
-                <span className="text-xs sm:text-sm">✨</span>
-                <span>Discover</span>
+                <span className="text-sm">📚</span>
+                <span>Resources</span>
               </button>
             </div>
           </div>
           
-          {/* Enhanced Search Bar with Attached Tabs Below */}
+          {/* Enhanced Search Bar with Attached Tabs */}
           <div className="w-full max-w-2xl">
             <ComprehensiveSearch 
             searchCategory={searchCategory}
@@ -415,57 +428,44 @@ function HeroSectionWithTransformingSearch() {
             showSuggestions={true}
             />
             
-            {/* Category Tabs - Smaller tabs attached directly below search bar */}
+            {/* View Mode Tabs - Now attached below search bar */}
             <div className="flex justify-center -mt-1">
-              <div className="inline-flex bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-b-xl rounded-t-none shadow-xl border border-t-0 border-purple-200/40 dark:border-purple-700/40 p-1">
+              <div className="inline-flex bg-white/85 dark:bg-gray-800/85 backdrop-blur-md rounded-b-xl rounded-t-none shadow-lg border border-t-0 border-purple-200/30 dark:border-purple-700/30 p-0.5">
                 <button
                   type="button"
-                  onClick={() => setSearchCategory('communities')}
-                  className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
-                    searchCategory === 'communities' 
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
+                  onClick={() => setViewMode('list')}
+                  className={`px-2 sm:px-2.5 py-1 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 ${
+                    viewMode === 'list' 
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm' 
                       : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                   }`}
                 >
-                  <span className="text-sm">🏘️</span>
-                  <span className="hidden sm:inline">Communities</span>
-                  <span className="sm:hidden">Homes</span>
+                  <span className="text-xs sm:text-sm">📋</span>
+                  <span>List</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSearchCategory('services')}
-                  className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
-                    searchCategory === 'services' 
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
+                  onClick={() => setViewMode('map')}
+                  className={`px-2 sm:px-2.5 py-1 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 ${
+                    viewMode === 'map' 
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm' 
                       : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                   }`}
                 >
-                  <span className="text-sm">🛍️</span>
-                  <span>Services</span>
+                  <span className="text-xs sm:text-sm">🗺️</span>
+                  <span>Map</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSearchCategory('healthcare')}
-                  className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
-                    searchCategory === 'healthcare' 
-                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
-                        : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
-                  }`}
-                >
-                  <span className="text-sm">🏥</span>
-                  <span>Healthcare</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSearchCategory('resources')}
-                  className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
-                    searchCategory === 'resources' 
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
+                  onClick={() => setViewMode('discover')}
+                  className={`px-2 sm:px-2.5 py-1 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 ${
+                    viewMode === 'discover' 
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm' 
                       : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
                   }`}
                 >
-                  <span className="text-sm">📚</span>
-                  <span>Resources</span>
+                  <span className="text-xs sm:text-sm">✨</span>
+                  <span>Discover</span>
                 </button>
               </div>
             </div>
