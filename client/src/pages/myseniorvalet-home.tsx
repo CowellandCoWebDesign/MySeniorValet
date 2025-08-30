@@ -285,7 +285,7 @@ function HeroSectionWithTransformingSearch() {
             style={{ 
               willChange: imageLoaded ? 'auto' : 'opacity',
               contentVisibility: 'auto',
-              transform: 'scale(0.85) translateZ(0)' // Zoomed out view with GPU acceleration
+              transform: 'translateZ(0)' // Force GPU acceleration
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
