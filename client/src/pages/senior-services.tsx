@@ -80,7 +80,22 @@ export default function SeniorServicesPage() {
     }
   }, []);
 
-  // Fetch services based on location
+  // Fetch real service providers from database
+  const { data: providersData, isLoading: providersLoading } = useQuery({
+    queryKey: ['/api/services-management/providers', searchQuery, selectedCategory],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        highQuality: 'true',
+        limit: '100',
+        ...(searchQuery && { search: searchQuery })
+      });
+      const response = await fetch(`/api/services-management/providers?${params}`);
+      if (!response.ok) throw new Error('Failed to fetch providers');
+      return response.json();
+    }
+  });
+
+  // Fetch services based on location (fallback)
   const { data: servicesData, isLoading } = useQuery({
     queryKey: ['/api/services/discover', userLocation, selectedCategory],
     queryFn: async () => {
@@ -98,11 +113,94 @@ export default function SeniorServicesPage() {
     enabled: !!userLocation
   });
 
+  // Combine providers from database with any local services
+  const allProviders = providersData || [];
+  const filteredProviders = allProviders.filter((provider: any) => 
+    searchQuery === '' || 
+    provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    provider.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const filteredServices = servicesData?.services?.filter((service: any) => 
     searchQuery === '' || 
     service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     service.description.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
+
+  // Provider Card Component for database providers
+  const ProviderCard = ({ provider }: { provider: any }) => (
+    <Card className="hover:shadow-lg transition-shadow duration-200">
+      <CardHeader className="pb-4">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+              <Package className="w-5 h-5" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">{provider.name}</CardTitle>
+              {provider.rating && (
+                <div className="flex items-center gap-1 mt-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star 
+                      key={i} 
+                      className={`w-4 h-4 ${i < Math.floor(provider.rating) ? 'text-yellow-500 fill-current' : 'text-gray-300'}`} 
+                    />
+                  ))}
+                  <span className="text-sm text-gray-600 dark:text-gray-400 ml-1">
+                    ({provider.totalReviews?.toLocaleString() || 0} reviews)
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+          {provider.isPartner && (
+            <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+              <CheckCircle className="w-3 h-3 mr-1" />
+              Partner
+            </Badge>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-sm text-gray-700 dark:text-gray-300">
+          {provider.description || 'Professional senior services provider'}
+        </p>
+
+        {/* Contact Information */}
+        <div className="space-y-2 pt-2 border-t">
+          {provider.website && (
+            <div className="flex items-center gap-2 text-sm">
+              <ExternalLink className="w-4 h-4 text-gray-500" />
+              <a href={provider.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                Visit Website
+              </a>
+            </div>
+          )}
+          {provider.contactPhone && (
+            <div className="flex items-center gap-2 text-sm">
+              <Phone className="w-4 h-4 text-gray-500" />
+              <a href={`tel:${provider.contactPhone}`} className="text-blue-600 hover:underline">
+                {provider.contactPhone}
+              </a>
+            </div>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2 pt-2">
+          <Button 
+            variant="default" 
+            size="sm" 
+            className="flex-1"
+            onClick={() => window.open(provider.website, '_blank')}
+          >
+            Learn More
+            <ChevronRight className="w-4 h-4 ml-1" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   const ServiceCard = ({ service }: { service: any }) => (
     <Card className="hover:shadow-lg transition-shadow duration-200">
@@ -268,7 +366,27 @@ export default function SeniorServicesPage() {
           </TabsList>
 
           <TabsContent value="services" className="space-y-6">
-            {isLoading ? (
+            {/* Stats Banner */}
+            {filteredProviders.length > 0 && (
+              <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg p-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      {filteredProviders.length} Trusted Service Providers
+                    </h3>
+                    <p className="text-sm opacity-90">
+                      National companies serving seniors with verified ratings
+                    </p>
+                  </div>
+                  <Badge className="bg-white text-blue-600">
+                    <CheckCircle className="w-4 h-4 mr-1" />
+                    Verified Providers
+                  </Badge>
+                </div>
+              </div>
+            )}
+
+            {providersLoading || isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <div key={i} className="animate-pulse">
@@ -276,10 +394,14 @@ export default function SeniorServicesPage() {
                   </div>
                 ))}
               </div>
-            ) : filteredServices.length > 0 ? (
+            ) : filteredProviders.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProviders.map((provider: any) => (
+                  <ProviderCard key={provider.id} provider={provider} />
+                ))}
+                {/* Also show any local services if available */}
                 {filteredServices.map((service: any) => (
-                  <ServiceCard key={service.id} service={service} />
+                  <ServiceCard key={`service-${service.id}`} service={service} />
                 ))}
               </div>
             ) : (

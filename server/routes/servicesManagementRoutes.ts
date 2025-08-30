@@ -72,34 +72,43 @@ router.put("/categories/:id", async (req, res) => {
 
 // ========== SERVICE PROVIDERS ==========
 
-// Get all service providers
+// Get all service providers (public endpoint)
 router.get("/providers", async (req, res) => {
   try {
+    const { category, search, limit = 100, highQuality } = req.query;
+    
+    console.log("Fetching service providers with params:", { category, search, limit, highQuality });
+    
+    // Simple query to get all active providers
     const providers = await db
-      .select({
-        id: serviceProviders.id,
-        name: serviceProviders.name,
-        description: serviceProviders.description,
-        logo: serviceProviders.logo,
-        website: serviceProviders.website,
-        contactEmail: serviceProviders.contactEmail,
-        contactPhone: serviceProviders.contactPhone,
-        isPartner: serviceProviders.isPartner,
-        isActive: serviceProviders.isActive,
-        rating: serviceProviders.rating,
-        totalReviews: serviceProviders.totalReviews,
-        partnershipLevel: serviceProviders.partnershipLevel,
-        commissionRate: serviceProviders.commissionRate,
-        serviceCount: sql<number>`count(${services.id})`.as('serviceCount'),
-        createdAt: serviceProviders.createdAt,
-        updatedAt: serviceProviders.updatedAt,
-      })
+      .select()
       .from(serviceProviders)
-      .leftJoin(services, eq(serviceProviders.id, services.providerId))
-      .groupBy(serviceProviders.id)
-      .orderBy(desc(serviceProviders.isPartner), serviceProviders.name);
+      .where(eq(serviceProviders.isActive, true))
+      .orderBy(desc(serviceProviders.totalReviews), desc(serviceProviders.rating), serviceProviders.name)
+      .limit(parseInt(limit as string) || 100);
+    
+    console.log(`Found ${providers.length} active providers`);
+    
+    // Filter by high quality if requested
+    let filteredProviders = providers;
+    if (highQuality === 'true') {
+      filteredProviders = providers.filter(p => p.rating && typeof p.rating === 'number' && p.rating >= 4.0);
+    }
+    
+    // Search filter
+    if (search && typeof search === 'string') {
+      const searchLower = search.toLowerCase();
+      filteredProviders = filteredProviders.filter(p => 
+        p.name.toLowerCase().includes(searchLower) ||
+        (p.description && p.description.toLowerCase().includes(searchLower))
+      );
+    }
+    
+    // Apply limit
+    const limitNum = parseInt(limit as string) || 100;
+    filteredProviders = filteredProviders.slice(0, limitNum);
 
-    res.json(providers);
+    res.json(filteredProviders);
   } catch (error) {
     console.error("Error fetching service providers:", error);
     res.status(500).json({ error: "Failed to fetch service providers" });
