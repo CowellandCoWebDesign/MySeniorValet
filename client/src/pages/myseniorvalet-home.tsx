@@ -323,68 +323,81 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
 
-        {/* Unified Search Component with integrated toggles - Premium Glass Design */}
+        {/* Unified Search Component with File Folder Tab Design */}
         <div className="w-full max-w-2xl mx-auto px-2 sm:px-0 relative mb-8 z-40">
-          {/* Category Tabs - Now on top */}
-          <div className="flex justify-center">
-            <div className="inline-flex bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-t-lg shadow-xl border border-purple-200/40 dark:border-purple-700/40 p-1">
+          {/* Category Tabs - File Folder Style */}
+          <div className="flex justify-start pl-4">
+            <div className="inline-flex gap-1">
               <button
                 type="button"
                 onClick={() => setSearchCategory('communities')}
-                className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
-                  searchCategory === 'communities' 
-                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
-                }`}
+                className={`relative px-4 sm:px-5 py-2.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 
+                  ${searchCategory === 'communities' 
+                    ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 rounded-t-xl border-t border-l border-r border-purple-300/50 dark:border-purple-600/50 shadow-[0_-2px_10px_rgba(168,85,247,0.2)] translate-y-[1px] z-10' 
+                    : 'bg-white/60 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 hover:bg-white/70 dark:hover:bg-gray-800/70 rounded-t-lg border-t border-l border-r border-gray-200/30 dark:border-gray-700/30 hover:text-purple-600 dark:hover:text-purple-400'
+                  }`}
               >
                 <span className="text-sm">🏘️</span>
                 <span className="hidden sm:inline">Communities</span>
                 <span className="sm:hidden">Homes</span>
+                {searchCategory === 'communities' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/95 dark:bg-gray-800/95"></div>
+                )}
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('services')}
-                className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
-                  searchCategory === 'services' 
-                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
-                }`}
+                className={`relative px-4 sm:px-5 py-2.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 
+                  ${searchCategory === 'services' 
+                    ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 rounded-t-xl border-t border-l border-r border-purple-300/50 dark:border-purple-600/50 shadow-[0_-2px_10px_rgba(168,85,247,0.2)] translate-y-[1px] z-10' 
+                    : 'bg-white/60 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 hover:bg-white/70 dark:hover:bg-gray-800/70 rounded-t-lg border-t border-l border-r border-gray-200/30 dark:border-gray-700/30 hover:text-purple-600 dark:hover:text-purple-400'
+                  }`}
               >
                 <span className="text-sm">🛍️</span>
                 <span>Services</span>
+                {searchCategory === 'services' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/95 dark:bg-gray-800/95"></div>
+                )}
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('healthcare')}
-                className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
-                  searchCategory === 'healthcare' 
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
-                }`}
+                className={`relative px-4 sm:px-5 py-2.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 
+                  ${searchCategory === 'healthcare' 
+                    ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 rounded-t-xl border-t border-l border-r border-purple-300/50 dark:border-purple-600/50 shadow-[0_-2px_10px_rgba(168,85,247,0.2)] translate-y-[1px] z-10' 
+                    : 'bg-white/60 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 hover:bg-white/70 dark:hover:bg-gray-800/70 rounded-t-lg border-t border-l border-r border-gray-200/30 dark:border-gray-700/30 hover:text-purple-600 dark:hover:text-purple-400'
+                  }`}
               >
                 <span className="text-sm">🏥</span>
                 <span>Healthcare</span>
+                {searchCategory === 'healthcare' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/95 dark:bg-gray-800/95"></div>
+                )}
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('resources')}
-                className={`px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
-                  searchCategory === 'resources' 
-                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md' 
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
-                }`}
+                className={`relative px-4 sm:px-5 py-2.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 
+                  ${searchCategory === 'resources' 
+                    ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 rounded-t-xl border-t border-l border-r border-purple-300/50 dark:border-purple-600/50 shadow-[0_-2px_10px_rgba(168,85,247,0.2)] translate-y-[1px] z-10' 
+                    : 'bg-white/60 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 hover:bg-white/70 dark:hover:bg-gray-800/70 rounded-t-lg border-t border-l border-r border-gray-200/30 dark:border-gray-700/30 hover:text-purple-600 dark:hover:text-purple-400'
+                  }`}
               >
                 <span className="text-sm">📚</span>
                 <span>Resources</span>
+                {searchCategory === 'resources' && (
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/95 dark:bg-gray-800/95"></div>
+                )}
               </button>
             </div>
           </div>
           
-          {/* Enhanced Search Bar with Attached Tabs */}
-          <div className="w-full max-w-2xl">
-            <ComprehensiveSearch 
-            searchCategory={searchCategory}
-            onSearch={(results) => {
+          {/* Search Bar - Inside the File Folder */}
+          <div className="w-full max-w-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-b-xl rounded-tr-xl shadow-2xl border border-purple-300/50 dark:border-purple-600/50 relative -mt-[1px] p-3">
+            <div className="bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-1">
+              <ComprehensiveSearch 
+              searchCategory={searchCategory}
+              onSearch={(results) => {
               // If map view is selected, redirect to map search page with category
               if (viewMode === 'map' && results.searchMetadata.query) {
                 const categoryParam = searchCategory !== 'communities' ? `&category=${searchCategory}` : '';
@@ -425,17 +438,18 @@ function HeroSectionWithTransformingSearch() {
             className="w-full"
             showSuggestions={true}
             />
+            </div>
             
-            {/* View Mode Tabs - Now attached below search bar */}
-            <div className="flex justify-center -mt-1">
-              <div className="inline-flex bg-white/85 dark:bg-gray-800/85 backdrop-blur-md rounded-b-xl rounded-t-none shadow-lg border border-t-0 border-purple-200/30 dark:border-purple-700/30 p-0.5">
+            {/* View Mode Tabs - Inside the File Folder */}
+            <div className="flex justify-center mt-3 pb-2">
+              <div className="inline-flex bg-gradient-to-r from-purple-100/50 to-blue-100/50 dark:from-purple-900/30 dark:to-blue-900/30 backdrop-blur-sm rounded-full p-1 shadow-inner">
                 <button
                   type="button"
                   onClick={() => setViewMode('list')}
-                  className={`px-2 sm:px-2.5 py-1 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 ${
+                  className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
                     viewMode === 'list' 
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm' 
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
+                      ? 'bg-white dark:bg-gray-700 text-purple-700 dark:text-purple-300 shadow-md' 
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50'
                   }`}
                 >
                   <span className="text-xs sm:text-sm">📋</span>
@@ -444,10 +458,10 @@ function HeroSectionWithTransformingSearch() {
                 <button
                   type="button"
                   onClick={() => setViewMode('map')}
-                  className={`px-2 sm:px-2.5 py-1 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 ${
+                  className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
                     viewMode === 'map' 
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm' 
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
+                      ? 'bg-white dark:bg-gray-700 text-purple-700 dark:text-purple-300 shadow-md' 
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50'
                   }`}
                 >
                   <span className="text-xs sm:text-sm">🗺️</span>
@@ -456,10 +470,10 @@ function HeroSectionWithTransformingSearch() {
                 <button
                   type="button"
                   onClick={() => setViewMode('discover')}
-                  className={`px-2 sm:px-2.5 py-1 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 ${
+                  className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
                     viewMode === 'discover' 
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm' 
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-purple-50 dark:hover:bg-purple-900/20'
+                      ? 'bg-white dark:bg-gray-700 text-purple-700 dark:text-purple-300 shadow-md' 
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50'
                   }`}
                 >
                   <span className="text-xs sm:text-sm">✨</span>
