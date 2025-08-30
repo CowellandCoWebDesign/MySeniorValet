@@ -34,6 +34,7 @@ interface ComprehensiveSearchProps {
   className?: string;
   showSuggestions?: boolean;
   searchCategory?: 'communities' | 'services' | 'healthcare' | 'resources';
+  isSearchActive?: boolean;
 }
 
 export function ComprehensiveSearch({ 
@@ -43,7 +44,8 @@ export function ComprehensiveSearch({
   placeholder = "🔍 Search communities, cities, companies, or ask anything... ✨",
   className = "",
   showSuggestions = true,
-  searchCategory = 'communities'
+  searchCategory = 'communities',
+  isSearchActive = false
 }: ComprehensiveSearchProps) {
   const [query, setQuery] = useState(initialQuery);
   const [isLoading, setIsLoading] = useState(false);
@@ -100,8 +102,8 @@ export function ComprehensiveSearch({
     const detectedType = detectSearchType(value);
     setSearchType(detectedType);
     
-    // Get suggestions if query is long enough
-    if (value.length >= 2 && showSuggestions) {
+    // Get suggestions if query is long enough and search is not active
+    if (value.length >= 2 && showSuggestions && !isSearchActive) {
       try {
         const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(value)}&category=${searchCategory}`);
         if (response.ok) {
@@ -226,6 +228,14 @@ export function ComprehensiveSearch({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Hide suggestions when search is active
+  useEffect(() => {
+    if (isSearchActive) {
+      setShowSuggestionDropdown(false);
+      setSuggestions([]);
+    }
+  }, [isSearchActive]);
 
   // Get search type icon and color with emojis
   const getSearchTypeIndicator = () => {
@@ -384,7 +394,7 @@ export function ComprehensiveSearch({
 
       {/* Suggestions dropdown */}
       <AnimatePresence>
-        {showSuggestionDropdown && suggestions.length > 0 && (
+        {showSuggestionDropdown && suggestions.length > 0 && !isSearchActive && (
           <motion.div
             ref={suggestionsRef}
             initial={{ opacity: 0, y: -10 }}

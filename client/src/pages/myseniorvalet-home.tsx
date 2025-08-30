@@ -414,6 +414,7 @@ function HeroSectionWithTransformingSearch() {
               <div>
               <ComprehensiveSearch 
               searchCategory={searchCategory}
+              isSearchActive={isSearchActive}
               onSearch={(results) => {
               // If map view is selected, redirect to map search page with category
               if (viewMode === 'map' && results.searchMetadata.query) {
