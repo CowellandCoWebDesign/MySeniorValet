@@ -11,10 +11,24 @@ export function Footer() {
   });
 
   return (
-    <footer className="bg-gradient-to-b from-gray-900 to-gray-950 text-white border-t border-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <footer className="relative text-white border-t border-gray-800 overflow-hidden">
+      {/* Vaporwave Background */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src={VaporwaveLogo} 
+          alt="Retro Synthwave Background" 
+          className="w-full h-full object-cover opacity-40"
+          style={{
+            filter: 'brightness(0.8) contrast(1.3) saturate(1.8)',
+            objectPosition: 'center center'
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-950/95 via-gray-900/85 to-purple-950/50"></div>
+      </div>
+      
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Compact Stats Bar */}
-        <div className="mb-6 py-3 px-4 bg-gray-800/30 rounded-lg border border-gray-700/50">
+        <div className="mb-6 py-3 px-4 bg-gray-900/60 backdrop-blur-sm rounded-lg border border-purple-500/30">
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
             <div className="flex items-center gap-2">
               <Building className="h-4 w-4 text-blue-400" />
@@ -116,24 +130,8 @@ export function Footer() {
           </div>
         </div>
         
-        {/* Vaporwave Logo Section - Enhanced */}
-        <div className="flex justify-center my-8 py-6 border-t border-b border-purple-800/30">
-          <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-cyan-600/20 blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-            <img 
-              src={VaporwaveLogo} 
-              alt="MySeniorValet - Retro Synthwave Style" 
-              className="relative h-24 md:h-32 lg:h-40 w-auto object-contain opacity-95 hover:opacity-100 transition-all duration-500 transform hover:scale-105 drop-shadow-[0_0_30px_rgba(168,85,247,0.5)]"
-              style={{
-                filter: 'brightness(1.1) contrast(1.1)',
-                animation: 'pulse 4s ease-in-out infinite'
-              }}
-            />
-          </div>
-        </div>
-        
         {/* Compact Bottom Bar */}
-        <div className="border-t border-gray-700 mt-6 pt-4">
+        <div className="border-t border-purple-500/30 mt-6 pt-4 bg-gray-950/50 backdrop-blur-sm -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             {/* Copyright and info - left side */}
             <div className="flex flex-col md:flex-row items-center md:items-baseline gap-2 text-xs">
