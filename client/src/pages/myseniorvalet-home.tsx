@@ -292,8 +292,8 @@ function HeroSectionWithTransformingSearch() {
         </div>
         
         <div className="relative z-10 flex flex-col min-h-screen px-2 sm:px-4">
-        {/* Hero Title - Positioned at Very Top of Image */}
-        <div className="w-full text-center pt-[8vh] sm:pt-[10vh] md:pt-[12vh] lg:pt-[10vh]">
+        {/* Hero Title - Positioned Higher */}
+        <div className="w-full text-center pt-[4vh] sm:pt-[5vh] md:pt-[6vh] lg:pt-[5vh]">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-[1.1] drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
             <span className="block">Everything You Need.</span>
             <span className="block mt-1 sm:mt-2">Nothing You Pay.</span>
@@ -312,8 +312,12 @@ function HeroSectionWithTransformingSearch() {
                 onClick={() => setSearchCategory('communities')}
                 className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                   ${searchCategory === 'communities' 
-                    ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20' 
-                    : 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
+                    ? isSearchActive 
+                      ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20'
+                      : 'bg-white/50 dark:bg-gray-800/50 text-purple-600 dark:text-purple-300 border-t border-l border-r border-purple-300/40 dark:border-purple-600/40 z-20'
+                    : isSearchActive
+                      ? 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
+                      : 'bg-white/30 dark:bg-gray-800/30 text-gray-300 dark:text-gray-500 hover:bg-white/40 dark:hover:bg-gray-800/40 border-t border-l border-r border-white/20 dark:border-gray-700/30 hover:text-purple-500 dark:hover:text-purple-400'
                   }`}
               >
                 <span className="text-sm">🏘️</span>
@@ -328,8 +332,12 @@ function HeroSectionWithTransformingSearch() {
                 onClick={() => setSearchCategory('services')}
                 className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                   ${searchCategory === 'services' 
-                    ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20' 
-                    : 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
+                    ? isSearchActive 
+                      ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20'
+                      : 'bg-white/50 dark:bg-gray-800/50 text-purple-600 dark:text-purple-300 border-t border-l border-r border-purple-300/40 dark:border-purple-600/40 z-20'
+                    : isSearchActive
+                      ? 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
+                      : 'bg-white/30 dark:bg-gray-800/30 text-gray-300 dark:text-gray-500 hover:bg-white/40 dark:hover:bg-gray-800/40 border-t border-l border-r border-white/20 dark:border-gray-700/30 hover:text-purple-500 dark:hover:text-purple-400'
                   }`}
               >
                 <span className="text-sm">🛍️</span>
@@ -343,8 +351,12 @@ function HeroSectionWithTransformingSearch() {
                 onClick={() => setSearchCategory('healthcare')}
                 className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                   ${searchCategory === 'healthcare' 
-                    ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20' 
-                    : 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
+                    ? isSearchActive 
+                      ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20'
+                      : 'bg-white/50 dark:bg-gray-800/50 text-purple-600 dark:text-purple-300 border-t border-l border-r border-purple-300/40 dark:border-purple-600/40 z-20'
+                    : isSearchActive
+                      ? 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
+                      : 'bg-white/30 dark:bg-gray-800/30 text-gray-300 dark:text-gray-500 hover:bg-white/40 dark:hover:bg-gray-800/40 border-t border-l border-r border-white/20 dark:border-gray-700/30 hover:text-purple-500 dark:hover:text-purple-400'
                   }`}
               >
                 <span className="text-sm">🏥</span>
@@ -358,8 +370,12 @@ function HeroSectionWithTransformingSearch() {
                 onClick={() => setSearchCategory('resources')}
                 className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                   ${searchCategory === 'resources' 
-                    ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20' 
-                    : 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
+                    ? isSearchActive 
+                      ? 'bg-white/95 dark:bg-gray-800/95 text-purple-700 dark:text-purple-300 border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20'
+                      : 'bg-white/50 dark:bg-gray-800/50 text-purple-600 dark:text-purple-300 border-t border-l border-r border-purple-300/40 dark:border-purple-600/40 z-20'
+                    : isSearchActive
+                      ? 'bg-white/70 dark:bg-gray-800/70 text-gray-500 dark:text-gray-400 hover:bg-white/80 dark:hover:bg-gray-800/80 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400'
+                      : 'bg-white/30 dark:bg-gray-800/30 text-gray-300 dark:text-gray-500 hover:bg-white/40 dark:hover:bg-gray-800/40 border-t border-l border-r border-white/20 dark:border-gray-700/30 hover:text-purple-500 dark:hover:text-purple-400'
                   }`}
               >
                 <span className="text-sm">📚</span>
@@ -371,9 +387,17 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
           
-          {/* Search Bar Container - Stable File Folder Body */}
-          <div className="w-full max-w-2xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-b-xl rounded-tr-xl shadow-2xl border-2 border-t-0 border-purple-400 dark:border-purple-600 relative z-10 p-3">
-            <div className="bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-1">
+          {/* Search Bar Container - Minimal when not searching, full when active */}
+          <div className={`w-full max-w-2xl backdrop-blur-xl rounded-b-xl rounded-tr-xl shadow-2xl relative z-10 transition-all duration-300 ${
+            isSearchActive 
+              ? 'bg-white/95 dark:bg-gray-800/95 border-2 border-t-0 border-purple-400 dark:border-purple-600 p-3' 
+              : 'bg-white/30 dark:bg-gray-800/30 border border-t-0 border-white/30 dark:border-gray-600/30 p-2'
+          }`}>
+            <div className={`rounded-lg p-1 transition-all duration-300 ${
+              isSearchActive 
+                ? 'bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-900/20 dark:to-blue-900/20'
+                : 'bg-white/20 dark:bg-gray-900/20'
+            }`}>
               <ComprehensiveSearch 
               searchCategory={searchCategory}
               onSearch={(results) => {
@@ -419,16 +443,24 @@ function HeroSectionWithTransformingSearch() {
             />
             </div>
             
-            {/* View Mode Tabs - Inside the File Folder */}
+            {/* View Mode Tabs - Minimal when not searching */}
             <div className="flex justify-center mt-3 pb-2">
-              <div className="inline-flex bg-gradient-to-r from-purple-100/50 to-blue-100/50 dark:from-purple-900/30 dark:to-blue-900/30 backdrop-blur-sm rounded-full p-1 shadow-inner">
+              <div className={`inline-flex backdrop-blur-sm rounded-full p-1 transition-all duration-300 ${
+                isSearchActive 
+                  ? 'bg-gradient-to-r from-purple-100/50 to-blue-100/50 dark:from-purple-900/30 dark:to-blue-900/30 shadow-inner'
+                  : 'bg-white/20 dark:bg-gray-800/20 shadow-sm'
+              }`}>
                 <button
                   type="button"
                   onClick={() => setViewMode('list')}
                   className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
                     viewMode === 'list' 
-                      ? 'bg-white dark:bg-gray-700 text-purple-700 dark:text-purple-300 shadow-md' 
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50'
+                      ? isSearchActive
+                        ? 'bg-white dark:bg-gray-700 text-purple-700 dark:text-purple-300 shadow-md'
+                        : 'bg-white/60 dark:bg-gray-700/60 text-purple-600 dark:text-purple-300 shadow-sm'
+                      : isSearchActive
+                        ? 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50'
+                        : 'text-white/80 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-gray-700/30'
                   }`}
                 >
                   <span className="text-xs sm:text-sm">📋</span>
@@ -439,8 +471,12 @@ function HeroSectionWithTransformingSearch() {
                   onClick={() => setViewMode('map')}
                   className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
                     viewMode === 'map' 
-                      ? 'bg-white dark:bg-gray-700 text-purple-700 dark:text-purple-300 shadow-md' 
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50'
+                      ? isSearchActive
+                        ? 'bg-white dark:bg-gray-700 text-purple-700 dark:text-purple-300 shadow-md'
+                        : 'bg-white/60 dark:bg-gray-700/60 text-purple-600 dark:text-purple-300 shadow-sm'
+                      : isSearchActive
+                        ? 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50'
+                        : 'text-white/80 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-gray-700/30'
                   }`}
                 >
                   <span className="text-xs sm:text-sm">🗺️</span>
@@ -451,8 +487,12 @@ function HeroSectionWithTransformingSearch() {
                   onClick={() => setViewMode('discover')}
                   className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
                     viewMode === 'discover' 
-                      ? 'bg-white dark:bg-gray-700 text-purple-700 dark:text-purple-300 shadow-md' 
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50'
+                      ? isSearchActive
+                        ? 'bg-white dark:bg-gray-700 text-purple-700 dark:text-purple-300 shadow-md'
+                        : 'bg-white/60 dark:bg-gray-700/60 text-purple-600 dark:text-purple-300 shadow-sm'
+                      : isSearchActive
+                        ? 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50'
+                        : 'text-white/80 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-gray-700/30'
                   }`}
                 >
                   <span className="text-xs sm:text-sm">✨</span>
@@ -461,28 +501,28 @@ function HeroSectionWithTransformingSearch() {
               </div>
             </div>
             
-            {/* Trust Indicators - Right under view mode buttons */}
+            {/* Trust Indicators - Minimal styling when not searching */}
             {!isSearchActive && (
               <div className="flex flex-col justify-center items-center mt-2 space-y-2">
                 <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
-                  <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                  <span className="inline-flex items-center space-x-1 bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full shadow-sm">
                     <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
                     <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Pricing</span>
                   </span>
-                  <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                  <span className="inline-flex items-center space-x-1 bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full shadow-sm">
                     <Users2 className="h-2 w-2 sm:h-3 sm:w-3 text-green-300 flex-shrink-0" />
                     <span className="text-[9px] sm:text-[10px] font-semibold text-white">Family Reviews</span>
                   </span>
-                  <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                  <span className="inline-flex items-center space-x-1 bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full shadow-sm">
                     <Brain className="h-2 w-2 sm:h-3 sm:w-3 text-purple-300 animate-pulse flex-shrink-0" />
                     <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Availability</span>
                   </span>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-xs sm:text-sm text-purple-200 font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                <div className="space-y-1 text-center">
+                  <p className="text-xs sm:text-sm text-white font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
                     Welcome to the dawn of transparency in senior living 🌅
                   </p>
-                  <p className="text-xs sm:text-sm text-blue-200 font-semibold drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                  <p className="text-xs sm:text-sm text-white font-semibold drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
                     The platform families trust. No fees. No gimmicks. 💙
                   </p>
                 </div>
