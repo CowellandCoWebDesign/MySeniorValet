@@ -123,8 +123,8 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                   <span className="text-2xl">🧭</span>
                 </button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[320px] p-0 bg-white dark:bg-gray-900">
-                <SheetHeader className="p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
+              <SheetContent side="left" className="w-[320px] p-0 bg-white dark:bg-gray-900 flex flex-col h-full">
+                <SheetHeader className="p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 flex-shrink-0">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md flex items-center justify-center">
                       <span className="text-xl">🏡</span>
@@ -132,7 +132,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                     <SheetTitle className="text-xl font-bold text-gray-900 dark:text-white">MySeniorValet</SheetTitle>
                   </div>
                 </SheetHeader>
-                <div className="py-4">
+                <div className="py-4 flex-1 overflow-y-auto overflow-x-hidden">
                   {/* Mobile Navigation - Enhanced Professional */}
                   <div className="space-y-1 px-4">
                     <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-3 py-3">
