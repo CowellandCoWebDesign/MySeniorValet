@@ -56,6 +56,7 @@ import RetroLibrarySign from '@assets/generated_images/Retro_library_resource_ce
 import RetroFamilyLivingRoom from '@assets/generated_images/Retro_family_living_room_fb79eb41.png';
 import RetroGrandHotelMarquee from '@assets/generated_images/Retro_grand_hotel_marquee_51bb7e27.png';
 import RetroVendorMarketplace from '@assets/generated_images/Retro_vendor_marketplace_sign_b412c8cc.png';
+import RetroGuestServices from '@assets/generated_images/Retro_guest_services_sign_b951be1b.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 
@@ -273,8 +274,8 @@ function HeroSectionWithTransformingSearch() {
         {/* Background Image - Optimized loading */}
         <div className="absolute inset-0 h-full w-full">
           <img
-            src={heroThinkerImage}
-            alt="The Thinker contemplating as storms clear - Your guide through life's challenges to senior living wisdom"
+            src={RetroFamilyLivingRoom}
+            alt="Home Sweet Home - Your warm welcome to senior living wisdom"
             className={`w-full h-full object-cover object-center transition-opacity duration-500 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
@@ -2100,8 +2101,8 @@ export default function MySeniorValetHome() {
                 {/* Full-size Retro Family Living Room Image at top of card */}
                 <div className="relative h-64 w-full">
                   <img 
-                    src={RetroFamilyLivingRoom} 
-                    alt="Retro family living room with cozy fireplace" 
+                    src={RetroGuestServices} 
+                    alt="Retro guest services welcome sign" 
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                   {/* Overlay elements on the image */}

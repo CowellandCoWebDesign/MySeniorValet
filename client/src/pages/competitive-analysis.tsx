@@ -11,6 +11,7 @@ import { Link } from 'wouter';
 import { useSEO } from '@/hooks/useSEO';
 import { CompetitiveAnalysisLoader } from '@/components/CompetitiveAnalysisLoader';
 import { Header } from '@/components/header';
+import heroThinkerImage from '@assets/generated_images/Thinker_leftmost_boundary_observing_7dcdb3aa.png';
 
 interface MarketAnalysis {
   location: string;
@@ -107,10 +108,16 @@ export default function CompetitiveAnalysis() {
         }} />
       </div>
 
-      {/* Header with enhanced styling */}
-      <div className="relative bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white overflow-hidden">
+      {/* Header with enhanced styling and Thinker image */}
+      <div className="relative h-96 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white overflow-hidden">
+        {/* Thinker Background Image */}
+        <img 
+          src={heroThinkerImage}
+          alt="The Thinker contemplating market analysis"
+          className="absolute inset-0 w-full h-full object-cover opacity-30"
+        />
         {/* Animated gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/20 via-transparent to-cyan-600/20 animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/60 via-teal-600/60 to-cyan-600/60" />
         
         <div className="relative py-20">
           <div className="max-w-7xl mx-auto px-4">
