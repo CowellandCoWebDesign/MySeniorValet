@@ -114,10 +114,10 @@ export default function CompetitiveAnalysis() {
         <img 
           src={heroThinkerImage}
           alt="The Thinker contemplating market analysis"
-          className="absolute inset-0 w-full h-full object-cover opacity-30"
+          className="absolute inset-0 w-full h-full object-cover opacity-20 dark:opacity-30"
         />
-        {/* Animated gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/60 via-teal-600/60 to-cyan-600/60" />
+        {/* Enhanced gradient overlay for better text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/80 via-teal-600/80 to-cyan-600/80 dark:from-emerald-600/70 dark:via-teal-600/70 dark:to-cyan-600/70" />
         
         <div className="relative py-20">
           <div className="max-w-7xl mx-auto px-4">

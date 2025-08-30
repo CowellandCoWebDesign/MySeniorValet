@@ -563,8 +563,8 @@ export default function AISearchIntelligence() {
           backgroundAttachment: 'fixed'
         }}
       >
-        {/* Dark overlay for readability */}
-        <div className="absolute inset-0 bg-black/50 dark:bg-black/70" />
+        {/* Enhanced overlay for better text readability in both modes */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-black/80 dark:from-black/60 dark:to-black/75" />
       </div>
       
       {/* Content */}
@@ -578,10 +578,10 @@ export default function AISearchIntelligence() {
               <Brain className="w-4 h-4 mr-2" />
               AI-Powered Intelligence
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
               Find Your Perfect Senior Living Match
             </h1>
-            <p className="text-xl text-gray-200 max-w-3xl mx-auto drop-shadow">
+            <p className="text-xl text-white/90 max-w-3xl mx-auto drop-shadow-[0_2px_3px_rgba(0,0,0,0.7)]">
               Our multi-AI system analyzes thousands of communities to find your perfect match,
               providing transparent insights and personalized recommendations
             </p>

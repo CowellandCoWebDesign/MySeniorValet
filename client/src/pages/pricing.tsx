@@ -37,8 +37,8 @@ export default function PricingPage() {
             backgroundPosition: 'center'
           }}
         >
-          {/* Dark overlay for text readability */}
-          <div className="absolute inset-0 bg-black/40 rounded-xl"></div>
+          {/* Enhanced overlay for text readability in both light and dark modes */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/70 dark:from-black/50 dark:to-black/60 rounded-xl"></div>
           <div className="relative z-10 flex flex-col items-center justify-center space-y-4">
             <img 
               src={GradientLogo}
@@ -46,8 +46,8 @@ export default function PricingPage() {
               className="h-32 w-auto object-contain drop-shadow-2xl"
             />
             <div className="text-center">
-              <p className="text-2xl font-bold mb-2 drop-shadow-lg">Trusted by Thousands of Families Nationwide</p>
-              <p className="text-lg opacity-95 drop-shadow">Complete transparency in senior care • No hidden fees • Always free for families</p>
+              <p className="text-2xl font-bold mb-2 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Trusted by Thousands of Families Nationwide</p>
+              <p className="text-lg text-white/95 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Complete transparency in senior care • No hidden fees • Always free for families</p>
             </div>
           </div>
         </div>

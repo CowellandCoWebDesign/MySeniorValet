@@ -159,8 +159,8 @@ export function MascotLoadingDisplay({
         backgroundColor: '#0a0015'
       }}
     >
-      {/* Dark overlay for better readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/60"></div>
+      {/* Enhanced overlay for optimal text readability in both modes */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/75 dark:from-black/80 dark:via-black/50 dark:to-black/65"></div>
       
       {/* Animated Stars Overlay */}
       <div className="absolute inset-0">
@@ -191,7 +191,7 @@ export function MascotLoadingDisplay({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="text-2xl font-bold text-white mb-4"
+          className="text-2xl font-bold text-white mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
         >
           {title}
         </motion.h2>
@@ -201,7 +201,7 @@ export function MascotLoadingDisplay({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="text-gray-200 mb-8"
+          className="text-white/90 mb-8 drop-shadow-[0_2px_3px_rgba(0,0,0,0.7)]"
         >
           {subtitle}
         </motion.p>

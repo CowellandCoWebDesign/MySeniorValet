@@ -13,17 +13,17 @@ export function Footer() {
   return (
     <footer className="relative text-white border-t-2 border-purple-600 overflow-hidden min-h-[600px]" 
       style={{
-        background: `linear-gradient(to bottom, rgba(15, 15, 30, 0.7), rgba(30, 10, 40, 0.9)), url(${VaporwaveLogo}) center/contain no-repeat`,
+        background: `linear-gradient(to bottom, rgba(15, 15, 30, 0.85), rgba(30, 10, 40, 0.95)), url(${VaporwaveLogo}) center/contain no-repeat`,
         backgroundColor: '#1a0a2e'
       }}>
-      {/* Additional vaporwave overlay for depth */}
+      {/* Enhanced vaporwave overlay for better text contrast */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-900/20 to-gray-950/70"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-purple-900/30 to-gray-950/80 dark:from-black/10 dark:via-purple-900/20 dark:to-gray-950/70"></div>
       </div>
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Compact Stats Bar */}
-        <div className="mb-6 py-3 px-4 bg-gray-900/60 backdrop-blur-sm rounded-lg border border-purple-500/30">
+        {/* Compact Stats Bar with better contrast */}
+        <div className="mb-6 py-3 px-4 bg-gray-900/80 dark:bg-gray-900/70 backdrop-blur-sm rounded-lg border border-purple-500/30">
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
             <div className="flex items-center gap-2">
               <Building className="h-4 w-4 text-blue-400" />
