@@ -28,8 +28,6 @@ import { useTheme } from "@/components/theme-provider";
 // Theme Toggle Light Designs - As per user specifications
 import projectorBeamON from '@assets/generated_images/Projector_beam_ON_8052678e.png'; // Dark mode toggle (Cinema Projector)
 import victorianCrystalChandelier from '@assets/generated_images/Victorian_crystal_chandelier_56b1af95.png'; // Light mode toggle (Victorian Crystal)
-// MySeniorValet Logo - Search & Discovery
-import searchDiscoveryLogo from '@assets/generated_images/Magnifying_glass_house_logo_8af50f9f.png';
 
 interface NavbarProps {
   transparent?: boolean;
@@ -129,7 +127,13 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 <SheetHeader className="p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md flex items-center justify-center">
-                      <img src={searchDiscoveryLogo} alt="MySeniorValet Logo" className="h-5 w-5" />
+                      <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        {/* Magnifying glass */}
+                        <circle cx="10" cy="10" r="7" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M21 21l-5.5-5.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        {/* House inside magnifying glass */}
+                        <path d="M7 12v-2l3-3 3 3v5h-2v-3h-2v3h-2v-3z" fill="currentColor" stroke="none"/>
+                      </svg>
                     </div>
                     <SheetTitle className="text-xl font-bold text-gray-900 dark:text-white">MySeniorValet</SheetTitle>
                   </div>
@@ -202,7 +206,13 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
             {/* Logo - Clean Professional Design */}
             <Link href="/" className="flex items-center space-x-2 cursor-pointer group">
               <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300 flex items-center justify-center">
-                <img src={searchDiscoveryLogo} alt="MySeniorValet Logo" className="h-5 w-5" />
+                <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  {/* Magnifying glass */}
+                  <circle cx="10" cy="10" r="7" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M21 21l-5.5-5.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  {/* House inside magnifying glass */}
+                  <path d="M7 12v-2l3-3 3 3v5h-2v-3h-2v3h-2v-3z" fill="currentColor" stroke="none"/>
+                </svg>
               </div>
               <div className="hidden sm:flex flex-col">
                 <span className="text-lg lg:text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
