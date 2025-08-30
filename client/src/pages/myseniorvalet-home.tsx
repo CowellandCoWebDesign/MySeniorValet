@@ -54,7 +54,7 @@ import RetroMedicalSign from '@assets/generated_images/Retro_medical_clinic_neon
 import RetroShoppingSign from '@assets/generated_images/Retro_shopping_center_neon_sign_dbb6f040.png';
 import RetroLibrarySign from '@assets/generated_images/Retro_library_resource_center_sign_c0d548ed.png';
 import RetroFamilyLivingRoom from '@assets/generated_images/Retro_family_living_room_fb79eb41.png';
-import RetroRealEstateSign from '@assets/generated_images/Retro_real_estate_listing_sign_2de4d75e.png';
+import RetroGrandHotelMarquee from '@assets/generated_images/Retro_grand_hotel_marquee_51bb7e27.png';
 import RetroPartnershipSign from '@assets/generated_images/Retro_partnership_handshake_sign_970aab8a.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
@@ -2235,8 +2235,8 @@ export default function MySeniorValetHome() {
                 {/* Full-size Retro Real Estate Sign Image at top of card */}
                 <div className="relative h-64 w-full">
                   <img 
-                    src={RetroRealEstateSign} 
-                    alt="Retro real estate listing sign" 
+                    src={RetroGrandHotelMarquee} 
+                    alt="Retro grand hotel marquee sign" 
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                   {/* Overlay elements on the image */}
